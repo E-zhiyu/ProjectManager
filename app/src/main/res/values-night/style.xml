@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 标题栏样式 -->
+    <style name="ToolBarStyle" parent="Widget.MaterialComponents.Toolbar">
+        <item name="android:background">@color/toolbar_background_night</item>
+        <item name="titleTextColor">@color/white</item>
+    </style>
+
+    <!-- 页面样式 -->
+    <style name="PageStyle">
+        <item name="android:background">@color/page_background_night</item>
+    </style>
+
+    <!-- 卡片容器样式 -->
+    <style name="CardStyle">
+        <item name="cardBackgroundColor">@color/card_background_night</item>
+        <item name="cardCornerRadius">50dp</item>
+        <item name="android:layout_margin">10dp</item>
+    </style>
+
+    <!-- 按钮样式 -->
+    <style name="BtnStyle" parent="Widget.MaterialComponents.Button">
+        <item name="android:background">@color/btn_background_night</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="cornerRadius">20dp</item>
+        <item name="android:layout_margin">5dp</item>
+    </style>
+
+    <!-- 导航栏样式 -->
+    <style name="NaviStyle">
+        <item name="itemTextColor">@color/bottom_navigation_text_selector</item>
+        <item name="itemIconTint">@color/bottom_navigation_text_selector</item>
+        <item name="itemRippleColor">@color/ripple_night</item>
+        <item name="android:background">@color/card_background_night</item>
+    </style>
+</resources>
