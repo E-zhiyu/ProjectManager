@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 标题栏样式 -->
-    <style name="ToolBarStyle" parent="Widget.MaterialComponents.Toolbar">
+    <style name="ToolBarStyle">
         <item name="android:background">@color/toolbar_background</item>
-        <item name="titleTextColor">@color/black</item>
+    </style>
+
+    <!-- 标题栏文本视图样式 -->
+    <style name="TitleStyle">
+        <item name="android:textSize">25sp</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:layout_marginLeft">10sp</item>
     </style>
     
     <!-- 页面样式 -->
