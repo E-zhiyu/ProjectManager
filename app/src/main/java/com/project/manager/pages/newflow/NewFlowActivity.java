@@ -14,6 +14,7 @@ import com.project.manager.pages.newflow.fragments.TransferFragment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class NewFlowActivity extends AppCompatActivity {
 
@@ -21,6 +22,7 @@ public class NewFlowActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_flow);
+        Objects.requireNonNull(getSupportActionBar()).setTitle("新建流水");  //修改标题栏内容
 
         //创建碎片列表
         List<NewFlowFragmentBase> fragmentList = new ArrayList<>();
