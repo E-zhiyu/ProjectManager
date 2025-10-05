@@ -7,7 +7,7 @@
 
     <!-- 标题栏文本视图样式 -->
     <style name="TitleStyle">
-        <item name="android:textSize">25sp</item>
+        <item name="android:textSize">23sp</item>
         <item name="android:textColor">@color/white</item>
     </style>
 
