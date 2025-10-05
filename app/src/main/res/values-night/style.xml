@@ -20,7 +20,7 @@
 
     <!-- 按钮样式 -->
     <style name="BtnStyle" parent="Widget.MaterialComponents.Button">
-        <item name="android:background">@color/btn_background_night</item>
+        <item name="android:background">@color/theme_blue_night</item>
         <item name="android:textColor">@color/black</item>
         <item name="cornerRadius">20dp</item>
         <item name="android:layout_margin">5dp</item>

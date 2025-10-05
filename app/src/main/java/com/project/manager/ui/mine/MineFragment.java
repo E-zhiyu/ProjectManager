@@ -1,4 +1,4 @@
-package com.project.manager.ui.dashboard;
+package com.project.manager.ui.mine;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

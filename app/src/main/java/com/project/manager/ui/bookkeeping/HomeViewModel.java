@@ -1,4 +1,4 @@
-package com.project.manager.ui.home;
+package com.project.manager.ui.bookkeeping;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

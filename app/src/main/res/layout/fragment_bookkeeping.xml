@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.home.BookKeepingFragment">
+    tools:context=".ui.bookkeeping.BookKeepingFragment">
 
     <!-- 顶部按钮视图 -->
     <androidx.cardview.widget.CardView

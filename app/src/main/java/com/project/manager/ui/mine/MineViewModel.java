@@ -1,4 +1,4 @@
-package com.project.manager.ui.dashboard;
+package com.project.manager.ui.mine;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

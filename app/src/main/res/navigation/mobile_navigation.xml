@@ -7,13 +7,13 @@
 
     <fragment
         android:id="@+id/navigation_bookkeeping"
-        android:name="com.project.manager.ui.home.BookKeepingFragment"
+        android:name="com.project.manager.ui.bookkeeping.BookKeepingFragment"
         android:label="@string/title_bookkeeping"
         tools:layout="@layout/fragment_bookkeeping" />
 
     <fragment
         android:id="@+id/navigation_mine"
-        android:name="com.project.manager.ui.dashboard.MineFragment"
+        android:name="com.project.manager.ui.mine.MineFragment"
         android:label="@string/title_mine"
         tools:layout="@layout/fragment_mine" />
 </navigation>

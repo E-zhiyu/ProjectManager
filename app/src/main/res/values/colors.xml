@@ -12,8 +12,8 @@
     <color name="page_background_night">#10131c</color>
     <color name="card_background">#edeffc</color>
     <color name="card_background_night">#161a25</color>
-    <color name="btn_background">#0055d6</color>
-    <color name="btn_background_night">#b2c5ff</color>
+    <color name="theme_blue">#0055d6</color>
+    <color name="theme_blue_night">#b2c5ff</color>
     <color name="unchecked_gray">#737685</color>
     <color name="unchecked_gray_night">#8d909f</color>
     <color name="ripple">#e0e2ef</color>
