@@ -28,9 +28,15 @@
 
     <!-- 导航栏样式 -->
     <style name="NaviStyle">
-        <item name="itemTextColor">@color/bottom_navigation_text_selector</item>
-        <item name="itemIconTint">@color/bottom_navigation_text_selector</item>
+        <item name="itemTextColor">@color/bottom_navigation_selector</item>
+        <item name="itemIconTint">@color/bottom_navigation_selector</item>
         <item name="itemRippleColor">@color/ripple_night</item>
         <item name="android:background">@color/card_background_night</item>
+    </style>
+
+    <!-- TabLayout样式 -->
+    <style name="TabLayoutStyle">
+        <item name="tabTextColor">@color/tab_layout_selector</item>
+        <item name="tabIndicatorColor">@color/theme_blue_night</item>
     </style>
 </resources>

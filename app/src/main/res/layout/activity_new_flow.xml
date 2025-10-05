@@ -7,17 +7,29 @@
     android:layout_height="match_parent"
     tools:context=".pages.newflow.NewFlowActivity">
 
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/new_flow_tab_layout"
+        style="@style/TabLayoutStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tabMode="scrollable"
+        tools:ignore="MissingConstraints" />
+
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/new_flow_pager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/new_flow_tab_layout" />
 
-        <androidx.viewpager.widget.PagerTabStrip
-            android:id="@+id/new_flow_tab_strip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </androidx.viewpager.widget.ViewPager>
+    <android.widget.Button
+        android:id="@+id/new_flow_finish_btn"
+        style="@style/BtnStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="完成"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

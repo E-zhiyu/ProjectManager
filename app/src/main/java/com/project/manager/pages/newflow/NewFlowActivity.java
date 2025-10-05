@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
+import com.google.android.material.tabs.TabLayout;
 import com.project.manager.R;
 import com.project.manager.pages.newflow.fragments.ExpenseFragment;
 import com.project.manager.pages.newflow.fragments.IncomeFragment;
@@ -32,5 +33,8 @@ public class NewFlowActivity extends AppCompatActivity {
         NewFlowFragmentAdapter adapter = new NewFlowFragmentAdapter(getSupportFragmentManager(), fragmentList);
         viewPager.setAdapter(adapter);
 
+        //绑定ViewPager和TabLayout
+        TabLayout tabLayout = findViewById(R.id.new_flow_tab_layout);
+        tabLayout.setupWithViewPager(viewPager);
     }
 }
