@@ -31,8 +31,14 @@
         <item name="cornerRadius">20dp</item>
         <item name="android:layout_margin">5dp</item>
     </style>
+    
+    <!-- 文本框样式 -->
+    <style name="EditTextStyle">
+        <item name="backgroundTint">@color/theme_blue</item>
+        <item name="android:textCursorDrawable">@null</item>
+    </style>
 
-    <!-- 导航栏样式 -->
+    <!-- 底部导航栏样式 -->
     <style name="NaviStyle">
         <item name="itemTextColor">@color/bottom_navigation_selector</item>
         <item name="itemIconTint">@color/bottom_navigation_selector</item>
