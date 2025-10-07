@@ -13,8 +13,8 @@ import com.project.manager.databinding.FragmentBookkeepingBinding;
 public abstract class NewFlowFragmentBase extends Fragment {
     FragmentBookkeepingBinding binding;     //父界面索引
     View xmlView;                           //绑定的XML界面
-    public static String name;              //碎片名称
-    public static FlowTypeEnum type;        //流水类型
+    protected static String name;           //碎片名称
+    protected static FlowTypeEnum type;     //流水类型
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -23,6 +23,14 @@ public abstract class NewFlowFragmentBase extends Fragment {
         xmlView = inflater.inflate(getLayoutResId(), container, false);
         initViews(xmlView);
         return xmlView;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public FlowTypeEnum getType() {
+        return type;
     }
 
     protected abstract int getLayoutResId();

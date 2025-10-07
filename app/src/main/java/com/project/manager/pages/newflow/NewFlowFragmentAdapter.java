@@ -26,7 +26,7 @@ public class NewFlowFragmentAdapter extends FragmentPagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return fragmentList.get(position).name;
+        return fragmentList.get(position).getName();
     }
 
     @Override
