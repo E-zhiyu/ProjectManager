@@ -1,17 +1,11 @@
 package com.project.manager.pages.newflow.fragments;
 
 import android.app.DatePickerDialog;
-import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.TextView;
 
-import androidx.cardview.widget.CardView;
-
 import com.project.manager.R;
-import com.project.manager.databinding.FragmentBookkeepingBinding;
 
 import java.util.Calendar;
 
@@ -27,7 +21,13 @@ public class ExpenseFragment extends NewFlowFragmentBase implements View.OnClick
 
     @Override
     protected void initViews(View view) {
-        view.findViewById(R.id.flow_date_cardview).setOnClickListener(this);
+        view.findViewById(R.id.flow_date_cardview).setOnClickListener(this);  //为日期卡片容器设置单击监听器
+
+        //初始化日期内容
+        Calendar calendar = Calendar.getInstance();
+        String dt_string = String.format("%d年%d月%d日", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
+        TextView dt_textView = view.findViewById(R.id.flow_date_textview);
+        dt_textView.setText(dt_string);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class ExpenseFragment extends NewFlowFragmentBase implements View.OnClick
 
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-        String dt = String.format("%d年%d月%d日", year, month, dayOfMonth);
+        String dt = String.format("%d年%d月%d日", year, month + 1, dayOfMonth);
         TextView tv = xmlView.findViewById(R.id.flow_date_textview);
         tv.setText(dt);
     }
