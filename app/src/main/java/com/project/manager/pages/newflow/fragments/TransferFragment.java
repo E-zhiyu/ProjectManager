@@ -12,6 +12,7 @@ import java.util.Calendar;
 public class TransferFragment extends NewFlowFragmentBase implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
     public TransferFragment() {
         name = "转账";  //为碎片命名
+        type = FlowTypeEnum.TRANSFER;
     }
 
     @Override

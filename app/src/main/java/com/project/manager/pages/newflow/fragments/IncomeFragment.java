@@ -12,6 +12,7 @@ import java.util.Calendar;
 public class IncomeFragment extends NewFlowFragmentBase implements DatePickerDialog.OnDateSetListener, View.OnClickListener {
     public IncomeFragment() {
         name = "收入";  //为碎片命名
+        type = FlowTypeEnum.INCOME;
     }
 
     @Override

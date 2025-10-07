@@ -12,6 +12,7 @@ import java.util.Calendar;
 public class ExpenseFragment extends NewFlowFragmentBase implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
     public ExpenseFragment() {
         name = "支出";  //为碎片命名
+        type = FlowTypeEnum.EXPENSE;
     }
 
     @Override
