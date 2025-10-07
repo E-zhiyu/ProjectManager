@@ -14,6 +14,7 @@
         android:inputType="numberDecimal" />
 
     <androidx.cardview.widget.CardView
+        style="@style/NewFlowCardStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -39,6 +40,7 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/flow_date_cardview"
+        style="@style/NewFlowCardStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 

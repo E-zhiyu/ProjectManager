@@ -24,6 +24,11 @@
         <item name="android:layout_margin">10dp</item>
     </style>
 
+    <!-- 新建流水界面卡片容器样式 -->
+    <style name="NewFlowCardStyle">
+        <item name="cardBackgroundColor">@color/page_background_night</item>
+    </style>
+
     <!-- 文本视图样式 -->
     <style name="NewFlowTextViewStyle">
         <item name="android:textSize">20sp</item>
@@ -40,7 +45,7 @@
 
     <!-- 文本框样式 -->
     <style name="EditTextStyle">
-        <item name="backgroundTint">@color/theme_blue</item>
+        <item name="backgroundTint">@color/theme_blue_night</item>
         <item name="android:textCursorDrawable">@null</item>
     </style>
 
