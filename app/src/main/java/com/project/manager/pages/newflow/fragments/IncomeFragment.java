@@ -6,7 +6,7 @@ import com.project.manager.R;
 
 public class IncomeFragment extends NewFlowFragmentBase {
     public IncomeFragment() {
-        name = "收入";
+        name = "收入";  //为碎片命名
     }
 
     @Override

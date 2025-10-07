@@ -38,6 +38,7 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/flow_date_cardview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -52,9 +53,8 @@
                 android:text="日期"
                 android:textSize="20sp" />
 
-            <EditText
-                android:id="@+id/flow_date_edittext"
-                style="@style/EditTextStyle"
+            <TextView
+                android:id="@+id/flow_date_textview"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />

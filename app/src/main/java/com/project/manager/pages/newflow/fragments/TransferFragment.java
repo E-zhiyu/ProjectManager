@@ -6,7 +6,7 @@ import com.project.manager.R;
 
 public class TransferFragment extends NewFlowFragmentBase {
     public TransferFragment() {
-        name = "转账";
+        name = "转账";  //为碎片命名
     }
 
     @Override

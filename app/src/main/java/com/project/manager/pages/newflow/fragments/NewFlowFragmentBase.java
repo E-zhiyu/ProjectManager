@@ -5,16 +5,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.project.manager.databinding.FragmentBookkeepingBinding;
+
 public abstract class NewFlowFragmentBase extends Fragment {
+    FragmentBookkeepingBinding binding;  //父界面索引
+    View xmlView;  //绑定的XML界面
     public String name;  //碎片名称
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(getLayoutResId(), container, false);
-        initViews(view);
-        return view;
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
+
+        xmlView = inflater.inflate(getLayoutResId(), container, false);
+        initViews(xmlView);
+        return xmlView;
     }
 
     protected abstract int getLayoutResId();

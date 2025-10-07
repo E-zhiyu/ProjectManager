@@ -20,8 +20,6 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        HomeViewModel homeViewModel =
-                new ViewModelProvider(this).get(HomeViewModel.class);
 
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
