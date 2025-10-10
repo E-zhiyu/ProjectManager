@@ -1,4 +1,4 @@
-package com.project.manager.pages.newflow.fragments;
+package com.project.manager.ui.bookkeeping.flow_type;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,7 +13,7 @@ import androidx.fragment.app.Fragment;
 import com.project.manager.R;
 import com.project.manager.databinding.FragmentBookkeepingBinding;
 
-public abstract class NewFlowFragmentBase extends Fragment {
+public abstract class FlowFragmentBase extends Fragment {
     FragmentBookkeepingBinding binding;     //父界面索引
     View xmlView;                           //绑定的XML界面
     protected String name;           //碎片名称

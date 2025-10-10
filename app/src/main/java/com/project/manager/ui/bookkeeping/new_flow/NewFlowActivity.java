@@ -1,4 +1,4 @@
-package com.project.manager.pages.newflow;
+package com.project.manager.ui.bookkeeping.new_flow;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,11 +10,11 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.project.manager.R;
-import com.project.manager.pages.newflow.fragments.ExpenseFragment;
-import com.project.manager.pages.newflow.fragments.FlowTypeEnum;
-import com.project.manager.pages.newflow.fragments.IncomeFragment;
-import com.project.manager.pages.newflow.fragments.NewFlowFragmentBase;
-import com.project.manager.pages.newflow.fragments.TransferFragment;
+import com.project.manager.ui.bookkeeping.flow_type.ExpenseFragment;
+import com.project.manager.ui.bookkeeping.flow_type.FlowTypeEnum;
+import com.project.manager.ui.bookkeeping.flow_type.IncomeFragment;
+import com.project.manager.ui.bookkeeping.flow_type.FlowFragmentBase;
+import com.project.manager.ui.bookkeeping.flow_type.TransferFragment;
 import com.project.manager.RequestResultCode;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public class NewFlowActivity extends AppCompatActivity implements View.OnClickLi
         setContentView(R.layout.activity_new_flow);
 
         //创建碎片列表
-        List<NewFlowFragmentBase> fragmentList = new ArrayList<>();
+        List<FlowFragmentBase> fragmentList = new ArrayList<>();
         fragmentList.add(new ExpenseFragment());
         fragmentList.add(new IncomeFragment());
         fragmentList.add(new TransferFragment());
@@ -74,7 +74,7 @@ public class NewFlowActivity extends AppCompatActivity implements View.OnClickLi
         Intent resultIntent = new Intent();
 
         //获取当前碎片基本信息并打包
-        NewFlowFragmentBase currentFragment = (NewFlowFragmentBase) getCurrentFragment(viewPager);
+        FlowFragmentBase currentFragment = (FlowFragmentBase) getCurrentFragment(viewPager);
         FlowTypeEnum flowType = currentFragment.getType();  //种类
         resultIntent.putExtra("type", flowType.toString());
         String flowName = currentFragment.getName();        //名称

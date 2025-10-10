@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
@@ -12,14 +13,14 @@ import androidx.fragment.app.Fragment;
 
 import com.project.manager.R;
 import com.project.manager.databinding.FragmentBookkeepingBinding;
-import com.project.manager.pages.newflow.NewFlowActivity;
+import com.project.manager.ui.bookkeeping.new_flow.NewFlowActivity;
 import com.project.manager.RequestResultCode;
-import com.project.manager.pages.newflow.fragments.FlowTypeEnum;
+import com.project.manager.ui.bookkeeping.flow_type.FlowTypeEnum;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class BookKeepingFragment extends Fragment implements View.OnClickListener {
+public class BookKeepingFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener {
     FlowListAdapter flowListAdapter;    //流水列表适配器
 
     private FragmentBookkeepingBinding binding;
@@ -38,6 +39,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         flowListAdapter = new FlowListAdapter(requireActivity(), new ArrayList<>());
         ListView flowListView = binding.flowList;
         flowListView.setAdapter(flowListAdapter);
+        flowListView.setOnItemClickListener(this);  //设置单击监听器
 
         return root;
     }
@@ -87,5 +89,17 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                 flowListAdapter.addNewFlow(newFlowView);
             }
         }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        FlowListAdapter flowListAdapter = (FlowListAdapter) parent.getAdapter();
+        FlowViewBase flowView = (FlowViewBase) flowListAdapter.getItem(position);
+
+        //获取基本数据
+        FlowTypeEnum type = flowView.type;
+        int amount = flowView.amount;
+        String remark = flowView.remark;
+        String date = flowView.date;
     }
 }

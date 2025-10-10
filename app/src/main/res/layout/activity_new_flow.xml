@@ -6,7 +6,7 @@
     style="@style/PageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".pages.newflow.NewFlowActivity">
+    tools:context=".ui.bookkeeping.new_flow.NewFlowActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/new_flow_toolbar"
@@ -19,7 +19,7 @@
             style="@style/TitleStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="新建流水" />
+            android:text="@string/new_flow" />
     </androidx.appcompat.widget.Toolbar>
 
     <com.google.android.material.tabs.TabLayout

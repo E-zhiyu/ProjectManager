@@ -1,23 +1,24 @@
-package com.project.manager.pages.newflow.fragments;
+package com.project.manager.ui.bookkeeping.flow_type;
 
 import android.app.DatePickerDialog;
 import android.view.View;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.project.manager.R;
 
 import java.util.Calendar;
 
-public class IncomeFragment extends NewFlowFragmentBase implements DatePickerDialog.OnDateSetListener, View.OnClickListener {
-    public IncomeFragment() {
-        this.name = "收入";  //为碎片命名
-        this.type = FlowTypeEnum.INCOME;
+public class TransferFragment extends FlowFragmentBase implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
+    public TransferFragment() {
+        this.name = "转账";  //为碎片命名
+        this.type = FlowTypeEnum.TRANSFER;
     }
 
     @Override
     protected int getLayoutResId() {
-        return R.layout.fragment_income;
+        return R.layout.fragment_transfer;
     }
 
     @Override
@@ -48,5 +49,23 @@ public class IncomeFragment extends NewFlowFragmentBase implements DatePickerDia
         String dt = String.format("%d年%d月%d日", year, month + 1, dayOfMonth);
         TextView tv = xmlView.findViewById(R.id.flow_date_textview);
         tv.setText(dt);
+    }
+
+    /**
+     * 获取转出账户
+     * @return 转出账户字符串
+     */
+    public String getExportAccount() {
+        EditText editText = xmlView.findViewById(R.id.export_account_edittext);
+        return editText.getText().toString();
+    }
+
+    /**
+     * 获取转入账户
+     * @return 转入账户字符串
+     */
+    public String getImportAccount() {
+        EditText editText = xmlView.findViewById(R.id.import_account_edittext);
+        return editText.getText().toString();
     }
 }

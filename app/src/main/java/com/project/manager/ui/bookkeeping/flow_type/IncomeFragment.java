@@ -1,4 +1,4 @@
-package com.project.manager.pages.newflow.fragments;
+package com.project.manager.ui.bookkeeping.flow_type;
 
 import android.app.DatePickerDialog;
 import android.view.View;
@@ -9,15 +9,15 @@ import com.project.manager.R;
 
 import java.util.Calendar;
 
-public class ExpenseFragment extends NewFlowFragmentBase implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
-    public ExpenseFragment() {
-        this.name = "支出";  //为碎片命名
-        this.type = FlowTypeEnum.EXPENSE;
+public class IncomeFragment extends FlowFragmentBase implements DatePickerDialog.OnDateSetListener, View.OnClickListener {
+    public IncomeFragment() {
+        this.name = "收入";  //为碎片命名
+        this.type = FlowTypeEnum.INCOME;
     }
 
     @Override
     protected int getLayoutResId() {
-        return R.layout.fragment_expense;
+        return R.layout.fragment_income;
     }
 
     @Override
