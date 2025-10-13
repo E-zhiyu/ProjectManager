@@ -42,6 +42,21 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         flowList.add(testExpense);
         flowList.add(testExpense);
         flowList.add(testExpense);
+        flowList.add(testExpense);
+        flowList.add(testExpense);
+        flowList.add(testExpense);
+        flowList.add(testExpense);
+        flowList.add(testExpense);
+        flowList.add(testExpense);
+        flowList.add(testExpense);
+        flowList.add(testExpense);
+        flowList.add(testExpense);
+        flowList.add(testExpense);
+        flowList.add(testExpense);
+        flowList.add(testExpense);
+        flowList.add(testExpense);
+        flowList.add(testExpense);
+        flowList.add(testExpense);
 
         //创建列表视图的适配器
         flowListAdapter = new FlowListAdapter(requireActivity(), flowList);
@@ -72,8 +87,8 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
         super.onActivityResult(requestCode, resultCode, resultIntent);
 
-        //如果响应代码为拒绝则不执行任何操作
-        if (resultCode == RequestResultCode.RESULT_REJECT.ordinal()) {
+        //如果响应代码不是OK则不执行任何操作（包括子Activity什么都不做就点击返回时）
+        if (resultCode != RequestResultCode.RESULT_OK.ordinal()) {
             return;
         }
 
