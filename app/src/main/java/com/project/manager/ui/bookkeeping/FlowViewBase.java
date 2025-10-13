@@ -7,16 +7,16 @@ public abstract class FlowViewBase {
     FlowTypeEnum type;  //种类
     String remark;      //备注
     String date;        //日期
-    int amount;         //金额
+    double amount;         //金额
 }
 
 /**
  * 支出流水类
  */
 class ExpenseFlowView extends FlowViewBase {
-    public ExpenseFlowView(FlowTypeEnum type, String name, String remark, String date, int amount) {
-        this.type = type;
-        this.name = name;
+    public ExpenseFlowView(String remark, String date, double amount) {
+        this.type = FlowTypeEnum.EXPENSE;
+        this.name = "支出";
         this.remark = remark;
         this.date = date;
         this.amount = amount;
@@ -27,9 +27,9 @@ class ExpenseFlowView extends FlowViewBase {
  * 收入流水类
  */
 class IncomeFlowView extends FlowViewBase {
-    public IncomeFlowView(FlowTypeEnum type, String name, String remark, String date, int amount) {
-        this.type = type;
-        this.name = name;
+    public IncomeFlowView(String remark, String date, double amount) {
+        this.type = FlowTypeEnum.INCOME;
+        this.name = "收入";
         this.remark = remark;
         this.date = date;
         this.amount = amount;
@@ -43,9 +43,9 @@ class TransferFlowView extends FlowViewBase {
     String exportAccount;   //转出账户
     String importAccount;   //转入账户
 
-    public TransferFlowView(FlowTypeEnum type, String name, String remark, String date, int amount, String exportAccount, String importAccount) {
-        this.type = type;
-        this.name = name;
+    public TransferFlowView(String remark, String date, double amount, String exportAccount, String importAccount) {
+        this.type = FlowTypeEnum.TRANSFER;
+        this.name = "转账";
         this.remark = remark;
         this.date = date;
         this.amount = amount;

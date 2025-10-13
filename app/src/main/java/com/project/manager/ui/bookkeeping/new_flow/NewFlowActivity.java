@@ -71,34 +71,34 @@ public class NewFlowActivity extends AppCompatActivity implements View.OnClickLi
      * 完成流水新建
      */
     private void finishCreatingFlow() {
-        Intent resultIntent = new Intent();
+        Intent result2BookKeeping = new Intent();
+        Bundle dataBundle = new Bundle();
 
         //获取当前碎片基本信息并打包
         FlowFragmentBase currentFragment = (FlowFragmentBase) getCurrentFragment(viewPager);
         FlowTypeEnum flowType = currentFragment.getType();  //种类
-        resultIntent.putExtra("type", flowType.toString());
-        String flowName = currentFragment.getName();        //名称
-        resultIntent.putExtra("name", flowName);
+        dataBundle.putString("type", flowType.toString());
 
         //获取碎片通用信息并打包
-        int flowAmount = currentFragment.getAmount();   //金额
-        resultIntent.putExtra("amount", String.valueOf(flowAmount));
+        double flowAmount = currentFragment.getAmount();   //金额
+        dataBundle.putDouble("amount", flowAmount);
         String flowDate = currentFragment.getDate();    //日期
-        resultIntent.putExtra("date", flowDate);
+        dataBundle.putString("date", flowDate);
         String flowRemark = currentFragment.getRemark();//备注
-        resultIntent.putExtra("remark", flowRemark);
+        dataBundle.putString("remark", flowRemark);
 
         //获取碎片特殊信息并打包
         if (flowType == FlowTypeEnum.TRANSFER) {
             TransferFragment transferFragment = (TransferFragment) currentFragment;
             String exportAccount, importAccount;
             exportAccount = transferFragment.getExportAccount();    //转出账户
-            resultIntent.putExtra("exportAccount", exportAccount);
+            dataBundle.putString("exportAccount", exportAccount);
             importAccount = transferFragment.getImportAccount();    //转入账户
-            resultIntent.putExtra("importAccount", importAccount);
+            dataBundle.putString("importAccount", importAccount);
         }
 
-        setResult(RequestResultCode.RESULT_OK.ordinal(), resultIntent);
+        result2BookKeeping.putExtras(dataBundle);
+        setResult(RequestResultCode.RESULT_OK.ordinal(), result2BookKeeping);
         finish();
     }
 }

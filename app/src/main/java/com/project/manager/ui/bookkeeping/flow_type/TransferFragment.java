@@ -1,6 +1,7 @@
 package com.project.manager.ui.bookkeeping.flow_type;
 
 import android.app.DatePickerDialog;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -28,7 +29,7 @@ public class TransferFragment extends FlowFragmentBase implements View.OnClickLi
         //初始化日期内容
         Calendar calendar = Calendar.getInstance();
         String dt_string = String.format("%d年%d月%d日", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
-        TextView dt_textView = view.findViewById(R.id.flow_date_textview);
+        TextView dt_textView = view.findViewById(R.id.date_textview);
         dt_textView.setText(dt_string);
     }
 
@@ -47,12 +48,26 @@ public class TransferFragment extends FlowFragmentBase implements View.OnClickLi
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
         String dt = String.format("%d年%d月%d日", year, month + 1, dayOfMonth);
-        TextView tv = xmlView.findViewById(R.id.flow_date_textview);
+        TextView tv = xmlView.findViewById(R.id.date_textview);
         tv.setText(dt);
+    }
+
+    @Override
+    public void initViewsWhenEditing(Bundle dataBundle) {
+        super.initViewsWhenEditing(dataBundle);
+
+        String exportAccount = dataBundle.getString("exportAccount");
+        String importAccount = dataBundle.getString("importAccount");
+        EditText exportAccountView, importAccountView;
+        exportAccountView = xmlView.findViewById(R.id.export_account_edittext); //转出账户
+        exportAccountView.setText(exportAccount);
+        importAccountView = xmlView.findViewById(R.id.import_account_edittext); //转入账户
+        importAccountView.setText(importAccount);
     }
 
     /**
      * 获取转出账户
+     *
      * @return 转出账户字符串
      */
     public String getExportAccount() {
@@ -62,6 +77,7 @@ public class TransferFragment extends FlowFragmentBase implements View.OnClickLi
 
     /**
      * 获取转入账户
+     *
      * @return 转入账户字符串
      */
     public String getImportAccount() {

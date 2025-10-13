@@ -27,7 +27,7 @@ public class ExpenseFragment extends FlowFragmentBase implements View.OnClickLis
         //初始化日期内容
         Calendar calendar = Calendar.getInstance();
         String dt_string = String.format("%d年%d月%d日", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
-        TextView dt_textView = view.findViewById(R.id.flow_date_textview);
+        TextView dt_textView = view.findViewById(R.id.date_textview);
         dt_textView.setText(dt_string);
     }
 
@@ -46,7 +46,7 @@ public class ExpenseFragment extends FlowFragmentBase implements View.OnClickLis
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
         String dt = String.format("%d年%d月%d日", year, month + 1, dayOfMonth);
-        TextView tv = xmlView.findViewById(R.id.flow_date_textview);
+        TextView tv = xmlView.findViewById(R.id.date_textview);
         tv.setText(dt);
     }
 }

@@ -6,7 +6,7 @@
     android:padding="16dp">
 
     <EditText
-        android:id="@+id/et_amount"
+        android:id="@+id/amount_textedit"
         style="@style/EditTextStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -30,7 +30,7 @@
                 android:textSize="20sp" />
 
             <EditText
-                android:id="@+id/flow_remark_edittext"
+                android:id="@+id/remark_edittext"
                 style="@style/EditTextStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -56,7 +56,7 @@
                 android:textSize="20sp" />
 
             <TextView
-                android:id="@+id/flow_date_textview"
+                android:id="@+id/date_textview"
                 style="@style/NewFlowTextViewStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

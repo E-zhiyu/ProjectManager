@@ -66,8 +66,19 @@ public class FlowListAdapter extends BaseAdapter {
      *
      * @param newFlowView 待添加的流水视图
      */
-    public void addNewFlow(FlowViewBase newFlowView) {
-        flowViewList.add(newFlowView);
+    public void addNewFlowView(FlowViewBase newFlowView) {
+        this.flowViewList.add(newFlowView);
+        notifyDataSetChanged();
+    }
+
+    /**
+     * 替换指定下标的流水视图
+     *
+     * @param position 待覆盖的视图的下标
+     * @param flowView 新的流水视图
+     */
+    public void setFlowView(int position, FlowViewBase flowView) {
+        this.flowViewList.set(position, flowView);
         notifyDataSetChanged();
     }
 }
