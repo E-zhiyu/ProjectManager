@@ -39,17 +39,10 @@
     </androidx.cardview.widget.CardView>
 
     <!-- 流水列表视图 -->
-    <ScrollView
+    <ListView
+        android:id="@+id/flow_list"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_card_view">
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/btn_card_view" />
 
-        <ListView
-            android:id="@+id/flow_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:ignore="NestedScrolling" />
-    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
