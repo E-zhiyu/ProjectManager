@@ -15,14 +15,8 @@
         android:layout_height="?attr/actionBarSize"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            style="@style/TitleStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/flow_edit" />
-    </androidx.appcompat.widget.Toolbar>
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="流水编辑"></androidx.appcompat.widget.Toolbar>
 
     <FrameLayout
         android:id="@+id/flow_edit_fragment_container"
@@ -44,14 +38,21 @@
             android:orientation="horizontal">
 
             <android.widget.Button
-                android:id="@+id/cancel_button"
+                android:id="@+id/delete_btn"
+                style="@style/BtnStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="删除" />
+
+            <android.widget.Button
+                android:id="@+id/cancel_btn"
                 style="@style/BtnStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="取消" />
 
             <android.widget.Button
-                android:id="@+id/finish_button"
+                android:id="@+id/finish_btn"
                 style="@style/BtnStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

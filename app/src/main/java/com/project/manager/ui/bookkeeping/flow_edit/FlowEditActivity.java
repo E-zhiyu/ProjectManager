@@ -27,8 +27,9 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
         setContentView(R.layout.activity_flow_edit);
 
         //为按钮设置单击监听器
-        findViewById(R.id.cancel_button).setOnClickListener(this);
-        findViewById(R.id.finish_button).setOnClickListener(this);
+        findViewById(R.id.cancel_btn).setOnClickListener(this);
+        findViewById(R.id.finish_btn).setOnClickListener(this);
+        findViewById(R.id.delete_btn).setOnClickListener(this);
 
         //接收种类和下标参数
         Bundle dataBundle = getIntent().getExtras();
@@ -66,11 +67,16 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
         Intent result2BookKeeping = new Intent();
         int resultCode;  //响应代码
 
-        if (v.getId() == R.id.cancel_button) {
+        if (v.getId() == R.id.cancel_btn) {
             resultCode = RequestResultCode.RESULT_REJECT.ordinal();
-        } else if (v.getId() == R.id.finish_button) {
+        } else if (v.getId() == R.id.finish_btn) {
             resultCode = RequestResultCode.RESULT_OK.ordinal();
             Bundle dataBundle = getDataAfterEditing();
+            result2BookKeeping.putExtras(dataBundle);
+        } else if (v.getId() == R.id.delete_btn) {
+            resultCode = RequestResultCode.RESULT_DELETE_FLOW.ordinal();
+            Bundle dataBundle = new Bundle();
+            dataBundle.putInt("position", position);
             result2BookKeeping.putExtras(dataBundle);
         } else {
             throw new RuntimeException("无法获取正确的按钮ID");

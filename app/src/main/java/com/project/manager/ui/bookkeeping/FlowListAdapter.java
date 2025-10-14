@@ -81,4 +81,16 @@ public class FlowListAdapter extends BaseAdapter {
         this.flowViewList.set(position, flowView);
         notifyDataSetChanged();
     }
+
+    /**
+     * 删除指定下标的流水记录
+     *
+     * @param position 待删除的流水记录的下标
+     */
+    public void deleteFlowView(int position) {
+        if (position == -1) return;
+
+        this.flowViewList.remove(position);
+        notifyDataSetChanged();
+    }
 }

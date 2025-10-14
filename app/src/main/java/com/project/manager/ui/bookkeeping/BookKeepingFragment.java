@@ -20,6 +20,7 @@ import com.project.manager.ui.bookkeeping.flow_type.FlowTypeEnum;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class BookKeepingFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener {
     FlowListAdapter flowListAdapter;    //流水列表适配器
@@ -87,12 +88,10 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
         super.onActivityResult(requestCode, resultCode, resultIntent);
 
-        //如果响应代码不是OK则不执行任何操作（包括子Activity什么都不做就点击返回时）
-        if (resultCode != RequestResultCode.RESULT_OK.ordinal()) {
-            return;
-        }
-
-        if (requestCode == RequestResultCode.NEW_FLOW_REQUEST.ordinal()) {
+        if (resultCode == RequestResultCode.RESULT_DELETE_FLOW.ordinal()) {
+            int position = Objects.requireNonNull(resultIntent.getExtras()).getInt("position", -1);
+            flowListAdapter.deleteFlowView(position);
+        } else if (requestCode == RequestResultCode.NEW_FLOW_REQUEST.ordinal()) {
             addNewFlow(resultIntent);
         } else if (requestCode == RequestResultCode.EDIT_FLOW_REQUEST.ordinal()) {
             coverFlowAfterEditing(resultIntent);
