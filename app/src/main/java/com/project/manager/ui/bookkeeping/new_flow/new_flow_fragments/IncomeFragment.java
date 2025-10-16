@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.view.View;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.project.manager.R;
@@ -42,5 +43,16 @@ public class IncomeFragment extends FlowFragmentBase implements View.OnClickList
         if (v.getId() == R.id.flow_date_cardview) {
             showMaterialDateTimePicker();
         }
+    }
+
+    @Override
+    public String verifyInputData() {
+        String warning = null;
+
+        if (((EditText)binding.findViewById(R.id.amount_textedit)).getText().toString().isEmpty()) {
+            warning = "请输入金额";
+        }
+
+        return warning;
     }
 }

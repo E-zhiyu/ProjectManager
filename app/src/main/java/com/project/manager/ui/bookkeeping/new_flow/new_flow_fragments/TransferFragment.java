@@ -77,4 +77,19 @@ public class TransferFragment extends FlowFragmentBase implements View.OnClickLi
         EditText editText = binding.findViewById(R.id.import_account_edittext);
         return editText.getText().toString();
     }
+
+    @Override
+    public String verifyInputData() {
+        String warning = null;
+
+        if (((EditText)binding.findViewById(R.id.amount_textedit)).getText().toString().isEmpty()) {
+            warning = "请输入金额";
+        } else if (((EditText)binding.findViewById(R.id.export_account_edittext)).getText().toString().isEmpty()) {
+            warning = "请输入转出账户";
+        } else if (((EditText) binding.findViewById(R.id.import_account_edittext)).getText().toString().isEmpty()) {
+            warning = "请输入转入账户";
+        }
+
+        return warning;
+    }
 }

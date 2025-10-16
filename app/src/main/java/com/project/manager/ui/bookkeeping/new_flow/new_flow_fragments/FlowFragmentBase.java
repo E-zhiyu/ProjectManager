@@ -23,7 +23,6 @@ public abstract class FlowFragmentBase extends Fragment {
     View binding;                                   //绑定的XML界面
     protected String name;                          //碎片名称
     protected FlowTypeEnum type;                    //流水类型
-    protected boolean isVerificationPassed = false; //输入内容验证通过标识
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -54,6 +53,9 @@ public abstract class FlowFragmentBase extends Fragment {
 
     //初始化碎片布局
     protected abstract void initViews(View view);
+
+    //验证输入内容
+    public abstract String verifyInputData();
 
     /**
      * 编辑流水时初始化控件内容的方法
@@ -137,6 +139,11 @@ public abstract class FlowFragmentBase extends Fragment {
         datePickerDialog.show(getParentFragmentManager(), "NewFlowDatePicker");
     }
 
+    /**
+     * 验证输入的内容
+     */
+    protected void verifyInput() {
 
+    }
 }
 

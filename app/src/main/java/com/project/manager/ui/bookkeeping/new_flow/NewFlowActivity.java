@@ -3,6 +3,7 @@ package com.project.manager.ui.bookkeeping.new_flow;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -51,7 +52,15 @@ public class NewFlowActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.new_flow_finish_btn) {
-            finishCreatingFlow();
+            FlowFragmentBase current_fragment = (FlowFragmentBase) getCurrentFragment(viewPager);
+            String warning = current_fragment.verifyInputData();
+
+            //判断是否获取到警告消息（null:无警告，验证通过）
+            if (warning != null) {
+                Toast.makeText(this, warning, Toast.LENGTH_SHORT).show();
+            } else {
+                finishCreatingFlow();
+            }
         }
     }
 
