@@ -11,11 +11,12 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.project.manager.R;
 import com.project.manager.RequestResultCode;
-import com.project.manager.ui.bookkeeping.flow_type.ExpenseFragment;
-import com.project.manager.ui.bookkeeping.flow_type.FlowFragmentBase;
-import com.project.manager.ui.bookkeeping.flow_type.FlowTypeEnum;
-import com.project.manager.ui.bookkeeping.flow_type.IncomeFragment;
-import com.project.manager.ui.bookkeeping.flow_type.TransferFragment;
+import com.project.manager.ui.bookkeeping.FlowAttributeStrings;
+import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.ExpenseFragment;
+import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.FlowFragmentBase;
+import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.FlowTypeEnum;
+import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.IncomeFragment;
+import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.TransferFragment;
 
 public class FlowEditActivity extends AppCompatActivity implements View.OnClickListener {
     FlowTypeEnum type = null;   //流水种类
@@ -34,8 +35,8 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
         //接收种类和下标参数
         Bundle dataBundle = getIntent().getExtras();
         if (dataBundle != null) {
-            type = FlowTypeEnum.valueOf(dataBundle.getString("type"));
-            position = dataBundle.getInt("position", -1);
+            type = FlowTypeEnum.valueOf(dataBundle.getString(FlowAttributeStrings.TYPE));
+            position = dataBundle.getInt(FlowAttributeStrings.POSITION, -1);
         } else {
             throw new NullPointerException("编辑流水时无法读取原有的数据");
         }
@@ -56,9 +57,9 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                 transaction.add(R.id.flow_edit_fragment_container, flowFragment);
                 transaction.commit();
+                flowFragment.setInitData(dataBundle);   //将原本的数据传递给碎片实例
             }
 
-            flowFragment.setInitData(dataBundle);   //将原本的数据传递给碎片实例
         }
     }
 
@@ -76,7 +77,7 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
         } else if (v.getId() == R.id.delete_btn) {
             resultCode = RequestResultCode.RESULT_DELETE_FLOW.ordinal();
             Bundle dataBundle = new Bundle();
-            dataBundle.putInt("position", position);
+            dataBundle.putInt(FlowAttributeStrings.POSITION, position);
             result2BookKeeping.putExtras(dataBundle);
         } else {
             throw new RuntimeException("无法获取正确的按钮ID");
@@ -94,21 +95,21 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
     private Bundle getDataAfterEditing() {
         Bundle dataBundle = new Bundle();
         double amount;
-        String remark, date;
+        String remark, date_time;
 
         //获取基本数据
         EditText amountView = findViewById(R.id.amount_textedit);   //金额
         amount = Double.parseDouble(amountView.getText().toString());
-        dataBundle.putDouble("amount", amount);
+        dataBundle.putDouble(FlowAttributeStrings.AMOUNT, amount);
         EditText remarkView = findViewById(R.id.remark_edittext);   //备注
         remark = remarkView.getText().toString();
-        dataBundle.putString("remark", remark);
-        TextView dateView = findViewById(R.id.date_textview);       //日期
-        date = dateView.getText().toString();
-        dataBundle.putString("date", date);
+        dataBundle.putString(FlowAttributeStrings.REMARK, remark);
+        TextView dateView = findViewById(R.id.date_time_textview);       //日期
+        date_time = dateView.getText().toString();
+        dataBundle.putString(FlowAttributeStrings.DATETIME, date_time);
 
-        dataBundle.putInt("position", position);        //将下标存放至包裹
-        dataBundle.putString("type", type.toString());  //将种类存放至包裹
+        dataBundle.putInt(FlowAttributeStrings.POSITION, position);        //将下标存放至包裹
+        dataBundle.putString(FlowAttributeStrings.TYPE, type.toString());  //将种类存放至包裹
 
         //获取特殊信息
         if (type == FlowTypeEnum.TRANSFER) {
@@ -116,10 +117,10 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
             String exportAccount, importAccount;
             exportView = findViewById(R.id.export_account_edittext);    //转出账户
             exportAccount = exportView.getText().toString();
-            dataBundle.putString("exportAccount", exportAccount);
+            dataBundle.putString(FlowAttributeStrings.EXPORT, exportAccount);
             importView = findViewById(R.id.import_account_edittext);    //转入账户
             importAccount = importView.getText().toString();
-            dataBundle.putString("importAccount", importAccount);
+            dataBundle.putString(FlowAttributeStrings.IMPORT, importAccount);
         }
 
         return dataBundle;

@@ -33,6 +33,7 @@
                 android:id="@+id/remark_edittext"
                 style="@style/EditTextStyle"
                 android:layout_width="0dp"
+                android:maxLength="20"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
         </LinearLayout>
@@ -56,7 +57,7 @@
                 android:textSize="20sp" />
 
             <TextView
-                android:id="@+id/date_textview"
+                android:id="@+id/date_time_textview"
                 style="@style/NewFlowTextViewStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -78,6 +79,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxLength="20"
                 android:text="转出账户"
                 android:textSize="20sp" />
 
@@ -111,7 +113,8 @@
                 style="@style/EditTextStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:maxLength="20" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </LinearLayout>

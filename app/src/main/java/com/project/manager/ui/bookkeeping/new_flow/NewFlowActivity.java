@@ -10,11 +10,12 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.project.manager.R;
-import com.project.manager.ui.bookkeeping.flow_type.ExpenseFragment;
-import com.project.manager.ui.bookkeeping.flow_type.FlowTypeEnum;
-import com.project.manager.ui.bookkeeping.flow_type.IncomeFragment;
-import com.project.manager.ui.bookkeeping.flow_type.FlowFragmentBase;
-import com.project.manager.ui.bookkeeping.flow_type.TransferFragment;
+import com.project.manager.ui.bookkeeping.FlowAttributeStrings;
+import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.ExpenseFragment;
+import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.FlowTypeEnum;
+import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.IncomeFragment;
+import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.FlowFragmentBase;
+import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.TransferFragment;
 import com.project.manager.RequestResultCode;
 
 import java.util.ArrayList;
@@ -77,24 +78,24 @@ public class NewFlowActivity extends AppCompatActivity implements View.OnClickLi
         //获取当前碎片基本信息并打包
         FlowFragmentBase currentFragment = (FlowFragmentBase) getCurrentFragment(viewPager);
         FlowTypeEnum flowType = currentFragment.getType();  //种类
-        dataBundle.putString("type", flowType.toString());
+        dataBundle.putString(FlowAttributeStrings.TYPE, flowType.toString());
 
         //获取碎片通用信息并打包
         double flowAmount = currentFragment.getAmount();   //金额
-        dataBundle.putDouble("amount", flowAmount);
+        dataBundle.putDouble(FlowAttributeStrings.AMOUNT, flowAmount);
         String flowDate = currentFragment.getDate();    //日期
-        dataBundle.putString("date", flowDate);
+        dataBundle.putString(FlowAttributeStrings.DATETIME, flowDate);
         String flowRemark = currentFragment.getRemark();//备注
-        dataBundle.putString("remark", flowRemark);
+        dataBundle.putString(FlowAttributeStrings.REMARK, flowRemark);
 
         //获取碎片特殊信息并打包
         if (flowType == FlowTypeEnum.TRANSFER) {
             TransferFragment transferFragment = (TransferFragment) currentFragment;
             String exportAccount, importAccount;
             exportAccount = transferFragment.getExportAccount();    //转出账户
-            dataBundle.putString("exportAccount", exportAccount);
+            dataBundle.putString(FlowAttributeStrings.EXPORT, exportAccount);
             importAccount = transferFragment.getImportAccount();    //转入账户
-            dataBundle.putString("importAccount", importAccount);
+            dataBundle.putString(FlowAttributeStrings.IMPORT, importAccount);
         }
 
         result2BookKeeping.putExtras(dataBundle);

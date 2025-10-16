@@ -53,7 +53,7 @@ public class FlowListAdapter extends BaseAdapter {
         TextView remarkTextView = convertView.findViewById(R.id.remark_textview);       //备注
         remarkTextView.setText(oneFlowView.remark);
         TextView nameDateTextView = convertView.findViewById(R.id.name_date_textview);  //名称和日期
-        String name_date = String.format("%s·%s", oneFlowView.name, oneFlowView.date);
+        String name_date = String.format("%s·%s", oneFlowView.name, oneFlowView.date_time);
         nameDateTextView.setText(name_date);
         TextView amountTextView = convertView.findViewById(R.id.amount_textview);       //金额
         amountTextView.setText(String.valueOf(oneFlowView.amount));
@@ -91,6 +91,15 @@ public class FlowListAdapter extends BaseAdapter {
         if (position == -1) return;
 
         this.flowViewList.remove(position);
+        notifyDataSetChanged();
+    }
+
+    /**
+     * 初始化流水列表视图
+     * @param flowViewList 流水视图列表
+     */
+    public void initFlowView(List<FlowViewBase> flowViewList) {
+        this.flowViewList = flowViewList;
         notifyDataSetChanged();
     }
 }

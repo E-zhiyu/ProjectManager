@@ -1,24 +1,50 @@
 package com.project.manager.ui.bookkeeping;
 
-import com.project.manager.ui.bookkeeping.flow_type.FlowTypeEnum;
+import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.FlowTypeEnum;
 
 public abstract class FlowViewBase {
     String name;        //名称
     FlowTypeEnum type;  //种类
     String remark;      //备注
-    String date;        //日期
-    double amount;         //金额
+    String date_time;   //日期和时间
+    double amount;      //金额
+    long fno;           //流水标识
 }
 
 /**
  * 支出流水类
  */
 class ExpenseFlowView extends FlowViewBase {
-    public ExpenseFlowView(String remark, String date, double amount) {
+    /**
+     * 不给定编号的构造方法
+     *
+     * @param remark    备注
+     * @param date_time 日期和时间
+     * @param amount    金额
+     */
+    public ExpenseFlowView(String remark, String date_time, double amount) {
         this.type = FlowTypeEnum.EXPENSE;
         this.name = "支出";
         this.remark = remark;
-        this.date = date;
+        this.date_time = date_time;
+        this.amount = amount;
+        this.fno = -1;
+    }
+
+    /**
+     * 给定编号的构造方法（用于数据库查询时）
+     *
+     * @param fno       编号
+     * @param remark    备注
+     * @param date_time 日期和时间
+     * @param amount    金额
+     */
+    public ExpenseFlowView(long fno, String remark, String date_time, double amount) {
+        this.fno = fno;
+        this.type = FlowTypeEnum.EXPENSE;
+        this.name = "支出";
+        this.remark = remark;
+        this.date_time = date_time;
         this.amount = amount;
     }
 }
@@ -27,11 +53,36 @@ class ExpenseFlowView extends FlowViewBase {
  * 收入流水类
  */
 class IncomeFlowView extends FlowViewBase {
-    public IncomeFlowView(String remark, String date, double amount) {
+    /**
+     * 不给定编号的构造方法
+     *
+     * @param remark    备注
+     * @param date_time 日期和时间
+     * @param amount    金额
+     */
+    public IncomeFlowView(String remark, String date_time, double amount) {
+        this.fno = -1;
         this.type = FlowTypeEnum.INCOME;
         this.name = "收入";
         this.remark = remark;
-        this.date = date;
+        this.date_time = date_time;
+        this.amount = amount;
+    }
+
+    /**
+     * 给定编号的构造方法
+     *
+     * @param fno       编号
+     * @param remark    备注
+     * @param date_time 日期和时间
+     * @param amount    金额
+     */
+    public IncomeFlowView(long fno, String remark, String date_time, double amount) {
+        this.fno = fno;
+        this.type = FlowTypeEnum.INCOME;
+        this.name = "收入";
+        this.remark = remark;
+        this.date_time = date_time;
         this.amount = amount;
     }
 }
@@ -43,11 +94,42 @@ class TransferFlowView extends FlowViewBase {
     String exportAccount;   //转出账户
     String importAccount;   //转入账户
 
-    public TransferFlowView(String remark, String date, double amount, String exportAccount, String importAccount) {
+    /**
+     * 不给定编号的构造方法
+     *
+     * @param remark        备注
+     * @param date_time     日期
+     * @param amount        金额
+     * @param exportAccount 转出账户
+     * @param importAccount 转入账户
+     */
+    public TransferFlowView(String remark, String date_time, double amount, String exportAccount, String importAccount) {
+        this.fno = -1;
         this.type = FlowTypeEnum.TRANSFER;
         this.name = "转账";
         this.remark = remark;
-        this.date = date;
+        this.date_time = date_time;
+        this.amount = amount;
+        this.exportAccount = exportAccount;
+        this.importAccount = importAccount;
+    }
+
+    /**
+     * 给定编号的构造方法
+     *
+     * @param fno           编号
+     * @param remark        备注
+     * @param date_time          日期和时间
+     * @param amount        金额
+     * @param exportAccount 转出账户
+     * @param importAccount 转入账户
+     */
+    public TransferFlowView(long fno, String remark, String date_time, double amount, String exportAccount, String importAccount) {
+        this.fno = fno;
+        this.type = FlowTypeEnum.TRANSFER;
+        this.name = "转账";
+        this.remark = remark;
+        this.date_time = date_time;
         this.amount = amount;
         this.exportAccount = exportAccount;
         this.importAccount = importAccount;
