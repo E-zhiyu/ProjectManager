@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
@@ -19,8 +20,9 @@ import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.IncomeFrag
 import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.TransferFragment;
 
 public class FlowEditActivity extends AppCompatActivity implements View.OnClickListener {
-    FlowTypeEnum type = null;   //流水种类
-    int position = -1;          //流水项目的下标
+    FlowTypeEnum type = null;                               //流水种类
+    int position = -1;                                      //流水项目的下标
+    private String FRAGMENT_TAG = "flow_edit_fragment";     //碎片Tag
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +57,7 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
             //将Fragment添加到布局
             if (flowFragment != null) {
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.add(R.id.flow_edit_fragment_container, flowFragment);
+                transaction.add(R.id.flow_edit_fragment_container, flowFragment, this.FRAGMENT_TAG);
                 transaction.commit();
                 flowFragment.setInitData(dataBundle);   //将原本的数据传递给碎片实例
             }
@@ -71,9 +73,18 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
         if (v.getId() == R.id.cancel_btn) {
             resultCode = RequestResultCode.RESULT_REJECT.ordinal();
         } else if (v.getId() == R.id.finish_btn) {
-            resultCode = RequestResultCode.RESULT_OK.ordinal();
-            Bundle dataBundle = getDataAfterEditing();
-            result2BookKeeping.putExtras(dataBundle);
+            FlowFragmentBase current_fragment = (FlowFragmentBase) getSupportFragmentManager().findFragmentByTag(this.FRAGMENT_TAG);
+            String warning = current_fragment.verifyInputData();
+
+            //判断是否获取到警告消息（null:无警告，验证通过）
+            if (warning != null) {
+                Toast.makeText(this, warning, Toast.LENGTH_SHORT).show();
+                return;
+            } else {
+                resultCode = RequestResultCode.RESULT_OK.ordinal();
+                Bundle dataBundle = getDataAfterEditing();
+                result2BookKeeping.putExtras(dataBundle);
+            }
         } else if (v.getId() == R.id.delete_btn) {
             resultCode = RequestResultCode.RESULT_DELETE_FLOW.ordinal();
             Bundle dataBundle = new Bundle();
