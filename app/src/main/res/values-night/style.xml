@@ -45,13 +45,14 @@
     </style>
 
     <!-- 文本框样式 -->
-    <style name="EditTextStyle">
-        <item name="backgroundTint">@color/theme_blue_night</item>
+    <style name="EditTextStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/page_background</item>
+        <item name="backgroundTint">@color/theme_blue</item>
         <item name="android:textCursorDrawable">@null</item>
     </style>
 
     <!-- 日期选择对话框样式 -->
-    <style name="DatePickerDialogStyle" parent="ThemeOverlay.Material3.MaterialCalendar">
+    <style name="DateTimePickerDialogStyle" parent="ThemeOverlay.Material3.MaterialCalendar">
         <item name="colorAccent">@color/theme_blue_night</item>
         <item name="colorPrimary">@color/theme_blue_night</item>
     </style>

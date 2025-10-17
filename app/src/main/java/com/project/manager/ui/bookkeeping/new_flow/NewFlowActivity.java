@@ -53,11 +53,11 @@ public class NewFlowActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View v) {
         if (v.getId() == R.id.new_flow_finish_btn) {
             FlowFragmentBase current_fragment = (FlowFragmentBase) getCurrentFragment(viewPager);
-            String warning = current_fragment.verifyInputData();
+            String error = current_fragment.verifyInputData();
 
             //判断是否获取到警告消息（null:无警告，验证通过）
-            if (warning != null) {
-                Toast.makeText(this, warning, Toast.LENGTH_SHORT).show();
+            if (error != null) {
+                Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
             } else {
                 finishCreatingFlow();
             }

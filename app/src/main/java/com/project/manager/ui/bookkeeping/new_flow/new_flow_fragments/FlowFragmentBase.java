@@ -6,11 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.textfield.TextInputEditText;
 import com.project.manager.R;
 import com.project.manager.ui.bookkeeping.FlowAttributeStrings;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
@@ -68,11 +68,11 @@ public abstract class FlowFragmentBase extends Fragment {
         String remark = dataBundle.getString(FlowAttributeStrings.REMARK);
         String date_time = dataBundle.getString(FlowAttributeStrings.DATETIME);
 
-        amountView = binding.findViewById(R.id.amount_textedit);        //金额
+        amountView = binding.findViewById(R.id.amount_input);        //金额
         amountView.setText(String.valueOf(amount));
-        remarkView = binding.findViewById(R.id.remark_edittext);        //备注
+        remarkView = binding.findViewById(R.id.remark_input);        //备注
         remarkView.setText(remark);
-        TextView dateView = binding.findViewById(R.id.date_time_textview);   //日期
+        TextInputEditText dateView = binding.findViewById(R.id.date_time_input);   //日期
         dateView.setText(date_time);
     }
 
@@ -82,7 +82,7 @@ public abstract class FlowFragmentBase extends Fragment {
      * @return 流水日期字符串
      */
     public String getDate() {
-        TextView dateTextView = binding.findViewById(R.id.date_time_textview);
+        TextInputEditText dateTextView = binding.findViewById(R.id.date_time_input);
         return dateTextView.getText().toString();
     }
 
@@ -92,7 +92,7 @@ public abstract class FlowFragmentBase extends Fragment {
      * @return 流水备注字符串
      */
     public String getRemark() {
-        EditText remarkEditText = binding.findViewById(R.id.remark_edittext);
+        EditText remarkEditText = binding.findViewById(R.id.remark_input);
         return remarkEditText.getText().toString();
     }
 
@@ -102,7 +102,7 @@ public abstract class FlowFragmentBase extends Fragment {
      * @return 流水金额
      */
     public double getAmount() {
-        EditText remarkEditText = binding.findViewById(R.id.amount_textedit);
+        EditText remarkEditText = binding.findViewById(R.id.amount_input);
         return Double.parseDouble(remarkEditText.getText().toString());
     }
 
@@ -112,10 +112,10 @@ public abstract class FlowFragmentBase extends Fragment {
     protected void showMaterialDateTimePicker() {
         Calendar now = Calendar.getInstance();
         DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(
-                (view, year, monthOfYear, dayOfMonth) -> {
+                (date_view, year, monthOfYear, dayOfMonth) -> {
                     // 日期选择回调
                     TimePickerDialog timePickerDialog = TimePickerDialog.newInstance(
-                            (view1, hourOfDay, minute, second) -> {
+                            (time_view, hourOfDay, minute, second) -> {
                                 // 时间选择回调
                                 @SuppressLint("DefaultLocale") String datetime = String.format(
                                         "%04d-%02d-%02d %02d:%02d",
@@ -123,7 +123,7 @@ public abstract class FlowFragmentBase extends Fragment {
                                 );
 
                                 //将选择的日期和时间填入文本框
-                                TextView date_time_view = binding.findViewById(R.id.date_time_textview);
+                                TextInputEditText date_time_view = binding.findViewById(R.id.date_time_input);
                                 date_time_view.setText(datetime);
                             },
                             now.get(Calendar.HOUR_OF_DAY),
@@ -137,13 +137,6 @@ public abstract class FlowFragmentBase extends Fragment {
                 now.get(Calendar.DAY_OF_MONTH)
         );
         datePickerDialog.show(getParentFragmentManager(), "NewFlowDatePicker");
-    }
-
-    /**
-     * 验证输入的内容
-     */
-    protected void verifyInput() {
-
     }
 }
 

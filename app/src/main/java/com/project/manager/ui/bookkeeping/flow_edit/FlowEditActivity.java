@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.textfield.TextInputEditText;
 import com.project.manager.R;
 import com.project.manager.RequestResultCode;
 import com.project.manager.ui.bookkeeping.FlowAttributeStrings;
@@ -74,11 +75,16 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
             resultCode = RequestResultCode.RESULT_REJECT.ordinal();
         } else if (v.getId() == R.id.finish_btn) {
             FlowFragmentBase current_fragment = (FlowFragmentBase) getSupportFragmentManager().findFragmentByTag(this.FRAGMENT_TAG);
-            String warning = current_fragment.verifyInputData();
+            String error;
+            if (current_fragment != null) {
+                error = current_fragment.verifyInputData();
+            } else {
+                throw new NullPointerException("无法获取活动的Fragment");
+            }
 
-            //判断是否获取到警告消息（null:无警告，验证通过）
-            if (warning != null) {
-                Toast.makeText(this, warning, Toast.LENGTH_SHORT).show();
+            //判断是否获取到报错消息（null:无报错，验证通过）
+            if (error != null) {
+                Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
                 return;
             } else {
                 resultCode = RequestResultCode.RESULT_OK.ordinal();
@@ -109,14 +115,14 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
         String remark, date_time;
 
         //获取基本数据
-        EditText amountView = findViewById(R.id.amount_textedit);   //金额
+        EditText amountView = findViewById(R.id.amount_input);   //金额
         amount = Double.parseDouble(amountView.getText().toString());
         dataBundle.putDouble(FlowAttributeStrings.AMOUNT, amount);
-        EditText remarkView = findViewById(R.id.remark_edittext);   //备注
+        EditText remarkView = findViewById(R.id.remark_input);   //备注
         remark = remarkView.getText().toString();
         dataBundle.putString(FlowAttributeStrings.REMARK, remark);
-        TextView dateView = findViewById(R.id.date_time_textview);       //日期
-        date_time = dateView.getText().toString();
+        TextInputEditText dateView = findViewById(R.id.date_time_input);       //日期
+        date_time = String.valueOf(dateView.getText());
         dataBundle.putString(FlowAttributeStrings.DATETIME, date_time);
 
         dataBundle.putInt(FlowAttributeStrings.POSITION, position);        //将下标存放至包裹
@@ -126,10 +132,10 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
         if (type == FlowTypeEnum.TRANSFER) {
             EditText exportView, importView;
             String exportAccount, importAccount;
-            exportView = findViewById(R.id.export_account_edittext);    //转出账户
+            exportView = findViewById(R.id.export_account_input);    //转出账户
             exportAccount = exportView.getText().toString();
             dataBundle.putString(FlowAttributeStrings.EXPORT, exportAccount);
-            importView = findViewById(R.id.import_account_edittext);    //转入账户
+            importView = findViewById(R.id.import_account_input);    //转入账户
             importAccount = importView.getText().toString();
             dataBundle.putString(FlowAttributeStrings.IMPORT, importAccount);
         }

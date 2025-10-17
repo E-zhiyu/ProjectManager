@@ -4,13 +4,13 @@ import android.annotation.SuppressLint;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.google.android.material.textfield.TextInputEditText;
 import com.project.manager.R;
 
 import java.util.Calendar;
 
-public class ExpenseFragment extends FlowFragmentBase implements View.OnClickListener, View.OnFocusChangeListener {
+public class ExpenseFragment extends FlowFragmentBase implements View.OnFocusChangeListener,View.OnClickListener {
     public ExpenseFragment() {
         this.name = "支出";  //为碎片命名
         this.type = FlowTypeEnum.EXPENSE;
@@ -23,8 +23,9 @@ public class ExpenseFragment extends FlowFragmentBase implements View.OnClickLis
 
     @Override
     protected void initViews(View view) {
-        view.findViewById(R.id.flow_date_cardview).setOnClickListener(this);    //为日期卡片容器设置单击监听器
-        view.findViewById(R.id.amount_textedit).setOnFocusChangeListener(this); //为金额文本框设置焦点变更监听器
+        view.findViewById(R.id.amount_input).setOnFocusChangeListener(this);
+        view.findViewById(R.id.date_time_input).setOnClickListener(this);
+        view.findViewById(R.id.date_time_input).setFocusable(false);    //日期输入框无法获取焦点
 
         //初始化日期内容
         Calendar calendar = Calendar.getInstance();
@@ -34,36 +35,48 @@ public class ExpenseFragment extends FlowFragmentBase implements View.OnClickLis
                 calendar.get(Calendar.DAY_OF_MONTH),
                 calendar.get(Calendar.HOUR),
                 calendar.get(Calendar.MINUTE));
-        TextView dt_textView = view.findViewById(R.id.date_time_textview);
+        TextInputEditText dt_textView = view.findViewById(R.id.date_time_input);
         dt_textView.setText(dt_string);
     }
 
     @Override
+    public void onFocusChange(View v, boolean hasFocus) {
+        String verification_str, error;
+        if (!hasFocus) {
+            verification_str = String.valueOf(((TextInputEditText) v).getText());
+            if (v.getId() == R.id.amount_input) {
+                error = "金额不能为空";
+            } else {
+                throw new NullPointerException("验证输入内容时无法获取有效视图ID");
+            }
+        } else {
+            return;
+        }
+
+        //判断待验证的字符串是否为空
+        if (verification_str.isEmpty()) {
+            ((TextInputEditText) v).setError(error);
+        } else {
+            ((TextInputEditText) v).setError(null); //消除错误提示
+        }
+    }
+
+    @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.flow_date_cardview) {
+        if (v.getId() == R.id.date_time_input) {
             showMaterialDateTimePicker();
         }
     }
 
     @Override
-    public void onFocusChange(View v, boolean hasFocus) {
-        if (v.getId() == R.id.amount_textedit && !hasFocus) {
-            //判断金额是否没有输入
-            String amount_str = ((EditText) v).getText().toString();
-            if (amount_str.isEmpty()) {
-
-            }
-        }
-    }
-
-    @Override
     public String verifyInputData() {
-        String warning = null;
+        String error = null;
 
-        if (((EditText)binding.findViewById(R.id.amount_textedit)).getText().toString().isEmpty()) {
-            warning = "请输入金额";
+        if (String.valueOf(((TextInputEditText)binding.findViewById(R.id.amount_input)).getText()).isEmpty()) {
+            error = "金额不能为空";
+            ((EditText)binding.findViewById(R.id.amount_input)).setError(error);
         }
 
-        return warning;
+        return error;
     }
 }
