@@ -1,7 +1,9 @@
 package com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments;
 
 import android.annotation.SuppressLint;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -130,13 +132,33 @@ public abstract class FlowFragmentBase extends Fragment {
                             now.get(Calendar.MINUTE),
                             true
                     );
+                    if (isSystemInDarkMode()) {
+                        timePickerDialog.setThemeDark(true);
+                        timePickerDialog.setAccentColor(getResources().getColor(R.color.theme_blue_night));
+                    } else {
+                        timePickerDialog.setAccentColor(getResources().getColor(R.color.theme_blue));
+                    }
                     timePickerDialog.show(getParentFragmentManager(), "NewFlowTimePicker");
                 },
                 now.get(Calendar.YEAR),
                 now.get(Calendar.MONTH),
                 now.get(Calendar.DAY_OF_MONTH)
         );
+        if (isSystemInDarkMode()) {
+            datePickerDialog.setThemeDark(true);
+            datePickerDialog.setAccentColor(getResources().getColor(R.color.theme_blue_night));
+        } else {
+            datePickerDialog.setAccentColor(getResources().getColor(R.color.theme_blue));
+        }
         datePickerDialog.show(getParentFragmentManager(), "NewFlowDatePicker");
+    }
+
+    /**
+     * 判断系统是否为深色模式
+     */
+    private boolean isSystemInDarkMode() {
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
     }
 }
 
