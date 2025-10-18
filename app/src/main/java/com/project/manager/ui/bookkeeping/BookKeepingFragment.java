@@ -45,12 +45,8 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         root.findViewById(R.id.flow_btn).setOnClickListener(this);
         root.findViewById(R.id.report_btn).setOnClickListener(this);
 
-        List<FlowViewBase> flowList = new ArrayList<>();
-        //仅供调试
-//        ExpenseFlowView testExpense = new ExpenseFlowView("测试项", "2025-10-12", 10);
-//        flowList.add(testExpense);
-
         //创建列表视图的适配器
+        List<FlowViewBase> flowList = new ArrayList<>();
         flowListAdapter = new FlowListAdapter(requireActivity(), flowList);
         ListView flowListView = binding.flowList;
         flowListView.setAdapter(flowListAdapter);
@@ -143,9 +139,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         }
 
         //获取基本流水数据
-        FlowTypeEnum type = FlowTypeEnum.valueOf(resultIntent.getStringExtra(FlowAttributeStrings.TYPE));      //种类
-        String remark, date_time;                                                                      //备注，日期
-        double amount;                                                                            //金额
+        FlowTypeEnum type = FlowTypeEnum.valueOf(resultIntent.getStringExtra(FlowAttributeStrings.TYPE));
+        String remark, date_time;
+        double amount;
         remark = dataBundle.getString(FlowAttributeStrings.REMARK);
         amount = dataBundle.getDouble(FlowAttributeStrings.AMOUNT, -1);
         date_time = dataBundle.getString(FlowAttributeStrings.DATETIME);
@@ -153,7 +149,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         basic_values.put(FlowDatabaseHelper.COLUMN_TYPE, type.toString());   //种类
         basic_values.put(FlowDatabaseHelper.COLUMN_AMOUNT, amount);          //金额
         basic_values.put(FlowDatabaseHelper.COLUMN_REMARK, remark);          //备注
-        basic_values.put(FlowDatabaseHelper.COLUMN_DATETIME, date_time);          //日期
+        basic_values.put(FlowDatabaseHelper.COLUMN_DATETIME, date_time);     //日期
         long fno = db.insert(FlowDatabaseHelper.TABLE_BASIC, null, basic_values);   //获取自增主键值
 
         //获取特殊数据并实例化流水类
@@ -186,16 +182,34 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
      * @param resultIntent 带有编辑后数据的意图对象
      */
     private void coverFlowAfterEditing(Intent resultIntent) {
+        ContentValues basic_values, special_values;           //基本数据和特殊数据记录
+        SQLiteDatabase db = flow_db_helper.openWriteLink();   //数据库写连接
+
         Bundle dataBundle = resultIntent.getExtras();
         if (dataBundle == null) {
             throw new NullPointerException("读取编辑后的流水数据时出错");
         }
 
         FlowTypeEnum type = FlowTypeEnum.valueOf(dataBundle.getString("type"));
-        int position = dataBundle.getInt(FlowAttributeStrings.POSITION, -1);
+        int position = dataBundle.getInt(FlowAttributeStrings.POSITION, -1);    //原视图下标
         double amount = dataBundle.getDouble(FlowAttributeStrings.AMOUNT, -1);
         String remark = dataBundle.getString(FlowAttributeStrings.REMARK);
         String date_time = dataBundle.getString(FlowAttributeStrings.DATETIME);
+
+        //将基本数据存放至数据库
+        basic_values = new ContentValues();
+        basic_values.put(FlowDatabaseHelper.COLUMN_TYPE, type.toString());  //种类
+        basic_values.put(FlowDatabaseHelper.COLUMN_AMOUNT, amount);         //金额
+        basic_values.put(FlowDatabaseHelper.COLUMN_REMARK, remark);         //备注
+        basic_values.put(FlowDatabaseHelper.COLUMN_DATETIME, date_time);    //日期
+        String selection = FlowAttributeStrings.FNO + "=?";
+        long fno = ((FlowViewBase) flowListAdapter.getItem(position)).fno;  //编号
+        db.update(
+                FlowDatabaseHelper.TABLE_BASIC,
+                basic_values,
+                selection,
+                new String[]{String.valueOf(fno)}
+        );
 
         //实例化流水类
         FlowViewBase newFlowView;
@@ -211,6 +225,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             throw new NullPointerException("流水类型获取失败");
         }
 
+        newFlowView.fno = fno;
         flowListAdapter.setFlowView(position, newFlowView);
     }
 
