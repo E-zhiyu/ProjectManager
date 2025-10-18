@@ -3,8 +3,6 @@ package com.project.manager.ui.bookkeeping.flow_edit;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,7 +21,7 @@ import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.TransferFr
 public class FlowEditActivity extends AppCompatActivity implements View.OnClickListener {
     FlowTypeEnum type = null;                               //流水种类
     int position = -1;                                      //流水项目的下标
-    private String FRAGMENT_TAG = "flow_edit_fragment";     //碎片Tag
+    private final String FRAGMENT_TAG = "flow_edit_fragment";     //碎片Tag
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +60,6 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
                 transaction.commit();
                 flowFragment.setInitData(dataBundle);   //将原本的数据传递给碎片实例
             }
-
         }
     }
 
@@ -115,11 +112,11 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
         String remark, date_time;
 
         //获取基本数据
-        EditText amountView = findViewById(R.id.amount_input);   //金额
-        amount = Double.parseDouble(amountView.getText().toString());
+        TextInputEditText amountView = findViewById(R.id.amount_input);        //金额
+        amount = Double.parseDouble(String.valueOf(amountView.getText()));
         dataBundle.putDouble(FlowAttributeStrings.AMOUNT, amount);
-        EditText remarkView = findViewById(R.id.remark_input);   //备注
-        remark = remarkView.getText().toString();
+        TextInputEditText remarkView = findViewById(R.id.remark_input);        //备注
+        remark = String.valueOf(remarkView.getText());
         dataBundle.putString(FlowAttributeStrings.REMARK, remark);
         TextInputEditText dateView = findViewById(R.id.date_time_input);       //日期
         date_time = String.valueOf(dateView.getText());
@@ -130,13 +127,13 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
 
         //获取特殊信息
         if (type == FlowTypeEnum.TRANSFER) {
-            EditText exportView, importView;
+            TextInputEditText export_input, import_input;
             String exportAccount, importAccount;
-            exportView = findViewById(R.id.export_account_input);    //转出账户
-            exportAccount = exportView.getText().toString();
+            export_input = findViewById(R.id.export_account_input);    //转出账户
+            exportAccount = String.valueOf(export_input.getText());
             dataBundle.putString(FlowAttributeStrings.EXPORT, exportAccount);
-            importView = findViewById(R.id.import_account_input);    //转入账户
-            importAccount = importView.getText().toString();
+            import_input = findViewById(R.id.import_account_input);    //转入账户
+            importAccount = String.valueOf(import_input.getText());
             dataBundle.putString(FlowAttributeStrings.IMPORT, importAccount);
         }
 

@@ -2,15 +2,13 @@ package com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments;
 
 import android.annotation.SuppressLint;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.project.manager.R;
 
 import java.util.Calendar;
 
-public class ExpenseFragment extends FlowFragmentBase implements View.OnFocusChangeListener,View.OnClickListener {
+public class ExpenseFragment extends FlowFragmentBase implements View.OnFocusChangeListener, View.OnClickListener {
     public ExpenseFragment() {
         this.name = "支出";  //为碎片命名
         this.type = FlowTypeEnum.EXPENSE;
@@ -72,9 +70,9 @@ public class ExpenseFragment extends FlowFragmentBase implements View.OnFocusCha
     public String verifyInputData() {
         String error = null;
 
-        if (String.valueOf(((TextInputEditText)binding.findViewById(R.id.amount_input)).getText()).isEmpty()) {
+        if (String.valueOf(((TextInputEditText) binding.findViewById(R.id.amount_input)).getText()).isEmpty()) {
             error = "金额不能为空";
-            ((EditText)binding.findViewById(R.id.amount_input)).setError(error);
+            ((TextInputEditText) binding.findViewById(R.id.amount_input)).setError(error);
         }
 
         return error;

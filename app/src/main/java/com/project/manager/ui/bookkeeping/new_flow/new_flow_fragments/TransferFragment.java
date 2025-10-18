@@ -3,8 +3,6 @@ package com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.project.manager.R;
@@ -49,7 +47,7 @@ public class TransferFragment extends FlowFragmentBase implements View.OnFocusCh
 
         String exportAccount = dataBundle.getString(FlowAttributeStrings.EXPORT);
         String importAccount = dataBundle.getString(FlowAttributeStrings.IMPORT);
-        EditText exportAccountView, importAccountView;
+        TextInputEditText exportAccountView, importAccountView;
         exportAccountView = binding.findViewById(R.id.export_account_input); //转出账户
         exportAccountView.setText(exportAccount);
         importAccountView = binding.findViewById(R.id.import_account_input); //转入账户
@@ -62,8 +60,8 @@ public class TransferFragment extends FlowFragmentBase implements View.OnFocusCh
      * @return 转出账户字符串
      */
     public String getExportAccount() {
-        EditText editText = binding.findViewById(R.id.export_account_input);
-        return editText.getText().toString();
+        TextInputEditText TextInputEditText = binding.findViewById(R.id.export_account_input);
+        return String.valueOf(TextInputEditText.getText());
     }
 
     /**
@@ -72,8 +70,8 @@ public class TransferFragment extends FlowFragmentBase implements View.OnFocusCh
      * @return 转入账户字符串
      */
     public String getImportAccount() {
-        EditText editText = binding.findViewById(R.id.import_account_input);
-        return editText.getText().toString();
+        TextInputEditText TextInputEditText = binding.findViewById(R.id.import_account_input);
+        return String.valueOf(TextInputEditText.getText());
     }
 
     @Override
@@ -115,13 +113,13 @@ public class TransferFragment extends FlowFragmentBase implements View.OnFocusCh
 
         if (String.valueOf(((TextInputEditText) binding.findViewById(R.id.amount_input)).getText()).isEmpty()) {
             error = "金额不能为空";
-            ((EditText) binding.findViewById(R.id.amount_input)).setError(error);
+            ((TextInputEditText) binding.findViewById(R.id.amount_input)).setError(error);
         } else if (String.valueOf(((TextInputEditText) binding.findViewById(R.id.export_account_input)).getText()).isEmpty()) {
             error = "转出账户不能为空";
-            ((EditText) binding.findViewById(R.id.export_account_input)).setError(error);
+            ((TextInputEditText) binding.findViewById(R.id.export_account_input)).setError(error);
         } else if (String.valueOf(((TextInputEditText) binding.findViewById(R.id.import_account_input)).getText()).isEmpty()) {
             error = "转入账户不能为空";
-            ((EditText) binding.findViewById(R.id.import_account_input)).setError(error);
+            ((TextInputEditText) binding.findViewById(R.id.import_account_input)).setError(error);
         }
 
         return error;

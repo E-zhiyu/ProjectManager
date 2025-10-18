@@ -63,7 +63,7 @@ public abstract class FlowFragmentBase extends Fragment {
      * @param dataBundle 包含初始信息的包裹
      */
     public void initViewsWhenEditing(Bundle dataBundle) {
-        EditText amountView, remarkView;
+        TextInputEditText amountView, remarkView;
         double amount = dataBundle.getDouble(FlowAttributeStrings.AMOUNT, -1);
         String remark = dataBundle.getString(FlowAttributeStrings.REMARK);
         String date_time = dataBundle.getString(FlowAttributeStrings.DATETIME);
@@ -83,7 +83,7 @@ public abstract class FlowFragmentBase extends Fragment {
      */
     public String getDate() {
         TextInputEditText dateTextView = binding.findViewById(R.id.date_time_input);
-        return dateTextView.getText().toString();
+        return String.valueOf(dateTextView.getText());
     }
 
     /**

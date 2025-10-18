@@ -2,8 +2,6 @@ package com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments;
 
 import android.annotation.SuppressLint;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.project.manager.R;
@@ -72,9 +70,9 @@ public class IncomeFragment extends FlowFragmentBase implements View.OnFocusChan
     public String verifyInputData() {
         String error = null;
 
-        if (String.valueOf(((TextInputEditText)binding.findViewById(R.id.amount_input)).getText()).isEmpty()) {
+        if (String.valueOf(((TextInputEditText) binding.findViewById(R.id.amount_input)).getText()).isEmpty()) {
             error = "金额不能为空";
-            ((EditText) binding.findViewById(R.id.amount_input)).setError(error);
+            ((TextInputEditText) binding.findViewById(R.id.amount_input)).setError(error);
         }
 
         return error;
