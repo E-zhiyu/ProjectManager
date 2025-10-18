@@ -338,6 +338,8 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                     }
 
                     break;
+                default:
+                    throw new RuntimeException("无法获取正确的流水视图类型");
             }
             flowViewList.add(flowView);
         }
