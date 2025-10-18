@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -79,12 +80,11 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
         if (resultCode == RequestResultCode.RESULT_REJECT.ordinal() || resultCode == 0) {
             return;
-        } else if (resultCode == RequestResultCode.RESULT_DELETE_FLOW.ordinal()) {
-            int position = Objects.requireNonNull(resultIntent.getExtras()).getInt(FlowAttributeStrings.POSITION, -1);
-            flowListAdapter.deleteFlowView(position);
-        } else if (requestCode == RequestResultCode.NEW_FLOW_REQUEST.ordinal()) {
+        } else if (resultCode == RequestResultCode.RESULT_DELETE_FLOW.ordinal()) {  //删除
+            deleteFlow(resultIntent);
+        } else if (requestCode == RequestResultCode.NEW_FLOW_REQUEST.ordinal()) {   //添加
             addNewFlow(resultIntent);
-        } else if (requestCode == RequestResultCode.EDIT_FLOW_REQUEST.ordinal()) {
+        } else if (requestCode == RequestResultCode.EDIT_FLOW_REQUEST.ordinal()) {  //修改
             coverFlowAfterEditing(resultIntent);
         }
     }
@@ -162,6 +162,8 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         } else if (type == FlowTypeEnum.TRANSFER) {
             String exportAccount = dataBundle.getString(FlowAttributeStrings.EXPORT);    //转出账户
             String importAccount = dataBundle.getString(FlowAttributeStrings.IMPORT);    //转入账户
+
+            special_values.put(FlowDatabaseHelper.COLUMN_FNO, fno);
             special_values.put(FlowDatabaseHelper.COLUMN_EXPORT, exportAccount);
             special_values.put(FlowDatabaseHelper.COLUMN_IMPORT, importAccount);
             db.insert(FlowDatabaseHelper.TABLE_TRANSFER, null, special_values);
@@ -174,6 +176,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         db.close();
         newFlowView.fno = fno;  //将自增主键值保存
         flowListAdapter.addNewFlowView(newFlowView);  //将新建的流水视图添加至列表视图适配器
+        Toast.makeText(getActivity(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -204,15 +207,17 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         basic_values.put(FlowDatabaseHelper.COLUMN_DATETIME, date_time);    //日期
         String selection = FlowAttributeStrings.FNO + "=?";
         long fno = ((FlowViewBase) flowListAdapter.getItem(position)).fno;  //编号
+        String[] selectionArgs = new String[]{String.valueOf(fno)};
         db.update(
                 FlowDatabaseHelper.TABLE_BASIC,
                 basic_values,
                 selection,
-                new String[]{String.valueOf(fno)}
+                selectionArgs
         );
 
         //实例化流水类
         FlowViewBase newFlowView;
+        special_values = new ContentValues();
         if (type == FlowTypeEnum.EXPENSE) {
             newFlowView = new ExpenseFlowView(remark, date_time, amount);
         } else if (type == FlowTypeEnum.INCOME) {
@@ -220,6 +225,16 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         } else if (type == FlowTypeEnum.TRANSFER) {
             String exportAccount = dataBundle.getString(FlowAttributeStrings.EXPORT);    //转出账户
             String importAccount = dataBundle.getString(FlowAttributeStrings.IMPORT);    //转入账户
+
+            special_values.put(FlowDatabaseHelper.COLUMN_EXPORT, exportAccount);
+            special_values.put(FlowDatabaseHelper.COLUMN_IMPORT, importAccount);
+            db.update(
+                    FlowDatabaseHelper.TABLE_TRANSFER,
+                    special_values,
+                    selection,
+                    selectionArgs
+            );
+
             newFlowView = new TransferFlowView(remark, date_time, amount, exportAccount, importAccount);
         } else {
             throw new NullPointerException("流水类型获取失败");
@@ -227,6 +242,43 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
         newFlowView.fno = fno;
         flowListAdapter.setFlowView(position, newFlowView);
+        Toast.makeText(getActivity(), "成功修改流水记录", Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * 删除流水
+     */
+    private void deleteFlow(Intent resultIntent) {
+        Bundle dataBundle = resultIntent.getExtras();
+        SQLiteDatabase db = flow_db_helper.openWriteLink();
+
+        int position;
+        if (dataBundle == null) {
+            throw new NullPointerException("无法获取有效的流水视图下标");
+        }
+
+        //从数据库中删除
+        position = dataBundle.getInt(FlowAttributeStrings.POSITION, -1);
+        FlowViewBase target_flow_view = (FlowViewBase) flowListAdapter.getItem(position);
+        long fno = target_flow_view.fno;
+        String selection = FlowAttributeStrings.FNO + "=?";
+        String[] selectionArgs = {String.valueOf(fno)};
+        db.delete(
+                FlowDatabaseHelper.TABLE_BASIC,
+                selection,
+                selectionArgs
+        );
+        FlowTypeEnum type = target_flow_view.type;
+        if (type == FlowTypeEnum.TRANSFER) {
+            db.delete(
+                    FlowDatabaseHelper.TABLE_TRANSFER,
+                    selection,
+                    selectionArgs
+            );
+        }
+
+        flowListAdapter.deleteFlowView(position);
+        Toast.makeText(getActivity(), "流水记录已删除", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -264,17 +316,27 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                     flowView = new IncomeFlowView(fno, remark, date_time, amount);
                     break;
                 case TRANSFER:
-                    String sql = "SELECT " + FlowDatabaseHelper.COLUMN_EXPORT + "," + FlowDatabaseHelper.COLUMN_IMPORT +
-                            "FROM " + FlowDatabaseHelper.TABLE_TRANSFER +
-                            "WHERE Fno=" + fno;
+                    String[] columns = {FlowDatabaseHelper.COLUMN_EXPORT, FlowDatabaseHelper.COLUMN_IMPORT};
+                    String selection = FlowDatabaseHelper.COLUMN_FNO + "=?";
+                    String[] selectionArgs = {String.valueOf(fno)};
 
-                    Cursor transfer_cursor = db.rawQuery(sql, null);
-                    transfer_cursor.moveToNext();   //只查询一次
-                    String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_EXPORT));
-                    String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_IMPORT));
-                    transfer_cursor.close();
+                    Cursor transfer_cursor = db.query(
+                            FlowDatabaseHelper.TABLE_TRANSFER,
+                            columns,
+                            selection,
+                            selectionArgs,
+                            null,
+                            null,
+                            null
+                    );
 
-                    flowView = new TransferFlowView(fno, remark, date_time, amount, exportAccount, importAccount);
+                    while (transfer_cursor.moveToNext()) {
+                        String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_EXPORT));
+                        String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_IMPORT));
+                        transfer_cursor.close();
+                        flowView = new TransferFlowView(fno, remark, date_time, amount, exportAccount, importAccount);
+                    }
+
                     break;
             }
             flowViewList.add(flowView);
