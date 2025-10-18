@@ -69,6 +69,6 @@
             android:id="@+id/import_account_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="转出账户" />
+            android:hint="转入账户" />
     </com.google.android.material.textfield.TextInputLayout>
 </LinearLayout>
