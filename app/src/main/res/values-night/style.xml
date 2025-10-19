@@ -27,7 +27,7 @@
 
     <!-- 流水视图样式 -->
     <style name="FlowViewStyle">
-        <item name="cardBackgroundColor">@color/card_background</item>
+        <item name="cardBackgroundColor">@color/card_background_night</item>
     </style>
 
     <!-- 新建流水界面卡片容器样式 -->
@@ -47,8 +47,8 @@
 
     <!-- 文本框样式 -->
     <style name="TextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="boxBackgroundColor">@color/page_background_night</item>
-        <item name="backgroundTint">@color/theme_blue_night</item>
+        <item name="boxBackgroundColor">@color/unchecked_gray_night</item>
+        <item name="backgroundTint">@color/unchecked_gray_night</item>
         <item name="boxStrokeColor">@color/theme_blue_night</item>
         <item name="hintTextColor">@color/theme_blue_night</item>
         <item name="cursorColor">@color/theme_blue_night</item>
@@ -73,5 +73,6 @@
         <item name="android:background">@color/page_background_night</item>
         <item name="tabTextColor">@color/tab_layout_selector</item>
         <item name="tabIndicatorColor">@color/theme_blue_night</item>
+        <item name="tabRippleColor">@color/ripple_night</item>
     </style>
 </resources>

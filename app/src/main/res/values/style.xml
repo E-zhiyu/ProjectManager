@@ -73,5 +73,6 @@
         <item name="android:background">@color/page_background</item>
         <item name="tabTextColor">@color/tab_layout_selector</item>
         <item name="tabIndicatorColor">@color/theme_blue</item>
+        <item name="tabRippleColor">@color/ripple</item>
     </style>
 </resources>
