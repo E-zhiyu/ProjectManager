@@ -25,23 +25,24 @@
         <item name="android:layout_margin">10dp</item>
     </style>
 
+    <!-- 流水视图样式 -->
+    <style name="FlowViewStyle">
+        <item name="cardBackgroundColor">@color/card_background</item>
+    </style>
+
     <!-- 新建流水界面卡片容器样式 -->
     <style name="NewFlowCardStyle">
         <item name="cardBackgroundColor">@color/page_background_night</item>
     </style>
 
-    <!-- 文本视图样式 -->
-    <style name="NewFlowTextViewStyle">
-        <item name="android:textSize">20sp</item>
-        <item name="android:layout_marginStart">10sp</item>
-    </style>
-
     <!-- 按钮样式 -->
     <style name="BtnStyle" parent="Widget.MaterialComponents.Button">
-        <item name="android:background">@color/theme_blue_night</item>
+        <item name="backgroundTint">@color/theme_blue_night</item>
         <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">15sp</item>
         <item name="cornerRadius">20dp</item>
         <item name="android:layout_margin">5dp</item>
+        <item name="android:padding">10dp</item>
     </style>
 
     <!-- 文本框样式 -->
@@ -57,10 +58,17 @@
         <item name="itemIconTint">@color/bottom_navigation_selector</item>
         <item name="itemRippleColor">@color/ripple_night</item>
         <item name="android:background">@color/card_background_night</item>
+        <item name="itemActiveIndicatorStyle">@style/NaviActiveIndicator</item>
+    </style>
+
+    <!-- 底部导航栏指示器颜色 -->
+    <style name="NaviActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/navi_indicator_night</item>
     </style>
 
     <!-- TabLayout样式 -->
-    <style name="TabLayoutStyle">
+    <style name="TabLayoutStyle" parent="android:Widget">
+        <item name="android:background">@color/page_background_night</item>
         <item name="tabTextColor">@color/tab_layout_selector</item>
         <item name="tabIndicatorColor">@color/theme_blue_night</item>
     </style>

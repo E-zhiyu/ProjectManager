@@ -16,7 +16,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="流水编辑"></androidx.appcompat.widget.Toolbar>
+        app:title="流水编辑">
+
+    </androidx.appcompat.widget.Toolbar>
 
     <FrameLayout
         android:id="@+id/flow_edit_fragment_container"
@@ -37,21 +39,21 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <android.widget.Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/delete_btn"
                 style="@style/BtnStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="删除" />
 
-            <android.widget.Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/cancel_btn"
                 style="@style/BtnStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="取消" />
 
-            <android.widget.Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/finish_btn"
                 style="@style/BtnStyle"
                 android:layout_width="wrap_content"

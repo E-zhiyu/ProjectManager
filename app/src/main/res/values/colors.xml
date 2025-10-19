@@ -20,4 +20,6 @@
     <color name="ripple_night">@color/unchecked_gray_night</color>
     <color name="toolbar_background">#ebedfa</color>
     <color name="toolbar_background_night">#1c1e2a</color>
+    <color name="navi_indicator">#dce1ff</color>
+    <color name="navi_indicator_night">#314578</color>
 </resources>

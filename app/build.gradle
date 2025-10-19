@@ -35,7 +35,8 @@ dependencies {
 
     implementation libs.appcompat
     implementation libs.material
-    implementation libs.material.v170
+    implementation libs.recyclerview
+    implementation libs.material.v1130
     implementation libs.constraintlayout
     implementation libs.lifecycle.livedata.ktx
     implementation libs.lifecycle.viewmodel.ktx
