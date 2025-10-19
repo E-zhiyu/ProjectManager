@@ -7,7 +7,7 @@
     android:padding="16dp">
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/EditTextStyle"
+        style="@style/TextInputLayoutStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:errorEnabled="false">
@@ -20,7 +20,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/EditTextStyle"
+        style="@style/TextInputLayoutStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="备注"
@@ -29,11 +29,12 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/remark_input"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:maxLength="20" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/EditTextStyle"
+        style="@style/TextInputLayoutStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="日期和时间"
@@ -47,7 +48,7 @@
 
     <!-- 其他转账特定字段 -->
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/EditTextStyle"
+        style="@style/TextInputLayoutStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:errorEnabled="false">
@@ -56,11 +57,12 @@
             android:id="@+id/export_account_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="转出账户" />
+            android:hint="转出账户"
+            android:maxLength="20" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/EditTextStyle"
+        style="@style/TextInputLayoutStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:errorEnabled="false">
@@ -69,6 +71,7 @@
             android:id="@+id/import_account_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="转入账户" />
+            android:hint="转入账户"
+            android:maxLength="20" />
     </com.google.android.material.textfield.TextInputLayout>
 </LinearLayout>

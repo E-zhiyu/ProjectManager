@@ -7,7 +7,7 @@
     android:padding="16dp">
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/EditTextStyle"
+        style="@style/TextInputLayoutStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:errorEnabled="false">
@@ -17,11 +17,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="金额"
-            android:inputType="numberDecimal"/>
+            android:inputType="numberDecimal" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/EditTextStyle"
+        style="@style/TextInputLayoutStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="备注"
@@ -30,11 +30,12 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/remark_input"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:maxLength="20" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/EditTextStyle"
+        style="@style/TextInputLayoutStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="日期和时间"
