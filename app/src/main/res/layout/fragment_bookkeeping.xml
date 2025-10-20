@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="horizontal"
-            android:padding="15dp">
+            android:padding="7dp">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/flow_btn"
@@ -39,7 +39,7 @@
     </androidx.cardview.widget.CardView>
 
     <!-- 流水列表视图 -->
-    <ListView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/flow_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -24,7 +24,7 @@
                 android:text="Remark" />
 
             <TextView
-                android:id="@+id/name_date_textview"
+                android:id="@+id/name_datetime_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="DateTime&amp;Type" />

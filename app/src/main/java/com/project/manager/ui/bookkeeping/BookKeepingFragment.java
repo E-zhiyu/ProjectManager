@@ -9,11 +9,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.project.manager.R;
 import com.project.manager.database.FlowDatabaseHelper;
@@ -25,10 +27,9 @@ import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.FlowTypeEn
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class BookKeepingFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener {
-    FlowListAdapter flowListAdapter;    //流水列表适配器
+    FlowRecyclerAdapter flowListAdapter;    //流水列表适配器
     FlowDatabaseHelper flow_db_helper;       //流水数据库帮助器
 
     private FragmentBookkeepingBinding binding;
@@ -47,13 +48,15 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         root.findViewById(R.id.report_btn).setOnClickListener(this);
 
         //创建列表视图的适配器
-        List<FlowViewBase> flowList = new ArrayList<>();
-        flowListAdapter = new FlowListAdapter(requireActivity(), flowList);
-        ListView flowListView = binding.flowList;
+        List<FlowBase> flowList = loadFlowData();
+        flowListAdapter = new FlowRecyclerAdapter(requireActivity(), flowList);
+        RecyclerView flowListView = binding.flowList;
+        flowListView.setLayoutManager(new LinearLayoutManager(requireActivity()));  //设置线性布局
         flowListView.setAdapter(flowListAdapter);
-        flowListView.setOnItemClickListener(this);  //设置单击监听器
 
-        loadFlowViews();  //从数据库加载流水视图
+        //添加分隔线
+        DividerItemDecoration divider = new DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL);
+        flowListView.addItemDecoration(divider);
 
         return root;
     }
@@ -91,8 +94,8 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        FlowListAdapter flowListAdapter = (FlowListAdapter) parent.getAdapter();
-        FlowViewBase flowView = (FlowViewBase) flowListAdapter.getItem(position);
+        FlowRecyclerAdapter flowListAdapter = (FlowRecyclerAdapter) parent.getAdapter();
+        FlowBase flowView = flowListAdapter.getItem(position);
 
         Intent skip2FlowEdit = new Intent(getActivity(), FlowEditActivity.class);
         Bundle dataBundle = new Bundle();
@@ -113,9 +116,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
         //获取特殊数据
         if (type == FlowTypeEnum.TRANSFER) {
-            String exportAccount = ((TransferFlowView) flowView).exportAccount;  //转出账户
+            String exportAccount = ((TransferFlow) flowView).exportAccount;  //转出账户
             dataBundle.putString(FlowAttributeStrings.EXPORT, exportAccount);
-            String importAccount = ((TransferFlowView) flowView).importAccount;  //转入账户
+            String importAccount = ((TransferFlow) flowView).importAccount;  //转入账户
             dataBundle.putString(FlowAttributeStrings.IMPORT, importAccount);
         }
 
@@ -154,11 +157,11 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
         //获取特殊数据并实例化流水类
         special_values = new ContentValues();
-        FlowViewBase newFlowView;
+        FlowBase newFlowView;
         if (type == FlowTypeEnum.EXPENSE) {
-            newFlowView = new ExpenseFlowView(remark, date_time, amount);
+            newFlowView = new ExpenseFlow(remark, date_time, amount);
         } else if (type == FlowTypeEnum.INCOME) {
-            newFlowView = new IncomeFlowView(remark, date_time, amount);
+            newFlowView = new IncomeFlow(remark, date_time, amount);
         } else if (type == FlowTypeEnum.TRANSFER) {
             String exportAccount = dataBundle.getString(FlowAttributeStrings.EXPORT);    //转出账户
             String importAccount = dataBundle.getString(FlowAttributeStrings.IMPORT);    //转入账户
@@ -168,7 +171,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             special_values.put(FlowDatabaseHelper.COLUMN_IMPORT, importAccount);
             db.insert(FlowDatabaseHelper.TABLE_TRANSFER, null, special_values);
 
-            newFlowView = new TransferFlowView(remark, date_time, amount, exportAccount, importAccount);
+            newFlowView = new TransferFlow(remark, date_time, amount, exportAccount, importAccount);
         } else {
             throw new NullPointerException("流水类型获取失败");
         }
@@ -206,7 +209,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         basic_values.put(FlowDatabaseHelper.COLUMN_REMARK, remark);         //备注
         basic_values.put(FlowDatabaseHelper.COLUMN_DATETIME, date_time);    //日期
         String selection = FlowAttributeStrings.FNO + "=?";
-        long fno = ((FlowViewBase) flowListAdapter.getItem(position)).fno;  //编号
+        long fno = (flowListAdapter.getItem(position)).fno;  //编号
         String[] selectionArgs = new String[]{String.valueOf(fno)};
         db.update(
                 FlowDatabaseHelper.TABLE_BASIC,
@@ -216,12 +219,12 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         );
 
         //实例化流水类
-        FlowViewBase newFlowView;
+        FlowBase newFlowView;
         special_values = new ContentValues();
         if (type == FlowTypeEnum.EXPENSE) {
-            newFlowView = new ExpenseFlowView(remark, date_time, amount);
+            newFlowView = new ExpenseFlow(remark, date_time, amount);
         } else if (type == FlowTypeEnum.INCOME) {
-            newFlowView = new IncomeFlowView(remark, date_time, amount);
+            newFlowView = new IncomeFlow(remark, date_time, amount);
         } else if (type == FlowTypeEnum.TRANSFER) {
             String exportAccount = dataBundle.getString(FlowAttributeStrings.EXPORT);    //转出账户
             String importAccount = dataBundle.getString(FlowAttributeStrings.IMPORT);    //转入账户
@@ -235,7 +238,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                     selectionArgs
             );
 
-            newFlowView = new TransferFlowView(remark, date_time, amount, exportAccount, importAccount);
+            newFlowView = new TransferFlow(remark, date_time, amount, exportAccount, importAccount);
         } else {
             throw new NullPointerException("流水类型获取失败");
         }
@@ -259,7 +262,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
         //从数据库中删除
         position = dataBundle.getInt(FlowAttributeStrings.POSITION, -1);
-        FlowViewBase target_flow_view = (FlowViewBase) flowListAdapter.getItem(position);
+        FlowBase target_flow_view = flowListAdapter.getItem(position);
         long fno = target_flow_view.fno;
         String selection = FlowAttributeStrings.FNO + "=?";
         String[] selectionArgs = {String.valueOf(fno)};
@@ -284,7 +287,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     /**
      * 从数据库中加载流水视图
      */
-    private void loadFlowViews() {
+    private List<FlowBase> loadFlowData() {
         SQLiteDatabase db = flow_db_helper.openReadLink();  //获取读连接
 
         //定义查询光标
@@ -299,7 +302,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         );
 
         //查询数据
-        List<FlowViewBase> flowViewList = new ArrayList<>();
+        List<FlowBase> flowList = new ArrayList<>();
         while (basic_cursor.moveToNext()) {
             long fno = basic_cursor.getInt(basic_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_FNO));
             double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_AMOUNT));
@@ -307,13 +310,13 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_REMARK));
             String date_time = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_DATETIME));
 
-            FlowViewBase flowView = null;
+            FlowBase flowView = null;
             switch (type) {
                 case EXPENSE:
-                    flowView = new ExpenseFlowView(fno, remark, date_time, amount);
+                    flowView = new ExpenseFlow(fno, remark, date_time, amount);
                     break;
                 case INCOME:
-                    flowView = new IncomeFlowView(fno, remark, date_time, amount);
+                    flowView = new IncomeFlow(fno, remark, date_time, amount);
                     break;
                 case TRANSFER:
                     String[] columns = {FlowDatabaseHelper.COLUMN_EXPORT, FlowDatabaseHelper.COLUMN_IMPORT};
@@ -334,18 +337,18 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                         String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_EXPORT));
                         String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_IMPORT));
                         transfer_cursor.close();
-                        flowView = new TransferFlowView(fno, remark, date_time, amount, exportAccount, importAccount);
+                        flowView = new TransferFlow(fno, remark, date_time, amount, exportAccount, importAccount);
                     }
 
                     break;
                 default:
                     throw new RuntimeException("无法获取正确的流水视图类型");
             }
-            flowViewList.add(flowView);
+            flowList.add(flowView);
         }
         basic_cursor.close();
         db.close();
 
-        flowListAdapter.initFlowView(flowViewList);  //初始化列表视图
+        return flowList;
     }
 }

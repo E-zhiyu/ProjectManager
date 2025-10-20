@@ -2,7 +2,7 @@ package com.project.manager.ui.bookkeeping;
 
 import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.FlowTypeEnum;
 
-public abstract class FlowViewBase {
+public abstract class FlowBase {
     String name;        //名称
     FlowTypeEnum type;  //种类
     String remark;      //备注
@@ -14,7 +14,7 @@ public abstract class FlowViewBase {
 /**
  * 支出流水类
  */
-class ExpenseFlowView extends FlowViewBase {
+class ExpenseFlow extends FlowBase {
     /**
      * 不给定编号的构造方法
      *
@@ -22,7 +22,7 @@ class ExpenseFlowView extends FlowViewBase {
      * @param date_time 日期和时间
      * @param amount    金额
      */
-    public ExpenseFlowView(String remark, String date_time, double amount) {
+    public ExpenseFlow(String remark, String date_time, double amount) {
         this.type = FlowTypeEnum.EXPENSE;
         this.name = "支出";
         this.remark = remark;
@@ -39,7 +39,7 @@ class ExpenseFlowView extends FlowViewBase {
      * @param date_time 日期和时间
      * @param amount    金额
      */
-    public ExpenseFlowView(long fno, String remark, String date_time, double amount) {
+    public ExpenseFlow(long fno, String remark, String date_time, double amount) {
         this.fno = fno;
         this.type = FlowTypeEnum.EXPENSE;
         this.name = "支出";
@@ -52,7 +52,7 @@ class ExpenseFlowView extends FlowViewBase {
 /**
  * 收入流水类
  */
-class IncomeFlowView extends FlowViewBase {
+class IncomeFlow extends FlowBase {
     /**
      * 不给定编号的构造方法
      *
@@ -60,7 +60,7 @@ class IncomeFlowView extends FlowViewBase {
      * @param date_time 日期和时间
      * @param amount    金额
      */
-    public IncomeFlowView(String remark, String date_time, double amount) {
+    public IncomeFlow(String remark, String date_time, double amount) {
         this.fno = -1;
         this.type = FlowTypeEnum.INCOME;
         this.name = "收入";
@@ -77,7 +77,7 @@ class IncomeFlowView extends FlowViewBase {
      * @param date_time 日期和时间
      * @param amount    金额
      */
-    public IncomeFlowView(long fno, String remark, String date_time, double amount) {
+    public IncomeFlow(long fno, String remark, String date_time, double amount) {
         this.fno = fno;
         this.type = FlowTypeEnum.INCOME;
         this.name = "收入";
@@ -90,7 +90,7 @@ class IncomeFlowView extends FlowViewBase {
 /**
  * 转账流水类
  */
-class TransferFlowView extends FlowViewBase {
+class TransferFlow extends FlowBase {
     String exportAccount;   //转出账户
     String importAccount;   //转入账户
 
@@ -103,7 +103,7 @@ class TransferFlowView extends FlowViewBase {
      * @param exportAccount 转出账户
      * @param importAccount 转入账户
      */
-    public TransferFlowView(String remark, String date_time, double amount, String exportAccount, String importAccount) {
+    public TransferFlow(String remark, String date_time, double amount, String exportAccount, String importAccount) {
         this.fno = -1;
         this.type = FlowTypeEnum.TRANSFER;
         this.name = "转账";
@@ -124,7 +124,7 @@ class TransferFlowView extends FlowViewBase {
      * @param exportAccount 转出账户
      * @param importAccount 转入账户
      */
-    public TransferFlowView(long fno, String remark, String date_time, double amount, String exportAccount, String importAccount) {
+    public TransferFlow(long fno, String remark, String date_time, double amount, String exportAccount, String importAccount) {
         this.fno = fno;
         this.type = FlowTypeEnum.TRANSFER;
         this.name = "转账";
