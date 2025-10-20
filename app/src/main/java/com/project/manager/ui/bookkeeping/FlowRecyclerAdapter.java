@@ -1,9 +1,9 @@
 package com.project.manager.ui.bookkeeping;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,19 +12,17 @@ import com.project.manager.R;
 
 import java.util.List;
 
-public class FlowRecyclerAdapter extends RecyclerView.Adapter<FlowViewHolder> {
+public class FlowRecyclerAdapter extends RecyclerView.Adapter<FlowRecyclerAdapter.FlowViewHolder> {
     private List<FlowBase> flowList;   //数据源
-    private Context context;
+    private OnItemClickListener listener;   //单击接口对象
 
     /**
      * 构造方法
      *
      * @param flowList 流水数据类型列表
-     * @param context  上下文
      */
-    public FlowRecyclerAdapter(Context context, List<FlowBase> flowList) {
+    public FlowRecyclerAdapter(List<FlowBase> flowList) {
         this.flowList = flowList;
-        this.context = context;
     }
 
     @NonNull
@@ -32,7 +30,7 @@ public class FlowRecyclerAdapter extends RecyclerView.Adapter<FlowViewHolder> {
     public FlowViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.flow_view, parent, false);
-        return new FlowViewHolder(view);
+        return new FlowViewHolder(view, listener);
     }
 
     @Override
@@ -43,9 +41,6 @@ public class FlowRecyclerAdapter extends RecyclerView.Adapter<FlowViewHolder> {
         holder.remark_text.setText(currentFlow.remark);                 //备注
         holder.name_datetime_text.setText(name_date);                   //名称和日期
         holder.amount_text.setText(String.valueOf(currentFlow.amount)); //金额
-
-        //设置点击事件
-
     }
 
     @Override
@@ -53,8 +48,37 @@ public class FlowRecyclerAdapter extends RecyclerView.Adapter<FlowViewHolder> {
         return this.flowList.size();
     }
 
+    // 定义点击事件接口
+    public interface OnItemClickListener {
+        void onItemClick(int position, FlowBase flowBase);
+    }
+
+    //设置点击监听的方法
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    public class FlowViewHolder extends RecyclerView.ViewHolder {
+        TextView amount_text, remark_text, name_datetime_text;
+
+        public FlowViewHolder(@NonNull View itemView, FlowRecyclerAdapter.OnItemClickListener listener) {
+            super(itemView);
+            amount_text = itemView.findViewById(R.id.amount_textview);
+            remark_text = itemView.findViewById(R.id.remark_textview);
+            name_datetime_text = itemView.findViewById(R.id.name_datetime_textview);
+
+            //绑定点击事件
+            itemView.setOnClickListener(v -> {
+                if (listener != null && getAdapterPosition() != RecyclerView.NO_POSITION) {
+                    listener.onItemClick(getAdapterPosition(), flowList.get(getAdapterPosition()));
+                }
+            });
+        }
+    }
+
     /**
      * 获取指定位置的流水数据类型
+     *
      * @param position 指定的下标
      * @return 流水数据类型
      */
