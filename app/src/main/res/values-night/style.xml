@@ -18,6 +18,13 @@
         <item name="android:background">@color/page_background_night</item>
     </style>
 
+    <!-- 文本视图样式 -->
+    <style name="TextViewStyle">
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginLeft">35dp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
     <!-- 卡片容器样式 -->
     <style name="CardStyle">
         <item name="cardBackgroundColor">@color/card_background_night</item>

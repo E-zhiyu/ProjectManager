@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjectManager">
         <activity
+            android:name=".ui.bookkeeping.report.ReportActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.bookkeeping.flow_edit.FlowEditActivity"
             android:exported="false" />
         <activity

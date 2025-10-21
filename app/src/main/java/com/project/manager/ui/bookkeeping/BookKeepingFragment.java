@@ -23,6 +23,7 @@ import com.project.manager.ui.bookkeeping.flow_edit.FlowEditActivity;
 import com.project.manager.ui.bookkeeping.new_flow.NewFlowActivity;
 import com.project.manager.RequestResultCode;
 import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.FlowTypeEnum;
+import com.project.manager.ui.bookkeeping.report.ReportActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,11 +71,45 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.flow_btn) {  //新建流水
-            Intent intent = new Intent(getActivity(), NewFlowActivity.class);
-            startActivityForResult(intent, RequestResultCode.NEW_FLOW_REQUEST.ordinal());
+            Intent skip2NewFlow = new Intent(getActivity(), NewFlowActivity.class);
+            startActivityForResult(skip2NewFlow, RequestResultCode.NEW_FLOW_REQUEST.ordinal());
         } else if (v.getId() == R.id.report_btn) {  //查看报表
-
+            Intent skip2Report = new Intent(getActivity(), ReportActivity.class);
+            startActivity(skip2Report);
         }
+    }
+
+    @Override
+    public void onItemClick(int position, FlowBase flowBase) {
+        FlowBase flowView = flowListAdapter.getItem(position);
+
+        Intent skip2FlowEdit = new Intent(getActivity(), FlowEditActivity.class);
+        Bundle dataBundle = new Bundle();
+
+        //获取基本数据
+        FlowTypeEnum type = flowView.type;      //类型
+        dataBundle.putString(FlowAttributeStrings.TYPE, type.toString());
+        double amount = flowView.amount;        //金额
+        dataBundle.putDouble(FlowAttributeStrings.AMOUNT, amount);
+        String remark = flowView.remark;        //备注
+        dataBundle.putString(FlowAttributeStrings.REMARK, remark);
+        String date_time = flowView.date_time;  //日期
+        dataBundle.putString(FlowAttributeStrings.DATETIME, date_time);
+        long fno = flowView.fno;                //编号
+        dataBundle.putLong(FlowAttributeStrings.FNO, fno);
+
+        dataBundle.putInt(FlowAttributeStrings.POSITION, position);  //将待修改的流水实例下标放入包裹
+
+        //获取特殊数据
+        if (type == FlowTypeEnum.TRANSFER) {
+            String exportAccount = ((TransferFlow) flowView).exportAccount;  //转出账户
+            dataBundle.putString(FlowAttributeStrings.EXPORT, exportAccount);
+            String importAccount = ((TransferFlow) flowView).importAccount;  //转入账户
+            dataBundle.putString(FlowAttributeStrings.IMPORT, importAccount);
+        }
+
+        skip2FlowEdit.putExtras(dataBundle);
+        startActivityForResult(skip2FlowEdit, RequestResultCode.EDIT_FLOW_REQUEST.ordinal());
     }
 
     @Override
@@ -209,6 +244,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             throw new NullPointerException("流水类型获取失败");
         }
 
+        db.close();
         newFlowView.fno = fno;
         flowListAdapter.setFlowView(position, newFlowView);
         Toast.makeText(getActivity(), "成功修改流水记录", Toast.LENGTH_SHORT).show();
@@ -246,6 +282,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             );
         }
 
+        db.close();
         flowListAdapter.deleteFlowView(position);
         Toast.makeText(getActivity(), "流水记录已删除", Toast.LENGTH_SHORT).show();
     }
@@ -316,38 +353,5 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         db.close();
 
         return flowList;
-    }
-
-    @Override
-    public void onItemClick(int position, FlowBase flowBase) {
-        FlowBase flowView = flowListAdapter.getItem(position);
-
-        Intent skip2FlowEdit = new Intent(getActivity(), FlowEditActivity.class);
-        Bundle dataBundle = new Bundle();
-
-        //获取基本数据
-        FlowTypeEnum type = flowView.type;      //类型
-        dataBundle.putString(FlowAttributeStrings.TYPE, type.toString());
-        double amount = flowView.amount;        //金额
-        dataBundle.putDouble(FlowAttributeStrings.AMOUNT, amount);
-        String remark = flowView.remark;        //备注
-        dataBundle.putString(FlowAttributeStrings.REMARK, remark);
-        String date_time = flowView.date_time;  //日期
-        dataBundle.putString(FlowAttributeStrings.DATETIME, date_time);
-        long fno = flowView.fno;                //编号
-        dataBundle.putLong(FlowAttributeStrings.FNO, fno);
-
-        dataBundle.putInt(FlowAttributeStrings.POSITION, position);  //将待修改的流水实例下标放入包裹
-
-        //获取特殊数据
-        if (type == FlowTypeEnum.TRANSFER) {
-            String exportAccount = ((TransferFlow) flowView).exportAccount;  //转出账户
-            dataBundle.putString(FlowAttributeStrings.EXPORT, exportAccount);
-            String importAccount = ((TransferFlow) flowView).importAccount;  //转入账户
-            dataBundle.putString(FlowAttributeStrings.IMPORT, importAccount);
-        }
-
-        skip2FlowEdit.putExtras(dataBundle);
-        startActivityForResult(skip2FlowEdit, RequestResultCode.EDIT_FLOW_REQUEST.ordinal());
     }
 }
