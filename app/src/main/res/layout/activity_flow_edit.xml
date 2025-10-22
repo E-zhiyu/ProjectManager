@@ -31,6 +31,7 @@
         android:id="@+id/btn_card_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        style="@style/CardStyle"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
