@@ -54,8 +54,8 @@
 
     <!-- 文本框样式 -->
     <style name="TextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="boxBackgroundColor">@color/unchecked_gray_night</item>
-        <item name="backgroundTint">@color/unchecked_gray_night</item>
+        <item name="boxBackgroundColor">@color/page_background_night</item>
+        <item name="backgroundTint">@color/theme_blue_night</item>
         <item name="boxStrokeColor">@color/theme_blue_night</item>
         <item name="hintTextColor">@color/theme_blue_night</item>
         <item name="cursorColor">@color/theme_blue_night</item>
@@ -81,5 +81,31 @@
         <item name="tabTextColor">@color/tab_layout_selector</item>
         <item name="tabIndicatorColor">@color/theme_blue_night</item>
         <item name="tabRippleColor">@color/ripple_night</item>
+    </style>
+
+    <!-- 日期选择对话框样式 -->
+    <style name="DatePickerDialogStyle" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <!-- 标题颜色 -->
+        <item name="materialCalendarHeaderTitle">@color/toolbar_background_night</item>
+        <!-- 选中日期的背景色 -->
+        <item name="colorOnPrimary">@color/toolbar_background_night</item>
+        <item name="colorPrimary">@color/theme_blue_night</item>
+        <!-- 按钮文字颜色 -->
+        <item name="materialButtonStyle">@style/DateTimePickerButtonStyle</item>
+    </style>
+
+    <!-- 时间选择对话框样式 -->
+    <style name="TimePickerDialogStyle" parent="ThemeOverlay.MaterialComponents.TimePicker">
+        <!-- 时钟数字颜色 -->
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- 选中状态的颜色 -->
+        <item name="colorPrimary">@color/theme_blue_night</item>
+        <!-- 按钮样式 -->
+        <item name="materialButtonStyle">@style/DateTimePickerButtonStyle</item>
+    </style>
+
+    <!-- 日期和时间选择对话框按钮样式 -->
+    <style name="DateTimePickerButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/white</item>
     </style>
 </resources>

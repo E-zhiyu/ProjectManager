@@ -82,4 +82,30 @@
         <item name="tabIndicatorColor">@color/theme_blue</item>
         <item name="tabRippleColor">@color/ripple</item>
     </style>
+
+    <!-- 日期选择对话框样式 -->
+    <style name="DatePickerDialogStyle" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <!-- 标题颜色 -->
+        <item name="materialCalendarHeaderTitle">@color/white</item>
+        <!-- 选中日期的背景色 -->
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimary">@color/theme_blue</item>
+        <!-- 按钮文字颜色 -->
+        <item name="materialButtonStyle">@style/DateTimePickerButtonStyle</item>
+    </style>
+
+    <!-- 时间选择对话框样式 -->
+    <style name="TimePickerDialogStyle" parent="ThemeOverlay.MaterialComponents.TimePicker">
+        <!-- 时钟数字颜色 -->
+        <item name="colorOnPrimary">@color/black</item>
+        <!-- 选中状态的颜色 -->
+        <item name="colorPrimary">@color/theme_blue</item>
+        <!-- 按钮样式 -->
+        <item name="materialButtonStyle">@style/DateTimePickerButtonStyle</item>
+    </style>
+
+    <!-- 日期和时间选择对话框按钮样式 -->
+    <style name="DateTimePickerButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/black</item>
+    </style>
 </resources>

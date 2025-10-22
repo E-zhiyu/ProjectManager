@@ -1,7 +1,6 @@
 package com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments;
 
 import android.annotation.SuppressLint;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,11 +10,12 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 import com.project.manager.R;
 import com.project.manager.ui.bookkeeping.FlowAttributeStrings;
-import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
-import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import java.util.Calendar;
 
@@ -111,53 +111,61 @@ public abstract class FlowFragmentBase extends Fragment {
      * 弹出日期和时间选择框
      */
     protected void showMaterialDateTimePicker() {
-        Calendar now = Calendar.getInstance();
-        DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(
-                (date_view, year, monthOfYear, dayOfMonth) -> {
-                    // 日期选择回调
-                    TimePickerDialog timePickerDialog = TimePickerDialog.newInstance(
-                            (time_view, hourOfDay, minute, second) -> {
-                                // 时间选择回调
-                                @SuppressLint("DefaultLocale") String datetime = String.format(
-                                        "%04d-%02d-%02d %02d:%02d",
-                                        year, monthOfYear + 1, dayOfMonth, hourOfDay, minute
-                                );
+        //创建日期选择器
+        MaterialDatePicker.Builder<Long> dateBuilder = MaterialDatePicker.Builder.datePicker();
+        dateBuilder.setTitleText("");
+        dateBuilder.setTheme(R.style.DatePickerDialogStyle);
 
-                                //将选择的日期和时间填入文本框
-                                TextInputEditText date_time_view = binding.findViewById(R.id.date_time_input);
-                                date_time_view.setText(datetime);
-                            },
-                            now.get(Calendar.HOUR_OF_DAY),
-                            now.get(Calendar.MINUTE),
-                            true
-                    );
-                    if (isSystemInDarkMode()) {
-                        timePickerDialog.setThemeDark(true);
-                        timePickerDialog.setAccentColor(getResources().getColor(R.color.theme_blue_night));
-                    } else {
-                        timePickerDialog.setAccentColor(getResources().getColor(R.color.theme_blue));
-                    }
-                    timePickerDialog.show(getParentFragmentManager(), "NewFlowTimePicker");
-                },
-                now.get(Calendar.YEAR),
-                now.get(Calendar.MONTH),
-                now.get(Calendar.DAY_OF_MONTH)
-        );
-        if (isSystemInDarkMode()) {
-            datePickerDialog.setThemeDark(true);
-            datePickerDialog.setAccentColor(getResources().getColor(R.color.theme_blue_night));
-        } else {
-            datePickerDialog.setAccentColor(getResources().getColor(R.color.theme_blue));
-        }
-        datePickerDialog.show(getParentFragmentManager(), "NewFlowDatePicker");
+        //显示日期选择器
+        MaterialDatePicker<Long> datePicker = dateBuilder.build();
+        datePicker.show(getParentFragmentManager(), "DATE_PICKER");
+
+        datePicker.addOnPositiveButtonClickListener(selection -> {
+            Calendar selected_calendar = Calendar.getInstance();
+            selected_calendar.setTimeInMillis(selection);
+
+            //选择日期后，再弹出时间选择器
+            showTimePicker(selected_calendar);
+        });
     }
 
     /**
-     * 判断系统是否为深色模式
+     * 显示时间选择对话框
+     *
+     * @param initialCalendar 包含选择日期信息的日历对象
      */
-    private boolean isSystemInDarkMode() {
-        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
+    private void showTimePicker(Calendar initialCalendar) {
+        //创建时间选择器
+        MaterialTimePicker.Builder timeBuilder = new MaterialTimePicker.Builder();
+        timeBuilder.setTimeFormat(TimeFormat.CLOCK_24H); // 24小时制
+        timeBuilder.setHour(initialCalendar.get(Calendar.HOUR_OF_DAY));
+        timeBuilder.setMinute(initialCalendar.get(Calendar.MINUTE));
+        timeBuilder.setTheme(R.style.TimePickerDialogStyle);
+        timeBuilder.setTitleText("");
+
+        //显示时间选择器
+        MaterialTimePicker timePicker = timeBuilder.build();
+        timePicker.show(getParentFragmentManager(), "TIME_PICKER");
+
+        //监听选择结果
+        timePicker.addOnPositiveButtonClickListener(view -> {
+            int hour = timePicker.getHour();
+            int minute = timePicker.getMinute();
+
+            //组合日期和时间
+            initialCalendar.set(Calendar.HOUR_OF_DAY, hour);
+            initialCalendar.set(Calendar.MINUTE, minute);
+
+            //修改文本框的日期和时间
+            TextInputEditText datetime_input = binding.findViewById(R.id.date_time_input);
+            @SuppressLint("DefaultLocale") String datetime_str = String.format("%04d-%02d-%02d %02d:%02d",
+                    initialCalendar.get(Calendar.YEAR),
+                    initialCalendar.get(Calendar.MONTH) + 1,
+                    initialCalendar.get(Calendar.DAY_OF_MONTH),
+                    initialCalendar.get(Calendar.HOUR_OF_DAY),
+                    initialCalendar.get(Calendar.MINUTE));
+            datetime_input.setText(datetime_str);
+        });
     }
 }
 
