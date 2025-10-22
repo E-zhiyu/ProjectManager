@@ -92,7 +92,7 @@ public class FlowRecyclerAdapter extends RecyclerView.Adapter<FlowRecyclerAdapte
      * @param newFlowView 待添加的流水视图
      */
     public void addNewFlowView(FlowBase newFlowView) {
-        this.flowList.add(newFlowView);
+        this.flowList.add(0, newFlowView);
         notifyDataSetChanged();
     }
 
