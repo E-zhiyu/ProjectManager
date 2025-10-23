@@ -21,9 +21,20 @@
         android:id="@+id/report_date_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="日期:"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:text="日期"
         android:textSize="20dp"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/report_toolbar" />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/report_year_only_checkbox"
+        style="@style/CheckBoxStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:text="仅显示年份"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/report_toolbar" />
 
@@ -58,7 +69,7 @@
                 style="@style/TextViewStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="100.0"
+                android:text="XII"
                 android:textSize="25sp" />
 
             <TextView
