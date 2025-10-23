@@ -3,11 +3,11 @@
 
     <item
         android:id="@+id/navigation_bookkeeping"
-        android:icon="@drawable/ic_home_black_24dp"
+        android:icon="@drawable/baseline_bookkeeping_24"
         android:title="@string/title_bookkeeping" />
 
     <item
         android:id="@+id/navigation_mine"
-        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:icon="@drawable/baseline_settings_24"
         android:title="@string/title_setting" />
 </menu>
