@@ -47,7 +47,13 @@
                 android:text="关于" />
 
             <!-- 放入关于软件选项 -->
-
+            <TextView
+                android:id="@+id/setting_about"
+                style="@style/SubSettingCardStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/baseline_info_24"
+                android:text="关于" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </LinearLayout>

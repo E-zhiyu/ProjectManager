@@ -44,6 +44,14 @@
         <item name="android:layout_margin">10dp</item>
     </style>
 
+    <!-- 子设置项卡片容器样式 -->
+    <style name="SubSettingCardStyle">
+        <item name="android:drawableRight">@drawable/baseline_keyboard_arrow_right_24</item>
+        <item name="android:drawablePadding">5dp</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:layout_margin">5dp</item>
+    </style>
+
     <!-- 流水视图样式 -->
     <style name="FlowViewStyle">
         <item name="cardBackgroundColor">@color/card_background_night</item>
