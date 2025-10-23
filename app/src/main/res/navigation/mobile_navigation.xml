@@ -13,7 +13,7 @@
 
     <fragment
         android:id="@+id/navigation_mine"
-        android:name="com.project.manager.ui.mine.MineFragment"
-        android:label="@string/title_mine"
-        tools:layout="@layout/fragment_mine" />
+        android:name="com.project.manager.ui.setting.SettingFragment"
+        android:label="@string/title_setting"
+        tools:layout="@layout/fragment_setting" />
 </navigation>

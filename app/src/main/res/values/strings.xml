@@ -18,7 +18,7 @@
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="title_bookkeeping">记账</string>
-    <string name="title_mine">我的</string>
+    <string name="title_setting">设置</string>
     <string name="title_report">流水报表</string>
     <string name="new_flow">新建流水</string>
     <string name="flow_edit">流水编辑</string>
