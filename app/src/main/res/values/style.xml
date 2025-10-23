@@ -18,16 +18,29 @@
         <item name="android:background">@color/page_background</item>
     </style>
 
-    <!-- 文本视图样式 -->
-    <style name="TextViewStyle">
+    <!-- 报表内容文本视图样式 -->
+    <style name="ReportInfoTextViewStyle">
         <item name="android:layout_marginTop">5dp</item>
         <item name="android:layout_marginLeft">35dp</item>
     </style>
 
-    <!-- 卡片容器器样式 -->
-    <style name="CardStyle">
+    <!-- 标签文本视图样式 -->
+    <style name="LabelTextViewStyle">
+        <item name="android:layout_margin">5dp</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <!-- 普通卡片容器器样式 -->
+    <style name="CommonCardStyle">
         <item name="cardBackgroundColor">@color/card_background</item>
         <item name="cardCornerRadius">50dp</item>
+        <item name="android:layout_margin">10dp</item>
+    </style>
+
+    <!-- 设置项卡片容器样式 -->
+    <style name="SettingCardStyle">
+        <item name="cardBackgroundColor">@color/card_background</item>
+        <item name="cardCornerRadius">10dp</item>
         <item name="android:layout_margin">10dp</item>
     </style>
 

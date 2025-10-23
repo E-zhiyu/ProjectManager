@@ -27,11 +27,11 @@
         app:layout_constraintBottom_toTopOf="@+id/btn_card_view"
         app:layout_constraintTop_toBottomOf="@+id/flow_edit_toolbar" />
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/btn_card_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/CardStyle"
+        style="@style/CommonCardStyle"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
@@ -61,6 +61,6 @@
                 android:layout_height="wrap_content"
                 android:text="完成" />
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

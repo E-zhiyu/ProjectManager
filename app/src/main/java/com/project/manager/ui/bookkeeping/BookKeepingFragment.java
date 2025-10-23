@@ -55,10 +55,6 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         flowListView.setLayoutManager(new LinearLayoutManager(requireActivity()));  //设置线性布局
         flowListView.setAdapter(flowListAdapter);
 
-        //添加分隔线
-        DividerItemDecoration divider = new DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL);
-        flowListView.addItemDecoration(divider);
-
         return root;
     }
 
