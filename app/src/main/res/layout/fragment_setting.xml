@@ -53,7 +53,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:drawableLeft="@drawable/baseline_info_24"
-                android:text="关于" />
+                android:text="关于软件" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </LinearLayout>
