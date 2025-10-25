@@ -6,6 +6,7 @@
     style="@style/PageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".ui.bookkeeping.flow_edit.FlowEditActivity">
 
     <androidx.appcompat.widget.Toolbar
@@ -29,9 +30,9 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/btn_card_view"
+        style="@style/CommonCardStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/CommonCardStyle"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
