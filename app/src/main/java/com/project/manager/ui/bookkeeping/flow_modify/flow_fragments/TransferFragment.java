@@ -23,22 +23,10 @@ public class TransferFragment extends FlowFragmentBase implements View.OnFocusCh
 
     @Override
     protected void initViews(View view) {
-        view.findViewById(R.id.amount_input).setOnFocusChangeListener(this);
-        view.findViewById(R.id.date_time_input).setOnClickListener(this);
-        view.findViewById(R.id.date_time_input).setFocusable(false);    //日期输入框无法获取焦点
+        super.initViews(view);
+
         view.findViewById(R.id.export_account_input).setOnFocusChangeListener(this);
         view.findViewById(R.id.import_account_input).setOnFocusChangeListener(this);
-
-        //初始化日期内容
-        Calendar calendar = Calendar.getInstance();
-        @SuppressLint("DefaultLocale") String dt_string = String.format("%04d-%02d-%02d %02d:%02d",
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH) + 1,
-                calendar.get(Calendar.DAY_OF_MONTH),
-                calendar.get(Calendar.HOUR),
-                calendar.get(Calendar.MINUTE));
-        TextInputEditText dt_textView = view.findViewById(R.id.date_time_input);
-        dt_textView.setText(dt_string);
     }
 
     @Override
@@ -102,18 +90,15 @@ public class TransferFragment extends FlowFragmentBase implements View.OnFocusCh
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.date_time_input) {
-            showMaterialDateTimePicker();
-        }
+        super.onClick(v);
     }
 
     @Override
     public String verifyInputData() {
-        String error = null;
+        String error = super.verifyInputData();
 
-        if (String.valueOf(((TextInputEditText) binding.findViewById(R.id.amount_input)).getText()).isEmpty()) {
-            error = "金额不能为空";
-            ((TextInputEditText) binding.findViewById(R.id.amount_input)).setError(error);
+        if (error != null) {
+            return error;
         } else if (String.valueOf(((TextInputEditText) binding.findViewById(R.id.export_account_input)).getText()).isEmpty()) {
             error = "转出账户不能为空";
             ((TextInputEditText) binding.findViewById(R.id.export_account_input)).setError(error);

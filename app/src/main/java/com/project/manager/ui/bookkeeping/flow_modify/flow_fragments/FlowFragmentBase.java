@@ -19,7 +19,7 @@ import com.project.manager.ui.bookkeeping.FlowAttributeStrings;
 
 import java.util.Calendar;
 
-public abstract class FlowFragmentBase extends Fragment {
+public abstract class FlowFragmentBase extends Fragment implements View.OnClickListener, View.OnFocusChangeListener {
     Bundle initData = null;                         //初始化控件内容的数据（用于编辑流水记录时）
     View binding;                                   //绑定的XML界面
     protected String name;                          //碎片名称
@@ -52,11 +52,42 @@ public abstract class FlowFragmentBase extends Fragment {
 
     protected abstract int getLayoutResId();
 
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.date_time_input) {
+            showMaterialDateTimePicker();
+        }
+    }
+
     //初始化碎片布局
-    protected abstract void initViews(View view);
+    protected void initViews(View view) {
+        view.findViewById(R.id.amount_input).setOnFocusChangeListener(this);
+        view.findViewById(R.id.date_time_input).setOnClickListener(this);
+        view.findViewById(R.id.flow_tag_input).setOnClickListener(this);
+
+        //初始化日期内容
+        Calendar calendar = Calendar.getInstance();
+        @SuppressLint("DefaultLocale") String dt_string = String.format("%04d-%02d-%02d %02d:%02d",
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH) + 1,
+                calendar.get(Calendar.DAY_OF_MONTH),
+                calendar.get(Calendar.HOUR),
+                calendar.get(Calendar.MINUTE));
+        TextInputEditText dt_textView = view.findViewById(R.id.date_time_input);
+        dt_textView.setText(dt_string);
+    }
 
     //验证输入内容
-    public abstract String verifyInputData();
+    public String verifyInputData() {
+        String error = null;
+
+        if (String.valueOf(((TextInputEditText) binding.findViewById(R.id.amount_input)).getText()).isEmpty()) {
+            error = "金额不能为空";
+            ((TextInputEditText) binding.findViewById(R.id.amount_input)).setError(error);
+        }
+
+        return error;
+    }
 
     /**
      * 编辑流水时初始化控件内容的方法
