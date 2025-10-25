@@ -12,17 +12,16 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.project.manager.R;
 import com.project.manager.database.FlowDatabaseHelper;
 import com.project.manager.databinding.FragmentBookkeepingBinding;
-import com.project.manager.ui.bookkeeping.flow_edit.FlowEditActivity;
-import com.project.manager.ui.bookkeeping.new_flow.NewFlowActivity;
+import com.project.manager.ui.bookkeeping.flow_modify.flow_edit.FlowEditActivity;
+import com.project.manager.ui.bookkeeping.flow_modify.new_flow.NewFlowActivity;
 import com.project.manager.RequestResultCode;
-import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.FlowTypeEnum;
+import com.project.manager.ui.bookkeeping.flow_modify.flow_fragments.FlowTypeEnum;
 import com.project.manager.ui.bookkeeping.report.ReportActivity;
 
 import java.util.ArrayList;

@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".ui.bookkeeping.new_flow.NewFlowActivity">
+    tools:context=".ui.bookkeeping.flow_modify.new_flow.NewFlowActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/new_flow_toolbar"

@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.new_flow;
+package com.project.manager.ui.bookkeeping.flow_modify.new_flow;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,11 +12,11 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.tabs.TabLayout;
 import com.project.manager.R;
 import com.project.manager.ui.bookkeeping.FlowAttributeStrings;
-import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.ExpenseFragment;
-import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.FlowTypeEnum;
-import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.IncomeFragment;
-import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.FlowFragmentBase;
-import com.project.manager.ui.bookkeeping.new_flow.new_flow_fragments.TransferFragment;
+import com.project.manager.ui.bookkeeping.flow_modify.flow_fragments.ExpenseFragment;
+import com.project.manager.ui.bookkeeping.flow_modify.flow_fragments.FlowTypeEnum;
+import com.project.manager.ui.bookkeeping.flow_modify.flow_fragments.IncomeFragment;
+import com.project.manager.ui.bookkeeping.flow_modify.flow_fragments.FlowFragmentBase;
+import com.project.manager.ui.bookkeeping.flow_modify.flow_fragments.TransferFragment;
 import com.project.manager.RequestResultCode;
 
 import java.util.ArrayList;
