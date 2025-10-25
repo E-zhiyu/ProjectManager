@@ -10,6 +10,8 @@
 
     <color name="page_background">#f9f8fe</color>
     <color name="page_background_night">#10131c</color>
+    <color name="dialog_background">#f3f3ff</color>
+    <color name="dialog_background_night">#181a26</color>
     <color name="card_background">#edeffc</color>
     <color name="card_background_night">#161a25</color>
     <color name="theme_blue">#0055d6</color>
