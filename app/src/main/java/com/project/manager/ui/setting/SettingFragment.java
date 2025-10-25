@@ -2,6 +2,7 @@ package com.project.manager.ui.setting;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -52,18 +53,21 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
     //显示关于软件对话框
     private void showAboutDialog() {
         String version_name = "v" + getVersionName(requireContext());
+        String app_name = getAppName(requireContext());
         Dialog about_dialog = new Dialog(requireContext());
         about_dialog.setContentView(R.layout.dialog_about);
 
         MaterialTextView version_name_view = about_dialog.findViewById(R.id.version_name_view);
         version_name_view.setText(version_name);
+        MaterialTextView app_name_view = about_dialog.findViewById(R.id.app_name_view);
+        app_name_view.setText(app_name);
 
         //设置对话框高度和宽度
         Window dialog_window = about_dialog.getWindow();
         if (dialog_window != null) {
             WindowManager.LayoutParams params = dialog_window.getAttributes();
             params.height = WindowManager.LayoutParams.WRAP_CONTENT;
-            params.width = (int) (getResources().getDisplayMetrics().widthPixels*0.8);
+            params.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.8);
         }
 
         about_dialog.show();
@@ -78,6 +82,21 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
             return "未知版本";
+        }
+    }
+
+    //获取应用名称
+    public static String getAppName(Context context) {
+        try {
+            PackageManager packageManager = context.getPackageManager();
+            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(
+                    context.getPackageName(),
+                    PackageManager.GET_META_DATA
+            );
+            return packageManager.getApplicationLabel(applicationInfo).toString();
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return "未知应用名"; // 返回默认值或处理异常
         }
     }
 }

@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">ProjectManager</string>
-    <string name="title_activity_setting_page">SettingPage</string>
 
     <!-- Preference Titles -->
     <string name="messages_header">Messages</string>

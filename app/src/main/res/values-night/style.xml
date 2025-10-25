@@ -91,7 +91,7 @@
     <style name="TextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="boxBackgroundColor">@color/page_background_night</item>
         <item name="backgroundTint">@color/theme_blue_night</item>
-        <item name="boxStrokeColor">@color/theme_blue_night</item>
+        <item name="boxStrokeColor">@color/text_input_edittext_border_selector</item>
         <item name="hintTextColor">@color/theme_blue_night</item>
         <item name="cursorColor">@color/theme_blue_night</item>
     </style>
