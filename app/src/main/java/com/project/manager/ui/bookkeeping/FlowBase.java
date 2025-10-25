@@ -7,6 +7,7 @@ public abstract class FlowBase {
     FlowTypeEnum type;  //种类
     String remark;      //备注
     String date_time;   //日期和时间
+    String tag;         //标签
     double amount;      //金额
     long fno;           //流水标识
 }
@@ -21,14 +22,16 @@ class ExpenseFlow extends FlowBase {
      * @param remark    备注
      * @param date_time 日期和时间
      * @param amount    金额
+     * @param tag       标签
      */
-    public ExpenseFlow(String remark, String date_time, double amount) {
+    public ExpenseFlow(String remark, String date_time, double amount, String tag) {
         this.type = FlowTypeEnum.EXPENSE;
         this.name = "支出";
         this.remark = remark;
         this.date_time = date_time;
         this.amount = amount;
         this.fno = -1;
+        this.tag = tag;
     }
 
     /**
@@ -38,14 +41,16 @@ class ExpenseFlow extends FlowBase {
      * @param remark    备注
      * @param date_time 日期和时间
      * @param amount    金额
+     * @param tag       标签
      */
-    public ExpenseFlow(long fno, String remark, String date_time, double amount) {
+    public ExpenseFlow(long fno, String remark, String date_time, double amount, String tag) {
         this.fno = fno;
         this.type = FlowTypeEnum.EXPENSE;
         this.name = "支出";
         this.remark = remark;
         this.date_time = date_time;
         this.amount = amount;
+        this.tag = tag;
     }
 }
 
@@ -59,14 +64,16 @@ class IncomeFlow extends FlowBase {
      * @param remark    备注
      * @param date_time 日期和时间
      * @param amount    金额
+     * @param tag       标签
      */
-    public IncomeFlow(String remark, String date_time, double amount) {
+    public IncomeFlow(String remark, String date_time, double amount, String tag) {
         this.fno = -1;
         this.type = FlowTypeEnum.INCOME;
         this.name = "收入";
         this.remark = remark;
         this.date_time = date_time;
         this.amount = amount;
+        this.tag = tag;
     }
 
     /**
@@ -76,14 +83,16 @@ class IncomeFlow extends FlowBase {
      * @param remark    备注
      * @param date_time 日期和时间
      * @param amount    金额
+     * @param tag       标签
      */
-    public IncomeFlow(long fno, String remark, String date_time, double amount) {
+    public IncomeFlow(long fno, String remark, String date_time, double amount, String tag) {
         this.fno = fno;
         this.type = FlowTypeEnum.INCOME;
         this.name = "收入";
         this.remark = remark;
         this.date_time = date_time;
         this.amount = amount;
+        this.tag = tag;
     }
 }
 
@@ -100,16 +109,18 @@ class TransferFlow extends FlowBase {
      * @param remark        备注
      * @param date_time     日期
      * @param amount        金额
+     * @param tag           标签
      * @param exportAccount 转出账户
      * @param importAccount 转入账户
      */
-    public TransferFlow(String remark, String date_time, double amount, String exportAccount, String importAccount) {
+    public TransferFlow(String remark, String date_time, double amount, String tag, String exportAccount, String importAccount) {
         this.fno = -1;
         this.type = FlowTypeEnum.TRANSFER;
         this.name = "转账";
         this.remark = remark;
         this.date_time = date_time;
         this.amount = amount;
+        this.tag = tag;
         this.exportAccount = exportAccount;
         this.importAccount = importAccount;
     }
@@ -119,18 +130,20 @@ class TransferFlow extends FlowBase {
      *
      * @param fno           编号
      * @param remark        备注
-     * @param date_time          日期和时间
+     * @param date_time     日期和时间
      * @param amount        金额
+     * @param tag           标签
      * @param exportAccount 转出账户
      * @param importAccount 转入账户
      */
-    public TransferFlow(long fno, String remark, String date_time, double amount, String exportAccount, String importAccount) {
+    public TransferFlow(long fno, String remark, String date_time, double amount, String tag, String exportAccount, String importAccount) {
         this.fno = fno;
         this.type = FlowTypeEnum.TRANSFER;
         this.name = "转账";
         this.remark = remark;
         this.date_time = date_time;
         this.amount = amount;
+        this.tag = tag;
         this.exportAccount = exportAccount;
         this.importAccount = importAccount;
     }

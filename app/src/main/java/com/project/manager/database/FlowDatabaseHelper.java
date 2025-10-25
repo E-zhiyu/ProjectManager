@@ -7,17 +7,18 @@ import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
 
 public class FlowDatabaseHelper extends SQLiteOpenHelper {
-    private static final String DATABASE_NAME = "flow.db";
-    private static final int DATABASE_VERSION = 1;
-    public static final String TABLE_BASIC = "basic_data";
-    public static final String TABLE_TRANSFER = "transfer_data";
-    public static final String COLUMN_FNO = "Fno";
-    public static final String COLUMN_AMOUNT = "Amount";
-    public static final String COLUMN_TYPE = "Type";
-    public static final String COLUMN_REMARK = "Remark";
-    public static final String COLUMN_DATETIME = "DateTime";
-    public static final String COLUMN_EXPORT = "Export";
-    public static final String COLUMN_IMPORT = "Import";
+    private static final String DATABASE_NAME = "flow.db";          //数据库名称
+    private static final int DATABASE_VERSION = 2;                  //数据库版本
+    public static final String TABLE_BASIC = "basic_data";          //基本数据表
+    public static final String TABLE_TRANSFER = "transfer_data";    //转账数据表
+    public static final String COLUMN_FNO = "Fno";                  //编号列
+    public static final String COLUMN_AMOUNT = "Amount";            //金额列
+    public static final String COLUMN_TYPE = "Type";                //种类列
+    public static final String COLUMN_REMARK = "Remark";            //备注列
+    public static final String COLUMN_DATETIME = "DateTime";        //日期和时间列
+    public static final String COLUMN_TAG = "Tag";                  //标签列
+    public static final String COLUMN_EXPORT = "Export";            //转出账户列
+    public static final String COLUMN_IMPORT = "Import";            //转入账户列
 
     public FlowDatabaseHelper(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -64,6 +65,17 @@ public class FlowDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        while (oldVersion < newVersion) {
+            if (oldVersion == 1)
+                update_1To2(db);
 
+            oldVersion++;
+        }
+    }
+
+    //数据库版本由1升级为2
+    private void update_1To2(SQLiteDatabase db) {
+        String addNewColumn = "ALTER TABLE " + TABLE_BASIC + " ADD " + COLUMN_TAG + " VARCHAR(20)";
+        db.execSQL(addNewColumn);
     }
 }

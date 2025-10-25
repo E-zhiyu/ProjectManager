@@ -92,6 +92,8 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         dataBundle.putString(FlowAttributeStrings.DATETIME, date_time);
         long fno = flowView.fno;                //编号
         dataBundle.putLong(FlowAttributeStrings.FNO, fno);
+        String tag = flowView.tag;              //标签
+        dataBundle.putString(FlowAttributeStrings.TAG, tag);
 
         dataBundle.putInt(FlowAttributeStrings.POSITION, position);  //将待修改的流水实例下标放入包裹
 
@@ -139,25 +141,27 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
         //获取基本流水数据
         FlowTypeEnum type = FlowTypeEnum.valueOf(resultIntent.getStringExtra(FlowAttributeStrings.TYPE));
-        String remark, date_time;
+        String remark, date_time, tag;
         double amount;
         remark = dataBundle.getString(FlowAttributeStrings.REMARK);
         amount = dataBundle.getDouble(FlowAttributeStrings.AMOUNT, -1);
         date_time = dataBundle.getString(FlowAttributeStrings.DATETIME);
+        tag = dataBundle.getString(FlowAttributeStrings.TAG);
         basic_values = new ContentValues();
-        basic_values.put(FlowDatabaseHelper.COLUMN_TYPE, type.toString());   //种类
-        basic_values.put(FlowDatabaseHelper.COLUMN_AMOUNT, amount);          //金额
-        basic_values.put(FlowDatabaseHelper.COLUMN_REMARK, remark);          //备注
-        basic_values.put(FlowDatabaseHelper.COLUMN_DATETIME, date_time);     //日期
+        basic_values.put(FlowDatabaseHelper.COLUMN_TYPE, type.toString());  //种类
+        basic_values.put(FlowDatabaseHelper.COLUMN_AMOUNT, amount);         //金额
+        basic_values.put(FlowDatabaseHelper.COLUMN_REMARK, remark);         //备注
+        basic_values.put(FlowDatabaseHelper.COLUMN_DATETIME, date_time);    //日期
+        basic_values.put(FlowDatabaseHelper.COLUMN_TAG, tag);               //标签
         long fno = db.insert(FlowDatabaseHelper.TABLE_BASIC, null, basic_values);   //获取自增主键值
 
         //获取特殊数据并实例化流水类
         special_values = new ContentValues();
         FlowBase newFlowView;
         if (type == FlowTypeEnum.EXPENSE) {
-            newFlowView = new ExpenseFlow(remark, date_time, amount);
+            newFlowView = new ExpenseFlow(remark, date_time, amount, tag);
         } else if (type == FlowTypeEnum.INCOME) {
-            newFlowView = new IncomeFlow(remark, date_time, amount);
+            newFlowView = new IncomeFlow(remark, date_time, amount, tag);
         } else if (type == FlowTypeEnum.TRANSFER) {
             String exportAccount = dataBundle.getString(FlowAttributeStrings.EXPORT);    //转出账户
             String importAccount = dataBundle.getString(FlowAttributeStrings.IMPORT);    //转入账户
@@ -167,7 +171,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             special_values.put(FlowDatabaseHelper.COLUMN_IMPORT, importAccount);
             db.insert(FlowDatabaseHelper.TABLE_TRANSFER, null, special_values);
 
-            newFlowView = new TransferFlow(remark, date_time, amount, exportAccount, importAccount);
+            newFlowView = new TransferFlow(remark, date_time, amount, tag, exportAccount, importAccount);
         } else {
             throw new NullPointerException("流水类型获取失败");
         }
@@ -197,6 +201,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         double amount = dataBundle.getDouble(FlowAttributeStrings.AMOUNT, -1);
         String remark = dataBundle.getString(FlowAttributeStrings.REMARK);
         String date_time = dataBundle.getString(FlowAttributeStrings.DATETIME);
+        String tag = dataBundle.getString(FlowAttributeStrings.TAG);
 
         //将基本数据存放至数据库
         basic_values = new ContentValues();
@@ -204,6 +209,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         basic_values.put(FlowDatabaseHelper.COLUMN_AMOUNT, amount);         //金额
         basic_values.put(FlowDatabaseHelper.COLUMN_REMARK, remark);         //备注
         basic_values.put(FlowDatabaseHelper.COLUMN_DATETIME, date_time);    //日期
+        basic_values.put(FlowAttributeStrings.TAG, tag);                    //标签
         String selection = FlowAttributeStrings.FNO + "=?";
         long fno = (flowListAdapter.getItem(position)).fno;  //编号
         String[] selectionArgs = new String[]{String.valueOf(fno)};
@@ -218,9 +224,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         FlowBase newFlowView;
         special_values = new ContentValues();
         if (type == FlowTypeEnum.EXPENSE) {
-            newFlowView = new ExpenseFlow(remark, date_time, amount);
+            newFlowView = new ExpenseFlow(remark, date_time, amount, tag);
         } else if (type == FlowTypeEnum.INCOME) {
-            newFlowView = new IncomeFlow(remark, date_time, amount);
+            newFlowView = new IncomeFlow(remark, date_time, amount, tag);
         } else if (type == FlowTypeEnum.TRANSFER) {
             String exportAccount = dataBundle.getString(FlowAttributeStrings.EXPORT);    //转出账户
             String importAccount = dataBundle.getString(FlowAttributeStrings.IMPORT);    //转入账户
@@ -234,7 +240,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                     selectionArgs
             );
 
-            newFlowView = new TransferFlow(remark, date_time, amount, exportAccount, importAccount);
+            newFlowView = new TransferFlow(remark, date_time, amount, tag, exportAccount, importAccount);
         } else {
             throw new NullPointerException("流水类型获取失败");
         }
@@ -302,19 +308,26 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         //查询数据
         List<FlowBase> flowList = new ArrayList<>();
         while (basic_cursor.moveToNext()) {
+            //编号
             long fno = basic_cursor.getInt(basic_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_FNO));
+            //金额
             double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_AMOUNT));
+            //种类
             FlowTypeEnum type = FlowTypeEnum.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_TYPE)));
+            //备注
             String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_REMARK));
-            String date_time = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_DATETIME));
+            //日期和时间
+            String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_DATETIME));
+            //标签
+            String tag = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_TAG));
 
             FlowBase flowView = null;
             switch (type) {
                 case EXPENSE:
-                    flowView = new ExpenseFlow(fno, remark, date_time, amount);
+                    flowView = new ExpenseFlow(fno, remark, datetime, amount, tag);
                     break;
                 case INCOME:
-                    flowView = new IncomeFlow(fno, remark, date_time, amount);
+                    flowView = new IncomeFlow(fno, remark, datetime, amount, tag);
                     break;
                 case TRANSFER:
                     String[] columns = {FlowDatabaseHelper.COLUMN_EXPORT, FlowDatabaseHelper.COLUMN_IMPORT};
@@ -335,7 +348,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                         String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_EXPORT));
                         String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_IMPORT));
                         transfer_cursor.close();
-                        flowView = new TransferFlow(fno, remark, date_time, amount, exportAccount, importAccount);
+                        flowView = new TransferFlow(fno, remark, datetime, amount, tag, exportAccount, importAccount);
                     }
 
                     break;

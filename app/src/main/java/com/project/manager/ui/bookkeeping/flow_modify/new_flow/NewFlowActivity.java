@@ -90,12 +90,14 @@ public class NewFlowActivity extends AppCompatActivity implements View.OnClickLi
         dataBundle.putString(FlowAttributeStrings.TYPE, flowType.toString());
 
         //获取碎片通用信息并打包
-        double flowAmount = currentFragment.getAmount();   //金额
+        double flowAmount = currentFragment.getAmount();    //金额
         dataBundle.putDouble(FlowAttributeStrings.AMOUNT, flowAmount);
-        String flowDate = currentFragment.getDate();    //日期
+        String flowDate = currentFragment.getDate();        //日期
         dataBundle.putString(FlowAttributeStrings.DATETIME, flowDate);
-        String flowRemark = currentFragment.getRemark();//备注
+        String flowRemark = currentFragment.getRemark();    //备注
         dataBundle.putString(FlowAttributeStrings.REMARK, flowRemark);
+        String tag = currentFragment.getFlowTag();          //标签
+        dataBundle.putString(FlowAttributeStrings.TAG, tag);
 
         //获取碎片特殊信息并打包
         if (flowType == FlowTypeEnum.TRANSFER) {

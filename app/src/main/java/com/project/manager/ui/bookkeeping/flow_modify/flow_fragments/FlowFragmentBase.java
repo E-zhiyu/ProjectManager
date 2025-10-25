@@ -68,13 +68,16 @@ public abstract class FlowFragmentBase extends Fragment {
         double amount = dataBundle.getDouble(FlowAttributeStrings.AMOUNT, -1);
         String remark = dataBundle.getString(FlowAttributeStrings.REMARK);
         String date_time = dataBundle.getString(FlowAttributeStrings.DATETIME);
+        String tag = dataBundle.getString(FlowAttributeStrings.TAG);
 
-        amountView = binding.findViewById(R.id.amount_input);        //金额
+        amountView = binding.findViewById(R.id.amount_input);                       //金额
         amountView.setText(String.valueOf(amount));
-        remarkView = binding.findViewById(R.id.remark_input);        //备注
+        remarkView = binding.findViewById(R.id.remark_input);                       //备注
         remarkView.setText(remark);
-        TextInputEditText dateView = binding.findViewById(R.id.date_time_input);   //日期
+        TextInputEditText dateView = binding.findViewById(R.id.date_time_input);    //日期
         dateView.setText(date_time);
+        TextInputEditText tagView = binding.findViewById(R.id.flow_tag_input);      //标签
+        tagView.setText(tag);
     }
 
     /**
@@ -93,8 +96,8 @@ public abstract class FlowFragmentBase extends Fragment {
      * @return 流水备注字符串
      */
     public String getRemark() {
-        EditText remarkEditText = binding.findViewById(R.id.remark_input);
-        return remarkEditText.getText().toString();
+        TextInputEditText remarkEditText = binding.findViewById(R.id.remark_input);
+        return String.valueOf(remarkEditText.getText());
     }
 
     /**
@@ -103,8 +106,18 @@ public abstract class FlowFragmentBase extends Fragment {
      * @return 流水金额
      */
     public double getAmount() {
-        EditText remarkEditText = binding.findViewById(R.id.amount_input);
-        return Double.parseDouble(remarkEditText.getText().toString());
+        TextInputEditText remarkEditText = binding.findViewById(R.id.amount_input);
+        return Double.parseDouble(String.valueOf(remarkEditText.getText()));
+    }
+
+    /**
+     * 获取标签字符串
+     *
+     * @return 标签字符串
+     */
+    public String getFlowTag() {
+        TextInputEditText tag_input = binding.findViewById(R.id.flow_tag_input);
+        return String.valueOf(tag_input.getText());
     }
 
     /**

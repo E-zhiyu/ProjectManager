@@ -28,10 +28,7 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_flow_edit);
 
-        //为按钮设置单击监听器
-        findViewById(R.id.cancel_btn).setOnClickListener(this);
-        findViewById(R.id.finish_btn).setOnClickListener(this);
-        findViewById(R.id.delete_btn).setOnClickListener(this);
+        initViews();
 
         //接收种类和下标参数
         Bundle dataBundle = getIntent().getExtras();
@@ -61,6 +58,14 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
                 flowFragment.setInitData(dataBundle);   //将原本的数据传递给碎片实例
             }
         }
+    }
+
+    //初始化视图
+    private void initViews() {
+        //为按钮设置单击监听器
+        findViewById(R.id.cancel_btn).setOnClickListener(this);
+        findViewById(R.id.finish_btn).setOnClickListener(this);
+        findViewById(R.id.delete_btn).setOnClickListener(this);
     }
 
     @Override
@@ -109,21 +114,24 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
     private Bundle getDataAfterEditing() {
         Bundle dataBundle = new Bundle();
         double amount;
-        String remark, date_time;
+        String remark, date_time, tag;
 
         //获取基本数据
-        TextInputEditText amountView = findViewById(R.id.amount_input);        //金额
-        amount = Double.parseDouble(String.valueOf(amountView.getText()));
+        TextInputEditText amount_input = findViewById(R.id.amount_input);       //金额
+        amount = Double.parseDouble(String.valueOf(amount_input.getText()));
         dataBundle.putDouble(FlowAttributeStrings.AMOUNT, amount);
-        TextInputEditText remarkView = findViewById(R.id.remark_input);        //备注
-        remark = String.valueOf(remarkView.getText());
+        TextInputEditText remark_input = findViewById(R.id.remark_input);       //备注
+        remark = String.valueOf(remark_input.getText());
         dataBundle.putString(FlowAttributeStrings.REMARK, remark);
-        TextInputEditText dateView = findViewById(R.id.date_time_input);       //日期
-        date_time = String.valueOf(dateView.getText());
+        TextInputEditText datetime_input = findViewById(R.id.date_time_input);  //日期
+        date_time = String.valueOf(datetime_input.getText());
         dataBundle.putString(FlowAttributeStrings.DATETIME, date_time);
+        TextInputEditText tag_input = findViewById(R.id.flow_tag_input);        //标签
+        tag = String.valueOf(tag_input.getText());
+        dataBundle.putString(FlowAttributeStrings.TAG, tag);
 
-        dataBundle.putInt(FlowAttributeStrings.POSITION, position);        //将下标存放至包裹
-        dataBundle.putString(FlowAttributeStrings.TYPE, type.toString());  //将种类存放至包裹
+        dataBundle.putInt(FlowAttributeStrings.POSITION, position);             //将下标存放至包裹
+        dataBundle.putString(FlowAttributeStrings.TYPE, type.toString());       //将种类存放至包裹
 
         //获取特殊信息
         if (type == FlowTypeEnum.TRANSFER) {
