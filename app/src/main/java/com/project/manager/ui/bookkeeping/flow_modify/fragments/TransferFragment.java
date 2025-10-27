@@ -1,14 +1,11 @@
-package com.project.manager.ui.bookkeeping.flow_modify.flow_fragments;
+package com.project.manager.ui.bookkeeping.flow_modify.fragments;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.View;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.project.manager.R;
 import com.project.manager.ui.bookkeeping.FlowAttributeStrings;
-
-import java.util.Calendar;
 
 public class TransferFragment extends FlowFragmentBase implements View.OnFocusChangeListener, View.OnClickListener {
     public TransferFragment() {

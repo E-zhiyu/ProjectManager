@@ -82,6 +82,13 @@
         <item name="android:padding">10dp</item>
     </style>
 
+    <!-- 透明背景按钮样式 -->
+    <style name="TransparentBtnStyle" parent="Widget.MaterialComponents.Button">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textColor">@color/theme_blue_night</item>
+        <item name="iconPadding">2dp</item>
+    </style>
+
     <!-- 复选框样式 -->
     <style name="CheckBoxStyle">
         <item name="buttonTint">@color/theme_blue_night</item>

@@ -18,10 +18,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.project.manager.R;
 import com.project.manager.database.FlowDatabaseHelper;
 import com.project.manager.databinding.FragmentBookkeepingBinding;
-import com.project.manager.ui.bookkeeping.flow_modify.flow_edit.FlowEditActivity;
+import com.project.manager.ui.bookkeeping.flow_modify.edit.FlowEditActivity;
 import com.project.manager.ui.bookkeeping.flow_modify.new_flow.NewFlowActivity;
 import com.project.manager.RequestResultCode;
-import com.project.manager.ui.bookkeeping.flow_modify.flow_fragments.FlowTypeEnum;
+import com.project.manager.ui.bookkeeping.flow_modify.fragments.FlowTypeEnum;
 import com.project.manager.ui.bookkeeping.report.ReportActivity;
 
 import java.util.ArrayList;
@@ -113,6 +113,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
         super.onActivityResult(requestCode, resultCode, resultIntent);
 
+        //resultCode为0表示子Activity直接结束
         if (resultCode == RequestResultCode.RESULT_REJECT.ordinal() || resultCode == 0) {
             return;
         } else if (resultCode == RequestResultCode.RESULT_DELETE_FLOW.ordinal()) {  //删除

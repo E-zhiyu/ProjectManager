@@ -16,7 +16,7 @@ import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.project.manager.R;
 import com.project.manager.database.FlowDatabaseHelper;
-import com.project.manager.ui.bookkeeping.flow_modify.flow_fragments.FlowTypeEnum;
+import com.project.manager.ui.bookkeeping.flow_modify.fragments.FlowTypeEnum;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ProjectManager</string>
+    <string name="app_name">经理助手</string>
 
     <!-- Preference Titles -->
     <string name="messages_header">Messages</string>
@@ -19,6 +19,7 @@
     <string name="title_bookkeeping">记账</string>
     <string name="title_setting">设置</string>
     <string name="title_report">流水报表</string>
+    <string name="title_new_tag">新建标签</string>
     <string name="new_flow">新建流水</string>
     <string name="flow_edit">流水编辑</string>
     <string name="finish">完成</string>

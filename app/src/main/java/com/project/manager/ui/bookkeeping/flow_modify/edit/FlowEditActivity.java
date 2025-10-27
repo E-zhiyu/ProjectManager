@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.flow_modify.flow_edit;
+package com.project.manager.ui.bookkeeping.flow_modify.edit;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,11 +12,11 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.project.manager.R;
 import com.project.manager.RequestResultCode;
 import com.project.manager.ui.bookkeeping.FlowAttributeStrings;
-import com.project.manager.ui.bookkeeping.flow_modify.flow_fragments.ExpenseFragment;
-import com.project.manager.ui.bookkeeping.flow_modify.flow_fragments.FlowFragmentBase;
-import com.project.manager.ui.bookkeeping.flow_modify.flow_fragments.FlowTypeEnum;
-import com.project.manager.ui.bookkeeping.flow_modify.flow_fragments.IncomeFragment;
-import com.project.manager.ui.bookkeeping.flow_modify.flow_fragments.TransferFragment;
+import com.project.manager.ui.bookkeeping.flow_modify.fragments.ExpenseFragment;
+import com.project.manager.ui.bookkeeping.flow_modify.fragments.FlowFragmentBase;
+import com.project.manager.ui.bookkeeping.flow_modify.fragments.FlowTypeEnum;
+import com.project.manager.ui.bookkeeping.flow_modify.fragments.IncomeFragment;
+import com.project.manager.ui.bookkeeping.flow_modify.fragments.TransferFragment;
 
 public class FlowEditActivity extends AppCompatActivity implements View.OnClickListener {
     FlowTypeEnum type = null;                               //流水种类

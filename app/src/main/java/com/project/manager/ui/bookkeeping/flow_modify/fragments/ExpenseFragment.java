@@ -1,22 +1,19 @@
-package com.project.manager.ui.bookkeeping.flow_modify.flow_fragments;
+package com.project.manager.ui.bookkeeping.flow_modify.fragments;
 
-import android.annotation.SuppressLint;
 import android.view.View;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.project.manager.R;
 
-import java.util.Calendar;
-
-public class IncomeFragment extends FlowFragmentBase implements View.OnFocusChangeListener, View.OnClickListener {
-    public IncomeFragment() {
-        this.name = "收入";  //为碎片命名
-        this.type = FlowTypeEnum.INCOME;
+public class ExpenseFragment extends FlowFragmentBase implements View.OnFocusChangeListener, View.OnClickListener {
+    public ExpenseFragment() {
+        this.name = "支出";  //为碎片命名
+        this.type = FlowTypeEnum.EXPENSE;
     }
 
     @Override
     protected int getLayoutResId() {
-        return R.layout.fragment_income;
+        return R.layout.fragment_expense;
     }
 
     @Override

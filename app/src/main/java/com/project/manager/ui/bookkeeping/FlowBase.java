@@ -1,6 +1,6 @@
 package com.project.manager.ui.bookkeeping;
 
-import com.project.manager.ui.bookkeeping.flow_modify.flow_fragments.FlowTypeEnum;
+import com.project.manager.ui.bookkeeping.flow_modify.fragments.FlowTypeEnum;
 
 public abstract class FlowBase {
     String name;        //名称

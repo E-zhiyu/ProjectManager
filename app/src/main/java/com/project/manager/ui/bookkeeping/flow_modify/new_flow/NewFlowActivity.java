@@ -12,11 +12,11 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.tabs.TabLayout;
 import com.project.manager.R;
 import com.project.manager.ui.bookkeeping.FlowAttributeStrings;
-import com.project.manager.ui.bookkeeping.flow_modify.flow_fragments.ExpenseFragment;
-import com.project.manager.ui.bookkeeping.flow_modify.flow_fragments.FlowTypeEnum;
-import com.project.manager.ui.bookkeeping.flow_modify.flow_fragments.IncomeFragment;
-import com.project.manager.ui.bookkeeping.flow_modify.flow_fragments.FlowFragmentBase;
-import com.project.manager.ui.bookkeeping.flow_modify.flow_fragments.TransferFragment;
+import com.project.manager.ui.bookkeeping.flow_modify.fragments.ExpenseFragment;
+import com.project.manager.ui.bookkeeping.flow_modify.fragments.FlowTypeEnum;
+import com.project.manager.ui.bookkeeping.flow_modify.fragments.IncomeFragment;
+import com.project.manager.ui.bookkeeping.flow_modify.fragments.FlowFragmentBase;
+import com.project.manager.ui.bookkeeping.flow_modify.fragments.TransferFragment;
 import com.project.manager.RequestResultCode;
 
 import java.util.ArrayList;
@@ -80,6 +80,7 @@ public class NewFlowActivity extends AppCompatActivity implements View.OnClickLi
     /**
      * 完成流水新建
      */
+    //TODO: 将回调函数重命名为on……ed
     private void finishCreatingFlow() {
         Intent result2BookKeeping = new Intent();
         Bundle dataBundle = new Bundle();

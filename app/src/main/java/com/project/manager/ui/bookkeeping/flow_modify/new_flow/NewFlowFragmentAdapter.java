@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import com.project.manager.ui.bookkeeping.flow_modify.flow_fragments.FlowFragmentBase;
+import com.project.manager.ui.bookkeeping.flow_modify.fragments.FlowFragmentBase;
 
 import java.util.List;
 

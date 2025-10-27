@@ -1,11 +1,10 @@
-package com.project.manager.ui.bookkeeping.flow_modify.flow_fragments;
+package com.project.manager.ui.bookkeeping.flow_modify.fragments;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -16,6 +15,7 @@ import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 import com.project.manager.R;
 import com.project.manager.ui.bookkeeping.FlowAttributeStrings;
+import com.project.manager.ui.bookkeeping.flow_modify.tag.TagSelectBottomSheet;
 
 import java.util.Calendar;
 
@@ -56,6 +56,8 @@ public abstract class FlowFragmentBase extends Fragment implements View.OnClickL
     public void onClick(View v) {
         if (v.getId() == R.id.date_time_input) {
             showMaterialDateTimePicker();
+        } else if (v.getId() == R.id.flow_tag_input) {
+            showTagSelectSheet();
         }
     }
 
@@ -210,6 +212,12 @@ public abstract class FlowFragmentBase extends Fragment implements View.OnClickL
                     initialCalendar.get(Calendar.MINUTE));
             datetime_input.setText(datetime_str);
         });
+    }
+
+    //显示标签选择视图
+    private void showTagSelectSheet() {
+        TagSelectBottomSheet tag_sheet = new TagSelectBottomSheet();
+        tag_sheet.show(getParentFragmentManager(), "TagSelectBottomSheet");
     }
 }
 

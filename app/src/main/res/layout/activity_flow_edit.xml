@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".ui.bookkeeping.flow_modify.flow_edit.FlowEditActivity">
+    tools:context=".ui.bookkeeping.flow_modify.edit.FlowEditActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/flow_edit_toolbar"
