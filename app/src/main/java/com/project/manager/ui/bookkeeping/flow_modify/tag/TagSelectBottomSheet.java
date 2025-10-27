@@ -117,44 +117,11 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
             return;
         else {
             if (requestCode == RequestResultCode.NEW_TAG_REQUEST.ordinal()) {
-                try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(requireContext())) {
-                    SQLiteDatabase db = db_helper.openWriteLink();
-                    String tag_name = dataBundle.getString(TagAttributions.NAME.value);
-                    String group_name = dataBundle.getString(TagAttributions.GROUP.value);
-                    List<TagGroup> tagGroupList = tagAdapter.getTagGroupList();
+                String tag_name = dataBundle.getString(TagAttributions.NAME.value);
+                String group_name = dataBundle.getString(TagAttributions.GROUP.value);
 
-                    boolean hasExistedGroup = false;
-                    for (TagGroup group : tagGroupList) {
-                        if (group.group_name.equals(group_name)) {
-                            hasExistedGroup = true;
-                            group.addTag(tag_name);
-                            break;
-                        }
-                    }
-                    if (!hasExistedGroup) {
-                        TagGroup new_group = new TagGroup(group_name);
-                        new_group.addTag(tag_name);
-                        tagGroupList.add(new_group);
-
-                        //将新分组插入数据库
-                        ContentValues tag_group_values = new ContentValues();
-                        tag_group_values.put(FlowDatabaseHelper.COLUMN_TAG_GROUP, group_name);
-                        db.insert(FlowDatabaseHelper.TABLE_TAG_GROUP, null, tag_group_values);
-                    }
-
-                    //刷新标签分组列表
-                    tagAdapter.reloadAfterChanged(tagGroupList);
-
-                    //将新标签插入数据库
-                    ContentValues tag_values = new ContentValues();
-                    tag_values.put(FlowDatabaseHelper.COLUMN_TAG, tag_name);
-                    tag_values.put(FlowDatabaseHelper.COLUMN_TAG_GROUP, group_name);
-                    db.insert(FlowDatabaseHelper.TABLE_TAG, null, tag_values);
-
-                    db.close();
-                } catch (SQLiteDatabaseLockedException e) {
-                    throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
-                }
+                //刷新标签分组列表
+                tagAdapter.addNewTag(tag_name, group_name);
             }
         }
     }
