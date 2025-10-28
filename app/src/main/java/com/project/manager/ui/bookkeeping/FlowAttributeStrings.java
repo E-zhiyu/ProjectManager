@@ -5,7 +5,7 @@ public class FlowAttributeStrings {
     public final static String TYPE = "type";               //种类
     public final static String REMARK = "remark";           //备注
     public final static String DATETIME = "date_time";      //日期和时间
-    public final static String TAG = "tag";                 //标签
+    public final static String TAG_NO = "tag_no";                 //标签
     public final static String AMOUNT = "amount";           //金额
     public final static String FNO = "fno";                 //编号
     public final static String POSITION = "position";       //位置属性字符串

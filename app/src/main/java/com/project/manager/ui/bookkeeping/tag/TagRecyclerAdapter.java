@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.flow_modify.tag;
+package com.project.manager.ui.bookkeeping.tag;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -13,7 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.project.manager.R;
+import com.project.manager.database.FlowColumns;
 import com.project.manager.database.FlowDatabaseHelper;
+import com.project.manager.database.FlowTables;
 
 import java.util.List;
 
@@ -86,15 +88,15 @@ public class TagRecyclerAdapter extends RecyclerView.Adapter<TagGroupHolder> {
 
                 //将新分组插入数据库
                 ContentValues group_values = new ContentValues();
-                group_values.put(FlowDatabaseHelper.COLUMN_TAG_GROUP, group_name);
-                db.insert(FlowDatabaseHelper.TABLE_TAG_GROUP, null, group_values);
+                group_values.put(FlowColumns.GROUP_NAME.toString(), group_name);
+                db.insert(FlowTables.TAG_GROUP.toString(), null, group_values);
             }
 
             //将新标签插入数据库
             ContentValues tag_values = new ContentValues();
-            tag_values.put(FlowDatabaseHelper.COLUMN_TAG, tag_name);
-            tag_values.put(FlowDatabaseHelper.COLUMN_TAG_GROUP, group_name);
-            db.insert(FlowDatabaseHelper.TABLE_TAG, null, tag_values);
+            tag_values.put(FlowColumns.TAG_NAME.toString(), tag_name);
+            tag_values.put(FlowColumns.GROUP_NAME.toString(), group_name);
+            db.insert(FlowTables.TAG.toString(), null, tag_values);
 
             db.close();
 

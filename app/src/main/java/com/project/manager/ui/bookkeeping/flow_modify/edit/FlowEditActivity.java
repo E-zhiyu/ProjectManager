@@ -17,6 +17,7 @@ import com.project.manager.ui.bookkeeping.flow_modify.fragments.FlowFragmentBase
 import com.project.manager.ui.bookkeeping.flow_modify.fragments.FlowTypeEnum;
 import com.project.manager.ui.bookkeeping.flow_modify.fragments.IncomeFragment;
 import com.project.manager.ui.bookkeeping.flow_modify.fragments.TransferFragment;
+import com.project.manager.ui.bookkeeping.tag.Tag;
 
 public class FlowEditActivity extends AppCompatActivity implements View.OnClickListener {
     FlowTypeEnum type = null;                               //流水种类
@@ -114,7 +115,7 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
     private Bundle getDataAfterEditing() {
         Bundle dataBundle = new Bundle();
         double amount;
-        String remark, date_time, tag;
+        String remark, date_time, tag_name;
 
         //获取基本数据
         TextInputEditText amount_input = findViewById(R.id.amount_input);       //金额
@@ -127,8 +128,9 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
         date_time = String.valueOf(datetime_input.getText());
         dataBundle.putString(FlowAttributeStrings.DATETIME, date_time);
         TextInputEditText tag_input = findViewById(R.id.flow_tag_input);        //标签
-        tag = String.valueOf(tag_input.getText());
-        dataBundle.putString(FlowAttributeStrings.TAG, tag);
+        tag_name = String.valueOf(tag_input.getText());
+        int tag_no = Tag.nameTransToTno(tag_name, this);
+        dataBundle.putInt(FlowAttributeStrings.TAG_NO, tag_no);
 
         dataBundle.putInt(FlowAttributeStrings.POSITION, position);             //将下标存放至包裹
         dataBundle.putString(FlowAttributeStrings.TYPE, type.toString());       //将种类存放至包裹

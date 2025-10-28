@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjectManager">
         <activity
-            android:name=".ui.bookkeeping.flow_modify.tag.NewTagActivity"
+            android:name=".ui.bookkeeping.tag.NewTagActivity"
             android:exported="false" />
         <activity
             android:name=".ui.bookkeeping.report.ReportActivity"

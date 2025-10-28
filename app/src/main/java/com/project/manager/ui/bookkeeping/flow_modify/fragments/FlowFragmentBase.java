@@ -1,6 +1,11 @@
 package com.project.manager.ui.bookkeeping.flow_modify.fragments;
 
+import static com.project.manager.ui.bookkeeping.tag.Tag.tagNoTransToName;
+
 import android.annotation.SuppressLint;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDatabaseLockedException;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,8 +19,11 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 import com.project.manager.R;
+import com.project.manager.database.FlowColumns;
+import com.project.manager.database.FlowDatabaseHelper;
+import com.project.manager.database.FlowTables;
 import com.project.manager.ui.bookkeeping.FlowAttributeStrings;
-import com.project.manager.ui.bookkeeping.flow_modify.tag.TagSelectBottomSheet;
+import com.project.manager.ui.bookkeeping.tag.TagSelectBottomSheet;
 
 import java.util.Calendar;
 
@@ -101,7 +109,8 @@ public abstract class FlowFragmentBase extends Fragment implements View.OnClickL
         double amount = dataBundle.getDouble(FlowAttributeStrings.AMOUNT, -1);
         String remark = dataBundle.getString(FlowAttributeStrings.REMARK);
         String date_time = dataBundle.getString(FlowAttributeStrings.DATETIME);
-        String tag = dataBundle.getString(FlowAttributeStrings.TAG);
+        int tag_no = dataBundle.getInt(FlowAttributeStrings.TAG_NO);
+        String tag_name = tagNoTransToName(tag_no, requireContext());
 
         amountView = binding.findViewById(R.id.amount_input);                       //金额
         amountView.setText(String.valueOf(amount));
@@ -110,7 +119,7 @@ public abstract class FlowFragmentBase extends Fragment implements View.OnClickL
         TextInputEditText dateView = binding.findViewById(R.id.date_time_input);    //日期
         dateView.setText(date_time);
         TextInputEditText tagView = binding.findViewById(R.id.flow_tag_input);      //标签
-        tagView.setText(tag);
+        tagView.setText(tag_name);
     }
 
     /**

@@ -15,7 +15,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.project.manager.R;
+import com.project.manager.database.FlowColumns;
 import com.project.manager.database.FlowDatabaseHelper;
+import com.project.manager.database.FlowTables;
 import com.project.manager.ui.bookkeeping.flow_modify.fragments.FlowTypeEnum;
 
 import java.util.ArrayList;
@@ -77,8 +79,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             List<FlowTypeEnum> money_decrease_list = new ArrayList<>(Arrays.asList(money_decrease));
             SQLiteDatabase db = db_helper.openReadLink();
 
-            String[] columns = new String[]{FlowDatabaseHelper.COLUMN_AMOUNT, FlowDatabaseHelper.COLUMN_TYPE};
-            String selection = FlowDatabaseHelper.COLUMN_DATETIME + ">=? AND " + FlowDatabaseHelper.COLUMN_DATETIME + "<?";
+            String[] columns = new String[]{FlowColumns.AMOUNT.toString(), FlowColumns.TYPE.toString()};
+            String selection = FlowColumns.DATETIME + ">=? AND " + FlowColumns.DATETIME + "<?";
             String[] selectionArgs;
             if (isShowYearOnly) {
                 selectionArgs = new String[]{String.format("%04d-01-01", this.year), String.format("%04d-01-01", this.year + 1)};
@@ -86,7 +88,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                 selectionArgs = new String[]{String.format("%04d-%02d-01", this.year, this.month), String.format("%04d-%02d-01", this.year, this.month + 1)};
             }
             Cursor basic_cursor = db.query(
-                    FlowDatabaseHelper.TABLE_BASIC,
+                    FlowTables.BASIC.toString(),
                     columns,
                     selection,
                     selectionArgs,
@@ -96,8 +98,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             );
 
             while (basic_cursor.moveToNext()) {
-                FlowTypeEnum type = FlowTypeEnum.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_TYPE)));
-                double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(FlowDatabaseHelper.COLUMN_AMOUNT));
+                FlowTypeEnum type = FlowTypeEnum.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(FlowColumns.TYPE.toString())));
+                double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(FlowColumns.AMOUNT.toString()));
                 if (money_increase_list.contains(type)) {
                     balance += amount;
                     increase += amount;

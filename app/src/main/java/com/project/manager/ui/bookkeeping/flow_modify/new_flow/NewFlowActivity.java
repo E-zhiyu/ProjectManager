@@ -18,6 +18,7 @@ import com.project.manager.ui.bookkeeping.flow_modify.fragments.IncomeFragment;
 import com.project.manager.ui.bookkeeping.flow_modify.fragments.FlowFragmentBase;
 import com.project.manager.ui.bookkeeping.flow_modify.fragments.TransferFragment;
 import com.project.manager.RequestResultCode;
+import com.project.manager.ui.bookkeeping.tag.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,8 +98,9 @@ public class NewFlowActivity extends AppCompatActivity implements View.OnClickLi
         dataBundle.putString(FlowAttributeStrings.DATETIME, flowDate);
         String flowRemark = currentFragment.getRemark();    //备注
         dataBundle.putString(FlowAttributeStrings.REMARK, flowRemark);
-        String tag = currentFragment.getFlowTag();          //标签
-        dataBundle.putString(FlowAttributeStrings.TAG, tag);
+        String tag_name = currentFragment.getFlowTag();     //标签
+        int tag_no = Tag.nameTransToTno(tag_name, this);
+        dataBundle.putInt(FlowAttributeStrings.TAG_NO, tag_no);
 
         //获取碎片特殊信息并打包
         if (flowType == FlowTypeEnum.TRANSFER) {
@@ -114,4 +116,6 @@ public class NewFlowActivity extends AppCompatActivity implements View.OnClickLi
         setResult(RequestResultCode.RESULT_OK.ordinal(), result2BookKeeping);
         finish();
     }
+
+
 }
