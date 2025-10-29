@@ -23,15 +23,19 @@ import com.project.manager.database.FlowColumns;
 import com.project.manager.database.FlowDatabaseHelper;
 import com.project.manager.database.FlowTables;
 import com.project.manager.ui.bookkeeping.FlowAttributeStrings;
+import com.project.manager.ui.bookkeeping.tag.TagRecyclerAdapter;
 import com.project.manager.ui.bookkeeping.tag.TagSelectBottomSheet;
 
 import java.util.Calendar;
 
-public abstract class FlowFragmentBase extends Fragment implements View.OnClickListener, View.OnFocusChangeListener {
+public abstract class FlowFragmentBase extends Fragment implements
+        View.OnClickListener, View.OnFocusChangeListener, TagRecyclerAdapter.OnTagBtnClickedListener {
     Bundle initData = null;                         //初始化控件内容的数据（用于编辑流水记录时）
     View binding;                                   //绑定的XML界面
     protected String name;                          //碎片名称
     protected FlowTypeEnum type;                    //流水类型
+
+    private TagSelectBottomSheet tag_sheet;       //底部弹出窗口
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -225,8 +229,18 @@ public abstract class FlowFragmentBase extends Fragment implements View.OnClickL
 
     //显示标签选择视图
     private void showTagSelectSheet() {
-        TagSelectBottomSheet tag_sheet = new TagSelectBottomSheet();
+        tag_sheet = new TagSelectBottomSheet();
         tag_sheet.show(getParentFragmentManager(), "TagSelectBottomSheet");
+
+        //设置底部弹出窗口的标签按钮的点击监听器
+        tag_sheet.setOnTagBtnClickedListener(this);
+    }
+
+    @Override
+    public void onTagBtnClicked(long tag_no, String tag_name) {
+        TextInputEditText tag_input = binding.findViewById(R.id.flow_tag_input);
+        tag_input.setText(tag_name);
+        tag_sheet.dismiss();
     }
 }
 

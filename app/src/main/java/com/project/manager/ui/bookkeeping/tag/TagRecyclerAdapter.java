@@ -1,9 +1,6 @@
 package com.project.manager.ui.bookkeeping.tag;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabaseLockedException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,15 +10,22 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.project.manager.R;
-import com.project.manager.database.FlowColumns;
-import com.project.manager.database.FlowDatabaseHelper;
-import com.project.manager.database.FlowTables;
 
 import java.util.List;
 
 public class TagRecyclerAdapter extends RecyclerView.Adapter<TagGroupHolder> {
-    private final List<TagGroup> tagGroupList;   //标签组列表
+    private final List<TagGroup> tagGroupList;              //标签组列表
     Context context;
+    private OnTagBtnClickedListener tagBtnClickedListener;  //标签按钮点击监听器
+
+    //标签按钮点击监听接口
+    public interface OnTagBtnClickedListener {
+        void onTagBtnClicked(long tag_no, String tag_name); //传递标签编号和名称
+    }
+
+    public void setOnTagBtnClickedListener(OnTagBtnClickedListener listener) {
+        this.tagBtnClickedListener = listener;
+    }
 
     public TagRecyclerAdapter(List<TagGroup> tagGroupList, Context context) {
         this.tagGroupList = tagGroupList;
@@ -53,6 +57,11 @@ public class TagRecyclerAdapter extends RecyclerView.Adapter<TagGroupHolder> {
             MaterialButton tag_btn = new MaterialButton(context);   //实例化标签按钮
 
             tag_btn.setText(oneTag.name);    //设置按钮文本
+            tag_btn.setOnClickListener(v -> {   //设置回调接口
+                if (tagBtnClickedListener != null) {
+                    tagBtnClickedListener.onTagBtnClicked(oneTag.tno, oneTag.name);
+                }
+            });
 
             holder.tag_btn_layout.addView(tag_btn);
         }

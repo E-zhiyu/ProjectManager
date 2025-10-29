@@ -29,6 +29,8 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
     View binding;                   //绑定的XML视图
     TagRecyclerAdapter tagAdapter;  //标签列表视图适配器
 
+    TagRecyclerAdapter.OnTagBtnClickedListener tagBtnClickedListener;   //标签按钮点击事件的监听器
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -41,6 +43,9 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
         tagAdapter = new TagRecyclerAdapter(tagGroupList, requireContext());
         tag_group_recycler_view.setLayoutManager(new LinearLayoutManager(requireActivity()));
         tag_group_recycler_view.setAdapter(tagAdapter);
+
+        //设置标签按钮点击事件监听器
+        tagAdapter.setOnTagBtnClickedListener(this.tagBtnClickedListener);
 
         return binding;
     }
@@ -103,9 +108,6 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
     public void onClick(View v) {
         if (v.getId() == R.id.add_tag_btn) {
             addNewTag();
-        } else {
-            //TODO:标签按钮点击事件
-
         }
     }
 
@@ -159,5 +161,9 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
                 }
             }
         }
+    }
+
+    public void setOnTagBtnClickedListener(TagRecyclerAdapter.OnTagBtnClickedListener listener) {
+        this.tagBtnClickedListener = listener;
     }
 }
