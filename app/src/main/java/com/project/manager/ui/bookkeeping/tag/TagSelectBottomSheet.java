@@ -118,13 +118,17 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
     public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
         super.onActivityResult(requestCode, resultCode, resultIntent);
 
-        Bundle dataBundle = resultIntent.getExtras();
-        if (resultCode != RequestResultCode.RESULT_OK.ordinal() || dataBundle == null)
+        if (resultCode != RequestResultCode.RESULT_OK.ordinal())
             return;
         else {
             if (requestCode == RequestResultCode.NEW_TAG_REQUEST.ordinal()) {
-                String tag_name = dataBundle.getString(TagAttributions.NAME.value);         //标签名称
-                String group_name = dataBundle.getString(TagAttributions.GROUP_NAME.value); //分组名称
+                Bundle dataBundle = resultIntent.getExtras();
+                String tag_name = null;         //标签名称
+                String group_name = null;       //分组名称
+                if (dataBundle != null) {
+                    tag_name = dataBundle.getString(TagAttributions.NAME.value);
+                    group_name = dataBundle.getString(TagAttributions.GROUP_NAME.value);
+                }
                 long group_no = 0;   //分组编号
 
                 //判断是否需要新的分组
