@@ -225,7 +225,6 @@ public abstract class FlowFragmentBase extends Fragment implements View.OnClickL
 
     //显示标签选择视图
     private void showTagSelectSheet() {
-        //TODO: 将底部弹出的对话框改为能够上滑全屏
         TagSelectBottomSheet tag_sheet = new TagSelectBottomSheet();
         tag_sheet.show(getParentFragmentManager(), "TagSelectBottomSheet");
     }

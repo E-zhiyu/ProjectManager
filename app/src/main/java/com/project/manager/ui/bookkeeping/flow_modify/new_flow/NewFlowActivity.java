@@ -116,6 +116,4 @@ public class NewFlowActivity extends AppCompatActivity implements View.OnClickLi
         setResult(RequestResultCode.RESULT_OK.ordinal(), result2BookKeeping);
         finish();
     }
-
-
 }

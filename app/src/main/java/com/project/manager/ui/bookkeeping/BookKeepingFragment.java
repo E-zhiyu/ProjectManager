@@ -307,7 +307,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                 null,
                 null,
                 null,
-                FlowColumns.DATETIME + " DESC," + FlowColumns.FNO
+                FlowColumns.DATETIME + " DESC," + FlowColumns.FNO + " DESC"
         );
 
         //查询数据

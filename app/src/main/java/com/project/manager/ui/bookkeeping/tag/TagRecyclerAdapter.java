@@ -20,7 +20,7 @@ import com.project.manager.database.FlowTables;
 import java.util.List;
 
 public class TagRecyclerAdapter extends RecyclerView.Adapter<TagGroupHolder> {
-    private List<TagGroup> tagGroupList;   //标签组列表
+    private final List<TagGroup> tagGroupList;   //标签组列表
     Context context;
 
     public TagRecyclerAdapter(List<TagGroup> tagGroupList, Context context) {
@@ -64,15 +64,37 @@ public class TagRecyclerAdapter extends RecyclerView.Adapter<TagGroupHolder> {
     }
 
     /**
-     * 添加新标签
+     * 添加新标签（不添加新分组）
      *
-     * @param tagGroupList 修改后的标签分组列表
+     * @param new_tag         新标签对象
+     * @param target_group_no 已存在的分组编号
      */
-    public void addNewTag(List<TagGroup> tagGroupList) {
-        this.tagGroupList = tagGroupList;
+    public void addNewTag(Tag new_tag, long target_group_no) {
+        int position = 0;   //待刷新的分组下标
+        for (TagGroup group : this.tagGroupList) {
+            if (group.group_no == target_group_no) {
+                group.addTag(new_tag);
+                break;
+            }
+            position++;
+        }
 
-        //TODO: 换成性能开销更少的界面刷新方法
-        notifyDataSetChanged();
+        notifyItemChanged(position);
+    }
 
+    /**
+     * 添加新标签（同时添加新分组）
+     *
+     * @param new_tag   新标签对象
+     * @param new_group 新分组对象
+     */
+    public void addNewTag(Tag new_tag, TagGroup new_group) {
+        int list_size = this.tagGroupList.size();
+        this.tagGroupList.add(new_group);
+
+        notifyItemInserted(list_size);
+
+        new_group.addTag(new_tag);
+        notifyItemChanged(list_size);
     }
 }

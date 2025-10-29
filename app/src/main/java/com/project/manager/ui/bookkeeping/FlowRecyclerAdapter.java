@@ -93,7 +93,7 @@ public class FlowRecyclerAdapter extends RecyclerView.Adapter<FlowRecyclerAdapte
      */
     public void addNewFlowView(FlowBase newFlowView) {
         this.flowList.add(0, newFlowView);
-        notifyDataSetChanged();
+        notifyItemInserted(0);
     }
 
     /**
@@ -104,7 +104,7 @@ public class FlowRecyclerAdapter extends RecyclerView.Adapter<FlowRecyclerAdapte
      */
     public void setFlowView(int position, FlowBase flowView) {
         this.flowList.set(position, flowView);
-        notifyDataSetChanged();
+        notifyItemChanged(position);
     }
 
     /**
@@ -116,6 +116,6 @@ public class FlowRecyclerAdapter extends RecyclerView.Adapter<FlowRecyclerAdapte
         if (position == -1) return;
 
         this.flowList.remove(position);
-        notifyDataSetChanged();
+        notifyItemRemoved(position);
     }
 }
