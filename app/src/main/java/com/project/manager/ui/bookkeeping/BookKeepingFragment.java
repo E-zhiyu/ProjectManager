@@ -76,6 +76,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         }
     }
 
+    //处理流水记录项的点击事件
     @Override
     public void onItemClick(int position, FlowBase flowBase) {
         FlowBase flowView = flowListAdapter.getItem(position);
@@ -132,7 +133,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
      *
      * @param resultIntent 包含流水数据的意图对象
      */
-    private void addNewFlow(Intent resultIntent) {
+    private void addNewFlow(@NonNull Intent resultIntent) {
         ContentValues basic_values, special_values;           //基本数据和特殊数据记录
         SQLiteDatabase db = flow_db_helper.openWriteLink();   //数据库写连接
 

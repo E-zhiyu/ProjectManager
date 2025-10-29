@@ -60,7 +60,7 @@ public class NewFlowActivity extends AppCompatActivity implements View.OnClickLi
             if (error != null) {
                 Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
             } else {
-                finishCreatingFlow();
+                onFinishBtnClicked();
             }
         }
     }
@@ -82,7 +82,7 @@ public class NewFlowActivity extends AppCompatActivity implements View.OnClickLi
      * 完成流水新建
      */
     //TODO: 将回调函数重命名为on……ed
-    private void finishCreatingFlow() {
+    private void onFinishBtnClicked() {
         Intent result2BookKeeping = new Intent();
         Bundle dataBundle = new Bundle();
 
