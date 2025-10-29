@@ -1,6 +1,9 @@
 package com.project.manager.ui.bookkeeping.tag;
 
 import android.content.Intent;
+
+import com.project.manager.ui.bookkeeping.tag.Tag;
+
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -112,9 +115,9 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
             Bundle dataBundle = new Bundle();
 
             String tag_name = String.valueOf(tag_name_input.getText());
-            dataBundle.putString(TagAttributions.NAME.value, tag_name);
-            String tag_group = String.valueOf(tag_group_input.getText());
-            dataBundle.putString(TagAttributions.GROUP.value, tag_group);
+            dataBundle.putString(TagAttributions.NAME.value, tag_name);         //标签名
+            String group_name = String.valueOf(tag_group_input.getText());
+            dataBundle.putString(TagAttributions.GROUP_NAME.value, group_name); //分组名称
 
             result2TagSelectBottomSheet.putExtras(dataBundle);
             setResult(RequestResultCode.RESULT_OK.ordinal(), result2TagSelectBottomSheet);

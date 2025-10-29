@@ -69,20 +69,22 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
 
             List<TagGroup> tagGroupList = new ArrayList<>();    //标签组实例列表
             while (tag_cursor.moveToNext()) {
-                String tag_group_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NAME.toString()));
-                String tag_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NAME.toString()));
+                String tag_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NAME.toString()));  //标签名称
+                long tag_no = tag_cursor.getInt(tag_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NO.toString()));            //标签编号
+                long group_no = tag_cursor.getInt(tag_cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NO.toString()));        //分组编号
+                String group_name = TagGroup.groupNoTransToName(group_no, requireContext());                                //分组名称
 
                 boolean isGroupFound = false;   //判断是否找到同名分组
                 for (TagGroup group : tagGroupList) {
-                    if (group.group_name.equals(tag_group_name)) {
-                        group.addTag(tag_name);
+                    if (group.group_name.equals(group_name)) {
+                        group.addTag(new Tag(tag_name, tag_no));
                         isGroupFound = true;
                         break;
                     }
                 }
                 if (!isGroupFound) {
-                    TagGroup newGroup = new TagGroup(tag_group_name);
-                    newGroup.addTag(tag_name);
+                    TagGroup newGroup = new TagGroup(group_name, group_no);
+                    newGroup.addTag(new Tag(tag_name, tag_no));
                     tagGroupList.add(newGroup);
                 }
             }
@@ -118,11 +120,45 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
             return;
         else {
             if (requestCode == RequestResultCode.NEW_TAG_REQUEST.ordinal()) {
-                String tag_name = dataBundle.getString(TagAttributions.NAME.value);
-                String group_name = dataBundle.getString(TagAttributions.GROUP.value);
+                String tag_name = dataBundle.getString(TagAttributions.NAME.value);         //标签名称
+                String group_name = dataBundle.getString(TagAttributions.GROUP_NAME.value); //分组名称
+                long group_no = 0;   //分组编号
 
+                //判断是否需要新的分组
+                List<TagGroup> tagGroupList = tagAdapter.getTagGroupList();
+                boolean needNewGroup = true;
+                for (TagGroup oneGroup : tagGroupList) {
+                    if (oneGroup.group_name.equals(group_name)) {
+                        needNewGroup = false;
+                        group_no = TagGroup.nameTransToGno(group_name, requireContext());
+                        break;
+                    }
+                }
+                if (needNewGroup) {
+                    group_no = TagGroup.saveNewGroup(group_name, requireContext());
+                }
+
+                //将新标签的数据写入数据库
+                long tag_no = Tag.saveNewTag(tag_name, group_no, requireContext());
+
+                //将变化保存至列表中并传递给适配器
+                if (needNewGroup) {
+                    TagGroup newGroup = new TagGroup(group_name, group_no);
+                    Tag newTag = new Tag(tag_name, tag_no);
+                    newGroup.addTag(newTag);
+                    tagGroupList.add(newGroup);
+                } else {
+                    for (TagGroup group : tagGroupList) {
+                        if (group.group_no == group_no) {
+                            group.addTag(new Tag(tag_name, tag_no));
+                            break;
+                        }
+                    }
+                }
+
+                //TODO: 修复添加新标签导致界面出错的BUG
                 //刷新标签分组列表
-                tagAdapter.addNewTag(tag_name, group_name);
+                tagAdapter.addNewTag(tagGroupList);
             }
         }
     }

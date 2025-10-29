@@ -30,7 +30,7 @@ public class TagRecyclerAdapter extends RecyclerView.Adapter<TagGroupHolder> {
 
     //获取现存的标签组列表
     public List<TagGroup> getTagGroupList() {
-        return tagGroupList;
+        return this.tagGroupList;
     }
 
     @NonNull
@@ -46,13 +46,13 @@ public class TagRecyclerAdapter extends RecyclerView.Adapter<TagGroupHolder> {
     public void onBindViewHolder(@NonNull TagGroupHolder holder, int position) {
         TagGroup currentTagGroup = this.tagGroupList.get(position);
         String group_name = currentTagGroup.group_name;
-        List<String> tags = currentTagGroup.tags;
+        List<Tag> tags = currentTagGroup.tags;
 
         holder.tag_group_name_view.setText(group_name);
-        for (String tag_name : tags) {
+        for (Tag oneTag : tags) {
             MaterialButton tag_btn = new MaterialButton(context);   //实例化标签按钮
 
-            tag_btn.setText(tag_name);    //设置按钮文本
+            tag_btn.setText(oneTag.name);    //设置按钮文本
 
             holder.tag_btn_layout.addView(tag_btn);
         }
@@ -66,44 +66,13 @@ public class TagRecyclerAdapter extends RecyclerView.Adapter<TagGroupHolder> {
     /**
      * 添加新标签
      *
-     * @param tag_name   标签名
-     * @param group_name 标签分组名
+     * @param tagGroupList 修改后的标签分组列表
      */
-    public void addNewTag(String tag_name, String group_name) {
-        try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
-            SQLiteDatabase db = db_helper.openWriteLink();
+    public void addNewTag(List<TagGroup> tagGroupList) {
+        this.tagGroupList = tagGroupList;
 
-            boolean needNewGroup = true;
-            for (TagGroup group : tagGroupList) {
-                if (group.group_name.equals(group_name)) {
-                    group.addTag(tag_name);
-                    needNewGroup = false;
-                    break;
-                }
-            }
-            if (needNewGroup) {
-                TagGroup new_group = new TagGroup(group_name);
-                new_group.addTag(tag_name);
-                tagGroupList.add(new_group);
+        //TODO: 换成性能开销更少的界面刷新方法
+        notifyDataSetChanged();
 
-                //将新分组插入数据库
-                ContentValues group_values = new ContentValues();
-                group_values.put(FlowColumns.GROUP_NAME.toString(), group_name);
-                db.insert(FlowTables.TAG_GROUP.toString(), null, group_values);
-            }
-
-            //将新标签插入数据库
-            ContentValues tag_values = new ContentValues();
-            tag_values.put(FlowColumns.TAG_NAME.toString(), tag_name);
-            tag_values.put(FlowColumns.GROUP_NAME.toString(), group_name);
-            db.insert(FlowTables.TAG.toString(), null, tag_values);
-
-            db.close();
-
-            //TODO: 换成性能开销更少的界面刷新方法
-            notifyDataSetChanged();
-        } catch (SQLiteDatabaseLockedException e) {
-            throw new RuntimeException("打开数据库失败：数据库被其他进程占用");
-        }
     }
 }

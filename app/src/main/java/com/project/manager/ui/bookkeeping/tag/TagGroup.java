@@ -1,30 +1,32 @@
 package com.project.manager.ui.bookkeeping.tag;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDatabaseLockedException;
+
+import com.project.manager.database.FlowColumns;
+import com.project.manager.database.FlowDatabaseHelper;
+import com.project.manager.database.FlowTables;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class TagGroup {
-    List<String> tags;  //该分组下的标签字符串
+    List<Tag> tags;  //该分组下的标签字符串
     String group_name;  //标签组名称
-
-    /**
-     * 指定标签的构造方法
-     *
-     * @param group_name 标签分组名
-     * @param tags       该分组下的标签名列表
-     */
-    public TagGroup(String group_name, List<String> tags) {
-        this.group_name = group_name;
-        this.tags = tags;
-    }
+    long group_no;       //标签组编号
 
     /**
      * 未指定标签的构造方法
      *
      * @param group_name 标签分组名
+     * @param group_no   标签分组编号
      */
-    public TagGroup(String group_name) {
+    public TagGroup(String group_name, long group_no) {
         this.group_name = group_name;
+        this.group_no = group_no;
         this.tags = new ArrayList<>();
     }
 
@@ -33,7 +35,109 @@ public class TagGroup {
      *
      * @param tag 被添加的标签名
      */
-    public void addTag(String tag) {
+    public void addTag(Tag tag) {
         this.tags.add(tag);
+    }
+
+    /**
+     * 将标签组名称转换为编号
+     *
+     * @param group_name 标签组名称
+     * @param context    用于打开数据库的上下文
+     * @return 对应的标签编号
+     */
+    public static long nameTransToGno(String group_name, Context context) {
+        try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
+            SQLiteDatabase db = db_helper.openReadLink();
+
+            String[] columns = {FlowColumns.GROUP_NO.toString()};
+            String selection = FlowColumns.GROUP_NAME + "=?";
+            String[] selectionArgs = {group_name};
+            Cursor cursor = db.query(
+                    FlowTables.TAG_GROUP.toString(),
+                    columns,
+                    selection,
+                    selectionArgs,
+                    null,
+                    null,
+                    null,
+                    "1"
+            );
+
+            long group_no;
+            if (cursor.moveToNext()) {
+                group_no = cursor.getInt(cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NO.toString()));
+            } else {
+                group_no = 0;
+            }
+
+            cursor.close();
+            db.close();
+            return group_no;
+        } catch (SQLiteDatabaseLockedException e) {
+            throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
+        }
+    }
+
+    /**
+     * 将标签组编号转换为标签组名称
+     *
+     * @param group_no 标签组编号
+     * @param context  用于打开数据库的上下文
+     * @return 对应的标签名称
+     */
+    public static String groupNoTransToName(long group_no, Context context) {
+        try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
+            SQLiteDatabase db = db_helper.openReadLink();
+
+            String[] columns = {FlowColumns.GROUP_NAME.toString()};
+            String selection = FlowColumns.GROUP_NO + "=?";
+            String[] selectionArgs = {String.valueOf(group_no)};
+            Cursor cursor = db.query(
+                    FlowTables.TAG_GROUP.toString(),
+                    columns,
+                    selection,
+                    selectionArgs,
+                    null,
+                    null,
+                    null,
+                    "1"
+            );
+
+            String group_name;
+            if (cursor.moveToNext()) {
+                group_name = cursor.getString(cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NAME.toString()));
+            } else {
+                group_name = "";
+            }
+
+            cursor.close();
+            db.close();
+            return group_name;
+        } catch (SQLiteDatabaseLockedException e) {
+            throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
+        }
+    }
+
+    /**
+     * 向数据库中保存新的标签分组
+     *
+     * @param group_name 新分组的名称
+     * @param context    打开数据库的上下文
+     * @return 新分组对应的编号
+     */
+    public static long saveNewGroup(String group_name, Context context) {
+        try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
+            SQLiteDatabase db = db_helper.openWriteLink();
+
+            ContentValues group_values = new ContentValues();
+            group_values.put(FlowColumns.GROUP_NAME.toString(), group_name);
+            long group_no = db.insert(FlowTables.TAG_GROUP.toString(), null, group_values);
+
+            db.close();
+            return group_no;
+        } catch (SQLiteDatabaseLockedException e) {
+            throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
+        }
     }
 }

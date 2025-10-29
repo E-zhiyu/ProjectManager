@@ -1,5 +1,6 @@
 package com.project.manager.ui.bookkeeping.tag;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -11,16 +12,21 @@ import com.project.manager.database.FlowTables;
 
 public class Tag {
     String name;    //名称
-    int tno;        //编号
+    long tno;        //编号
+
+    public Tag(String name, long tno) {
+        this.name = name;
+        this.tno = tno;
+    }
 
     /**
      * 将名称转换为编号
      *
-     * @param name 标签名称
+     * @param name    标签名称
      * @param context 用于打开数据库的上下文
      * @return 对应的标签编号
      */
-    public static int nameTransToTno(String name,Context context) {
+    public static int nameTransToTno(String name, Context context) {
         try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
             SQLiteDatabase db = db_helper.openReadLink();
 
@@ -56,11 +62,11 @@ public class Tag {
     /**
      * 将标签编号转换为标签名称
      *
-     * @param tag_no 标签编号
+     * @param tag_no  标签编号
      * @param context 用于打开数据库的上下文
      * @return 对应的标签名称
      */
-    public static String tagNoTransToName(int tag_no, Context context) {
+    public static String tagNoTransToName(long tag_no, Context context) {
         try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
             SQLiteDatabase db = db_helper.openReadLink();
 
@@ -88,6 +94,30 @@ public class Tag {
             cursor.close();
             db.close();
             return tag_name;
+        } catch (SQLiteDatabaseLockedException e) {
+            throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
+        }
+    }
+
+    /**
+     * 保存新的标签到数据库
+     *
+     * @param tag_name 标签名称
+     * @param group_no 该标签对应的分组编号
+     * @param context  用于打开数据库的上下文
+     * @return 对应的标签编号
+     */
+    public static long saveNewTag(String tag_name, long group_no, Context context) {
+        try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
+            SQLiteDatabase db = db_helper.openWriteLink();
+
+            ContentValues tag_values = new ContentValues();
+            tag_values.put(FlowColumns.TAG_NAME.toString(), tag_name);
+            tag_values.put(FlowColumns.GROUP_NO.toString(), group_no);
+            long tag_no = db.insert(FlowTables.TAG.toString(), null, tag_values);
+
+            db.close();
+            return tag_no;
         } catch (SQLiteDatabaseLockedException e) {
             throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
         }
