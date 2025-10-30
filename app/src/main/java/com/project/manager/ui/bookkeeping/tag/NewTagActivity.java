@@ -2,22 +2,25 @@ package com.project.manager.ui.bookkeeping.tag;
 
 import android.content.Intent;
 
-import com.project.manager.ui.bookkeeping.tag.Tag;
-
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.project.manager.R;
 import com.project.manager.RequestResultCode;
+import com.project.manager.ui.bookkeeping.KeyValueStrings;
+
+import java.util.ArrayList;
 
 public class NewTagActivity extends AppCompatActivity implements View.OnFocusChangeListener, View.OnClickListener {
     TextInputLayout tag_name_layout, tag_group_layout;
     TextInputEditText tag_name_input, tag_group_input;
+    int selected_index = 0; //选择的分组的索引
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,7 +103,24 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
 
     //标签分组右侧按钮点击回调
     private void onGroupLayoutEndIconClicked() {
-        //TODO: 设计标签选择逻辑（用BottomSheet实现）
+        ArrayList<String> tagGroupArrayList = getIntent().getStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue());
+        if (tagGroupArrayList != null) {
+            String[] group_names = tagGroupArrayList.toArray(new String[0]);
+
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("选择标签分组")
+                    .setSingleChoiceItems(group_names, selected_index, (dialog, witch) -> {
+                        String group_name = group_names[witch];
+                        tag_group_input.setText(group_name);
+                        selected_index = witch;
+                        dialog.dismiss();
+                    })
+                    .setNegativeButton("取消", (dialog, id) -> {
+                        // 关闭对话框
+                        dialog.dismiss();
+                    })
+                    .show();
+        }
     }
 
     //完成按钮点击回调

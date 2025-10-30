@@ -21,10 +21,12 @@ import com.project.manager.RequestResultCode;
 import com.project.manager.database.FlowColumns;
 import com.project.manager.database.FlowDatabaseHelper;
 import com.project.manager.database.FlowTables;
+import com.project.manager.ui.bookkeeping.KeyValueStrings;
 
 import java.util.ArrayList;
 import java.util.List;
 
+//TODO:增加标签编辑界面
 public class TagSelectBottomSheet extends BottomSheetDialogFragment implements View.OnClickListener {
     View binding;                   //绑定的XML视图
     TagRecyclerAdapter tagAdapter;  //标签列表视图适配器
@@ -113,6 +115,15 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
 
     private void addNewTag() {
         Intent skip2NewTag = new Intent(getActivity(), NewTagActivity.class);
+
+        //获取已保存的标签分组信息
+        List<TagGroup> tagGroupList = tagAdapter.getTagGroupList();
+        ArrayList<String> groupNameList = new ArrayList<>();
+        for (TagGroup group : tagGroupList) {
+            groupNameList.add(group.group_name);
+        }
+        skip2NewTag.putStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue(), groupNameList);
+
         startActivityForResult(skip2NewTag, RequestResultCode.NEW_TAG_REQUEST.ordinal());
     }
 
