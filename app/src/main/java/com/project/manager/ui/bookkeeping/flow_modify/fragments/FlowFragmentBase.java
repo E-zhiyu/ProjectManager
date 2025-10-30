@@ -19,10 +19,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 import com.project.manager.R;
-import com.project.manager.database.FlowColumns;
-import com.project.manager.database.FlowDatabaseHelper;
-import com.project.manager.database.FlowTables;
-import com.project.manager.ui.bookkeeping.FlowAttributeStrings;
+import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.tag.TagRecyclerAdapter;
 import com.project.manager.ui.bookkeeping.tag.TagSelectBottomSheet;
 
@@ -110,10 +107,10 @@ public abstract class FlowFragmentBase extends Fragment implements
      */
     public void initViewsWhenEditing(Bundle dataBundle) {
         TextInputEditText amountView, remarkView;
-        double amount = dataBundle.getDouble(FlowAttributeStrings.AMOUNT, -1);
-        String remark = dataBundle.getString(FlowAttributeStrings.REMARK);
-        String date_time = dataBundle.getString(FlowAttributeStrings.DATETIME);
-        int tag_no = dataBundle.getInt(FlowAttributeStrings.TAG_NO);
+        double amount = dataBundle.getDouble(KeyValueStrings.FLOW_AMOUNT.getValue(), -1);
+        String remark = dataBundle.getString(KeyValueStrings.FLOW_REMARK.getValue());
+        String date_time = dataBundle.getString(KeyValueStrings.FLOW_DATETIME.getValue());
+        int tag_no = dataBundle.getInt(KeyValueStrings.TAG_NO.getValue());
         String tag_name = tagNoTransToName(tag_no, requireContext());
 
         amountView = binding.findViewById(R.id.amount_input);                       //金额

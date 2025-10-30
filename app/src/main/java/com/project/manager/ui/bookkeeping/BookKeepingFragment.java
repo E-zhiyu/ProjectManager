@@ -86,26 +86,26 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
         //获取基本数据
         FlowTypeEnum type = flowView.type;      //类型
-        dataBundle.putString(FlowAttributeStrings.TYPE, type.toString());
+        dataBundle.putString(KeyValueStrings.FLOW_TYPE.getValue(), type.toString());
         double amount = flowView.amount;        //金额
-        dataBundle.putDouble(FlowAttributeStrings.AMOUNT, amount);
+        dataBundle.putDouble(KeyValueStrings.FLOW_AMOUNT.getValue(), amount);
         String remark = flowView.remark;        //备注
-        dataBundle.putString(FlowAttributeStrings.REMARK, remark);
+        dataBundle.putString(KeyValueStrings.FLOW_REMARK.getValue(), remark);
         String date_time = flowView.date_time;  //日期
-        dataBundle.putString(FlowAttributeStrings.DATETIME, date_time);
+        dataBundle.putString(KeyValueStrings.FLOW_DATETIME.getValue(), date_time);
         long fno = flowView.fno;                //编号
-        dataBundle.putLong(FlowAttributeStrings.FNO, fno);
+        dataBundle.putLong(KeyValueStrings.FLOW_NO.getValue(), fno);
         int tag_no = flowView.tag_no;           //标签编号
-        dataBundle.putInt(FlowAttributeStrings.TAG_NO, tag_no);
+        dataBundle.putInt(KeyValueStrings.TAG_NO.getValue(), tag_no);
 
-        dataBundle.putInt(FlowAttributeStrings.POSITION, position);  //将待修改的流水实例下标放入包裹
+        dataBundle.putInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), position);  //将待修改的流水实例下标放入包裹
 
         //获取特殊数据
         if (type == FlowTypeEnum.TRANSFER) {
             String exportAccount = ((TransferFlow) flowView).exportAccount;  //转出账户
-            dataBundle.putString(FlowAttributeStrings.EXPORT, exportAccount);
+            dataBundle.putString(KeyValueStrings.FLOW_EXPORT.getValue(), exportAccount);
             String importAccount = ((TransferFlow) flowView).importAccount;  //转入账户
-            dataBundle.putString(FlowAttributeStrings.IMPORT, importAccount);
+            dataBundle.putString(KeyValueStrings.FLOW_IMPORT.getValue(), importAccount);
         }
 
         skip2FlowEdit.putExtras(dataBundle);
@@ -144,14 +144,14 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         }
 
         //获取基本流水数据
-        FlowTypeEnum type = FlowTypeEnum.valueOf(resultIntent.getStringExtra(FlowAttributeStrings.TYPE));
+        FlowTypeEnum type = FlowTypeEnum.valueOf(resultIntent.getStringExtra(KeyValueStrings.FLOW_TYPE.getValue()));
         String remark, date_time;
         double amount;
         int tag_no;
-        remark = dataBundle.getString(FlowAttributeStrings.REMARK);
-        amount = dataBundle.getDouble(FlowAttributeStrings.AMOUNT, -1);
-        date_time = dataBundle.getString(FlowAttributeStrings.DATETIME);
-        tag_no = dataBundle.getInt(FlowAttributeStrings.TAG_NO);
+        remark = dataBundle.getString(KeyValueStrings.FLOW_REMARK.getValue());
+        amount = dataBundle.getDouble(KeyValueStrings.FLOW_AMOUNT.getValue(), -1);
+        date_time = dataBundle.getString(KeyValueStrings.FLOW_DATETIME.getValue());
+        tag_no = dataBundle.getInt(KeyValueStrings.TAG_NO.getValue());
         basic_values = new ContentValues();
         basic_values.put(FlowColumns.TYPE.toString(), type.toString()); //种类
         basic_values.put(FlowColumns.AMOUNT.toString(), amount);        //金额
@@ -169,8 +169,8 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         } else if (type == FlowTypeEnum.INCOME) {
             newFlowView = new IncomeFlow(remark, date_time, amount, tag_no);
         } else if (type == FlowTypeEnum.TRANSFER) {
-            String exportAccount = dataBundle.getString(FlowAttributeStrings.EXPORT);    //转出账户
-            String importAccount = dataBundle.getString(FlowAttributeStrings.IMPORT);    //转入账户
+            String exportAccount = dataBundle.getString(KeyValueStrings.FLOW_EXPORT.getValue());    //转出账户
+            String importAccount = dataBundle.getString(KeyValueStrings.FLOW_IMPORT.getValue());    //转入账户
 
             special_values.put(FlowColumns.FNO.toString(), fno);
             special_values.put(FlowColumns.EXPORT.toString(), exportAccount);
@@ -203,11 +203,11 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         }
 
         FlowTypeEnum type = FlowTypeEnum.valueOf(dataBundle.getString("type"));
-        int position = dataBundle.getInt(FlowAttributeStrings.POSITION, -1);    //原视图下标
-        double amount = dataBundle.getDouble(FlowAttributeStrings.AMOUNT, -1);
-        String remark = dataBundle.getString(FlowAttributeStrings.REMARK);
-        String date_time = dataBundle.getString(FlowAttributeStrings.DATETIME);
-        int tag_no = dataBundle.getInt(FlowAttributeStrings.TAG_NO);
+        int position = dataBundle.getInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), -1);    //原视图下标
+        double amount = dataBundle.getDouble(KeyValueStrings.FLOW_AMOUNT.getValue(), -1);
+        String remark = dataBundle.getString(KeyValueStrings.FLOW_REMARK.getValue());
+        String date_time = dataBundle.getString(KeyValueStrings.FLOW_DATETIME.getValue());
+        int tag_no = dataBundle.getInt(KeyValueStrings.TAG_NO.getValue());
 
         //将基本数据存放至数据库
         basic_values = new ContentValues();
@@ -216,7 +216,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         basic_values.put(FlowColumns.REMARK.toString(), remark);        //备注
         basic_values.put(FlowColumns.DATETIME.toString(), date_time);   //日期
         basic_values.put(FlowColumns.TAG_NO.toString(), tag_no);        //标签编号
-        String selection = FlowAttributeStrings.FNO + "=?";
+        String selection = FlowColumns.FNO + "=?";
         long fno = (flowListAdapter.getItem(position)).fno;  //编号
         String[] selectionArgs = new String[]{String.valueOf(fno)};
         db.update(
@@ -234,8 +234,8 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         } else if (type == FlowTypeEnum.INCOME) {
             newFlowView = new IncomeFlow(remark, date_time, amount, tag_no);
         } else if (type == FlowTypeEnum.TRANSFER) {
-            String exportAccount = dataBundle.getString(FlowAttributeStrings.EXPORT);    //转出账户
-            String importAccount = dataBundle.getString(FlowAttributeStrings.IMPORT);    //转入账户
+            String exportAccount = dataBundle.getString(KeyValueStrings.FLOW_EXPORT.getValue());    //转出账户
+            String importAccount = dataBundle.getString(KeyValueStrings.FLOW_IMPORT.getValue());    //转入账户
 
             special_values.put(FlowColumns.EXPORT.toString(), exportAccount);
             special_values.put(FlowColumns.IMPORT.toString(), importAccount);
@@ -270,10 +270,10 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         }
 
         //从数据库中删除
-        position = dataBundle.getInt(FlowAttributeStrings.POSITION, -1);
+        position = dataBundle.getInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), -1);
         FlowBase target_flow_view = flowListAdapter.getItem(position);
         long fno = target_flow_view.fno;
-        String selection = FlowAttributeStrings.FNO + "=?";
+        String selection = FlowColumns.FNO + "=?";
         String[] selectionArgs = {String.valueOf(fno)};
         db.delete(
                 FlowTables.BASIC.toString(),

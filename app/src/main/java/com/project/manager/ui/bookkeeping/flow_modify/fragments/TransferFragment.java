@@ -5,7 +5,7 @@ import android.view.View;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.project.manager.R;
-import com.project.manager.ui.bookkeeping.FlowAttributeStrings;
+import com.project.manager.ui.bookkeeping.KeyValueStrings;
 
 public class TransferFragment extends FlowFragmentBase implements View.OnFocusChangeListener, View.OnClickListener {
     public TransferFragment() {
@@ -30,8 +30,8 @@ public class TransferFragment extends FlowFragmentBase implements View.OnFocusCh
     public void initViewsWhenEditing(Bundle dataBundle) {
         super.initViewsWhenEditing(dataBundle);
 
-        String exportAccount = dataBundle.getString(FlowAttributeStrings.EXPORT);
-        String importAccount = dataBundle.getString(FlowAttributeStrings.IMPORT);
+        String exportAccount = dataBundle.getString(KeyValueStrings.FLOW_EXPORT.getValue());
+        String importAccount = dataBundle.getString(KeyValueStrings.FLOW_IMPORT.getValue());
         TextInputEditText exportAccountView, importAccountView;
         exportAccountView = binding.findViewById(R.id.export_account_input); //转出账户
         exportAccountView.setText(exportAccount);

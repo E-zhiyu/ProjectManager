@@ -11,7 +11,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.project.manager.R;
-import com.project.manager.ui.bookkeeping.FlowAttributeStrings;
+import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.flow_modify.fragments.ExpenseFragment;
 import com.project.manager.ui.bookkeeping.flow_modify.fragments.FlowTypeEnum;
 import com.project.manager.ui.bookkeeping.flow_modify.fragments.IncomeFragment;
@@ -81,7 +81,6 @@ public class NewFlowActivity extends AppCompatActivity implements View.OnClickLi
     /**
      * 完成流水新建
      */
-    //TODO: 将回调函数重命名为on……ed
     private void onFinishBtnClicked() {
         Intent result2BookKeeping = new Intent();
         Bundle dataBundle = new Bundle();
@@ -89,27 +88,27 @@ public class NewFlowActivity extends AppCompatActivity implements View.OnClickLi
         //获取当前碎片基本信息并打包
         FlowFragmentBase currentFragment = (FlowFragmentBase) getCurrentFragment(viewPager);
         FlowTypeEnum flowType = currentFragment.getType();  //种类
-        dataBundle.putString(FlowAttributeStrings.TYPE, flowType.toString());
+        dataBundle.putString(KeyValueStrings.FLOW_TYPE.getValue(), flowType.toString());
 
         //获取碎片通用信息并打包
         double flowAmount = currentFragment.getAmount();    //金额
-        dataBundle.putDouble(FlowAttributeStrings.AMOUNT, flowAmount);
+        dataBundle.putDouble(KeyValueStrings.FLOW_AMOUNT.getValue(), flowAmount);
         String flowDate = currentFragment.getDate();        //日期
-        dataBundle.putString(FlowAttributeStrings.DATETIME, flowDate);
+        dataBundle.putString(KeyValueStrings.FLOW_DATETIME.getValue(), flowDate);
         String flowRemark = currentFragment.getRemark();    //备注
-        dataBundle.putString(FlowAttributeStrings.REMARK, flowRemark);
+        dataBundle.putString(KeyValueStrings.FLOW_REMARK.getValue(), flowRemark);
         String tag_name = currentFragment.getFlowTag();     //标签
         int tag_no = Tag.nameTransToTno(tag_name, this);
-        dataBundle.putInt(FlowAttributeStrings.TAG_NO, tag_no);
+        dataBundle.putInt(KeyValueStrings.TAG_NO.getValue(), tag_no);
 
         //获取碎片特殊信息并打包
         if (flowType == FlowTypeEnum.TRANSFER) {
             TransferFragment transferFragment = (TransferFragment) currentFragment;
             String exportAccount, importAccount;
             exportAccount = transferFragment.getExportAccount();    //转出账户
-            dataBundle.putString(FlowAttributeStrings.EXPORT, exportAccount);
+            dataBundle.putString(KeyValueStrings.FLOW_EXPORT.getValue(), exportAccount);
             importAccount = transferFragment.getImportAccount();    //转入账户
-            dataBundle.putString(FlowAttributeStrings.IMPORT, importAccount);
+            dataBundle.putString(KeyValueStrings.FLOW_IMPORT.getValue(), importAccount);
         }
 
         result2BookKeeping.putExtras(dataBundle);

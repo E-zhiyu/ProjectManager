@@ -11,7 +11,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.textfield.TextInputEditText;
 import com.project.manager.R;
 import com.project.manager.RequestResultCode;
-import com.project.manager.ui.bookkeeping.FlowAttributeStrings;
+import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.flow_modify.fragments.ExpenseFragment;
 import com.project.manager.ui.bookkeeping.flow_modify.fragments.FlowFragmentBase;
 import com.project.manager.ui.bookkeeping.flow_modify.fragments.FlowTypeEnum;
@@ -34,8 +34,8 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
         //接收种类和下标参数
         Bundle dataBundle = getIntent().getExtras();
         if (dataBundle != null) {
-            type = FlowTypeEnum.valueOf(dataBundle.getString(FlowAttributeStrings.TYPE));
-            position = dataBundle.getInt(FlowAttributeStrings.POSITION, -1);
+            type = FlowTypeEnum.valueOf(dataBundle.getString(KeyValueStrings.FLOW_TYPE.getValue()));
+            position = dataBundle.getInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), -1);
         } else {
             throw new NullPointerException("编辑流水时无法读取原有的数据");
         }
@@ -97,7 +97,7 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
         } else if (v.getId() == R.id.delete_btn) {
             resultCode = RequestResultCode.RESULT_DELETE_FLOW.ordinal();
             Bundle dataBundle = new Bundle();
-            dataBundle.putInt(FlowAttributeStrings.POSITION, position);
+            dataBundle.putInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), position);
             result2BookKeeping.putExtras(dataBundle);
         } else {
             throw new RuntimeException("无法获取正确的按钮ID");
@@ -120,20 +120,20 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
         //获取基本数据
         TextInputEditText amount_input = findViewById(R.id.amount_input);       //金额
         amount = Double.parseDouble(String.valueOf(amount_input.getText()));
-        dataBundle.putDouble(FlowAttributeStrings.AMOUNT, amount);
+        dataBundle.putDouble(KeyValueStrings.FLOW_AMOUNT.getValue(), amount);
         TextInputEditText remark_input = findViewById(R.id.remark_input);       //备注
         remark = String.valueOf(remark_input.getText());
-        dataBundle.putString(FlowAttributeStrings.REMARK, remark);
+        dataBundle.putString(KeyValueStrings.FLOW_REMARK.getValue(), remark);
         TextInputEditText datetime_input = findViewById(R.id.date_time_input);  //日期
         date_time = String.valueOf(datetime_input.getText());
-        dataBundle.putString(FlowAttributeStrings.DATETIME, date_time);
+        dataBundle.putString(KeyValueStrings.FLOW_DATETIME.getValue(), date_time);
         TextInputEditText tag_input = findViewById(R.id.flow_tag_input);        //标签
         tag_name = String.valueOf(tag_input.getText());
         int tag_no = Tag.nameTransToTno(tag_name, this);
-        dataBundle.putInt(FlowAttributeStrings.TAG_NO, tag_no);
+        dataBundle.putInt(KeyValueStrings.TAG_NO.getValue(), tag_no);
 
-        dataBundle.putInt(FlowAttributeStrings.POSITION, position);             //将下标存放至包裹
-        dataBundle.putString(FlowAttributeStrings.TYPE, type.toString());       //将种类存放至包裹
+        dataBundle.putInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), position);        //将下标存放至包裹
+        dataBundle.putString(KeyValueStrings.FLOW_TYPE.getValue(), type.toString());       //将种类存放至包裹
 
         //获取特殊信息
         if (type == FlowTypeEnum.TRANSFER) {
@@ -141,10 +141,10 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
             String exportAccount, importAccount;
             export_input = findViewById(R.id.export_account_input);    //转出账户
             exportAccount = String.valueOf(export_input.getText());
-            dataBundle.putString(FlowAttributeStrings.EXPORT, exportAccount);
+            dataBundle.putString(KeyValueStrings.FLOW_EXPORT.getValue(), exportAccount);
             import_input = findViewById(R.id.import_account_input);    //转入账户
             importAccount = String.valueOf(import_input.getText());
-            dataBundle.putString(FlowAttributeStrings.IMPORT, importAccount);
+            dataBundle.putString(KeyValueStrings.FLOW_IMPORT.getValue(), importAccount);
         }
 
         return dataBundle;
