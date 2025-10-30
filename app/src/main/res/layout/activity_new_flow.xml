@@ -6,10 +6,9 @@
     style="@style/PageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     tools:context=".ui.bookkeeping.flow_modify.new_flow.NewFlowActivity">
 
-    <androidx.appcompat.widget.Toolbar
+    <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/new_flow_toolbar"
         style="@style/ToolBarStyle"
         android:layout_width="match_parent"
@@ -21,7 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/new_flow" />
-    </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/new_flow_tab_layout"

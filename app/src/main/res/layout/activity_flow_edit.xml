@@ -6,10 +6,9 @@
     style="@style/PageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     tools:context=".ui.bookkeeping.flow_modify.edit.FlowEditActivity">
 
-    <androidx.appcompat.widget.Toolbar
+    <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/flow_edit_toolbar"
         style="@style/ToolBarStyle"
         android:layout_width="match_parent"
@@ -19,7 +18,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:title="流水编辑">
 
-    </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <FrameLayout
         android:id="@+id/flow_edit_fragment_container"

@@ -5,10 +5,9 @@
     style="@style/PageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context=".ui.bookkeeping.tag.NewTagActivity">
+    tools:context=".ui.bookkeeping.tag.modify.NewTagActivity">
 
-    <androidx.appcompat.widget.Toolbar
+    <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/new_tag_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
