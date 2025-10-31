@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
 
+//TODO:将该类合并至适配器类中
 public class TagGroupHolder extends RecyclerView.ViewHolder {
     GridLayout tag_btn_layout;              //标签按钮布局
     MaterialTextView tag_group_name_view;   //标签分组名称

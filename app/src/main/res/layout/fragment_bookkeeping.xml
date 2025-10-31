@@ -40,9 +40,8 @@
 
     <!-- 流水列表视图 -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/flow_list"
+        android:id="@+id/flow_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp" />
-
 </LinearLayout>

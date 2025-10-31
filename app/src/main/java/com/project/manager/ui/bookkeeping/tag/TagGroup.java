@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabaseLockedException;
+import android.database.sqlite.SQLiteException;
 
 import com.project.manager.database.FlowColumns;
 import com.project.manager.database.FlowDatabaseHelper;
@@ -17,6 +18,13 @@ public class TagGroup {
     List<Tag> tags;  //该分组下的标签字符串
     String group_name;  //标签组名称
     long group_no;       //标签组编号
+
+    public String getGroupName() {
+        return group_name;
+    }
+    public List<Tag> getTags() {
+        return tags;
+    }
 
     /**
      * 未指定标签的构造方法
@@ -138,6 +146,59 @@ public class TagGroup {
             return group_no;
         } catch (SQLiteDatabaseLockedException e) {
             throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
+        }
+    }
+
+    /**
+     * 加载标签数据
+     *
+     * @param context 用于打开数据库的上下文
+     * @return 标签分组列表
+     */
+    public static List<TagGroup> loadTagGroups(Context context) {
+        try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
+            SQLiteDatabase db = db_helper.openReadLink();
+
+            //查询标签并分组
+            Cursor tag_cursor = db.query(
+                    FlowTables.TAG + " NATURAL JOIN " + FlowTables.TAG_GROUP,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+
+            List<TagGroup> tagGroupList = new ArrayList<>();    //标签组实例列表
+            while (tag_cursor.moveToNext()) {
+                String tag_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NAME.toString()));      //标签名称
+                long tag_no = tag_cursor.getInt(tag_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NO.toString()));               //标签编号
+                long group_no = tag_cursor.getInt(tag_cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NO.toString()));           //分组编号
+                String group_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NAME.toString()));  //分组名称                                //分组名称
+
+                boolean isGroupFound = false;   //判断是否找到同号分组
+                for (TagGroup group : tagGroupList) {
+                    if (group.group_no == group_no) {
+                        group.addTag(new Tag(tag_name, tag_no));    //找到同号分组：将标签添加至该分组
+                        isGroupFound = true;
+                        break;
+                    }
+                }
+                if (!isGroupFound) {
+                    TagGroup newGroup = new TagGroup(group_name, group_no);
+                    newGroup.addTag(new Tag(tag_name, tag_no));     //找不到同号分组：新建分组并添加标签至该分组
+                    tagGroupList.add(newGroup);
+                }
+            }
+
+            tag_cursor.close();
+            db.close();
+            return tagGroupList;
+        } catch (SQLiteDatabaseLockedException e) {
+            throw new RuntimeException("无法读取标签信息：数据库被其他进程占用");
+        } catch (SQLiteException e) {
+            throw new RuntimeException("数据库读取失败");
         }
     }
 }

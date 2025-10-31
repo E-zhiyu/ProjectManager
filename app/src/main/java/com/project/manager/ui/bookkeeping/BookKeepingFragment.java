@@ -29,7 +29,7 @@ import com.project.manager.ui.bookkeeping.report.ReportActivity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BookKeepingFragment extends Fragment implements View.OnClickListener, FlowRecyclerAdapter.OnItemClickListener {
+public class BookKeepingFragment extends Fragment implements View.OnClickListener, FlowRecyclerAdapter.OnFlowClickListener {
     FlowRecyclerAdapter flowListAdapter;    //流水列表适配器
     FlowDatabaseHelper flow_db_helper;       //流水数据库帮助器
 
@@ -50,9 +50,8 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
         //创建列表视图的适配器
         List<FlowBase> flowList = loadFlowData();
-        flowListAdapter = new FlowRecyclerAdapter(flowList);
-        flowListAdapter.setOnItemClickListener(this);   //绑定适配器项点击事件的监听器
-        RecyclerView flowListView = binding.flowList;
+        flowListAdapter = new FlowRecyclerAdapter(flowList,this);   //绑定适配器项点击事件的监听器
+        RecyclerView flowListView = binding.flowRecyclerView;
         flowListView.setLayoutManager(new LinearLayoutManager(requireActivity()));  //设置线性布局
         flowListView.setAdapter(flowListAdapter);
 
@@ -78,7 +77,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
     //处理流水记录项的点击事件
     @Override
-    public void onItemClick(int position, FlowBase flowBase) {
+    public void onFlowClick(int position, FlowBase flowBase) {
         FlowBase flowView = flowListAdapter.getItem(position);
 
         Intent skip2FlowEdit = new Intent(getActivity(), FlowEditActivity.class);

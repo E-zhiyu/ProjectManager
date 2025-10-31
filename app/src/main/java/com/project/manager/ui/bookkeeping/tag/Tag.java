@@ -19,6 +19,10 @@ public class Tag {
         this.tno = tno;
     }
 
+    public String getName() {
+        return name;
+    }
+
     /**
      * 将名称转换为编号
      *

@@ -19,13 +19,13 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/remark_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Remark" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/name_datetime_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -33,7 +33,7 @@
         </LinearLayout>
 
         <!-- 右侧金额信息 -->
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/amount_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
