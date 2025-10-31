@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.tag;
+package com.project.manager.ui.bookkeeping.tag.modify;
 
 import android.content.Intent;
 
@@ -14,13 +14,14 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.project.manager.R;
 import com.project.manager.RequestResultCode;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
+import com.project.manager.ui.bookkeeping.tag.TagAttributions;
 
 import java.util.ArrayList;
 
 public class NewTagActivity extends AppCompatActivity implements View.OnFocusChangeListener, View.OnClickListener {
     TextInputLayout tag_name_layout, tag_group_layout;
     TextInputEditText tag_name_input, tag_group_input;
-    int selected_index = 0; //选择的分组的索引
+    int selected_index = -1; //选择的分组的索引
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,12 +38,7 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
 
     //初始化视图
     private void initViews() {
-        tag_group_layout.setEndIconOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onGroupLayoutEndIconClicked();
-            }
-        });
+        tag_group_layout.setEndIconOnClickListener((v -> onGroupLayoutEndIconClicked()));
 
         tag_name_input.setOnFocusChangeListener(this);
         tag_group_input.setOnFocusChangeListener(this);
@@ -104,7 +100,7 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
     //标签分组右侧按钮点击回调
     private void onGroupLayoutEndIconClicked() {
         ArrayList<String> tagGroupArrayList = getIntent().getStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue());
-        if (tagGroupArrayList != null) {
+        if (tagGroupArrayList != null && !tagGroupArrayList.isEmpty()) {
             String[] group_names = tagGroupArrayList.toArray(new String[0]);
 
             new MaterialAlertDialogBuilder(this)
@@ -119,6 +115,12 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
                         // 关闭对话框
                         dialog.dismiss();
                     })
+                    .show();
+        } else {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("提示")
+                    .setMessage("您还未创建任何标签分组")
+                    .setPositiveButton("确认", ((dialog, id) -> dialog.dismiss()))
                     .show();
         }
     }
@@ -135,9 +137,9 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
             Bundle dataBundle = new Bundle();
 
             String tag_name = String.valueOf(tag_name_input.getText());
-            dataBundle.putString(TagAttributions.NAME.value, tag_name);         //标签名
+            dataBundle.putString(TagAttributions.NAME.getValue(), tag_name);         //标签名
             String group_name = String.valueOf(tag_group_input.getText());
-            dataBundle.putString(TagAttributions.GROUP_NAME.value, group_name); //分组名称
+            dataBundle.putString(TagAttributions.GROUP_NAME.getValue(), group_name); //分组名称
 
             result2TagSelectBottomSheet.putExtras(dataBundle);
             setResult(RequestResultCode.RESULT_OK.ordinal(), result2TagSelectBottomSheet);
