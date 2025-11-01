@@ -18,7 +18,7 @@ import com.project.manager.R;
 import com.project.manager.database.FlowColumns;
 import com.project.manager.database.FlowDatabaseHelper;
 import com.project.manager.database.FlowTables;
-import com.project.manager.ui.bookkeeping.flow_modify.fragments.FlowTypeEnum;
+import com.project.manager.ui.bookkeeping.flow_edit.fragments.FlowTypeEnum;
 
 import java.util.ArrayList;
 import java.util.Arrays;

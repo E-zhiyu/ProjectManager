@@ -12,17 +12,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="标签管理"
+        app:layout_constraintBaseline_toBaselineOf="@id/edit_tag_btn"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBaseline_toBaselineOf="@id/add_tag_btn" />
+        app:layout_constraintRight_toRightOf="parent" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/add_tag_btn"
+        android:id="@+id/edit_tag_btn"
         style="@style/TransparentBtnStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:drawableLeft="@drawable/baseline_add_24"
-        android:text="添加标签"
+        android:drawableLeft="@drawable/sharp_edit_note_24"
+        android:text="编辑标签"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -30,5 +30,5 @@
         android:id="@+id/tag_group_recycler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/add_tag_btn" />
+        app:layout_constraintTop_toBottomOf="@+id/edit_tag_btn" />
 </androidx.constraintlayout.widget.ConstraintLayout>

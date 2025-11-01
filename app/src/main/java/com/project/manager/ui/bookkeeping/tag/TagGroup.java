@@ -22,8 +22,13 @@ public class TagGroup {
     public String getGroupName() {
         return group_name;
     }
+
     public List<Tag> getTags() {
         return tags;
+    }
+
+    public long getGroup_no() {
+        return group_no;
     }
 
     /**

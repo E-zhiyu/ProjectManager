@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.tag.modify;
+package com.project.manager.ui.bookkeeping.tag.edit;
 
 import android.content.Intent;
 
@@ -73,8 +73,25 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
 
     @Override
     public void onClick(View v) {
+        Intent result2TagEdit = new Intent();
+        Bundle dataBundle = new Bundle();
+
         if (v.getId() == R.id.finish_btn) {
-            onFinishBtnClicked();
+            String error = inputInfoVerify();
+
+            //判断校验后是否有错误
+            if (error != null) {
+                Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+            } else {
+                String tag_name = String.valueOf(tag_name_input.getText());
+                dataBundle.putString(TagAttributions.NAME.getValue(), tag_name);         //标签名
+                String group_name = String.valueOf(tag_group_input.getText());
+                dataBundle.putString(TagAttributions.GROUP_NAME.getValue(), group_name); //分组名称
+
+                result2TagEdit.putExtras(dataBundle);
+                setResult(RequestResultCode.RESULT_OK.ordinal(), result2TagEdit);
+                finish();
+            }
         }
     }
 
@@ -122,28 +139,6 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
                     .setMessage("您还未创建任何标签分组")
                     .setPositiveButton("确认", ((dialog, id) -> dialog.dismiss()))
                     .show();
-        }
-    }
-
-    //完成按钮点击回调
-    private void onFinishBtnClicked() {
-        String error = inputInfoVerify();
-
-        //判断校验后是否有错误
-        if (error != null) {
-            Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
-        } else {
-            Intent result2TagSelectBottomSheet = new Intent();
-            Bundle dataBundle = new Bundle();
-
-            String tag_name = String.valueOf(tag_name_input.getText());
-            dataBundle.putString(TagAttributions.NAME.getValue(), tag_name);         //标签名
-            String group_name = String.valueOf(tag_group_input.getText());
-            dataBundle.putString(TagAttributions.GROUP_NAME.getValue(), group_name); //分组名称
-
-            result2TagSelectBottomSheet.putExtras(dataBundle);
-            setResult(RequestResultCode.RESULT_OK.ordinal(), result2TagSelectBottomSheet);
-            finish();
         }
     }
 }

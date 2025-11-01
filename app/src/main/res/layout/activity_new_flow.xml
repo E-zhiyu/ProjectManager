@@ -6,7 +6,7 @@
     style="@style/PageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.bookkeeping.flow_modify.new_flow.NewFlowActivity">
+    tools:context=".ui.bookkeeping.flow_edit.new_flow.NewFlowActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/new_flow_toolbar"

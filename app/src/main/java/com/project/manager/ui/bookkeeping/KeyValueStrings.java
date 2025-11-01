@@ -11,7 +11,10 @@ public enum KeyValueStrings {
     FLOW_VIEW_POSITION("flow_view_position"),   //流水视图在列表中的索引值
     FLOW_EXPORT("flow_export"),                 //流水转出账户
     FLOW_IMPORT("flow_import"),                 //流水转入账户
+    TAG_NAME("tag_name"),                       //标签名称
     TAG_NO("tag_no"),                           //标签编号
+    TAG_GROUP_NAME("tag_group_name"),           //标签分组名称
+    TAG_GROUP_NO("tag_group_no"),               //标签分组编号
     TAG_GROUP_NAME_LIST("tag_group_name_list"); //标签组名称列表
 
     final String value;

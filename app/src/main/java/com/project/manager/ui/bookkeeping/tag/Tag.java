@@ -12,7 +12,7 @@ import com.project.manager.database.FlowTables;
 
 public class Tag {
     String name;    //名称
-    long tno;        //编号
+    long tno;       //编号
 
     public Tag(String name, long tno) {
         this.name = name;
@@ -21,6 +21,10 @@ public class Tag {
 
     public String getName() {
         return name;
+    }
+
+    public long getTno() {
+        return tno;
     }
 
     /**

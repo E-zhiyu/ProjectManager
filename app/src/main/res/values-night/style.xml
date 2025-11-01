@@ -150,4 +150,9 @@
     <style name="DateTimePickerButtonStyle" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:textColor">@color/white</item>
     </style>
+
+    <!-- 普通文本样式 -->
+    <style name="CommonTextAppearance">
+        <item name="android:textSize">17sp</item>
+    </style>
 </resources>

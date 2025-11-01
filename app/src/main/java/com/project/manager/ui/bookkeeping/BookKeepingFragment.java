@@ -20,10 +20,10 @@ import com.project.manager.database.FlowColumns;
 import com.project.manager.database.FlowDatabaseHelper;
 import com.project.manager.database.FlowTables;
 import com.project.manager.databinding.FragmentBookkeepingBinding;
-import com.project.manager.ui.bookkeeping.flow_modify.edit.FlowEditActivity;
-import com.project.manager.ui.bookkeeping.flow_modify.new_flow.NewFlowActivity;
+import com.project.manager.ui.bookkeeping.flow_edit.modify.FlowModifyActivity;
+import com.project.manager.ui.bookkeeping.flow_edit.new_flow.NewFlowActivity;
 import com.project.manager.RequestResultCode;
-import com.project.manager.ui.bookkeeping.flow_modify.fragments.FlowTypeEnum;
+import com.project.manager.ui.bookkeeping.flow_edit.fragments.FlowTypeEnum;
 import com.project.manager.ui.bookkeeping.report.ReportActivity;
 
 import java.util.ArrayList;
@@ -80,7 +80,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     public void onFlowClick(int position, FlowBase flowBase) {
         FlowBase flowView = flowListAdapter.getItem(position);
 
-        Intent skip2FlowEdit = new Intent(getActivity(), FlowEditActivity.class);
+        Intent skip2FlowModify = new Intent(getActivity(), FlowModifyActivity.class);
         Bundle dataBundle = new Bundle();
 
         //获取基本数据
@@ -107,8 +107,8 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             dataBundle.putString(KeyValueStrings.FLOW_IMPORT.getValue(), importAccount);
         }
 
-        skip2FlowEdit.putExtras(dataBundle);
-        startActivityForResult(skip2FlowEdit, RequestResultCode.EDIT_FLOW_REQUEST.ordinal());
+        skip2FlowModify.putExtras(dataBundle);
+        startActivityForResult(skip2FlowModify, RequestResultCode.MODIFY_FLOW_REQUEST.ordinal());
     }
 
     @Override
@@ -118,11 +118,11 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         //resultCode为0表示子Activity直接结束
         if (resultCode == RequestResultCode.RESULT_REJECT.ordinal() || resultCode == 0) {
             return;
-        } else if (resultCode == RequestResultCode.RESULT_DELETE_FLOW.ordinal()) {  //删除
+        } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {  //删除
             deleteFlow(resultIntent);
         } else if (requestCode == RequestResultCode.NEW_FLOW_REQUEST.ordinal()) {   //添加
             addNewFlow(resultIntent);
-        } else if (requestCode == RequestResultCode.EDIT_FLOW_REQUEST.ordinal()) {  //修改
+        } else if (requestCode == RequestResultCode.MODIFY_FLOW_REQUEST.ordinal()) {  //修改
             coverFlowAfterEditing(resultIntent);
         }
     }

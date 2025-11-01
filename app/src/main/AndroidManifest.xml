@@ -12,19 +12,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjectManager">
         <activity
-            android:name=".ui.bookkeeping.tag.modify.TagModifyActivity"
+            android:name=".ui.bookkeeping.tag.edit.TagModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.tag.modify.NewTagActivity"
+            android:name=".ui.bookkeeping.tag.edit.TagEditActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.bookkeeping.tag.edit.NewTagActivity"
             android:exported="false" />
         <activity
             android:name=".ui.bookkeeping.report.ReportActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.flow_modify.edit.FlowEditActivity"
+            android:name=".ui.bookkeeping.flow_edit.modify.FlowModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.flow_modify.new_flow.NewFlowActivity"
+            android:name=".ui.bookkeeping.flow_edit.new_flow.NewFlowActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

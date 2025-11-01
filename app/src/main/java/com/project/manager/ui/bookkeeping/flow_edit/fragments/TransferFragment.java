@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.flow_modify.fragments;
+package com.project.manager.ui.bookkeeping.flow_edit.fragments;
 
 import android.os.Bundle;
 import android.view.View;

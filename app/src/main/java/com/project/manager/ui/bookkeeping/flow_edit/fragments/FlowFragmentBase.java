@@ -1,11 +1,8 @@
-package com.project.manager.ui.bookkeeping.flow_modify.fragments;
+package com.project.manager.ui.bookkeeping.flow_edit.fragments;
 
 import static com.project.manager.ui.bookkeeping.tag.Tag.tagNoTransToName;
 
 import android.annotation.SuppressLint;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabaseLockedException;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,13 +17,13 @@ import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 import com.project.manager.R;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
-import com.project.manager.ui.bookkeeping.tag.TagRecyclerAdapter;
+import com.project.manager.ui.bookkeeping.tag.TagSelectRecyclerAdapter;
 import com.project.manager.ui.bookkeeping.tag.TagSelectBottomSheet;
 
 import java.util.Calendar;
 
 public abstract class FlowFragmentBase extends Fragment implements
-        View.OnClickListener, View.OnFocusChangeListener, TagRecyclerAdapter.OnTagBtnClickedListener {
+        View.OnClickListener, View.OnFocusChangeListener, TagSelectRecyclerAdapter.OnTagBtnClickedListener {
     Bundle initData = null;                         //初始化控件内容的数据（用于编辑流水记录时）
     View binding;                                   //绑定的XML界面
     protected String name;                          //碎片名称

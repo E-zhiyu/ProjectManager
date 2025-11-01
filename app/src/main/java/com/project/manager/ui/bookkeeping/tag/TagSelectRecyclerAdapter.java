@@ -4,19 +4,32 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridLayout;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
 
 import java.util.List;
 
-public class TagRecyclerAdapter extends RecyclerView.Adapter<TagGroupHolder> {
+public class TagSelectRecyclerAdapter extends RecyclerView.Adapter<TagSelectRecyclerAdapter.TagSelectHolder> {
     private final List<TagGroup> tagGroupList;              //标签组列表
     Context context;
     private OnTagBtnClickedListener tagBtnClickedListener;  //标签按钮点击监听器
+
+    public static class TagSelectHolder extends RecyclerView.ViewHolder {
+        GridLayout tag_btn_layout;              //标签按钮布局
+        MaterialTextView tag_group_name_view;   //标签分组名称
+        public TagSelectHolder(@NonNull View itemView) {
+            super(itemView);
+
+            tag_btn_layout = itemView.findViewById(R.id.tag_btn_layout);
+            tag_group_name_view = itemView.findViewById(R.id.tag_group_name_view);
+        }
+    }
 
     //标签按钮点击监听接口
     public interface OnTagBtnClickedListener {
@@ -27,27 +40,22 @@ public class TagRecyclerAdapter extends RecyclerView.Adapter<TagGroupHolder> {
         this.tagBtnClickedListener = listener;
     }
 
-    public TagRecyclerAdapter(List<TagGroup> tagGroupList, Context context) {
+    public TagSelectRecyclerAdapter(List<TagGroup> tagGroupList, Context context) {
         this.tagGroupList = tagGroupList;
         this.context = context;
     }
 
-    //获取现存的标签组列表
-    public List<TagGroup> getTagGroupList() {
-        return this.tagGroupList;
-    }
-
     @NonNull
     @Override
-    public TagGroupHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public TagSelectHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View tag_group = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.tag_group_in_bottom_sheet, parent, false);
 
-        return new TagGroupHolder(tag_group);
+        return new TagSelectHolder(tag_group);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull TagGroupHolder holder, int position) {
+    public void onBindViewHolder(@NonNull TagSelectHolder holder, int position) {
         TagGroup currentTagGroup = this.tagGroupList.get(position);
         String group_name = currentTagGroup.group_name;
         List<Tag> tags = currentTagGroup.tags;
@@ -70,40 +78,5 @@ public class TagRecyclerAdapter extends RecyclerView.Adapter<TagGroupHolder> {
     @Override
     public int getItemCount() {
         return this.tagGroupList.size();
-    }
-
-    /**
-     * 添加新标签（不添加新分组）
-     *
-     * @param new_tag         新标签对象
-     * @param target_group_no 已存在的分组编号
-     */
-    public void addNewTag(Tag new_tag, long target_group_no) {
-        int position = 0;   //待刷新的分组下标
-        for (TagGroup group : this.tagGroupList) {
-            if (group.group_no == target_group_no) {
-                group.addTag(new_tag);
-                break;
-            }
-            position++;
-        }
-
-        notifyItemChanged(position);
-    }
-
-    /**
-     * 添加新标签（同时添加新分组）
-     *
-     * @param new_tag   新标签对象
-     * @param new_group 新分组对象
-     */
-    public void addNewTag(Tag new_tag, TagGroup new_group) {
-        int list_size = this.tagGroupList.size();
-        this.tagGroupList.add(new_group);
-
-        notifyItemInserted(list_size);
-
-        new_group.addTag(new_tag);
-        notifyItemChanged(list_size);
     }
 }

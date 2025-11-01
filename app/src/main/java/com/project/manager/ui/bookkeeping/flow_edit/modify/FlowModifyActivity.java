@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.flow_modify.edit;
+package com.project.manager.ui.bookkeeping.flow_edit.modify;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,14 +12,14 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.project.manager.R;
 import com.project.manager.RequestResultCode;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
-import com.project.manager.ui.bookkeeping.flow_modify.fragments.ExpenseFragment;
-import com.project.manager.ui.bookkeeping.flow_modify.fragments.FlowFragmentBase;
-import com.project.manager.ui.bookkeeping.flow_modify.fragments.FlowTypeEnum;
-import com.project.manager.ui.bookkeeping.flow_modify.fragments.IncomeFragment;
-import com.project.manager.ui.bookkeeping.flow_modify.fragments.TransferFragment;
+import com.project.manager.ui.bookkeeping.flow_edit.fragments.ExpenseFragment;
+import com.project.manager.ui.bookkeeping.flow_edit.fragments.FlowFragmentBase;
+import com.project.manager.ui.bookkeeping.flow_edit.fragments.FlowTypeEnum;
+import com.project.manager.ui.bookkeeping.flow_edit.fragments.IncomeFragment;
+import com.project.manager.ui.bookkeeping.flow_edit.fragments.TransferFragment;
 import com.project.manager.ui.bookkeeping.tag.Tag;
 
-public class FlowEditActivity extends AppCompatActivity implements View.OnClickListener {
+public class FlowModifyActivity extends AppCompatActivity implements View.OnClickListener {
     FlowTypeEnum type = null;                               //流水种类
     int position = -1;                                      //流水项目的下标
     private final String FRAGMENT_TAG = "flow_edit_fragment";     //碎片Tag
@@ -95,7 +95,7 @@ public class FlowEditActivity extends AppCompatActivity implements View.OnClickL
                 result2BookKeeping.putExtras(dataBundle);
             }
         } else if (v.getId() == R.id.delete_btn) {
-            resultCode = RequestResultCode.RESULT_DELETE_FLOW.ordinal();
+            resultCode = RequestResultCode.RESULT_DELETE.ordinal();
             Bundle dataBundle = new Bundle();
             dataBundle.putInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), position);
             result2BookKeeping.putExtras(dataBundle);

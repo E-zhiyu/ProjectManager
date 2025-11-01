@@ -6,7 +6,7 @@
     style="@style/PageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.bookkeeping.tag.modify.TagModifyActivity">
+    tools:context=".ui.bookkeeping.tag.edit.TagModifyActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/modify_tag_toolbar"
@@ -17,10 +17,74 @@
         app:layout_constraintTop_toTopOf="parent"
         app:title="@string/title_modify_tag" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/tag_group_recycler"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/btn_card_view"
+        app:layout_constraintTop_toBottomOf="@+id/modify_tag_toolbar">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tag_name_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/tag_name_input"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="标签名称" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tag_group_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:endIconDrawable="@drawable/round_format_list_bulleted_24"
+            app:endIconMode="custom">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/tag_group_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="标签分组" />
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/btn_card_view"
+        style="@style/CommonCardStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@+id/modify_tag_toolbar" />
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/delete_btn"
+                style="@style/BtnStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="删除" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cancel_btn"
+                style="@style/BtnStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="取消" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/finish_btn"
+                style="@style/BtnStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="完成" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

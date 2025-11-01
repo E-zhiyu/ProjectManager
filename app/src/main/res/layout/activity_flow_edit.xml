@@ -6,7 +6,7 @@
     style="@style/PageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.bookkeeping.flow_modify.edit.FlowEditActivity">
+    tools:context=".ui.bookkeeping.flow_edit.modify.FlowModifyActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/flow_edit_toolbar"
@@ -62,5 +62,4 @@
                 android:text="完成" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
