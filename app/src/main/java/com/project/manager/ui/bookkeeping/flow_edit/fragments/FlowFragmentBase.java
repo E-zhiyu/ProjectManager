@@ -13,14 +13,17 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 import com.project.manager.R;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
+import com.project.manager.ui.bookkeeping.tag.Tag;
 import com.project.manager.ui.bookkeeping.tag.TagSelectRecyclerAdapter;
 import com.project.manager.ui.bookkeeping.tag.TagSelectBottomSheet;
 
 import java.util.Calendar;
+import java.util.List;
 
 public abstract class FlowFragmentBase extends Fragment implements
         View.OnClickListener, View.OnFocusChangeListener, TagSelectRecyclerAdapter.OnTagBtnClickedListener {
@@ -28,6 +31,8 @@ public abstract class FlowFragmentBase extends Fragment implements
     View binding;                                   //绑定的XML界面
     protected String name;                          //碎片名称
     protected FlowTypeEnum type;                    //流水类型
+    protected TextInputLayout amount_layout, tag_layout;    //金额和标签文本框布局管理器
+    protected TextInputEditText amount_input, tag_input;    //金额和标签文本输入框
 
     private TagSelectBottomSheet tag_sheet;       //底部弹出窗口
 
@@ -60,7 +65,7 @@ public abstract class FlowFragmentBase extends Fragment implements
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.date_time_input) {
+        if (v.getId() == R.id.datetime_input) {
             showMaterialDateTimePicker();
         } else if (v.getId() == R.id.flow_tag_input) {
             showTagSelectSheet();
@@ -69,9 +74,15 @@ public abstract class FlowFragmentBase extends Fragment implements
 
     //初始化碎片布局
     protected void initViews(View view) {
-        view.findViewById(R.id.amount_input).setOnFocusChangeListener(this);
-        view.findViewById(R.id.date_time_input).setOnClickListener(this);
-        view.findViewById(R.id.flow_tag_input).setOnClickListener(this);
+        TextInputEditText dt_input = view.findViewById(R.id.datetime_input);
+        amount_layout = binding.findViewById(R.id.amount_layout);
+        amount_input = binding.findViewById(R.id.amount_input);
+        tag_layout = binding.findViewById(R.id.flow_tag_layout);
+        tag_input = binding.findViewById(R.id.flow_tag_input);
+
+        amount_input.setOnFocusChangeListener(this);
+        dt_input.setOnClickListener(this);
+        tag_input.setOnClickListener(this);
 
         //初始化日期内容
         Calendar calendar = Calendar.getInstance();
@@ -81,20 +92,74 @@ public abstract class FlowFragmentBase extends Fragment implements
                 calendar.get(Calendar.DAY_OF_MONTH),
                 calendar.get(Calendar.HOUR),
                 calendar.get(Calendar.MINUTE));
-        TextInputEditText dt_textView = view.findViewById(R.id.date_time_input);
-        dt_textView.setText(dt_string);
+        dt_input.setText(dt_string);
     }
 
     //验证输入内容
     public String verifyInputData() {
         String error = null;
 
-        if (String.valueOf(((TextInputEditText) binding.findViewById(R.id.amount_input)).getText()).isEmpty()) {
+        //判断是否输入金额
+        if (String.valueOf(amount_input.getText()).isEmpty()) {
             error = "金额不能为空";
-            ((TextInputEditText) binding.findViewById(R.id.amount_input)).setError(error);
+            amount_layout.setErrorEnabled(true);
+            amount_layout.setError(error);
+        }
+
+        //判断标签是否存在
+        String tagStr = String.valueOf(((TextInputEditText) binding.findViewById(R.id.flow_tag_input)).getText());
+        if (!tagStr.isEmpty()) {
+            List<Tag> allTagList = Tag.getAllTags(requireContext());
+            int index;
+            for (index = 0; index < allTagList.size(); index++) {
+                Tag oneTag = allTagList.get(index);
+                if (oneTag.getName().equals(tagStr)) {
+                    break;
+                }
+            }
+
+            if (index == allTagList.size()) {
+                error = "输入的标签不存在";
+                tag_layout.setErrorEnabled(true);
+                tag_layout.setError(error);
+            }
         }
 
         return error;
+    }
+
+    @Override
+    public void onFocusChange(View v, boolean hasFocus) {
+        String edittext_str, error;         //文本框内容和错误提示
+        TextInputLayout text_edit_layout;   //被验证的文本框对应的布局管理器
+        if (!hasFocus) {
+            edittext_str = String.valueOf(((TextInputEditText) v).getText());   //获取待验证组件的文本内容
+            if (v.getId() == R.id.amount_input) {
+                error = "金额不能为空";
+                text_edit_layout = amount_layout;
+            } else {
+                throw new NullPointerException("无法获取有效视图ID");
+            }
+        } else {
+            return;
+        }
+
+        //判断待验证的字符串是否为空
+        if (edittext_str.isEmpty()) {
+            text_edit_layout.setErrorEnabled(true);
+            text_edit_layout.setError(error);
+        } else {
+            text_edit_layout.setError(null);    //消除错误提示
+            text_edit_layout.setErrorEnabled(false);
+        }
+    }
+
+    @Override
+    public void onTagBtnClicked(long tag_no, String tag_name) {
+        tag_input.setText(tag_name);
+        tag_layout.setErrorEnabled(false);  //去除错误提示
+        tag_layout.setError(null);
+        tag_sheet.dismiss();
     }
 
     /**
@@ -114,7 +179,7 @@ public abstract class FlowFragmentBase extends Fragment implements
         amountView.setText(String.valueOf(amount));
         remarkView = binding.findViewById(R.id.remark_input);                       //备注
         remarkView.setText(remark);
-        TextInputEditText dateView = binding.findViewById(R.id.date_time_input);    //日期
+        TextInputEditText dateView = binding.findViewById(R.id.datetime_input);    //日期
         dateView.setText(date_time);
         TextInputEditText tagView = binding.findViewById(R.id.flow_tag_input);      //标签
         tagView.setText(tag_name);
@@ -126,7 +191,7 @@ public abstract class FlowFragmentBase extends Fragment implements
      * @return 流水日期字符串
      */
     public String getDate() {
-        TextInputEditText dateTextView = binding.findViewById(R.id.date_time_input);
+        TextInputEditText dateTextView = binding.findViewById(R.id.datetime_input);
         return String.valueOf(dateTextView.getText());
     }
 
@@ -210,7 +275,7 @@ public abstract class FlowFragmentBase extends Fragment implements
             initialCalendar.set(Calendar.MINUTE, minute);
 
             //修改文本框的日期和时间
-            TextInputEditText datetime_input = binding.findViewById(R.id.date_time_input);
+            TextInputEditText datetime_input = binding.findViewById(R.id.datetime_input);
             @SuppressLint("DefaultLocale") String datetime_str = String.format("%04d-%02d-%02d %02d:%02d",
                     initialCalendar.get(Calendar.YEAR),
                     initialCalendar.get(Calendar.MONTH) + 1,
@@ -228,13 +293,6 @@ public abstract class FlowFragmentBase extends Fragment implements
 
         //设置底部弹出窗口的标签按钮的点击监听器
         tag_sheet.setOnTagBtnClickedListener(this);
-    }
-
-    @Override
-    public void onTagBtnClicked(long tag_no, String tag_name) {
-        TextInputEditText tag_input = binding.findViewById(R.id.flow_tag_input);
-        tag_input.setText(tag_name);
-        tag_sheet.dismiss();
     }
 }
 

@@ -10,6 +10,9 @@ import com.project.manager.database.FlowColumns;
 import com.project.manager.database.FlowDatabaseHelper;
 import com.project.manager.database.FlowTables;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Tag {
     String name;    //名称
     long tno;       //编号
@@ -109,6 +112,43 @@ public class Tag {
         } catch (SQLiteDatabaseLockedException e) {
             throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
         }
+    }
+
+    /**
+     * 获取所有标签实例
+     *
+     * @param context 打开数据库所需的上下文
+     * @return 标签实例列表
+     */
+    public static List<Tag> getAllTags(Context context) {
+        List<Tag> allTagList = new ArrayList<>();
+
+        try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
+            SQLiteDatabase db = db_helper.openWriteLink();
+
+            String[] columns = {FlowColumns.TAG_NO.toString(), FlowColumns.TAG_NAME.toString()};
+            String orderBy = FlowColumns.TAG_NO + " DESC";
+            Cursor tag_cursor = db.query(
+                    FlowTables.TAG.toString(),
+                    columns,
+                    null,
+                    null,
+                    null,
+                    null,
+                    orderBy
+            );
+
+            while (tag_cursor.moveToNext()) {
+                long tag_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NO.toString()));
+                String tag_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NAME.toString()));
+                Tag oneTag = new Tag(tag_name, tag_no);
+                allTagList.add(oneTag);
+            }
+        } catch (SQLiteDatabaseLockedException e) {
+            throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
+        }
+
+        return allTagList;
     }
 
     /**

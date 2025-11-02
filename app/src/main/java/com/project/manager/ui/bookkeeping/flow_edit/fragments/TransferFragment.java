@@ -4,10 +4,14 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.project.manager.R;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 
-public class TransferFragment extends FlowFragmentBase implements View.OnFocusChangeListener, View.OnClickListener {
+public class TransferFragment extends FlowFragmentBase {
+    private TextInputLayout export_layout, import_layout;   //转出和转入账户的文本框布局管理器
+    private TextInputEditText export_input, import_input;   //转出和转入账户的文本框
+
     public TransferFragment() {
         this.name = "转账";  //为碎片命名
         this.type = FlowTypeEnum.TRANSFER;
@@ -21,9 +25,13 @@ public class TransferFragment extends FlowFragmentBase implements View.OnFocusCh
     @Override
     protected void initViews(View view) {
         super.initViews(view);
+        export_layout = binding.findViewById(R.id.export_account_layout);
+        export_input = binding.findViewById(R.id.export_account_input);
+        import_layout = binding.findViewById(R.id.import_account_layout);
+        import_input = binding.findViewById(R.id.import_account_input);
 
-        view.findViewById(R.id.export_account_input).setOnFocusChangeListener(this);
-        view.findViewById(R.id.import_account_input).setOnFocusChangeListener(this);
+        export_input.setOnFocusChangeListener(this);
+        import_input.setOnFocusChangeListener(this);
     }
 
     @Override
@@ -32,11 +40,40 @@ public class TransferFragment extends FlowFragmentBase implements View.OnFocusCh
 
         String exportAccount = dataBundle.getString(KeyValueStrings.FLOW_EXPORT.getValue());
         String importAccount = dataBundle.getString(KeyValueStrings.FLOW_IMPORT.getValue());
-        TextInputEditText exportAccountView, importAccountView;
-        exportAccountView = binding.findViewById(R.id.export_account_input); //转出账户
-        exportAccountView.setText(exportAccount);
-        importAccountView = binding.findViewById(R.id.import_account_input); //转入账户
-        importAccountView.setText(importAccount);
+
+        export_input.setText(exportAccount);   //转出账户
+        import_input.setText(importAccount);   //转入账户
+    }
+
+    @Override
+    public void onFocusChange(View v, boolean hasFocus) {
+        String edittext_str, error;         //文本框内容和错误提示
+        TextInputLayout text_edit_layout;   //被验证的文本框对应的布局管理器
+        if (!hasFocus) {
+            edittext_str = String.valueOf(((TextInputEditText) v).getText());   //获取待验证组件的文本内容
+            if (v.getId() == R.id.amount_input) {
+                error = "金额不能为空";
+                text_edit_layout = amount_layout;
+            } else if (v.getId() == R.id.export_account_input) {
+                error = "转出账户不能为空";
+                text_edit_layout = export_layout;
+            } else if (v.getId() == R.id.import_account_input) {
+                error = "转入账户不能为空";
+                text_edit_layout = import_layout;
+            } else {
+                throw new NullPointerException("无法获取有效视图ID");
+            }
+        } else {
+            return;
+        }
+
+        if (edittext_str.isEmpty()) {
+            text_edit_layout.setErrorEnabled(true);
+            text_edit_layout.setError(error);
+        } else {
+            text_edit_layout.setError(null);
+            text_edit_layout.setErrorEnabled(false);
+        }
     }
 
     /**
@@ -60,32 +97,6 @@ public class TransferFragment extends FlowFragmentBase implements View.OnFocusCh
     }
 
     @Override
-    public void onFocusChange(View v, boolean hasFocus) {
-        String verification_str, error;
-        if (!hasFocus) {
-            verification_str = String.valueOf(((TextInputEditText) v).getText());
-            if (v.getId() == R.id.amount_input) {
-                error = "金额不能为空";
-            } else if (v.getId() == R.id.export_account_input) {
-                error = "转出账户不能为空";
-            } else if (v.getId() == R.id.import_account_input) {
-                error = "转入账户不能为空";
-            } else {
-                throw new NullPointerException("验证输入内容时无法获取有效视图ID");
-            }
-        } else {
-            return;
-        }
-
-        //判断待验证的字符串是否为空
-        if (verification_str.isEmpty()) {
-            ((TextInputEditText) v).setError(error);
-        } else {
-            ((TextInputEditText) v).setError(null); //消除错误提示
-        }
-    }
-
-    @Override
     public void onClick(View v) {
         super.onClick(v);
     }
@@ -96,12 +107,14 @@ public class TransferFragment extends FlowFragmentBase implements View.OnFocusCh
 
         if (error != null) {
             return error;
-        } else if (String.valueOf(((TextInputEditText) binding.findViewById(R.id.export_account_input)).getText()).isEmpty()) {
+        } else if (String.valueOf(export_input.getText()).isEmpty()) {
             error = "转出账户不能为空";
-            ((TextInputEditText) binding.findViewById(R.id.export_account_input)).setError(error);
-        } else if (String.valueOf(((TextInputEditText) binding.findViewById(R.id.import_account_input)).getText()).isEmpty()) {
+            export_layout.setErrorEnabled(true);
+            export_layout.setError(error);
+        } else if (String.valueOf(import_input.getText()).isEmpty()) {
             error = "转入账户不能为空";
-            ((TextInputEditText) binding.findViewById(R.id.import_account_input)).setError(error);
+            import_layout.setErrorEnabled(true);
+            import_layout.setError(error);
         }
 
         return error;
