@@ -38,7 +38,7 @@ public class Tag {
      * @param context 用于打开数据库的上下文
      * @return 对应的标签编号
      */
-    public static int nameTransToTno(String name, Context context) {
+    public static long nameTransToTno(String name, Context context) {
         try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
             SQLiteDatabase db = db_helper.openReadLink();
 
@@ -56,9 +56,9 @@ public class Tag {
                     "1"
             );
 
-            int tag_no;
+            long tag_no;
             if (cursor.moveToNext()) {
-                tag_no = cursor.getInt(cursor.getColumnIndexOrThrow(FlowColumns.TAG_NO.toString()));
+                tag_no = cursor.getLong(cursor.getColumnIndexOrThrow(FlowColumns.TAG_NO.toString()));
             } else {
                 tag_no = 0;
             }

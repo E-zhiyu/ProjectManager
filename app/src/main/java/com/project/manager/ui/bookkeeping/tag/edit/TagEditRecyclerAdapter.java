@@ -111,8 +111,6 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
             long tag_no = oneTag.getTno();
 
             MaterialTextView tag_text_view = new MaterialTextView(context);
-            tag_text_view.setClickable(true);
-            tag_text_view.setFocusable(true);
             tag_text_view.setTextAppearance(R.style.CommonTextAppearance);
 
             //添加右侧箭头图标

@@ -187,8 +187,8 @@ public class TagGroup {
             List<TagGroup> tagGroupList = new ArrayList<>();    //标签组实例列表
             while (tag_cursor.moveToNext()) {
                 String tag_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NAME.toString()));      //标签名称
-                long tag_no = tag_cursor.getInt(tag_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NO.toString()));               //标签编号
-                long group_no = tag_cursor.getInt(tag_cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NO.toString()));           //分组编号
+                long tag_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NO.toString()));               //标签编号
+                long group_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NO.toString()));           //分组编号
                 String group_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NAME.toString()));  //分组名称                                //分组名称
 
                 boolean isGroupFound = false;   //判断是否找到同号分组

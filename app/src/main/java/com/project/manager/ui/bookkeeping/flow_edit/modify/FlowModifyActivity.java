@@ -27,7 +27,7 @@ public class FlowModifyActivity extends AppCompatActivity implements View.OnClic
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_flow_edit);
+        setContentView(R.layout.activity_flow_modify);
 
         initViews();
 
@@ -129,8 +129,8 @@ public class FlowModifyActivity extends AppCompatActivity implements View.OnClic
         dataBundle.putString(KeyValueStrings.FLOW_DATETIME.getValue(), date_time);
         TextInputEditText tag_input = findViewById(R.id.flow_tag_input);        //标签
         tag_name = String.valueOf(tag_input.getText());
-        int tag_no = Tag.nameTransToTno(tag_name, this);
-        dataBundle.putInt(KeyValueStrings.TAG_NO.getValue(), tag_no);
+        long tag_no = Tag.nameTransToTno(tag_name, this);
+        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
 
         dataBundle.putInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), position);        //将下标存放至包裹
         dataBundle.putString(KeyValueStrings.FLOW_TYPE.getValue(), type.toString());       //将种类存放至包裹

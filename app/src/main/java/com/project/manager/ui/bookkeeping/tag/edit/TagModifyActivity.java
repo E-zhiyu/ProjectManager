@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -44,6 +45,8 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
         tag_group_input.setOnFocusChangeListener(this);
 
         findViewById(R.id.finish_btn).setOnClickListener(this);
+        findViewById(R.id.delete_btn).setOnClickListener(this);
+        findViewById(R.id.cancel_btn).setOnClickListener(this);
 
         //加载传入的数据
         Bundle tagData = getIntent().getExtras();
@@ -120,6 +123,7 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
                 finish();
             }
         } else if (v.getId() == R.id.delete_btn) {
+            result2TagEdit.putExtras(dataBundle);
             setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2TagEdit);
             finish();
         } else if (v.getId() == R.id.cancel_btn) {

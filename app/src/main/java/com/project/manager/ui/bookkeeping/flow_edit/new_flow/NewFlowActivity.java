@@ -98,8 +98,8 @@ public class NewFlowActivity extends AppCompatActivity implements View.OnClickLi
         String flowRemark = currentFragment.getRemark();    //备注
         dataBundle.putString(KeyValueStrings.FLOW_REMARK.getValue(), flowRemark);
         String tag_name = currentFragment.getFlowTag();     //标签
-        int tag_no = Tag.nameTransToTno(tag_name, this);
-        dataBundle.putInt(KeyValueStrings.TAG_NO.getValue(), tag_no);
+        long tag_no = Tag.nameTransToTno(tag_name, this);
+        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
 
         //获取碎片特殊信息并打包
         if (flowType == FlowTypeEnum.TRANSFER) {

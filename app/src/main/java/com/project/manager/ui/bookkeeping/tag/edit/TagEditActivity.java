@@ -121,7 +121,12 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
                 }
             }
         } else if (requestCode == RequestResultCode.MODIFY_TAG_REQUEST.ordinal()) {
-            Bundle dataBundle = resultIntent.getExtras();
+            Bundle dataBundle;
+            try {
+                dataBundle = resultIntent.getExtras();
+            } catch (NullPointerException e) {
+                return; //若引发空指针异常，则说明在标签修改界面没有进行任何操作就退出
+            }
             if (dataBundle == null) {
                 throw new RuntimeException("无法获取修改后的标签信息");
             }

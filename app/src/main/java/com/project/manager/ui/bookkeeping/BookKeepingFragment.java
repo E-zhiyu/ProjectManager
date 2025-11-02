@@ -50,7 +50,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
         //创建列表视图的适配器
         List<FlowBase> flowList = loadFlowData();
-        flowListAdapter = new FlowRecyclerAdapter(flowList,this);   //绑定适配器项点击事件的监听器
+        flowListAdapter = new FlowRecyclerAdapter(flowList, this);   //绑定适配器项点击事件的监听器
         RecyclerView flowListView = binding.flowRecyclerView;
         flowListView.setLayoutManager(new LinearLayoutManager(requireActivity()));  //设置线性布局
         flowListView.setAdapter(flowListAdapter);
@@ -146,17 +146,17 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         FlowTypeEnum type = FlowTypeEnum.valueOf(resultIntent.getStringExtra(KeyValueStrings.FLOW_TYPE.getValue()));
         String remark, date_time;
         double amount;
-        int tag_no;
+        long tag_no;
         remark = dataBundle.getString(KeyValueStrings.FLOW_REMARK.getValue());
         amount = dataBundle.getDouble(KeyValueStrings.FLOW_AMOUNT.getValue(), -1);
         date_time = dataBundle.getString(KeyValueStrings.FLOW_DATETIME.getValue());
-        tag_no = dataBundle.getInt(KeyValueStrings.TAG_NO.getValue());
+        tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
         basic_values = new ContentValues();
         basic_values.put(FlowColumns.TYPE.toString(), type.toString()); //种类
         basic_values.put(FlowColumns.AMOUNT.toString(), amount);        //金额
         basic_values.put(FlowColumns.REMARK.toString(), remark);        //备注
         basic_values.put(FlowColumns.DATETIME.toString(), date_time);   //日期
-        basic_values.put(FlowColumns.TAG_NO.toString(), tag_no != 0 ? tag_no : null);        //标签编号
+        basic_values.put(FlowColumns.TAG_NO.toString(), tag_no);        //标签编号
 
         long fno = db.insert(FlowTables.BASIC.toString(), null, basic_values);   //获取自增主键值
 
@@ -201,12 +201,12 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             throw new NullPointerException("读取编辑后的流水数据时出错");
         }
 
-        FlowTypeEnum type = FlowTypeEnum.valueOf(dataBundle.getString("type"));
+        FlowTypeEnum type = FlowTypeEnum.valueOf(dataBundle.getString(KeyValueStrings.FLOW_TYPE.getValue()));
         int position = dataBundle.getInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), -1);    //原视图下标
         double amount = dataBundle.getDouble(KeyValueStrings.FLOW_AMOUNT.getValue(), -1);
         String remark = dataBundle.getString(KeyValueStrings.FLOW_REMARK.getValue());
         String date_time = dataBundle.getString(KeyValueStrings.FLOW_DATETIME.getValue());
-        int tag_no = dataBundle.getInt(KeyValueStrings.TAG_NO.getValue());
+        long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
 
         //将基本数据存放至数据库
         basic_values = new ContentValues();
@@ -313,8 +313,8 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         //查询数据
         List<FlowBase> flowList = new ArrayList<>();
         while (basic_cursor.moveToNext()) {
-            //编号
-            long fno = basic_cursor.getInt(basic_cursor.getColumnIndexOrThrow(FlowColumns.FNO.toString()));
+            //流水编号
+            long fno = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(FlowColumns.FNO.toString()));
             //金额
             double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(FlowColumns.AMOUNT.toString()));
             //种类
@@ -324,7 +324,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             //日期和时间
             String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(FlowColumns.DATETIME.toString()));
             //标签编号
-            int tag_no = basic_cursor.getInt(basic_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NO.toString()));
+            long tag_no = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NO.toString()));
 
             FlowBase flowView = null;
             switch (type) {
