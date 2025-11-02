@@ -47,7 +47,7 @@ public class FlowDatabaseHelper extends SQLiteOpenHelper {
         create = "CREATE TABLE IF NOT EXISTS " + FlowTables.TAG + "(" +
                 FlowColumns.TAG_NO + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
                 FlowColumns.TAG_NAME + " VARCHAR(20) NOT NULL UNIQUE," +
-                FlowColumns.GROUP_NO + " VARCHAR(20) NOT NULL," +
+                FlowColumns.GROUP_NO + " INTEGER NOT NULL," +
 
                 "FOREIGN KEY (" + FlowColumns.GROUP_NO + ") REFERENCES " + FlowTables.TAG_GROUP + "(" + FlowColumns.GROUP_NO + ")" +
                 ")";
@@ -68,7 +68,7 @@ public class FlowDatabaseHelper extends SQLiteOpenHelper {
 
         //创建转账独占数据表
         create = "CREATE TABLE IF NOT EXISTS " + FlowTables.TRANSFER + "(" +
-                FlowColumns.FNO + " INT PRIMARY KEY NOT NULL," +
+                FlowColumns.FNO + " INTEGER PRIMARY KEY NOT NULL," +
                 FlowColumns.EXPORT + " VARCHAR(20) NOT NULL," +
                 FlowColumns.IMPORT + " VARCHAR(20) NOT NULL," +
 
