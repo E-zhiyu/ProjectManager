@@ -208,4 +208,114 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
 
         notifyItemInserted(list_size);
     }
+
+    /**
+     * 编辑标签（未更换分组）
+     *
+     * @param new_tag_name 新标签名称
+     * @param tag_no       标签编号
+     * @param group_no     该标签所属的分组编号
+     */
+    public void editTag(String new_tag_name, long tag_no, long group_no) {
+        //找到视图中对应的分组并更改
+        int group_index = 0;
+        for (TagGroup group : this.tagGroupList) {
+            if (group.getGroup_no() == group_no) {
+                for (Tag tag : group.getTags()) {
+                    if (tag.getTno() == tag_no) {
+                        tag.setName(new_tag_name);
+                        break;
+                    }
+                }
+                break;
+            }
+            group_index++;
+        }
+        notifyItemChanged(group_index);
+
+        //将数据保存至数据库
+        Tag.modifyTag(new_tag_name, tag_no, context);
+    }
+
+    /**
+     * 编辑标签（更换分组）
+     *
+     * @param new_tag_name    新标签名称
+     * @param tag_no          标签编号
+     * @param new_group_name  新标签分组名称
+     * @param origin_group_no 原标签分组编号
+     * @param new_group_no    新标签分组编号
+     */
+    public void editTag(String new_tag_name, long tag_no, String new_group_name, long origin_group_no, long new_group_no) {
+        //判断是否需要新建标签分组
+        if (new_group_no == 0) {
+            new_group_no = TagGroup.saveNewGroup(new_group_name, context);
+            TagGroup newGroup = new TagGroup(new_group_name, new_group_no);
+            newGroup.addTag(new Tag(new_tag_name, tag_no));
+            this.tagGroupList.add(newGroup);
+
+            notifyItemInserted(this.tagGroupList.size() - 1);   //更新列表视图
+        } else {
+            int new_group_index = 0;    //待新增标签的分组下标
+            for (TagGroup group : this.tagGroupList) {
+                if (group.getGroup_no() == new_group_no) {
+                    Tag new_tag = new Tag(new_tag_name, tag_no);
+                    group.addTag(new_tag);
+                    break;
+                }
+                new_group_index++;
+            }
+
+            notifyItemChanged(new_group_index);
+        }
+
+        //删除原分组中对应的标签
+        int origin_group_index = 0;
+        for (TagGroup group : this.tagGroupList) {
+            if (group.getGroup_no() == origin_group_no) {
+                int old_tag_index = 0;
+                for (Tag old_tag : group.getTags()) {
+                    if (old_tag.getTno() == tag_no) {
+                        group.removeTag(old_tag_index);
+                        break;
+                    }
+                    old_tag_index++;
+                }
+                break;
+            }
+            origin_group_index++;
+        }
+        notifyItemChanged(origin_group_index);
+
+        //将数据保存至数据库
+        Tag.modifyTag(new_tag_name, tag_no, new_group_no, context);
+    }
+
+    /**
+     * 删除标签
+     *
+     * @param tag_no   待删除标签的编号
+     * @param group_no 待删除标签所属分组的编号
+     */
+    public void deleteTag(long tag_no, long group_no) {
+        int group_index = 0;        //待删除标签所属分组的下标
+        for (TagGroup group : this.tagGroupList) {
+            if (group.getGroup_no() == group_no) {
+                int tag_index = 0;  //待删除标签的编号
+                for (Tag tag : group.getTags()) {
+                    if (tag.getTno() == tag_no) {
+                        group.removeTag(tag_index);
+                        break;
+                    }
+                    tag_index++;
+                }
+                break;
+            }
+            group_index++;
+        }
+        notifyItemChanged(group_index);
+
+        //将数据保存至数据库
+        Tag.deleteTag(tag_no, context);
+    }
 }

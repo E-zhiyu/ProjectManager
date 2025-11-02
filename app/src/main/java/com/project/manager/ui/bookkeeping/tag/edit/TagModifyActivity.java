@@ -13,7 +13,6 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.project.manager.R;
 import com.project.manager.RequestResultCode;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
-import com.project.manager.ui.bookkeeping.tag.TagAttributions;
 
 import java.util.ArrayList;
 
@@ -101,6 +100,8 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
     public void onClick(View v) {
         Intent result2TagEdit = new Intent();
         Bundle dataBundle = new Bundle();
+        dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), group_no);      //分组编号
+        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);              //标签编号
 
         if (v.getId() == R.id.finish_btn) {
             String error = inputInfoVerify();
@@ -110,9 +111,9 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
                 Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
             } else {
                 String tag_name = String.valueOf(tag_name_input.getText());
-                dataBundle.putString(TagAttributions.NAME.getValue(), tag_name);         //标签名
+                dataBundle.putString(KeyValueStrings.TAG_NAME.getValue(), tag_name);            //标签名
                 String group_name = String.valueOf(tag_group_input.getText());
-                dataBundle.putString(TagAttributions.GROUP_NAME.getValue(), group_name); //分组名称
+                dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), group_name);    //分组名称
 
                 result2TagEdit.putExtras(dataBundle);
                 setResult(RequestResultCode.RESULT_OK.ordinal(), result2TagEdit);

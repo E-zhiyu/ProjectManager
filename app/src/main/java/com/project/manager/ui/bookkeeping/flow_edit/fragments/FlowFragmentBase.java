@@ -38,7 +38,7 @@ public abstract class FlowFragmentBase extends Fragment implements
 
         //判断是否传递了外部数据，如果传递了则将数据填入对应控件
         if (initData != null) {
-            initViewsWhenEditing(initData);
+            initViewsWhenModifying(initData);
         }
 
         return binding;
@@ -102,12 +102,12 @@ public abstract class FlowFragmentBase extends Fragment implements
      *
      * @param dataBundle 包含初始信息的包裹
      */
-    public void initViewsWhenEditing(Bundle dataBundle) {
+    public void initViewsWhenModifying(Bundle dataBundle) {
         TextInputEditText amountView, remarkView;
         double amount = dataBundle.getDouble(KeyValueStrings.FLOW_AMOUNT.getValue(), -1);
         String remark = dataBundle.getString(KeyValueStrings.FLOW_REMARK.getValue());
         String date_time = dataBundle.getString(KeyValueStrings.FLOW_DATETIME.getValue());
-        int tag_no = dataBundle.getInt(KeyValueStrings.TAG_NO.getValue());
+        long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
         String tag_name = tagNoTransToName(tag_no, requireContext());
 
         amountView = binding.findViewById(R.id.amount_input);                       //金额

@@ -12,7 +12,6 @@ import com.project.manager.R;
 import com.project.manager.RequestResultCode;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.tag.Tag;
-import com.project.manager.ui.bookkeeping.tag.TagAttributions;
 import com.project.manager.ui.bookkeeping.tag.TagGroup;
 
 import java.util.ArrayList;
@@ -90,8 +89,8 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
                 String tag_name = null;         //标签名称
                 String group_name = null;       //分组名称
                 if (dataBundle != null) {
-                    tag_name = dataBundle.getString(TagAttributions.NAME.getValue());
-                    group_name = dataBundle.getString(TagAttributions.GROUP_NAME.getValue());
+                    tag_name = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
+                    group_name = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
                 }
                 long group_no = 0;   //分组编号
 
@@ -122,15 +121,28 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
                 }
             }
         } else if (requestCode == RequestResultCode.MODIFY_TAG_REQUEST.ordinal()) {
-            //TODO: 完成编辑标签回调函数
+            Bundle dataBundle = resultIntent.getExtras();
+            if (dataBundle == null) {
+                throw new RuntimeException("无法获取修改后的标签信息");
+            }
+
+            long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());                    //标签编号
+            long origin_group_no = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());     //原分组编号
             if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
+                String tag_name = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
+                String group_name = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
+                long new_group_no = TagGroup.nameTransToGno(group_name, this);  //获取修改后的分组编号
 
+                if (origin_group_no == new_group_no) {
+                    adapter.editTag(tag_name, tag_no, origin_group_no);
+                } else {
+                    adapter.editTag(tag_name, tag_no, group_name, origin_group_no, new_group_no);
+                }
             } else if (resultCode == RequestResultCode.RESULT_REJECT.ordinal()) {
-
+                return;
             } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
-
+                adapter.deleteTag(tag_no, origin_group_no);
             }
         }
-
     }
 }

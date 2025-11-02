@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TagGroup {
-    List<Tag> tags;  //该分组下的标签字符串
+    List<Tag> tags;     //该分组下的标签字符串
     String group_name;  //标签组名称
-    long group_no;       //标签组编号
+    long group_no;      //标签组编号
 
     public String getGroupName() {
         return group_name;
@@ -53,11 +53,20 @@ public class TagGroup {
     }
 
     /**
+     * 删除标签
+     *
+     * @param index 待删除标签的下标
+     */
+    public void removeTag(int index) {
+        this.tags.remove(index);
+    }
+
+    /**
      * 将标签组名称转换为编号
      *
      * @param group_name 标签组名称
      * @param context    用于打开数据库的上下文
-     * @return 对应的标签编号
+     * @return 对应的标签编号（未找到则返回0）
      */
     public static long nameTransToGno(String group_name, Context context) {
         try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
@@ -79,7 +88,7 @@ public class TagGroup {
 
             long group_no;
             if (cursor.moveToNext()) {
-                group_no = cursor.getInt(cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NO.toString()));
+                group_no = cursor.getLong(cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NO.toString()));
             } else {
                 group_no = 0;
             }

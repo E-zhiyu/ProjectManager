@@ -23,6 +23,10 @@ public class Tag {
         return name;
     }
 
+    public void setName(String new_name) {
+        this.name = new_name;
+    }
+
     public long getTno() {
         return tno;
     }
@@ -126,6 +130,97 @@ public class Tag {
 
             db.close();
             return tag_no;
+        } catch (SQLiteDatabaseLockedException e) {
+            throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
+        }
+    }
+
+    /**
+     * 修改标签（不修改所属分组）
+     *
+     * @param new_name 新标签名称
+     * @param tag_no   标签编号
+     * @param context  打开数据库所需的上下文
+     */
+    public static void modifyTag(String new_name, long tag_no, Context context) {
+        ContentValues tag_values = new ContentValues();
+        tag_values.put(FlowColumns.TAG_NAME.toString(), new_name);
+        String whereStr = FlowColumns.TAG_NO + "=?";
+        String[] whereStrArgs = {String.valueOf(tag_no)};
+
+
+        try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
+            SQLiteDatabase db = db_helper.openWriteLink();
+
+            db.update(
+                    FlowTables.TAG.toString(),
+                    tag_values,
+                    whereStr,
+                    whereStrArgs
+            );
+        } catch (SQLiteDatabaseLockedException e) {
+            throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
+        }
+    }
+
+    /**
+     * 修改标签（修改所属分组）
+     *
+     * @param new_tag_name 新标签名称
+     * @param tag_no       待修改的标签编号
+     * @param new_group_no 新分组编号
+     * @param context      打开数据库所需的上下文
+     */
+    public static void modifyTag(String new_tag_name, long tag_no, long new_group_no, Context context) {
+        ContentValues tag_values = new ContentValues();
+        tag_values.put(FlowColumns.TAG_NAME.toString(), new_tag_name);
+        tag_values.put(FlowColumns.GROUP_NO.toString(), new_group_no);
+        String whereStr = FlowColumns.TAG_NO + "=?";
+        String[] whereStrArgs = {String.valueOf(tag_no)};
+
+        try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
+            SQLiteDatabase db = db_helper.openWriteLink();
+
+            db.update(
+                    FlowTables.TAG.toString(),
+                    tag_values,
+                    whereStr,
+                    whereStrArgs
+            );
+        } catch (SQLiteDatabaseLockedException e) {
+            throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
+        }
+    }
+
+    /**
+     * 删除标签
+     *
+     * @param tag_no  待删除标签的编号
+     * @param context 打开数据库所需的上下文
+     */
+    public static void deleteTag(long tag_no, Context context) {
+        ContentValues basic_values = new ContentValues();
+        basic_values.put(FlowColumns.TAG_NO.toString(), 0);
+        String whereStr = FlowColumns.TAG_NO + "=?";
+        String[] whereStrArgs = {String.valueOf(tag_no)};
+
+        try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
+            SQLiteDatabase db = db_helper.openWriteLink();
+
+            //先将流水基本数据表的标签清除
+            db.update(
+                    FlowTables.BASIC.toString(),
+                    basic_values,
+                    whereStr,
+                    whereStrArgs
+            );
+
+            //再删除对应标签
+            db.delete(
+                    FlowTables.TAG.toString(),
+                    whereStr,
+                    whereStrArgs
+            );
         } catch (SQLiteDatabaseLockedException e) {
             throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
         }

@@ -27,8 +27,8 @@ public class TransferFragment extends FlowFragmentBase implements View.OnFocusCh
     }
 
     @Override
-    public void initViewsWhenEditing(Bundle dataBundle) {
-        super.initViewsWhenEditing(dataBundle);
+    public void initViewsWhenModifying(Bundle dataBundle) {
+        super.initViewsWhenModifying(dataBundle);
 
         String exportAccount = dataBundle.getString(KeyValueStrings.FLOW_EXPORT.getValue());
         String importAccount = dataBundle.getString(KeyValueStrings.FLOW_IMPORT.getValue());

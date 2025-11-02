@@ -94,8 +94,8 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         dataBundle.putString(KeyValueStrings.FLOW_DATETIME.getValue(), date_time);
         long fno = flowView.fno;                //编号
         dataBundle.putLong(KeyValueStrings.FLOW_NO.getValue(), fno);
-        int tag_no = flowView.tag_no;           //标签编号
-        dataBundle.putInt(KeyValueStrings.TAG_NO.getValue(), tag_no);
+        long tag_no = flowView.tag_no;          //标签编号
+        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
 
         dataBundle.putInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), position);  //将待修改的流水实例下标放入包裹
 

@@ -14,7 +14,6 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.project.manager.R;
 import com.project.manager.RequestResultCode;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
-import com.project.manager.ui.bookkeeping.tag.TagAttributions;
 
 import java.util.ArrayList;
 
@@ -84,9 +83,9 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
                 Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
             } else {
                 String tag_name = String.valueOf(tag_name_input.getText());
-                dataBundle.putString(TagAttributions.NAME.getValue(), tag_name);         //标签名
+                dataBundle.putString(KeyValueStrings.TAG_NAME.getValue(), tag_name);         //标签名
                 String group_name = String.valueOf(tag_group_input.getText());
-                dataBundle.putString(TagAttributions.GROUP_NAME.getValue(), group_name); //分组名称
+                dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), group_name); //分组名称
 
                 result2TagEdit.putExtras(dataBundle);
                 setResult(RequestResultCode.RESULT_OK.ordinal(), result2TagEdit);
