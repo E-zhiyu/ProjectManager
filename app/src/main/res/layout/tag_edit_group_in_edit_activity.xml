@@ -28,7 +28,7 @@
             android:orientation="vertical"
             android:paddingStart="20sp"
             android:paddingEnd="10sp"
-            android:paddingBottom="5sp"
+            android:paddingBottom="10sp"
             android:visibility="visible" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

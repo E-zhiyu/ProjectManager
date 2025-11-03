@@ -93,7 +93,7 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
     @Override
     public TagEditViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.tag_modify_group_in_modify_activity, parent, false);
+                .inflate(R.layout.tag_edit_group_in_edit_activity, parent, false);
         return new TagEditViewHolder(view);
     }
 
