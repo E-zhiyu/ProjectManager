@@ -17,42 +17,47 @@
         app:layout_constraintTop_toTopOf="parent"
         app:title="@string/title_modify_tag" />
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:orientation="vertical"
-        android:padding="16dp"
         app:layout_constraintBottom_toTopOf="@+id/btn_card_view"
         app:layout_constraintTop_toBottomOf="@+id/modify_tag_toolbar">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tag_name_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/tag_name_input"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:hint="标签名称"
-                android:maxLength="20" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tag_group_layout"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:endIconDrawable="@drawable/round_format_list_bulleted_24"
-            app:endIconMode="custom">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/tag_group_input"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tag_name_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tag_name_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="标签名称"
+                    android:maxLength="20" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tag_group_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="标签分组"
-                android:maxLength="20" />
-        </com.google.android.material.textfield.TextInputLayout>
-    </LinearLayout>
+                app:endIconDrawable="@drawable/round_format_list_bulleted_24"
+                app:endIconMode="custom">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tag_group_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="标签分组"
+                    android:maxLength="20" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+    </ScrollView>
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/btn_card_view"
