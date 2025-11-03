@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mine_fragment"
     style="@style/PageStyle"
@@ -9,58 +8,103 @@
     android:orientation="vertical"
     tools:context=".ui.setting.SettingFragment">
 
-    <com.google.android.material.card.MaterialCardView
-        style="@style/ContentCardStyle"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <LinearLayout
+        <com.google.android.material.card.MaterialCardView
+            style="@style/ContentCardStyle"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="wrap_content">
 
-            <com.google.android.material.textview.MaterialTextView
-                style="@style/LabelTextViewStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="应用设置" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-            <!-- 这里放入软件设置相关组件 -->
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/setting_theme_mode"
-                style="@style/SubSettingCardStyle"
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/LabelTextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="应用设置" />
+
+                <!-- 这里放入软件设置相关组件 -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/setting_theme_mode"
+                    style="@style/SubSettingCardStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/baseline_dark_mode_24"
+                    android:text="主题模式" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/ContentCardStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableStart="@drawable/baseline_dark_mode_24"
-                android:text="主题模式" />
+                android:orientation="vertical">
 
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/LabelTextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="流水账数据" />
 
-    <com.google.android.material.card.MaterialCardView
-        style="@style/ContentCardStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/SubSettingCardStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/round_export_data_24"
+                    android:text="导出数据" />
 
-        <LinearLayout
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/SubSettingCardStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/baseline_import_data_24"
+                    android:text="导入数据" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/SubSettingCardStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/baseline_delete_forever_24"
+                    android:text="清除数据" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/ContentCardStyle"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="wrap_content">
 
-            <com.google.android.material.textview.MaterialTextView
-                style="@style/LabelTextViewStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="关于" />
-
-            <!-- 放入关于软件选项 -->
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/setting_about"
-                style="@style/SubSettingCardStyle"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:drawableStart="@drawable/baseline_info_24"
-                android:text="关于软件" />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-</LinearLayout>
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/LabelTextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="关于" />
+
+                <!-- 放入关于软件选项 -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/setting_about"
+                    style="@style/SubSettingCardStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/baseline_info_24"
+                    android:text="关于软件" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</ScrollView>
