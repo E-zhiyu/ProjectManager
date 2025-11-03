@@ -33,7 +33,6 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
         RecyclerView tag_group_recycler_view = binding.findViewById(R.id.tag_group_recycler);
         List<TagGroup> tagGroupList = TagGroup.loadTagGroups(requireContext());
         tagAdapter = new TagSelectRecyclerAdapter(tagGroupList, requireContext());
-        tag_group_recycler_view.setLayoutManager(new LinearLayoutManager(requireActivity()));
         tag_group_recycler_view.setAdapter(tagAdapter);
 
         //设置标签按钮点击事件监听器
