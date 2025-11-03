@@ -1,6 +1,5 @@
 package com.project.manager.ui.setting;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -9,13 +8,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.textview.MaterialTextView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.project.manager.R;
 import com.project.manager.databinding.FragmentSettingBinding;
 
@@ -54,23 +51,12 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
     private void showAboutDialog() {
         String version_name = "v" + getVersionName(requireContext());
         String app_name = getAppName(requireContext());
-        Dialog about_dialog = new Dialog(requireContext());
-        about_dialog.setContentView(R.layout.dialog_about);
 
-        MaterialTextView version_name_view = about_dialog.findViewById(R.id.version_name_view);
-        version_name_view.setText(version_name);
-        MaterialTextView app_name_view = about_dialog.findViewById(R.id.app_name_view);
-        app_name_view.setText(app_name);
-
-        //设置对话框高度和宽度
-        Window dialog_window = about_dialog.getWindow();
-        if (dialog_window != null) {
-            WindowManager.LayoutParams params = dialog_window.getAttributes();
-            params.height = WindowManager.LayoutParams.WRAP_CONTENT;
-            params.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.8);
-        }
-
-        about_dialog.show();
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(app_name + " " + version_name)
+                .setMessage("这是一个项目管理工具，旨在帮助用户便捷地管理工程项目")
+                .setPositiveButton("确定", ((dialog, which) -> dialog.dismiss()))
+                .show();
     }
 
     //获取版本名称

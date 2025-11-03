@@ -17,7 +17,6 @@ import com.project.manager.ui.bookkeeping.tag.edit.TagEditActivity;
 
 import java.util.List;
 
-//TODO:增加标签编辑界面
 public class TagSelectBottomSheet extends BottomSheetDialogFragment implements View.OnClickListener {
     View binding;                   //绑定的XML视图
     TagSelectRecyclerAdapter tagAdapter;  //标签列表视图适配器
