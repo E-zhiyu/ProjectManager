@@ -26,6 +26,13 @@
                 android:text="应用设置" />
 
             <!-- 这里放入软件设置相关组件 -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/setting_theme_mode"
+                style="@style/SubSettingCardStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/baseline_dark_mode_24"
+                android:text="主题模式" />
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
@@ -47,12 +54,12 @@
                 android:text="关于" />
 
             <!-- 放入关于软件选项 -->
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/setting_about"
                 style="@style/SubSettingCardStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableLeft="@drawable/baseline_info_24"
+                android:drawableStart="@drawable/baseline_info_24"
                 android:text="关于软件" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

@@ -127,10 +127,7 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
                         selected_index = witch;
                         dialog.dismiss();
                     })
-                    .setNegativeButton("取消", (dialog, id) -> {
-                        // 关闭对话框
-                        dialog.dismiss();
-                    })
+                    .setNegativeButton("取消", (dialog, id) -> dialog.dismiss())
                     .show();
         } else {
             new MaterialAlertDialogBuilder(this)

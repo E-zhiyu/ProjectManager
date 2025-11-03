@@ -14,16 +14,18 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.project.manager.databinding.ActivityMainBinding;
+import com.project.manager.ui.setting.theme_mode.ThemeModeHelper;
+import com.project.manager.ui.setting.theme_mode.ThemePreference;
 
 public class MainActivity extends AppCompatActivity {
-
-    private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        initThemeMode();
+
+        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         //替换自带工具栏
@@ -47,5 +49,11 @@ public class MainActivity extends AppCompatActivity {
         if (bookkeepingFragment != null) {
             bookkeepingFragment.onActivityResult(requestCode, resultCode, intent);
         }
+    }
+
+    //初始化主题
+    private void initThemeMode() {
+        int theme_mode = ThemePreference.getThemeMode(this);
+        ThemeModeHelper.applyTheme(theme_mode);
     }
 }
