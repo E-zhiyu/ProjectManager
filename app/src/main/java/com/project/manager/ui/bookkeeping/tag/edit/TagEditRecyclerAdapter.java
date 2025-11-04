@@ -1,5 +1,7 @@
 package com.project.manager.ui.bookkeeping.tag.edit;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -47,6 +49,7 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
     public class TagEditViewHolder extends RecyclerView.ViewHolder {
         MaterialTextView group_name_text;       //分组名称文本视图
         LinearLayout sub_view_layout;           //子组件的线性布局管理器
+        int expandedHeight;                     //子布局展开时的高度
 
         public TagEditViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -60,18 +63,19 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
 
                 //切换子组件布局的可见性
                 if (sub_view_layout.getVisibility() == View.VISIBLE) {
-                    //TODO:解决折叠动画不生效的BUG
-                    sub_view_layout.setVisibility(View.GONE);
-                    animateHeight(sub_view_layout, sub_view_layout.getMeasuredHeight(), 0);
+                    expandedHeight = sub_view_layout.getMeasuredHeight();   //折叠之前保存展开时的高度
+                    animateHeight(sub_view_layout, expandedHeight, 0, () -> {
+                        sub_view_layout.setVisibility(View.GONE);
+                    });
                 } else {
                     sub_view_layout.setVisibility(View.VISIBLE);
-                    animateHeight(sub_view_layout, 0, sub_view_layout.getMeasuredHeight());
+                    animateHeight(sub_view_layout, 0, expandedHeight, null);
                 }
             });
         }
     }
 
-    private void animateHeight(final View view, int start, int end) {
+    private void animateHeight(final View view, int start, int end, Runnable onEnd) {
         ValueAnimator animator = ValueAnimator.ofInt(start, end);
         animator.addUpdateListener((animation) -> {
             int height = (int) animation.getAnimatedValue();
@@ -79,6 +83,15 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
             layoutParams.height = height;
             view.setLayoutParams(layoutParams);
         });
+
+        //设置动画结束后执行的代码
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (onEnd != null) onEnd.run();
+            }
+        });
+
         animator.setDuration(200);
         animator.start();
     }
@@ -119,9 +132,8 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
                     null, null, right_arrow, null
             );
 
-            tag_text_view.setOnClickListener((v) -> {
-                tagClickedListener.onTagTextViewClicked(tag_no, tag_name, group_no, group_name);
-            });
+            tag_text_view.setOnClickListener((v) ->
+                    tagClickedListener.onTagTextViewClicked(tag_no, tag_name, group_no, group_name));
 
             tag_text_view.setText(tag_name);
             holder.sub_view_layout.addView(tag_text_view);
