@@ -50,6 +50,7 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
         MaterialTextView group_name_text;       //分组名称文本视图
         LinearLayout sub_view_layout;           //子组件的线性布局管理器
         int expandedHeight;                     //子布局展开时的高度
+        boolean isAnimating = false;            //标记是否在动画进行中
 
         public TagEditViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -63,13 +64,21 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
 
                 //切换子组件布局的可见性
                 if (sub_view_layout.getVisibility() == View.VISIBLE) {
-                    expandedHeight = sub_view_layout.getMeasuredHeight();   //折叠之前保存展开时的高度
+                    if (!isAnimating) {
+                        expandedHeight = sub_view_layout.getMeasuredHeight();   //折叠之前保存展开时的高度
+                    }
+
+                    isAnimating = true;
                     animateHeight(sub_view_layout, expandedHeight, 0, () -> {
+                        isAnimating = false;
                         sub_view_layout.setVisibility(View.GONE);
                     });
                 } else {
                     sub_view_layout.setVisibility(View.VISIBLE);
-                    animateHeight(sub_view_layout, 0, expandedHeight, null);
+                    isAnimating = true;
+                    animateHeight(sub_view_layout, 0, expandedHeight, () -> {
+                        isAnimating = false;
+                    });
                 }
             });
         }
