@@ -1,26 +1,44 @@
 package com.project.manager.ui.setting;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.project.manager.R;
+import com.project.manager.RequestResultCode;
+import com.project.manager.database.FlowTables;
 import com.project.manager.databinding.FragmentSettingBinding;
+import com.project.manager.ui.setting.flow_data.FlowDataBase;
+import com.project.manager.ui.setting.flow_data.FlowDataHelper;
+import com.project.manager.ui.setting.flow_data.TagData;
+import com.project.manager.ui.setting.flow_data.TagGroupData;
 import com.project.manager.ui.setting.theme_mode.ThemeModeHelper;
 import com.project.manager.ui.setting.theme_mode.ThemePreference;
 
-public class SettingFragment extends Fragment implements View.OnClickListener {
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+public class SettingFragment extends Fragment implements View.OnClickListener {
     private FragmentSettingBinding binding;
+    private String json_str; //导出数据时序列化的JSON字符串
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentSettingBinding.inflate(inflater, container, false);
@@ -43,8 +61,57 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
             showAboutDialog();
         } else if (v.getId() == R.id.setting_theme_mode) {
             showThemeModeSelectDialog();
+        } else if (v.getId() == R.id.setting_export_flow) {
+            //TODO: 完善数据导入、删除功能
+            exportFlowData();
+        } else if (v.getId() == R.id.setting_import_flow) {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("application/json"); // 允许json文件类型
+            startActivityForResult(intent, RequestResultCode.REQUEST_READ_FILE.ordinal());
         } else {
             throw new RuntimeException("无法获取正确的视图ID");
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
+        super.onActivityResult(requestCode, resultCode, resultIntent);
+
+        if (requestCode == RequestResultCode.REQUEST_CREATE_FILE.ordinal() && resultCode == Activity.RESULT_OK) {
+            if (resultIntent != null && resultIntent.getData() != null) {
+                Uri uri = resultIntent.getData();
+                FlowDataHelper.writeJsonToFile(uri, json_str, requireContext());
+            }
+        }
+    }
+
+    //导出流水账数据
+    private void exportFlowData() {
+        try {
+            //获取所有数据并序列化为JSON字符串
+            FlowDataHelper dataHelper = new FlowDataHelper(requireContext());
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> mergedMap = dataHelper.getAllDataInMap();
+            json_str = mapper.writeValueAsString(mergedMap);
+
+            //获取当前日期并生成默认文件名
+            Calendar calendar = Calendar.getInstance();
+            @SuppressLint("DefaultLocale") String now_date = String.format(
+                    "%04d-%02d-%02d",
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH));
+            String default_filename = String.format("%s_FlowData.json", now_date);
+
+            //启动系统文件选择器(SAF)
+            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("application/json");
+            intent.putExtra(Intent.EXTRA_TITLE, default_filename);
+            startActivityForResult(intent, RequestResultCode.REQUEST_CREATE_FILE.ordinal());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("数据序列化失败");
         }
     }
 
@@ -52,6 +119,8 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
     private void initViews() {
         binding.settingAbout.setOnClickListener(this);
         binding.settingThemeMode.setOnClickListener(this);
+        binding.settingExportFlow.setOnClickListener(this);
+        binding.settingImportFlow.setOnClickListener(this);
     }
 
     //获取版本名称
