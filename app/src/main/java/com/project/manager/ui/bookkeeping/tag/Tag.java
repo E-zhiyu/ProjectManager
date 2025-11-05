@@ -144,6 +144,9 @@ public class Tag {
                 Tag oneTag = new Tag(tag_name, tag_no);
                 allTagList.add(oneTag);
             }
+
+            tag_cursor.close();
+            db.close();
         } catch (SQLiteDatabaseLockedException e) {
             throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
         }
