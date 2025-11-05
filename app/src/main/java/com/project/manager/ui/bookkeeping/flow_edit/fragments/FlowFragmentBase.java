@@ -90,7 +90,7 @@ public abstract class FlowFragmentBase extends Fragment implements
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH) + 1,
                 calendar.get(Calendar.DAY_OF_MONTH),
-                calendar.get(Calendar.HOUR),
+                calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE));
         dt_input.setText(dt_string);
     }
@@ -190,7 +190,7 @@ public abstract class FlowFragmentBase extends Fragment implements
      *
      * @return 流水日期字符串
      */
-    public String getDate() {
+    public String getDateTime() {
         TextInputEditText dateTextView = binding.findViewById(R.id.datetime_input);
         return String.valueOf(dateTextView.getText());
     }
