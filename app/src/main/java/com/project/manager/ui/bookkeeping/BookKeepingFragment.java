@@ -68,7 +68,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     public void onClick(View v) {
         if (v.getId() == R.id.flow_btn) {  //新建流水
             Intent skip2NewFlow = new Intent(getActivity(), NewFlowActivity.class);
-            startActivityForResult(skip2NewFlow, RequestResultCode.NEW_FLOW_REQUEST.ordinal());
+            startActivityForResult(skip2NewFlow, RequestResultCode.REQUEST_NEW_FLOW.ordinal());
         } else if (v.getId() == R.id.report_btn) {  //查看报表
             Intent skip2Report = new Intent(getActivity(), ReportActivity.class);
             startActivity(skip2Report);
@@ -84,17 +84,17 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         Bundle dataBundle = new Bundle();
 
         //获取基本数据
-        FlowTypeEnum type = flowView.type;      //类型
+        FlowTypeEnum type = flowView.getType();      //类型
         dataBundle.putString(KeyValueStrings.FLOW_TYPE.getValue(), type.toString());
-        double amount = flowView.amount;        //金额
+        double amount = flowView.getAmount();        //金额
         dataBundle.putDouble(KeyValueStrings.FLOW_AMOUNT.getValue(), amount);
-        String remark = flowView.remark;        //备注
+        String remark = flowView.getRemark();        //备注
         dataBundle.putString(KeyValueStrings.FLOW_REMARK.getValue(), remark);
-        String date_time = flowView.date_time;  //日期
+        String date_time = flowView.getDate_time();  //日期
         dataBundle.putString(KeyValueStrings.FLOW_DATETIME.getValue(), date_time);
-        long fno = flowView.fno;                //编号
+        long fno = flowView.getFno();                //编号
         dataBundle.putLong(KeyValueStrings.FLOW_NO.getValue(), fno);
-        long tag_no = flowView.tag_no;          //标签编号
+        long tag_no = flowView.getTag_no();          //标签编号
         dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
 
         dataBundle.putInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), position);  //将待修改的流水实例下标放入包裹
@@ -108,7 +108,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         }
 
         skip2FlowModify.putExtras(dataBundle);
-        startActivityForResult(skip2FlowModify, RequestResultCode.MODIFY_FLOW_REQUEST.ordinal());
+        startActivityForResult(skip2FlowModify, RequestResultCode.REQUEST_MODIFY_FLOW.ordinal());
     }
 
     @Override
@@ -120,9 +120,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             return;
         } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {  //删除
             deleteFlow(resultIntent);
-        } else if (requestCode == RequestResultCode.NEW_FLOW_REQUEST.ordinal()) {   //添加
+        } else if (requestCode == RequestResultCode.REQUEST_NEW_FLOW.ordinal()) {   //添加
             addNewFlow(resultIntent);
-        } else if (requestCode == RequestResultCode.MODIFY_FLOW_REQUEST.ordinal()) {  //修改
+        } else if (requestCode == RequestResultCode.REQUEST_MODIFY_FLOW.ordinal()) {  //修改
             coverFlowAfterEditing(resultIntent);
         }
     }
@@ -182,7 +182,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         }
 
         db.close();
-        newFlowView.fno = fno;  //将自增主键值保存
+        newFlowView.setFno(fno);  //将自增主键值保存
         flowListAdapter.addNewFlowView(newFlowView);  //将新建的流水视图添加至列表视图适配器
         Toast.makeText(getActivity(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
     }
@@ -216,7 +216,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         basic_values.put(FlowColumns.DATETIME.toString(), date_time);   //日期
         basic_values.put(FlowColumns.TAG_NO.toString(), tag_no);        //标签编号
         String selection = FlowColumns.FNO + "=?";
-        long fno = (flowListAdapter.getItem(position)).fno;  //编号
+        long fno = (flowListAdapter.getItem(position)).getFno();  //编号
         String[] selectionArgs = new String[]{String.valueOf(fno)};
         db.update(
                 FlowTables.BASIC.toString(),
@@ -251,7 +251,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         }
 
         db.close();
-        newFlowView.fno = fno;
+        newFlowView.setFno(fno);
         flowListAdapter.setFlowView(position, newFlowView);
         Toast.makeText(getActivity(), "成功修改流水记录", Toast.LENGTH_SHORT).show();
     }
@@ -271,7 +271,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         //从数据库中删除
         position = dataBundle.getInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), -1);
         FlowBase target_flow_view = flowListAdapter.getItem(position);
-        long fno = target_flow_view.fno;
+        long fno = target_flow_view.getFno();
         String selection = FlowColumns.FNO + "=?";
         String[] selectionArgs = {String.valueOf(fno)};
         db.delete(
@@ -279,7 +279,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                 selection,
                 selectionArgs
         );
-        FlowTypeEnum type = target_flow_view.type;
+        FlowTypeEnum type = target_flow_view.getType();
         if (type == FlowTypeEnum.TRANSFER) {
             db.delete(
                     FlowTables.TRANSFER.toString(),

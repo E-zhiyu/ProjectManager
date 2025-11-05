@@ -37,11 +37,11 @@ public class FlowRecyclerAdapter extends RecyclerView.Adapter<FlowRecyclerAdapte
     @Override
     public void onBindViewHolder(@NonNull FlowViewHolder holder, int position) {
         FlowBase currentFlow = flowList.get(position);
-        String name_and_datetime = String.format("%s·%s", currentFlow.name, currentFlow.date_time);
+        String name_and_datetime = String.format("%s·%s", currentFlow.getName(), currentFlow.getDate_time());
 
-        holder.remark_text.setText(currentFlow.remark);                 //备注
-        holder.name_datetime_text.setText(name_and_datetime);           //名称和日期
-        holder.amount_text.setText(String.valueOf(currentFlow.amount)); //金额
+        holder.remark_text.setText(currentFlow.getRemark());                    //备注
+        holder.name_datetime_text.setText(name_and_datetime);                   //名称和日期
+        holder.amount_text.setText(String.valueOf(currentFlow.getAmount()));    //金额
     }
 
     @Override

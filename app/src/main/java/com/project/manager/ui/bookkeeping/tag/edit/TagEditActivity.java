@@ -53,7 +53,7 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
             }
             skip2NewTag.putStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue(), groupNameList);
 
-            startActivityForResult(skip2NewTag, RequestResultCode.NEW_TAG_REQUEST.ordinal());
+            startActivityForResult(skip2NewTag, RequestResultCode.REQUEST_NEW_TAG.ordinal());
         }
     }
 
@@ -76,14 +76,14 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
         clickedTagData.putStringArrayList(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue(), groupNameList);
 
         skip2ModifyTag.putExtras(clickedTagData);
-        startActivityForResult(skip2ModifyTag, RequestResultCode.MODIFY_TAG_REQUEST.ordinal());
+        startActivityForResult(skip2ModifyTag, RequestResultCode.REQUEST_MODIFY_TAG.ordinal());
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
         super.onActivityResult(requestCode, resultCode, resultIntent);
 
-        if (requestCode == RequestResultCode.NEW_TAG_REQUEST.ordinal()) {
+        if (requestCode == RequestResultCode.REQUEST_NEW_TAG.ordinal()) {
             if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
                 Bundle dataBundle = resultIntent.getExtras();
                 String tag_name = null;         //标签名称
@@ -120,7 +120,7 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
                     adapter.addNewTag(new_tag, group_no);
                 }
             }
-        } else if (requestCode == RequestResultCode.MODIFY_TAG_REQUEST.ordinal()) {
+        } else if (requestCode == RequestResultCode.REQUEST_MODIFY_TAG.ordinal()) {
             Bundle dataBundle;
             try {
                 dataBundle = resultIntent.getExtras();

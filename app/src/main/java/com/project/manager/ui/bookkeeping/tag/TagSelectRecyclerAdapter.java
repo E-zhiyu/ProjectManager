@@ -57,17 +57,17 @@ public class TagSelectRecyclerAdapter extends RecyclerView.Adapter<TagSelectRecy
     @Override
     public void onBindViewHolder(@NonNull TagSelectHolder holder, int position) {
         TagGroup currentTagGroup = this.tagGroupList.get(position);
-        String group_name = currentTagGroup.group_name;
-        List<Tag> tags = currentTagGroup.tags;
+        String group_name = currentTagGroup.getGroupName();
+        List<Tag> tags = currentTagGroup.getTags();
 
         holder.tag_group_name_view.setText(group_name);
         for (Tag oneTag : tags) {
             MaterialButton tag_btn = new MaterialButton(context);   //实例化标签按钮
 
-            tag_btn.setText(oneTag.name);    //设置按钮文本
+            tag_btn.setText(oneTag.getName());    //设置按钮文本
             tag_btn.setOnClickListener(v -> {   //设置回调接口
                 if (tagBtnClickedListener != null) {
-                    tagBtnClickedListener.onTagBtnClicked(oneTag.tno, oneTag.name);
+                    tagBtnClickedListener.onTagBtnClicked(oneTag.getTno(), oneTag.getName());
                 }
             });
 

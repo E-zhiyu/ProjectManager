@@ -3,13 +3,45 @@ package com.project.manager.ui.bookkeeping;
 import com.project.manager.ui.bookkeeping.flow_edit.fragments.FlowTypeEnum;
 
 public abstract class FlowBase {
-    String name;        //名称
-    FlowTypeEnum type;  //种类
-    String remark;      //备注
-    String date_time;   //日期和时间
-    long tag_no;        //标签编号
-    double amount;      //金额
-    long fno;           //流水标识
+    protected String name;        //名称
+    protected FlowTypeEnum type;  //种类
+    protected String remark;      //备注
+    protected String date_time;   //日期和时间
+    protected long tag_no;        //标签编号
+    protected double amount;      //金额
+    protected long fno;           //流水编号
+
+    public String getName() {
+        return name;
+    }
+
+    public FlowTypeEnum getType() {
+        return type;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public String getDate_time() {
+        return date_time;
+    }
+
+    public long getTag_no() {
+        return tag_no;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public long getFno() {
+        return fno;
+    }
+
+    public void setFno(long fno) {
+        this.fno = fno;
+    }
 }
 
 /**

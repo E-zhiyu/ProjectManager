@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Tag {
-    String name;    //名称
-    long tno;       //编号
+    private String name;    //名称
+    private final long tno; //编号
 
     public Tag(String name, long tno) {
         this.name = name;

@@ -93,7 +93,7 @@ public class NewFlowActivity extends AppCompatActivity implements View.OnClickLi
         //获取碎片通用信息并打包
         double flowAmount = currentFragment.getAmount();    //金额
         dataBundle.putDouble(KeyValueStrings.FLOW_AMOUNT.getValue(), flowAmount);
-        String flowDate = currentFragment.getDate();        //日期
+        String flowDate = currentFragment.getDateTime();        //日期
         dataBundle.putString(KeyValueStrings.FLOW_DATETIME.getValue(), flowDate);
         String flowRemark = currentFragment.getRemark();    //备注
         dataBundle.putString(KeyValueStrings.FLOW_REMARK.getValue(), flowRemark);

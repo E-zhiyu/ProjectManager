@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TagGroup {
-    List<Tag> tags;     //该分组下的标签字符串
-    String group_name;  //标签组名称
-    long group_no;      //标签组编号
+    private final List<Tag> tags;   //该分组下的标签字符串
+    private String group_name;      //标签组名称
+    private final long group_no;    //标签组编号
 
     public String getGroupName() {
         return group_name;
