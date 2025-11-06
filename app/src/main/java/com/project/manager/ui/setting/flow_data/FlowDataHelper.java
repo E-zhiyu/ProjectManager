@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDatabaseLockedException;
 import android.net.Uri;
 import android.widget.Toast;
 
@@ -257,6 +258,8 @@ public class FlowDataHelper {
             group_values.put(FlowColumns.GROUP_NO.toString(), group_no);
             db.insert(FlowTables.TAG_GROUP.toString(), null, group_values);
         }
+
+        db.close();
     }
 
     /**
@@ -348,5 +351,25 @@ public class FlowDataHelper {
             sb.append(line).append("\n");
         }
         return sb.toString();
+    }
+
+    /**
+     * 删除所有流水账数据
+     *
+     * @param context 用于打开数据库的上下文
+     */
+    public static void deleteAllData(Context context) {
+        try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
+            SQLiteDatabase db = db_helper.openWriteLink();
+
+            db.delete(FlowTables.TRANSFER.toString(), null, null);
+            db.delete(FlowTables.BASIC.toString(), null, null);
+            db.delete(FlowTables.TAG.toString(), null, null);
+            db.delete(FlowTables.TAG_GROUP.toString(), null, null);
+
+            db.close();
+        } catch (SQLiteDatabaseLockedException e) {
+            throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
+        }
     }
 }

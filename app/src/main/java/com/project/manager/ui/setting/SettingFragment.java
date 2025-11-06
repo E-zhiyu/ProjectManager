@@ -55,13 +55,15 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         } else if (v.getId() == R.id.setting_theme_mode) {
             showThemeModeSelectDialog();
         } else if (v.getId() == R.id.setting_export_flow) {
-            //TODO: 完善数据导入、删除功能
             exportFlowData();
         } else if (v.getId() == R.id.setting_import_flow) {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("application/json"); //允许json文件类型
             startActivityForResult(intent, RequestResultCode.REQUEST_READ_FILE.ordinal());
+        } else if (v.getId() == R.id.setting_clear_flow) {
+            //TODO:导入和删除添加提示对话框
+            FlowDataHelper.deleteAllData(requireContext());
         } else {
             throw new RuntimeException("无法获取正确的视图ID");
         }
@@ -119,6 +121,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         binding.settingThemeMode.setOnClickListener(this);
         binding.settingExportFlow.setOnClickListener(this);
         binding.settingImportFlow.setOnClickListener(this);
+        binding.settingClearFlow.setOnClickListener(this);
     }
 
     //获取版本名称
