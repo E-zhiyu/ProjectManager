@@ -1,22 +1,32 @@
 package com.project.manager.ui.setting.flow_data;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.manager.database.FlowColumns;
 import com.project.manager.database.FlowDatabaseHelper;
 import com.project.manager.database.FlowTables;
+import com.project.manager.ui.setting.flow_data.pojo.BasicFlowData;
+import com.project.manager.ui.setting.flow_data.pojo.TagData;
+import com.project.manager.ui.setting.flow_data.pojo.TagGroupData;
+import com.project.manager.ui.setting.flow_data.pojo.TotalDataMap;
+import com.project.manager.ui.setting.flow_data.pojo.TransferFlowData;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class FlowDataHelper {
     Context context;                //用于打开数据库的上下文
@@ -27,8 +37,10 @@ public class FlowDataHelper {
         this.db_helper = new FlowDatabaseHelper(context);
     }
 
-    private List<FlowDataBase> getAllFlowData() {
-        List<FlowDataBase> flowDataBaseList = new ArrayList<>();
+    //获取所有流水账基本数据（对应基本流水记录表）
+    @NonNull
+    private List<BasicFlowData> getBasicFlowData() {
+        List<BasicFlowData> basicFlowDataList = new ArrayList<>();
         SQLiteDatabase db = db_helper.openReadLink();
 
         Cursor basic_cursor = db.query(
@@ -38,7 +50,7 @@ public class FlowDataHelper {
                 null,
                 null,
                 null,
-                FlowColumns.DATETIME + " DESC," + FlowColumns.FNO + " DESC"
+                null
         );
 
         //查询数据
@@ -56,50 +68,99 @@ public class FlowDataHelper {
             //标签编号
             long tag_no = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NO.toString()));
 
-            FlowDataBase flowData = null;
-            switch (type) {
-                case "EXPENSE":
-                    flowData = new ExpenseFlowData(type, remark, datetime, tag_no, amount, fno);
-                    break;
-                case "INCOME":
-                    flowData = new IncomeFlowData(type, remark, datetime, tag_no, amount, fno);
-                    break;
-                case "TRANSFER":
-                    String[] columns = {FlowColumns.EXPORT.toString(), FlowColumns.IMPORT.toString()};
-                    String selection = FlowColumns.FNO + "=?";
-                    String[] selectionArgs = {String.valueOf(fno)};
-
-                    Cursor transfer_cursor = db.query(
-                            FlowTables.TRANSFER.toString(),
-                            columns,
-                            selection,
-                            selectionArgs,
-                            null,
-                            null,
-                            null
-                    );
-
-                    while (transfer_cursor.moveToNext()) {
-                        String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(FlowColumns.EXPORT.toString()));
-                        String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(FlowColumns.IMPORT.toString()));
-                        transfer_cursor.close();
-                        flowData = new TransferFlowData(type, remark, datetime, tag_no, amount, fno, exportAccount, importAccount);
-                    }
-
-                    break;
-                default:
-                    throw new RuntimeException("无法获取正确的流水视图类型");
-            }
-
-            flowDataBaseList.add(flowData);
+            BasicFlowData basicFlowData = new BasicFlowData(type, remark, datetime, tag_no, amount, fno);
+            basicFlowDataList.add(basicFlowData);
         }
 
         basic_cursor.close();
         db.close();
-        return flowDataBaseList;
+        return basicFlowDataList;
     }
 
-    private List<TagData> getAllTagData() {
+    //将流水账基本数据写入数据库
+    private void setBasicFlowData(@NonNull List<BasicFlowData> flowDataList) {
+        SQLiteDatabase db = db_helper.openWriteLink();
+
+        //删除之前表的内容
+        db.delete(FlowTables.BASIC.toString(), null, null);
+
+        for (BasicFlowData flow_data : flowDataList) {
+            String type = flow_data.getType();              //种类
+            String remark = flow_data.getRemark();          //备注
+            String date_time = flow_data.getDate_time();    //日期和时间
+            long tag_no = flow_data.getTag_no();            //标签编号
+            double amount = flow_data.getAmount();          //金额
+            long fno = flow_data.getFno();                  //流水编号
+
+            //写入基本数据
+            ContentValues basic_values = new ContentValues();
+            basic_values.put(FlowColumns.TYPE.toString(), type);
+            basic_values.put(FlowColumns.REMARK.toString(), remark);
+            basic_values.put(FlowColumns.DATETIME.toString(), date_time);
+            basic_values.put(FlowColumns.TAG_NO.toString(), tag_no);
+            basic_values.put(FlowColumns.AMOUNT.toString(), amount);
+            basic_values.put(FlowColumns.FNO.toString(), fno);
+            db.insert(FlowTables.BASIC.toString(), null, basic_values);
+        }
+
+        db.close();
+    }
+
+    //获取转账流水账记录（对应转账流水表）
+    @NonNull
+    private List<TransferFlowData> getTransferFlowData() {
+        List<TransferFlowData> transferFlowDataList = new ArrayList<>();
+        SQLiteDatabase db = db_helper.openReadLink();
+
+        Cursor transfer_cursor = db.query(
+                FlowTables.TRANSFER.toString(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        while (transfer_cursor.moveToNext()) {
+            String export_account = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(FlowColumns.EXPORT.toString()));
+            String import_account = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(FlowColumns.IMPORT.toString()));
+            long fno = transfer_cursor.getLong(transfer_cursor.getColumnIndexOrThrow(FlowColumns.FNO.toString()));
+
+            TransferFlowData transferFlowData = new TransferFlowData(fno, export_account, import_account);
+            transferFlowDataList.add(transferFlowData);
+        }
+
+        transfer_cursor.close();
+        db.close();
+        return transferFlowDataList;
+    }
+
+    private void setTransferFlowData(@NonNull List<TransferFlowData> transferFlowDataList) {
+        SQLiteDatabase db = db_helper.openWriteLink();
+
+        //删除之前表的内容
+        db.delete(FlowTables.TRANSFER.toString(), null, null);
+
+        for (TransferFlowData transfer_flow_data : transferFlowDataList) {
+            String export_account = transfer_flow_data.getExport_account();
+            String import_account = transfer_flow_data.getImport_account();
+            long fno = transfer_flow_data.getFno();
+
+            //将数据写入数据库
+            ContentValues transfer_values = new ContentValues();
+            transfer_values.put(FlowColumns.EXPORT.toString(), export_account);
+            transfer_values.put(FlowColumns.IMPORT.toString(), import_account);
+            transfer_values.put(FlowColumns.FNO.toString(), fno);
+            db.insert(FlowTables.TRANSFER.toString(), null, transfer_values);
+        }
+
+        db.close();
+    }
+
+    //获取所有标签数据（对应标签表）
+    @NonNull
+    private List<TagData> getTagData() {
         List<TagData> tagDataList = new ArrayList<>();
         SQLiteDatabase db = db_helper.openReadLink();
 
@@ -127,7 +188,32 @@ public class FlowDataHelper {
         return tagDataList;
     }
 
-    private List<TagGroupData> getAllTagGroupData() {
+    //将标签数据写入数据库
+    private void setTagData(@NonNull List<TagData> tagDataList) {
+        SQLiteDatabase db = db_helper.openWriteLink();
+
+        //删除之前表的内容
+        db.delete(FlowTables.TAG.toString(), null, null);
+
+        for (TagData tag_data : tagDataList) {
+            String tag_name = tag_data.getName();
+            long tag_no = tag_data.getTno();
+            long group_no = tag_data.getGroup_no();
+
+            //将数据写入数据库
+            ContentValues tag_values = new ContentValues();
+            tag_values.put(FlowColumns.TAG_NAME.toString(), tag_name);
+            tag_values.put(FlowColumns.TAG_NO.toString(), tag_no);
+            tag_values.put(FlowColumns.GROUP_NO.toString(), group_no);
+            db.insert(FlowTables.TAG.toString(), null, tag_values);
+        }
+
+        db.close();
+    }
+
+    //获取所有标签分组数据（对应标签分组表）
+    @NonNull
+    private List<TagGroupData> getTagGroupData() {
         List<TagGroupData> tagGroupDataList = new ArrayList<>();
         SQLiteDatabase db = db_helper.openReadLink();
 
@@ -154,24 +240,45 @@ public class FlowDataHelper {
         return tagGroupDataList;
     }
 
+    //将标签分组数据写入数据库
+    private void setTagGroupData(@NonNull List<TagGroupData> tagGroupDataList) {
+        SQLiteDatabase db = db_helper.openWriteLink();
+
+        //删除之前表的内容
+        db.delete(FlowTables.TAG_GROUP.toString(), null, null);
+
+        for (TagGroupData tag_group_data : tagGroupDataList) {
+            String group_name = tag_group_data.getGroup_name();
+            long group_no = tag_group_data.getGroup_no();
+
+            //将数据写入数据库
+            ContentValues group_values = new ContentValues();
+            group_values.put(FlowColumns.GROUP_NAME.toString(), group_name);
+            group_values.put(FlowColumns.GROUP_NO.toString(), group_no);
+            db.insert(FlowTables.TAG_GROUP.toString(), null, group_values);
+        }
+    }
+
     /**
      * 获取流水账数据库的所有数据
      *
      * @return 包含所有数据的Map字典，键值：对应表名
      */
-    public Map<String, Object> getAllDataInMap() {
+    public TotalDataMap getAllDataInMap() {
         //读取所有数据
-        List<FlowDataBase> flowDataList = getAllFlowData();
-        List<TagData> tagDataList = getAllTagData();
-        List<TagGroupData> tagGroupDataList = getAllTagGroupData();
+        List<BasicFlowData> basicFlowDataList = getBasicFlowData();
+        List<TransferFlowData> transferFlowDataList = getTransferFlowData();
+        List<TagData> tagDataList = getTagData();
+        List<TagGroupData> tagGroupDataList = getTagGroupData();
 
         //将所有数据合并至一个字典
-        Map<String, Object> mergedMap = new HashMap<>();
-        mergedMap.put(FlowTables.BASIC.toString(), flowDataList);
-        mergedMap.put(FlowTables.TAG.toString(), tagDataList);
-        mergedMap.put(FlowTables.TAG_GROUP.toString(), tagGroupDataList);
+        TotalDataMap totalDataMap = new TotalDataMap();
+        totalDataMap.setBasic_data(basicFlowDataList);
+        totalDataMap.setTransfer_data(transferFlowDataList);
+        totalDataMap.setTag_data(tagDataList);
+        totalDataMap.setTag_group_data(tagGroupDataList);
 
-        return mergedMap;
+        return totalDataMap;
     }
 
     /**
@@ -192,5 +299,54 @@ public class FlowDataHelper {
             e.printStackTrace();
             Toast.makeText(context, "保存失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    /**
+     * 读取文件中的JSON字符串并保存至数据库
+     *
+     * @param uri     待读取文件的uri
+     * @param context 活动上下文
+     */
+    public static void readFileAndSave(Uri uri, Context context) {
+        try (InputStream inputStream = context.getContentResolver().openInputStream(uri)) {
+            if (inputStream != null) {
+                // 将 InputStream 转换为字符串
+                String jsonString = convertStreamToString(inputStream);
+
+                ObjectMapper mapper = new ObjectMapper();
+                try {
+                    TotalDataMap dataMap = mapper.readValue(jsonString, TotalDataMap.class);
+                    List<TagGroupData> tagGroupDataList = dataMap.getTag_group_data();
+                    List<TagData> tagDataList = dataMap.getTag_data();
+                    List<BasicFlowData> basicFlowDataList = dataMap.getBasic_data();
+                    List<TransferFlowData> transferFlowDataList = dataMap.getTransfer_data();
+
+                    //将对应的数据写入数据库
+                    FlowDataHelper helper = new FlowDataHelper(context);
+                    helper.setTagGroupData(tagGroupDataList);
+                    helper.setTagData(tagDataList);
+                    helper.setBasicFlowData(basicFlowDataList);
+                    helper.setTransferFlowData(transferFlowDataList);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                    Toast.makeText(context, "无法解析JSON文件内容", Toast.LENGTH_SHORT).show();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(context, "读取文件失败", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    //将 InputStream 转为 String
+    @NonNull
+    private static String convertStreamToString(InputStream is) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line).append("\n");
+        }
+        return sb.toString();
     }
 }
