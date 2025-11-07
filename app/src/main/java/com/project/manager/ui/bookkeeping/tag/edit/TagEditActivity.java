@@ -1,5 +1,6 @@
 package com.project.manager.ui.bookkeeping.tag.edit;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -91,10 +92,10 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    if (data != null) {
-                        addNewTag(resultCode, data);
-                    } else {
+                    if (data == null && resultCode != Activity.RESULT_CANCELED) {
                         throw new NullPointerException("无法获取新建标签数据");
+                    } else {
+                        addNewTag(resultCode, data);
                     }
                 }
         );
@@ -105,10 +106,10 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    if (data != null) {
-                        modifyTag(resultCode, data);
-                    } else {
+                    if (data == null && resultCode != Activity.RESULT_CANCELED) {
                         throw new NullPointerException("无法获取修改后的标签数据");
+                    } else {
+                        modifyTag(resultCode, data);
                     }
                 }
         );
