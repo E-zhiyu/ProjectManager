@@ -24,6 +24,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.project.manager.R;
 import com.project.manager.RequestResultCode;
 import com.project.manager.databinding.FragmentSettingBinding;
+import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.setting.flow_data.FlowDataHelper;
 import com.project.manager.ui.setting.flow_data.pojo.TotalDataMap;
 import com.project.manager.ui.setting.theme_mode.ThemeModeHelper;
@@ -84,7 +85,8 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                     .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
                     .show();
         } else {
-            throw new RuntimeException("无法获取正确的视图ID");
+            RuntimeException e = new RuntimeException("无法获取正确的视图ID");
+            ExceptionHelper.showExceptionDialog(requireContext(), e);
         }
     }
 
@@ -101,7 +103,8 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                             Uri uri = data.getData();
                             FlowDataHelper.writeJsonToFile(uri, json_str, requireContext());
                         } else {
-                            throw new NullPointerException("无法导出数据");
+                            NullPointerException e = new NullPointerException("无法导出数据");
+                            ExceptionHelper.showExceptionDialog(requireContext(), e);
                         }
                     }
                 }
@@ -118,7 +121,8 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                             Uri uri = data.getData();
                             FlowDataHelper.readFileAndSave(uri, requireContext());
                         } else {
-                            throw new NullPointerException("无法导入数据");
+                            NullPointerException e = new NullPointerException("无法导入数据");
+                            ExceptionHelper.showExceptionDialog(requireContext(), e);
                         }
                     }
                 }
@@ -150,7 +154,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
             startSAF.putExtra(Intent.EXTRA_TITLE, default_filename);
             exportDataLauncher.launch(startSAF);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("数据序列化失败");
+            ExceptionHelper.showExceptionDialog(requireContext(), e);
         }
     }
 

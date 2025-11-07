@@ -10,13 +10,14 @@ import android.database.sqlite.SQLiteException;
 import com.project.manager.database.FlowColumns;
 import com.project.manager.database.FlowDatabaseHelper;
 import com.project.manager.database.FlowTables;
+import com.project.manager.exception.ExceptionHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TagGroup {
     private final List<Tag> tags;   //该分组下的标签字符串
-    private String group_name;      //标签组名称
+    private final String group_name;      //标签组名称
     private final long group_no;    //标签组编号
 
     public String getGroupName() {
@@ -68,37 +69,34 @@ public class TagGroup {
      * @param context    用于打开数据库的上下文
      * @return 对应的标签编号（未找到则返回0）
      */
-    public static long nameTransToGno(String group_name, Context context) {
-        try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
-            SQLiteDatabase db = db_helper.openReadLink();
+    public static long nameTransToGno(String group_name, Context context) throws SQLiteException {
+        FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context);
+        SQLiteDatabase db = db_helper.openReadLink();
 
-            String[] columns = {FlowColumns.GROUP_NO.toString()};
-            String selection = FlowColumns.GROUP_NAME + "=?";
-            String[] selectionArgs = {group_name};
-            Cursor cursor = db.query(
-                    FlowTables.TAG_GROUP.toString(),
-                    columns,
-                    selection,
-                    selectionArgs,
-                    null,
-                    null,
-                    null,
-                    "1"
-            );
+        String[] columns = {FlowColumns.GROUP_NO.toString()};
+        String selection = FlowColumns.GROUP_NAME + "=?";
+        String[] selectionArgs = {group_name};
+        Cursor cursor = db.query(
+                FlowTables.TAG_GROUP.toString(),
+                columns,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null,
+                "1"
+        );
 
-            long group_no;
-            if (cursor.moveToNext()) {
-                group_no = cursor.getLong(cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NO.toString()));
-            } else {
-                group_no = 0;
-            }
-
-            cursor.close();
-            db.close();
-            return group_no;
-        } catch (SQLiteDatabaseLockedException e) {
-            throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
+        long group_no;
+        if (cursor.moveToNext()) {
+            group_no = cursor.getLong(cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NO.toString()));
+        } else {
+            group_no = 0;
         }
+
+        cursor.close();
+        db.close();
+        return group_no;
     }
 
     /**
@@ -108,37 +106,34 @@ public class TagGroup {
      * @param context  用于打开数据库的上下文
      * @return 对应的标签名称
      */
-    public static String groupNoTransToName(long group_no, Context context) {
-        try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
-            SQLiteDatabase db = db_helper.openReadLink();
+    public static String groupNoTransToName(long group_no, Context context) throws SQLiteException {
+        String group_name;
+        FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context);
+        SQLiteDatabase db = db_helper.openReadLink();
 
-            String[] columns = {FlowColumns.GROUP_NAME.toString()};
-            String selection = FlowColumns.GROUP_NO + "=?";
-            String[] selectionArgs = {String.valueOf(group_no)};
-            Cursor cursor = db.query(
-                    FlowTables.TAG_GROUP.toString(),
-                    columns,
-                    selection,
-                    selectionArgs,
-                    null,
-                    null,
-                    null,
-                    "1"
-            );
+        String[] columns = {FlowColumns.GROUP_NAME.toString()};
+        String selection = FlowColumns.GROUP_NO + "=?";
+        String[] selectionArgs = {String.valueOf(group_no)};
+        Cursor cursor = db.query(
+                FlowTables.TAG_GROUP.toString(),
+                columns,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null,
+                "1"
+        );
 
-            String group_name;
-            if (cursor.moveToNext()) {
-                group_name = cursor.getString(cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NAME.toString()));
-            } else {
-                group_name = "";
-            }
-
-            cursor.close();
-            db.close();
-            return group_name;
-        } catch (SQLiteDatabaseLockedException e) {
-            throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
+        if (cursor.moveToNext()) {
+            group_name = cursor.getString(cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NAME.toString()));
+        } else {
+            group_name = "";
         }
+
+        cursor.close();
+        db.close();
+        return group_name;
     }
 
     /**
@@ -148,19 +143,16 @@ public class TagGroup {
      * @param context    打开数据库的上下文
      * @return 新分组对应的编号
      */
-    public static long saveNewGroup(String group_name, Context context) {
-        try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
-            SQLiteDatabase db = db_helper.openWriteLink();
+    public static long saveNewGroup(String group_name, Context context) throws SQLiteException {
+        FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context);
+        SQLiteDatabase db = db_helper.openWriteLink();
 
-            ContentValues group_values = new ContentValues();
-            group_values.put(FlowColumns.GROUP_NAME.toString(), group_name);
-            long group_no = db.insert(FlowTables.TAG_GROUP.toString(), null, group_values);
+        ContentValues group_values = new ContentValues();
+        group_values.put(FlowColumns.GROUP_NAME.toString(), group_name);
+        long group_no = db.insert(FlowTables.TAG_GROUP.toString(), null, group_values);
 
-            db.close();
-            return group_no;
-        } catch (SQLiteDatabaseLockedException e) {
-            throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
-        }
+        db.close();
+        return group_no;
     }
 
     /**
@@ -169,50 +161,45 @@ public class TagGroup {
      * @param context 用于打开数据库的上下文
      * @return 标签分组列表
      */
-    public static List<TagGroup> loadTagGroups(Context context) {
-        try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
-            SQLiteDatabase db = db_helper.openReadLink();
+    public static List<TagGroup> loadTagGroups(Context context) throws SQLiteException {
+        FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context);
+        SQLiteDatabase db = db_helper.openReadLink();
 
-            //查询标签并分组
-            Cursor tag_cursor = db.query(
-                    FlowTables.TAG + " NATURAL JOIN " + FlowTables.TAG_GROUP,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
-            );
+        //查询标签并分组
+        Cursor tag_cursor = db.query(
+                FlowTables.TAG + " NATURAL JOIN " + FlowTables.TAG_GROUP,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
 
-            List<TagGroup> tagGroupList = new ArrayList<>();    //标签组实例列表
-            while (tag_cursor.moveToNext()) {
-                String tag_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NAME.toString()));      //标签名称
-                long tag_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NO.toString()));               //标签编号
-                long group_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NO.toString()));           //分组编号
-                String group_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NAME.toString()));  //分组名称                                //分组名称
+        List<TagGroup> tagGroupList = new ArrayList<>();    //标签组实例列表
+        while (tag_cursor.moveToNext()) {
+            String tag_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NAME.toString()));      //标签名称
+            long tag_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NO.toString()));               //标签编号
+            long group_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NO.toString()));           //分组编号
+            String group_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NAME.toString()));  //分组名称                                //分组名称
 
-                boolean isGroupFound = false;   //判断是否找到同号分组
-                for (TagGroup group : tagGroupList) {
-                    if (group.group_no == group_no) {
-                        group.addTag(new Tag(tag_name, tag_no));    //找到同号分组：将标签添加至该分组
-                        isGroupFound = true;
-                        break;
-                    }
-                }
-                if (!isGroupFound) {
-                    TagGroup newGroup = new TagGroup(group_name, group_no);
-                    newGroup.addTag(new Tag(tag_name, tag_no));     //找不到同号分组：新建分组并添加标签至该分组
-                    tagGroupList.add(newGroup);
+            boolean isGroupFound = false;   //判断是否找到同号分组
+            for (TagGroup group : tagGroupList) {
+                if (group.group_no == group_no) {
+                    group.addTag(new Tag(tag_name, tag_no));    //找到同号分组：将标签添加至该分组
+                    isGroupFound = true;
+                    break;
                 }
             }
-
-            tag_cursor.close();
-            db.close();
-            return tagGroupList;
-        } catch (SQLiteDatabaseLockedException e) {
-            throw new RuntimeException("无法读取标签信息：数据库被其他进程占用");
-        } catch (SQLiteException e) {
-            throw new RuntimeException("数据库读取失败");
+            if (!isGroupFound) {
+                TagGroup newGroup = new TagGroup(group_name, group_no);
+                newGroup.addTag(new Tag(tag_name, tag_no));     //找不到同号分组：新建分组并添加标签至该分组
+                tagGroupList.add(newGroup);
+            }
         }
+
+        tag_cursor.close();
+        db.close();
+        return tagGroupList;
     }
 }

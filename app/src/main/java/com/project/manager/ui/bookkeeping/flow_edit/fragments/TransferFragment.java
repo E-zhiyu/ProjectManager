@@ -6,6 +6,7 @@ import android.view.View;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.project.manager.R;
+import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 
 public class TransferFragment extends FlowFragmentBase {
@@ -61,9 +62,12 @@ public class TransferFragment extends FlowFragmentBase {
                 error = "转入账户不能为空";
                 text_edit_layout = import_layout;
             } else {
-                throw new NullPointerException("无法获取有效视图ID");
+                NullPointerException e = new NullPointerException("无法获取有效视图ID");
+                ExceptionHelper.showExceptionDialog(requireContext(), e);
+                return;
             }
         } else {
+            //暂无获取焦点时检测的事件
             return;
         }
 

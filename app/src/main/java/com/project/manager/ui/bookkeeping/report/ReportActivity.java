@@ -18,6 +18,7 @@ import com.project.manager.R;
 import com.project.manager.database.FlowColumns;
 import com.project.manager.database.FlowDatabaseHelper;
 import com.project.manager.database.FlowTables;
+import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.flow_edit.fragments.FlowTypeEnum;
 
 import java.util.ArrayList;
@@ -107,7 +108,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                     balance -= amount;
                     decrease += amount;
                 } else {
-                    throw new RuntimeException("无法处理未知流水种类：" + type);
+                    RuntimeException e = new RuntimeException("无法处理未知流水种类：" + type);
+                    ExceptionHelper.showExceptionDialog(this, e);
                 }
             }
 
@@ -121,7 +123,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             TextView expenditure_income_textview = findViewById(R.id.report_expenditure_income_textview);
             expenditure_income_textview.setText(expenditure_income);
         } catch (SQLiteDatabaseLockedException e) {
-            throw new RuntimeException("报表错误：数据库被其他进程占用");
+            ExceptionHelper.showExceptionDialog(this, e);
         }
     }
 

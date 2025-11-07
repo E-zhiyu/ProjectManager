@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
 import com.project.manager.R;
 import com.project.manager.RequestResultCode;
+import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.tag.Tag;
 import com.project.manager.ui.bookkeeping.tag.TagGroup;
@@ -93,7 +94,8 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
                     Intent data = result.getData();
 
                     if (data == null && resultCode != Activity.RESULT_CANCELED) {
-                        throw new NullPointerException("无法获取新建标签数据");
+                        NullPointerException e = new NullPointerException("无法获取新建标签数据");
+                        ExceptionHelper.showExceptionDialog(this, e);
                     } else {
                         addNewTag(resultCode, data);
                     }
@@ -107,7 +109,8 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
                     Intent data = result.getData();
 
                     if (data == null && resultCode != Activity.RESULT_CANCELED) {
-                        throw new NullPointerException("无法获取修改后的标签数据");
+                        NullPointerException e = new NullPointerException("无法获取修改后的标签数据");
+                        ExceptionHelper.showExceptionDialog(this, e);
                     } else {
                         modifyTag(resultCode, data);
                     }
@@ -156,14 +159,15 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void modifyTag(int resultCode, Intent resultIntent) {
-        Bundle dataBundle;
-        try {
-            dataBundle = resultIntent.getExtras();
-        } catch (NullPointerException e) {
-            return; //若引发空指针异常，则说明在标签修改界面没有进行任何操作就退出
+        if (resultCode == Activity.RESULT_CANCELED) {
+            return;
         }
+
+        Bundle dataBundle = resultIntent.getExtras();
         if (dataBundle == null) {
-            throw new RuntimeException("无法获取修改后的标签信息");
+            NullPointerException e = new NullPointerException("无法获取修改后的标签信息");
+            ExceptionHelper.showExceptionDialog(this, e);
+            return;
         }
 
         long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());                    //标签编号

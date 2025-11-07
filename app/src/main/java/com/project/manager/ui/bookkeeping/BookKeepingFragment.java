@@ -23,6 +23,7 @@ import com.project.manager.database.FlowColumns;
 import com.project.manager.database.FlowDatabaseHelper;
 import com.project.manager.database.FlowTables;
 import com.project.manager.databinding.FragmentBookkeepingBinding;
+import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.flow_edit.modify.FlowModifyActivity;
 import com.project.manager.ui.bookkeeping.flow_edit.new_flow.NewFlowActivity;
 import com.project.manager.RequestResultCode;
@@ -127,7 +128,8 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                         if (data != null) {
                             addNewFlow(data);
                         } else {
-                            throw new NullPointerException("无法获取新增流水的数据");
+                            NullPointerException e = new NullPointerException("无法获取新增流水的数据");
+                            ExceptionHelper.showExceptionDialog(requireContext(), e);
                         }
                     }
                 }
@@ -143,13 +145,15 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                         if (data != null) {
                             deleteFlow(data);
                         } else {
-                            throw new NullPointerException("无法读取编辑后的流水数据");
+                            NullPointerException e = new NullPointerException("无法读取编辑后的流水数据");
+                            ExceptionHelper.showExceptionDialog(requireContext(), e);
                         }
                     } else if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
                         if (data != null) {
                             modifyFlow(data);
                         } else {
-                            throw new NullPointerException("无法读取编辑后的流水数据");
+                            NullPointerException e = new NullPointerException("无法读取编辑后的流水数据");
+                            ExceptionHelper.showExceptionDialog(requireContext(), e);
                         }
                     }
                 }
@@ -168,7 +172,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         Bundle dataBundle = resultIntent.getExtras();
         if (dataBundle == null) {
             db.close();
-            throw new NullPointerException("获取新建流水数据时出错");
+            NullPointerException e = new NullPointerException("无法获取新建的流水数据");
+            ExceptionHelper.showExceptionDialog(requireContext(), e);
+            return;
         }
 
         //获取基本流水数据
@@ -207,7 +213,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
             newFlowView = new TransferFlow(remark, date_time, amount, tag_no, exportAccount, importAccount);
         } else {
-            throw new NullPointerException("流水类型获取失败");
+            NullPointerException e = new NullPointerException("流水类型获取失败");
+            ExceptionHelper.showExceptionDialog(requireContext(), e);
+            return;
         }
 
         db.close();
@@ -227,7 +235,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
         Bundle dataBundle = resultIntent.getExtras();
         if (dataBundle == null) {
-            throw new NullPointerException("读取编辑后的流水数据时出错");
+            NullPointerException e = new NullPointerException("无法获取修改后的流水数据");
+            ExceptionHelper.showExceptionDialog(requireContext(), e);
+            return;
         }
 
         FlowTypeEnum type = FlowTypeEnum.valueOf(dataBundle.getString(KeyValueStrings.FLOW_TYPE.getValue()));
@@ -276,7 +286,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
             newFlowView = new TransferFlow(remark, date_time, amount, tag_no, exportAccount, importAccount);
         } else {
-            throw new NullPointerException("流水类型获取失败");
+            NullPointerException e = new NullPointerException("流水类型获取失败");
+            ExceptionHelper.showExceptionDialog(requireContext(), e);
+            return;
         }
 
         db.close();
@@ -294,7 +306,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
         int position;
         if (dataBundle == null) {
-            throw new NullPointerException("无法获取有效的流水视图下标");
+            NullPointerException e = new NullPointerException("无法获取合法的流水视图下标");
+            ExceptionHelper.showExceptionDialog(requireContext(), e);
+            return;
         }
 
         //从数据库中删除
@@ -387,7 +401,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
                     break;
                 default:
-                    throw new RuntimeException("无法获取正确的流水视图类型");
+                    RuntimeException e = new RuntimeException("加载流水数据时获取到的流水类型不合法");
+                    ExceptionHelper.showExceptionDialog(requireContext(), e);
+                    break;
             }
             flowList.add(flowView);
         }

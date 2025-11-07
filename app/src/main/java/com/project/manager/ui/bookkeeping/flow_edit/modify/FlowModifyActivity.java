@@ -11,6 +11,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.textfield.TextInputEditText;
 import com.project.manager.R;
 import com.project.manager.RequestResultCode;
+import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.flow_edit.fragments.ExpenseFragment;
 import com.project.manager.ui.bookkeeping.flow_edit.fragments.FlowFragmentBase;
@@ -20,9 +21,9 @@ import com.project.manager.ui.bookkeeping.flow_edit.fragments.TransferFragment;
 import com.project.manager.ui.bookkeeping.tag.Tag;
 
 public class FlowModifyActivity extends AppCompatActivity implements View.OnClickListener {
-    FlowTypeEnum type = null;                               //流水种类
-    int position = -1;                                      //流水项目的下标
-    private final String FRAGMENT_TAG = "flow_edit_fragment";     //碎片Tag
+    FlowTypeEnum type = null;                                   //流水种类
+    int position = -1;                                          //流水项目的下标
+    private final String FRAGMENT_TAG = "flow_edit_fragment";   //碎片Tag
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +38,8 @@ public class FlowModifyActivity extends AppCompatActivity implements View.OnClic
             type = FlowTypeEnum.valueOf(dataBundle.getString(KeyValueStrings.FLOW_TYPE.getValue()));
             position = dataBundle.getInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), -1);
         } else {
-            throw new NullPointerException("编辑流水时无法读取原有的数据");
+            NullPointerException e = new NullPointerException("编辑流水时无法读取原有的数据");
+            ExceptionHelper.showExceptionDialog(this, e);
         }
 
         if (savedInstanceState == null) {
@@ -72,27 +74,27 @@ public class FlowModifyActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onClick(View v) {
         Intent result2BookKeeping = new Intent();
-        int resultCode;  //响应代码
+        int resultCode = RequestResultCode.RESULT_REJECT.ordinal();  //响应代码
 
-        if (v.getId() == R.id.cancel_btn) {
-            resultCode = RequestResultCode.RESULT_REJECT.ordinal();
-        } else if (v.getId() == R.id.finish_btn) {
+        if (v.getId() == R.id.finish_btn) {
             FlowFragmentBase current_fragment = (FlowFragmentBase) getSupportFragmentManager().findFragmentByTag(this.FRAGMENT_TAG);
             String error;
             if (current_fragment != null) {
                 error = current_fragment.verifyInputData();
-            } else {
-                throw new NullPointerException("无法获取活动的Fragment");
-            }
 
-            //判断是否获取到报错消息（null:无报错，验证通过）
-            if (error != null) {
-                Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
-                return;
+                //判断是否获取到报错消息（null:无报错，验证通过）
+                if (error != null) {
+                    Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+                    return;
+                } else {
+                    resultCode = RequestResultCode.RESULT_OK.ordinal();
+                    Bundle dataBundle = getDataAfterEditing();
+                    result2BookKeeping.putExtras(dataBundle);
+                }
             } else {
-                resultCode = RequestResultCode.RESULT_OK.ordinal();
-                Bundle dataBundle = getDataAfterEditing();
-                result2BookKeeping.putExtras(dataBundle);
+                //无法获取当前活动的碎片则抛出异常
+                NullPointerException e = new NullPointerException("无法获取活动的Fragment");
+                ExceptionHelper.showExceptionDialog(this, e);
             }
         } else if (v.getId() == R.id.delete_btn) {
             resultCode = RequestResultCode.RESULT_DELETE.ordinal();
@@ -100,7 +102,8 @@ public class FlowModifyActivity extends AppCompatActivity implements View.OnClic
             dataBundle.putInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), position);
             result2BookKeeping.putExtras(dataBundle);
         } else {
-            throw new RuntimeException("无法获取正确的按钮ID");
+            RuntimeException e = new RuntimeException("无法获取正确的按钮ID");
+            ExceptionHelper.showExceptionDialog(this, e);
         }
 
         setResult(resultCode, result2BookKeeping);

@@ -17,6 +17,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 import com.project.manager.R;
+import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.tag.Tag;
 import com.project.manager.ui.bookkeeping.tag.TagSelectRecyclerAdapter;
@@ -130,9 +131,12 @@ public abstract class FlowFragmentBase extends Fragment implements
                 error = "金额不能为空";
                 text_edit_layout = amount_layout;
             } else {
-                throw new NullPointerException("无法获取有效视图ID");
+                NullPointerException e = new NullPointerException("无法获取有效视图ID");
+                ExceptionHelper.showExceptionDialog(requireContext(), e);
+                return;
             }
         } else {
+            //暂无获取焦点时的检测
             return;
         }
 
