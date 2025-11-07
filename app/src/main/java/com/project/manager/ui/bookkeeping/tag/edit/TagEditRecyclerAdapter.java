@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.database.sqlite.SQLiteException;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RotateDrawable;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -20,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
+import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.tag.Tag;
 import com.project.manager.ui.bookkeeping.tag.TagGroup;
 
@@ -236,7 +239,7 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
      * @param tag_no       标签编号
      * @param group_no     该标签所属的分组编号
      */
-    public void editTag(String new_tag_name, long tag_no, long group_no) {
+    public void modifyTag(String new_tag_name, long tag_no, long group_no) {
         //找到视图中对应的分组并更改
         int group_index = 0;
         for (TagGroup group : this.tagGroupList) {
@@ -254,7 +257,11 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
         notifyItemChanged(group_index);
 
         //将数据保存至数据库
-        Tag.modifyTag(new_tag_name, tag_no, context);
+        try {
+            Tag.modifyTag(new_tag_name, tag_no, context);
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+        }
     }
 
     /**
@@ -266,10 +273,17 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
      * @param origin_group_no 原标签分组编号
      * @param new_group_no    新标签分组编号
      */
-    public void editTag(String new_tag_name, long tag_no, String new_group_name, long origin_group_no, long new_group_no) {
+    public void modifyTag(String new_tag_name, long tag_no, String new_group_name, long origin_group_no, long new_group_no) {
         //判断是否需要新建标签分组
         if (new_group_no == 0) {
-            new_group_no = TagGroup.saveNewGroup(new_group_name, context);
+            try {
+                new_group_no = TagGroup.saveNewGroup(new_group_name, context);
+            } catch (SQLiteException e) {
+                ExceptionHelper.showExceptionDialog(context, e);
+                Toast.makeText(context, "标签修改失败", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             TagGroup newGroup = new TagGroup(new_group_name, new_group_no);
             newGroup.addTag(new Tag(new_tag_name, tag_no));
             this.tagGroupList.add(newGroup);
@@ -308,7 +322,11 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
         notifyItemChanged(origin_group_index);
 
         //将数据保存至数据库
-        Tag.modifyTag(new_tag_name, tag_no, new_group_no, context);
+        try {
+            Tag.modifyTag(new_tag_name, tag_no, new_group_no, context);
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+        }
     }
 
     /**
@@ -336,6 +354,10 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
         notifyItemChanged(group_index);
 
         //将数据保存至数据库
-        Tag.deleteTag(tag_no, context);
+        try {
+            Tag.deleteTag(tag_no, context);
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+        }
     }
 }

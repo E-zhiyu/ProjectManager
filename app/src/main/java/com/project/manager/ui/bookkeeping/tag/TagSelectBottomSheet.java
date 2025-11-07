@@ -2,10 +2,12 @@ package com.project.manager.ui.bookkeeping.tag;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -15,8 +17,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.project.manager.R;
+import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.tag.edit.TagEditActivity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TagSelectBottomSheet extends BottomSheetDialogFragment implements View.OnClickListener {
@@ -31,7 +35,14 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
         initViews();
 
         RecyclerView tag_group_recycler_view = binding.findViewById(R.id.tag_group_recycler);
-        List<TagGroup> tagGroupList = TagGroup.loadTagGroups(requireContext());
+        List<TagGroup> tagGroupList;
+        try {
+            tagGroupList = TagGroup.loadTagGroups(requireContext());
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(requireContext(), e);
+            Toast.makeText(requireContext(), "标签数据读取失败", Toast.LENGTH_SHORT).show();
+            tagGroupList = new ArrayList<>();
+        }
         //标签列表视图适配器
         TagSelectRecyclerAdapter tagAdapter = new TagSelectRecyclerAdapter(tagGroupList, requireContext());
         tag_group_recycler_view.setAdapter(tagAdapter);

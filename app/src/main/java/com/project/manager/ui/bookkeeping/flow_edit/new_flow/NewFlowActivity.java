@@ -1,6 +1,7 @@
 package com.project.manager.ui.bookkeeping.flow_edit.new_flow;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -11,6 +12,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.project.manager.R;
+import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.flow_edit.fragments.ExpenseFragment;
 import com.project.manager.ui.bookkeeping.flow_edit.fragments.FlowTypeEnum;
@@ -93,13 +95,19 @@ public class NewFlowActivity extends AppCompatActivity implements View.OnClickLi
         //获取碎片通用信息并打包
         double flowAmount = currentFragment.getAmount();    //金额
         dataBundle.putDouble(KeyValueStrings.FLOW_AMOUNT.getValue(), flowAmount);
-        String flowDate = currentFragment.getDateTime();        //日期
+        String flowDate = currentFragment.getDateTime();    //日期
         dataBundle.putString(KeyValueStrings.FLOW_DATETIME.getValue(), flowDate);
         String flowRemark = currentFragment.getRemark();    //备注
         dataBundle.putString(KeyValueStrings.FLOW_REMARK.getValue(), flowRemark);
-        String tag_name = currentFragment.getFlowTag();     //标签
-        long tag_no = Tag.nameTransToTno(tag_name, this);
-        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
+        String tag_name = currentFragment.getFlowTag();     //标签名称
+
+        //将标签名称转换为标签编号
+        try {
+            long tag_no = Tag.nameTransToTno(tag_name, this);
+            dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(this, e);
+        }
 
         //获取碎片特殊信息并打包
         if (flowType == FlowTypeEnum.TRANSFER) {

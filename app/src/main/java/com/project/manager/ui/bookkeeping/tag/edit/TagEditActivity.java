@@ -2,8 +2,10 @@ package com.project.manager.ui.bookkeeping.tag.edit;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -33,7 +35,14 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
         initActivityLauncher();
         initViews();
 
-        List<TagGroup> tagGroupList = TagGroup.loadTagGroups(this); //获取标签分组数据
+        List<TagGroup> tagGroupList;    //获取标签分组数据
+        try {
+            tagGroupList = TagGroup.loadTagGroups(this);
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(this, e);
+            Toast.makeText(this, "标签数据读取失败", Toast.LENGTH_SHORT).show();
+            tagGroupList = new ArrayList<>();
+        }
 
         RecyclerView tagGroupRecycler = findViewById(R.id.tag_group_recycler);
         adapter = new TagEditRecyclerAdapter(tagGroupList, this, this);
@@ -127,24 +136,38 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
                 tag_name = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
                 group_name = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
             }
-            long group_no = 0;   //分组编号
 
             //判断是否需要新的分组
+            long group_no = 0;   //分组编号
             List<TagGroup> tagGroupList = adapter.getTagGroupList();
             boolean needNewGroup = true;
             for (TagGroup oneGroup : tagGroupList) {
                 if (oneGroup.getGroupName().equals(group_name)) {
                     needNewGroup = false;
-                    group_no = TagGroup.nameTransToGno(group_name, this);
+                    try {
+                        group_no = TagGroup.nameTransToGno(group_name, this);
+                    } catch (SQLiteException e) {
+                        ExceptionHelper.showExceptionDialog(this, e);
+                    }
                     break;
                 }
             }
             if (needNewGroup) {
-                group_no = TagGroup.saveNewGroup(group_name, this);
+                try {
+                    group_no = TagGroup.saveNewGroup(group_name, this);
+                } catch (SQLiteException e) {
+                    ExceptionHelper.showExceptionDialog(this, e);
+                    return;
+                }
             }
 
             //将新标签的数据写入数据库
-            long tag_no = Tag.saveNewTag(tag_name, group_no, this); //获取标签编号
+            long tag_no = 0; //获取标签编号
+            try {
+                tag_no = Tag.saveNewTag(tag_name, group_no, this);
+            } catch (SQLiteException e) {
+                ExceptionHelper.showExceptionDialog(this, e);
+            }
             if (tag_no != 0) {
                 //将变化保存至列表中并传递给适配器
                 Tag new_tag = new Tag(tag_name, tag_no);
@@ -175,12 +198,20 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
         if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
             String tag_name = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
             String group_name = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
-            long new_group_no = TagGroup.nameTransToGno(group_name, this);  //获取修改后的分组编号
+
+            long new_group_no;  //获取修改后的分组编号
+            try {
+                new_group_no = TagGroup.nameTransToGno(group_name, this);
+            } catch (SQLiteException e) {
+                ExceptionHelper.showExceptionDialog(this, e);
+                Toast.makeText(this, "标签修改失败", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             if (origin_group_no == new_group_no) {
-                adapter.editTag(tag_name, tag_no, origin_group_no);
+                adapter.modifyTag(tag_name, tag_no, origin_group_no);
             } else {
-                adapter.editTag(tag_name, tag_no, group_name, origin_group_no, new_group_no);
+                adapter.modifyTag(tag_name, tag_no, group_name, origin_group_no, new_group_no);
             }
         } else if (resultCode == RequestResultCode.RESULT_REJECT.ordinal()) {
             return;

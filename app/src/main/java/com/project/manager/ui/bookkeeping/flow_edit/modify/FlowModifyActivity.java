@@ -1,6 +1,7 @@
 package com.project.manager.ui.bookkeeping.flow_edit.modify;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -130,10 +131,16 @@ public class FlowModifyActivity extends AppCompatActivity implements View.OnClic
         TextInputEditText datetime_input = findViewById(R.id.datetime_input);   //日期
         date_time = String.valueOf(datetime_input.getText());
         dataBundle.putString(KeyValueStrings.FLOW_DATETIME.getValue(), date_time);
-        TextInputEditText tag_input = findViewById(R.id.flow_tag_input);        //标签
+        TextInputEditText tag_input = findViewById(R.id.flow_tag_input);        //标签名称
         tag_name = String.valueOf(tag_input.getText());
-        long tag_no = Tag.nameTransToTno(tag_name, this);
-        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
+
+        //将标签名称转换为标签编号
+        try {
+            long tag_no = Tag.nameTransToTno(tag_name, this);
+            dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(this, e);
+        }
 
         dataBundle.putInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), position);        //将下标存放至包裹
         dataBundle.putString(KeyValueStrings.FLOW_TYPE.getValue(), type.toString());       //将种类存放至包裹

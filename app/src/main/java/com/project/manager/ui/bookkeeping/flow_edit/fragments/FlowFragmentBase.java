@@ -3,6 +3,7 @@ package com.project.manager.ui.bookkeeping.flow_edit.fragments;
 import static com.project.manager.ui.bookkeeping.tag.Tag.tagNoTransToName;
 
 import android.annotation.SuppressLint;
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -114,8 +115,13 @@ public abstract class FlowFragmentBase extends Fragment implements
         //判断标签是否存在
         String tagStr = String.valueOf(((TextInputEditText) binding.findViewById(R.id.flow_tag_input)).getText());
         if (!tagStr.isEmpty()) {
-            String tag_name = Tag.tagNoTransToName(tag_no, requireContext());
-            tag_input.setText(tag_name);
+            //获取实际的标签名称并更新（因为标签改名后不会自动更新）
+            try {
+                String tag_name = Tag.tagNoTransToName(tag_no, requireContext());
+                tag_input.setText(tag_name);
+            } catch (SQLiteException e) {
+                ExceptionHelper.showExceptionDialog(requireContext(), e);
+            }
         }
 
         return error;
@@ -170,8 +176,15 @@ public abstract class FlowFragmentBase extends Fragment implements
         double amount = dataBundle.getDouble(KeyValueStrings.FLOW_AMOUNT.getValue(), -1);
         String remark = dataBundle.getString(KeyValueStrings.FLOW_REMARK.getValue());
         String date_time = dataBundle.getString(KeyValueStrings.FLOW_DATETIME.getValue());
-        tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
-        String tag_name = tagNoTransToName(tag_no, requireContext());
+
+        //将标签编号转换为标签名称
+        String tag_name = null;
+        try {
+            tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
+            tag_name = tagNoTransToName(tag_no, requireContext());
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(requireContext(), e);
+        }
 
         amountView = binding.findViewById(R.id.amount_input);                       //金额
         amountView.setText(String.valueOf(amount));
@@ -179,7 +192,7 @@ public abstract class FlowFragmentBase extends Fragment implements
         remarkView.setText(remark);
         TextInputEditText dateView = binding.findViewById(R.id.datetime_input);     //日期
         dateView.setText(date_time);
-        TextInputEditText tagView = binding.findViewById(R.id.flow_tag_input);      //标签
+        TextInputEditText tagView = binding.findViewById(R.id.flow_tag_input);      //标签名称
         tagView.setText(tag_name);
     }
 
