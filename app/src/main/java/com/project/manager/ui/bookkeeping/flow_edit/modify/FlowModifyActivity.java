@@ -124,7 +124,7 @@ public class FlowModifyActivity extends AppCompatActivity implements View.OnClic
         TextInputEditText remark_input = findViewById(R.id.remark_input);       //备注
         remark = String.valueOf(remark_input.getText());
         dataBundle.putString(KeyValueStrings.FLOW_REMARK.getValue(), remark);
-        TextInputEditText datetime_input = findViewById(R.id.datetime_input);  //日期
+        TextInputEditText datetime_input = findViewById(R.id.datetime_input);   //日期
         date_time = String.valueOf(datetime_input.getText());
         dataBundle.putString(KeyValueStrings.FLOW_DATETIME.getValue(), date_time);
         TextInputEditText tag_input = findViewById(R.id.flow_tag_input);        //标签

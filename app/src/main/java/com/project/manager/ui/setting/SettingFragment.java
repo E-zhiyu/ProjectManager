@@ -13,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
@@ -32,11 +34,13 @@ import java.util.Calendar;
 public class SettingFragment extends Fragment implements View.OnClickListener {
     private FragmentSettingBinding binding;
     private String json_str; //导出数据时序列化的JSON字符串
+    private ActivityResultLauncher<Intent> importDataLauncher, exportDataLauncher;  //活动启动器
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentSettingBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        initActivityLauncher();
         initViews();
 
         return root;
@@ -61,10 +65,10 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                     .setTitle("导入数据")
                     .setMessage("新数据将覆盖原有的数据，确认继续吗？")
                     .setPositiveButton("确认", ((dialog, which) -> {
-                        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                        intent.addCategory(Intent.CATEGORY_OPENABLE);
-                        intent.setType("application/json"); //允许json文件类型
-                        startActivityForResult(intent, RequestResultCode.REQUEST_READ_FILE.ordinal());
+                        Intent startSAF = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                        startSAF.addCategory(Intent.CATEGORY_OPENABLE);
+                        startSAF.setType("application/json"); //允许json文件类型
+                        importDataLauncher.launch(startSAF);
                         dialog.dismiss();
                     }))
                     .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
@@ -84,21 +88,41 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
-        super.onActivityResult(requestCode, resultCode, resultIntent);
+    //初始化活动启动器
+    private void initActivityLauncher() {
+        exportDataLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    int resultCode = result.getResultCode();
+                    Intent data = result.getData();
 
-        if (requestCode == RequestResultCode.REQUEST_CREATE_FILE.ordinal() && resultCode == Activity.RESULT_OK) {
-            if (resultIntent != null && resultIntent.getData() != null) {
-                Uri uri = resultIntent.getData();
-                FlowDataHelper.writeJsonToFile(uri, json_str, requireContext());
-            }
-        } else if (requestCode == RequestResultCode.REQUEST_READ_FILE.ordinal() && resultCode == Activity.RESULT_OK) {
-            if (resultIntent != null && resultIntent.getData() != null) {
-                Uri uri = resultIntent.getData();
-                FlowDataHelper.readFileAndSave(uri, requireContext());
-            }
-        }
+                    if (resultCode == Activity.RESULT_OK) {
+                        if (data != null) {
+                            Uri uri = data.getData();
+                            FlowDataHelper.writeJsonToFile(uri, json_str, requireContext());
+                        } else {
+                            throw new NullPointerException("无法导出数据");
+                        }
+                    }
+                }
+        );
+
+        importDataLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    int resultCode = result.getResultCode();
+                    Intent data = result.getData();
+
+                    if (resultCode == Activity.RESULT_OK) {
+                        if (data != null) {
+                            Uri uri = data.getData();
+                            FlowDataHelper.readFileAndSave(uri, requireContext());
+                        } else {
+                            throw new NullPointerException("无法导入数据");
+                        }
+                    }
+                }
+        );
     }
 
     //导出流水账数据
@@ -120,11 +144,11 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
             String default_filename = String.format("%s_FlowData.json", now_date);
 
             //启动系统文件选择器(SAF)
-            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("application/json");
-            intent.putExtra(Intent.EXTRA_TITLE, default_filename);
-            startActivityForResult(intent, RequestResultCode.REQUEST_CREATE_FILE.ordinal());
+            Intent startSAF = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+            startSAF.addCategory(Intent.CATEGORY_OPENABLE);
+            startSAF.setType("application/json");
+            startSAF.putExtra(Intent.EXTRA_TITLE, default_filename);
+            exportDataLauncher.launch(startSAF);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("数据序列化失败");
         }

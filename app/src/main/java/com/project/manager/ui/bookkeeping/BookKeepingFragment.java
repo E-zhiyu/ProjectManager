@@ -1,5 +1,6 @@
 package com.project.manager.ui.bookkeeping;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -10,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -31,15 +34,16 @@ import java.util.List;
 
 public class BookKeepingFragment extends Fragment implements View.OnClickListener, FlowRecyclerAdapter.OnFlowClickListener {
     FlowRecyclerAdapter flowListAdapter;    //流水列表适配器
-    FlowDatabaseHelper flow_db_helper;       //流水数据库帮助器
+    FlowDatabaseHelper flow_db_helper;      //流水数据库帮助器
+    private ActivityResultLauncher<Intent> newFlowLauncher, modifyFlowLauncher;  //子活动启动器
 
     private FragmentBookkeepingBinding binding;
 
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+
+        initActivityLauncher();
 
         //实例化数据库帮助器
         flow_db_helper = new FlowDatabaseHelper(getActivity());
@@ -68,7 +72,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     public void onClick(View v) {
         if (v.getId() == R.id.flow_btn) {  //新建流水
             Intent skip2NewFlow = new Intent(getActivity(), NewFlowActivity.class);
-            startActivityForResult(skip2NewFlow, RequestResultCode.REQUEST_NEW_FLOW.ordinal());
+            newFlowLauncher.launch(skip2NewFlow);
         } else if (v.getId() == R.id.report_btn) {  //查看报表
             Intent skip2Report = new Intent(getActivity(), ReportActivity.class);
             startActivity(skip2Report);
@@ -92,7 +96,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         dataBundle.putString(KeyValueStrings.FLOW_REMARK.getValue(), remark);
         String date_time = flowView.getDate_time();  //日期
         dataBundle.putString(KeyValueStrings.FLOW_DATETIME.getValue(), date_time);
-        long fno = flowView.getFno();                //编号
+        long fno = flowView.getFno();                //流水编号
         dataBundle.putLong(KeyValueStrings.FLOW_NO.getValue(), fno);
         long tag_no = flowView.getTag_no();          //标签编号
         dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
@@ -108,23 +112,48 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         }
 
         skip2FlowModify.putExtras(dataBundle);
-        startActivityForResult(skip2FlowModify, RequestResultCode.REQUEST_MODIFY_FLOW.ordinal());
+        modifyFlowLauncher.launch(skip2FlowModify);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
-        super.onActivityResult(requestCode, resultCode, resultIntent);
+    //初始化活动启动器
+    private void initActivityLauncher() {
+        newFlowLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    int resultCode = result.getResultCode();
+                    Intent data = result.getData();
 
-        //resultCode为0表示子Activity直接结束
-        if (resultCode == RequestResultCode.RESULT_REJECT.ordinal() || resultCode == 0) {
-            return;
-        } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {  //删除
-            deleteFlow(resultIntent);
-        } else if (requestCode == RequestResultCode.REQUEST_NEW_FLOW.ordinal()) {   //添加
-            addNewFlow(resultIntent);
-        } else if (requestCode == RequestResultCode.REQUEST_MODIFY_FLOW.ordinal()) {  //修改
-            coverFlowAfterEditing(resultIntent);
-        }
+                    if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
+                        if (data != null) {
+                            addNewFlow(data);
+                        } else {
+                            throw new NullPointerException("无法获取新增流水的数据");
+                        }
+                    }
+                }
+        );
+
+        modifyFlowLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    int resultCode = result.getResultCode();
+                    Intent data = result.getData();
+
+                    if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
+                        if (data != null) {
+                            deleteFlow(data);
+                        } else {
+                            throw new NullPointerException("无法读取编辑后的流水数据");
+                        }
+                    } else if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
+                        if (data != null) {
+                            modifyFlow(data);
+                        } else {
+                            throw new NullPointerException("无法读取编辑后的流水数据");
+                        }
+                    }
+                }
+        );
     }
 
     /**
@@ -192,7 +221,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
      *
      * @param resultIntent 带有编辑后数据的意图对象
      */
-    private void coverFlowAfterEditing(Intent resultIntent) {
+    private void modifyFlow(Intent resultIntent) {
         ContentValues basic_values, special_values;           //基本数据和特殊数据记录
         SQLiteDatabase db = flow_db_helper.openWriteLink();   //数据库写连接
 
