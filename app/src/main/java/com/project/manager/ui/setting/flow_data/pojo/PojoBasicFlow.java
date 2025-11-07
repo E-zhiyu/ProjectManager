@@ -1,7 +1,7 @@
 package com.project.manager.ui.setting.flow_data.pojo;
 
 //流水基本数据POJO类
-public class BasicFlowData {
+public class PojoBasicFlow {
     private String type;        //种类
     private String remark;      //备注
     private String date_time;   //日期和时间
@@ -57,7 +57,7 @@ public class BasicFlowData {
         this.fno = fno;
     }
 
-    public BasicFlowData(String type, String remark, String date_time, long tag_no, double amount, long fno) {
+    public PojoBasicFlow(String type, String remark, String date_time, long tag_no, double amount, long fno) {
         this.type = type;
         this.remark = remark;
         this.date_time = date_time;
@@ -66,7 +66,7 @@ public class BasicFlowData {
         this.fno = fno;
     }
 
-    public BasicFlowData() {
+    public PojoBasicFlow() {
 
     }
 }

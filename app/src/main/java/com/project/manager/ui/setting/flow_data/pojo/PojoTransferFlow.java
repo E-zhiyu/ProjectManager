@@ -1,7 +1,7 @@
 package com.project.manager.ui.setting.flow_data.pojo;
 
 //转账流水数据POJO类
-public class TransferFlowData {
+public class PojoTransferFlow {
     private String export_account, import_account;
     private long fno;
 
@@ -29,13 +29,13 @@ public class TransferFlowData {
         this.import_account = import_account;
     }
 
-    public TransferFlowData(long fno, String export_account, String import_account) {
+    public PojoTransferFlow(long fno, String export_account, String import_account) {
         this.fno = fno;
         this.export_account = export_account;
         this.import_account = import_account;
     }
 
-    public TransferFlowData() {
+    public PojoTransferFlow() {
 
     }
 }

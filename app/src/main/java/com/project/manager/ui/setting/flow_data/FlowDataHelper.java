@@ -15,11 +15,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.manager.database.FlowColumns;
 import com.project.manager.database.FlowDatabaseHelper;
 import com.project.manager.database.FlowTables;
-import com.project.manager.ui.setting.flow_data.pojo.BasicFlowData;
-import com.project.manager.ui.setting.flow_data.pojo.TagData;
-import com.project.manager.ui.setting.flow_data.pojo.TagGroupData;
+import com.project.manager.ui.setting.flow_data.pojo.PojoBasicFlow;
+import com.project.manager.ui.setting.flow_data.pojo.PojoTag;
+import com.project.manager.ui.setting.flow_data.pojo.PojoTagGroup;
 import com.project.manager.ui.setting.flow_data.pojo.TotalDataMap;
-import com.project.manager.ui.setting.flow_data.pojo.TransferFlowData;
+import com.project.manager.ui.setting.flow_data.pojo.PojoTransferFlow;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,8 +40,8 @@ public class FlowDataHelper {
 
     //获取所有流水账基本数据（对应基本流水记录表）
     @NonNull
-    private List<BasicFlowData> getBasicFlowData() {
-        List<BasicFlowData> basicFlowDataList = new ArrayList<>();
+    private List<PojoBasicFlow> getBasicFlowData() {
+        List<PojoBasicFlow> pojoBasicFlowList = new ArrayList<>();
         SQLiteDatabase db = db_helper.openReadLink();
 
         Cursor basic_cursor = db.query(
@@ -69,23 +69,23 @@ public class FlowDataHelper {
             //标签编号
             long tag_no = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NO.toString()));
 
-            BasicFlowData basicFlowData = new BasicFlowData(type, remark, datetime, tag_no, amount, fno);
-            basicFlowDataList.add(basicFlowData);
+            PojoBasicFlow pojoBasicFlow = new PojoBasicFlow(type, remark, datetime, tag_no, amount, fno);
+            pojoBasicFlowList.add(pojoBasicFlow);
         }
 
         basic_cursor.close();
         db.close();
-        return basicFlowDataList;
+        return pojoBasicFlowList;
     }
 
     //将流水账基本数据写入数据库
-    private void setBasicFlowData(@NonNull List<BasicFlowData> flowDataList) {
+    private void setBasicFlowData(@NonNull List<PojoBasicFlow> flowDataList) {
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //删除之前表的内容
         db.delete(FlowTables.BASIC.toString(), null, null);
 
-        for (BasicFlowData flow_data : flowDataList) {
+        for (PojoBasicFlow flow_data : flowDataList) {
             String type = flow_data.getType();              //种类
             String remark = flow_data.getRemark();          //备注
             String date_time = flow_data.getDate_time();    //日期和时间
@@ -109,8 +109,8 @@ public class FlowDataHelper {
 
     //获取转账流水账记录（对应转账流水表）
     @NonNull
-    private List<TransferFlowData> getTransferFlowData() {
-        List<TransferFlowData> transferFlowDataList = new ArrayList<>();
+    private List<PojoTransferFlow> getTransferFlowData() {
+        List<PojoTransferFlow> pojoTransferFlowList = new ArrayList<>();
         SQLiteDatabase db = db_helper.openReadLink();
 
         Cursor transfer_cursor = db.query(
@@ -128,22 +128,22 @@ public class FlowDataHelper {
             String import_account = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(FlowColumns.IMPORT.toString()));
             long fno = transfer_cursor.getLong(transfer_cursor.getColumnIndexOrThrow(FlowColumns.FNO.toString()));
 
-            TransferFlowData transferFlowData = new TransferFlowData(fno, export_account, import_account);
-            transferFlowDataList.add(transferFlowData);
+            PojoTransferFlow pojoTransferFlow = new PojoTransferFlow(fno, export_account, import_account);
+            pojoTransferFlowList.add(pojoTransferFlow);
         }
 
         transfer_cursor.close();
         db.close();
-        return transferFlowDataList;
+        return pojoTransferFlowList;
     }
 
-    private void setTransferFlowData(@NonNull List<TransferFlowData> transferFlowDataList) {
+    private void setTransferFlowData(@NonNull List<PojoTransferFlow> pojoTransferFlowList) {
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //删除之前表的内容
         db.delete(FlowTables.TRANSFER.toString(), null, null);
 
-        for (TransferFlowData transfer_flow_data : transferFlowDataList) {
+        for (PojoTransferFlow transfer_flow_data : pojoTransferFlowList) {
             String export_account = transfer_flow_data.getExport_account();
             String import_account = transfer_flow_data.getImport_account();
             long fno = transfer_flow_data.getFno();
@@ -161,8 +161,8 @@ public class FlowDataHelper {
 
     //获取所有标签数据（对应标签表）
     @NonNull
-    private List<TagData> getTagData() {
-        List<TagData> tagDataList = new ArrayList<>();
+    private List<PojoTag> getTagData() {
+        List<PojoTag> pojoTagList = new ArrayList<>();
         SQLiteDatabase db = db_helper.openReadLink();
 
         Cursor tag_cursor = db.query(
@@ -180,23 +180,23 @@ public class FlowDataHelper {
             long group_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NO.toString()));
             String tag_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NAME.toString()));
 
-            TagData tagData = new TagData(tag_name, tag_no, group_no);
-            tagDataList.add(tagData);
+            PojoTag pojoTag = new PojoTag(tag_name, tag_no, group_no);
+            pojoTagList.add(pojoTag);
         }
 
         tag_cursor.close();
         db.close();
-        return tagDataList;
+        return pojoTagList;
     }
 
     //将标签数据写入数据库
-    private void setTagData(@NonNull List<TagData> tagDataList) {
+    private void setTagData(@NonNull List<PojoTag> pojoTagList) {
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //删除之前表的内容
         db.delete(FlowTables.TAG.toString(), null, null);
 
-        for (TagData tag_data : tagDataList) {
+        for (PojoTag tag_data : pojoTagList) {
             String tag_name = tag_data.getName();
             long tag_no = tag_data.getTno();
             long group_no = tag_data.getGroup_no();
@@ -214,8 +214,8 @@ public class FlowDataHelper {
 
     //获取所有标签分组数据（对应标签分组表）
     @NonNull
-    private List<TagGroupData> getTagGroupData() {
-        List<TagGroupData> tagGroupDataList = new ArrayList<>();
+    private List<PojoTagGroup> getTagGroupData() {
+        List<PojoTagGroup> pojoTagGroupList = new ArrayList<>();
         SQLiteDatabase db = db_helper.openReadLink();
 
         Cursor tag_group_cursor = db.query(
@@ -232,23 +232,23 @@ public class FlowDataHelper {
             String group_name = tag_group_cursor.getString(tag_group_cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NAME.toString()));
             long group_no = tag_group_cursor.getLong(tag_group_cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NO.toString()));
 
-            TagGroupData tagGroupData = new TagGroupData(group_name, group_no);
-            tagGroupDataList.add(tagGroupData);
+            PojoTagGroup pojoTagGroup = new PojoTagGroup(group_name, group_no);
+            pojoTagGroupList.add(pojoTagGroup);
         }
 
         tag_group_cursor.close();
         db.close();
-        return tagGroupDataList;
+        return pojoTagGroupList;
     }
 
     //将标签分组数据写入数据库
-    private void setTagGroupData(@NonNull List<TagGroupData> tagGroupDataList) {
+    private void setTagGroupData(@NonNull List<PojoTagGroup> pojoTagGroupList) {
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //删除之前表的内容
         db.delete(FlowTables.TAG_GROUP.toString(), null, null);
 
-        for (TagGroupData tag_group_data : tagGroupDataList) {
+        for (PojoTagGroup tag_group_data : pojoTagGroupList) {
             String group_name = tag_group_data.getGroup_name();
             long group_no = tag_group_data.getGroup_no();
 
@@ -269,17 +269,17 @@ public class FlowDataHelper {
      */
     public TotalDataMap getAllDataInMap() {
         //读取所有数据
-        List<BasicFlowData> basicFlowDataList = getBasicFlowData();
-        List<TransferFlowData> transferFlowDataList = getTransferFlowData();
-        List<TagData> tagDataList = getTagData();
-        List<TagGroupData> tagGroupDataList = getTagGroupData();
+        List<PojoBasicFlow> pojoBasicFlowList = getBasicFlowData();
+        List<PojoTransferFlow> pojoTransferFlowList = getTransferFlowData();
+        List<PojoTag> pojoTagList = getTagData();
+        List<PojoTagGroup> pojoTagGroupList = getTagGroupData();
 
         //将所有数据合并至一个字典
         TotalDataMap totalDataMap = new TotalDataMap();
-        totalDataMap.setBasic_data(basicFlowDataList);
-        totalDataMap.setTransfer_data(transferFlowDataList);
-        totalDataMap.setTag_data(tagDataList);
-        totalDataMap.setTag_group_data(tagGroupDataList);
+        totalDataMap.setBasic_data(pojoBasicFlowList);
+        totalDataMap.setTransfer_data(pojoTransferFlowList);
+        totalDataMap.setTag_data(pojoTagList);
+        totalDataMap.setTag_group_data(pojoTagGroupList);
 
         return totalDataMap;
     }
@@ -320,17 +320,17 @@ public class FlowDataHelper {
                 ObjectMapper mapper = new ObjectMapper();
                 try {
                     TotalDataMap dataMap = mapper.readValue(jsonString, TotalDataMap.class);
-                    List<TagGroupData> tagGroupDataList = dataMap.getTag_group_data();
-                    List<TagData> tagDataList = dataMap.getTag_data();
-                    List<BasicFlowData> basicFlowDataList = dataMap.getBasic_data();
-                    List<TransferFlowData> transferFlowDataList = dataMap.getTransfer_data();
+                    List<PojoTagGroup> pojoTagGroupList = dataMap.getTag_group_data();
+                    List<PojoTag> pojoTagList = dataMap.getTag_data();
+                    List<PojoBasicFlow> pojoBasicFlowList = dataMap.getBasic_data();
+                    List<PojoTransferFlow> pojoTransferFlowList = dataMap.getTransfer_data();
 
                     //将对应的数据写入数据库
                     FlowDataHelper helper = new FlowDataHelper(context);
-                    helper.setTagGroupData(tagGroupDataList);
-                    helper.setTagData(tagDataList);
-                    helper.setBasicFlowData(basicFlowDataList);
-                    helper.setTransferFlowData(transferFlowDataList);
+                    helper.setTagGroupData(pojoTagGroupList);
+                    helper.setTagData(pojoTagList);
+                    helper.setBasicFlowData(pojoBasicFlowList);
+                    helper.setTransferFlowData(pojoTransferFlowList);
 
                     tip_str = "数据已成功导入";
                 } catch (JsonProcessingException e) {

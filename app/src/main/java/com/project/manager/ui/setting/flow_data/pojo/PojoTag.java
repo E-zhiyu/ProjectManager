@@ -1,7 +1,7 @@
 package com.project.manager.ui.setting.flow_data.pojo;
 
 //标签数据POJO类
-public class TagData {
+public class PojoTag {
     private String name;    //名称
     private long tno;       //编号
     private long group_no;  //标签分组编号
@@ -30,13 +30,13 @@ public class TagData {
         this.group_no = group_no;
     }
 
-    public TagData(String name, long tno, long group_no) {
+    public PojoTag(String name, long tno, long group_no) {
         this.name = name;
         this.tno = tno;
         this.group_no = group_no;
     }
 
-    public TagData() {
+    public PojoTag() {
 
     }
 }
