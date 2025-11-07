@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabaseLockedException;
+import android.widget.Toast;
 
 import com.project.manager.database.FlowColumns;
 import com.project.manager.database.FlowDatabaseHelper;
@@ -163,19 +164,25 @@ public class Tag {
      * @return 对应的标签编号
      */
     public static long saveNewTag(String tag_name, long group_no, Context context) {
+        String tip_str = "标签保存失败";
+        long tag_no = 0;    //标签编号
         try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
             SQLiteDatabase db = db_helper.openWriteLink();
 
             ContentValues tag_values = new ContentValues();
             tag_values.put(FlowColumns.TAG_NAME.toString(), tag_name);
             tag_values.put(FlowColumns.GROUP_NO.toString(), group_no);
-            long tag_no = db.insert(FlowTables.TAG.toString(), null, tag_values);
+            tag_no = db.insert(FlowTables.TAG.toString(), null, tag_values);
 
             db.close();
-            return tag_no;
         } catch (SQLiteDatabaseLockedException e) {
-            throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
+            tip_str = "标签保存失败：数据库被其他进程占用";
+            e.printStackTrace();
+        } finally {
+            Toast.makeText(context, tip_str, Toast.LENGTH_SHORT).show();
         }
+
+        return tag_no;
     }
 
     /**
@@ -191,7 +198,7 @@ public class Tag {
         String whereStr = FlowColumns.TAG_NO + "=?";
         String[] whereStrArgs = {String.valueOf(tag_no)};
 
-
+        String tip_str = "标签修改失败";
         try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
             SQLiteDatabase db = db_helper.openWriteLink();
 
@@ -201,8 +208,14 @@ public class Tag {
                     whereStr,
                     whereStrArgs
             );
+
+            db.close();
+            tip_str = "标签修改成功";
         } catch (SQLiteDatabaseLockedException e) {
-            throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
+            tip_str = "标签修改失败：数据库被其他进程占用";
+            e.printStackTrace();
+        } finally {
+            Toast.makeText(context, tip_str, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -221,6 +234,7 @@ public class Tag {
         String whereStr = FlowColumns.TAG_NO + "=?";
         String[] whereStrArgs = {String.valueOf(tag_no)};
 
+        String tip_str = "标签修改失败";
         try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
             SQLiteDatabase db = db_helper.openWriteLink();
 
@@ -230,8 +244,14 @@ public class Tag {
                     whereStr,
                     whereStrArgs
             );
+
+            db.close();
+            tip_str = "标签修改成功";
         } catch (SQLiteDatabaseLockedException e) {
-            throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
+            tip_str = "标签修改失败：数据库被其他进程占用";
+            e.printStackTrace();
+        } finally {
+            Toast.makeText(context, tip_str, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -247,6 +267,7 @@ public class Tag {
         String whereStr = FlowColumns.TAG_NO + "=?";
         String[] whereStrArgs = {String.valueOf(tag_no)};
 
+        String tip_str = "标签删除失败";
         try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
             SQLiteDatabase db = db_helper.openWriteLink();
 
@@ -264,8 +285,14 @@ public class Tag {
                     whereStr,
                     whereStrArgs
             );
+
+            db.close();
+            tip_str = "标签已成功删除";
         } catch (SQLiteDatabaseLockedException e) {
-            throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
+            tip_str = "标签删除失败：数据库被其他进程占用";
+            e.printStackTrace();
+        } finally {
+            Toast.makeText(context, tip_str, Toast.LENGTH_SHORT).show();
         }
     }
 }

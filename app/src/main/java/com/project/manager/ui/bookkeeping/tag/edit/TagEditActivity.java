@@ -110,14 +110,15 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
 
                 //将新标签的数据写入数据库
                 long tag_no = Tag.saveNewTag(tag_name, group_no, this); //获取标签编号
-
-                //将变化保存至列表中并传递给适配器
-                Tag new_tag = new Tag(tag_name, tag_no);
-                if (needNewGroup) {
-                    TagGroup new_group = new TagGroup(group_name, group_no);
-                    adapter.addNewTag(new_tag, new_group);
-                } else {
-                    adapter.addNewTag(new_tag, group_no);
+                if (tag_no != 0) {
+                    //将变化保存至列表中并传递给适配器
+                    Tag new_tag = new Tag(tag_name, tag_no);
+                    if (needNewGroup) {
+                        TagGroup new_group = new TagGroup(group_name, group_no);
+                        adapter.addNewTag(new_tag, new_group);
+                    } else {
+                        adapter.addNewTag(new_tag, group_no);
+                    }
                 }
             }
         } else if (requestCode == RequestResultCode.REQUEST_MODIFY_TAG.ordinal()) {
