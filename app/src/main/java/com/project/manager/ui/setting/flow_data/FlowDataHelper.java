@@ -311,6 +311,7 @@ public class FlowDataHelper {
      * @param context 活动上下文
      */
     public static void readFileAndSave(Uri uri, Context context) {
+        String tip_str = "数据导入失败";
         try (InputStream inputStream = context.getContentResolver().openInputStream(uri)) {
             if (inputStream != null) {
                 // 将 InputStream 转换为字符串
@@ -330,14 +331,20 @@ public class FlowDataHelper {
                     helper.setTagData(tagDataList);
                     helper.setBasicFlowData(basicFlowDataList);
                     helper.setTransferFlowData(transferFlowDataList);
+
+                    tip_str = "数据已成功导入";
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
-                    Toast.makeText(context, "无法解析JSON文件内容", Toast.LENGTH_SHORT).show();
+                    tip_str = "无法解析备份文件的内容";
                 }
+            } else {
+                tip_str = "无法读取备份文件";
             }
         } catch (IOException e) {
+            tip_str = "无法打开备份文件";
             e.printStackTrace();
-            Toast.makeText(context, "读取文件失败", Toast.LENGTH_SHORT).show();
+        } finally {
+            Toast.makeText(context, tip_str, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -359,6 +366,7 @@ public class FlowDataHelper {
      * @param context 用于打开数据库的上下文
      */
     public static void deleteAllData(Context context) {
+        String tip_str = "数据清除失败，原因未知";
         try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
             SQLiteDatabase db = db_helper.openWriteLink();
 
@@ -368,8 +376,11 @@ public class FlowDataHelper {
             db.delete(FlowTables.TAG_GROUP.toString(), null, null);
 
             db.close();
+            tip_str = "数据清除成功";
         } catch (SQLiteDatabaseLockedException e) {
-            throw new RuntimeException("无法打开数据库：数据库被其他进程占用");
+            tip_str = "数据清除失败，无法打开数据库";
+        } finally {
+            Toast.makeText(context, tip_str, Toast.LENGTH_SHORT).show();
         }
     }
 }

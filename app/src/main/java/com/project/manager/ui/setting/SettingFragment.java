@@ -57,13 +57,28 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         } else if (v.getId() == R.id.setting_export_flow) {
             exportFlowData();
         } else if (v.getId() == R.id.setting_import_flow) {
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("application/json"); //允许json文件类型
-            startActivityForResult(intent, RequestResultCode.REQUEST_READ_FILE.ordinal());
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("导入数据")
+                    .setMessage("新数据将覆盖原有的数据，确认继续吗？")
+                    .setPositiveButton("确认", ((dialog, which) -> {
+                        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                        intent.setType("application/json"); //允许json文件类型
+                        startActivityForResult(intent, RequestResultCode.REQUEST_READ_FILE.ordinal());
+                        dialog.dismiss();
+                    }))
+                    .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
+                    .show();
         } else if (v.getId() == R.id.setting_clear_flow) {
-            //TODO:导入和删除添加提示对话框
-            FlowDataHelper.deleteAllData(requireContext());
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("清除数据")
+                    .setMessage("此操作将清除所有流水账数据，确认执行吗？")
+                    .setPositiveButton("确认", ((dialog, which) -> {
+                        FlowDataHelper.deleteAllData(requireContext());
+                        dialog.dismiss();
+                    }))
+                    .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
+                    .show();
         } else {
             throw new RuntimeException("无法获取正确的视图ID");
         }

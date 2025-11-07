@@ -85,7 +85,7 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
                         selected_index = witch;
                         dialog.dismiss();
                     })
-                    .setNegativeButton("取消", (dialog, id) -> {
+                    .setNegativeButton("关闭", (dialog, id) -> {
                         // 关闭对话框
                         dialog.dismiss();
                     })
