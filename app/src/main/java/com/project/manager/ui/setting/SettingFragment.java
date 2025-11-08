@@ -141,7 +141,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
             //获取当前日期并生成默认文件名
             Calendar calendar = Calendar.getInstance();
             @SuppressLint("DefaultLocale") String now_date = String.format(
-                    "%04d-%02d-%02d_%02d:%02d:%02d",
+                    "%04d%02d%02d-%02d%02d%02d",
                     calendar.get(Calendar.YEAR),
                     calendar.get(Calendar.MONTH),
                     calendar.get(Calendar.DAY_OF_MONTH),
@@ -149,7 +149,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                     calendar.get(Calendar.MINUTE),
                     calendar.get(Calendar.SECOND)
             );
-            String default_filename = String.format("%s_RunningAccount.json", now_date);
+            String default_filename = String.format("RunningAccount_%s.json", now_date);
 
             //启动系统文件选择器(SAF)
             Intent startSAF = new Intent(Intent.ACTION_CREATE_DOCUMENT);
@@ -219,7 +219,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                     ThemePreference.saveThemeMode(requireContext(), which);
                     dialog.dismiss();
                 }))
-                .setNegativeButton("确定", ((dialog, which) -> dialog.dismiss()))
+                .setNegativeButton("关闭", (dialog, which) -> dialog.dismiss())
                 .show();
     }
 }
