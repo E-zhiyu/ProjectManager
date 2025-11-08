@@ -8,8 +8,8 @@ android {
 
     defaultConfig {
         applicationId "com.project.manager"
-        minSdk 24
-        targetSdk 35
+        minSdk 26
+        targetSdk 36
         versionCode 1
         versionName "1.0.0"
 
@@ -32,7 +32,6 @@ android {
 }
 
 dependencies {
-
     implementation libs.appcompat
     implementation libs.material
     implementation libs.recyclerview
@@ -48,5 +47,5 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.20.1'
+    implementation libs.jackson.databind
 }

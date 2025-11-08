@@ -24,7 +24,7 @@ import com.project.manager.ui.bookkeeping.tag.Tag;
 public class RunningAccountModifyActivity extends AppCompatActivity implements View.OnClickListener {
     RunningAccountTypeEnum type = null;                     //流水种类
     int position = -1;                                      //流水项目的下标
-    private final String FRAGMENT_TAG = "edit_fragment";    //碎片Tag
+    private final String FRAGMENT_TAG = "modify_fragment";  //碎片Tag
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -24,7 +24,10 @@ import com.project.manager.ui.bookkeeping.tag.Tag;
 import com.project.manager.ui.bookkeeping.tag.TagSelectRecyclerAdapter;
 import com.project.manager.ui.bookkeeping.tag.TagSelectBottomSheet;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import java.util.Date;
 
 public abstract class RunningAccountFragmentBase extends Fragment implements
         View.OnClickListener, View.OnFocusChangeListener, TagSelectRecyclerAdapter.OnTagBtnClickedListener {
@@ -244,31 +247,52 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
         MaterialDatePicker.Builder<Long> dateBuilder = MaterialDatePicker.Builder.datePicker();
         dateBuilder.setTitleText("选择日期");
 
+        //初始化日期格式化器
+        TextInputEditText dateTimeInput = binding.findViewById(R.id.datetime_input);
+        String input_datetime = String.valueOf(dateTimeInput.getText());
+        String pattern = "yyyy-MM-dd HH:mm";    //日期字符串格式
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        LocalDateTime localDateTime = LocalDateTime.parse(input_datetime, formatter);
+
+        // 转换为 java.util.Date
+        long epochMillis = localDateTime.atZone(java.time.ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli();
+        Date date = new Date(epochMillis);
+
+        Calendar initialCalendar = Calendar.getInstance();
+        initialCalendar.setTime(date);
 
         //显示日期选择器
-        MaterialDatePicker<Long> datePicker = dateBuilder.build();
-        datePicker.show(getParentFragmentManager(), "DATE_PICKER");
+        MaterialDatePicker<Long> datePicker = dateBuilder
+                .setSelection(initialCalendar.getTimeInMillis())    //默认选中输入的日期
+                .build();
+        String datePickerTag = "DATE_PICKER";   //日期选择器标签
+        datePicker.show(getParentFragmentManager(), datePickerTag);
 
         datePicker.addOnPositiveButtonClickListener(selection -> {
             Calendar selected_calendar = Calendar.getInstance();
             selected_calendar.setTimeInMillis(selection);
 
             //选择日期后，再弹出时间选择器
-            showTimePicker(selected_calendar);
+            showTimePicker(selected_calendar, initialCalendar);
         });
     }
 
     /**
      * 显示时间选择对话框
      *
-     * @param initialCalendar 包含选择日期信息的日历对象
+     * @param selectionCalendar 包含选择日期信息的日历对象
+     * @param initialCalendar   初始化用的日历对象
      */
-    private void showTimePicker(Calendar initialCalendar) {
+    private void showTimePicker(@NonNull Calendar selectionCalendar, @NonNull Calendar initialCalendar) {
         //创建时间选择器
         MaterialTimePicker.Builder timeBuilder = new MaterialTimePicker.Builder();
         timeBuilder.setTimeFormat(TimeFormat.CLOCK_24H); // 24小时制
-        timeBuilder.setHour(initialCalendar.get(Calendar.HOUR_OF_DAY));
-        timeBuilder.setMinute(initialCalendar.get(Calendar.MINUTE));
+        int init_hour = initialCalendar.get(Calendar.HOUR_OF_DAY);
+        timeBuilder.setHour(init_hour);
+        int init_minute = initialCalendar.get(Calendar.MINUTE);
+        timeBuilder.setMinute(init_minute);
         timeBuilder.setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK);  //默认使用时钟输入模式而不是键盘
         timeBuilder.setTitleText("选择时间");
 
@@ -282,17 +306,17 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
             int minute = timePicker.getMinute();
 
             //组合日期和时间
-            initialCalendar.set(Calendar.HOUR_OF_DAY, hour);
-            initialCalendar.set(Calendar.MINUTE, minute);
+            selectionCalendar.set(Calendar.HOUR_OF_DAY, hour);
+            selectionCalendar.set(Calendar.MINUTE, minute);
 
             //修改文本框的日期和时间
             TextInputEditText datetime_input = binding.findViewById(R.id.datetime_input);
             @SuppressLint("DefaultLocale") String datetime_str = String.format("%04d-%02d-%02d %02d:%02d",
-                    initialCalendar.get(Calendar.YEAR),
-                    initialCalendar.get(Calendar.MONTH) + 1,
-                    initialCalendar.get(Calendar.DAY_OF_MONTH),
-                    initialCalendar.get(Calendar.HOUR_OF_DAY),
-                    initialCalendar.get(Calendar.MINUTE));
+                    selectionCalendar.get(Calendar.YEAR),
+                    selectionCalendar.get(Calendar.MONTH) + 1,
+                    selectionCalendar.get(Calendar.DAY_OF_MONTH),
+                    selectionCalendar.get(Calendar.HOUR_OF_DAY),
+                    selectionCalendar.get(Calendar.MINUTE));
             datetime_input.setText(datetime_str);
         });
     }
