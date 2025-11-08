@@ -17,6 +17,7 @@
     <color name="unfocused_text_input_border">@color/unchecked_gray</color>
     <color name="unfocused_text_input_border_night">@color/unchecked_gray_night</color>
     <color name="theme_blue">#0055d6</color>
+    <color name="theme_blue_variant">#dae1fe</color>
     <color name="theme_blue_night">#b2c5ff</color>
     <color name="unchecked_gray">#737685</color>
     <color name="unchecked_gray_night">#8d909f</color>

@@ -242,8 +242,8 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
     protected void showMaterialDateTimePicker() {
         //创建日期选择器
         MaterialDatePicker.Builder<Long> dateBuilder = MaterialDatePicker.Builder.datePicker();
-        dateBuilder.setTitleText("");
-        dateBuilder.setTheme(R.style.DatePickerDialogStyle);
+        dateBuilder.setTitleText("选择日期");
+
 
         //显示日期选择器
         MaterialDatePicker<Long> datePicker = dateBuilder.build();
@@ -269,8 +269,8 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
         timeBuilder.setTimeFormat(TimeFormat.CLOCK_24H); // 24小时制
         timeBuilder.setHour(initialCalendar.get(Calendar.HOUR_OF_DAY));
         timeBuilder.setMinute(initialCalendar.get(Calendar.MINUTE));
-        timeBuilder.setTheme(R.style.TimePickerDialogStyle);
-        timeBuilder.setTitleText("");
+        timeBuilder.setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK);  //默认使用时钟输入模式而不是键盘
+        timeBuilder.setTitleText("选择时间");
 
         //显示时间选择器
         MaterialTimePicker timePicker = timeBuilder.build();

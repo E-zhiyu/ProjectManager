@@ -141,8 +141,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     private void showDatePickerDialog() {
         //创建日期选择器
         MaterialDatePicker.Builder<Long> dateBuilder = MaterialDatePicker.Builder.datePicker();
-        dateBuilder.setTitleText("");
-        dateBuilder.setTheme(R.style.DatePickerDialogStyle);
+        dateBuilder.setTitleText("选择日期");
 
         //显示日期选择器
         MaterialDatePicker<Long> datePicker = dateBuilder.build();
