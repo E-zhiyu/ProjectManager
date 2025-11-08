@@ -50,25 +50,30 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
         //加载传入的数据
         Bundle tagData = getIntent().getExtras();
         if (tagData != null) {
-            tag_no = tagData.getLong(KeyValueStrings.TAG_NO.getValue());
-            group_no = tagData.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());
-            String tag_name = tagData.getString(KeyValueStrings.TAG_NAME.getValue());
-            String group_name = tagData.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
+            tag_no = tagData.getLong(KeyValueStrings.TAG_NO.getValue());                        //该标签编号
+            group_no = tagData.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());                //所属分组编号
+            String tag_name = tagData.getString(KeyValueStrings.TAG_NAME.getValue());           //该标签名称
+            String group_name = tagData.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());   //所属分组名称
 
             tag_name_input.setText(tag_name);
             tag_group_input.setText(group_name);
 
-            //初始化分组名列表选择下标
-            ArrayList<String> tagGroupArrayList = getIntent().getStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue());
-            if (tagGroupArrayList != null) {
-                group_names = tagGroupArrayList.toArray(new String[0]);
+            //判断是否正确获取分组名称
+            if (group_name == null) {
+                Toast.makeText(this, "无法初始化分组名列表选中的下标：无效的分组名称", Toast.LENGTH_SHORT).show();
+            }else {
+                //初始化分组名列表选择下标
+                ArrayList<String> tagGroupArrayList = getIntent().getStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue());
+                if (tagGroupArrayList != null) {
+                    group_names = tagGroupArrayList.toArray(new String[0]);
 
-                for (selected_index = 0; selected_index < group_names.length; selected_index++) {
-                    if (group_name.equals(group_names[selected_index]))
-                        break;
+                    for (selected_index = 0; selected_index < group_names.length; selected_index++) {
+                        if (group_name.equals(group_names[selected_index]))
+                            break;
+                    }
+                } else {
+                    group_names = new String[0];
                 }
-            } else {
-                group_names = new String[0];
             }
         }
     }

@@ -1,5 +1,7 @@
 package com.project.manager.database;
 
+import androidx.annotation.NonNull;
+
 public enum RunningAccountTables {
     BASIC("basic_data"),
     TRANSFER("transfer_data"),
@@ -13,6 +15,7 @@ public enum RunningAccountTables {
     }
 
     //重写toString方法以默认打印value属性
+    @NonNull
     @Override
     public String toString() {
         return this.value;

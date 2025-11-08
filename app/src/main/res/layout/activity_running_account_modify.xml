@@ -45,21 +45,21 @@
                 style="@style/BtnStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="删除" />
+                android:text="@string/delete" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/cancel_btn"
                 style="@style/BtnStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="取消" />
+                android:text="@string/cancel" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/finish_btn"
                 style="@style/BtnStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="完成" />
+                android:text="@string/finish" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

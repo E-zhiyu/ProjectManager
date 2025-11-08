@@ -19,14 +19,14 @@
                 android:id="@+id/amount_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="金额" />
+                android:hint="@string/amount" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/remark_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="备注">
+            android:hint="@string/remark">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/remark_input"
@@ -39,7 +39,7 @@
             android:id="@+id/datetime_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="日期和时间">
+            android:hint="@string/date_time">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/datetime_input"
@@ -52,7 +52,7 @@
             android:id="@+id/running_account_tag_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="标签">
+            android:hint="@string/tag">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/running_account_tag_input"
@@ -71,7 +71,7 @@
                 android:id="@+id/export_account_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="转出账户"
+                android:hint="@string/export_account"
                 android:maxLength="20" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -84,7 +84,7 @@
                 android:id="@+id/import_account_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="转入账户"
+                android:hint="@string/import_account"
                 android:maxLength="20" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>

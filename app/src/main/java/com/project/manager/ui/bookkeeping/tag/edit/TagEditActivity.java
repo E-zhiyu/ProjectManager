@@ -213,8 +213,6 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
             } else {
                 adapter.modifyTag(tag_name, tag_no, group_name, origin_group_no, new_group_no);
             }
-        } else if (resultCode == ResultCode.RESULT_REJECT.ordinal()) {
-            return;
         } else if (resultCode == ResultCode.RESULT_DELETE.ordinal()) {
             adapter.deleteTag(tag_no, origin_group_no);
         }

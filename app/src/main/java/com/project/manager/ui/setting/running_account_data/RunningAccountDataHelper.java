@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.manager.database.RunningAccountColumns;
 import com.project.manager.database.RunningAccountDatabaseHelper;
 import com.project.manager.database.RunningAccountTables;
+import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.setting.running_account_data.pojo.PojoBasicRunningAccount;
 import com.project.manager.ui.setting.running_account_data.pojo.PojoTag;
 import com.project.manager.ui.setting.running_account_data.pojo.PojoTagGroup;
@@ -299,8 +300,8 @@ public class RunningAccountDataHelper {
                 Toast.makeText(context, "文件保存成功", Toast.LENGTH_SHORT).show();
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(context, "保存失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            ExceptionHelper.showExceptionDialog(context, e);
+            Toast.makeText(context, "数据保存失败", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -314,7 +315,7 @@ public class RunningAccountDataHelper {
         String tip_str = "数据导入失败";
         try (InputStream inputStream = context.getContentResolver().openInputStream(uri)) {
             if (inputStream != null) {
-                // 将 InputStream 转换为字符串
+                //将 InputStream 转换为字符串
                 String jsonString = convertStreamToString(inputStream);
 
                 ObjectMapper mapper = new ObjectMapper();
@@ -334,15 +335,16 @@ public class RunningAccountDataHelper {
 
                     tip_str = "数据已成功导入";
                 } catch (JsonProcessingException e) {
-                    e.printStackTrace();
                     tip_str = "无法解析备份文件的内容";
                 }
             } else {
+                NullPointerException e = new NullPointerException("无法正常创建输入流");
+                ExceptionHelper.showExceptionDialog(context, e);
                 tip_str = "无法读取备份文件";
             }
         } catch (IOException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
             tip_str = "无法打开备份文件";
-            e.printStackTrace();
         } finally {
             Toast.makeText(context, tip_str, Toast.LENGTH_SHORT).show();
         }

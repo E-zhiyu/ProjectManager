@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -171,36 +172,33 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
     }
 
     //获取版本名称
-    public static String getVersionName(Context context) {
-        try {
-            PackageInfo packageInfo = context.getPackageManager()
-                    .getPackageInfo(context.getPackageName(), 0);
-            return packageInfo.versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-            return "未知版本";
-        }
+    public static String getVersionName(Context context) throws PackageManager.NameNotFoundException {
+        PackageInfo packageInfo = context.getPackageManager()
+                .getPackageInfo(context.getPackageName(), 0);
+        return packageInfo.versionName;
     }
 
     //获取应用名称
-    public static String getAppName(Context context) {
-        try {
-            PackageManager packageManager = context.getPackageManager();
-            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(
-                    context.getPackageName(),
-                    PackageManager.GET_META_DATA
-            );
-            return packageManager.getApplicationLabel(applicationInfo).toString();
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-            return "未知应用名"; // 返回默认值或处理异常
-        }
+    public static String getAppName(Context context) throws PackageManager.NameNotFoundException {
+        PackageManager packageManager = context.getPackageManager();
+        ApplicationInfo applicationInfo = packageManager.getApplicationInfo(
+                context.getPackageName(),
+                PackageManager.GET_META_DATA
+        );
+        return packageManager.getApplicationLabel(applicationInfo).toString();
     }
 
     //显示关于软件对话框
     private void showAboutDialog() {
-        String version_name = "v" + getVersionName(requireContext());
-        String app_name = getAppName(requireContext());
+        String version_name, app_name;
+        try {
+            version_name = "v" + getVersionName(requireContext());
+            app_name = getAppName(requireContext());
+        } catch (PackageManager.NameNotFoundException e) {
+            ExceptionHelper.showExceptionDialog(requireContext(), e);
+            Toast.makeText(requireContext(), "无法获取版本名称或应用名称", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(app_name + " " + version_name)

@@ -97,42 +97,42 @@ public class TagGroup {
         return group_no;
     }
 
-    /**
-     * 将标签组编号转换为标签组名称
-     *
-     * @param group_no 标签组编号
-     * @param context  用于打开数据库的上下文
-     * @return 对应的标签名称
-     */
-    public static String groupNoTransToName(long group_no, Context context) throws SQLiteException {
-        String group_name;
-        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
-        SQLiteDatabase db = db_helper.openReadLink();
-
-        String[] columns = {RunningAccountColumns.GROUP_NAME.toString()};
-        String selection = RunningAccountColumns.GROUP_NO + "=?";
-        String[] selectionArgs = {String.valueOf(group_no)};
-        Cursor cursor = db.query(
-                RunningAccountTables.TAG_GROUP.toString(),
-                columns,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                null,
-                "1"
-        );
-
-        if (cursor.moveToNext()) {
-            group_name = cursor.getString(cursor.getColumnIndexOrThrow(RunningAccountColumns.GROUP_NAME.toString()));
-        } else {
-            group_name = "";
-        }
-
-        cursor.close();
-        db.close();
-        return group_name;
-    }
+//    /**
+//     * 将标签组编号转换为标签组名称
+//     *
+//     * @param group_no 标签组编号
+//     * @param context  用于打开数据库的上下文
+//     * @return 对应的标签名称
+//     */
+//    public static String groupNoTransToName(long group_no, Context context) throws SQLiteException {
+//        String group_name;
+//        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
+//        SQLiteDatabase db = db_helper.openReadLink();
+//
+//        String[] columns = {RunningAccountColumns.GROUP_NAME.toString()};
+//        String selection = RunningAccountColumns.GROUP_NO + "=?";
+//        String[] selectionArgs = {String.valueOf(group_no)};
+//        Cursor cursor = db.query(
+//                RunningAccountTables.TAG_GROUP.toString(),
+//                columns,
+//                selection,
+//                selectionArgs,
+//                null,
+//                null,
+//                null,
+//                "1"
+//        );
+//
+//        if (cursor.moveToNext()) {
+//            group_name = cursor.getString(cursor.getColumnIndexOrThrow(RunningAccountColumns.GROUP_NAME.toString()));
+//        } else {
+//            group_name = "";
+//        }
+//
+//        cursor.close();
+//        db.close();
+//        return group_name;
+//    }
 
     /**
      * 向数据库中保存新的标签分组

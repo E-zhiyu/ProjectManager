@@ -19,7 +19,7 @@
                 android:id="@+id/amount_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="金额"
+                android:hint="@string/amount"
                 android:inputType="numberDecimal" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -27,7 +27,7 @@
             android:id="@+id/remark_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="备注">
+            android:hint="@string/remark">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/remark_input"
@@ -40,7 +40,7 @@
             android:id="@+id/datetime_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="日期和时间">
+            android:hint="@string/date_time">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/datetime_input"
@@ -53,7 +53,7 @@
             android:id="@+id/running_account_tag_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="标签">
+            android:hint="@string/tag">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/running_account_tag_input"
