@@ -7,12 +7,11 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.project.manager.R;
-import com.project.manager.RequestResultCode;
+import com.project.manager.ResultCode;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 
 import java.util.ArrayList;
@@ -119,7 +118,7 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
                 dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), group_name);    //分组名称
 
                 result2TagEdit.putExtras(dataBundle);
-                setResult(RequestResultCode.RESULT_OK.ordinal(), result2TagEdit);
+                setResult(ResultCode.RESULT_OK.ordinal(), result2TagEdit);
                 finish();
             }
         } else if (v.getId() == R.id.delete_btn) {
@@ -128,13 +127,13 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
                     .setMessage("此操作将清空所有相应流水的标签数据，确认继续吗？")
                     .setPositiveButton("确定", ((dialog, which) -> {
                         result2TagEdit.putExtras(dataBundle);
-                        setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2TagEdit);
+                        setResult(ResultCode.RESULT_DELETE.ordinal(), result2TagEdit);
                         finish();
                     }))
                     .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
                     .show();
         } else if (v.getId() == R.id.cancel_btn) {
-            setResult(RequestResultCode.RESULT_REJECT.ordinal(), result2TagEdit);
+            setResult(ResultCode.RESULT_REJECT.ordinal(), result2TagEdit);
             finish();
         }
     }

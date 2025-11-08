@@ -1,16 +1,16 @@
-package com.project.manager.ui.setting.flow_data.pojo;
+package com.project.manager.ui.setting.running_account_data.pojo;
 
 //转账流水数据POJO类
-public class PojoTransferFlow {
+public class PojoTransferRunningAccount {
     private String export_account, import_account;
-    private long fno;
+    private long rno;
 
-    public long getFno() {
-        return fno;
+    public long getRno() {
+        return rno;
     }
 
-    public void setFno(long fno) {
-        this.fno = fno;
+    public void setRno(long rno) {
+        this.rno = rno;
     }
 
     public String getExport_account() {
@@ -29,13 +29,13 @@ public class PojoTransferFlow {
         this.import_account = import_account;
     }
 
-    public PojoTransferFlow(long fno, String export_account, String import_account) {
-        this.fno = fno;
+    public PojoTransferRunningAccount(long rno, String export_account, String import_account) {
+        this.rno = rno;
         this.export_account = export_account;
         this.import_account = import_account;
     }
 
-    public PojoTransferFlow() {
+    public PojoTransferRunningAccount() {
 
     }
 }

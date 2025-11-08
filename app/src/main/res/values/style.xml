@@ -64,12 +64,12 @@
     </style>
 
     <!-- 流水视图样式 -->
-    <style name="FlowViewStyle">
+    <style name="RunningAccountViewStyle">
         <item name="cardBackgroundColor">@color/card_background</item>
     </style>
 
     <!-- 新建流水界面卡片容器样式 -->
-    <style name="NewFlowCardStyle">
+    <style name="NewRunningAccountCardStyle">
         <item name="cardBackgroundColor">@color/page_background</item>
     </style>
 

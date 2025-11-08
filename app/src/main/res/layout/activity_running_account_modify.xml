@@ -6,10 +6,10 @@
     style="@style/PageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.bookkeeping.flow_edit.modify.FlowModifyActivity">
+    tools:context=".ui.bookkeeping.running_account_edit.modify.RunningAccountModifyActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/flow_edit_toolbar"
+        android:id="@+id/running_account_edit_toolbar"
         style="@style/ToolBarStyle"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -21,11 +21,11 @@
     </com.google.android.material.appbar.MaterialToolbar>
 
     <FrameLayout
-        android:id="@+id/flow_edit_fragment_container"
+        android:id="@+id/running_account_edit_fragment_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/btn_card_view"
-        app:layout_constraintTop_toBottomOf="@+id/flow_edit_toolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/running_account_edit_toolbar" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/btn_card_view"

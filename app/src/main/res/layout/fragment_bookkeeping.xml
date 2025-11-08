@@ -23,11 +23,11 @@
             android:padding="7dp">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/flow_btn"
+                android:id="@+id/new_running_account_btn"
                 style="@style/BtnStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="新建流水" />
+                android:text="@string/new_running_account" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/report_btn"
@@ -40,7 +40,7 @@
 
     <!-- 流水列表视图 -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/flow_recycler_view"
+        android:id="@+id/running_account_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="10dp"

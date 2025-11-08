@@ -4,16 +4,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabaseLockedException;
 import android.database.sqlite.SQLiteException;
 import android.widget.Toast;
 
-import com.project.manager.database.FlowColumns;
-import com.project.manager.database.FlowDatabaseHelper;
-import com.project.manager.database.FlowTables;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.project.manager.database.RunningAccountColumns;
+import com.project.manager.database.RunningAccountDatabaseHelper;
+import com.project.manager.database.RunningAccountTables;
 
 public class Tag {
     private String name;    //名称
@@ -44,14 +40,14 @@ public class Tag {
      * @return 对应的标签编号
      */
     public static long nameTransToTno(String name, Context context) throws SQLiteException {
-        FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context);
+        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
 
-        String[] columns = {FlowColumns.TAG_NO.toString()};
-        String selection = FlowColumns.TAG_NAME + "=?";
+        String[] columns = {RunningAccountColumns.TAG_NO.toString()};
+        String selection = RunningAccountColumns.TAG_NAME + "=?";
         String[] selectionArgs = {name};
         Cursor cursor = db.query(
-                FlowTables.TAG.toString(),
+                RunningAccountTables.TAG.toString(),
                 columns,
                 selection,
                 selectionArgs,
@@ -63,7 +59,7 @@ public class Tag {
 
         long tag_no;
         if (cursor.moveToNext()) {
-            tag_no = cursor.getLong(cursor.getColumnIndexOrThrow(FlowColumns.TAG_NO.toString()));
+            tag_no = cursor.getLong(cursor.getColumnIndexOrThrow(RunningAccountColumns.TAG_NO.toString()));
         } else {
             tag_no = 0;
         }
@@ -81,14 +77,14 @@ public class Tag {
      * @return 对应的标签名称
      */
     public static String tagNoTransToName(long tag_no, Context context) throws SQLiteException {
-        FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context);
+        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
 
-        String[] columns = {FlowColumns.TAG_NAME.toString()};
-        String selection = FlowColumns.TAG_NO + "=?";
+        String[] columns = {RunningAccountColumns.TAG_NAME.toString()};
+        String selection = RunningAccountColumns.TAG_NO + "=?";
         String[] selectionArgs = {String.valueOf(tag_no)};
         Cursor cursor = db.query(
-                FlowTables.TAG.toString(),
+                RunningAccountTables.TAG.toString(),
                 columns,
                 selection,
                 selectionArgs,
@@ -100,7 +96,7 @@ public class Tag {
 
         String tag_name;
         if (cursor.moveToNext()) {
-            tag_name = cursor.getString(cursor.getColumnIndexOrThrow(FlowColumns.TAG_NAME.toString()));
+            tag_name = cursor.getString(cursor.getColumnIndexOrThrow(RunningAccountColumns.TAG_NAME.toString()));
         } else {
             tag_name = "";
         }
@@ -121,13 +117,13 @@ public class Tag {
     public static long saveNewTag(String tag_name, long group_no, Context context) throws SQLiteException {
         long tag_no;    //标签编号
 
-        FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context);
+        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         ContentValues tag_values = new ContentValues();
-        tag_values.put(FlowColumns.TAG_NAME.toString(), tag_name);
-        tag_values.put(FlowColumns.GROUP_NO.toString(), group_no);
-        tag_no = db.insert(FlowTables.TAG.toString(), null, tag_values);
+        tag_values.put(RunningAccountColumns.TAG_NAME.toString(), tag_name);
+        tag_values.put(RunningAccountColumns.GROUP_NO.toString(), group_no);
+        tag_no = db.insert(RunningAccountTables.TAG.toString(), null, tag_values);
 
         db.close();
         Toast.makeText(context, "标签保存成功", Toast.LENGTH_SHORT).show();
@@ -143,15 +139,15 @@ public class Tag {
      */
     public static void modifyTag(String new_name, long tag_no, Context context) throws SQLiteException {
         ContentValues tag_values = new ContentValues();
-        tag_values.put(FlowColumns.TAG_NAME.toString(), new_name);
-        String whereStr = FlowColumns.TAG_NO + "=?";
+        tag_values.put(RunningAccountColumns.TAG_NAME.toString(), new_name);
+        String whereStr = RunningAccountColumns.TAG_NO + "=?";
         String[] whereStrArgs = {String.valueOf(tag_no)};
 
-        FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context);
+        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         db.update(
-                FlowTables.TAG.toString(),
+                RunningAccountTables.TAG.toString(),
                 tag_values,
                 whereStr,
                 whereStrArgs
@@ -171,16 +167,16 @@ public class Tag {
      */
     public static void modifyTag(String new_tag_name, long tag_no, long new_group_no, Context context) throws SQLiteException {
         ContentValues tag_values = new ContentValues();
-        tag_values.put(FlowColumns.TAG_NAME.toString(), new_tag_name);
-        tag_values.put(FlowColumns.GROUP_NO.toString(), new_group_no);
-        String whereStr = FlowColumns.TAG_NO + "=?";
+        tag_values.put(RunningAccountColumns.TAG_NAME.toString(), new_tag_name);
+        tag_values.put(RunningAccountColumns.GROUP_NO.toString(), new_group_no);
+        String whereStr = RunningAccountColumns.TAG_NO + "=?";
         String[] whereStrArgs = {String.valueOf(tag_no)};
 
-        FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context);
+        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         db.update(
-                FlowTables.TAG.toString(),
+                RunningAccountTables.TAG.toString(),
                 tag_values,
                 whereStr,
                 whereStrArgs
@@ -199,16 +195,16 @@ public class Tag {
      */
     public static void deleteTag(long tag_no, Context context) throws SQLiteException {
         ContentValues basic_values = new ContentValues();
-        basic_values.put(FlowColumns.TAG_NO.toString(), 0);
-        String whereStr = FlowColumns.TAG_NO + "=?";
+        basic_values.put(RunningAccountColumns.TAG_NO.toString(), 0);
+        String whereStr = RunningAccountColumns.TAG_NO + "=?";
         String[] whereStrArgs = {String.valueOf(tag_no)};
 
-        FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context);
+        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //先将流水基本数据表的标签清除
         db.update(
-                FlowTables.BASIC.toString(),
+                RunningAccountTables.BASIC.toString(),
                 basic_values,
                 whereStr,
                 whereStrArgs
@@ -216,7 +212,7 @@ public class Tag {
 
         //再删除对应标签
         db.delete(
-                FlowTables.TAG.toString(),
+                RunningAccountTables.TAG.toString(),
                 whereStr,
                 whereStrArgs
         );

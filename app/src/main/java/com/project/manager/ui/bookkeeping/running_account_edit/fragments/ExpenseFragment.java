@@ -1,19 +1,18 @@
-package com.project.manager.ui.bookkeeping.flow_edit.fragments;
+package com.project.manager.ui.bookkeeping.running_account_edit.fragments;
 
 import android.view.View;
 
-import com.google.android.material.textfield.TextInputEditText;
 import com.project.manager.R;
 
-public class IncomeFragment extends FlowFragmentBase {
-    public IncomeFragment() {
-        this.name = "收入";  //为碎片命名
-        this.type = FlowTypeEnum.INCOME;
+public class ExpenseFragment extends RunningAccountFragmentBase {
+    public ExpenseFragment() {
+        this.name = "支出";  //为碎片命名
+        this.type = RunningAccountTypeEnum.EXPENSE;
     }
 
     @Override
     protected int getLayoutResId() {
-        return R.layout.fragment_income;
+        return R.layout.fragment_expense;
     }
 
     @Override

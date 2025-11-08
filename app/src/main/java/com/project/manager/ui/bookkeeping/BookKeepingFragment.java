@@ -1,6 +1,5 @@
 package com.project.manager.ui.bookkeeping;
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -19,24 +18,24 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.project.manager.R;
-import com.project.manager.database.FlowColumns;
-import com.project.manager.database.FlowDatabaseHelper;
-import com.project.manager.database.FlowTables;
+import com.project.manager.database.RunningAccountColumns;
+import com.project.manager.database.RunningAccountDatabaseHelper;
+import com.project.manager.database.RunningAccountTables;
 import com.project.manager.databinding.FragmentBookkeepingBinding;
 import com.project.manager.exception.ExceptionHelper;
-import com.project.manager.ui.bookkeeping.flow_edit.modify.FlowModifyActivity;
-import com.project.manager.ui.bookkeeping.flow_edit.new_flow.NewFlowActivity;
-import com.project.manager.RequestResultCode;
-import com.project.manager.ui.bookkeeping.flow_edit.fragments.FlowTypeEnum;
+import com.project.manager.ui.bookkeeping.running_account_edit.modify.RunningAccountModifyActivity;
+import com.project.manager.ui.bookkeeping.running_account_edit.new_running_account.NewRunningAccountActivity;
+import com.project.manager.ResultCode;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountTypeEnum;
 import com.project.manager.ui.bookkeeping.report.ReportActivity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BookKeepingFragment extends Fragment implements View.OnClickListener, FlowRecyclerAdapter.OnFlowClickListener {
-    FlowRecyclerAdapter flowListAdapter;    //流水列表适配器
-    FlowDatabaseHelper flow_db_helper;      //流水数据库帮助器
-    private ActivityResultLauncher<Intent> newFlowLauncher, modifyFlowLauncher;  //子活动启动器
+public class BookKeepingFragment extends Fragment implements View.OnClickListener, RunningAccountRecyclerAdapter.OnRunningAccountViewClickListener {
+    RunningAccountRecyclerAdapter runningAccountRecyclerAdapter;    //流水列表适配器
+    RunningAccountDatabaseHelper running_account_db_helper;      //流水数据库帮助器
+    private ActivityResultLauncher<Intent> newRunningAccountLauncher, modifyRunningAccountLauncher;  //子活动启动器
 
     private FragmentBookkeepingBinding binding;
 
@@ -47,18 +46,18 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         initActivityLauncher();
 
         //实例化数据库帮助器
-        flow_db_helper = new FlowDatabaseHelper(getActivity());
+        running_account_db_helper = new RunningAccountDatabaseHelper(getActivity());
 
         //绑定单击按钮监听器
-        root.findViewById(R.id.flow_btn).setOnClickListener(this);
+        root.findViewById(R.id.new_running_account_btn).setOnClickListener(this);
         root.findViewById(R.id.report_btn).setOnClickListener(this);
 
         //创建列表视图的适配器
-        List<FlowBase> flowList = loadFlowData();
-        flowListAdapter = new FlowRecyclerAdapter(flowList, this);   //绑定适配器项点击事件的监听器
-        RecyclerView flowListView = binding.flowRecyclerView;
-        flowListView.setLayoutManager(new LinearLayoutManager(requireActivity()));  //设置线性布局
-        flowListView.setAdapter(flowListAdapter);
+        List<RunningAccountBase> runningAccountList = loadRunningAccountData();
+        runningAccountRecyclerAdapter = new RunningAccountRecyclerAdapter(runningAccountList, this);   //绑定适配器项点击事件的监听器
+        RecyclerView runningAccountRecyclerView = binding.runningAccountRecyclerView;
+        runningAccountRecyclerView.setLayoutManager(new LinearLayoutManager(requireActivity()));  //设置线性布局
+        runningAccountRecyclerView.setAdapter(runningAccountRecyclerAdapter);
 
         return root;
     }
@@ -71,9 +70,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.flow_btn) {  //新建流水
-            Intent skip2NewFlow = new Intent(getActivity(), NewFlowActivity.class);
-            newFlowLauncher.launch(skip2NewFlow);
+        if (v.getId() == R.id.new_running_account_btn) {  //新建流水
+            Intent skip2NewRunningAccount = new Intent(getActivity(), NewRunningAccountActivity.class);
+            newRunningAccountLauncher.launch(skip2NewRunningAccount);
         } else if (v.getId() == R.id.report_btn) {  //查看报表
             Intent skip2Report = new Intent(getActivity(), ReportActivity.class);
             startActivity(skip2Report);
@@ -82,51 +81,51 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
     //处理流水记录项的点击事件
     @Override
-    public void onFlowClick(int position, FlowBase flowBase) {
-        FlowBase flowView = flowListAdapter.getItem(position);
+    public void onRunningAccountViewClick(int position, RunningAccountBase runningAccountBase) {
+        RunningAccountBase runningAccountView = runningAccountRecyclerAdapter.getItem(position);
 
-        Intent skip2FlowModify = new Intent(getActivity(), FlowModifyActivity.class);
+        Intent skip2RunningAccountModify = new Intent(getActivity(), RunningAccountModifyActivity.class);
         Bundle dataBundle = new Bundle();
 
         //获取基本数据
-        FlowTypeEnum type = flowView.getType();      //类型
-        dataBundle.putString(KeyValueStrings.FLOW_TYPE.getValue(), type.toString());
-        double amount = flowView.getAmount();        //金额
-        dataBundle.putDouble(KeyValueStrings.FLOW_AMOUNT.getValue(), amount);
-        String remark = flowView.getRemark();        //备注
-        dataBundle.putString(KeyValueStrings.FLOW_REMARK.getValue(), remark);
-        String date_time = flowView.getDate_time();  //日期
-        dataBundle.putString(KeyValueStrings.FLOW_DATETIME.getValue(), date_time);
-        long fno = flowView.getFno();                //流水编号
-        dataBundle.putLong(KeyValueStrings.FLOW_NO.getValue(), fno);
-        long tag_no = flowView.getTag_no();          //标签编号
+        RunningAccountTypeEnum type = runningAccountView.getType();     //类型
+        dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());
+        double amount = runningAccountView.getAmount();                 //金额
+        dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
+        String remark = runningAccountView.getRemark();                 //备注
+        dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
+        String date_time = runningAccountView.getDate_time();           //日期
+        dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), date_time);
+        long rno = runningAccountView.getRno();                         //流水编号
+        dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
+        long tag_no = runningAccountView.getTag_no();                   //标签编号
         dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
 
-        dataBundle.putInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), position);  //将待修改的流水实例下标放入包裹
+        dataBundle.putInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), position);  //将待修改的流水实例下标放入包裹
 
         //获取特殊数据
-        if (type == FlowTypeEnum.TRANSFER) {
-            String exportAccount = ((TransferFlow) flowView).exportAccount;  //转出账户
-            dataBundle.putString(KeyValueStrings.FLOW_EXPORT.getValue(), exportAccount);
-            String importAccount = ((TransferFlow) flowView).importAccount;  //转入账户
-            dataBundle.putString(KeyValueStrings.FLOW_IMPORT.getValue(), importAccount);
+        if (type == RunningAccountTypeEnum.TRANSFER) {
+            String exportAccount = ((TransferRunningAccount) runningAccountView).exportAccount;  //转出账户
+            dataBundle.putString(KeyValueStrings.ACCOUNT_EXPORT.getValue(), exportAccount);
+            String importAccount = ((TransferRunningAccount) runningAccountView).importAccount;  //转入账户
+            dataBundle.putString(KeyValueStrings.ACCOUNT_IMPORT.getValue(), importAccount);
         }
 
-        skip2FlowModify.putExtras(dataBundle);
-        modifyFlowLauncher.launch(skip2FlowModify);
+        skip2RunningAccountModify.putExtras(dataBundle);
+        modifyRunningAccountLauncher.launch(skip2RunningAccountModify);
     }
 
     //初始化活动启动器
     private void initActivityLauncher() {
-        newFlowLauncher = registerForActivityResult(
+        newRunningAccountLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
+                    if (resultCode == ResultCode.RESULT_OK.ordinal()) {
                         if (data != null) {
-                            addNewFlow(data);
+                            addNewRunningAccount(data);
                         } else {
                             NullPointerException e = new NullPointerException("无法获取新增流水的数据");
                             ExceptionHelper.showExceptionDialog(requireContext(), e);
@@ -135,22 +134,22 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                 }
         );
 
-        modifyFlowLauncher = registerForActivityResult(
+        modifyRunningAccountLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
+                    if (resultCode == ResultCode.RESULT_DELETE.ordinal()) {
                         if (data != null) {
-                            deleteFlow(data);
+                            deleteRunningAccount(data);
                         } else {
                             NullPointerException e = new NullPointerException("无法读取编辑后的流水数据");
                             ExceptionHelper.showExceptionDialog(requireContext(), e);
                         }
-                    } else if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
+                    } else if (resultCode == ResultCode.RESULT_OK.ordinal()) {
                         if (data != null) {
-                            modifyFlow(data);
+                            modifyRunningAccount(data);
                         } else {
                             NullPointerException e = new NullPointerException("无法读取编辑后的流水数据");
                             ExceptionHelper.showExceptionDialog(requireContext(), e);
@@ -165,9 +164,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
      *
      * @param resultIntent 包含流水数据的意图对象
      */
-    private void addNewFlow(@NonNull Intent resultIntent) {
+    private void addNewRunningAccount(@NonNull Intent resultIntent) {
         ContentValues basic_values, special_values;           //基本数据和特殊数据记录
-        SQLiteDatabase db = flow_db_helper.openWriteLink();   //数据库写连接
+        SQLiteDatabase db = running_account_db_helper.openWriteLink();   //数据库写连接
 
         Bundle dataBundle = resultIntent.getExtras();
         if (dataBundle == null) {
@@ -178,40 +177,40 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         }
 
         //获取基本流水数据
-        FlowTypeEnum type = FlowTypeEnum.valueOf(resultIntent.getStringExtra(KeyValueStrings.FLOW_TYPE.getValue()));
+        RunningAccountTypeEnum type = RunningAccountTypeEnum.valueOf(resultIntent.getStringExtra(KeyValueStrings.ACCOUNT_TYPE.getValue()));
         String remark, date_time;
         double amount;
         long tag_no;
-        remark = dataBundle.getString(KeyValueStrings.FLOW_REMARK.getValue());
-        amount = dataBundle.getDouble(KeyValueStrings.FLOW_AMOUNT.getValue(), -1);
-        date_time = dataBundle.getString(KeyValueStrings.FLOW_DATETIME.getValue());
+        remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
+        amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
+        date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
         tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
         basic_values = new ContentValues();
-        basic_values.put(FlowColumns.TYPE.toString(), type.toString()); //种类
-        basic_values.put(FlowColumns.AMOUNT.toString(), amount);        //金额
-        basic_values.put(FlowColumns.REMARK.toString(), remark);        //备注
-        basic_values.put(FlowColumns.DATETIME.toString(), date_time);   //日期
-        basic_values.put(FlowColumns.TAG_NO.toString(), tag_no);        //标签编号
+        basic_values.put(RunningAccountColumns.TYPE.toString(), type.toString()); //种类
+        basic_values.put(RunningAccountColumns.AMOUNT.toString(), amount);        //金额
+        basic_values.put(RunningAccountColumns.REMARK.toString(), remark);        //备注
+        basic_values.put(RunningAccountColumns.DATETIME.toString(), date_time);   //日期
+        basic_values.put(RunningAccountColumns.TAG_NO.toString(), tag_no);        //标签编号
 
-        long fno = db.insert(FlowTables.BASIC.toString(), null, basic_values);   //获取自增主键值
+        long rno = db.insert(RunningAccountTables.BASIC.toString(), null, basic_values);   //获取自增主键值
 
         //获取特殊数据并实例化流水类
         special_values = new ContentValues();
-        FlowBase newFlowView;
-        if (type == FlowTypeEnum.EXPENSE) {
-            newFlowView = new ExpenseFlow(remark, date_time, amount, tag_no);
-        } else if (type == FlowTypeEnum.INCOME) {
-            newFlowView = new IncomeFlow(remark, date_time, amount, tag_no);
-        } else if (type == FlowTypeEnum.TRANSFER) {
-            String exportAccount = dataBundle.getString(KeyValueStrings.FLOW_EXPORT.getValue());    //转出账户
-            String importAccount = dataBundle.getString(KeyValueStrings.FLOW_IMPORT.getValue());    //转入账户
+        RunningAccountBase newRunningAccountView;
+        if (type == RunningAccountTypeEnum.EXPENSE) {
+            newRunningAccountView = new ExpenseRunningAccount(remark, date_time, amount, tag_no);
+        } else if (type == RunningAccountTypeEnum.INCOME) {
+            newRunningAccountView = new IncomeRunningAccount(remark, date_time, amount, tag_no);
+        } else if (type == RunningAccountTypeEnum.TRANSFER) {
+            String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
+            String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
 
-            special_values.put(FlowColumns.FNO.toString(), fno);
-            special_values.put(FlowColumns.EXPORT.toString(), exportAccount);
-            special_values.put(FlowColumns.IMPORT.toString(), importAccount);
-            db.insert(FlowTables.TRANSFER.toString(), null, special_values);
+            special_values.put(RunningAccountColumns.RNO.toString(), rno);
+            special_values.put(RunningAccountColumns.EXPORT.toString(), exportAccount);
+            special_values.put(RunningAccountColumns.IMPORT.toString(), importAccount);
+            db.insert(RunningAccountTables.TRANSFER.toString(), null, special_values);
 
-            newFlowView = new TransferFlow(remark, date_time, amount, tag_no, exportAccount, importAccount);
+            newRunningAccountView = new TransferRunningAccount(remark, date_time, amount, tag_no, exportAccount, importAccount);
         } else {
             NullPointerException e = new NullPointerException("流水类型获取失败");
             ExceptionHelper.showExceptionDialog(requireContext(), e);
@@ -219,8 +218,8 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         }
 
         db.close();
-        newFlowView.setFno(fno);  //将自增主键值保存
-        flowListAdapter.addNewFlowView(newFlowView);  //将新建的流水视图添加至列表视图适配器
+        newRunningAccountView.setRno(rno);  //将自增主键值保存
+        runningAccountRecyclerAdapter.addNewRunningAccountView(newRunningAccountView);  //将新建的流水视图添加至列表视图适配器
         Toast.makeText(getActivity(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
     }
 
@@ -229,9 +228,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
      *
      * @param resultIntent 带有编辑后数据的意图对象
      */
-    private void modifyFlow(Intent resultIntent) {
+    private void modifyRunningAccount(Intent resultIntent) {
         ContentValues basic_values, special_values;           //基本数据和特殊数据记录
-        SQLiteDatabase db = flow_db_helper.openWriteLink();   //数据库写连接
+        SQLiteDatabase db = running_account_db_helper.openWriteLink();   //数据库写连接
 
         Bundle dataBundle = resultIntent.getExtras();
         if (dataBundle == null) {
@@ -240,51 +239,51 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             return;
         }
 
-        FlowTypeEnum type = FlowTypeEnum.valueOf(dataBundle.getString(KeyValueStrings.FLOW_TYPE.getValue()));
-        int position = dataBundle.getInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), -1);    //原视图下标
-        double amount = dataBundle.getDouble(KeyValueStrings.FLOW_AMOUNT.getValue(), -1);
-        String remark = dataBundle.getString(KeyValueStrings.FLOW_REMARK.getValue());
-        String date_time = dataBundle.getString(KeyValueStrings.FLOW_DATETIME.getValue());
+        RunningAccountTypeEnum type = RunningAccountTypeEnum.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
+        int position = dataBundle.getInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), -1);    //原视图下标
+        double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
+        String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
+        String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
         long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
 
         //将基本数据存放至数据库
         basic_values = new ContentValues();
-        basic_values.put(FlowColumns.TYPE.toString(), type.toString()); //种类
-        basic_values.put(FlowColumns.AMOUNT.toString(), amount);        //金额
-        basic_values.put(FlowColumns.REMARK.toString(), remark);        //备注
-        basic_values.put(FlowColumns.DATETIME.toString(), date_time);   //日期
-        basic_values.put(FlowColumns.TAG_NO.toString(), tag_no);        //标签编号
-        String selection = FlowColumns.FNO + "=?";
-        long fno = (flowListAdapter.getItem(position)).getFno();  //编号
-        String[] selectionArgs = new String[]{String.valueOf(fno)};
+        basic_values.put(RunningAccountColumns.TYPE.toString(), type.toString()); //种类
+        basic_values.put(RunningAccountColumns.AMOUNT.toString(), amount);        //金额
+        basic_values.put(RunningAccountColumns.REMARK.toString(), remark);        //备注
+        basic_values.put(RunningAccountColumns.DATETIME.toString(), date_time);   //日期
+        basic_values.put(RunningAccountColumns.TAG_NO.toString(), tag_no);        //标签编号
+        String selection = RunningAccountColumns.RNO + "=?";
+        long rno = (runningAccountRecyclerAdapter.getItem(position)).getRno();  //编号
+        String[] selectionArgs = new String[]{String.valueOf(rno)};
         db.update(
-                FlowTables.BASIC.toString(),
+                RunningAccountTables.BASIC.toString(),
                 basic_values,
                 selection,
                 selectionArgs
         );
 
         //实例化流水类
-        FlowBase newFlowView;
+        RunningAccountBase newRunningAccountView;
         special_values = new ContentValues();
-        if (type == FlowTypeEnum.EXPENSE) {
-            newFlowView = new ExpenseFlow(remark, date_time, amount, tag_no);
-        } else if (type == FlowTypeEnum.INCOME) {
-            newFlowView = new IncomeFlow(remark, date_time, amount, tag_no);
-        } else if (type == FlowTypeEnum.TRANSFER) {
-            String exportAccount = dataBundle.getString(KeyValueStrings.FLOW_EXPORT.getValue());    //转出账户
-            String importAccount = dataBundle.getString(KeyValueStrings.FLOW_IMPORT.getValue());    //转入账户
+        if (type == RunningAccountTypeEnum.EXPENSE) {
+            newRunningAccountView = new ExpenseRunningAccount(remark, date_time, amount, tag_no);
+        } else if (type == RunningAccountTypeEnum.INCOME) {
+            newRunningAccountView = new IncomeRunningAccount(remark, date_time, amount, tag_no);
+        } else if (type == RunningAccountTypeEnum.TRANSFER) {
+            String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
+            String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
 
-            special_values.put(FlowColumns.EXPORT.toString(), exportAccount);
-            special_values.put(FlowColumns.IMPORT.toString(), importAccount);
+            special_values.put(RunningAccountColumns.EXPORT.toString(), exportAccount);
+            special_values.put(RunningAccountColumns.IMPORT.toString(), importAccount);
             db.update(
-                    FlowTables.TRANSFER.toString(),
+                    RunningAccountTables.TRANSFER.toString(),
                     special_values,
                     selection,
                     selectionArgs
             );
 
-            newFlowView = new TransferFlow(remark, date_time, amount, tag_no, exportAccount, importAccount);
+            newRunningAccountView = new TransferRunningAccount(remark, date_time, amount, tag_no, exportAccount, importAccount);
         } else {
             NullPointerException e = new NullPointerException("流水类型获取失败");
             ExceptionHelper.showExceptionDialog(requireContext(), e);
@@ -292,17 +291,17 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         }
 
         db.close();
-        newFlowView.setFno(fno);
-        flowListAdapter.setFlowView(position, newFlowView);
+        newRunningAccountView.setRno(rno);
+        runningAccountRecyclerAdapter.modifyRunningAccountView(position, newRunningAccountView);
         Toast.makeText(getActivity(), "成功修改流水记录", Toast.LENGTH_SHORT).show();
     }
 
     /**
      * 删除流水
      */
-    private void deleteFlow(Intent resultIntent) {
+    private void deleteRunningAccount(Intent resultIntent) {
         Bundle dataBundle = resultIntent.getExtras();
-        SQLiteDatabase db = flow_db_helper.openWriteLink();
+        SQLiteDatabase db = running_account_db_helper.openWriteLink();
 
         int position;
         if (dataBundle == null) {
@@ -312,78 +311,78 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         }
 
         //从数据库中删除
-        position = dataBundle.getInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), -1);
-        FlowBase target_flow_view = flowListAdapter.getItem(position);
-        long fno = target_flow_view.getFno();
-        String selection = FlowColumns.FNO + "=?";
-        String[] selectionArgs = {String.valueOf(fno)};
+        position = dataBundle.getInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), -1);
+        RunningAccountBase target_running_account_view = runningAccountRecyclerAdapter.getItem(position);
+        long rno = target_running_account_view.getRno();
+        String selection = RunningAccountColumns.RNO + "=?";
+        String[] selectionArgs = {String.valueOf(rno)};
         db.delete(
-                FlowTables.BASIC.toString(),
+                RunningAccountTables.BASIC.toString(),
                 selection,
                 selectionArgs
         );
-        FlowTypeEnum type = target_flow_view.getType();
-        if (type == FlowTypeEnum.TRANSFER) {
+        RunningAccountTypeEnum type = target_running_account_view.getType();
+        if (type == RunningAccountTypeEnum.TRANSFER) {
             db.delete(
-                    FlowTables.TRANSFER.toString(),
+                    RunningAccountTables.TRANSFER.toString(),
                     selection,
                     selectionArgs
             );
         }
 
         db.close();
-        flowListAdapter.deleteFlowView(position);
+        runningAccountRecyclerAdapter.deleteRunningAccountView(position);
         Toast.makeText(getActivity(), "流水记录已删除", Toast.LENGTH_SHORT).show();
     }
 
     /**
      * 从数据库中加载流水视图
      */
-    private List<FlowBase> loadFlowData() {
-        SQLiteDatabase db = flow_db_helper.openReadLink();  //获取读连接
+    private List<RunningAccountBase> loadRunningAccountData() {
+        SQLiteDatabase db = running_account_db_helper.openReadLink();  //获取读连接
 
         //定义查询光标
         Cursor basic_cursor = db.query(
-                FlowTables.BASIC.toString(),
+                RunningAccountTables.BASIC.toString(),
                 null,
                 null,           //无WHERE子句
                 null,
                 null,
                 null,
-                FlowColumns.DATETIME + " DESC," + FlowColumns.FNO + " DESC"
+                RunningAccountColumns.DATETIME + " DESC," + RunningAccountColumns.RNO + " DESC"
         );
 
         //查询数据
-        List<FlowBase> flowList = new ArrayList<>();
+        List<RunningAccountBase> runningAccountList = new ArrayList<>();
         while (basic_cursor.moveToNext()) {
             //流水编号
-            long fno = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(FlowColumns.FNO.toString()));
+            long rno = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.RNO.toString()));
             //金额
-            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(FlowColumns.AMOUNT.toString()));
+            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.AMOUNT.toString()));
             //种类
-            FlowTypeEnum type = FlowTypeEnum.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(FlowColumns.TYPE.toString())));
+            RunningAccountTypeEnum type = RunningAccountTypeEnum.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.TYPE.toString())));
             //备注
-            String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(FlowColumns.REMARK.toString()));
+            String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.REMARK.toString()));
             //日期和时间
-            String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(FlowColumns.DATETIME.toString()));
+            String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.DATETIME.toString()));
             //标签编号
-            long tag_no = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NO.toString()));
+            long tag_no = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.TAG_NO.toString()));
 
-            FlowBase flowView = null;
+            RunningAccountBase runningAccountView = null;
             switch (type) {
                 case EXPENSE:
-                    flowView = new ExpenseFlow(fno, remark, datetime, amount, tag_no);
+                    runningAccountView = new ExpenseRunningAccount(rno, remark, datetime, amount, tag_no);
                     break;
                 case INCOME:
-                    flowView = new IncomeFlow(fno, remark, datetime, amount, tag_no);
+                    runningAccountView = new IncomeRunningAccount(rno, remark, datetime, amount, tag_no);
                     break;
                 case TRANSFER:
-                    String[] columns = {FlowColumns.EXPORT.toString(), FlowColumns.IMPORT.toString()};
-                    String selection = FlowColumns.FNO + "=?";
-                    String[] selectionArgs = {String.valueOf(fno)};
+                    String[] columns = {RunningAccountColumns.EXPORT.toString(), RunningAccountColumns.IMPORT.toString()};
+                    String selection = RunningAccountColumns.RNO + "=?";
+                    String[] selectionArgs = {String.valueOf(rno)};
 
                     Cursor transfer_cursor = db.query(
-                            FlowTables.TRANSFER.toString(),
+                            RunningAccountTables.TRANSFER.toString(),
                             columns,
                             selection,
                             selectionArgs,
@@ -393,10 +392,10 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                     );
 
                     while (transfer_cursor.moveToNext()) {
-                        String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(FlowColumns.EXPORT.toString()));
-                        String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(FlowColumns.IMPORT.toString()));
+                        String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(RunningAccountColumns.EXPORT.toString()));
+                        String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(RunningAccountColumns.IMPORT.toString()));
                         transfer_cursor.close();
-                        flowView = new TransferFlow(fno, remark, datetime, amount, tag_no, exportAccount, importAccount);
+                        runningAccountView = new TransferRunningAccount(rno, remark, datetime, amount, tag_no, exportAccount, importAccount);
                     }
 
                     break;
@@ -405,11 +404,11 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                     ExceptionHelper.showExceptionDialog(requireContext(), e);
                     break;
             }
-            flowList.add(flowView);
+            runningAccountList.add(runningAccountView);
         }
         basic_cursor.close();
         db.close();
 
-        return flowList;
+        return runningAccountList;
     }
 }

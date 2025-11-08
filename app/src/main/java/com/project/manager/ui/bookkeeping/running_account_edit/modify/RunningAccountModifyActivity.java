@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.flow_edit.modify;
+package com.project.manager.ui.bookkeeping.running_account_edit.modify;
 
 import android.content.Intent;
 import android.database.sqlite.SQLiteException;
@@ -11,33 +11,33 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.project.manager.R;
-import com.project.manager.RequestResultCode;
+import com.project.manager.ResultCode;
 import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
-import com.project.manager.ui.bookkeeping.flow_edit.fragments.ExpenseFragment;
-import com.project.manager.ui.bookkeeping.flow_edit.fragments.FlowFragmentBase;
-import com.project.manager.ui.bookkeeping.flow_edit.fragments.FlowTypeEnum;
-import com.project.manager.ui.bookkeeping.flow_edit.fragments.IncomeFragment;
-import com.project.manager.ui.bookkeeping.flow_edit.fragments.TransferFragment;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.ExpenseFragment;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountFragmentBase;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountTypeEnum;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.IncomeFragment;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.TransferFragment;
 import com.project.manager.ui.bookkeeping.tag.Tag;
 
-public class FlowModifyActivity extends AppCompatActivity implements View.OnClickListener {
-    FlowTypeEnum type = null;                                   //流水种类
-    int position = -1;                                          //流水项目的下标
-    private final String FRAGMENT_TAG = "flow_edit_fragment";   //碎片Tag
+public class RunningAccountModifyActivity extends AppCompatActivity implements View.OnClickListener {
+    RunningAccountTypeEnum type = null;                     //流水种类
+    int position = -1;                                      //流水项目的下标
+    private final String FRAGMENT_TAG = "edit_fragment";    //碎片Tag
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_flow_modify);
+        setContentView(R.layout.activity_running_account_modify);
 
         initViews();
 
         //接收种类和下标参数
         Bundle dataBundle = getIntent().getExtras();
         if (dataBundle != null) {
-            type = FlowTypeEnum.valueOf(dataBundle.getString(KeyValueStrings.FLOW_TYPE.getValue()));
-            position = dataBundle.getInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), -1);
+            type = RunningAccountTypeEnum.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
+            position = dataBundle.getInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), -1);
         } else {
             NullPointerException e = new NullPointerException("编辑流水时无法读取原有的数据");
             ExceptionHelper.showExceptionDialog(this, e);
@@ -45,21 +45,21 @@ public class FlowModifyActivity extends AppCompatActivity implements View.OnClic
 
         if (savedInstanceState == null) {
             //创建流水编辑Fragment实例
-            FlowFragmentBase flowFragment = null;
-            if (type == FlowTypeEnum.EXPENSE) {
-                flowFragment = new ExpenseFragment();
-            } else if (type == FlowTypeEnum.INCOME) {
-                flowFragment = new IncomeFragment();
-            } else if (type == FlowTypeEnum.TRANSFER) {
-                flowFragment = new TransferFragment();
+            RunningAccountFragmentBase runningAccountFragment = null;
+            if (type == RunningAccountTypeEnum.EXPENSE) {
+                runningAccountFragment = new ExpenseFragment();
+            } else if (type == RunningAccountTypeEnum.INCOME) {
+                runningAccountFragment = new IncomeFragment();
+            } else if (type == RunningAccountTypeEnum.TRANSFER) {
+                runningAccountFragment = new TransferFragment();
             }
 
             //将Fragment添加到布局
-            if (flowFragment != null) {
+            if (runningAccountFragment != null) {
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.add(R.id.flow_edit_fragment_container, flowFragment, this.FRAGMENT_TAG);
+                transaction.add(R.id.running_account_edit_fragment_container, runningAccountFragment, this.FRAGMENT_TAG);
                 transaction.commit();
-                flowFragment.setInitData(dataBundle);   //将原本的数据传递给碎片实例
+                runningAccountFragment.setInitData(dataBundle);   //将原本的数据传递给碎片实例
             }
         }
     }
@@ -75,10 +75,10 @@ public class FlowModifyActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onClick(View v) {
         Intent result2BookKeeping = new Intent();
-        int resultCode = RequestResultCode.RESULT_REJECT.ordinal();  //响应代码
+        int resultCode = ResultCode.RESULT_REJECT.ordinal();  //响应代码
 
         if (v.getId() == R.id.finish_btn) {
-            FlowFragmentBase current_fragment = (FlowFragmentBase) getSupportFragmentManager().findFragmentByTag(this.FRAGMENT_TAG);
+            RunningAccountFragmentBase current_fragment = (RunningAccountFragmentBase) getSupportFragmentManager().findFragmentByTag(this.FRAGMENT_TAG);
             String error;
             if (current_fragment != null) {
                 error = current_fragment.verifyInputData();
@@ -88,7 +88,7 @@ public class FlowModifyActivity extends AppCompatActivity implements View.OnClic
                     Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
                     return;
                 } else {
-                    resultCode = RequestResultCode.RESULT_OK.ordinal();
+                    resultCode = ResultCode.RESULT_OK.ordinal();
                     Bundle dataBundle = getDataAfterEditing();
                     result2BookKeeping.putExtras(dataBundle);
                 }
@@ -98,9 +98,9 @@ public class FlowModifyActivity extends AppCompatActivity implements View.OnClic
                 ExceptionHelper.showExceptionDialog(this, e);
             }
         } else if (v.getId() == R.id.delete_btn) {
-            resultCode = RequestResultCode.RESULT_DELETE.ordinal();
+            resultCode = ResultCode.RESULT_DELETE.ordinal();
             Bundle dataBundle = new Bundle();
-            dataBundle.putInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), position);
+            dataBundle.putInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), position);
             result2BookKeeping.putExtras(dataBundle);
         } else {
             RuntimeException e = new RuntimeException("无法获取正确的按钮ID");
@@ -124,14 +124,14 @@ public class FlowModifyActivity extends AppCompatActivity implements View.OnClic
         //获取基本数据
         TextInputEditText amount_input = findViewById(R.id.amount_input);       //金额
         amount = Double.parseDouble(String.valueOf(amount_input.getText()));
-        dataBundle.putDouble(KeyValueStrings.FLOW_AMOUNT.getValue(), amount);
+        dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
         TextInputEditText remark_input = findViewById(R.id.remark_input);       //备注
         remark = String.valueOf(remark_input.getText());
-        dataBundle.putString(KeyValueStrings.FLOW_REMARK.getValue(), remark);
+        dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
         TextInputEditText datetime_input = findViewById(R.id.datetime_input);   //日期
         date_time = String.valueOf(datetime_input.getText());
-        dataBundle.putString(KeyValueStrings.FLOW_DATETIME.getValue(), date_time);
-        TextInputEditText tag_input = findViewById(R.id.flow_tag_input);        //标签名称
+        dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), date_time);
+        TextInputEditText tag_input = findViewById(R.id.running_account_tag_input);        //标签名称
         tag_name = String.valueOf(tag_input.getText());
 
         //将标签名称转换为标签编号
@@ -142,19 +142,19 @@ public class FlowModifyActivity extends AppCompatActivity implements View.OnClic
             ExceptionHelper.showExceptionDialog(this, e);
         }
 
-        dataBundle.putInt(KeyValueStrings.FLOW_VIEW_POSITION.getValue(), position);        //将下标存放至包裹
-        dataBundle.putString(KeyValueStrings.FLOW_TYPE.getValue(), type.toString());       //将种类存放至包裹
+        dataBundle.putInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), position);        //将下标存放至包裹
+        dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());       //将种类存放至包裹
 
         //获取特殊信息
-        if (type == FlowTypeEnum.TRANSFER) {
+        if (type == RunningAccountTypeEnum.TRANSFER) {
             TextInputEditText export_input, import_input;
             String exportAccount, importAccount;
             export_input = findViewById(R.id.export_account_input);    //转出账户
             exportAccount = String.valueOf(export_input.getText());
-            dataBundle.putString(KeyValueStrings.FLOW_EXPORT.getValue(), exportAccount);
+            dataBundle.putString(KeyValueStrings.ACCOUNT_EXPORT.getValue(), exportAccount);
             import_input = findViewById(R.id.import_account_input);    //转入账户
             importAccount = String.valueOf(import_input.getText());
-            dataBundle.putString(KeyValueStrings.FLOW_IMPORT.getValue(), importAccount);
+            dataBundle.putString(KeyValueStrings.ACCOUNT_IMPORT.getValue(), importAccount);
         }
 
         return dataBundle;

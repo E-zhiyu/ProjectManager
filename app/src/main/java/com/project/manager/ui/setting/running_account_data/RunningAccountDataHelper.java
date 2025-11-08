@@ -1,4 +1,4 @@
-package com.project.manager.ui.setting.flow_data;
+package com.project.manager.ui.setting.running_account_data;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -12,14 +12,14 @@ import androidx.annotation.NonNull;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.manager.database.FlowColumns;
-import com.project.manager.database.FlowDatabaseHelper;
-import com.project.manager.database.FlowTables;
-import com.project.manager.ui.setting.flow_data.pojo.PojoBasicFlow;
-import com.project.manager.ui.setting.flow_data.pojo.PojoTag;
-import com.project.manager.ui.setting.flow_data.pojo.PojoTagGroup;
-import com.project.manager.ui.setting.flow_data.pojo.TotalDataMap;
-import com.project.manager.ui.setting.flow_data.pojo.PojoTransferFlow;
+import com.project.manager.database.RunningAccountColumns;
+import com.project.manager.database.RunningAccountDatabaseHelper;
+import com.project.manager.database.RunningAccountTables;
+import com.project.manager.ui.setting.running_account_data.pojo.PojoBasicRunningAccount;
+import com.project.manager.ui.setting.running_account_data.pojo.PojoTag;
+import com.project.manager.ui.setting.running_account_data.pojo.PojoTagGroup;
+import com.project.manager.ui.setting.running_account_data.pojo.TotalDataMap;
+import com.project.manager.ui.setting.running_account_data.pojo.PojoTransferRunningAccount;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,23 +29,23 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FlowDataHelper {
+public class RunningAccountDataHelper {
     Context context;                //用于打开数据库的上下文
-    FlowDatabaseHelper db_helper;   //流水数据库帮助器
+    RunningAccountDatabaseHelper db_helper;   //流水数据库帮助器
 
-    public FlowDataHelper(Context context) {
+    public RunningAccountDataHelper(Context context) {
         this.context = context;
-        this.db_helper = new FlowDatabaseHelper(context);
+        this.db_helper = new RunningAccountDatabaseHelper(context);
     }
 
     //获取所有流水账基本数据（对应基本流水记录表）
     @NonNull
-    private List<PojoBasicFlow> getBasicFlowData() {
-        List<PojoBasicFlow> pojoBasicFlowList = new ArrayList<>();
+    private List<PojoBasicRunningAccount> getBasicData() {
+        List<PojoBasicRunningAccount> pojoBasicRunningAccountList = new ArrayList<>();
         SQLiteDatabase db = db_helper.openReadLink();
 
         Cursor basic_cursor = db.query(
-                FlowTables.BASIC.toString(),
+                RunningAccountTables.BASIC.toString(),
                 null,
                 null,           //无WHERE子句
                 null,
@@ -57,51 +57,51 @@ public class FlowDataHelper {
         //查询数据
         while (basic_cursor.moveToNext()) {
             //流水编号
-            long fno = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(FlowColumns.FNO.toString()));
+            long rno = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.RNO.toString()));
             //金额
-            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(FlowColumns.AMOUNT.toString()));
+            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.AMOUNT.toString()));
             //种类
-            String type = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(FlowColumns.TYPE.toString()));
+            String type = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.TYPE.toString()));
             //备注
-            String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(FlowColumns.REMARK.toString()));
+            String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.REMARK.toString()));
             //日期和时间
-            String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(FlowColumns.DATETIME.toString()));
+            String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.DATETIME.toString()));
             //标签编号
-            long tag_no = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NO.toString()));
+            long tag_no = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.TAG_NO.toString()));
 
-            PojoBasicFlow pojoBasicFlow = new PojoBasicFlow(type, remark, datetime, tag_no, amount, fno);
-            pojoBasicFlowList.add(pojoBasicFlow);
+            PojoBasicRunningAccount pojoBasicRunningAccount = new PojoBasicRunningAccount(type, remark, datetime, tag_no, amount, rno);
+            pojoBasicRunningAccountList.add(pojoBasicRunningAccount);
         }
 
         basic_cursor.close();
         db.close();
-        return pojoBasicFlowList;
+        return pojoBasicRunningAccountList;
     }
 
     //将流水账基本数据写入数据库
-    private void setBasicFlowData(@NonNull List<PojoBasicFlow> flowDataList) {
+    private void setBasicData(@NonNull List<PojoBasicRunningAccount> runningAccountDataList) {
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //删除之前表的内容
-        db.delete(FlowTables.BASIC.toString(), null, null);
+        db.delete(RunningAccountTables.BASIC.toString(), null, null);
 
-        for (PojoBasicFlow flow_data : flowDataList) {
-            String type = flow_data.getType();              //种类
-            String remark = flow_data.getRemark();          //备注
-            String date_time = flow_data.getDate_time();    //日期和时间
-            long tag_no = flow_data.getTag_no();            //标签编号
-            double amount = flow_data.getAmount();          //金额
-            long fno = flow_data.getFno();                  //流水编号
+        for (PojoBasicRunningAccount basic_data : runningAccountDataList) {
+            String type = basic_data.getType();              //种类
+            String remark = basic_data.getRemark();          //备注
+            String date_time = basic_data.getDate_time();    //日期和时间
+            long tag_no = basic_data.getTag_no();            //标签编号
+            double amount = basic_data.getAmount();          //金额
+            long rno = basic_data.getRno();                  //流水编号
 
             //写入基本数据
             ContentValues basic_values = new ContentValues();
-            basic_values.put(FlowColumns.TYPE.toString(), type);
-            basic_values.put(FlowColumns.REMARK.toString(), remark);
-            basic_values.put(FlowColumns.DATETIME.toString(), date_time);
-            basic_values.put(FlowColumns.TAG_NO.toString(), tag_no);
-            basic_values.put(FlowColumns.AMOUNT.toString(), amount);
-            basic_values.put(FlowColumns.FNO.toString(), fno);
-            db.insert(FlowTables.BASIC.toString(), null, basic_values);
+            basic_values.put(RunningAccountColumns.TYPE.toString(), type);
+            basic_values.put(RunningAccountColumns.REMARK.toString(), remark);
+            basic_values.put(RunningAccountColumns.DATETIME.toString(), date_time);
+            basic_values.put(RunningAccountColumns.TAG_NO.toString(), tag_no);
+            basic_values.put(RunningAccountColumns.AMOUNT.toString(), amount);
+            basic_values.put(RunningAccountColumns.RNO.toString(), rno);
+            db.insert(RunningAccountTables.BASIC.toString(), null, basic_values);
         }
 
         db.close();
@@ -109,12 +109,12 @@ public class FlowDataHelper {
 
     //获取转账流水账记录（对应转账流水表）
     @NonNull
-    private List<PojoTransferFlow> getTransferFlowData() {
-        List<PojoTransferFlow> pojoTransferFlowList = new ArrayList<>();
+    private List<PojoTransferRunningAccount> getTransferData() {
+        List<PojoTransferRunningAccount> pojoTransferRunningAccountList = new ArrayList<>();
         SQLiteDatabase db = db_helper.openReadLink();
 
         Cursor transfer_cursor = db.query(
-                FlowTables.TRANSFER.toString(),
+                RunningAccountTables.TRANSFER.toString(),
                 null,
                 null,
                 null,
@@ -124,36 +124,36 @@ public class FlowDataHelper {
         );
 
         while (transfer_cursor.moveToNext()) {
-            String export_account = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(FlowColumns.EXPORT.toString()));
-            String import_account = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(FlowColumns.IMPORT.toString()));
-            long fno = transfer_cursor.getLong(transfer_cursor.getColumnIndexOrThrow(FlowColumns.FNO.toString()));
+            String export_account = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(RunningAccountColumns.EXPORT.toString()));
+            String import_account = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(RunningAccountColumns.IMPORT.toString()));
+            long rno = transfer_cursor.getLong(transfer_cursor.getColumnIndexOrThrow(RunningAccountColumns.RNO.toString()));
 
-            PojoTransferFlow pojoTransferFlow = new PojoTransferFlow(fno, export_account, import_account);
-            pojoTransferFlowList.add(pojoTransferFlow);
+            PojoTransferRunningAccount pojoTransferRunningAccount = new PojoTransferRunningAccount(rno, export_account, import_account);
+            pojoTransferRunningAccountList.add(pojoTransferRunningAccount);
         }
 
         transfer_cursor.close();
         db.close();
-        return pojoTransferFlowList;
+        return pojoTransferRunningAccountList;
     }
 
-    private void setTransferFlowData(@NonNull List<PojoTransferFlow> pojoTransferFlowList) {
+    private void setTransferData(@NonNull List<PojoTransferRunningAccount> pojoTransferRunningAccountList) {
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //删除之前表的内容
-        db.delete(FlowTables.TRANSFER.toString(), null, null);
+        db.delete(RunningAccountTables.TRANSFER.toString(), null, null);
 
-        for (PojoTransferFlow transfer_flow_data : pojoTransferFlowList) {
-            String export_account = transfer_flow_data.getExport_account();
-            String import_account = transfer_flow_data.getImport_account();
-            long fno = transfer_flow_data.getFno();
+        for (PojoTransferRunningAccount transfer_data : pojoTransferRunningAccountList) {
+            String export_account = transfer_data.getExport_account();
+            String import_account = transfer_data.getImport_account();
+            long rno = transfer_data.getRno();
 
             //将数据写入数据库
             ContentValues transfer_values = new ContentValues();
-            transfer_values.put(FlowColumns.EXPORT.toString(), export_account);
-            transfer_values.put(FlowColumns.IMPORT.toString(), import_account);
-            transfer_values.put(FlowColumns.FNO.toString(), fno);
-            db.insert(FlowTables.TRANSFER.toString(), null, transfer_values);
+            transfer_values.put(RunningAccountColumns.EXPORT.toString(), export_account);
+            transfer_values.put(RunningAccountColumns.IMPORT.toString(), import_account);
+            transfer_values.put(RunningAccountColumns.RNO.toString(), rno);
+            db.insert(RunningAccountTables.TRANSFER.toString(), null, transfer_values);
         }
 
         db.close();
@@ -166,7 +166,7 @@ public class FlowDataHelper {
         SQLiteDatabase db = db_helper.openReadLink();
 
         Cursor tag_cursor = db.query(
-                FlowTables.TAG.toString(),
+                RunningAccountTables.TAG.toString(),
                 null,
                 null,
                 null,
@@ -176,9 +176,9 @@ public class FlowDataHelper {
         );
 
         while (tag_cursor.moveToNext()) {
-            long tag_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NO.toString()));
-            long group_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NO.toString()));
-            String tag_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(FlowColumns.TAG_NAME.toString()));
+            long tag_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(RunningAccountColumns.TAG_NO.toString()));
+            long group_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(RunningAccountColumns.GROUP_NO.toString()));
+            String tag_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(RunningAccountColumns.TAG_NAME.toString()));
 
             PojoTag pojoTag = new PojoTag(tag_name, tag_no, group_no);
             pojoTagList.add(pojoTag);
@@ -194,7 +194,7 @@ public class FlowDataHelper {
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //删除之前表的内容
-        db.delete(FlowTables.TAG.toString(), null, null);
+        db.delete(RunningAccountTables.TAG.toString(), null, null);
 
         for (PojoTag tag_data : pojoTagList) {
             String tag_name = tag_data.getName();
@@ -203,10 +203,10 @@ public class FlowDataHelper {
 
             //将数据写入数据库
             ContentValues tag_values = new ContentValues();
-            tag_values.put(FlowColumns.TAG_NAME.toString(), tag_name);
-            tag_values.put(FlowColumns.TAG_NO.toString(), tag_no);
-            tag_values.put(FlowColumns.GROUP_NO.toString(), group_no);
-            db.insert(FlowTables.TAG.toString(), null, tag_values);
+            tag_values.put(RunningAccountColumns.TAG_NAME.toString(), tag_name);
+            tag_values.put(RunningAccountColumns.TAG_NO.toString(), tag_no);
+            tag_values.put(RunningAccountColumns.GROUP_NO.toString(), group_no);
+            db.insert(RunningAccountTables.TAG.toString(), null, tag_values);
         }
 
         db.close();
@@ -219,7 +219,7 @@ public class FlowDataHelper {
         SQLiteDatabase db = db_helper.openReadLink();
 
         Cursor tag_group_cursor = db.query(
-                FlowTables.TAG_GROUP.toString(),
+                RunningAccountTables.TAG_GROUP.toString(),
                 null,
                 null,
                 null,
@@ -229,8 +229,8 @@ public class FlowDataHelper {
         );
 
         while (tag_group_cursor.moveToNext()) {
-            String group_name = tag_group_cursor.getString(tag_group_cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NAME.toString()));
-            long group_no = tag_group_cursor.getLong(tag_group_cursor.getColumnIndexOrThrow(FlowColumns.GROUP_NO.toString()));
+            String group_name = tag_group_cursor.getString(tag_group_cursor.getColumnIndexOrThrow(RunningAccountColumns.GROUP_NAME.toString()));
+            long group_no = tag_group_cursor.getLong(tag_group_cursor.getColumnIndexOrThrow(RunningAccountColumns.GROUP_NO.toString()));
 
             PojoTagGroup pojoTagGroup = new PojoTagGroup(group_name, group_no);
             pojoTagGroupList.add(pojoTagGroup);
@@ -246,7 +246,7 @@ public class FlowDataHelper {
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //删除之前表的内容
-        db.delete(FlowTables.TAG_GROUP.toString(), null, null);
+        db.delete(RunningAccountTables.TAG_GROUP.toString(), null, null);
 
         for (PojoTagGroup tag_group_data : pojoTagGroupList) {
             String group_name = tag_group_data.getGroup_name();
@@ -254,9 +254,9 @@ public class FlowDataHelper {
 
             //将数据写入数据库
             ContentValues group_values = new ContentValues();
-            group_values.put(FlowColumns.GROUP_NAME.toString(), group_name);
-            group_values.put(FlowColumns.GROUP_NO.toString(), group_no);
-            db.insert(FlowTables.TAG_GROUP.toString(), null, group_values);
+            group_values.put(RunningAccountColumns.GROUP_NAME.toString(), group_name);
+            group_values.put(RunningAccountColumns.GROUP_NO.toString(), group_no);
+            db.insert(RunningAccountTables.TAG_GROUP.toString(), null, group_values);
         }
 
         db.close();
@@ -269,15 +269,15 @@ public class FlowDataHelper {
      */
     public TotalDataMap getAllDataInMap() {
         //读取所有数据
-        List<PojoBasicFlow> pojoBasicFlowList = getBasicFlowData();
-        List<PojoTransferFlow> pojoTransferFlowList = getTransferFlowData();
+        List<PojoBasicRunningAccount> pojoBasicRunningAccountList = getBasicData();
+        List<PojoTransferRunningAccount> pojoTransferRunningAccountList = getTransferData();
         List<PojoTag> pojoTagList = getTagData();
         List<PojoTagGroup> pojoTagGroupList = getTagGroupData();
 
         //将所有数据合并至一个字典
         TotalDataMap totalDataMap = new TotalDataMap();
-        totalDataMap.setBasic_data(pojoBasicFlowList);
-        totalDataMap.setTransfer_data(pojoTransferFlowList);
+        totalDataMap.setBasic_data(pojoBasicRunningAccountList);
+        totalDataMap.setTransfer_data(pojoTransferRunningAccountList);
         totalDataMap.setTag_data(pojoTagList);
         totalDataMap.setTag_group_data(pojoTagGroupList);
 
@@ -322,15 +322,15 @@ public class FlowDataHelper {
                     TotalDataMap dataMap = mapper.readValue(jsonString, TotalDataMap.class);
                     List<PojoTagGroup> pojoTagGroupList = dataMap.getTag_group_data();
                     List<PojoTag> pojoTagList = dataMap.getTag_data();
-                    List<PojoBasicFlow> pojoBasicFlowList = dataMap.getBasic_data();
-                    List<PojoTransferFlow> pojoTransferFlowList = dataMap.getTransfer_data();
+                    List<PojoBasicRunningAccount> pojoBasicRunningAccountList = dataMap.getBasic_data();
+                    List<PojoTransferRunningAccount> pojoTransferRunningAccountList = dataMap.getTransfer_data();
 
                     //将对应的数据写入数据库
-                    FlowDataHelper helper = new FlowDataHelper(context);
+                    RunningAccountDataHelper helper = new RunningAccountDataHelper(context);
                     helper.setTagGroupData(pojoTagGroupList);
                     helper.setTagData(pojoTagList);
-                    helper.setBasicFlowData(pojoBasicFlowList);
-                    helper.setTransferFlowData(pojoTransferFlowList);
+                    helper.setBasicData(pojoBasicRunningAccountList);
+                    helper.setTransferData(pojoTransferRunningAccountList);
 
                     tip_str = "数据已成功导入";
                 } catch (JsonProcessingException e) {
@@ -367,13 +367,13 @@ public class FlowDataHelper {
      */
     public static void deleteAllData(Context context) {
         String tip_str = "数据清除失败，原因未知";
-        try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(context)) {
+        try (RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context)) {
             SQLiteDatabase db = db_helper.openWriteLink();
 
-            db.delete(FlowTables.TRANSFER.toString(), null, null);
-            db.delete(FlowTables.BASIC.toString(), null, null);
-            db.delete(FlowTables.TAG.toString(), null, null);
-            db.delete(FlowTables.TAG_GROUP.toString(), null, null);
+            db.delete(RunningAccountTables.TRANSFER.toString(), null, null);
+            db.delete(RunningAccountTables.BASIC.toString(), null, null);
+            db.delete(RunningAccountTables.TAG.toString(), null, null);
+            db.delete(RunningAccountTables.TAG_GROUP.toString(), null, null);
 
             db.close();
             tip_str = "数据清除成功";

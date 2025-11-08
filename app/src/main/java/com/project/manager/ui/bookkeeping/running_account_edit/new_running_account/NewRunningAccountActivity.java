@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.flow_edit.new_flow;
+package com.project.manager.ui.bookkeeping.running_account_edit.new_running_account;
 
 import android.content.Intent;
 import android.database.sqlite.SQLiteException;
@@ -14,48 +14,48 @@ import com.google.android.material.tabs.TabLayout;
 import com.project.manager.R;
 import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
-import com.project.manager.ui.bookkeeping.flow_edit.fragments.ExpenseFragment;
-import com.project.manager.ui.bookkeeping.flow_edit.fragments.FlowTypeEnum;
-import com.project.manager.ui.bookkeeping.flow_edit.fragments.IncomeFragment;
-import com.project.manager.ui.bookkeeping.flow_edit.fragments.FlowFragmentBase;
-import com.project.manager.ui.bookkeeping.flow_edit.fragments.TransferFragment;
-import com.project.manager.RequestResultCode;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.ExpenseFragment;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountTypeEnum;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.IncomeFragment;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountFragmentBase;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.TransferFragment;
+import com.project.manager.ResultCode;
 import com.project.manager.ui.bookkeeping.tag.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class NewFlowActivity extends AppCompatActivity implements View.OnClickListener {
+public class NewRunningAccountActivity extends AppCompatActivity implements View.OnClickListener {
     ViewPager viewPager;  //翻页视图
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_flow);
+        setContentView(R.layout.activity_new_running_account);
 
         //创建碎片列表
-        List<FlowFragmentBase> fragmentList = new ArrayList<>();
+        List<RunningAccountFragmentBase> fragmentList = new ArrayList<>();
         fragmentList.add(new ExpenseFragment());
         fragmentList.add(new IncomeFragment());
         fragmentList.add(new TransferFragment());
 
         //初始化ViewPager并设置ViewPager适配器
-        viewPager = findViewById(R.id.new_flow_pager);
-        NewFlowFragmentAdapter viewPagerAdapter = new NewFlowFragmentAdapter(getSupportFragmentManager(), fragmentList);
+        viewPager = findViewById(R.id.new_running_account_pager);
+        NewRunningAccountFragmentAdapter viewPagerAdapter = new NewRunningAccountFragmentAdapter(getSupportFragmentManager(), fragmentList);
         viewPager.setAdapter(viewPagerAdapter);
 
         //绑定ViewPager和TabLayout
-        TabLayout tabLayout = findViewById(R.id.new_flow_tab_layout);
+        TabLayout tabLayout = findViewById(R.id.new_running_account_tab_layout);
         tabLayout.setupWithViewPager(viewPager);
 
         //为完成按钮绑定单击监听器
-        findViewById(R.id.new_flow_finish_btn).setOnClickListener(this);
+        findViewById(R.id.finish_btn).setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.new_flow_finish_btn) {
-            FlowFragmentBase current_fragment = (FlowFragmentBase) getCurrentFragment(viewPager);
+        if (v.getId() == R.id.finish_btn) {
+            RunningAccountFragmentBase current_fragment = (RunningAccountFragmentBase) getCurrentFragment(viewPager);
             String error = current_fragment.verifyInputData();
 
             //判断是否获取到警告消息（null:无警告，验证通过）
@@ -88,18 +88,18 @@ public class NewFlowActivity extends AppCompatActivity implements View.OnClickLi
         Bundle dataBundle = new Bundle();
 
         //获取当前碎片基本信息并打包
-        FlowFragmentBase currentFragment = (FlowFragmentBase) getCurrentFragment(viewPager);
-        FlowTypeEnum flowType = currentFragment.getType();  //种类
-        dataBundle.putString(KeyValueStrings.FLOW_TYPE.getValue(), flowType.toString());
+        RunningAccountFragmentBase currentFragment = (RunningAccountFragmentBase) getCurrentFragment(viewPager);
+        RunningAccountTypeEnum RunningAccountType = currentFragment.getType();  //种类
+        dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), RunningAccountType.toString());
 
         //获取碎片通用信息并打包
-        double flowAmount = currentFragment.getAmount();    //金额
-        dataBundle.putDouble(KeyValueStrings.FLOW_AMOUNT.getValue(), flowAmount);
-        String flowDate = currentFragment.getDateTime();    //日期
-        dataBundle.putString(KeyValueStrings.FLOW_DATETIME.getValue(), flowDate);
-        String flowRemark = currentFragment.getRemark();    //备注
-        dataBundle.putString(KeyValueStrings.FLOW_REMARK.getValue(), flowRemark);
-        String tag_name = currentFragment.getFlowTag();     //标签名称
+        double amount = currentFragment.getAmount();                //金额
+        dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
+        String date_time = currentFragment.getDateTime();           //日期和时间
+        dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), date_time);
+        String remark = currentFragment.getRemark();                //备注
+        dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
+        String tag_name = currentFragment.getRunningAccountTag();   //标签名称
 
         //将标签名称转换为标签编号
         try {
@@ -110,17 +110,17 @@ public class NewFlowActivity extends AppCompatActivity implements View.OnClickLi
         }
 
         //获取碎片特殊信息并打包
-        if (flowType == FlowTypeEnum.TRANSFER) {
+        if (RunningAccountType == RunningAccountTypeEnum.TRANSFER) {
             TransferFragment transferFragment = (TransferFragment) currentFragment;
             String exportAccount, importAccount;
             exportAccount = transferFragment.getExportAccount();    //转出账户
-            dataBundle.putString(KeyValueStrings.FLOW_EXPORT.getValue(), exportAccount);
+            dataBundle.putString(KeyValueStrings.ACCOUNT_EXPORT.getValue(), exportAccount);
             importAccount = transferFragment.getImportAccount();    //转入账户
-            dataBundle.putString(KeyValueStrings.FLOW_IMPORT.getValue(), importAccount);
+            dataBundle.putString(KeyValueStrings.ACCOUNT_IMPORT.getValue(), importAccount);
         }
 
         result2BookKeeping.putExtras(dataBundle);
-        setResult(RequestResultCode.RESULT_OK.ordinal(), result2BookKeeping);
+        setResult(ResultCode.RESULT_OK.ordinal(), result2BookKeeping);
         finish();
     }
 }

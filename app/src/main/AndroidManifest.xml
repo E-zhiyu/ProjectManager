@@ -24,10 +24,10 @@
             android:name=".ui.bookkeeping.report.ReportActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.flow_edit.modify.FlowModifyActivity"
+            android:name=".ui.bookkeeping.running_account_edit.modify.RunningAccountModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.flow_edit.new_flow.NewFlowActivity"
+            android:name=".ui.bookkeeping.running_account_edit.new_running_account.NewRunningAccountActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

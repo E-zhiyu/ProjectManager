@@ -1,21 +1,21 @@
 package com.project.manager.ui.bookkeeping;
 
-import com.project.manager.ui.bookkeeping.flow_edit.fragments.FlowTypeEnum;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountTypeEnum;
 
-public abstract class FlowBase {
+public abstract class RunningAccountBase {
     protected String name;        //名称
-    protected FlowTypeEnum type;  //种类
+    protected RunningAccountTypeEnum type;  //种类
     protected String remark;      //备注
     protected String date_time;   //日期和时间
     protected long tag_no;        //标签编号
     protected double amount;      //金额
-    protected long fno;           //流水编号
+    protected long rno;           //流水编号
 
     public String getName() {
         return name;
     }
 
-    public FlowTypeEnum getType() {
+    public RunningAccountTypeEnum getType() {
         return type;
     }
 
@@ -35,19 +35,19 @@ public abstract class FlowBase {
         return amount;
     }
 
-    public long getFno() {
-        return fno;
+    public long getRno() {
+        return rno;
     }
 
-    public void setFno(long fno) {
-        this.fno = fno;
+    public void setRno(long rno) {
+        this.rno = rno;
     }
 }
 
 /**
  * 支出流水类
  */
-class ExpenseFlow extends FlowBase {
+class ExpenseRunningAccount extends RunningAccountBase {
     /**
      * 不给定编号的构造方法
      *
@@ -56,28 +56,28 @@ class ExpenseFlow extends FlowBase {
      * @param amount    金额
      * @param tag_no    标签
      */
-    public ExpenseFlow(String remark, String date_time, double amount, long tag_no) {
-        this.type = FlowTypeEnum.EXPENSE;
+    public ExpenseRunningAccount(String remark, String date_time, double amount, long tag_no) {
+        this.type = RunningAccountTypeEnum.EXPENSE;
         this.name = "支出";
         this.remark = remark;
         this.date_time = date_time;
         this.amount = amount;
-        this.fno = -1;
+        this.rno = -1;
         this.tag_no = tag_no;
     }
 
     /**
      * 给定编号的构造方法（用于数据库查询时）
      *
-     * @param fno       编号
+     * @param rno       编号
      * @param remark    备注
      * @param date_time 日期和时间
      * @param amount    金额
      * @param tag_no    标签
      */
-    public ExpenseFlow(long fno, String remark, String date_time, double amount, long tag_no) {
-        this.fno = fno;
-        this.type = FlowTypeEnum.EXPENSE;
+    public ExpenseRunningAccount(long rno, String remark, String date_time, double amount, long tag_no) {
+        this.rno = rno;
+        this.type = RunningAccountTypeEnum.EXPENSE;
         this.name = "支出";
         this.remark = remark;
         this.date_time = date_time;
@@ -89,7 +89,7 @@ class ExpenseFlow extends FlowBase {
 /**
  * 收入流水类
  */
-class IncomeFlow extends FlowBase {
+class IncomeRunningAccount extends RunningAccountBase {
     /**
      * 不给定编号的构造方法
      *
@@ -98,9 +98,9 @@ class IncomeFlow extends FlowBase {
      * @param amount    金额
      * @param tag_no    标签
      */
-    public IncomeFlow(String remark, String date_time, double amount, long tag_no) {
-        this.fno = -1;
-        this.type = FlowTypeEnum.INCOME;
+    public IncomeRunningAccount(String remark, String date_time, double amount, long tag_no) {
+        this.rno = -1;
+        this.type = RunningAccountTypeEnum.INCOME;
         this.name = "收入";
         this.remark = remark;
         this.date_time = date_time;
@@ -111,15 +111,15 @@ class IncomeFlow extends FlowBase {
     /**
      * 给定编号的构造方法
      *
-     * @param fno       编号
+     * @param rno       编号
      * @param remark    备注
      * @param date_time 日期和时间
      * @param amount    金额
      * @param tag_no    标签
      */
-    public IncomeFlow(long fno, String remark, String date_time, double amount, long tag_no) {
-        this.fno = fno;
-        this.type = FlowTypeEnum.INCOME;
+    public IncomeRunningAccount(long rno, String remark, String date_time, double amount, long tag_no) {
+        this.rno = rno;
+        this.type = RunningAccountTypeEnum.INCOME;
         this.name = "收入";
         this.remark = remark;
         this.date_time = date_time;
@@ -131,7 +131,7 @@ class IncomeFlow extends FlowBase {
 /**
  * 转账流水类
  */
-class TransferFlow extends FlowBase {
+class TransferRunningAccount extends RunningAccountBase {
     String exportAccount;   //转出账户
     String importAccount;   //转入账户
 
@@ -145,9 +145,9 @@ class TransferFlow extends FlowBase {
      * @param exportAccount 转出账户
      * @param importAccount 转入账户
      */
-    public TransferFlow(String remark, String date_time, double amount, long tag_no, String exportAccount, String importAccount) {
-        this.fno = -1;
-        this.type = FlowTypeEnum.TRANSFER;
+    public TransferRunningAccount(String remark, String date_time, double amount, long tag_no, String exportAccount, String importAccount) {
+        this.rno = -1;
+        this.type = RunningAccountTypeEnum.TRANSFER;
         this.name = "转账";
         this.remark = remark;
         this.date_time = date_time;
@@ -160,7 +160,7 @@ class TransferFlow extends FlowBase {
     /**
      * 给定编号的构造方法
      *
-     * @param fno           编号
+     * @param rno           编号
      * @param remark        备注
      * @param date_time     日期和时间
      * @param amount        金额
@@ -168,9 +168,9 @@ class TransferFlow extends FlowBase {
      * @param exportAccount 转出账户
      * @param importAccount 转入账户
      */
-    public TransferFlow(long fno, String remark, String date_time, double amount, long tag_no, String exportAccount, String importAccount) {
-        this.fno = fno;
-        this.type = FlowTypeEnum.TRANSFER;
+    public TransferRunningAccount(long rno, String remark, String date_time, double amount, long tag_no, String exportAccount, String importAccount) {
+        this.rno = rno;
+        this.type = RunningAccountTypeEnum.TRANSFER;
         this.name = "转账";
         this.remark = remark;
         this.date_time = date_time;

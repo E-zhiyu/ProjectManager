@@ -58,7 +58,7 @@
                     android:text="流水账数据" />
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/setting_export_flow"
+                    android:id="@+id/setting_export_running_account"
                     style="@style/SubSettingCardStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -66,7 +66,7 @@
                     android:text="导出数据" />
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/setting_import_flow"
+                    android:id="@+id/setting_import_running_account"
                     style="@style/SubSettingCardStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -74,7 +74,7 @@
                     android:text="导入数据" />
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/setting_clear_flow"
+                    android:id="@+id/setting_clear_running_account"
                     style="@style/SubSettingCardStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

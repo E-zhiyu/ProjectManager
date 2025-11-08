@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.project.manager.R;
-import com.project.manager.RequestResultCode;
+import com.project.manager.ResultCode;
 import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.tag.Tag;
@@ -128,7 +128,7 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void addNewTag(int resultCode, Intent resultIntent) {
-        if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
+        if (resultCode == ResultCode.RESULT_OK.ordinal()) {
             Bundle dataBundle = resultIntent.getExtras();
             String tag_name = null;         //标签名称
             String group_name = null;       //分组名称
@@ -195,7 +195,7 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
 
         long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());                    //标签编号
         long origin_group_no = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());     //原分组编号
-        if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
+        if (resultCode == ResultCode.RESULT_OK.ordinal()) {
             String tag_name = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
             String group_name = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
 
@@ -213,9 +213,9 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
             } else {
                 adapter.modifyTag(tag_name, tag_no, group_name, origin_group_no, new_group_no);
             }
-        } else if (resultCode == RequestResultCode.RESULT_REJECT.ordinal()) {
+        } else if (resultCode == ResultCode.RESULT_REJECT.ordinal()) {
             return;
-        } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
+        } else if (resultCode == ResultCode.RESULT_DELETE.ordinal()) {
             adapter.deleteTag(tag_no, origin_group_no);
         }
     }

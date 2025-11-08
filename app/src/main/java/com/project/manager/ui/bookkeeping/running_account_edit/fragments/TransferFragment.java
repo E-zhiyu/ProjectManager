@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.flow_edit.fragments;
+package com.project.manager.ui.bookkeeping.running_account_edit.fragments;
 
 import android.os.Bundle;
 import android.view.View;
@@ -9,13 +9,13 @@ import com.project.manager.R;
 import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 
-public class TransferFragment extends FlowFragmentBase {
+public class TransferFragment extends RunningAccountFragmentBase {
     private TextInputLayout export_layout, import_layout;   //转出和转入账户的文本框布局管理器
     private TextInputEditText export_input, import_input;   //转出和转入账户的文本框
 
     public TransferFragment() {
         this.name = "转账";  //为碎片命名
-        this.type = FlowTypeEnum.TRANSFER;
+        this.type = RunningAccountTypeEnum.TRANSFER;
     }
 
     @Override
@@ -39,8 +39,8 @@ public class TransferFragment extends FlowFragmentBase {
     public void initViewsWhenModifying(Bundle dataBundle) {
         super.initViewsWhenModifying(dataBundle);
 
-        String exportAccount = dataBundle.getString(KeyValueStrings.FLOW_EXPORT.getValue());
-        String importAccount = dataBundle.getString(KeyValueStrings.FLOW_IMPORT.getValue());
+        String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());
+        String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());
 
         export_input.setText(exportAccount);   //转出账户
         import_input.setText(importAccount);   //转入账户

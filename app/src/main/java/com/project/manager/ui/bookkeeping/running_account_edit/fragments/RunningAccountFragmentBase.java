@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.flow_edit.fragments;
+package com.project.manager.ui.bookkeeping.running_account_edit.fragments;
 
 import static com.project.manager.ui.bookkeeping.tag.Tag.tagNoTransToName;
 
@@ -26,12 +26,12 @@ import com.project.manager.ui.bookkeeping.tag.TagSelectBottomSheet;
 
 import java.util.Calendar;
 
-public abstract class FlowFragmentBase extends Fragment implements
+public abstract class RunningAccountFragmentBase extends Fragment implements
         View.OnClickListener, View.OnFocusChangeListener, TagSelectRecyclerAdapter.OnTagBtnClickedListener {
     Bundle initData = null;                                 //初始化控件内容的数据（用于编辑流水记录时）
     View binding;                                           //绑定的XML界面
     protected String name;                                  //碎片名称
-    protected FlowTypeEnum type;                            //流水类型
+    protected RunningAccountTypeEnum type;                            //流水类型
     protected TextInputLayout amount_layout, tag_layout;    //金额和标签文本框布局管理器
     protected TextInputEditText amount_input, tag_input;    //金额和标签文本输入框
     protected long tag_no;                                  //编辑时传入的标签编号
@@ -55,7 +55,7 @@ public abstract class FlowFragmentBase extends Fragment implements
         return name;
     }
 
-    public FlowTypeEnum getType() {
+    public RunningAccountTypeEnum getType() {
         return type;
     }
 
@@ -73,7 +73,7 @@ public abstract class FlowFragmentBase extends Fragment implements
     public void onClick(View v) {
         if (v.getId() == R.id.datetime_input) {
             showMaterialDateTimePicker();
-        } else if (v.getId() == R.id.flow_tag_input) {
+        } else if (v.getId() == R.id.running_account_tag_input) {
             showTagSelectSheet();
         }
     }
@@ -83,8 +83,8 @@ public abstract class FlowFragmentBase extends Fragment implements
         TextInputEditText dt_input = view.findViewById(R.id.datetime_input);
         amount_layout = binding.findViewById(R.id.amount_layout);
         amount_input = binding.findViewById(R.id.amount_input);
-        tag_layout = binding.findViewById(R.id.flow_tag_layout);
-        tag_input = binding.findViewById(R.id.flow_tag_input);
+        tag_layout = binding.findViewById(R.id.running_account_tag_layout);
+        tag_input = binding.findViewById(R.id.running_account_tag_input);
 
         amount_input.setOnFocusChangeListener(this);
         dt_input.setOnClickListener(this);
@@ -113,7 +113,7 @@ public abstract class FlowFragmentBase extends Fragment implements
         }
 
         //判断标签是否存在
-        String tagStr = String.valueOf(((TextInputEditText) binding.findViewById(R.id.flow_tag_input)).getText());
+        String tagStr = String.valueOf(((TextInputEditText) binding.findViewById(R.id.running_account_tag_input)).getText());
         if (!tagStr.isEmpty()) {
             //获取实际的标签名称并更新（因为标签改名后不会自动更新）
             try {
@@ -173,9 +173,9 @@ public abstract class FlowFragmentBase extends Fragment implements
      */
     public void initViewsWhenModifying(Bundle dataBundle) {
         TextInputEditText amountView, remarkView;
-        double amount = dataBundle.getDouble(KeyValueStrings.FLOW_AMOUNT.getValue(), -1);
-        String remark = dataBundle.getString(KeyValueStrings.FLOW_REMARK.getValue());
-        String date_time = dataBundle.getString(KeyValueStrings.FLOW_DATETIME.getValue());
+        double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
+        String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
+        String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
 
         //将标签编号转换为标签名称
         String tag_name = null;
@@ -192,7 +192,7 @@ public abstract class FlowFragmentBase extends Fragment implements
         remarkView.setText(remark);
         TextInputEditText dateView = binding.findViewById(R.id.datetime_input);     //日期
         dateView.setText(date_time);
-        TextInputEditText tagView = binding.findViewById(R.id.flow_tag_input);      //标签名称
+        TextInputEditText tagView = binding.findViewById(R.id.running_account_tag_input);      //标签名称
         tagView.setText(tag_name);
     }
 
@@ -231,8 +231,8 @@ public abstract class FlowFragmentBase extends Fragment implements
      *
      * @return 标签字符串
      */
-    public String getFlowTag() {
-        TextInputEditText tag_input = binding.findViewById(R.id.flow_tag_input);
+    public String getRunningAccountTag() {
+        TextInputEditText tag_input = binding.findViewById(R.id.running_account_tag_input);
         return String.valueOf(tag_input.getText());
     }
 

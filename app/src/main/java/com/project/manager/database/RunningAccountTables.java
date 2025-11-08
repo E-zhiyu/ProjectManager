@@ -1,6 +1,6 @@
 package com.project.manager.database;
 
-public enum FlowTables {
+public enum RunningAccountTables {
     BASIC("basic_data"),
     TRANSFER("transfer_data"),
     TAG("tag_data"),
@@ -8,7 +8,7 @@ public enum FlowTables {
 
     final String value;
 
-    FlowTables(String value) {
+    RunningAccountTables(String value) {
         this.value = value;
     }
 

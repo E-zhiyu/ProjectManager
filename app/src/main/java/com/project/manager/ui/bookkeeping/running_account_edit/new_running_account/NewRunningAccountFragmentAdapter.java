@@ -1,19 +1,19 @@
-package com.project.manager.ui.bookkeeping.flow_edit.new_flow;
+package com.project.manager.ui.bookkeeping.running_account_edit.new_running_account;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import com.project.manager.ui.bookkeeping.flow_edit.fragments.FlowFragmentBase;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountFragmentBase;
 
 import java.util.List;
 
-public class NewFlowFragmentAdapter extends FragmentPagerAdapter {
-    private final List<FlowFragmentBase> fragmentList;  //碎片列表
+public class NewRunningAccountFragmentAdapter extends FragmentPagerAdapter {
+    private final List<RunningAccountFragmentBase> fragmentList;  //碎片列表
 
     //适配器构造方法
-    public NewFlowFragmentAdapter(@NonNull FragmentManager fm, List<FlowFragmentBase> fragments) {
+    public NewRunningAccountFragmentAdapter(@NonNull FragmentManager fm, List<RunningAccountFragmentBase> fragments) {
         super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         fragmentList = fragments;
     }

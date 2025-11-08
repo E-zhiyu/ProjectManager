@@ -49,13 +49,13 @@
                 android:focusable="false" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/flow_tag_layout"
+                android:id="@+id/running_account_tag_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="标签">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/flow_tag_input"
+                    android:id="@+id/running_account_tag_input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:focusable="false" />

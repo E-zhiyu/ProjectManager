@@ -1,4 +1,4 @@
-package com.project.manager.ui.setting.flow_data.pojo;
+package com.project.manager.ui.setting.running_account_data.pojo;
 
 public class PojoTagGroup {
     private String group_name;      //标签组名称

@@ -22,11 +22,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.project.manager.R;
-import com.project.manager.RequestResultCode;
 import com.project.manager.databinding.FragmentSettingBinding;
 import com.project.manager.exception.ExceptionHelper;
-import com.project.manager.ui.setting.flow_data.FlowDataHelper;
-import com.project.manager.ui.setting.flow_data.pojo.TotalDataMap;
+import com.project.manager.ui.setting.running_account_data.RunningAccountDataHelper;
+import com.project.manager.ui.setting.running_account_data.pojo.TotalDataMap;
 import com.project.manager.ui.setting.theme_mode.ThemeModeHelper;
 import com.project.manager.ui.setting.theme_mode.ThemePreference;
 
@@ -59,9 +58,9 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
             showAboutDialog();
         } else if (v.getId() == R.id.setting_theme_mode) {
             showThemeModeSelectDialog();
-        } else if (v.getId() == R.id.setting_export_flow) {
-            exportFlowData();
-        } else if (v.getId() == R.id.setting_import_flow) {
+        } else if (v.getId() == R.id.setting_export_running_account) {
+            exportRunningAccountData();
+        } else if (v.getId() == R.id.setting_import_running_account) {
             new MaterialAlertDialogBuilder(requireContext())
                     .setTitle("导入数据")
                     .setMessage("新数据将覆盖原有的数据，确认继续吗？")
@@ -74,12 +73,12 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                     }))
                     .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
                     .show();
-        } else if (v.getId() == R.id.setting_clear_flow) {
+        } else if (v.getId() == R.id.setting_clear_running_account) {
             new MaterialAlertDialogBuilder(requireContext())
                     .setTitle("清除数据")
                     .setMessage("此操作将清除所有流水账数据，确认执行吗？")
                     .setPositiveButton("确认", ((dialog, which) -> {
-                        FlowDataHelper.deleteAllData(requireContext());
+                        RunningAccountDataHelper.deleteAllData(requireContext());
                         dialog.dismiss();
                     }))
                     .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
@@ -101,7 +100,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                     if (resultCode == Activity.RESULT_OK) {
                         if (data != null) {
                             Uri uri = data.getData();
-                            FlowDataHelper.writeJsonToFile(uri, json_str, requireContext());
+                            RunningAccountDataHelper.writeJsonToFile(uri, json_str, requireContext());
                         } else {
                             NullPointerException e = new NullPointerException("无法导出数据");
                             ExceptionHelper.showExceptionDialog(requireContext(), e);
@@ -119,7 +118,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                     if (resultCode == Activity.RESULT_OK) {
                         if (data != null) {
                             Uri uri = data.getData();
-                            FlowDataHelper.readFileAndSave(uri, requireContext());
+                            RunningAccountDataHelper.readFileAndSave(uri, requireContext());
                         } else {
                             NullPointerException e = new NullPointerException("无法导入数据");
                             ExceptionHelper.showExceptionDialog(requireContext(), e);
@@ -130,10 +129,10 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
     }
 
     //导出流水账数据
-    private void exportFlowData() {
+    private void exportRunningAccountData() {
         try {
             //获取所有数据并序列化为JSON字符串
-            FlowDataHelper dataHelper = new FlowDataHelper(requireContext());
+            RunningAccountDataHelper dataHelper = new RunningAccountDataHelper(requireContext());
             ObjectMapper mapper = new ObjectMapper();
             TotalDataMap totalDataMap = dataHelper.getAllDataInMap();
             json_str = mapper.writeValueAsString(totalDataMap);
@@ -141,11 +140,15 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
             //获取当前日期并生成默认文件名
             Calendar calendar = Calendar.getInstance();
             @SuppressLint("DefaultLocale") String now_date = String.format(
-                    "%04d-%02d-%02d",
+                    "%04d-%02d-%02d_%02d:%02d:%02d",
                     calendar.get(Calendar.YEAR),
                     calendar.get(Calendar.MONTH),
-                    calendar.get(Calendar.DAY_OF_MONTH));
-            String default_filename = String.format("%s_FlowData.json", now_date);
+                    calendar.get(Calendar.DAY_OF_MONTH),
+                    calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE),
+                    calendar.get(Calendar.SECOND)
+            );
+            String default_filename = String.format("%s_RunningAccount.json", now_date);
 
             //启动系统文件选择器(SAF)
             Intent startSAF = new Intent(Intent.ACTION_CREATE_DOCUMENT);
@@ -162,9 +165,9 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
     private void initViews() {
         binding.settingAbout.setOnClickListener(this);
         binding.settingThemeMode.setOnClickListener(this);
-        binding.settingExportFlow.setOnClickListener(this);
-        binding.settingImportFlow.setOnClickListener(this);
-        binding.settingClearFlow.setOnClickListener(this);
+        binding.settingExportRunningAccount.setOnClickListener(this);
+        binding.settingImportRunningAccount.setOnClickListener(this);
+        binding.settingClearRunningAccount.setOnClickListener(this);
     }
 
     //获取版本名称

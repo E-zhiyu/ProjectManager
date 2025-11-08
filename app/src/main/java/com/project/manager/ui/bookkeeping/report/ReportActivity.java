@@ -15,11 +15,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.project.manager.R;
-import com.project.manager.database.FlowColumns;
-import com.project.manager.database.FlowDatabaseHelper;
-import com.project.manager.database.FlowTables;
+import com.project.manager.database.RunningAccountColumns;
+import com.project.manager.database.RunningAccountDatabaseHelper;
+import com.project.manager.database.RunningAccountTables;
 import com.project.manager.exception.ExceptionHelper;
-import com.project.manager.ui.bookkeeping.flow_edit.fragments.FlowTypeEnum;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountTypeEnum;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,9 +28,9 @@ import java.util.List;
 
 public class ReportActivity extends AppCompatActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
     //余额增加的流水种类
-    private final FlowTypeEnum[] money_increase = {FlowTypeEnum.INCOME};
+    private final RunningAccountTypeEnum[] money_increase = {RunningAccountTypeEnum.INCOME};
     //余额减少的流水种类
-    private final FlowTypeEnum[] money_decrease = {FlowTypeEnum.EXPENSE, FlowTypeEnum.TRANSFER};
+    private final RunningAccountTypeEnum[] money_decrease = {RunningAccountTypeEnum.EXPENSE, RunningAccountTypeEnum.TRANSFER};
 
     //日期
     private int year, month;                //年和月份
@@ -73,15 +73,15 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
      */
     @SuppressLint("DefaultLocale")
     private void loadOrRefreshReport() {
-        try (FlowDatabaseHelper db_helper = new FlowDatabaseHelper(this)) {
+        try (RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(this)) {
             double increase, decrease, balance; //总收入、总支出、结余
             balance = increase = decrease = 0;
-            List<FlowTypeEnum> money_increase_list = new ArrayList<>(Arrays.asList(money_increase));
-            List<FlowTypeEnum> money_decrease_list = new ArrayList<>(Arrays.asList(money_decrease));
+            List<RunningAccountTypeEnum> money_increase_list = new ArrayList<>(Arrays.asList(money_increase));
+            List<RunningAccountTypeEnum> money_decrease_list = new ArrayList<>(Arrays.asList(money_decrease));
             SQLiteDatabase db = db_helper.openReadLink();
 
-            String[] columns = new String[]{FlowColumns.AMOUNT.toString(), FlowColumns.TYPE.toString()};
-            String selection = FlowColumns.DATETIME + ">=? AND " + FlowColumns.DATETIME + "<?";
+            String[] columns = new String[]{RunningAccountColumns.AMOUNT.toString(), RunningAccountColumns.TYPE.toString()};
+            String selection = RunningAccountColumns.DATETIME + ">=? AND " + RunningAccountColumns.DATETIME + "<?";
             String[] selectionArgs;
             if (isShowYearOnly) {
                 selectionArgs = new String[]{String.format("%04d-01-01", this.year), String.format("%04d-01-01", this.year + 1)};
@@ -89,7 +89,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                 selectionArgs = new String[]{String.format("%04d-%02d-01", this.year, this.month), String.format("%04d-%02d-01", this.year, this.month + 1)};
             }
             Cursor basic_cursor = db.query(
-                    FlowTables.BASIC.toString(),
+                    RunningAccountTables.BASIC.toString(),
                     columns,
                     selection,
                     selectionArgs,
@@ -99,8 +99,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             );
 
             while (basic_cursor.moveToNext()) {
-                FlowTypeEnum type = FlowTypeEnum.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(FlowColumns.TYPE.toString())));
-                double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(FlowColumns.AMOUNT.toString()));
+                RunningAccountTypeEnum type = RunningAccountTypeEnum.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.TYPE.toString())));
+                double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.AMOUNT.toString()));
                 if (money_increase_list.contains(type)) {
                     balance += amount;
                     increase += amount;
