@@ -2,35 +2,40 @@ package com.project.manager.ui.bookkeeping.running_account_edit.new_running_acco
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentActivity;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountFragmentBase;
 
 import java.util.List;
 
-public class NewRunningAccountFragmentAdapter extends FragmentPagerAdapter {
+public class NewRunningAccountFragmentAdapter extends FragmentStateAdapter {
     private final List<RunningAccountFragmentBase> fragmentList;  //碎片列表
 
     //适配器构造方法
-    public NewRunningAccountFragmentAdapter(@NonNull FragmentManager fm, List<RunningAccountFragmentBase> fragments) {
-        super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
-        fragmentList = fragments;
+    public NewRunningAccountFragmentAdapter(@NonNull FragmentActivity fragmentActivity, List<RunningAccountFragmentBase> fragmentList) {
+        super(fragmentActivity);
+        this.fragmentList = fragmentList;
     }
 
     @NonNull
     @Override
-    public Fragment getItem(int position) {
+    public Fragment createFragment(int position) {
         return fragmentList.get(position);
     }
 
     @Override
-    public CharSequence getPageTitle(int position) {
-        return fragmentList.get(position).getName();
+    public int getItemCount() {
+        return fragmentList.size();
     }
 
-    @Override
-    public int getCount() {
-        return fragmentList.size();
+    /**
+     * 获取指定下标的Fragment
+     *
+     * @param position 需要获取的Fragment的下标
+     * @return 对应下标的Fragment
+     */
+    public RunningAccountFragmentBase getFragment(int position) {
+        return fragmentList.get(position);
     }
 }

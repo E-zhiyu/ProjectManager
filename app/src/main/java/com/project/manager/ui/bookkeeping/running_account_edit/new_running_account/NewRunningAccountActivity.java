@@ -7,10 +7,10 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.project.manager.R;
 import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
@@ -26,7 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NewRunningAccountActivity extends AppCompatActivity implements View.OnClickListener {
-    ViewPager viewPager;  //翻页视图
+    ViewPager2 runningAccountFragmentPager;         //翻页视图
+    RunningAccountFragmentBase current_fragment;    //翻页视图显示的Fragment
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,13 +41,26 @@ public class NewRunningAccountActivity extends AppCompatActivity implements View
         fragmentList.add(new TransferFragment());
 
         //初始化ViewPager并设置ViewPager适配器
-        viewPager = findViewById(R.id.new_running_account_pager);
-        NewRunningAccountFragmentAdapter viewPagerAdapter = new NewRunningAccountFragmentAdapter(getSupportFragmentManager(), fragmentList);
-        viewPager.setAdapter(viewPagerAdapter);
+        runningAccountFragmentPager = findViewById(R.id.new_running_account_pager);
+        NewRunningAccountFragmentAdapter viewPagerAdapter = new NewRunningAccountFragmentAdapter(this, fragmentList);
+        runningAccountFragmentPager.setAdapter(viewPagerAdapter);
 
         //绑定ViewPager和TabLayout
         TabLayout tabLayout = findViewById(R.id.new_running_account_tab_layout);
-        tabLayout.setupWithViewPager(viewPager);
+        new TabLayoutMediator(
+                tabLayout,
+                runningAccountFragmentPager,
+                (tab, position) -> tab.setText(fragmentList.get(position).getName())
+        ).attach();
+
+        //获取当前Fragment
+        runningAccountFragmentPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                current_fragment = viewPagerAdapter.getFragment(position);
+            }
+        });
 
         //为完成按钮绑定单击监听器
         findViewById(R.id.finish_btn).setOnClickListener(this);
@@ -55,7 +69,6 @@ public class NewRunningAccountActivity extends AppCompatActivity implements View
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.finish_btn) {
-            RunningAccountFragmentBase current_fragment = (RunningAccountFragmentBase) getCurrentFragment(viewPager);
             String error = current_fragment.verifyInputData();
 
             //判断是否获取到警告消息（null:无警告，验证通过）
@@ -68,19 +81,6 @@ public class NewRunningAccountActivity extends AppCompatActivity implements View
     }
 
     /**
-     * 获取当前翻页视图展示的碎片
-     *
-     * @param viewPager 翻页视图
-     * @return 当前展示的Fragment
-     */
-    private Fragment getCurrentFragment(ViewPager viewPager) {
-        int currentItem = viewPager.getCurrentItem();
-        String tag = "android:switcher:" + viewPager.getId() + ":" + currentItem;
-
-        return getSupportFragmentManager().findFragmentByTag(tag);
-    }
-
-    /**
      * 完成流水新建
      */
     private void onFinishBtnClicked() {
@@ -88,18 +88,17 @@ public class NewRunningAccountActivity extends AppCompatActivity implements View
         Bundle dataBundle = new Bundle();
 
         //获取当前碎片基本信息并打包
-        RunningAccountFragmentBase currentFragment = (RunningAccountFragmentBase) getCurrentFragment(viewPager);
-        RunningAccountTypeEnum RunningAccountType = currentFragment.getType();  //种类
+        RunningAccountTypeEnum RunningAccountType = current_fragment.getType();  //种类
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), RunningAccountType.toString());
 
         //获取碎片通用信息并打包
-        double amount = currentFragment.getAmount();                //金额
+        double amount = current_fragment.getAmount();                //金额
         dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
-        String date_time = currentFragment.getDateTime();           //日期和时间
+        String date_time = current_fragment.getDateTime();           //日期和时间
         dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), date_time);
-        String remark = currentFragment.getRemark();                //备注
+        String remark = current_fragment.getRemark();                //备注
         dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
-        String tag_name = currentFragment.getRunningAccountTag();   //标签名称
+        String tag_name = current_fragment.getRunningAccountTag();   //标签名称
 
         //将标签名称转换为标签编号
         try {
@@ -111,7 +110,7 @@ public class NewRunningAccountActivity extends AppCompatActivity implements View
 
         //获取碎片特殊信息并打包
         if (RunningAccountType == RunningAccountTypeEnum.TRANSFER) {
-            TransferFragment transferFragment = (TransferFragment) currentFragment;
+            TransferFragment transferFragment = (TransferFragment) current_fragment;
             String exportAccount, importAccount;
             exportAccount = transferFragment.getExportAccount();    //转出账户
             dataBundle.putString(KeyValueStrings.ACCOUNT_EXPORT.getValue(), exportAccount);
