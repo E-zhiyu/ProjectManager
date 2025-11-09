@@ -16,11 +16,8 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- 标签按钮网格布局 -->
-    <GridLayout
-        android:id="@+id/tag_btn_layout"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/tag_btn_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:columnCount="3"
-        android:useDefaultMargins="true" />
+        android:layout_height="wrap_content" />
 </LinearLayout>

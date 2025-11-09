@@ -1,6 +1,5 @@
 package com.project.manager.ui.bookkeeping.tag;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
@@ -9,8 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.project.manager.R;
 import com.project.manager.exception.ExceptionHelper;
+import com.project.manager.ui.bookkeeping.tag.edit.SheetTagBtnRecyclerAdapter;
 import com.project.manager.ui.bookkeeping.tag.edit.TagEditActivity;
 
 import java.util.ArrayList;
@@ -25,7 +23,7 @@ import java.util.List;
 
 public class TagSelectBottomSheet extends BottomSheetDialogFragment implements View.OnClickListener {
     private View binding;                                                           //绑定的XML视图
-    private TagSelectRecyclerAdapter.OnTagBtnClickedListener tagBtnClickedListener; //标签按钮点击事件的监听器
+    private SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener tagBtnClickedListener; //标签按钮点击事件的监听器
 
     @Nullable
     @Override
@@ -44,7 +42,7 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
             tagGroupList = new ArrayList<>();
         }
         //标签列表视图适配器
-        TagSelectRecyclerAdapter tagAdapter = new TagSelectRecyclerAdapter(tagGroupList, requireContext());
+        SheetTagGroupRecyclerAdapter tagAdapter = new SheetTagGroupRecyclerAdapter(tagGroupList, requireContext());
         tag_group_recycler_view.setAdapter(tagAdapter);
 
         //设置标签按钮点击事件监听器
@@ -68,7 +66,7 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
     }
 
     //设置标签按钮点击监听器
-    public void setOnTagBtnClickedListener(TagSelectRecyclerAdapter.OnTagBtnClickedListener listener) {
+    public void setOnTagBtnClickedListener(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener) {
         tagBtnClickedListener = listener;
     }
 }

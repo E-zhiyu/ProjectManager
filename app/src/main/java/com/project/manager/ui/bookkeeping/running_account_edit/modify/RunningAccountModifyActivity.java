@@ -102,6 +102,11 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
             Bundle dataBundle = new Bundle();
             dataBundle.putInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), position);
             result2BookKeeping.putExtras(dataBundle);
+        } else if (v.getId() == R.id.cancel_btn) {
+            //取消按钮实际上不进行任何操作
+            setResult(resultCode, result2BookKeeping);
+            finish();
+            return;
         } else {
             RuntimeException e = new RuntimeException("无法获取正确的按钮ID");
             ExceptionHelper.showExceptionDialog(this, e);

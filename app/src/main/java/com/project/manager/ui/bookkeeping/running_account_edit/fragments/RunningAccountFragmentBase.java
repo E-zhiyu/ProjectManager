@@ -21,8 +21,8 @@ import com.project.manager.R;
 import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.tag.Tag;
-import com.project.manager.ui.bookkeeping.tag.TagSelectRecyclerAdapter;
 import com.project.manager.ui.bookkeeping.tag.TagSelectBottomSheet;
+import com.project.manager.ui.bookkeeping.tag.edit.SheetTagBtnRecyclerAdapter;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -30,7 +30,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 public abstract class RunningAccountFragmentBase extends Fragment implements
-        View.OnClickListener, View.OnFocusChangeListener, TagSelectRecyclerAdapter.OnTagBtnClickedListener {
+        View.OnClickListener, View.OnFocusChangeListener, SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener {
     Bundle initData = null;                                 //初始化控件内容的数据（用于编辑流水记录时）
     View binding;                                           //绑定的XML界面
     protected String name;                                  //碎片名称
