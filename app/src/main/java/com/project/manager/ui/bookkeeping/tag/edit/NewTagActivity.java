@@ -35,35 +35,32 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
         initViews();
     }
 
-    //初始化视图
-    private void initViews() {
-        tag_group_layout.setEndIconOnClickListener((v -> onGroupLayoutEndIconClicked()));
-
-        tag_name_input.setOnFocusChangeListener(this);
-        tag_group_input.setOnFocusChangeListener(this);
-
-        findViewById(R.id.finish_btn).setOnClickListener(this);
-    }
-
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
-        if (v.getId() == R.id.tag_name_input && !hasFocus) {
-            String tag_name = String.valueOf(tag_name_input.getText());
+        if (!hasFocus){
+            if (v.getId() == R.id.tag_name_input) {
+                String tag_name = String.valueOf(tag_name_input.getText());
 
-            if (tag_name.isEmpty()) {
-                tag_name_layout.setErrorEnabled(true);
-                tag_name_layout.setError("标签名不能为空");
-            } else {
-                tag_name_layout.setError(null);
-                tag_name_layout.setErrorEnabled(false);
+                if (tag_name.isEmpty()) {
+                    tag_name_layout.setErrorEnabled(true);
+                    tag_name_layout.setError("标签名不能为空");
+                } else {
+                    tag_name_layout.setError(null);
+                    tag_name_layout.setErrorEnabled(false);
+                }
+            } else if (v.getId() == R.id.tag_group_input) {
+                String tag_group_name = String.valueOf(tag_group_input.getText());
+
+                if (tag_group_name.isEmpty()) {
+                    tag_group_layout.setErrorEnabled(true);
+                    tag_group_layout.setError("分组名不能为空");
+                } else {
+                    tag_group_layout.setError(null);
+                    tag_group_layout.setErrorEnabled(false);
+                }
             }
-        } else if (v.getId() == R.id.tag_group_input && !hasFocus) {
-            String tag_group_name = String.valueOf(tag_group_input.getText());
-
-            if (tag_group_name.isEmpty()) {
-                tag_group_layout.setErrorEnabled(true);
-                tag_group_layout.setError("分组名不能为空");
-            } else {
+        } else {
+            if (v.getId() == R.id.tag_group_input) {
                 tag_group_layout.setError(null);
                 tag_group_layout.setErrorEnabled(false);
             }
@@ -92,6 +89,16 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
                 finish();
             }
         }
+    }
+
+    //初始化视图
+    private void initViews() {
+        tag_group_layout.setEndIconOnClickListener((v -> onGroupLayoutEndIconClicked()));
+
+        tag_name_input.setOnFocusChangeListener(this);
+        tag_group_input.setOnFocusChangeListener(this);
+
+        findViewById(R.id.finish_btn).setOnClickListener(this);
     }
 
     //输入内容合法性校验
