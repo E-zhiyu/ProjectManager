@@ -33,4 +33,12 @@
     <string name="import_account">转入账户</string>
     <string name="delete">删除</string>
     <string name="cancel">取消</string>
+    <string name="date">日期</string>
+    <string name="show_year_report">显示年度报表</string>
+    <string name="account_statistics">流水统计</string>
+    <string name="balance">结余</string>
+    <string name="expense_and_income">支出：| 收入：</string>
+    <string name="expenditure_income_distribution">收支分布</string>
+    <string name="income">收入</string>
+    <string name="expenditure">支出</string>
 </resources>
