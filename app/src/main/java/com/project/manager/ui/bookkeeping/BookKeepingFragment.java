@@ -34,7 +34,8 @@ import java.util.List;
 
 public class BookKeepingFragment extends Fragment implements View.OnClickListener, RunningAccountRecyclerAdapter.OnRunningAccountViewClickListener {
     RunningAccountRecyclerAdapter runningAccountRecyclerAdapter;    //流水列表适配器
-    RunningAccountDatabaseHelper running_account_db_helper;      //流水数据库帮助器
+    RecyclerView runningAccountRecyclerView;                        //流水列表视图
+    RunningAccountDatabaseHelper running_account_db_helper;         //流水数据库帮助器
     private ActivityResultLauncher<Intent> newRunningAccountLauncher, modifyRunningAccountLauncher;  //子活动启动器
 
     private FragmentBookkeepingBinding binding;
@@ -55,7 +56,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         //创建列表视图的适配器
         List<RunningAccountBase> runningAccountList = loadRunningAccountData();
         runningAccountRecyclerAdapter = new RunningAccountRecyclerAdapter(runningAccountList, this);   //绑定适配器项点击事件的监听器
-        RecyclerView runningAccountRecyclerView = binding.runningAccountRecyclerView;
+        runningAccountRecyclerView = binding.runningAccountRecyclerView;
         runningAccountRecyclerView.setLayoutManager(new LinearLayoutManager(requireActivity()));  //设置线性布局
         runningAccountRecyclerView.setAdapter(runningAccountRecyclerAdapter);
 
@@ -220,6 +221,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         db.close();
         newRunningAccountView.setRno(rno);  //将自增主键值保存
         runningAccountRecyclerAdapter.addNewRunningAccountView(newRunningAccountView);  //将新建的流水视图添加至列表视图适配器
+        runningAccountRecyclerView.scrollToPosition(0);     //滚动到顶部（因为添加的新记录在顶部）
         Toast.makeText(getActivity(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
     }
 
