@@ -3,6 +3,8 @@ package com.project.manager.ui.bookkeeping.running_account_edit.fragments;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.project.manager.R;
@@ -24,7 +26,7 @@ public class TransferFragment extends RunningAccountFragmentBase {
     }
 
     @Override
-    protected void initViews(View view) {
+    protected void initViews(@NonNull View view) {
         super.initViews(view);
         export_layout = binding.findViewById(R.id.export_account_layout);
         export_input = binding.findViewById(R.id.export_account_input);
@@ -36,7 +38,7 @@ public class TransferFragment extends RunningAccountFragmentBase {
     }
 
     @Override
-    public void initViewsWhenModifying(Bundle dataBundle) {
+    public void initViewsWhenModifying(@NonNull Bundle dataBundle) {
         super.initViewsWhenModifying(dataBundle);
 
         String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());
@@ -101,7 +103,7 @@ public class TransferFragment extends RunningAccountFragmentBase {
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(@NonNull View v) {
         super.onClick(v);
     }
 

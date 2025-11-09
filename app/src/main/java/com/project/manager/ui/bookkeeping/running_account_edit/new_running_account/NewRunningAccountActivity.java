@@ -85,20 +85,11 @@ public class NewRunningAccountActivity extends AppCompatActivity implements View
      */
     private void onFinishBtnClicked() {
         Intent result2BookKeeping = new Intent();
-        Bundle dataBundle = new Bundle();
-
-        //获取当前碎片基本信息并打包
-        RunningAccountTypeEnum RunningAccountType = current_fragment.getType();  //种类
-        dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), RunningAccountType.toString());
 
         //获取碎片通用信息并打包
-        double amount = current_fragment.getAmount();                //金额
-        dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
-        String date_time = current_fragment.getDateTime();           //日期和时间
-        dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), date_time);
-        String remark = current_fragment.getRemark();                //备注
-        dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
-        String tag_name = current_fragment.getRunningAccountTag();   //标签名称
+        Bundle dataBundle = current_fragment.getBasicData();
+        RunningAccountTypeEnum type = RunningAccountTypeEnum.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
+        String tag_name = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
 
         //将标签名称转换为标签编号
         try {
@@ -109,7 +100,7 @@ public class NewRunningAccountActivity extends AppCompatActivity implements View
         }
 
         //获取碎片特殊信息并打包
-        if (RunningAccountType == RunningAccountTypeEnum.TRANSFER) {
+        if (type == RunningAccountTypeEnum.TRANSFER) {
             TransferFragment transferFragment = (TransferFragment) current_fragment;
             String exportAccount, importAccount;
             exportAccount = transferFragment.getExportAccount();    //转出账户

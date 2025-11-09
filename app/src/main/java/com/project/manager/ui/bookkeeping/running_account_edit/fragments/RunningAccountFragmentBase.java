@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -34,7 +35,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
     Bundle initData = null;                                 //初始化控件内容的数据（用于编辑流水记录时）
     View binding;                                           //绑定的XML界面
     protected String name;                                  //碎片名称
-    protected RunningAccountTypeEnum type;                            //流水类型
+    protected RunningAccountTypeEnum type;                  //流水类型
     protected TextInputLayout amount_layout, tag_layout;    //金额和标签文本框布局管理器
     protected TextInputEditText amount_input, tag_input;    //金额和标签文本输入框
     protected long tag_no;                                  //编辑时传入的标签编号
@@ -58,10 +59,6 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
         return name;
     }
 
-    public RunningAccountTypeEnum getType() {
-        return type;
-    }
-
     public void setInitData(Bundle initData) {
         this.initData = initData;
     }
@@ -73,7 +70,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(@NonNull View v) {
         if (v.getId() == R.id.datetime_input) {
             showMaterialDateTimePicker();
         } else if (v.getId() == R.id.running_account_tag_input) {
@@ -81,8 +78,47 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
         }
     }
 
+    @Override
+    public void onFocusChange(View v, boolean hasFocus) {
+        String edittext_str, error;         //文本框内容和错误提示
+        TextInputLayout text_edit_layout;   //被验证的文本框对应的布局管理器
+        if (!hasFocus) {
+            edittext_str = String.valueOf(((TextInputEditText) v).getText());   //获取待验证组件的文本内容
+            if (v.getId() == R.id.amount_input) {
+                error = "金额不能为空";
+                text_edit_layout = amount_layout;
+            } else {
+                NullPointerException e = new NullPointerException("无法获取有效视图ID");
+                ExceptionHelper.showExceptionDialog(requireContext(), e);
+                return;
+            }
+        } else {
+            //暂无获取焦点时的检测
+            return;
+        }
+
+        //判断待验证的字符串是否为空
+        if (edittext_str.isEmpty()) {
+            text_edit_layout.setErrorEnabled(true);
+            text_edit_layout.setError(error);
+        } else {
+            text_edit_layout.setError(null);    //消除错误提示
+            text_edit_layout.setErrorEnabled(false);
+        }
+    }
+
+    @Override
+    public void onTagBtnClicked(long tag_no, String tag_name) {
+        this.tag_no = tag_no;   //更新全局变量中的标签编号
+
+        tag_input.setText(tag_name);
+        tag_layout.setErrorEnabled(false);  //去除错误提示
+        tag_layout.setError(null);
+        tag_sheet.dismiss();
+    }
+
     //初始化碎片布局
-    protected void initViews(View view) {
+    protected void initViews(@NonNull View view) {
         TextInputEditText dt_input = view.findViewById(R.id.datetime_input);
         amount_layout = binding.findViewById(R.id.amount_layout);
         amount_input = binding.findViewById(R.id.amount_input);
@@ -130,52 +166,12 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
         return error;
     }
 
-    @Override
-    public void onFocusChange(View v, boolean hasFocus) {
-        String edittext_str, error;         //文本框内容和错误提示
-        TextInputLayout text_edit_layout;   //被验证的文本框对应的布局管理器
-        if (!hasFocus) {
-            edittext_str = String.valueOf(((TextInputEditText) v).getText());   //获取待验证组件的文本内容
-            if (v.getId() == R.id.amount_input) {
-                error = "金额不能为空";
-                text_edit_layout = amount_layout;
-            } else {
-                NullPointerException e = new NullPointerException("无法获取有效视图ID");
-                ExceptionHelper.showExceptionDialog(requireContext(), e);
-                return;
-            }
-        } else {
-            //暂无获取焦点时的检测
-            return;
-        }
-
-        //判断待验证的字符串是否为空
-        if (edittext_str.isEmpty()) {
-            text_edit_layout.setErrorEnabled(true);
-            text_edit_layout.setError(error);
-        } else {
-            text_edit_layout.setError(null);    //消除错误提示
-            text_edit_layout.setErrorEnabled(false);
-        }
-    }
-
-    @Override
-    public void onTagBtnClicked(long tag_no, String tag_name) {
-        this.tag_no = tag_no;   //更新全局变量中的标签编号
-
-        tag_input.setText(tag_name);
-        tag_layout.setErrorEnabled(false);  //去除错误提示
-        tag_layout.setError(null);
-        tag_sheet.dismiss();
-    }
-
     /**
      * 编辑流水时初始化控件内容的方法
      *
      * @param dataBundle 包含初始信息的包裹
      */
-    public void initViewsWhenModifying(Bundle dataBundle) {
-        TextInputEditText amountView, remarkView;
+    public void initViewsWhenModifying(@NonNull Bundle dataBundle) {
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
         String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
@@ -187,56 +183,38 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
             tag_name = tagNoTransToName(tag_no, requireContext());
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(requireContext(), e);
+            Toast.makeText(requireContext(), "无法获取该记录的标签名称", Toast.LENGTH_SHORT).show();
         }
 
-        amountView = binding.findViewById(R.id.amount_input);                       //金额
-        amountView.setText(String.valueOf(amount));
-        remarkView = binding.findViewById(R.id.remark_input);                       //备注
+        amount_input.setText(String.valueOf(amount));                               //金额
+        TextInputEditText remarkView = binding.findViewById(R.id.remark_input);     //备注
         remarkView.setText(remark);
         TextInputEditText dateView = binding.findViewById(R.id.datetime_input);     //日期
         dateView.setText(date_time);
-        TextInputEditText tagView = binding.findViewById(R.id.running_account_tag_input);      //标签名称
-        tagView.setText(tag_name);
+        tag_input.setText(tag_name);                                                //标签名称
     }
 
     /**
-     * 获取流水日期
+     * 获取基本数据
      *
-     * @return 流水日期字符串
+     * @return 带有基本数据的Bundle包裹
      */
-    public String getDateTime() {
-        TextInputEditText dateTextView = binding.findViewById(R.id.datetime_input);
-        return String.valueOf(dateTextView.getText());
-    }
+    public Bundle getBasicData() {
+        Bundle dataBundle = new Bundle();
 
-    /**
-     * 获取流水备注
-     *
-     * @return 流水备注字符串
-     */
-    public String getRemark() {
-        TextInputEditText remarkEditText = binding.findViewById(R.id.remark_input);
-        return String.valueOf(remarkEditText.getText());
-    }
+        dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());     //种类
+        TextInputEditText dateTimeTextView = binding.findViewById(R.id.datetime_input);     //日期和时间
+        String date_time = String.valueOf(dateTimeTextView.getText());
+        dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), date_time);
+        TextInputEditText remarkEditText = binding.findViewById(R.id.remark_input);         //备注
+        String remark = String.valueOf(remarkEditText.getText());
+        dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
+        double amount = Double.parseDouble(String.valueOf(amount_input.getText()));         //金额
+        dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
+        String tag_name = String.valueOf(tag_input.getText());                              //标签名称
+        dataBundle.putString(KeyValueStrings.TAG_NAME.getValue(), tag_name);
 
-    /**
-     * 获取流水金额
-     *
-     * @return 流水金额
-     */
-    public double getAmount() {
-        TextInputEditText remarkEditText = binding.findViewById(R.id.amount_input);
-        return Double.parseDouble(String.valueOf(remarkEditText.getText()));
-    }
-
-    /**
-     * 获取标签字符串
-     *
-     * @return 标签字符串
-     */
-    public String getRunningAccountTag() {
-        TextInputEditText tag_input = binding.findViewById(R.id.running_account_tag_input);
-        return String.valueOf(tag_input.getText());
+        return dataBundle;
     }
 
     /**
