@@ -21,8 +21,8 @@ import com.project.manager.R;
 import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.tag.Tag;
-import com.project.manager.ui.bookkeeping.tag.TagSelectBottomSheet;
-import com.project.manager.ui.bookkeeping.tag.edit.SheetTagBtnRecyclerAdapter;
+import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
+import com.project.manager.ui.bookkeeping.tag.select_sheet.SheetTagBtnRecyclerAdapter;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

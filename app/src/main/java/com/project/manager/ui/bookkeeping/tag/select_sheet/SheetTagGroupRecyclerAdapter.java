@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.tag;
+package com.project.manager.ui.bookkeeping.tag.select_sheet;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,7 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
-import com.project.manager.ui.bookkeeping.tag.edit.SheetTagBtnRecyclerAdapter;
+import com.project.manager.ui.bookkeeping.tag.Tag;
+import com.project.manager.ui.bookkeeping.tag.TagGroup;
 
 import java.util.List;
 
