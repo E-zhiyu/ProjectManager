@@ -36,10 +36,10 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tag_name_input"
+                    style="@style/UserInputEditTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="标签名称"
-                    android:maxLength="20" />
+                    android:hint="@string/tag_name" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -51,10 +51,10 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tag_group_input"
+                    style="@style/UserInputEditTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="标签分组"
-                    android:maxLength="20" />
+                    android:hint="@string/tag_group" />
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
     </ScrollView>
@@ -77,21 +77,21 @@
                 style="@style/BtnStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="删除" />
+                android:text="@string/delete" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/cancel_btn"
                 style="@style/BtnStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="取消" />
+                android:text="@string/cancel" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/finish_btn"
                 style="@style/BtnStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="完成" />
+                android:text="@string/finish" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -41,4 +41,6 @@
     <string name="expenditure_income_distribution">收支分布</string>
     <string name="income">收入</string>
     <string name="expenditure">支出</string>
+    <string name="tag_name">标签名称</string>
+    <string name="tag_group">标签分组</string>
 </resources>

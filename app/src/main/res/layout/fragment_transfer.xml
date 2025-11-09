@@ -30,6 +30,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/remark_input"
+                style="@style/UserInputEditTextStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxLength="20" />
@@ -69,10 +70,10 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/export_account_input"
+                style="@style/UserInputEditTextStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/export_account"
-                android:maxLength="20" />
+                android:hint="@string/export_account" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -82,10 +83,10 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/import_account_input"
+                style="@style/UserInputEditTextStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/import_account"
-                android:maxLength="20" />
+                android:hint="@string/import_account" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 </ScrollView>
