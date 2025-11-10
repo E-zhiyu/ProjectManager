@@ -79,9 +79,7 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
                 } else {
                     sub_view_layout.setVisibility(View.VISIBLE);
                     isAnimating = true;
-                    animateHeight(sub_view_layout, 0, expandedHeight, () -> {
-                        isAnimating = false;
-                    });
+                    animateHeight(sub_view_layout, 0, expandedHeight, () -> isAnimating = false);
                 }
             });
         }
@@ -130,12 +128,18 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
         String group_name = currentGroup.getGroupName();
         holder.group_name_text.setText(group_name);
 
+        //添加标签文本视图
         holder.sub_view_layout.removeAllViews();
         for (Tag oneTag : currentGroup.getTags()) {
             String tag_name = oneTag.getName();
             long tag_no = oneTag.getTno();
 
             MaterialTextView tag_text_view = new MaterialTextView(context);
+            tag_text_view.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            ));
+            tag_text_view.setPadding(16, 16, 0, 16);
             tag_text_view.setTextAppearance(R.style.CommonTextAppearance);
 
             //添加右侧箭头图标
