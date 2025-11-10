@@ -1,11 +1,11 @@
 package com.project.manager.ui.bookkeeping.running_account_edit.modify;
 
 import android.content.Intent;
-import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -19,12 +19,11 @@ import com.project.manager.ui.bookkeeping.running_account_edit.fragments.Running
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountTypeEnum;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.IncomeFragment;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.TransferFragment;
-import com.project.manager.ui.bookkeeping.tag.Tag;
 
 public class RunningAccountModifyActivity extends AppCompatActivity implements View.OnClickListener {
     RunningAccountTypeEnum type = null;                     //流水种类
     int position = -1;                                      //流水项目的下标
-    private final String FRAGMENT_TAG = "modify_fragment";  //碎片Tag
+    RunningAccountFragmentBase runningAccountFragment;      //流水账数据输入碎片
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,23 +43,24 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
         }
 
         if (savedInstanceState == null) {
-            //创建流水编辑Fragment实例
-            RunningAccountFragmentBase runningAccountFragment = null;
+            //创建流水编辑Fragment实例（第一次创建界面时）
             if (type == RunningAccountTypeEnum.EXPENSE) {
                 runningAccountFragment = new ExpenseFragment();
             } else if (type == RunningAccountTypeEnum.INCOME) {
                 runningAccountFragment = new IncomeFragment();
             } else if (type == RunningAccountTypeEnum.TRANSFER) {
                 runningAccountFragment = new TransferFragment();
+            } else {
+                NullPointerException e = new NullPointerException("无法创建有效的流水数据Fragment");
+                ExceptionHelper.showExceptionDialog(this, e);
+                return;
             }
 
             //将Fragment添加到布局
-            if (runningAccountFragment != null) {
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.add(R.id.running_account_edit_fragment_container, runningAccountFragment, this.FRAGMENT_TAG);
-                transaction.commit();
-                runningAccountFragment.setInitData(dataBundle);   //将原本的数据传递给碎片实例
-            }
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.add(R.id.running_account_edit_fragment_container, runningAccountFragment);
+            transaction.commit();
+            runningAccountFragment.setInitData(dataBundle);   //将原本的数据传递给碎片实例
         }
     }
 
@@ -78,24 +78,17 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
         int resultCode = ResultCode.RESULT_REJECT.ordinal();  //响应代码
 
         if (v.getId() == R.id.finish_btn) {
-            RunningAccountFragmentBase current_fragment = (RunningAccountFragmentBase) getSupportFragmentManager().findFragmentByTag(this.FRAGMENT_TAG);
             String error;
-            if (current_fragment != null) {
-                error = current_fragment.verifyInputData();
+            error = runningAccountFragment.verifyInputData();
 
-                //判断是否获取到报错消息（null:无报错，验证通过）
-                if (error != null) {
-                    Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
-                    return;
-                } else {
-                    resultCode = ResultCode.RESULT_OK.ordinal();
-                    Bundle dataBundle = getDataAfterEditing();
-                    result2BookKeeping.putExtras(dataBundle);
-                }
+            //判断是否获取到报错消息（null:无报错，验证通过）
+            if (error != null) {
+                Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+                return;
             } else {
-                //无法获取当前活动的碎片则抛出异常
-                NullPointerException e = new NullPointerException("无法获取活动的Fragment");
-                ExceptionHelper.showExceptionDialog(this, e);
+                resultCode = ResultCode.RESULT_OK.ordinal();
+                Bundle dataBundle = getDataAfterEditing();
+                result2BookKeeping.putExtras(dataBundle);
             }
         } else if (v.getId() == R.id.delete_btn) {
             resultCode = ResultCode.RESULT_DELETE.ordinal();
@@ -121,31 +114,9 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
      *
      * @return 包含编辑后数据的包裹
      */
+    @NonNull
     private Bundle getDataAfterEditing() {
-        Bundle dataBundle = new Bundle();
-        double amount;
-        String remark, date_time, tag_name;
-
-        //获取基本数据
-        TextInputEditText amount_input = findViewById(R.id.amount_input);       //金额
-        amount = Double.parseDouble(String.valueOf(amount_input.getText()));
-        dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
-        TextInputEditText remark_input = findViewById(R.id.remark_input);       //备注
-        remark = String.valueOf(remark_input.getText());
-        dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
-        TextInputEditText datetime_input = findViewById(R.id.datetime_input);   //日期
-        date_time = String.valueOf(datetime_input.getText());
-        dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), date_time);
-        TextInputEditText tag_input = findViewById(R.id.running_account_tag_input);        //标签名称
-        tag_name = String.valueOf(tag_input.getText());
-
-        //将标签名称转换为标签编号
-        try {
-            long tag_no = Tag.nameTransToTno(tag_name, this);
-            dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(this, e);
-        }
+        Bundle dataBundle = runningAccountFragment.getBasicData();
 
         dataBundle.putInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), position);        //将下标存放至包裹
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());       //将种类存放至包裹

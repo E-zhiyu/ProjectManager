@@ -10,18 +10,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.project.manager.ProjectManager;
 import com.project.manager.R;
 import com.project.manager.ResultCode;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.AccountTagViewModel;
 
 import java.util.ArrayList;
 
 public class TagModifyActivity extends AppCompatActivity implements View.OnFocusChangeListener, View.OnClickListener {
-    TextInputLayout tag_name_layout, tag_group_layout;
-    TextInputEditText tag_name_input, tag_group_input;
-    int selected_index = -1;    //选择的分组的索引
-    long tag_no, group_no;      //标签和标签分组编号
-    String[] group_names;       //标签分组名称数组
+    private TextInputLayout tag_name_layout, tag_group_layout;  //标签名称和分组的文本框布局器
+    private TextInputEditText tag_name_input, tag_group_input;  //标签名称和分组的文本输入框
+    private AccountTagViewModel tagViewModel;                   //标签数据更新用的ViewModel
+    int selected_index = -1;                                    //选择的分组的索引
+    long tag_no, group_no;                                      //标签和标签分组编号
+    private String[] group_names;                               //标签分组名称数组
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +35,10 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
         tag_group_input = findViewById(R.id.tag_group_input);
         tag_name_layout = findViewById(R.id.tag_name_layout);
         tag_group_layout = findViewById(R.id.tag_group_layout);
+
+        //获取Application中的ViewModel
+        ProjectManager app = (ProjectManager) getApplication();
+        tagViewModel = app.getAccountTagViewModel();
 
         initViews();
     }
@@ -54,6 +61,8 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
                 dataBundle.putString(KeyValueStrings.TAG_NAME.getValue(), tag_name);            //标签名
                 String group_name = String.valueOf(tag_group_input.getText());
                 dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), group_name);    //分组名称
+
+                tagViewModel.updateTag(tag_name, tag_no);    //更新ViewModel中的标签数据
 
                 result2TagEdit.putExtras(dataBundle);
                 setResult(ResultCode.RESULT_OK.ordinal(), result2TagEdit);

@@ -22,8 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TagSelectBottomSheet extends BottomSheetDialogFragment implements View.OnClickListener {
-    private View binding;                                                           //绑定的XML视图
-    private SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener tagBtnClickedListener; //标签按钮点击事件的监听器
+    private View binding;                                                                   //绑定的XML视图
+    private final SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener tagBtnClickedListener; //标签按钮点击事件的监听器
+
+    public TagSelectBottomSheet(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener) {
+        this.tagBtnClickedListener = listener;
+    }
 
     @Nullable
     @Override
@@ -63,10 +67,5 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
             startActivity(skip2TagEdit);
             dismiss();
         }
-    }
-
-    //设置标签按钮点击监听器
-    public void setOnTagBtnClickedListener(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener) {
-        tagBtnClickedListener = listener;
     }
 }

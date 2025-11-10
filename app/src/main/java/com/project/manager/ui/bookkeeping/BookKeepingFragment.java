@@ -179,13 +179,10 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
         //获取基本流水数据
         RunningAccountTypeEnum type = RunningAccountTypeEnum.valueOf(resultIntent.getStringExtra(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-        String remark, date_time;
-        double amount;
-        long tag_no;
-        remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
-        amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
-        date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
-        tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
+        String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
+        double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
+        String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
+        long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
         basic_values = new ContentValues();
         basic_values.put(RunningAccountColumns.TYPE.toString(), type.toString()); //种类
         basic_values.put(RunningAccountColumns.AMOUNT.toString(), amount);        //金额

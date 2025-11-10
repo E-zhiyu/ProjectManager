@@ -18,10 +18,10 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
+import com.project.manager.ProjectManager;
 import com.project.manager.R;
 import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
-import com.project.manager.ui.bookkeeping.tag.Tag;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.SheetTagBtnRecyclerAdapter;
 
@@ -38,7 +38,8 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
     protected RunningAccountTypeEnum type;                  //流水类型
     protected TextInputLayout amount_layout, tag_layout;    //金额和标签文本框布局管理器
     protected TextInputEditText amount_input, tag_input;    //金额和标签文本输入框
-    protected long tag_no;                                  //编辑时传入的标签编号
+    private long tag_no = 0;                                //用户选择的标签编号（默认无标签则为0）
+    private AccountTagViewModel tagViewModel;               //用于更新标签名称的ViewModel
 
     private TagSelectBottomSheet tag_sheet;                 //底部弹出窗口
 
@@ -47,10 +48,16 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
         binding = inflater.inflate(getLayoutResId(), container, false);
         initViews(binding);
 
+        //获取Application中的ViewModel
+        ProjectManager app = (ProjectManager)requireActivity().getApplication();
+        tagViewModel = app.getAccountTagViewModel();
+
         //判断是否传递了外部数据，如果传递了则将数据填入对应控件
         if (initData != null) {
             initViewsWhenModifying(initData);
         }
+
+        observeTag();    //监听标签变化
 
         return binding;
     }
@@ -140,6 +147,15 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
         dt_input.setText(dt_string);
     }
 
+    //观察标签数据变化
+    private void observeTag() {
+        tagViewModel.getTag().observe(getViewLifecycleOwner(), tag -> {
+            if (tag.getTno() == tag_no) {
+                tag_input.setText(tag.getName());
+            }
+        });
+    }
+
     //验证输入内容
     public String verifyInputData() {
         String error = null;
@@ -149,18 +165,6 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
             error = "金额不能为空";
             amount_layout.setErrorEnabled(true);
             amount_layout.setError(error);
-        }
-
-        //判断标签是否存在
-        String tagStr = String.valueOf(((TextInputEditText) binding.findViewById(R.id.running_account_tag_input)).getText());
-        if (!tagStr.isEmpty()) {
-            //获取实际的标签名称并更新（因为标签改名后不会自动更新）
-            try {
-                String tag_name = Tag.tagNoTransToName(tag_no, requireContext());
-                tag_input.setText(tag_name);
-            } catch (SQLiteException e) {
-                ExceptionHelper.showExceptionDialog(requireContext(), e);
-            }
         }
 
         return error;
@@ -211,8 +215,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
         dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
         double amount = Double.parseDouble(String.valueOf(amount_input.getText()));         //金额
         dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
-        String tag_name = String.valueOf(tag_input.getText());                              //标签名称
-        dataBundle.putString(KeyValueStrings.TAG_NAME.getValue(), tag_name);
+        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);                      //标签编号
 
         return dataBundle;
     }
@@ -301,11 +304,8 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
 
     //显示选择标签的底部弹出视图
     private void showTagSelectSheet() {
-        tag_sheet = new TagSelectBottomSheet();
+        tag_sheet = new TagSelectBottomSheet(this);
         tag_sheet.show(getParentFragmentManager(), "TagSelectBottomSheet");
-
-        //设置底部弹出窗口的标签按钮的点击监听器
-        tag_sheet.setOnTagBtnClickedListener(this);
     }
 }
 

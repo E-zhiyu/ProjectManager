@@ -1,7 +1,6 @@
 package com.project.manager.ui.bookkeeping.running_account_edit.new_running_account;
 
 import android.content.Intent;
-import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -12,7 +11,6 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.project.manager.R;
-import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.ExpenseFragment;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountTypeEnum;
@@ -20,7 +18,6 @@ import com.project.manager.ui.bookkeeping.running_account_edit.fragments.IncomeF
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountFragmentBase;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.TransferFragment;
 import com.project.manager.ResultCode;
-import com.project.manager.ui.bookkeeping.tag.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,15 +86,6 @@ public class NewRunningAccountActivity extends AppCompatActivity implements View
         //获取碎片通用信息并打包
         Bundle dataBundle = current_fragment.getBasicData();
         RunningAccountTypeEnum type = RunningAccountTypeEnum.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-        String tag_name = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
-
-        //将标签名称转换为标签编号
-        try {
-            long tag_no = Tag.nameTransToTno(tag_name, this);
-            dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(this, e);
-        }
 
         //获取碎片特殊信息并打包
         if (type == RunningAccountTypeEnum.TRANSFER) {
