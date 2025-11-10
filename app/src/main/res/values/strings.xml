@@ -43,4 +43,7 @@
     <string name="expenditure">支出</string>
     <string name="tag_name">标签名称</string>
     <string name="tag_group">标签分组</string>
+    <string name="edit_tag">编辑标签</string>
+    <string name="clear_input">清除输入</string>
+    <string name="select_tag">标签选择</string>
 </resources>

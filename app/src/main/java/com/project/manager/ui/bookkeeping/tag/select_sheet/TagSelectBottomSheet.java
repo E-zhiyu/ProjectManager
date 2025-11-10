@@ -58,6 +58,7 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
     //初始化视图
     private void initViews() {
         binding.findViewById(R.id.edit_tag_btn).setOnClickListener(this);
+        binding.findViewById(R.id.clear_input_btn).setOnClickListener(this);
     }
 
     @Override
@@ -66,6 +67,8 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
             Intent skip2TagEdit = new Intent(requireContext(), TagEditActivity.class);
             startActivity(skip2TagEdit);
             dismiss();
+        } else if (v.getId() == R.id.clear_input_btn) {
+            tagBtnClickedListener.onTagBtnClicked(0, "");
         }
     }
 }
