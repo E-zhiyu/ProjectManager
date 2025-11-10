@@ -10,7 +10,7 @@
         <item name="colorSecondaryVariant">@color/teal_200</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor">@color/page_background_night</item>
         <!-- Customize your theme here. -->
         <item name="toolbarStyle">@style/ToolBarStyle</item>
         <item name="drawableTint">@color/theme_blue_night</item>
