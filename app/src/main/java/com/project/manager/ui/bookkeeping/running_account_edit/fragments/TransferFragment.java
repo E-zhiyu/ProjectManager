@@ -83,23 +83,20 @@ public class TransferFragment extends RunningAccountFragmentBase {
     }
 
     /**
-     * 获取转出账户
+     * 获取输入的数据
      *
-     * @return 转出账户字符串
+     * @return 包含输入数据的Bundle
      */
-    public String getExportAccount() {
-        TextInputEditText TextInputEditText = binding.findViewById(R.id.export_account_input);
-        return String.valueOf(TextInputEditText.getText());
-    }
+    @Override
+    public Bundle getInputData() {
+        Bundle dataBundle = super.getInputData();
 
-    /**
-     * 获取转入账户
-     *
-     * @return 转入账户字符串
-     */
-    public String getImportAccount() {
-        TextInputEditText TextInputEditText = binding.findViewById(R.id.import_account_input);
-        return String.valueOf(TextInputEditText.getText());
+        String export_account = String.valueOf(export_input.getText()); //转出账户
+        dataBundle.putString(KeyValueStrings.ACCOUNT_EXPORT.getValue(), export_account);
+        String import_account = String.valueOf(import_input.getText()); //转入账户
+        dataBundle.putString(KeyValueStrings.ACCOUNT_IMPORT.getValue(), import_account);
+
+        return dataBundle;
     }
 
     @Override

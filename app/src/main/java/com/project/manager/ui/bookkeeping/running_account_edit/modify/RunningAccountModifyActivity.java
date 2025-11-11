@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.android.material.textfield.TextInputEditText;
 import com.project.manager.R;
 import com.project.manager.ResultCode;
 import com.project.manager.exception.ExceptionHelper;
@@ -110,28 +109,16 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
     }
 
     /**
-     * 获取编辑后的数据
+     * 获取修改后的数据
      *
-     * @return 包含编辑后数据的包裹
+     * @return 包含修改后数据的包裹
      */
     @NonNull
     private Bundle getDataAfterEditing() {
-        Bundle dataBundle = runningAccountFragment.getBasicData();
+        Bundle dataBundle = runningAccountFragment.getInputData();
 
         dataBundle.putInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), position);        //将下标存放至包裹
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());       //将种类存放至包裹
-
-        //获取特殊信息
-        if (type == RunningAccountTypeEnum.TRANSFER) {
-            TextInputEditText export_input, import_input;
-            String exportAccount, importAccount;
-            export_input = findViewById(R.id.export_account_input);    //转出账户
-            exportAccount = String.valueOf(export_input.getText());
-            dataBundle.putString(KeyValueStrings.ACCOUNT_EXPORT.getValue(), exportAccount);
-            import_input = findViewById(R.id.import_account_input);    //转入账户
-            importAccount = String.valueOf(import_input.getText());
-            dataBundle.putString(KeyValueStrings.ACCOUNT_IMPORT.getValue(), importAccount);
-        }
 
         return dataBundle;
     }

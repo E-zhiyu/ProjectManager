@@ -199,11 +199,11 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
     }
 
     /**
-     * 获取基本数据
+     * 获取输入的数据
      *
-     * @return 带有基本数据的Bundle包裹
+     * @return 包含输入数据的Bundle
      */
-    public Bundle getBasicData() {
+    public Bundle getInputData() {
         Bundle dataBundle = new Bundle();
 
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());     //种类

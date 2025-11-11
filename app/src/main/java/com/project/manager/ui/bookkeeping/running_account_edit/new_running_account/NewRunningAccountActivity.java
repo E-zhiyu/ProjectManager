@@ -11,9 +11,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.project.manager.R;
-import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.ExpenseFragment;
-import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountTypeEnum;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.IncomeFragment;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountFragmentBase;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.TransferFragment;
@@ -82,20 +80,7 @@ public class NewRunningAccountActivity extends AppCompatActivity implements View
      */
     private void onFinishBtnClicked() {
         Intent result2BookKeeping = new Intent();
-
-        //获取碎片通用信息并打包
-        Bundle dataBundle = current_fragment.getBasicData();
-        RunningAccountTypeEnum type = RunningAccountTypeEnum.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-
-        //获取碎片特殊信息并打包
-        if (type == RunningAccountTypeEnum.TRANSFER) {
-            TransferFragment transferFragment = (TransferFragment) current_fragment;
-            String exportAccount, importAccount;
-            exportAccount = transferFragment.getExportAccount();    //转出账户
-            dataBundle.putString(KeyValueStrings.ACCOUNT_EXPORT.getValue(), exportAccount);
-            importAccount = transferFragment.getImportAccount();    //转入账户
-            dataBundle.putString(KeyValueStrings.ACCOUNT_IMPORT.getValue(), importAccount);
-        }
+        Bundle dataBundle = current_fragment.getInputData();    //获取输入的信息并打包
 
         result2BookKeeping.putExtras(dataBundle);
         setResult(ResultCode.RESULT_OK.ordinal(), result2BookKeeping);
