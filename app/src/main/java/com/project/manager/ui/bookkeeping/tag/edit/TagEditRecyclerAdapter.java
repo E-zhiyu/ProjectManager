@@ -20,8 +20,10 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textview.MaterialTextView;
+import com.project.manager.ProjectManager;
 import com.project.manager.R;
 import com.project.manager.exception.ExceptionHelper;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.view_model.AccountTagViewModel;
 import com.project.manager.ui.bookkeeping.tag.Tag;
 import com.project.manager.ui.bookkeeping.tag.TagGroup;
 
@@ -429,7 +431,13 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
             Tag.deleteTag(tagsToBeDeleted, context);    //删除标签
             TagGroup.deleteGroup(group_no, context);    //删除分组
 
-            Toast.makeText(context,"标签分组已删除",Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "标签分组已删除", Toast.LENGTH_SHORT).show();
+
+            //获取ViewModel通知流水账数据输入界面更新UI
+            ProjectManager app = (ProjectManager) ((EditActivity) context).getApplication();
+            AccountTagViewModel viewModel = app.getAccountTagViewModel();
+            for (Tag tag : tagsToBeDeleted) tag.setName("");    //将标签名称设置为空串
+            viewModel.updateTag(tagsToBeDeleted);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             return;

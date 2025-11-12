@@ -23,6 +23,7 @@ import com.project.manager.R;
 import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.view_model.AccountTagViewModel;
+import com.project.manager.ui.bookkeeping.tag.Tag;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.SheetTagBtnRecyclerAdapter;
 
@@ -150,9 +151,14 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
 
     //观察标签数据变化
     private void observeTag() {
-        tagViewModel.getTag().observe(getViewLifecycleOwner(), tag -> {
-            if (tag.getTno() == tag_no) {
-                tag_input.setText(tag.getName());
+        tagViewModel.getTag().observe(getViewLifecycleOwner(), tagList -> {
+            for (Tag tag : tagList) {
+                if (tag.getTno() == tag_no) {
+                    String new_tag_name = tag.getName();
+                    if (new_tag_name.isEmpty()) tag_no = 0; //如果新名称为空说明标签被删除，将标签编号置为0
+                    tag_input.setText(new_tag_name);
+                    break;
+                }
             }
         });
     }
@@ -187,6 +193,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
             tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
             if (tag_no != 0) {
                 tag_name = tagNoTransToName(tag_no, requireContext());
+                if (tag_name.isEmpty()) tag_no = 0;     //如果获取的名称为空，则将编号置为0（冗余设计，防止非法的标签编号出现）
             }
         } catch (SQLiteException e) {
             tag_no = 0;
