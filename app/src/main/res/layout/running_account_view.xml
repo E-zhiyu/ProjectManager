@@ -14,7 +14,7 @@
 
         <!-- 左侧信息 -->
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical">
@@ -23,13 +23,13 @@
                 android:id="@+id/remark_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Remark" />
+                android:text="@string/remark" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/name_datetime_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="DateTime&amp;Type" />
+                android:text="@string/date_time" />
         </LinearLayout>
 
         <!-- 右侧金额信息 -->
@@ -38,6 +38,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="100.0" />
+            android:text="@string/amount" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

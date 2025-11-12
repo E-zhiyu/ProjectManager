@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.running_account_edit.fragments;
+package com.project.manager.ui.bookkeeping.running_account_edit.fragments.view_model;
 
 import android.app.Application;
 

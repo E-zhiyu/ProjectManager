@@ -14,7 +14,7 @@ import com.project.manager.ProjectManager;
 import com.project.manager.R;
 import com.project.manager.ResultCode;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
-import com.project.manager.ui.bookkeeping.running_account_edit.fragments.AccountTagViewModel;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.view_model.AccountTagViewModel;
 
 import java.util.ArrayList;
 
@@ -157,6 +157,8 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
                     group_names = new String[0];
                 }
             }
+        } else {
+            Toast.makeText(this, "无法初始化标签信息", Toast.LENGTH_SHORT).show();
         }
     }
 

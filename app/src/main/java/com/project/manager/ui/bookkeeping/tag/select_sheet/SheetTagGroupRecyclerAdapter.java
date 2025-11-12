@@ -55,7 +55,7 @@ public class SheetTagGroupRecyclerAdapter extends RecyclerView.Adapter<SheetTagG
     @Override
     public void onBindViewHolder(@NonNull TagSelectHolder holder, int position) {
         TagGroup currentTagGroup = this.tagGroupList.get(position);
-        String group_name = currentTagGroup.getGroupName();
+        String group_name = currentTagGroup.getGroup_name();
         List<Tag> tags = currentTagGroup.getTags();
 
         holder.tag_group_name_view.setText(group_name);

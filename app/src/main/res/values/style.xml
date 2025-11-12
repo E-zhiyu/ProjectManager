@@ -89,6 +89,14 @@
         <item name="iconPadding">2dp</item>
     </style>
 
+    <!-- 图标按钮样式 -->
+    <style name="ClickableImageViewStyle" parent="Widget.AppCompat.ImageButton">
+        <item name="tint">@color/theme_blue</item>
+        <item name="android:padding">10sp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
     <!-- 复选框样式 -->
     <style name="CheckBoxStyle">
         <item name="buttonTint">@color/theme_blue</item>

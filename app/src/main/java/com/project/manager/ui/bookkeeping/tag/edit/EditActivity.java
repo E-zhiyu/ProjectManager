@@ -23,9 +23,9 @@ import com.project.manager.ui.bookkeeping.tag.TagGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TagEditActivity extends AppCompatActivity implements View.OnClickListener, TagEditRecyclerAdapter.OnTagTextViewClickedListener {
+public class EditActivity extends AppCompatActivity implements View.OnClickListener, TagEditRecyclerAdapter.OnTextViewClickedListener {
     private TagEditRecyclerAdapter adapter;
-    private ActivityResultLauncher<Intent> newTagLauncher, modifyTagLauncher;   //活动启动器
+    private ActivityResultLauncher<Intent> newTagLauncher, modifyTagLauncher, modifyGroupLauncher;  //活动启动器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +58,7 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
             List<TagGroup> tagGroupList = adapter.getTagGroupList();
             ArrayList<String> groupNameList = new ArrayList<>();
             for (TagGroup group : tagGroupList) {
-                groupNameList.add(group.getGroupName());
+                groupNameList.add(group.getGroup_name());
             }
             skip2NewTag.putStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue(), groupNameList);
 
@@ -80,12 +80,24 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
         List<TagGroup> tagGroupList = adapter.getTagGroupList();
         ArrayList<String> groupNameList = new ArrayList<>();
         for (TagGroup group : tagGroupList) {
-            groupNameList.add(group.getGroupName());
+            groupNameList.add(group.getGroup_name());
         }
         clickedTagData.putStringArrayList(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue(), groupNameList);
 
         skip2ModifyTag.putExtras(clickedTagData);
         modifyTagLauncher.launch(skip2ModifyTag);
+    }
+
+    @Override
+    public void onGroupTextViewClicked(long group_no, String group_name) {
+        Intent skip2GroupModify = new Intent(this, GroupModifyActivity.class);
+        Bundle clickedGroupData = new Bundle();
+
+        clickedGroupData.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), group_name);
+        clickedGroupData.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), group_no);
+
+        skip2GroupModify.putExtras(clickedGroupData);
+        modifyGroupLauncher.launch(skip2GroupModify);
     }
 
     //初始化视图
@@ -125,6 +137,21 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
                     }
                 }
         );
+
+        modifyGroupLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    int resultCode = result.getResultCode();
+                    Intent data = result.getData();
+
+                    if (data == null && resultCode != Activity.RESULT_CANCELED) {
+                        NullPointerException e = new NullPointerException("无法获取修改后的分组数据");
+                        ExceptionHelper.showExceptionDialog(this, e);
+                    } else {
+                        modifyGroup(resultCode, data);
+                    }
+                }
+        );
     }
 
     private void addNewTag(int resultCode, Intent resultIntent) {
@@ -142,7 +169,7 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
             List<TagGroup> tagGroupList = adapter.getTagGroupList();
             boolean needNewGroup = true;
             for (TagGroup oneGroup : tagGroupList) {
-                if (oneGroup.getGroupName().equals(group_name)) {
+                if (oneGroup.getGroup_name().equals(group_name)) {
                     needNewGroup = false;
                     try {
                         group_no = TagGroup.nameTransToGno(group_name, this);
@@ -165,6 +192,7 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
             long tag_no = 0; //获取标签编号
             try {
                 tag_no = Tag.saveNewTag(tag_name, group_no, this);
+                Toast.makeText(this, "标签保存成功", Toast.LENGTH_SHORT).show();
             } catch (SQLiteException e) {
                 ExceptionHelper.showExceptionDialog(this, e);
             }
@@ -199,7 +227,8 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
             String tag_name = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
             String group_name = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
 
-            long new_group_no;  //获取修改后的分组编号
+            //获取修改后的分组编号
+            long new_group_no;
             try {
                 new_group_no = TagGroup.nameTransToGno(group_name, this);
             } catch (SQLiteException e) {
@@ -215,6 +244,29 @@ public class TagEditActivity extends AppCompatActivity implements View.OnClickLi
             }
         } else if (resultCode == ResultCode.RESULT_DELETE.ordinal()) {
             adapter.deleteTag(tag_no, origin_group_no);
+        }
+    }
+
+    private void modifyGroup(int resultCode, Intent data) {
+        if (resultCode == ResultCode.RESULT_REJECT.ordinal()) {
+            return;
+        }
+
+        Bundle dataBundle = data.getExtras();
+        if (dataBundle == null) {
+            NullPointerException e = new NullPointerException("无法获取修改后的分组信息");
+            ExceptionHelper.showExceptionDialog(this, e);
+            return;
+        }
+
+        long group_no = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());
+        if (resultCode == ResultCode.RESULT_OK.ordinal()) {
+            String new_group_name = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
+
+            //修改视图中的分组并保存
+            adapter.modifyGroup(group_no, new_group_name);
+        } else if (resultCode == ResultCode.RESULT_DELETE.ordinal()) {
+            adapter.deleteGroup(group_no);
         }
     }
 }

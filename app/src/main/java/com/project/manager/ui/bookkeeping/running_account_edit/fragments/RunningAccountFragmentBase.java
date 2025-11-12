@@ -22,6 +22,7 @@ import com.project.manager.ProjectManager;
 import com.project.manager.R;
 import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.view_model.AccountTagViewModel;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.SheetTagBtnRecyclerAdapter;
 
@@ -49,7 +50,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
         initViews(binding);
 
         //获取Application中的ViewModel
-        ProjectManager app = (ProjectManager)requireActivity().getApplication();
+        ProjectManager app = (ProjectManager) requireActivity().getApplication();
         tagViewModel = app.getAccountTagViewModel();
 
         //判断是否传递了外部数据，如果传递了则将数据填入对应控件
@@ -181,12 +182,14 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
         String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
 
         //将标签编号转换为标签名称
-        String tag_name = null;
+        String tag_name = "";
         try {
             tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
-            tag_name = tagNoTransToName(tag_no, requireContext());
+            if (tag_no != 0) {
+                tag_name = tagNoTransToName(tag_no, requireContext());
+            }
         } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(requireContext(), e);
+            tag_no = 0;
             Toast.makeText(requireContext(), "无法获取该记录的标签名称", Toast.LENGTH_SHORT).show();
         }
 

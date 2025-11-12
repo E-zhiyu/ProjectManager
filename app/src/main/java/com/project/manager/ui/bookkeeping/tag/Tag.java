@@ -5,11 +5,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.widget.Toast;
+import android.database.sqlite.SQLiteStatement;
 
 import com.project.manager.database.RunningAccountColumns;
 import com.project.manager.database.RunningAccountDatabaseHelper;
 import com.project.manager.database.RunningAccountTables;
+
+import java.util.List;
 
 public class Tag {
     private String name;    //名称
@@ -33,48 +35,12 @@ public class Tag {
     }
 
     /**
-     * 将名称转换为编号
-     *
-     * @param name    标签名称
-     * @param context 用于打开数据库的上下文
-     * @return 对应的标签编号
-     */
-    public static long nameTransToTno(String name, Context context) throws SQLiteException {
-        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
-        SQLiteDatabase db = db_helper.openReadLink();
-
-        String[] columns = {RunningAccountColumns.TAG_NO.toString()};
-        String selection = RunningAccountColumns.TAG_NAME + "=?";
-        String[] selectionArgs = {name};
-        Cursor cursor = db.query(
-                RunningAccountTables.TAG.toString(),
-                columns,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                null,
-                "1"
-        );
-
-        long tag_no;
-        if (cursor.moveToNext()) {
-            tag_no = cursor.getLong(cursor.getColumnIndexOrThrow(RunningAccountColumns.TAG_NO.toString()));
-        } else {
-            tag_no = 0;
-        }
-
-        cursor.close();
-        db.close();
-        return tag_no;
-    }
-
-    /**
      * 将标签编号转换为标签名称
      *
      * @param tag_no  标签编号
      * @param context 用于打开数据库的上下文
      * @return 对应的标签名称
+     * @throws SQLiteException 无法修改数据库时引发的异常
      */
     public static String tagNoTransToName(long tag_no, Context context) throws SQLiteException {
         RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
@@ -113,6 +79,7 @@ public class Tag {
      * @param group_no 该标签对应的分组编号
      * @param context  用于打开数据库的上下文
      * @return 对应的标签编号
+     * @throws SQLiteException 无法修改数据库时引发的异常
      */
     public static long saveNewTag(String tag_name, long group_no, Context context) throws SQLiteException {
         long tag_no;    //标签编号
@@ -126,7 +93,6 @@ public class Tag {
         tag_no = db.insert(RunningAccountTables.TAG.toString(), null, tag_values);
 
         db.close();
-        Toast.makeText(context, "标签保存成功", Toast.LENGTH_SHORT).show();
         return tag_no;
     }
 
@@ -136,6 +102,7 @@ public class Tag {
      * @param new_name 新标签名称
      * @param tag_no   标签编号
      * @param context  打开数据库所需的上下文
+     * @throws SQLiteException 无法修改数据库时引发的异常
      */
     public static void modifyTag(String new_name, long tag_no, Context context) throws SQLiteException {
         ContentValues tag_values = new ContentValues();
@@ -154,7 +121,6 @@ public class Tag {
         );
 
         db.close();
-        Toast.makeText(context, "标签修改成功", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -164,6 +130,7 @@ public class Tag {
      * @param tag_no       待修改的标签编号
      * @param new_group_no 新分组编号
      * @param context      打开数据库所需的上下文
+     * @throws SQLiteException 无法修改数据库时引发的异常
      */
     public static void modifyTag(String new_tag_name, long tag_no, long new_group_no, Context context) throws SQLiteException {
         ContentValues tag_values = new ContentValues();
@@ -183,8 +150,6 @@ public class Tag {
         );
 
         db.close();
-
-        Toast.makeText(context, "标签修改成功", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -192,17 +157,19 @@ public class Tag {
      *
      * @param tag_no  待删除标签的编号
      * @param context 打开数据库所需的上下文
+     * @throws SQLiteException 无法修改数据库时引发的异常
      */
+    //TODO: 修复删除流水数据输入的标签时无法及时更新UI的BUG
     public static void deleteTag(long tag_no, Context context) throws SQLiteException {
+        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
+        SQLiteDatabase db = db_helper.openWriteLink();
+
         ContentValues basic_values = new ContentValues();
         basic_values.put(RunningAccountColumns.TAG_NO.toString(), 0);
         String whereStr = RunningAccountColumns.TAG_NO + "=?";
         String[] whereStrArgs = {String.valueOf(tag_no)};
 
-        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
-        SQLiteDatabase db = db_helper.openWriteLink();
-
-        //先将流水基本数据表的标签清除
+        //先将流水基本数据表的标签清除（修改为0）
         db.update(
                 RunningAccountTables.BASIC.toString(),
                 basic_values,
@@ -218,6 +185,54 @@ public class Tag {
         );
 
         db.close();
-        Toast.makeText(context, "标签删除成功", Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * 批量删除标签
+     *
+     * @param tagList 待删除的标签列表
+     * @param context 上下文
+     * @throws SQLiteException 无法修改数据库时引发的异常
+     */
+    public static void deleteTag(List<Tag> tagList, Context context) throws SQLiteException {
+        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
+        SQLiteDatabase db = db_helper.openWriteLink();
+
+        long[] tag_no_list = new long[tagList.size()];
+        int index = 0;
+        for (Tag tag : tagList) {
+            tag_no_list[index] = tag.getTno();
+            index++;
+        }
+
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < tagList.size(); i++) {
+            placeholders.append(i == 0 ? "?" : ",?");
+        }
+
+        //清除流水表的标签
+        String sql;
+        SQLiteStatement stmt;
+        sql = "UPDATE " + RunningAccountTables.BASIC +
+                " SET " + RunningAccountColumns.TAG_NO + " =0" +
+                " WHERE " + RunningAccountColumns.TAG_NO + " IN (" + placeholders + ")";
+        stmt = db.compileStatement(sql);
+        index = 1;
+        for (long tagNo : tag_no_list) {
+            stmt.bindLong(index++, tagNo);
+        }
+        stmt.execute();
+
+        //删除标签表的记录
+        sql = "DELETE FROM " + RunningAccountTables.TAG +
+                " WHERE " + RunningAccountColumns.TAG_NO + " IN (" + placeholders + ")";
+        stmt = db.compileStatement(sql);
+        index = 1;
+        for (long tagNo : tag_no_list) {
+            stmt.bindLong(index++, tagNo);
+        }
+        stmt.execute();
+
+        db.close();
     }
 }

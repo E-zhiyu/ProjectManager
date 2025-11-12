@@ -5,22 +5,22 @@
     style="@style/PageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.bookkeeping.tag.edit.TagModifyActivity">
+    tools:context=".ui.bookkeeping.tag.edit.GroupModifyActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/modify_tag_toolbar"
+        android:id="@+id/modify_group_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="@string/title_modify_tag" />
+        app:title="标签分组修改" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/btn_card_view"
-        app:layout_constraintTop_toBottomOf="@+id/modify_tag_toolbar">
+        app:layout_constraintTop_toBottomOf="@+id/modify_group_toolbar">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -29,31 +29,16 @@
             android:padding="16dp">
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tag_name_layout"
+                android:id="@+id/group_name_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/tag_name_input"
+                    android:id="@+id/group_name_input"
                     style="@style/UserInputEditTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="@string/tag_name" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tag_group_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:endIconDrawable="@drawable/round_format_list_bulleted_24"
-                app:endIconMode="custom">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/tag_group_input"
-                    style="@style/UserInputEditTextStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/tag_group" />
+                    android:hint="@string/group_name" />
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
     </ScrollView>

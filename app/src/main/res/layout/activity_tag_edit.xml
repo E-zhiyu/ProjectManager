@@ -6,7 +6,7 @@
     style="@style/PageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.bookkeeping.tag.edit.TagEditActivity">
+    tools:context=".ui.bookkeeping.tag.edit.EditActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/edit_tag_toolbar"

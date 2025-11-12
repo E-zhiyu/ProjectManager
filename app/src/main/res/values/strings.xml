@@ -46,4 +46,6 @@
     <string name="edit_tag">编辑标签</string>
     <string name="clear_input">清除输入</string>
     <string name="select_tag">标签选择</string>
+    <string name="expand_fold_btn">press_to_expand_or_fold</string>
+    <string name="group_name">分组名称</string>
 </resources>

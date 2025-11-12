@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
     <application
         android:name=".ProjectManager"
         android:allowBackup="true"
@@ -11,10 +12,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjectManager">
         <activity
+            android:name=".ui.bookkeeping.tag.edit.GroupModifyActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.bookkeeping.tag.edit.TagModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.tag.edit.TagEditActivity"
+            android:name=".ui.bookkeeping.tag.edit.EditActivity"
             android:exported="false" />
         <activity
             android:name=".ui.bookkeeping.tag.edit.NewTagActivity"

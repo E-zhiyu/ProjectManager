@@ -86,7 +86,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
                 return;
             } else {
                 resultCode = ResultCode.RESULT_OK.ordinal();
-                Bundle dataBundle = getDataAfterEditing();
+                Bundle dataBundle = getDataAfterModifying();
                 result2BookKeeping.putExtras(dataBundle);
             }
         } else if (v.getId() == R.id.delete_btn) {
@@ -114,7 +114,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
      * @return 包含修改后数据的包裹
      */
     @NonNull
-    private Bundle getDataAfterEditing() {
+    private Bundle getDataAfterModifying() {
         Bundle dataBundle = runningAccountFragment.getInputData();
 
         dataBundle.putInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), position);        //将下标存放至包裹
