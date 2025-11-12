@@ -4,7 +4,7 @@ import android.app.Application;
 
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.view_model.AccountTagViewModel;
 
-public class ProjectManager extends Application {
+public class ManagerAssistant extends Application {
     AccountTagViewModel accountTagViewModel;    //共享标签数据的ViewModel
 
     @Override

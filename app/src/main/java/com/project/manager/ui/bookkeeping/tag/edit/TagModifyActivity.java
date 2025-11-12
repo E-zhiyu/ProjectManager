@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.project.manager.ProjectManager;
+import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
 import com.project.manager.ResultCode;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
@@ -37,7 +37,7 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
         tag_group_layout = findViewById(R.id.tag_group_layout);
 
         //获取Application中的ViewModel
-        ProjectManager app = (ProjectManager) getApplication();
+        ManagerAssistant app = (ManagerAssistant) getApplication();
         tagViewModel = app.getAccountTagViewModel();
 
         initViews();

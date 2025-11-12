@@ -7,7 +7,7 @@ android {
     compileSdk 36
 
     defaultConfig {
-        applicationId "com.project.manager"
+        applicationId "com.manager.assitant"
         minSdk 26
         targetSdk 36
         versionCode 3

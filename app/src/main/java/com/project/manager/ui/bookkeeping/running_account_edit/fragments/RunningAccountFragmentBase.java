@@ -18,7 +18,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
-import com.project.manager.ProjectManager;
+import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
 import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
@@ -51,7 +51,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
         initViews(binding);
 
         //获取Application中的ViewModel
-        ProjectManager app = (ProjectManager) requireActivity().getApplication();
+        ManagerAssistant app = (ManagerAssistant) requireActivity().getApplication();
         tagViewModel = app.getAccountTagViewModel();
 
         //判断是否传递了外部数据，如果传递了则将数据填入对应控件
