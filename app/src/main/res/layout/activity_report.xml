@@ -112,14 +112,23 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <com.google.android.material.textview.MaterialTextView
-                        style="@style/LabelTextViewStyle"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/income" />
+                        android:orientation="vertical">
 
-                    <!-- 此处添加收入来源 -->
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/LabelTextViewStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/income" />
 
+                        <LinearLayout
+                            android:id="@+id/expense_source_layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical" />
+                    </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
@@ -127,14 +136,23 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <com.google.android.material.textview.MaterialTextView
-                        style="@style/LabelTextViewStyle"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/expenditure" />
+                        android:orientation="vertical">
 
-                    <!-- 此处添加支出来源 -->
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/LabelTextViewStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/expenditure" />
 
+                        <LinearLayout
+                            android:id="@+id/income_source_layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical" />
+                    </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </LinearLayout>
