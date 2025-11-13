@@ -33,7 +33,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     private final RunningAccountTypeEnum[] money_decrease = {RunningAccountTypeEnum.EXPENSE, RunningAccountTypeEnum.TRANSFER};
 
     //日期
-    private int year, month;                //年和月份
+    private int year, month, day;           //年月日
     private boolean isShowYearOnly = true;  //只显示年份
 
     @Override
@@ -54,6 +54,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         Calendar now = Calendar.getInstance();
         this.year = now.get(Calendar.YEAR);
         this.month = now.get(Calendar.MONTH) + 1;
+        this.day = now.get(Calendar.DAY_OF_MONTH);
         @SuppressLint("DefaultLocale") String date_str = String.format("%04d年", this.year);
 
         TextView date_textview = findViewById(R.id.report_date_textview);
@@ -139,12 +140,18 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
      */
     @SuppressLint("DefaultLocale")
     private void showDatePickerDialog() {
+        //获取已选中的日期的日历对象
+        Calendar selectedCalendar = Calendar.getInstance();
+        selectedCalendar.set(year, month - 1, day);
+
         //创建日期选择器
         MaterialDatePicker.Builder<Long> dateBuilder = MaterialDatePicker.Builder.datePicker();
         dateBuilder.setTitleText("选择日期");
 
         //显示日期选择器
-        MaterialDatePicker<Long> datePicker = dateBuilder.build();
+        MaterialDatePicker<Long> datePicker = dateBuilder
+                .setSelection(selectedCalendar.getTimeInMillis())
+                .build();
         datePicker.show(getSupportFragmentManager(), "DATE_PICKER");
 
         datePicker.addOnPositiveButtonClickListener(selection -> {
@@ -154,6 +161,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             //更新日期文本视图
             this.year = selected_calendar.get(Calendar.YEAR);
             this.month = selected_calendar.get(Calendar.MONTH) + 1;
+            this.day = selected_calendar.get(Calendar.DAY_OF_MONTH);
             TextView date_textview = findViewById(R.id.report_date_textview);
 
             if (isShowYearOnly) {
