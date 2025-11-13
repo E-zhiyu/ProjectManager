@@ -70,7 +70,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(@NonNull View v) {
         if (v.getId() == R.id.new_running_account_btn) {  //新建流水
             Intent skip2NewRunningAccount = new Intent(getActivity(), NewRunningAccountActivity.class);
             newRunningAccountLauncher.launch(skip2NewRunningAccount);
@@ -227,7 +227,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
      *
      * @param resultIntent 带有编辑后数据的意图对象
      */
-    private void modifyRunningAccount(Intent resultIntent) {
+    private void modifyRunningAccount(@NonNull Intent resultIntent) {
         ContentValues basic_values, special_values;           //基本数据和特殊数据记录
         SQLiteDatabase db = running_account_db_helper.openWriteLink();   //数据库写连接
 
@@ -298,7 +298,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     /**
      * 删除流水
      */
-    private void deleteRunningAccount(Intent resultIntent) {
+    private void deleteRunningAccount(@NonNull Intent resultIntent) {
         Bundle dataBundle = resultIntent.getExtras();
         SQLiteDatabase db = running_account_db_helper.openWriteLink();
 
@@ -337,6 +337,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     /**
      * 从数据库中加载流水视图
      */
+    @NonNull
     private List<RunningAccountBase> loadRunningAccountData() {
         SQLiteDatabase db = running_account_db_helper.openReadLink();  //获取读连接
 

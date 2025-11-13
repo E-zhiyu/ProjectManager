@@ -14,7 +14,7 @@ import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
 import com.project.manager.ResultCode;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
-import com.project.manager.ui.bookkeeping.running_account_edit.fragments.view_model.AccountTagViewModel;
+import com.project.manager.ui.view_model.AccountTagViewModel;
 
 import java.util.ArrayList;
 

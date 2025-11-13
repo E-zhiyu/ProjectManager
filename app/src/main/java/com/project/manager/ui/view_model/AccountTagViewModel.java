@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.running_account_edit.fragments.view_model;
+package com.project.manager.ui.view_model;
 
 import android.app.Application;
 
@@ -42,5 +42,10 @@ public class AccountTagViewModel extends AndroidViewModel {
      */
     public void updateTag(List<Tag> tagList) {
         tag.setValue(tagList);
+    }
+
+    //重置标签数据防止重复观察
+    public void resetTagValue() {
+        tag.setValue(null);
     }
 }

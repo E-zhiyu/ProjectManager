@@ -72,7 +72,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(@NonNull View v) {
         Intent result2BookKeeping = new Intent();
         int resultCode = ResultCode.RESULT_REJECT.ordinal();  //响应代码
 

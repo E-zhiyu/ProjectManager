@@ -54,7 +54,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(@NonNull View v) {
         if (v.getId() == R.id.setting_about) {
             showAboutDialog();
         } else if (v.getId() == R.id.setting_theme_mode) {

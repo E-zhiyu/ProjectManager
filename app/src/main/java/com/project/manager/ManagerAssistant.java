@@ -2,7 +2,7 @@ package com.project.manager;
 
 import android.app.Application;
 
-import com.project.manager.ui.bookkeeping.running_account_edit.fragments.view_model.AccountTagViewModel;
+import com.project.manager.ui.view_model.AccountTagViewModel;
 
 public class ManagerAssistant extends Application {
     AccountTagViewModel accountTagViewModel;    //共享标签数据的ViewModel
