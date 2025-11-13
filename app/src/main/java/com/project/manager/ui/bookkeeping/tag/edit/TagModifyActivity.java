@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -44,7 +45,7 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(@NonNull View v) {
         Intent result2TagEdit = new Intent();
         Bundle dataBundle = new Bundle();
         dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), group_no);      //分组编号
@@ -73,6 +74,8 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
                     .setTitle("删除标签")
                     .setMessage("此操作将清空所有相应流水的标签数据，确认继续吗？")
                     .setPositiveButton("确定", ((dialog, which) -> {
+                        tagViewModel.updateTag("", tag_no);    //更新ViewModel中的标签数据
+
                         result2TagEdit.putExtras(dataBundle);
                         setResult(ResultCode.RESULT_DELETE.ordinal(), result2TagEdit);
                         finish();
