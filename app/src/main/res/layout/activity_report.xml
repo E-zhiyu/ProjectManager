@@ -41,92 +41,102 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/report_toolbar" />
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/report_balance_cardview"
-        style="@style/CommonCardStyle"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@id/report_date_textview">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="5dp">
+            android:layout_height="0dp"
+            android:orientation="vertical">
 
-            <TextView
-                style="@style/ReportInfoTextViewStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/account_statistics"
-                android:textSize="20sp" />
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/report_balance_cardview"
+                style="@style/CommonCardStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <TextView
-                style="@style/ReportInfoTextViewStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/balance"
-                android:textSize="15sp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="5dp">
 
-            <TextView
-                android:id="@+id/report_balance_textview"
-                style="@style/ReportInfoTextViewStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="XII"
-                android:textSize="25sp" />
+                    <com.google.android.material.textview.MaterialTextView
+                        style="@style/ReportInfoTextViewStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/account_statistics"
+                        android:textSize="20sp" />
 
-            <TextView
-                android:id="@+id/report_expenditure_income_textview"
-                style="@style/ReportInfoTextViewStyle"
-                android:layout_width="wrap_content"
+                    <com.google.android.material.textview.MaterialTextView
+                        style="@style/ReportInfoTextViewStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/balance"
+                        android:textSize="15sp" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/report_balance_textview"
+                        style="@style/ReportInfoTextViewStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/balance"
+                        android:textSize="25sp" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/report_expenditure_income_textview"
+                        style="@style/ReportInfoTextViewStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/expense_and_income" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/expense_and_income" />
+                android:layout_marginTop="10sp"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/LabelTextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/expenditure_income_distribution" />
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/ContentCardStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        style="@style/LabelTextViewStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/income" />
+
+                    <!-- 此处添加收入来源 -->
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/ContentCardStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        style="@style/LabelTextViewStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/expenditure" />
+
+                    <!-- 此处添加支出来源 -->
+
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10sp"
-        android:orientation="vertical"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/report_balance_cardview">
-
-        <com.google.android.material.textview.MaterialTextView
-            style="@style/LabelTextViewStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/expenditure_income_distribution" />
-
-        <com.google.android.material.card.MaterialCardView
-            style="@style/ContentCardStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.google.android.material.textview.MaterialTextView
-                style="@style/LabelTextViewStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/income" />
-
-            <!-- 此处添加收入来源 -->
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            style="@style/ContentCardStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.google.android.material.textview.MaterialTextView
-                style="@style/LabelTextViewStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/expenditure" />
-
-            <!-- 此处添加收入来源 -->
-
-        </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
