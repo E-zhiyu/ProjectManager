@@ -6,13 +6,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.project.manager.exception.ExceptionHelper;
 
 public class RunningAccountDatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "running_account.db";   //数据库名称
-    private static final int DATABASE_VERSION = 1;                      //数据库版本
+    private static final int DATABASE_VERSION = 2;                      //数据库版本
     private final Context context;                                      //上下文
 
     public RunningAccountDatabaseHelper(@Nullable Context context) {
@@ -62,6 +63,7 @@ public class RunningAccountDatabaseHelper extends SQLiteOpenHelper {
                     RunningAccountColumns.TAG_NAME + " VARCHAR(20) NOT NULL UNIQUE," +
                     RunningAccountColumns.GROUP_NO + " INTEGER NOT NULL," +
 
+                    //分组编号外键约束
                     "CONSTRAINT " + RunningAccountConstraints.FK_GROUP_NO +
                     " FOREIGN KEY (" + RunningAccountColumns.GROUP_NO + ")" +
                     " REFERENCES " + RunningAccountTables.TAG_GROUP + "(" + RunningAccountColumns.GROUP_NO + ")" +
@@ -82,13 +84,13 @@ public class RunningAccountDatabaseHelper extends SQLiteOpenHelper {
                     RunningAccountColumns.TYPE + " VARCHAR(15) NOT NULL," +
                     RunningAccountColumns.REMARK + " VARCHAR(20)," +
                     RunningAccountColumns.DATETIME + " DATETIME NOT NULL," +
-                    RunningAccountColumns.TAG_NO + " INTEGER," +
+                    RunningAccountColumns.TAG_NO + " INTEGER DEFAULT 0," +
 
                     //标签编号外键约束
                     "CONSTRAINT " + RunningAccountConstraints.FK_TAG_NO +
                     " FOREIGN KEY (" + RunningAccountColumns.TAG_NO + ")" +
                     " REFERENCES " + RunningAccountTables.TAG + "(" + RunningAccountColumns.TAG_NO + ")" +
-                    " ON DELETE CASCADE" +
+                    " ON DELETE SET DEFAULT" +
                     ")";
             db.execSQL(create);
         } catch (SQLException e) {
@@ -104,7 +106,7 @@ public class RunningAccountDatabaseHelper extends SQLiteOpenHelper {
                     RunningAccountColumns.EXPORT + " VARCHAR(20) NOT NULL," +
                     RunningAccountColumns.IMPORT + " VARCHAR(20) NOT NULL," +
 
-                    //分组编号外键约束
+                    //流水编号外键约束
                     "CONSTRAINT " + RunningAccountConstraints.FK_RNO +
                     " FOREIGN KEY (" + RunningAccountColumns.RNO + ")" +
                     " REFERENCES " + RunningAccountTables.BASIC + "(" + RunningAccountColumns.RNO + ")" +
@@ -120,7 +122,41 @@ public class RunningAccountDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         while (oldVersion < newVersion) {
+            if (oldVersion == 1) up1To2(db);
             oldVersion++;
         }
+    }
+
+    //数据库版本升级(1->2)，变化如下：
+    //basic表Tag_no列添加默认值0
+    //basic表Tag_no外键约束删除动作改为SET DEFAULT
+    private void up1To2(@NonNull SQLiteDatabase db) {
+        //创建新的临时表
+        String sql = "CREATE TABLE IF NOT EXISTS new_basic_data(" +
+                "Rno INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                "Amount DECIMAL(20,2) NOT NULL," +
+                "Type VARCHAR(15) NOT NULL," +
+                "Remark VARCHAR(20)," +
+                "DateTime DATETIME NOT NULL," +
+                "TagNo INTEGER DEFAULT 0," +
+
+                "CONSTRAINT fk_tag_no " +
+                "FOREIGN KEY (TagNo) " +
+                "REFERENCES tag_data(TagNo) " +
+                "ON DELETE SET DEFAULT" +
+                ")";
+        db.execSQL(sql);
+
+        //迁移旧表数据到新表
+        sql = "INSERT INTO new_basic_data SELECT * FROM basic_data";
+        db.execSQL(sql);
+
+        //删除旧表
+        sql = "DROP TABLE basic_data";
+        db.execSQL(sql);
+
+        //新表重命名为旧表名称
+        sql = "ALTER TABLE new_basic_data RENAME TO basic_data";
+        db.execSQL(sql);
     }
 }
