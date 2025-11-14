@@ -43,6 +43,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     private int year, month, day;                                   //年月日
     DateRangeType dateRangeType = DateRangeType.TODAY;              //日期范围种类
     RecyclerView expense_source_recycler, income_source_recycler;   //收支来源布局
+    AccountSourceAdapter expense_adapter, income_adapter;           //收支来源布局适配器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,9 +82,13 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         MaterialTextView date_range_select_view = findViewById(R.id.date_range_select_view);
         date_range_select_view.setOnClickListener(this);
 
-        //获取收支来源RecyclerView
+        //获取收支来源RecyclerView并设置适配器
         expense_source_recycler = findViewById(R.id.expense_source_recycler);
+        expense_adapter = new AccountSourceAdapter(expenseSourceCardList);
+        expense_source_recycler.setAdapter(expense_adapter);
         income_source_recycler = findViewById(R.id.income_source_recycler);
+        income_adapter = new AccountSourceAdapter(incomeSourceCardList);
+        income_source_recycler.setAdapter(income_adapter);
 
         //禁用两个RecyclerView的滚动
         expense_source_recycler.setLayoutManager(new LinearLayoutManager(this) {
@@ -179,6 +184,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
      *
      * @param dataList 更新视图所需的数据
      */
+    @SuppressLint("NotifyDataSetChanged")
     private void updateViews(@NonNull List<ReportRunningAccountData> dataList) {
         double expense = 0, income = 0; //总支出和总收入
         double balance = 0;             //结余
@@ -238,11 +244,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         //更新收支来源视图
-        AccountSourceAdapter expense_adapter, income_adapter;
-        expense_adapter = new AccountSourceAdapter(expenseSourceCardList);
-        expense_source_recycler.setAdapter(expense_adapter);
-        income_adapter = new AccountSourceAdapter(incomeSourceCardList);
-        income_source_recycler.setAdapter(income_adapter);
+        expense_adapter.notifyDataSetChanged();
+        income_adapter.notifyDataSetChanged();
     }
 
     /**
