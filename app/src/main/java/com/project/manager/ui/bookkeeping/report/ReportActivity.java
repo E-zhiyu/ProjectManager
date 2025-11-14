@@ -181,6 +181,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     private void updateViews(@NonNull List<ReportRunningAccountData> dataList) {
         double expense = 0, income = 0; //总支出和总收入
         double balance = 0;             //结余
+        incomeSourceCardList.clear();
+        expenseSourceCardList.clear();
         for (ReportRunningAccountData oneRecordedData : dataList) {
             RunningAccountType type = oneRecordedData.getType();
             double amount = oneRecordedData.getAmount();
