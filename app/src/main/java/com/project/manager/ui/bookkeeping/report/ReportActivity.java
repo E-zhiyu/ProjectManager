@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -245,17 +246,26 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         //设置收支来源卡片容器可见性
+        boolean isNoExpense = false, isNoIncome = false;
         MaterialCardView expenseSourceCard = findViewById(R.id.expense_source_card);
         if (expenseSourceCardList.isEmpty()) {
             expenseSourceCard.setVisibility(View.GONE);
+            isNoExpense = true;
         } else {
             expenseSourceCard.setVisibility(View.VISIBLE);
         }
         MaterialCardView incomeSourceCard = findViewById(R.id.income_source_card);
         if (incomeSourceCardList.isEmpty()) {
             incomeSourceCard.setVisibility(View.GONE);
+            isNoIncome = true;
         } else {
             incomeSourceCard.setVisibility(View.VISIBLE);
+        }
+        if (isNoIncome && isNoExpense) {
+            Toast.makeText(this, "该时间段没有流水记录", Toast.LENGTH_SHORT).show();
+            findViewById(R.id.expense_income_layout).setVisibility(View.GONE);
+        } else {
+            findViewById(R.id.expense_income_layout).setVisibility(View.VISIBLE);
         }
 
         //更新收支来源视图
