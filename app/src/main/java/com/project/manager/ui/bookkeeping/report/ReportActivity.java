@@ -83,6 +83,20 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         //获取收支来源RecyclerView
         expense_source_recycler = findViewById(R.id.expense_source_recycler);
         income_source_recycler = findViewById(R.id.income_source_recycler);
+
+        //禁用两个RecyclerView的滚动
+        expense_source_recycler.setLayoutManager(new LinearLayoutManager(this) {
+            @Override
+            public boolean canScrollVertically() {
+                return false; // 禁止竖向滑动
+            }
+        });
+        income_source_recycler.setLayoutManager(new LinearLayoutManager(this) {
+            @Override
+            public boolean canScrollVertically() {
+                return false; // 禁止竖向滑动
+            }
+        });
     }
 
     /**
