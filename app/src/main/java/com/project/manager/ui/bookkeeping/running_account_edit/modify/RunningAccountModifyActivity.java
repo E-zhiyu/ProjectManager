@@ -15,12 +15,12 @@ import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.ExpenseFragment;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountFragmentBase;
-import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountTypeEnum;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.IncomeFragment;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.TransferFragment;
 
 public class RunningAccountModifyActivity extends AppCompatActivity implements View.OnClickListener {
-    RunningAccountTypeEnum type = null;                     //流水种类
+    RunningAccountType type = null;                     //流水种类
     int position = -1;                                      //流水项目的下标
     RunningAccountFragmentBase runningAccountFragment;      //流水账数据输入碎片
 
@@ -34,7 +34,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
         //接收种类和下标参数
         Bundle dataBundle = getIntent().getExtras();
         if (dataBundle != null) {
-            type = RunningAccountTypeEnum.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
+            type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
             position = dataBundle.getInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), -1);
         } else {
             NullPointerException e = new NullPointerException("编辑流水时无法读取原有的数据");
@@ -43,11 +43,11 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
 
         if (savedInstanceState == null) {
             //创建流水编辑Fragment实例（第一次创建界面时）
-            if (type == RunningAccountTypeEnum.EXPENSE) {
+            if (type == RunningAccountType.EXPENSE) {
                 runningAccountFragment = new ExpenseFragment();
-            } else if (type == RunningAccountTypeEnum.INCOME) {
+            } else if (type == RunningAccountType.INCOME) {
                 runningAccountFragment = new IncomeFragment();
-            } else if (type == RunningAccountTypeEnum.TRANSFER) {
+            } else if (type == RunningAccountType.TRANSFER) {
                 runningAccountFragment = new TransferFragment();
             } else {
                 NullPointerException e = new NullPointerException("无法创建有效的流水数据Fragment");

@@ -34,7 +34,6 @@
     <string name="delete">删除</string>
     <string name="cancel">取消</string>
     <string name="date">日期</string>
-    <string name="show_year_report">显示年度报表</string>
     <string name="account_statistics">流水统计</string>
     <string name="balance">结余</string>
     <string name="expense_and_income">支出：| 收入：</string>
@@ -48,4 +47,10 @@
     <string name="select_tag">标签选择</string>
     <string name="expand_fold_btn">press_to_expand_or_fold</string>
     <string name="group_name">分组名称</string>
+    <string name="today">当天</string>
+    <string name="this_month">这个月</string>
+    <string name="recent_3_month">近三个月</string>
+    <string name="this_year">这一年</string>
+    <string name="percentage_100">100%</string>
+    <string name="check_report">查看报表</string>
 </resources>

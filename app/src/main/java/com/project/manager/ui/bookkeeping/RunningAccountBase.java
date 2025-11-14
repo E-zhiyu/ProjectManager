@@ -1,10 +1,10 @@
 package com.project.manager.ui.bookkeeping;
 
-import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountTypeEnum;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 
 public abstract class RunningAccountBase {
     protected String name;        //名称
-    protected RunningAccountTypeEnum type;  //种类
+    protected RunningAccountType type;  //种类
     protected String remark;      //备注
     protected String date_time;   //日期和时间
     protected long tag_no;        //标签编号
@@ -15,7 +15,7 @@ public abstract class RunningAccountBase {
         return name;
     }
 
-    public RunningAccountTypeEnum getType() {
+    public RunningAccountType getType() {
         return type;
     }
 
@@ -57,7 +57,7 @@ class ExpenseRunningAccount extends RunningAccountBase {
      * @param tag_no    标签
      */
     public ExpenseRunningAccount(String remark, String date_time, double amount, long tag_no) {
-        this.type = RunningAccountTypeEnum.EXPENSE;
+        this.type = RunningAccountType.EXPENSE;
         this.name = "支出";
         this.remark = remark;
         this.date_time = date_time;
@@ -77,7 +77,7 @@ class ExpenseRunningAccount extends RunningAccountBase {
      */
     public ExpenseRunningAccount(long rno, String remark, String date_time, double amount, long tag_no) {
         this.rno = rno;
-        this.type = RunningAccountTypeEnum.EXPENSE;
+        this.type = RunningAccountType.EXPENSE;
         this.name = "支出";
         this.remark = remark;
         this.date_time = date_time;
@@ -100,7 +100,7 @@ class IncomeRunningAccount extends RunningAccountBase {
      */
     public IncomeRunningAccount(String remark, String date_time, double amount, long tag_no) {
         this.rno = -1;
-        this.type = RunningAccountTypeEnum.INCOME;
+        this.type = RunningAccountType.INCOME;
         this.name = "收入";
         this.remark = remark;
         this.date_time = date_time;
@@ -119,7 +119,7 @@ class IncomeRunningAccount extends RunningAccountBase {
      */
     public IncomeRunningAccount(long rno, String remark, String date_time, double amount, long tag_no) {
         this.rno = rno;
-        this.type = RunningAccountTypeEnum.INCOME;
+        this.type = RunningAccountType.INCOME;
         this.name = "收入";
         this.remark = remark;
         this.date_time = date_time;
@@ -147,7 +147,7 @@ class TransferRunningAccount extends RunningAccountBase {
      */
     public TransferRunningAccount(String remark, String date_time, double amount, long tag_no, String exportAccount, String importAccount) {
         this.rno = -1;
-        this.type = RunningAccountTypeEnum.TRANSFER;
+        this.type = RunningAccountType.TRANSFER;
         this.name = "转账";
         this.remark = remark;
         this.date_time = date_time;
@@ -170,7 +170,7 @@ class TransferRunningAccount extends RunningAccountBase {
      */
     public TransferRunningAccount(long rno, String remark, String date_time, double amount, long tag_no, String exportAccount, String importAccount) {
         this.rno = rno;
-        this.type = RunningAccountTypeEnum.TRANSFER;
+        this.type = RunningAccountType.TRANSFER;
         this.name = "转账";
         this.remark = remark;
         this.date_time = date_time;

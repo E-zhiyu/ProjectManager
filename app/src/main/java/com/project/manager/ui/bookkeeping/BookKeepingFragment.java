@@ -26,7 +26,7 @@ import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.running_account_edit.modify.RunningAccountModifyActivity;
 import com.project.manager.ui.bookkeeping.running_account_edit.new_running_account.NewRunningAccountActivity;
 import com.project.manager.ResultCode;
-import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountTypeEnum;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.ui.bookkeeping.report.ReportActivity;
 
 import java.util.ArrayList;
@@ -89,7 +89,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         Bundle dataBundle = new Bundle();
 
         //获取基本数据
-        RunningAccountTypeEnum type = runningAccountView.getType();     //类型
+        RunningAccountType type = runningAccountView.getType();     //类型
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());
         double amount = runningAccountView.getAmount();                 //金额
         dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
@@ -105,7 +105,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         dataBundle.putInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), position);  //将待修改的流水实例下标放入包裹
 
         //获取特殊数据
-        if (type == RunningAccountTypeEnum.TRANSFER) {
+        if (type == RunningAccountType.TRANSFER) {
             String exportAccount = ((TransferRunningAccount) runningAccountView).exportAccount;  //转出账户
             dataBundle.putString(KeyValueStrings.ACCOUNT_EXPORT.getValue(), exportAccount);
             String importAccount = ((TransferRunningAccount) runningAccountView).importAccount;  //转入账户
@@ -178,7 +178,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         }
 
         //获取基本流水数据
-        RunningAccountTypeEnum type = RunningAccountTypeEnum.valueOf(resultIntent.getStringExtra(KeyValueStrings.ACCOUNT_TYPE.getValue()));
+        RunningAccountType type = RunningAccountType.valueOf(resultIntent.getStringExtra(KeyValueStrings.ACCOUNT_TYPE.getValue()));
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
         String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
@@ -195,11 +195,11 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         //获取特殊数据并实例化流水类
         special_values = new ContentValues();
         RunningAccountBase newRunningAccountView;
-        if (type == RunningAccountTypeEnum.EXPENSE) {
+        if (type == RunningAccountType.EXPENSE) {
             newRunningAccountView = new ExpenseRunningAccount(remark, date_time, amount, tag_no);
-        } else if (type == RunningAccountTypeEnum.INCOME) {
+        } else if (type == RunningAccountType.INCOME) {
             newRunningAccountView = new IncomeRunningAccount(remark, date_time, amount, tag_no);
-        } else if (type == RunningAccountTypeEnum.TRANSFER) {
+        } else if (type == RunningAccountType.TRANSFER) {
             String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
             String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
 
@@ -238,7 +238,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             return;
         }
 
-        RunningAccountTypeEnum type = RunningAccountTypeEnum.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
+        RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
         int position = dataBundle.getInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), -1);    //原视图下标
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
@@ -265,11 +265,11 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         //实例化流水类
         RunningAccountBase newRunningAccountView;
         special_values = new ContentValues();
-        if (type == RunningAccountTypeEnum.EXPENSE) {
+        if (type == RunningAccountType.EXPENSE) {
             newRunningAccountView = new ExpenseRunningAccount(remark, date_time, amount, tag_no);
-        } else if (type == RunningAccountTypeEnum.INCOME) {
+        } else if (type == RunningAccountType.INCOME) {
             newRunningAccountView = new IncomeRunningAccount(remark, date_time, amount, tag_no);
-        } else if (type == RunningAccountTypeEnum.TRANSFER) {
+        } else if (type == RunningAccountType.TRANSFER) {
             String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
             String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
 
@@ -320,8 +320,8 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                 selection,
                 selectionArgs
         );
-        RunningAccountTypeEnum type = target_running_account_view.getType();
-        if (type == RunningAccountTypeEnum.TRANSFER) {
+        RunningAccountType type = target_running_account_view.getType();
+        if (type == RunningAccountType.TRANSFER) {
             db.delete(
                     RunningAccountTables.TRANSFER.toString(),
                     selection,
@@ -360,7 +360,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             //金额
             double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.AMOUNT.toString()));
             //种类
-            RunningAccountTypeEnum type = RunningAccountTypeEnum.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.TYPE.toString())));
+            RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.TYPE.toString())));
             //备注
             String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.REMARK.toString()));
             //日期和时间

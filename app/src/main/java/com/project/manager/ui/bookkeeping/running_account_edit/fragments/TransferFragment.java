@@ -17,7 +17,7 @@ public class TransferFragment extends RunningAccountFragmentBase {
 
     public TransferFragment() {
         this.name = "转账";  //为碎片命名
-        this.type = RunningAccountTypeEnum.TRANSFER;
+        this.type = RunningAccountType.TRANSFER;
     }
 
     @Override

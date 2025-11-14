@@ -37,7 +37,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
     Bundle initData = null;                                 //初始化控件内容的数据（用于编辑流水记录时）
     View binding;                                           //绑定的XML界面
     protected String name;                                  //碎片名称
-    protected RunningAccountTypeEnum type;                  //流水类型
+    protected RunningAccountType type;                  //流水类型
     protected TextInputLayout amount_layout, tag_layout;    //金额和标签文本框布局管理器
     protected TextInputEditText amount_input, tag_input;    //金额和标签文本输入框
     private long tag_no = 0;                                //用户选择的标签编号（默认无标签则为0）

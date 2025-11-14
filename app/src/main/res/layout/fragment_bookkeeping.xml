@@ -10,7 +10,7 @@
     <!-- 顶部按钮视图 -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/btn_card_view"
-        style="@style/CommonCardStyle"
+        style="@style/RoundCardStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -33,7 +33,7 @@
                 style="@style/BtnStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="查看报表" />
+                android:text="@string/check_report" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

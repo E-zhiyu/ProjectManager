@@ -9,7 +9,7 @@ import com.project.manager.R;
 public class ExpenseFragment extends RunningAccountFragmentBase {
     public ExpenseFragment() {
         this.name = "支出";  //为碎片命名
-        this.type = RunningAccountTypeEnum.EXPENSE;
+        this.type = RunningAccountType.EXPENSE;
     }
 
     @Override

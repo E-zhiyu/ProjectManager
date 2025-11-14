@@ -37,11 +37,17 @@
         <item name="android:textSize">20sp</item>
     </style>
 
-    <!-- 普通卡片容器器样式 -->
-    <style name="CommonCardStyle">
+    <!-- 圆角卡片容器器样式 -->
+    <style name="RoundCardStyle">
         <item name="cardBackgroundColor">@color/card_background</item>
         <item name="cardCornerRadius">50dp</item>
         <item name="android:layout_margin">10dp</item>
+    </style>
+
+    <!-- 透明背景卡片容器样式 -->
+    <style name="TransparentCardStyle">
+        <item name="cardBackgroundColor">@android:color/transparent</item>
+        <item name="strokeColor">@android:color/transparent</item>
     </style>
 
     <!-- 带有多项内容的卡片容器 -->
