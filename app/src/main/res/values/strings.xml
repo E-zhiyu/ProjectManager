@@ -53,4 +53,5 @@
     <string name="this_year">这一年</string>
     <string name="percentage_100">100%</string>
     <string name="check_report">查看报表</string>
+    <string name="new_tag">新建标签</string>
 </resources>

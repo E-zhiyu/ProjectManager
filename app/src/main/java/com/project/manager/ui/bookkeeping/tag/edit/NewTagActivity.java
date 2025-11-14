@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -93,6 +94,10 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
 
     //初始化视图
     private void initViews() {
+        //设置标题栏的图标点击监听器
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setNavigationOnClickListener(v -> finish());
+
         tag_group_layout.setEndIconOnClickListener((v -> onGroupLayoutEndIconClicked()));
 
         tag_name_input.setOnFocusChangeListener(this);

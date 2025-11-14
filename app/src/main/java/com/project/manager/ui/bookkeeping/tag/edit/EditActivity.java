@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.project.manager.R;
 import com.project.manager.ResultCode;
@@ -102,6 +103,10 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
     //初始化视图
     private void initViews() {
+        //设置标题栏的图标点击监听器
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setNavigationOnClickListener(v -> finish());
+
         MaterialButton tag_add_btn = findViewById(R.id.tag_add_btn);
         tag_add_btn.setOnClickListener(this);
     }

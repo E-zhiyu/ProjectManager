@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 标题栏样式 -->
-    <style name="ToolBarStyle">
+    <style name="ToolBarStyle" parent="Widget.Material3.Toolbar">
         <item name="android:background">@color/toolbar_background</item>
+        <item name="navigationIconTint">@color/theme_blue</item>
         <item name="contentInsetStart">10dp</item>
         <item name="titleTextAppearance">@style/TitleStyle</item>
     </style>

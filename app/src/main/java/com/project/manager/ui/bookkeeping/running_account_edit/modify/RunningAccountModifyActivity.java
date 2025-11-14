@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.project.manager.R;
 import com.project.manager.ResultCode;
 import com.project.manager.exception.ExceptionHelper;
@@ -65,6 +66,10 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
 
     //初始化视图
     private void initViews() {
+        //设置标题栏的图标点击监听器
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setNavigationOnClickListener(v -> finish());
+
         //为按钮设置单击监听器
         findViewById(R.id.cancel_btn).setOnClickListener(this);
         findViewById(R.id.finish_btn).setOnClickListener(this);

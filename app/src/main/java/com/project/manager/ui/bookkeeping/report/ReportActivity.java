@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textview.MaterialTextView;
@@ -71,6 +72,10 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
      * 初始化视图
      */
     private void initViews() {
+        //设置标题栏的图标点击监听器
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setNavigationOnClickListener(v -> finish());
+
         Calendar now = Calendar.getInstance();
         year = now.get(Calendar.YEAR);
         month = now.get(Calendar.MONTH) + 1;

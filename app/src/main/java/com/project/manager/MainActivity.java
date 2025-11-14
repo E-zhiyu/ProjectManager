@@ -3,8 +3,6 @@ package com.project.manager;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
@@ -29,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         //替换自带工具栏
-        Toolbar tl_head = findViewById(R.id.main_activity_toolbar);
+        Toolbar tl_head = findViewById(R.id.toolbar);
         setSupportActionBar(tl_head);
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
