@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
@@ -243,6 +244,20 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             incomeSourceCard.setPercentage(percentage);
         }
 
+        //设置收支来源卡片容器可见性
+        MaterialCardView expenseSourceCard = findViewById(R.id.expense_source_card);
+        if (expenseSourceCardList.isEmpty()) {
+            expenseSourceCard.setVisibility(View.GONE);
+        } else {
+            expenseSourceCard.setVisibility(View.VISIBLE);
+        }
+        MaterialCardView incomeSourceCard = findViewById(R.id.income_source_card);
+        if (incomeSourceCardList.isEmpty()) {
+            incomeSourceCard.setVisibility(View.GONE);
+        } else {
+            incomeSourceCard.setVisibility(View.VISIBLE);
+        }
+
         //更新收支来源视图
         expense_adapter.notifyDataSetChanged();
         income_adapter.notifyDataSetChanged();
@@ -313,7 +328,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             date_textview.setText(String.format("%04d年%02d月%02d日", year, month, day));
 
             //重新加载报表信息
-            loadReportData();
+            List<ReportRunningAccountData> dataList = loadReportData();
+            updateViews(dataList);
         });
     }
 

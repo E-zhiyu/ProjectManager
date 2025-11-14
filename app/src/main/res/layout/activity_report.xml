@@ -109,6 +109,7 @@
                     android:text="@string/expenditure_income_distribution" />
 
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/income_source_card"
                     style="@style/ContentCardStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -133,6 +134,7 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/expense_source_card"
                     style="@style/ContentCardStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
