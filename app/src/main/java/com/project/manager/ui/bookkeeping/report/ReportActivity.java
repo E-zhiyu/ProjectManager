@@ -239,7 +239,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         }
         for (AccountSourceCard incomeSourceCard : incomeSourceCardList) {
             double source_amount = incomeSourceCard.getAmount();
-            int percentage = (int) (source_amount * 100 / expense);
+            int percentage = (int) (source_amount * 100 / income);
             incomeSourceCard.setPercentage(percentage);
         }
 
