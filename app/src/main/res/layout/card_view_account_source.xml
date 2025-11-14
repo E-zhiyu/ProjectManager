@@ -8,28 +8,50 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="10sp">
+        android:paddingStart="10sp"
+        android:paddingEnd="10sp"
+        android:paddingBottom="10sp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/source_name_text"
                 style="@style/LabelTextViewStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
                 android:layout_weight="1"
+                android:paddingBottom="0sp"
                 android:text="@string/tag_name" />
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/percentage_text"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10sp"
-                android:text="@string/percentage_100"
-                android:textSize="17sp" />
+                android:orientation="horizontal">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/amount_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingStart="10sp"
+                    android:paddingEnd="0sp"
+                    android:paddingBottom="7sp"
+                    android:text="@string/amount"
+                    android:textSize="15sp" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/percentage_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="0sp"
+                    android:paddingEnd="10sp"
+                    android:paddingBottom="7sp"
+                    android:text="@string/percentage_100"
+                    android:textSize="15sp" />
+            </LinearLayout>
         </LinearLayout>
 
         <ProgressBar

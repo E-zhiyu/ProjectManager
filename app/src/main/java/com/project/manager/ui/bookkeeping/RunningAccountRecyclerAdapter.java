@@ -42,9 +42,9 @@ public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningA
                 currentRunningAccount.getDate_time()
         );
 
-        holder.remark_text.setText(currentRunningAccount.getRemark());                    //备注
-        holder.name_datetime_text.setText(name_and_datetime);                   //名称和日期
-        holder.amount_text.setText(String.valueOf(currentRunningAccount.getAmount()));    //金额
+        holder.remark_text.setText(currentRunningAccount.getRemark());                  //备注
+        holder.name_datetime_text.setText(name_and_datetime);                           //名称和日期
+        holder.amount_text.setText(String.valueOf(currentRunningAccount.getAmount()));  //金额
     }
 
     @Override
@@ -62,7 +62,7 @@ public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningA
 
         public RunningAccountViewHolder(@NonNull View itemView, OnRunningAccountViewClickListener listener) {
             super(itemView);
-            amount_text = itemView.findViewById(R.id.amount_textview);
+            amount_text = itemView.findViewById(R.id.amount_text);
             remark_text = itemView.findViewById(R.id.remark_textview);
             name_datetime_text = itemView.findViewById(R.id.name_datetime_textview);
 

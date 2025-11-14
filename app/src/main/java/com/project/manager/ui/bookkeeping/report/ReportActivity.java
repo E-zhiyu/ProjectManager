@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -225,19 +226,15 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         expense_income_textview.setText(expenditure_income);
 
         //计算各来源的收支占比
-        if (expenseSourceCardList != null) {
-            for (AccountSourceCard expenseSourceCard : expenseSourceCardList) {
-                double source_amount = expenseSourceCard.getAmount();
-                int percentage = (int) (source_amount * 100 / expense);
-                expenseSourceCard.setPercentage(percentage);
-            }
+        for (AccountSourceCard expenseSourceCard : expenseSourceCardList) {
+            double source_amount = expenseSourceCard.getAmount();
+            int percentage = (int) (source_amount * 100 / expense);
+            expenseSourceCard.setPercentage(percentage);
         }
-        if (incomeSourceCardList != null) {
-            for (AccountSourceCard incomeSourceCard : incomeSourceCardList) {
-                double source_amount = incomeSourceCard.getAmount();
-                int percentage = (int) (source_amount * 100 / expense);
-                incomeSourceCard.setPercentage(percentage);
-            }
+        for (AccountSourceCard incomeSourceCard : incomeSourceCardList) {
+            double source_amount = incomeSourceCard.getAmount();
+            int percentage = (int) (source_amount * 100 / expense);
+            incomeSourceCard.setPercentage(percentage);
         }
 
         //更新收支来源视图

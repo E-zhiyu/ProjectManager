@@ -33,7 +33,10 @@
 
     <!-- 标签文本视图样式 -->
     <style name="LabelTextViewStyle">
-        <item name="android:padding">10dp</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">10dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
         <item name="android:textSize">20sp</item>
     </style>
 

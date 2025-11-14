@@ -34,7 +34,7 @@
 
         <!-- 右侧金额信息 -->
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/amount_textview"
+            android:id="@+id/amount_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"

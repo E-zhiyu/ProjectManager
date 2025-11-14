@@ -20,6 +20,7 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
     public static class AccountScourceViewHolder extends RecyclerView.ViewHolder {
         MaterialTextView source_name_text;  //标签名称文本
         MaterialTextView percentage_text;   //金额占比文本
+        MaterialTextView amount_text;       //金额文本
         ProgressBar percentage_bar;         //占比进度条
 
         public AccountScourceViewHolder(@NonNull View itemView) {
@@ -27,6 +28,7 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
 
             source_name_text = itemView.findViewById(R.id.source_name_text);
             percentage_text = itemView.findViewById(R.id.percentage_text);
+            amount_text = itemView.findViewById(R.id.amount_text);
             percentage_bar = itemView.findViewById(R.id.percentage_bar);
         }
     }
@@ -54,10 +56,12 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
         AccountSourceCard oneSourceCard = sourceCardList.get(position);
         String source_name = oneSourceCard.getSource_name();
         int percentage = oneSourceCard.getPercentage();
+        double amount = oneSourceCard.getAmount();
 
-        holder.source_name_text.setText(source_name);   //来源名称
+        holder.source_name_text.setText(source_name);       //来源名称
+        holder.amount_text.setText(String.valueOf(amount)); //金额
         String percentage_str = String.format("%d%%", percentage);
-        holder.percentage_text.setText(percentage_str); //百分比文本
-        holder.percentage_bar.setProgress(percentage);  //占比进度条
+        holder.percentage_text.setText(percentage_str);     //百分比文本
+        holder.percentage_bar.setProgress(percentage);      //占比进度条
     }
 }
