@@ -29,6 +29,7 @@ import com.project.manager.ui.bookkeeping.tag.Tag;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.List;
 
 public class ReportActivity extends AppCompatActivity implements View.OnClickListener {
@@ -248,6 +249,25 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             double source_amount = incomeSourceCard.getAmount();
             int percentage = (int) (source_amount * 100 / income);
             incomeSourceCard.setPercentage(percentage);
+        }
+
+        //将收支卡片按照占比排序
+        expenseSourceCardList.sort(Comparator.comparing(AccountSourceCard::getAmount));
+        incomeSourceCardList.sort(Comparator.comparing(AccountSourceCard::getAmount));
+
+        //补偿占比精度问题（占比总和不为100时为最小的来源占比+1）
+        int expensePercentage = 0, incomePercentage = 0;
+        for (AccountSourceCard expenseSource : expenseSourceCardList)
+            expensePercentage += expenseSource.getPercentage();
+        for (AccountSourceCard incomeSource : incomeSourceCardList)
+            incomePercentage += incomeSource.getPercentage();
+        if (expensePercentage < 100 && expenseSourceCardList.size() > 1) {
+            AccountSourceCard minExpenseSource = expenseSourceCardList.get(0);
+            minExpenseSource.setPercentage(minExpenseSource.getPercentage() + 1);
+        }
+        if (incomePercentage < 100 && incomeSourceCardList.size() > 1) {
+            AccountSourceCard minIncomeSource = incomeSourceCardList.get(0);
+            minIncomeSource.setPercentage(minIncomeSource.getPercentage() + 1);
         }
 
         //设置收支来源卡片容器可见性
