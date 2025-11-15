@@ -2,17 +2,12 @@ package com.project.manager.ui.setting;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -56,7 +51,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(@NonNull View v) {
         if (v.getId() == R.id.setting_about) {
-            showAboutDialog();
+            AboutHelper.showAboutDialog(requireContext());
         } else if (v.getId() == R.id.setting_theme_mode) {
             showThemeModeSelectDialog();
         } else if (v.getId() == R.id.setting_export_running_account) {
@@ -169,42 +164,6 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         binding.settingExportRunningAccount.setOnClickListener(this);
         binding.settingImportRunningAccount.setOnClickListener(this);
         binding.settingClearRunningAccount.setOnClickListener(this);
-    }
-
-    //获取版本名称
-    public static String getVersionName(Context context) throws PackageManager.NameNotFoundException {
-        PackageInfo packageInfo = context.getPackageManager()
-                .getPackageInfo(context.getPackageName(), 0);
-        return packageInfo.versionName;
-    }
-
-    //获取应用名称
-    public static String getAppName(Context context) throws PackageManager.NameNotFoundException {
-        PackageManager packageManager = context.getPackageManager();
-        ApplicationInfo applicationInfo = packageManager.getApplicationInfo(
-                context.getPackageName(),
-                PackageManager.GET_META_DATA
-        );
-        return packageManager.getApplicationLabel(applicationInfo).toString();
-    }
-
-    //显示关于软件对话框
-    private void showAboutDialog() {
-        String version_name, app_name;
-        try {
-            version_name = "v" + getVersionName(requireContext());
-            app_name = getAppName(requireContext());
-        } catch (PackageManager.NameNotFoundException e) {
-            ExceptionHelper.showExceptionDialog(requireContext(), e);
-            Toast.makeText(requireContext(), "无法获取版本名称或应用名称", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle(app_name + " " + version_name)
-                .setMessage("这是一个项目管理工具，旨在帮助用户便捷地管理工程项目")
-                .setPositiveButton("确定", ((dialog, which) -> dialog.dismiss()))
-                .show();
     }
 
     //显示主题模式选择对话框

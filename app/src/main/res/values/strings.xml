@@ -54,4 +54,5 @@
     <string name="percentage_100">100%</string>
     <string name="check_report">查看报表</string>
     <string name="new_tag">新建标签</string>
+    <string name="version_name">版本名称</string>
 </resources>
