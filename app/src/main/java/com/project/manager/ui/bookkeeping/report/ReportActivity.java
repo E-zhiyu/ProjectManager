@@ -192,7 +192,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
      *
      * @param dataList 更新视图所需的数据
      */
-    @SuppressLint("NotifyDataSetChanged")
+    @SuppressLint({"NotifyDataSetChanged", "DefaultLocale"})
     private void updateViews(@NonNull List<ReportRunningAccountData> dataList) {
         double expense = 0, income = 0; //总支出和总收入
         double balance = 0;             //结余
@@ -234,8 +234,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
 
         //更新文本视图
         MaterialTextView balance_textview = findViewById(R.id.report_balance_textview);
-        balance_textview.setText(String.valueOf(balance));
-        String expenditure_income = String.format("支出：%s | 收入：%s", expense, income);
+        balance_textview.setText(String.format("%.2f", balance));
+        String expenditure_income = String.format("支出：%.2f | 收入：%.2f", expense, income);
         MaterialTextView expense_income_textview = findViewById(R.id.expense_income_textview);
         expense_income_textview.setText(expenditure_income);
 

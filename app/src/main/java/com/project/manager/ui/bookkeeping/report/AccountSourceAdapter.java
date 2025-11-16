@@ -58,10 +58,10 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
         int percentage = oneSourceCard.getPercentage();
         double amount = oneSourceCard.getAmount();
 
-        holder.source_name_text.setText(source_name);       //来源名称
-        holder.amount_text.setText(String.valueOf(amount)); //金额
+        holder.source_name_text.setText(source_name);               //来源名称
+        holder.amount_text.setText(String.format("%.2f", amount));  //金额
         String percentage_str = String.format("%d%%", percentage);
-        holder.percentage_text.setText(percentage_str);     //百分比文本
-        holder.percentage_bar.setProgress(percentage);      //占比进度条
+        holder.percentage_text.setText(percentage_str);             //百分比文本
+        holder.percentage_bar.setProgress(percentage);              //百分比进度条
     }
 }
