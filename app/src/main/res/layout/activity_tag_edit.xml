@@ -22,7 +22,7 @@
             android:id="@+id/tag_add_btn"
             style="@style/TransparentBtnStyle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="end"
             android:drawableLeft="@drawable/baseline_add_24"
             android:text="@string/new_tag" />

@@ -88,7 +88,7 @@
 
     <!-- 透明背景按钮样式 -->
     <style name="TransparentBtnStyle" parent="Widget.Material3.Button">
-        <item name="android:background">@android:color/transparent</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
         <item name="android:textColor">@color/theme_blue</item>
         <item name="iconPadding">2dp</item>
     </style>

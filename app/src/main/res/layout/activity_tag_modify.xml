@@ -15,7 +15,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="@drawable/baseline_arrow_back_ios_new_24"
-        app:title="@string/title_modify_tag" />
+        app:title="@string/title_modify_tag">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/tag_merge_btn"
+            style="@style/TransparentBtnStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:drawableLeft="@drawable/baseline_merge_24"
+            android:text="@string/tag_merge" />
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <ScrollView
         android:layout_width="match_parent"
