@@ -18,7 +18,7 @@ import com.project.manager.exception.ExceptionHelper;
 import io.noties.markwon.Markwon;
 
 public class AboutHelper {
-    private static final String about_message = "这是一个项目管理工具，为用户提供记账功能。  \n" +
+    private static final String about_md = "这是一个项目管理工具，为用户提供记账功能。  \n" +
             "查看源码：[GitHub](https://github.com/E-zhiyu/ManagerAssitant/releases)  \n" +
             "本软件基于GPL3.0协议开源";
 
@@ -53,12 +53,12 @@ public class AboutHelper {
 
         //获取自定义弹窗视图
         View about_dialog = LayoutInflater.from(context)
-                .inflate(R.layout.dialog_about, null);
-        MaterialTextView about_text = about_dialog.findViewById(R.id.about_text);
+                .inflate(R.layout.md_textview_in_dialog, null);
+        MaterialTextView about_text = about_dialog.findViewById(R.id.md_textview_in_dialog);
 
         //使用Markown渲染Markdown文本
         Markwon markwon = Markwon.create(context);
-        markwon.setMarkdown(about_text, about_message);
+        markwon.setMarkdown(about_text, about_md);
 
         new MaterialAlertDialogBuilder(context)
                 .setTitle(app_name + " " + version_name)

@@ -1,8 +1,5 @@
 package com.project.manager.ui.setting.theme_mode;
 
-import android.content.Context;
-import android.content.res.Configuration;
-
 import androidx.appcompat.app.AppCompatDelegate;
 
 public class ThemeModeHelper {
@@ -26,24 +23,6 @@ public class ThemeModeHelper {
             default:
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
                 break;
-        }
-    }
-
-    /**
-     * 获取当前主题模式
-     */
-    public static int getCurrentTheme(Context context) {
-        int nightMode = context.getResources().getConfiguration().uiMode
-                & Configuration.UI_MODE_NIGHT_MASK;
-
-        switch (nightMode) {
-            case Configuration.UI_MODE_NIGHT_NO:
-                return LIGHT_MODE;
-            case Configuration.UI_MODE_NIGHT_YES:
-                return DARK_MODE;
-            case Configuration.UI_MODE_NIGHT_UNDEFINED:
-            default:
-                return SYSTEM_MODE;
         }
     }
 }

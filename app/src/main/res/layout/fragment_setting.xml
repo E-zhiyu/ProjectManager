@@ -10,7 +10,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <com.google.android.material.card.MaterialCardView
@@ -27,7 +27,7 @@
                     style="@style/LabelTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="应用设置" />
+                    android:text="@string/setting" />
 
                 <!-- 这里放入软件设置相关组件 -->
                 <com.google.android.material.textview.MaterialTextView
@@ -36,7 +36,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/baseline_dark_mode_24"
-                    android:text="主题模式" />
+                    android:text="@string/theme_mode" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -55,7 +55,7 @@
                     style="@style/LabelTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="流水账数据" />
+                    android:text="@string/running_account_data" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/setting_export_running_account"
@@ -63,7 +63,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/round_export_data_24"
-                    android:text="导出数据" />
+                    android:text="@string/export_data" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/setting_import_running_account"
@@ -71,7 +71,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/baseline_import_data_24"
-                    android:text="导入数据" />
+                    android:text="@string/import_data" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/setting_clear_running_account"
@@ -79,7 +79,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/baseline_delete_forever_24"
-                    android:text="清除数据" />
+                    android:text="@string/clear_data" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -97,7 +97,7 @@
                     style="@style/LabelTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="关于" />
+                    android:text="@string/about" />
 
                 <!-- 放入关于软件选项 -->
                 <com.google.android.material.textview.MaterialTextView
@@ -106,7 +106,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/baseline_info_24"
-                    android:text="关于软件" />
+                    android:text="@string/about_software" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/setting_update_log"
+                    style="@style/SubSettingCardStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/baseline_update_24"
+                    android:text="@string/update_log" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>

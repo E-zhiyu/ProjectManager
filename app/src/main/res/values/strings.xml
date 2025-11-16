@@ -55,4 +55,13 @@
     <string name="check_report">查看报表</string>
     <string name="new_tag">新建标签</string>
     <string name="version_name">版本名称</string>
+    <string name="setting">应用设置</string>
+    <string name="theme_mode">主题模式</string>
+    <string name="running_account_data">流水账数据</string>
+    <string name="export_data">导出数据</string>
+    <string name="import_data">导入数据</string>
+    <string name="clear_data">清除数据</string>
+    <string name="about">关于</string>
+    <string name="about_software">关于软件</string>
+    <string name="update_log">更新日志</string>
 </resources>

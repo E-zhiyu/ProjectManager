@@ -24,6 +24,7 @@ import com.project.manager.ui.setting.running_account_data.RunningAccountDataHel
 import com.project.manager.ui.setting.running_account_data.pojo.TotalDataMap;
 import com.project.manager.ui.setting.theme_mode.ThemeModeHelper;
 import com.project.manager.ui.setting.theme_mode.ThemePreference;
+import com.project.manager.ui.setting.update_log.UpdateLogHelper;
 
 import java.util.Calendar;
 
@@ -79,6 +80,8 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                     }))
                     .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
                     .show();
+        } else if (v.getId() == R.id.setting_update_log) {
+            UpdateLogHelper.showUpdateLogDialog(requireContext());
         } else {
             RuntimeException e = new RuntimeException("无法获取正确的视图ID");
             ExceptionHelper.showExceptionDialog(requireContext(), e);
@@ -164,6 +167,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         binding.settingExportRunningAccount.setOnClickListener(this);
         binding.settingImportRunningAccount.setOnClickListener(this);
         binding.settingClearRunningAccount.setOnClickListener(this);
+        binding.settingUpdateLog.setOnClickListener(this);
     }
 
     //显示主题模式选择对话框
