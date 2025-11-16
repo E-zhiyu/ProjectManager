@@ -1,4 +1,4 @@
-package com.project.manager.ui.setting.update_log;
+package com.project.manager.ui.setting;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -14,6 +14,7 @@ public class UpdateLogHelper {
     private static final String update_log_md = "# v1.2.0  \n" +
             "## 修改内容  \n" +
             "- 调整标签选择弹窗内容的边距，提升曲面屏设备的观感  \n" +
+            "- 标签编辑页面的标签文本视图添加点击时的波纹效果  \n" +
             "## 新增内容  \n" +
             "- 设置界面添加更新日志查看功能  \n" +
             "# v1.1.2  \n" +

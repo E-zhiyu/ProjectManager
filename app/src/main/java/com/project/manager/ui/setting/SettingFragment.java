@@ -24,7 +24,6 @@ import com.project.manager.ui.setting.running_account_data.RunningAccountDataHel
 import com.project.manager.ui.setting.running_account_data.pojo.TotalDataMap;
 import com.project.manager.ui.setting.theme_mode.ThemeModeHelper;
 import com.project.manager.ui.setting.theme_mode.ThemePreference;
-import com.project.manager.ui.setting.update_log.UpdateLogHelper;
 
 import java.util.Calendar;
 

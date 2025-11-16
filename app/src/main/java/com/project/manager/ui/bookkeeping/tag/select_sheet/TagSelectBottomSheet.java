@@ -62,7 +62,7 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(@NonNull View v) {
         if (v.getId() == R.id.edit_tag_btn) {
             Intent skip2TagEdit = new Intent(requireContext(), EditActivity.class);
             startActivity(skip2TagEdit);

@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.database.sqlite.SQLiteException;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
@@ -146,18 +147,28 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
         );
 
         //添加标签文本视图
-        holder.sub_view_layout.removeAllViews();
+        holder.sub_view_layout.removeAllViews();    //先删除旧视图
         for (Tag oneTag : currentGroup.getTags()) {
             String tag_name = oneTag.getName();
             long tag_no = oneTag.getTno();
 
+            //设置文本属性
             MaterialTextView tag_text_view = new MaterialTextView(context);
             tag_text_view.setLayoutParams(new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
             ));
-            tag_text_view.setPadding(16, 16, 0, 16);
+            tag_text_view.setPadding(50, 20, 25, 20);
             tag_text_view.setTextAppearance(R.style.CommonTextAppearance);
+
+            //添加点击的波纹效果
+            try (TypedArray typedArray = context.obtainStyledAttributes(
+                    new int[]{android.R.attr.selectableItemBackground})) {
+                int backgroundResource = typedArray.getResourceId(0, 0);
+                tag_text_view.setBackgroundResource(backgroundResource);
+            }
+            tag_text_view.setFocusable(true);
+            tag_text_view.setClickable(true);
 
             //添加右侧箭头图标
             Drawable right_arrow = AppCompatResources.getDrawable(context, R.drawable.baseline_keyboard_arrow_right_24);
