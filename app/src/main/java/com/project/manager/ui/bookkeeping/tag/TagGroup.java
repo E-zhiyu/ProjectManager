@@ -255,20 +255,24 @@ public class TagGroup {
     /**
      * 合并标签分组
      *
-     * @param old_group_no    旧分组编号
+     * @param merged_group_no 旧分组编号
      * @param merge_target_no 目标分组编号
      * @param context         上下文
      * @throws SQLiteException 写入数据可能引发的数据库异常
      */
-    public static void mergeGroup(long old_group_no, long merge_target_no, Context context) throws SQLiteException {
+    public static void mergeGroup(long merged_group_no, long merge_target_no, Context context) throws SQLiteException {
         RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
+        //更改对应标签的分组编号
         String where = RunningAccountColumns.GROUP_NO + "=?";
-        String[] whereArgs = {String.valueOf(old_group_no)};
+        String[] whereArgs = {String.valueOf(merged_group_no)};
         ContentValues new_group_no_values = new ContentValues();
         new_group_no_values.put(RunningAccountColumns.GROUP_NO.toString(), merge_target_no);
         db.update(RunningAccountTables.TAG.toString(), new_group_no_values, where, whereArgs);
+
+        //删除被合并的分组
+        db.delete(RunningAccountTables.TAG_GROUP.toString(), where, whereArgs);
 
         db.close();
     }

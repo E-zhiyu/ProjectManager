@@ -24,6 +24,7 @@ import com.project.manager.database.RunningAccountColumns;
 import com.project.manager.database.RunningAccountDatabaseHelper;
 import com.project.manager.database.RunningAccountTables;
 import com.project.manager.exception.ExceptionHelper;
+import com.project.manager.ui.bookkeeping.TagString;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.ui.bookkeeping.tag.Tag;
 
@@ -349,7 +350,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         MaterialDatePicker<Long> datePicker = dateBuilder
                 .setSelection(selectedCalendar.getTimeInMillis())
                 .build();
-        datePicker.show(getSupportFragmentManager(), "DATE_PICKER");
+        datePicker.show(getSupportFragmentManager(), TagString.DATE_PICKER.getValue());
 
         datePicker.addOnPositiveButtonClickListener(selection -> {
             Calendar selected_calendar = Calendar.getInstance();

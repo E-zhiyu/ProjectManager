@@ -15,18 +15,25 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
 import com.project.manager.ResultCode;
+import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
+import com.project.manager.ui.bookkeeping.TagString;
+import com.project.manager.ui.bookkeeping.tag.select_sheet.SheetTagBtnRecyclerAdapter;
+import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
+import com.project.manager.ui.view_model.AccountTagModifyID;
 import com.project.manager.ui.view_model.AccountTagViewModel;
 
 import java.util.ArrayList;
 
-public class TagModifyActivity extends AppCompatActivity implements View.OnFocusChangeListener, View.OnClickListener {
+public class TagModifyActivity extends AppCompatActivity implements View.OnFocusChangeListener,
+        View.OnClickListener, SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener {
     private TextInputLayout tag_name_layout, tag_group_layout;  //标签名称和分组的文本框布局器
     private TextInputEditText tag_name_input, tag_group_input;  //标签名称和分组的文本输入框
     private AccountTagViewModel tagViewModel;                   //标签数据更新用的ViewModel
     int selected_index = -1;                                    //选择的分组的索引
     long tag_no, group_no;                                      //标签和标签分组编号
     private String[] group_names;                               //标签分组名称数组
+    private TagSelectBottomSheet tag_sheet;                     //标签选择底部弹窗
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +71,7 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
                 String group_name = String.valueOf(tag_group_input.getText());
                 dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), group_name);    //分组名称
 
-                tagViewModel.updateTag(tag_name, tag_no);    //更新ViewModel中的标签数据
+                tagViewModel.updateTag(tag_name, tag_no, AccountTagModifyID.MODIFY);    //更新ViewModel中的标签数据
 
                 result2TagEdit.putExtras(dataBundle);
                 setResult(ResultCode.RESULT_OK.ordinal(), result2TagEdit);
@@ -75,7 +82,7 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
                     .setTitle("删除标签")
                     .setMessage("此操作将清空所有相应流水的标签数据，确认继续吗？")
                     .setPositiveButton("确定", ((dialog, which) -> {
-                        tagViewModel.updateTag("", tag_no);    //更新ViewModel中的标签数据
+                        tagViewModel.updateTag("", tag_no, AccountTagModifyID.DELETE);    //更新ViewModel中的标签数据
 
                         result2TagEdit.putExtras(dataBundle);
                         setResult(ResultCode.RESULT_DELETE.ordinal(), result2TagEdit);
@@ -86,6 +93,9 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
         } else if (v.getId() == R.id.cancel_btn) {
             setResult(ResultCode.RESULT_REJECT.ordinal(), result2TagEdit);
             finish();
+        } else {
+            NullPointerException e = new NullPointerException("无法获取正确的视图ID");
+            ExceptionHelper.showExceptionDialog(this, e);
         }
     }
 
@@ -122,6 +132,27 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
         }
     }
 
+    @Override
+    public void onTagBtnClicked(long tag_no, String tag_name) {
+        //TODO: 完善标签按钮点击动作
+
+        //通知流水输入界面更新名称
+        ManagerAssistant app = (ManagerAssistant) getApplication();
+        AccountTagViewModel viewModel = app.getAccountTagViewModel();
+        viewModel.updateTag(tag_name, this.tag_no, AccountTagModifyID.MERGE);    //传递合并到的标签的名称和原来标签的编号
+
+        tag_sheet.dismiss();
+
+        //将数据传递给父界面
+        Intent result2TagEdit = new Intent();
+        Bundle dataBundle = new Bundle();
+        dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), this.group_no);     //被合并标签的分组编号
+        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), this.tag_no);             //被合并标签的编号
+        dataBundle.putLong(KeyValueStrings.MERGE_TARGET_NO.getValue(), tag_no);
+        result2TagEdit.putExtras(dataBundle);
+        setResult(ResultCode.RESULT_MERGE.ordinal(), result2TagEdit);
+    }
+
     //初始化视图
     private void initViews() {
         //设置标题栏的图标点击监听器
@@ -136,6 +167,16 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
         findViewById(R.id.finish_btn).setOnClickListener(this);
         findViewById(R.id.delete_btn).setOnClickListener(this);
         findViewById(R.id.cancel_btn).setOnClickListener(this);
+        findViewById(R.id.tag_merge_btn).setOnClickListener(v -> new MaterialAlertDialogBuilder(this)
+                .setTitle("合并标签")
+                .setMessage("此操作会将本标签与其他标签合并，使用本标签标记的流水记录将自动替换为用合并后的标签标记，并且本标签将被永久删除，确认继续吗？")
+                .setPositiveButton("确认", (dialog, which) -> {
+                    tag_sheet = new TagSelectBottomSheet(this, tag_no);
+                    tag_sheet.show(getSupportFragmentManager(), TagString.TAG_MERGE_SHEET.getValue());
+                })
+                .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
+                .show()
+        );
 
         //加载传入的数据
         Bundle tagData = getIntent().getExtras();

@@ -22,10 +22,13 @@ import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
 import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
+import com.project.manager.ui.bookkeeping.TagString;
+import com.project.manager.ui.view_model.AccountTagModifyID;
 import com.project.manager.ui.view_model.AccountTagViewModel;
 import com.project.manager.ui.bookkeeping.tag.Tag;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.SheetTagBtnRecyclerAdapter;
+import com.project.manager.ui.view_model.TagWithModifyID;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -154,12 +157,25 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
     private void startObserveTag() {
         tagViewModel.getTag().observe(getViewLifecycleOwner(), tagList -> {
             if (tagList != null) {  //判断是否为调用resetTagValue()方法后传入的null值
-                for (Tag tag : tagList) {
-                    if (tag.getTno() == tag_no) {
-                        String new_tag_name = tag.getName();
-                        if (new_tag_name.isEmpty()) tag_no = 0; //如果新名称为空说明标签被删除，将标签编号置为0
-                        tag_input.setText(new_tag_name);
-                        break;
+                for (TagWithModifyID tag : tagList) {
+                    String tag_name = tag.getTag_name();
+                    long tag_no = tag.getTag_no();
+                    AccountTagModifyID modifyID = tag.getModifyID();
+
+                    if (tag_no == this.tag_no) {    //只有找到匹配的标签编号才修改
+                        switch (modifyID) {
+                            case MODIFY:
+                                tag_input.setText(tag_name);
+                                break;
+                            case DELETE:
+                                this.tag_no = 0;
+                                tag_input.setText("");
+                                break;
+                            case MERGE:
+                                this.tag_no = Tag.nameTransToTno(tag_name, requireContext());
+                                tag_input.setText(tag_name);
+                                break;
+                        }
                     }
                 }
                 tagViewModel.resetTagValue();
@@ -262,8 +278,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
         MaterialDatePicker<Long> datePicker = dateBuilder
                 .setSelection(initialCalendar.getTimeInMillis())    //默认选中输入的日期
                 .build();
-        String datePickerTag = "DATE_PICKER";   //日期选择器标签
-        datePicker.show(getParentFragmentManager(), datePickerTag);
+        datePicker.show(getParentFragmentManager(), TagString.DATE_PICKER.getValue());
 
         datePicker.addOnPositiveButtonClickListener(selection -> {
             Calendar selected_calendar = Calendar.getInstance();
@@ -293,7 +308,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
 
         //显示时间选择器
         MaterialTimePicker timePicker = timeBuilder.build();
-        timePicker.show(getParentFragmentManager(), "TIME_PICKER");
+        timePicker.show(getParentFragmentManager(), TagString.TIME_PICKER.getValue());
 
         //监听选择结果
         timePicker.addOnPositiveButtonClickListener(view -> {
@@ -319,7 +334,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
     //显示选择标签的底部弹出视图
     private void showTagSelectSheet() {
         tag_sheet = new TagSelectBottomSheet(this);
-        tag_sheet.show(getParentFragmentManager(), "TagSelectBottomSheet");
+        tag_sheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
     }
 }
 

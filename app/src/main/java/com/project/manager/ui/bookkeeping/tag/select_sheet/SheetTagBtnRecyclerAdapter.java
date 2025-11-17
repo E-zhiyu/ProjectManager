@@ -14,13 +14,14 @@ import com.project.manager.ui.bookkeeping.tag.Tag;
 import java.util.List;
 
 public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtnRecyclerAdapter.BtnViewHolder> {
-    List<Tag> tagList;  //标签数据源列表
-    Context context;    //上下文
-    private OnTagBtnClickedListener tagBtnClickedListener;  //标签按钮点击监听器
+    private final List<Tag> tagList;  //标签数据源列表
+    private final Context context;    //上下文
+    private final OnTagBtnClickedListener tagBtnClickedListener;  //标签按钮点击监听器
 
-    public SheetTagBtnRecyclerAdapter(List<Tag> tagList, Context context) {
+    public SheetTagBtnRecyclerAdapter(List<Tag> tagList, Context context, OnTagBtnClickedListener tagBtnClickedListener) {
         this.tagList = tagList;
         this.context = context;
+        this.tagBtnClickedListener = tagBtnClickedListener;
     }
 
     @NonNull
@@ -73,9 +74,5 @@ public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtn
             super(tag_btn);
             this.tag_btn = tag_btn;
         }
-    }
-
-    public void setOnTagBtnClickedListener(OnTagBtnClickedListener listener) {
-        this.tagBtnClickedListener = listener;
     }
 }

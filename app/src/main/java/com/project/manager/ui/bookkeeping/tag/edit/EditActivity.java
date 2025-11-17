@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -51,7 +52,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(@NonNull View v) {
         if (v.getId() == R.id.tag_add_btn) {
             Intent skip2NewTag = new Intent(this, NewTagActivity.class);
 
@@ -249,6 +250,9 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             }
         } else if (resultCode == ResultCode.RESULT_DELETE.ordinal()) {
             adapter.deleteTag(tag_no, origin_group_no);
+        } else if (resultCode == ResultCode.RESULT_MERGE.ordinal()) {
+            long merge_target_tag_no = dataBundle.getLong(KeyValueStrings.MERGE_TARGET_NO.getValue());  //获取合并到的目标标签编号
+            adapter.mergeTag(tag_no, merge_target_tag_no, origin_group_no);
         }
     }
 

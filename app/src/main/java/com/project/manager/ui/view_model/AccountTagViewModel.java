@@ -12,13 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AccountTagViewModel extends AndroidViewModel {
-    private final MutableLiveData<List<Tag>> tag = new MutableLiveData<>();
+    private final MutableLiveData<List<TagWithModifyID>> tag = new MutableLiveData<>();
 
     public AccountTagViewModel(@NonNull Application application) {
         super(application);
     }
 
-    public MutableLiveData<List<Tag>> getTag() {
+    public MutableLiveData<List<TagWithModifyID>> getTag() {
         return tag;
     }
 
@@ -28,9 +28,9 @@ public class AccountTagViewModel extends AndroidViewModel {
      * @param tag_name 标签名称
      * @param tag_no   标签编号
      */
-    public void updateTag(String tag_name, long tag_no) {
-        List<Tag> tagList = new ArrayList<>();
-        Tag modified_tag = new Tag(tag_name, tag_no);
+    public void updateTag(String tag_name, long tag_no, AccountTagModifyID modifyID) {
+        List<TagWithModifyID> tagList = new ArrayList<>();
+        TagWithModifyID modified_tag = new TagWithModifyID(tag_name, tag_no, modifyID);
         tagList.add(modified_tag);
         tag.setValue(tagList);
     }
@@ -40,7 +40,7 @@ public class AccountTagViewModel extends AndroidViewModel {
      *
      * @param tagList 标签对象列表
      */
-    public void updateTag(List<Tag> tagList) {
+    public void updateTag(List<TagWithModifyID> tagList) {
         tag.setValue(tagList);
     }
 

@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteStatement;
 
+import androidx.annotation.NonNull;
+
 import com.project.manager.database.RunningAccountColumns;
 import com.project.manager.database.RunningAccountDatabaseHelper;
 import com.project.manager.database.RunningAccountTables;
@@ -32,6 +34,44 @@ public class Tag {
 
     public long getTno() {
         return tno;
+    }
+
+    /**
+     * 将名称转换为编号
+     *
+     * @param name    标签名称
+     * @param context 用于打开数据库的上下文
+     * @return 对应的标签编号
+     * @throws SQLiteException 数据库读取失败产生的异常
+     */
+    public static int nameTransToTno(String name, Context context) throws SQLiteException {
+        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
+        SQLiteDatabase db = db_helper.openReadLink();
+
+        String[] columns = {RunningAccountColumns.TAG_NO.toString()};
+        String selection = RunningAccountColumns.TAG_NAME + "=?";
+        String[] selectionArgs = {name};
+        Cursor cursor = db.query(
+                RunningAccountTables.TAG.toString(),
+                columns,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null,
+                "1"
+        );
+
+        int tag_no;
+        if (cursor.moveToNext()) {
+            tag_no = cursor.getInt(cursor.getColumnIndexOrThrow(RunningAccountColumns.TAG_NO.toString()));
+        } else {
+            tag_no = 0;
+        }
+
+        cursor.close();
+        db.close();
+        return tag_no;
     }
 
     /**
@@ -159,7 +199,6 @@ public class Tag {
      * @param context 打开数据库所需的上下文
      * @throws SQLiteException 无法修改数据库时引发的异常
      */
-    //TODO: 修复删除流水数据输入的标签时无法及时更新UI的BUG
     public static void deleteTag(long tag_no, Context context) throws SQLiteException {
         RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
@@ -194,7 +233,7 @@ public class Tag {
      * @param context 上下文
      * @throws SQLiteException 无法修改数据库时引发的异常
      */
-    public static void deleteTag(List<Tag> tagList, Context context) throws SQLiteException {
+    public static void deleteTag(@NonNull List<Tag> tagList, Context context) throws SQLiteException {
         RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
@@ -232,6 +271,31 @@ public class Tag {
             stmt.bindLong(index++, tagNo);
         }
         stmt.execute();
+
+        db.close();
+    }
+
+    /**
+     * 合并标签
+     *
+     * @param merged_tag_no       被合并的标签编号
+     * @param merge_target_tag_no 合并到的目标标签编号
+     * @param context             上下文
+     * @throws SQLiteException 写入数据库可能引发的异常
+     */
+    public static void mergeTag(long merged_tag_no, long merge_target_tag_no, Context context) throws SQLiteException {
+        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
+        SQLiteDatabase db = db_helper.openWriteLink();
+
+        //更改对应流水记录的标签
+        String where = RunningAccountColumns.TAG_NO + "=?";
+        String[] whereArgs = {String.valueOf(merged_tag_no)};
+        ContentValues target_tag_no_values = new ContentValues();
+        target_tag_no_values.put(RunningAccountColumns.TAG_NO.toString(), merge_target_tag_no);
+        db.update(RunningAccountTables.BASIC.toString(), target_tag_no_values, where, whereArgs);
+
+        //删除被合并的标签
+        db.delete(RunningAccountTables.TAG.toString(), where, whereArgs);
 
         db.close();
     }

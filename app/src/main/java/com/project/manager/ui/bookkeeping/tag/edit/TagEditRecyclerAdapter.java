@@ -24,9 +24,11 @@ import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
 import com.project.manager.exception.ExceptionHelper;
+import com.project.manager.ui.view_model.AccountTagModifyID;
 import com.project.manager.ui.view_model.AccountTagViewModel;
 import com.project.manager.ui.bookkeeping.tag.Tag;
 import com.project.manager.ui.bookkeeping.tag.TagGroup;
+import com.project.manager.ui.view_model.TagWithModifyID;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -447,8 +449,15 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
             //获取ViewModel通知流水账数据输入界面更新UI
             ManagerAssistant app = (ManagerAssistant) ((EditActivity) context).getApplication();
             AccountTagViewModel viewModel = app.getAccountTagViewModel();
-            for (Tag tag : tagsToBeDeleted) tag.setName("");    //将标签名称设置为空串
-            viewModel.updateTag(tagsToBeDeleted);
+
+            List<TagWithModifyID> tagWithModifyIDList = new ArrayList<>();
+            for (Tag tag : tagsToBeDeleted) {
+                String tag_name = tag.getName();
+                long tag_no = tag.getTno();
+                TagWithModifyID oneTagWithModifyID = new TagWithModifyID(tag_name, tag_no, AccountTagModifyID.DELETE);
+                tagWithModifyIDList.add(oneTagWithModifyID);
+            }
+            viewModel.updateTag(tagWithModifyIDList);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             return;
@@ -493,6 +502,44 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
             //刷新UI
             notifyItemRemoved(old_group_index);
             notifyItemChanged(target_group_index);
+        }
+    }
+
+    /**
+     * 合并标签
+     *
+     * @param merged_tag_no       被合并的标签编号
+     * @param merge_target_tag_no 合并到的目标标签编号
+     * @param group_no            被合并标签的分组编号
+     */
+    public void mergeTag(long merged_tag_no, long merge_target_tag_no, long group_no) {
+        try {
+            Tag.mergeTag(merged_tag_no, merge_target_tag_no, context);
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+            return;
+        }
+
+        int group_index = 0;
+        int merged_tag_group_index = -1;    //被合并的标签所在分组的下标
+        for (TagGroup group : tagGroupList) {
+            if (group.getGroup_no() == group_no) {
+                merged_tag_group_index = group_index;
+                int tag_index = 0;
+                List<Tag> tagList = group.getTags();
+                for (Tag tag : tagList) {
+                    if (tag.getTno() == merged_tag_no) {
+                        tagList.remove(tag_index);
+                        break;
+                    }
+                    tag_index++;
+                }
+                break;
+            }
+            group_index++;
+        }
+        if (merged_tag_group_index != -1) { //更新UI
+            notifyItemChanged(merged_tag_group_index);
         }
     }
 }
