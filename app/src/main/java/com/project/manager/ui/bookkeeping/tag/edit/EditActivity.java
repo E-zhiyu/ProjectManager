@@ -272,6 +272,9 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             adapter.modifyGroup(group_no, new_group_name);
         } else if (resultCode == ResultCode.RESULT_DELETE.ordinal()) {
             adapter.deleteGroup(group_no);
+        } else if (resultCode == ResultCode.RESULT_MERGE.ordinal()) {
+            long merge_target_no = dataBundle.getLong(KeyValueStrings.MERGE_TARGET_NO.getValue());
+            adapter.mergeGroup(group_no, merge_target_no);
         }
     }
 }

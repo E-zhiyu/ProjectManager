@@ -457,4 +457,42 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
         tagGroupList.remove(group_index);
         notifyItemRemoved(group_index);
     }
+
+    /**
+     * 合并标签分组
+     *
+     * @param old_group_no    被合并的分组编号
+     * @param merge_target_no 合并到的分组的编号
+     */
+    public void mergeGroup(long old_group_no, long merge_target_no) {
+        try {
+            TagGroup.mergeGroup(old_group_no, merge_target_no, context);
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+            return;
+        }
+
+        List<Tag> tags_in_old_group = null, tags_in_target_group = null;
+        int old_group_index = -1, target_group_index = -1;
+        int index = 0;
+        for (TagGroup group : tagGroupList) {
+            if (group.getGroup_no() == old_group_no) {
+                tags_in_old_group = group.getTags();
+                old_group_index = index;
+            } else if (group.getGroup_no() == merge_target_no) {
+                tags_in_target_group = group.getTags();
+                target_group_index = index;
+            }
+            index++;
+        }
+
+        if (tags_in_old_group != null && tags_in_target_group != null) {
+            tags_in_target_group.addAll(tags_in_old_group);
+            tagGroupList.remove(old_group_index);
+
+            //刷新UI
+            notifyItemRemoved(old_group_index);
+            notifyItemChanged(target_group_index);
+        }
+    }
 }

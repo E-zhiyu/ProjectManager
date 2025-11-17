@@ -6,9 +6,12 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 
+import androidx.annotation.NonNull;
+
 import com.project.manager.database.RunningAccountColumns;
 import com.project.manager.database.RunningAccountDatabaseHelper;
 import com.project.manager.database.RunningAccountTables;
+import com.project.manager.ui.setting.running_account_data.pojo.PojoTagGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +73,7 @@ public class TagGroup {
      * @param group_name 标签组名称
      * @param context    用于打开数据库的上下文
      * @return 对应的标签编号（未找到则返回0）
+     * @throws SQLiteException 读取失败产生的数据库异常
      */
     public static long nameTransToGno(String group_name, Context context) throws SQLiteException {
         RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
@@ -107,6 +111,7 @@ public class TagGroup {
      * @param group_name 新分组的名称
      * @param context    打开数据库的上下文
      * @return 新分组对应的编号
+     * @throws SQLiteException 写入失败产生的数据库异常
      */
     public static long saveNewGroup(String group_name, Context context) throws SQLiteException {
         RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
@@ -125,7 +130,9 @@ public class TagGroup {
      *
      * @param context 用于打开数据库的上下文
      * @return 标签分组列表
+     * @throws SQLiteException 读取失败产生的数据库异常
      */
+    @NonNull
     public static List<TagGroup> loadTagGroups(Context context) throws SQLiteException {
         RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
@@ -169,6 +176,43 @@ public class TagGroup {
     }
 
     /**
+     * 获取所有标签分组（POJO类）
+     *
+     * @param context 上下文
+     * @return 由分组POJO类组成的列表
+     * @throws SQLiteException 读取失败产生的数据库异常
+     */
+    @NonNull
+    public static List<PojoTagGroup> loadPojoTagGroups(Context context) throws SQLiteException {
+        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
+        SQLiteDatabase db = db_helper.openReadLink();
+        List<PojoTagGroup> tagGroupList = new ArrayList<>();
+
+        String[] columns = {RunningAccountColumns.GROUP_NO.toString(), RunningAccountColumns.GROUP_NAME.toString()};
+        Cursor group_cursor = db.query(
+                RunningAccountTables.TAG_GROUP.toString(),
+                columns,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        while (group_cursor.moveToNext()) {
+            String group_name = group_cursor.getString(group_cursor.getColumnIndexOrThrow(RunningAccountColumns.GROUP_NAME.toString()));
+            long group_no = group_cursor.getLong(group_cursor.getColumnIndexOrThrow(RunningAccountColumns.GROUP_NO.toString()));
+
+            PojoTagGroup oneGroup = new PojoTagGroup(group_name, group_no);
+            tagGroupList.add(oneGroup);
+        }
+
+        group_cursor.close();
+        db.close();
+        return tagGroupList;
+    }
+
+    /**
      * 修改分组名称
      *
      * @param group_no   待修改的标签分组编号
@@ -204,6 +248,27 @@ public class TagGroup {
         String where = RunningAccountColumns.GROUP_NO + "=?";
         String[] whereArgs = {String.valueOf(group_no)};
         db.delete(RunningAccountTables.TAG_GROUP.toString(), where, whereArgs);
+
+        db.close();
+    }
+
+    /**
+     * 合并标签分组
+     *
+     * @param old_group_no    旧分组编号
+     * @param merge_target_no 目标分组编号
+     * @param context         上下文
+     * @throws SQLiteException 写入数据可能引发的数据库异常
+     */
+    public static void mergeGroup(long old_group_no, long merge_target_no, Context context) throws SQLiteException {
+        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
+        SQLiteDatabase db = db_helper.openWriteLink();
+
+        String where = RunningAccountColumns.GROUP_NO + "=?";
+        String[] whereArgs = {String.valueOf(old_group_no)};
+        ContentValues new_group_no_values = new ContentValues();
+        new_group_no_values.put(RunningAccountColumns.GROUP_NO.toString(), merge_target_no);
+        db.update(RunningAccountTables.TAG.toString(), new_group_no_values, where, whereArgs);
 
         db.close();
     }
