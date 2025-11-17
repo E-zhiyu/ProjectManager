@@ -149,6 +149,7 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
         dataBundle.putLong(KeyValueStrings.MERGE_TARGET_NO.getValue(), tag_no);
         result2TagEdit.putExtras(dataBundle);
         setResult(ResultCode.RESULT_MERGE.ordinal(), result2TagEdit);
+        finish();
     }
 
     //初始化视图
