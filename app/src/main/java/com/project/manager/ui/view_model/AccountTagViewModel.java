@@ -6,8 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
-import com.project.manager.ui.bookkeeping.tag.Tag;
-
 import java.util.ArrayList;
 import java.util.List;
 

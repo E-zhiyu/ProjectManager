@@ -134,8 +134,6 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
 
     @Override
     public void onTagBtnClicked(long tag_no, String tag_name) {
-        //TODO: 完善标签按钮点击动作
-
         //通知流水输入界面更新名称
         ManagerAssistant app = (ManagerAssistant) getApplication();
         AccountTagViewModel viewModel = app.getAccountTagViewModel();
