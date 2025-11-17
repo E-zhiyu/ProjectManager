@@ -1,10 +1,12 @@
 package com.project.manager.ui.bookkeeping.running_account_edit.fragments;
 
 import android.annotation.SuppressLint;
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -204,15 +206,22 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
         String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
         long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
 
-        Tag tag = Tag.getTagByRno(rno, requireContext());
-        tag_no = tag.getTno();
+        String tag_name = "";
+        try {
+            Tag tag = Tag.getTagByRno(rno, requireContext());
+            tag_no = tag.getTno();
+            tag_name = tag.getName();
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(requireContext(), e);
+            Toast.makeText(requireContext(), "无法加载该流水记录的标签信息", Toast.LENGTH_SHORT).show();
+        }
 
         amount_input.setText(String.valueOf(amount));                               //金额
         TextInputEditText remarkView = binding.findViewById(R.id.remark_input);     //备注
         remarkView.setText(remark);
         TextInputEditText dateView = binding.findViewById(R.id.datetime_input);     //日期
         dateView.setText(date_time);
-        tag_input.setText(tag.getName());                                           //标签名称
+        tag_input.setText(tag_name);                                                //标签名称
     }
 
     /**

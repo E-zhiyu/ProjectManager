@@ -13,6 +13,8 @@ import com.project.manager.database.RunningAccountColumns;
 import com.project.manager.database.RunningAccountDatabaseHelper;
 import com.project.manager.database.RunningAccountTables;
 
+import org.jetbrains.annotations.Contract;
+
 import java.util.List;
 
 public class Tag {
@@ -308,6 +310,8 @@ public class Tag {
      * @return 该流水对应的标签实例
      * @throws SQLiteException 读取数据库可能引发的数据库异常
      */
+    @NonNull
+    @Contract("_, _ -> new")
     public static Tag getTagByRno(long rno, Context context) throws SQLiteException {
         RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
