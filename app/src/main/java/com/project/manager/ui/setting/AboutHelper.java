@@ -19,8 +19,7 @@ import io.noties.markwon.Markwon;
 
 public class AboutHelper {
     private static final String about_md = "这是一个项目管理工具，为用户提供记账功能。  \n" +
-            "查看源码：[GitHub](https://github.com/E-zhiyu/ManagerAssitant/releases)  \n" +
-            "本软件基于GPL3.0协议开源";
+            "下载连接：[123云盘](https://www.123865.com/s/C5xcVv-kRYT3)";
 
     //获取版本名称
     public static String getVersionName(@NonNull Context context) throws PackageManager.NameNotFoundException {
