@@ -1,14 +1,10 @@
 package com.project.manager.ui.bookkeeping.running_account_edit.fragments;
 
-import static com.project.manager.ui.bookkeeping.tag.Tag.tagNoTransToName;
-
 import android.annotation.SuppressLint;
-import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -206,26 +202,17 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
         String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
+        long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
 
-        //将标签编号转换为标签名称
-        String tag_name = "";
-        try {
-            tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
-            if (tag_no != 0) {
-                tag_name = tagNoTransToName(tag_no, requireContext());
-                if (tag_name.isEmpty()) tag_no = 0;     //如果获取的名称为空，则将编号置为0（冗余设计，防止非法的标签编号出现）
-            }
-        } catch (SQLiteException e) {
-            tag_no = 0;
-            Toast.makeText(requireContext(), "无法获取该记录的标签名称", Toast.LENGTH_SHORT).show();
-        }
+        Tag tag = Tag.getTagByRno(rno, requireContext());
+        tag_no = tag.getTno();
 
         amount_input.setText(String.valueOf(amount));                               //金额
         TextInputEditText remarkView = binding.findViewById(R.id.remark_input);     //备注
         remarkView.setText(remark);
         TextInputEditText dateView = binding.findViewById(R.id.datetime_input);     //日期
         dateView.setText(date_time);
-        tag_input.setText(tag_name);                                                //标签名称
+        tag_input.setText(tag.getName());                                           //标签名称
     }
 
     /**

@@ -299,4 +299,61 @@ public class Tag {
 
         db.close();
     }
+
+    /**
+     * 通过流水编号获取标签实例
+     *
+     * @param rno     流水编号
+     * @param context 上下文
+     * @return 该流水对应的标签实例
+     * @throws SQLiteException 读取数据库可能引发的数据库异常
+     */
+    public static Tag getTagByRno(long rno, Context context) throws SQLiteException {
+        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
+        SQLiteDatabase db = db_helper.openWriteLink();
+
+        //查询标签编号
+        String[] columns = {RunningAccountColumns.TAG_NO.toString()};
+        String selection = RunningAccountColumns.RNO + "=?";
+        String[] selectionArgs = {String.valueOf(rno)};
+        Cursor basic_cursor = db.query(
+                RunningAccountTables.BASIC.toString(),
+                columns,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null,
+                "1"
+        );
+
+        long tag_no = 0;
+        if (basic_cursor.moveToNext()) {
+            tag_no = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.TAG_NO.toString()));
+        }
+
+        //查询标签名称
+        String[] tag_columns = {RunningAccountColumns.TAG_NAME.toString()};
+        String tag_selection = RunningAccountColumns.TAG_NO + "=?";
+        String[] tag_selectionArgs = {String.valueOf(tag_no)};
+        Cursor tag_cursor = db.query(
+                RunningAccountTables.TAG.toString(),
+                tag_columns,
+                tag_selection, tag_selectionArgs,
+                null,
+                null,
+                null,
+                "1"
+        );
+
+        String tag_name = "";
+        if (tag_cursor.moveToNext()) {
+            tag_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(RunningAccountColumns.TAG_NAME.toString()));
+        }
+
+        basic_cursor.close();
+        tag_cursor.close();
+        db.close();
+        return new Tag(tag_name, tag_no);
+    }
 }

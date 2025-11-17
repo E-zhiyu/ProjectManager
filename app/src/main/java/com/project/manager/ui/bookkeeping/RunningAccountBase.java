@@ -7,7 +7,6 @@ public abstract class RunningAccountBase {
     protected RunningAccountType type;  //种类
     protected String remark;      //备注
     protected String date_time;   //日期和时间
-    protected long tag_no;        //标签编号
     protected double amount;      //金额
     protected long rno;           //流水编号
 
@@ -25,10 +24,6 @@ public abstract class RunningAccountBase {
 
     public String getDate_time() {
         return date_time;
-    }
-
-    public long getTag_no() {
-        return tag_no;
     }
 
     public double getAmount() {
@@ -54,16 +49,14 @@ class ExpenseRunningAccount extends RunningAccountBase {
      * @param remark    备注
      * @param date_time 日期和时间
      * @param amount    金额
-     * @param tag_no    标签
      */
-    public ExpenseRunningAccount(String remark, String date_time, double amount, long tag_no) {
+    public ExpenseRunningAccount(String remark, String date_time, double amount) {
         this.type = RunningAccountType.EXPENSE;
         this.name = "支出";
         this.remark = remark;
         this.date_time = date_time;
         this.amount = amount;
         this.rno = -1;
-        this.tag_no = tag_no;
     }
 
     /**
@@ -73,16 +66,14 @@ class ExpenseRunningAccount extends RunningAccountBase {
      * @param remark    备注
      * @param date_time 日期和时间
      * @param amount    金额
-     * @param tag_no    标签
      */
-    public ExpenseRunningAccount(long rno, String remark, String date_time, double amount, long tag_no) {
+    public ExpenseRunningAccount(long rno, String remark, String date_time, double amount) {
         this.rno = rno;
         this.type = RunningAccountType.EXPENSE;
         this.name = "支出";
         this.remark = remark;
         this.date_time = date_time;
         this.amount = amount;
-        this.tag_no = tag_no;
     }
 }
 
@@ -96,16 +87,14 @@ class IncomeRunningAccount extends RunningAccountBase {
      * @param remark    备注
      * @param date_time 日期和时间
      * @param amount    金额
-     * @param tag_no    标签
      */
-    public IncomeRunningAccount(String remark, String date_time, double amount, long tag_no) {
+    public IncomeRunningAccount(String remark, String date_time, double amount) {
         this.rno = -1;
         this.type = RunningAccountType.INCOME;
         this.name = "收入";
         this.remark = remark;
         this.date_time = date_time;
         this.amount = amount;
-        this.tag_no = tag_no;
     }
 
     /**
@@ -115,16 +104,14 @@ class IncomeRunningAccount extends RunningAccountBase {
      * @param remark    备注
      * @param date_time 日期和时间
      * @param amount    金额
-     * @param tag_no    标签
      */
-    public IncomeRunningAccount(long rno, String remark, String date_time, double amount, long tag_no) {
+    public IncomeRunningAccount(long rno, String remark, String date_time, double amount) {
         this.rno = rno;
         this.type = RunningAccountType.INCOME;
         this.name = "收入";
         this.remark = remark;
         this.date_time = date_time;
         this.amount = amount;
-        this.tag_no = tag_no;
     }
 }
 
@@ -141,18 +128,16 @@ class TransferRunningAccount extends RunningAccountBase {
      * @param remark        备注
      * @param date_time     日期
      * @param amount        金额
-     * @param tag_no        标签
      * @param exportAccount 转出账户
      * @param importAccount 转入账户
      */
-    public TransferRunningAccount(String remark, String date_time, double amount, long tag_no, String exportAccount, String importAccount) {
+    public TransferRunningAccount(String remark, String date_time, double amount, String exportAccount, String importAccount) {
         this.rno = -1;
         this.type = RunningAccountType.TRANSFER;
         this.name = "转账";
         this.remark = remark;
         this.date_time = date_time;
         this.amount = amount;
-        this.tag_no = tag_no;
         this.exportAccount = exportAccount;
         this.importAccount = importAccount;
     }
@@ -164,18 +149,16 @@ class TransferRunningAccount extends RunningAccountBase {
      * @param remark        备注
      * @param date_time     日期和时间
      * @param amount        金额
-     * @param tag_no        标签
      * @param exportAccount 转出账户
      * @param importAccount 转入账户
      */
-    public TransferRunningAccount(long rno, String remark, String date_time, double amount, long tag_no, String exportAccount, String importAccount) {
+    public TransferRunningAccount(long rno, String remark, String date_time, double amount, String exportAccount, String importAccount) {
         this.rno = rno;
         this.type = RunningAccountType.TRANSFER;
         this.name = "转账";
         this.remark = remark;
         this.date_time = date_time;
         this.amount = amount;
-        this.tag_no = tag_no;
         this.exportAccount = exportAccount;
         this.importAccount = importAccount;
     }

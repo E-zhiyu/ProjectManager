@@ -89,7 +89,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         Bundle dataBundle = new Bundle();
 
         //获取基本数据
-        RunningAccountType type = runningAccountView.getType();     //类型
+        RunningAccountType type = runningAccountView.getType();         //类型
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());
         double amount = runningAccountView.getAmount();                 //金额
         dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
@@ -99,8 +99,6 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), date_time);
         long rno = runningAccountView.getRno();                         //流水编号
         dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
-        long tag_no = runningAccountView.getTag_no();                   //标签编号
-        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
 
         dataBundle.putInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), position);  //将待修改的流水实例下标放入包裹
 
@@ -196,9 +194,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         special_values = new ContentValues();
         RunningAccountBase newRunningAccountView;
         if (type == RunningAccountType.EXPENSE) {
-            newRunningAccountView = new ExpenseRunningAccount(remark, date_time, amount, tag_no);
+            newRunningAccountView = new ExpenseRunningAccount(remark, date_time, amount);
         } else if (type == RunningAccountType.INCOME) {
-            newRunningAccountView = new IncomeRunningAccount(remark, date_time, amount, tag_no);
+            newRunningAccountView = new IncomeRunningAccount(remark, date_time, amount);
         } else if (type == RunningAccountType.TRANSFER) {
             String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
             String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
@@ -208,7 +206,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             special_values.put(RunningAccountColumns.IMPORT.toString(), importAccount);
             db.insert(RunningAccountTables.TRANSFER.toString(), null, special_values);
 
-            newRunningAccountView = new TransferRunningAccount(remark, date_time, amount, tag_no, exportAccount, importAccount);
+            newRunningAccountView = new TransferRunningAccount(remark, date_time, amount, exportAccount, importAccount);
         } else {
             NullPointerException e = new NullPointerException("流水类型获取失败");
             ExceptionHelper.showExceptionDialog(requireContext(), e);
@@ -266,9 +264,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         RunningAccountBase newRunningAccountView;
         special_values = new ContentValues();
         if (type == RunningAccountType.EXPENSE) {
-            newRunningAccountView = new ExpenseRunningAccount(remark, date_time, amount, tag_no);
+            newRunningAccountView = new ExpenseRunningAccount(remark, date_time, amount);
         } else if (type == RunningAccountType.INCOME) {
-            newRunningAccountView = new IncomeRunningAccount(remark, date_time, amount, tag_no);
+            newRunningAccountView = new IncomeRunningAccount(remark, date_time, amount);
         } else if (type == RunningAccountType.TRANSFER) {
             String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
             String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
@@ -282,7 +280,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                     selectionArgs
             );
 
-            newRunningAccountView = new TransferRunningAccount(remark, date_time, amount, tag_no, exportAccount, importAccount);
+            newRunningAccountView = new TransferRunningAccount(remark, date_time, amount, exportAccount, importAccount);
         } else {
             NullPointerException e = new NullPointerException("流水类型获取失败");
             ExceptionHelper.showExceptionDialog(requireContext(), e);
@@ -365,16 +363,14 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.REMARK.toString()));
             //日期和时间
             String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.DATETIME.toString()));
-            //标签编号
-            long tag_no = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.TAG_NO.toString()));
 
             RunningAccountBase runningAccountView = null;
             switch (type) {
                 case EXPENSE:
-                    runningAccountView = new ExpenseRunningAccount(rno, remark, datetime, amount, tag_no);
+                    runningAccountView = new ExpenseRunningAccount(rno, remark, datetime, amount);
                     break;
                 case INCOME:
-                    runningAccountView = new IncomeRunningAccount(rno, remark, datetime, amount, tag_no);
+                    runningAccountView = new IncomeRunningAccount(rno, remark, datetime, amount);
                     break;
                 case TRANSFER:
                     String[] columns = {RunningAccountColumns.EXPORT.toString(), RunningAccountColumns.IMPORT.toString()};
@@ -395,7 +391,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                         String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(RunningAccountColumns.EXPORT.toString()));
                         String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(RunningAccountColumns.IMPORT.toString()));
                         transfer_cursor.close();
-                        runningAccountView = new TransferRunningAccount(rno, remark, datetime, amount, tag_no, exportAccount, importAccount);
+                        runningAccountView = new TransferRunningAccount(rno, remark, datetime, amount, exportAccount, importAccount);
                     }
 
                     break;
