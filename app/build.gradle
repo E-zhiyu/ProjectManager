@@ -11,7 +11,7 @@ android {
         minSdk 26
         targetSdk 36
         versionCode 7
-        versionName "1.2.0-snap1"
+        versionName "1.2.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -35,14 +35,12 @@ dependencies {
     implementation libs.appcompat
     implementation libs.material
     implementation libs.recyclerview
-    implementation libs.material.v1130
     implementation libs.constraintlayout
     implementation libs.lifecycle.livedata.ktx
     implementation libs.lifecycle.viewmodel.ktx
     implementation libs.navigation.fragment
     implementation libs.navigation.ui
     implementation libs.activity
-    implementation libs.appcompat.v170
     implementation libs.materialdatetimepicker
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
