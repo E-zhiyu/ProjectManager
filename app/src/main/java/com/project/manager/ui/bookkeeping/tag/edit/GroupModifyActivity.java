@@ -123,7 +123,7 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnFoc
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
         if (!hasFocus) {
-            if (v.getId() == R.id.tag_group_input) {
+            if (v.getId() == R.id.group_name_input) {
                 String group_name = String.valueOf(group_input.getText());
 
                 if (group_name.isEmpty()) {
@@ -133,6 +133,11 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnFoc
                     group_layout.setError(null);
                     group_layout.setErrorEnabled(false);
                 }
+            }
+        } else {
+            if (v.getId() == R.id.group_name_input) {
+                group_layout.setError(null);
+                group_layout.setErrorEnabled(false);
             }
         }
     }
@@ -171,6 +176,11 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnFoc
         String error = null;
         if (group_name.isEmpty()) {
             error = "分组名不能为空";
+        } else if (TagGroup.nameTransToGno(group_name, this) != 0) {
+            error = "已存在同名分组";
+        }
+
+        if (error != null) {
             group_layout.setErrorEnabled(true);
             group_layout.setError(error);
         }

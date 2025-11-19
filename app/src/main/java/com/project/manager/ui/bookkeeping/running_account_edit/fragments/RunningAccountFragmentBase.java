@@ -92,9 +92,9 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
 
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
-        String edittext_str, error;         //文本框内容和错误提示
-        TextInputLayout text_edit_layout;   //被验证的文本框对应的布局管理器
         if (!hasFocus) {
+            String edittext_str, error;         //文本框内容和错误提示
+            TextInputLayout text_edit_layout;   //被验证的文本框对应的布局管理器
             edittext_str = String.valueOf(((TextInputEditText) v).getText());   //获取待验证组件的文本内容
             if (v.getId() == R.id.amount_input) {
                 error = "金额不能为空";
@@ -104,18 +104,20 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
                 ExceptionHelper.showExceptionDialog(requireContext(), e);
                 return;
             }
-        } else {
-            //暂无获取焦点时的检测
-            return;
-        }
 
-        //判断待验证的字符串是否为空
-        if (edittext_str.isEmpty()) {
-            text_edit_layout.setErrorEnabled(true);
-            text_edit_layout.setError(error);
+            //判断待验证的字符串是否为空
+            if (edittext_str.isEmpty()) {
+                text_edit_layout.setErrorEnabled(true);
+                text_edit_layout.setError(error);
+            } else {
+                text_edit_layout.setError(null);    //消除错误提示
+                text_edit_layout.setErrorEnabled(false);
+            }
         } else {
-            text_edit_layout.setError(null);    //消除错误提示
-            text_edit_layout.setErrorEnabled(false);
+            if (v.getId() == R.id.amount_input) {
+                amount_layout.setError(null);
+                amount_layout.setErrorEnabled(false);
+            }
         }
     }
 

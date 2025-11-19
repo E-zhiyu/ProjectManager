@@ -18,6 +18,7 @@ import com.project.manager.ResultCode;
 import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.TagString;
+import com.project.manager.ui.bookkeeping.tag.Tag;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.SheetTagBtnRecyclerAdapter;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
 import com.project.manager.ui.view_model.AccountTagModifyID;
@@ -41,7 +42,7 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
         setContentView(R.layout.activity_tag_modify);
 
         tag_name_input = findViewById(R.id.tag_name_input);
-        tag_group_input = findViewById(R.id.tag_group_input);
+        tag_group_input = findViewById(R.id.group_name_input);
         tag_name_layout = findViewById(R.id.tag_name_layout);
         tag_group_layout = findViewById(R.id.tag_group_layout);
 
@@ -112,7 +113,7 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
                     tag_name_layout.setError(null);
                     tag_name_layout.setErrorEnabled(false);
                 }
-            } else if (v.getId() == R.id.tag_group_input) {
+            } else if (v.getId() == R.id.group_name_input) {
                 String tag_group_name = String.valueOf(tag_group_input.getText());
 
                 if (tag_group_name.isEmpty()) {
@@ -124,10 +125,13 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
                 }
             }
         } else {
-            if (v.getId() == R.id.tag_group_input) {
+            if (v.getId() == R.id.group_name_input) {
                 //标签分组输入框获取焦点时清空错误提示以显示右侧按钮
                 tag_group_layout.setError(null);
                 tag_group_layout.setErrorEnabled(false);
+            } else if (v.getId() == R.id.tag_name_input) {
+                tag_name_layout.setError(null);
+                tag_name_layout.setErrorEnabled(false);
             }
         }
     }
@@ -243,12 +247,15 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
         String error = null;
         if (tag_name.isEmpty()) {
             error = "标签名不能为空";
-            tag_name_layout.setErrorEnabled(true);
-            tag_name_layout.setError(error);
+        } else if (Tag.nameTransToTno(tag_name, this) != 0) {
+            error = "已存在同名标签";
         } else if (tag_group.isEmpty()) {
             error = "分组名不能为空";
-            tag_group_layout.setErrorEnabled(true);
-            tag_group_layout.setError(error);
+        }
+
+        if (error != null) {
+            tag_name_layout.setErrorEnabled(true);
+            tag_name_layout.setError(error);
         }
 
         return error;

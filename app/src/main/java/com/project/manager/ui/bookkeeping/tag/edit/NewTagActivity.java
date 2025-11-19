@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.appbar.MaterialToolbar;
@@ -15,6 +16,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.project.manager.R;
 import com.project.manager.ResultCode;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
+import com.project.manager.ui.bookkeeping.tag.Tag;
 
 import java.util.ArrayList;
 
@@ -29,7 +31,7 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
         setContentView(R.layout.activity_new_tag);
 
         tag_name_input = findViewById(R.id.tag_name_input);
-        tag_group_input = findViewById(R.id.tag_group_input);
+        tag_group_input = findViewById(R.id.group_name_input);
         tag_name_layout = findViewById(R.id.tag_name_layout);
         tag_group_layout = findViewById(R.id.tag_group_layout);
 
@@ -38,7 +40,7 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
 
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
-        if (!hasFocus){
+        if (!hasFocus) {
             if (v.getId() == R.id.tag_name_input) {
                 String tag_name = String.valueOf(tag_name_input.getText());
 
@@ -49,7 +51,7 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
                     tag_name_layout.setError(null);
                     tag_name_layout.setErrorEnabled(false);
                 }
-            } else if (v.getId() == R.id.tag_group_input) {
+            } else if (v.getId() == R.id.group_name_input) {
                 String tag_group_name = String.valueOf(tag_group_input.getText());
 
                 if (tag_group_name.isEmpty()) {
@@ -61,15 +63,18 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
                 }
             }
         } else {
-            if (v.getId() == R.id.tag_group_input) {
+            if (v.getId() == R.id.group_name_input) {
                 tag_group_layout.setError(null);
                 tag_group_layout.setErrorEnabled(false);
+            } else if (v.getId() == R.id.tag_name_input) {
+                tag_name_layout.setError(null);
+                tag_name_layout.setErrorEnabled(false);
             }
         }
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(@NonNull View v) {
         Intent result2TagEdit = new Intent();
         Bundle dataBundle = new Bundle();
 
@@ -114,12 +119,15 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
         String error = null;
         if (tag_name.isEmpty()) {
             error = "标签名不能为空";
-            tag_name_layout.setErrorEnabled(true);
-            tag_name_layout.setError(error);
+        } else if (Tag.nameTransToTno(tag_name, this) != 0) {
+            error = "已存在同名标签";
         } else if (tag_group.isEmpty()) {
             error = "分组名不能为空";
-            tag_group_layout.setErrorEnabled(true);
-            tag_group_layout.setError(error);
+        }
+
+        if (error != null) {
+            tag_name_layout.setErrorEnabled(true);
+            tag_name_layout.setError(error);
         }
 
         return error;
