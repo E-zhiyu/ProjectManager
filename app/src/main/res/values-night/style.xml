@@ -125,6 +125,7 @@
     <!-- 需要用户输入文本的文本框样式 -->
     <style name="UserInputEditTextStyle" parent="Widget.Material3.TextInputEditText.OutlinedBox">
         <item name="android:inputType">text</item>
+        <item name="android:textColorHighlight">@color/theme_blue_variant_night</item>
         <item name="android:maxLength">20</item>
     </style>
 
