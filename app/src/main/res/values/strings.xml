@@ -66,4 +66,5 @@
     <string name="update_log">更新日志</string>
     <string name="tag_merge">合并标签</string>
     <string name="group_merge">合并分组</string>
+    <string name="tag_new_modify_tip">输入已存在的标签分组名称会将标签添加至对应分组内，输入不存在的标签分组名称则会创建新分组并将标签添加至新创建的分组</string>
 </resources>

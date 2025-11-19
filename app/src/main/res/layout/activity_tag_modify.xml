@@ -66,6 +66,12 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/tag_group" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textview.MaterialTextView
+                style="@style/TipTextViewStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tag_new_modify_tip" />
         </LinearLayout>
     </ScrollView>
 
