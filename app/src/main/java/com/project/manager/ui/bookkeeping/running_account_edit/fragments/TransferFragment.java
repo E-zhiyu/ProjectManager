@@ -16,7 +16,8 @@ public class TransferFragment extends RunningAccountFragmentBase {
     private TextInputEditText export_input, import_input;   //转出和转入账户的文本框
 
     public TransferFragment() {
-        this.name = "转账";  //为碎片命名
+        this.name = "转账";                  //为碎片命名
+        this.default_remark = "一条转账记录"; //设置默认备注
         this.type = RunningAccountType.TRANSFER;
     }
 

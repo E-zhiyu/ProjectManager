@@ -38,7 +38,8 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
     Bundle initData = null;                                 //初始化控件内容的数据（用于编辑流水记录时）
     View binding;                                           //绑定的XML界面
     protected String name;                                  //碎片名称
-    protected RunningAccountType type;                  //流水类型
+    protected String default_remark = "Default Remark";     //默认备注
+    protected RunningAccountType type;                      //流水类型
     protected TextInputLayout amount_layout, tag_layout;    //金额和标签文本框布局管理器
     protected TextInputEditText amount_input, tag_input;    //金额和标签文本输入框
     private long tag_no = 0;                                //用户选择的标签编号（默认无标签则为0）
@@ -203,6 +204,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
     public void initViewsWhenModifying(@NonNull Bundle dataBundle) {
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
+        boolean isDefaultRemark = dataBundle.getBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue());
         String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
         long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
 
@@ -217,10 +219,10 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
         }
 
         amount_input.setText(String.valueOf(amount));                               //金额
-        TextInputEditText remarkView = binding.findViewById(R.id.remark_input);     //备注
-        remarkView.setText(remark);
-        TextInputEditText dateView = binding.findViewById(R.id.datetime_input);     //日期
-        dateView.setText(date_time);
+        TextInputEditText remark_input = binding.findViewById(R.id.remark_input);   //备注
+        remark_input.setText(isDefaultRemark ? "" : remark);
+        TextInputEditText date_input = binding.findViewById(R.id.datetime_input);   //日期
+        date_input.setText(date_time);
         tag_input.setText(tag_name);                                                //标签名称
     }
 
@@ -238,6 +240,14 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
         dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), date_time);
         TextInputEditText remarkEditText = binding.findViewById(R.id.remark_input);         //备注
         String remark = String.valueOf(remarkEditText.getText());
+        boolean isDefaultRemark;                                                            //是否使用默认备注
+        if (remark.isEmpty()) {
+            isDefaultRemark = true;
+            remark = default_remark;
+        } else {
+            isDefaultRemark = false;
+        }
+        dataBundle.putBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue(), isDefaultRemark);
         dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
         double amount = Double.parseDouble(String.valueOf(amount_input.getText()));         //金额
         dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);

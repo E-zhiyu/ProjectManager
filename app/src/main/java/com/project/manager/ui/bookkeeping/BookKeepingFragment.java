@@ -71,10 +71,10 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
     @Override
     public void onClick(@NonNull View v) {
-        if (v.getId() == R.id.new_running_account_btn) {  //新建流水
+        if (v.getId() == R.id.new_running_account_btn) {    //新建流水
             Intent skip2NewRunningAccount = new Intent(getActivity(), NewRunningAccountActivity.class);
             newRunningAccountLauncher.launch(skip2NewRunningAccount);
-        } else if (v.getId() == R.id.report_btn) {  //查看报表
+        } else if (v.getId() == R.id.report_btn) {          //查看报表
             Intent skip2Report = new Intent(getActivity(), ReportActivity.class);
             startActivity(skip2Report);
         }
@@ -95,6 +95,8 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
         String remark = runningAccountView.getRemark();                 //备注
         dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
+        boolean isDefaultRemark = runningAccountView.isDefaultRemark(); //是否使用默认备注
+        dataBundle.putBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue(), isDefaultRemark);
         String date_time = runningAccountView.getDate_time();           //日期
         dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), date_time);
         long rno = runningAccountView.getRno();                         //流水编号
@@ -178,15 +180,17 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         //获取基本流水数据
         RunningAccountType type = RunningAccountType.valueOf(resultIntent.getStringExtra(KeyValueStrings.ACCOUNT_TYPE.getValue()));
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
+        if (remark == null) remark = "";
+        boolean isDefaultRemark = dataBundle.getBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue());
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
         String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
         long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
         basic_values = new ContentValues();
-        basic_values.put(RunningAccountColumns.TYPE.toString(), type.toString()); //种类
-        basic_values.put(RunningAccountColumns.AMOUNT.toString(), amount);        //金额
-        basic_values.put(RunningAccountColumns.REMARK.toString(), remark);        //备注
-        basic_values.put(RunningAccountColumns.DATETIME.toString(), date_time);   //日期
-        basic_values.put(RunningAccountColumns.TAG_NO.toString(), tag_no);        //标签编号
+        basic_values.put(RunningAccountColumns.TYPE.toString(), type.toString());                   //种类
+        basic_values.put(RunningAccountColumns.AMOUNT.toString(), amount);                          //金额
+        basic_values.put(RunningAccountColumns.REMARK.toString(), isDefaultRemark ? null : remark); //备注
+        basic_values.put(RunningAccountColumns.DATETIME.toString(), date_time);                     //日期
+        basic_values.put(RunningAccountColumns.TAG_NO.toString(), tag_no);                          //标签编号
 
         long rno = db.insert(RunningAccountTables.BASIC.toString(), null, basic_values);   //获取自增主键值
 
@@ -194,9 +198,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         special_values = new ContentValues();
         RunningAccountBase newRunningAccountView;
         if (type == RunningAccountType.EXPENSE) {
-            newRunningAccountView = new ExpenseRunningAccount(remark, date_time, amount);
+            newRunningAccountView = new ExpenseRunningAccount(remark, date_time, amount, isDefaultRemark);
         } else if (type == RunningAccountType.INCOME) {
-            newRunningAccountView = new IncomeRunningAccount(remark, date_time, amount);
+            newRunningAccountView = new IncomeRunningAccount(remark, date_time, amount, isDefaultRemark);
         } else if (type == RunningAccountType.TRANSFER) {
             String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
             String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
@@ -206,7 +210,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             special_values.put(RunningAccountColumns.IMPORT.toString(), importAccount);
             db.insert(RunningAccountTables.TRANSFER.toString(), null, special_values);
 
-            newRunningAccountView = new TransferRunningAccount(remark, date_time, amount, exportAccount, importAccount);
+            newRunningAccountView = new TransferRunningAccount(remark, date_time, amount, isDefaultRemark, exportAccount, importAccount);
         } else {
             NullPointerException e = new NullPointerException("流水类型获取失败");
             ExceptionHelper.showExceptionDialog(requireContext(), e);
@@ -240,18 +244,20 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         int position = dataBundle.getInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), -1);    //原视图下标
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
+        if (remark == null) remark = "";
+        boolean isDefaultRemark = dataBundle.getBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue());
         String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
         long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
 
         //将基本数据存放至数据库
         basic_values = new ContentValues();
-        basic_values.put(RunningAccountColumns.TYPE.toString(), type.toString()); //种类
-        basic_values.put(RunningAccountColumns.AMOUNT.toString(), amount);        //金额
-        basic_values.put(RunningAccountColumns.REMARK.toString(), remark);        //备注
-        basic_values.put(RunningAccountColumns.DATETIME.toString(), date_time);   //日期
-        basic_values.put(RunningAccountColumns.TAG_NO.toString(), tag_no);        //标签编号
+        basic_values.put(RunningAccountColumns.TYPE.toString(), type.toString());                   //种类
+        basic_values.put(RunningAccountColumns.AMOUNT.toString(), amount);                          //金额
+        basic_values.put(RunningAccountColumns.REMARK.toString(), isDefaultRemark ? null : remark); //备注
+        basic_values.put(RunningAccountColumns.DATETIME.toString(), date_time);                     //日期
+        basic_values.put(RunningAccountColumns.TAG_NO.toString(), tag_no);                          //标签编号
         String selection = RunningAccountColumns.RNO + "=?";
-        long rno = (runningAccountRecyclerAdapter.getItem(position)).getRno();  //编号
+        long rno = (runningAccountRecyclerAdapter.getItem(position)).getRno();                      //编号
         String[] selectionArgs = new String[]{String.valueOf(rno)};
         db.update(
                 RunningAccountTables.BASIC.toString(),
@@ -264,9 +270,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         RunningAccountBase newRunningAccountView;
         special_values = new ContentValues();
         if (type == RunningAccountType.EXPENSE) {
-            newRunningAccountView = new ExpenseRunningAccount(remark, date_time, amount);
+            newRunningAccountView = new ExpenseRunningAccount(remark, date_time, amount, isDefaultRemark);
         } else if (type == RunningAccountType.INCOME) {
-            newRunningAccountView = new IncomeRunningAccount(remark, date_time, amount);
+            newRunningAccountView = new IncomeRunningAccount(remark, date_time, amount, isDefaultRemark);
         } else if (type == RunningAccountType.TRANSFER) {
             String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
             String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
@@ -280,7 +286,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                     selectionArgs
             );
 
-            newRunningAccountView = new TransferRunningAccount(remark, date_time, amount, exportAccount, importAccount);
+            newRunningAccountView = new TransferRunningAccount(remark, date_time, amount, isDefaultRemark, exportAccount, importAccount);
         } else {
             NullPointerException e = new NullPointerException("流水类型获取失败");
             ExceptionHelper.showExceptionDialog(requireContext(), e);
@@ -361,16 +367,20 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.TYPE.toString())));
             //备注
             String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.REMARK.toString()));
+            if (remark == null) remark = "";
+            //是否使用默认备注
+            boolean isDefaultRemark;
+            isDefaultRemark = remark.isEmpty();
             //日期和时间
             String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.DATETIME.toString()));
 
             RunningAccountBase runningAccountView = null;
             switch (type) {
                 case EXPENSE:
-                    runningAccountView = new ExpenseRunningAccount(rno, remark, datetime, amount);
+                    runningAccountView = new ExpenseRunningAccount(rno, remark, datetime, amount, isDefaultRemark);
                     break;
                 case INCOME:
-                    runningAccountView = new IncomeRunningAccount(rno, remark, datetime, amount);
+                    runningAccountView = new IncomeRunningAccount(rno, remark, datetime, amount, isDefaultRemark);
                     break;
                 case TRANSFER:
                     String[] columns = {RunningAccountColumns.EXPORT.toString(), RunningAccountColumns.IMPORT.toString()};
@@ -391,7 +401,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                         String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(RunningAccountColumns.EXPORT.toString()));
                         String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(RunningAccountColumns.IMPORT.toString()));
                         transfer_cursor.close();
-                        runningAccountView = new TransferRunningAccount(rno, remark, datetime, amount, exportAccount, importAccount);
+                        runningAccountView = new TransferRunningAccount(rno, remark, datetime, amount, isDefaultRemark, exportAccount, importAccount);
                     }
 
                     break;
@@ -400,7 +410,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                     ExceptionHelper.showExceptionDialog(requireContext(), e);
                     break;
             }
-            runningAccountList.add(runningAccountView);
+            if (runningAccountView != null) {
+                runningAccountList.add(runningAccountView);
+            }
         }
         basic_cursor.close();
         db.close();
