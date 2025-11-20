@@ -308,7 +308,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
         int position;
         if (dataBundle == null) {
-            NullPointerException e = new NullPointerException("无法获取合法的流水视图下标");
+            NullPointerException e = new NullPointerException("无法获取流水记录下标");
             ExceptionHelper.showExceptionDialog(requireContext(), e);
             return;
         }

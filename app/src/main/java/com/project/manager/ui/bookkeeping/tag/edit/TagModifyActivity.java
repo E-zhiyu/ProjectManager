@@ -92,7 +92,7 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
                     .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
                     .show();
         } else if (v.getId() == R.id.cancel_btn) {
-            setResult(ResultCode.RESULT_REJECT.ordinal(), result2TagEdit);
+            setResult(ResultCode.RESULT_CANCEL.ordinal(), result2TagEdit);
             finish();
         } else {
             NullPointerException e = new NullPointerException("无法获取正确的视图ID");

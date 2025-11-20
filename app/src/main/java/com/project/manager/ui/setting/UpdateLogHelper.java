@@ -11,7 +11,10 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.2.0  \n" +
+    private static final String update_log_md = "# v1.2.1  \n" +
+            "## 修改内容  \n" +
+            "- 删除流水记录时会弹出确认操作的对话框  \n" +
+            "# v1.2.0  \n" +
             "## 新增内容  \n" +
             "- 设置界面添加更新日志查看功能  \n" +
             "- 添加标签和标签分组合并功能  \n" +

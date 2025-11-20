@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.project.manager.R;
 import com.project.manager.ResultCode;
 import com.project.manager.exception.ExceptionHelper;
@@ -79,7 +80,6 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
     @Override
     public void onClick(@NonNull View v) {
         Intent result2BookKeeping = new Intent();
-        int resultCode = ResultCode.RESULT_REJECT.ordinal();  //响应代码
 
         if (v.getId() == R.id.finish_btn) {
             String error;
@@ -88,29 +88,33 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
             //判断是否获取到报错消息（null:无报错，验证通过）
             if (error != null) {
                 Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
-                return;
             } else {
-                resultCode = ResultCode.RESULT_OK.ordinal();
                 Bundle dataBundle = getDataAfterModifying();
                 result2BookKeeping.putExtras(dataBundle);
+                setResult(ResultCode.RESULT_OK.ordinal(), result2BookKeeping);
+                finish();
             }
         } else if (v.getId() == R.id.delete_btn) {
-            resultCode = ResultCode.RESULT_DELETE.ordinal();
-            Bundle dataBundle = new Bundle();
-            dataBundle.putInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), position);
-            result2BookKeeping.putExtras(dataBundle);
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("删除流水记录")
+                    .setMessage("此流水记录将会被永久删除，确认继续吗？")
+                    .setPositiveButton("确认", (dialog, which) -> {
+                        Bundle dataBundle = new Bundle();
+                        dataBundle.putInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), position);
+                        result2BookKeeping.putExtras(dataBundle);
+                        setResult(ResultCode.RESULT_DELETE.ordinal(), result2BookKeeping);
+                        finish();
+                    })
+                    .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
+                    .show();
         } else if (v.getId() == R.id.cancel_btn) {
             //取消按钮实际上不进行任何操作
-            setResult(resultCode, result2BookKeeping);
+            setResult(ResultCode.RESULT_CANCEL.ordinal(), result2BookKeeping);
             finish();
-            return;
         } else {
             RuntimeException e = new RuntimeException("无法获取正确的按钮ID");
             ExceptionHelper.showExceptionDialog(this, e);
         }
-
-        setResult(resultCode, result2BookKeeping);
-        finish();
     }
 
     /**

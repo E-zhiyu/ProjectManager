@@ -56,7 +56,7 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnFoc
                 finish();
             }
         } else if (v.getId() == R.id.cancel_btn) {
-            setResult(ResultCode.RESULT_REJECT.ordinal(), result2EditActivity);
+            setResult(ResultCode.RESULT_CANCEL.ordinal(), result2EditActivity);
             finish();
         } else if (v.getId() == R.id.delete_btn) {
             new MaterialAlertDialogBuilder(this)

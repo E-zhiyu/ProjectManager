@@ -257,7 +257,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void modifyGroup(int resultCode, Intent data) {
-        if (resultCode == ResultCode.RESULT_REJECT.ordinal()) {
+        if (resultCode == ResultCode.RESULT_CANCEL.ordinal()) {
             return;
         }
 
