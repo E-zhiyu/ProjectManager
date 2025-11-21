@@ -300,10 +300,29 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             incomeSourceCard.setVisibility(View.VISIBLE);
         }
         if (isNoIncome && isNoExpense) {
-            Toast.makeText(this, "该时间段没有流水记录", Toast.LENGTH_SHORT).show();
+            String tip_str = "该时间段没有流水记录";
+            switch (dateRangeType) {
+                case TODAY:
+                    tip_str = "这一天没有流水记录";
+                    break;
+                case THIS_MONTH:
+                    tip_str = "这个月没有流水记录";
+                    break;
+                case RECENT_3_MONTH:
+                    tip_str = "最近三个月没有流水记录";
+                    break;
+                case THIS_YEAR:
+                    tip_str = "这一年没有流水记录";
+                    break;
+            }
+            Toast.makeText(this, tip_str, Toast.LENGTH_SHORT).show();
             findViewById(R.id.expense_income_layout).setVisibility(View.GONE);
+            findViewById(R.id.month_account_layout).setVisibility(View.GONE);
         } else {
             findViewById(R.id.expense_income_layout).setVisibility(View.VISIBLE);
+            if (dateRangeType == DateRangeType.THIS_YEAR) {
+                findViewById(R.id.month_account_layout).setVisibility(View.VISIBLE);
+            }
         }
 
         //更新收支来源视图
