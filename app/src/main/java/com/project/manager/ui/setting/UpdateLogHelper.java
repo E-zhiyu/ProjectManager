@@ -11,7 +11,10 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.3.0  \n" +
+    private static final String update_log_md = "# v1.3.1  \n" +
+            "## BUG修复  \n" +
+            "- 修复标签过多时标签选择菜单不能正常滚动到底部的BUG  \n" +
+            "# v1.3.0  \n" +
             "## 新增内容  \n" +
             "- 报表界面添加今年每月流水数据视图（当查看这一年的报表时）  \n" +
             "## 修改内容  \n" +
