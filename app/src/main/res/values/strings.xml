@@ -37,9 +37,9 @@
     <string name="account_statistics">流水统计</string>
     <string name="balance">结余</string>
     <string name="expense_and_income">支出：| 收入：</string>
-    <string name="expenditure_income_distribution">收支分布</string>
+    <string name="expenditure_income_source">收支来源</string>
     <string name="income">收入</string>
-    <string name="expenditure">支出</string>
+    <string name="expense">支出</string>
     <string name="tag_name">标签名称</string>
     <string name="tag_group">标签分组</string>
     <string name="edit_tag">编辑标签</string>
@@ -67,4 +67,5 @@
     <string name="tag_merge">合并标签</string>
     <string name="group_merge">合并分组</string>
     <string name="tag_new_modify_tip">输入已存在的标签分组名称会将标签添加至对应分组内，输入不存在的标签分组名称则会创建新分组并将标签添加至新创建的分组</string>
+    <string name="running_account_every_month">每月流水总结</string>
 </resources>

@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_balance"
+        android:title="@string/balance" />
+    <item
+        android:id="@+id/action_expense"
+        android:title="@string/expense" />
+    <item
+        android:id="@+id/action_income"
+        android:title="@string/income" />
+</menu>

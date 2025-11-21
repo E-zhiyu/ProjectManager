@@ -11,9 +11,12 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.2.1  \n" +
+    private static final String update_log_md = "# v1.3.0  \n" +
+            "## 新增内容  \n" +
+            "- 报表界面添加今年每月流水数据视图（当查看这一年的报表时）  \n" +
             "## 修改内容  \n" +
             "- 删除流水记录时会弹出确认操作的对话框  \n" +
+            "- 补充报表界面可点击的视图点击时的波纹效果  \n" +
             "# v1.2.0  \n" +
             "## 新增内容  \n" +
             "- 设置界面添加更新日志查看功能  \n" +

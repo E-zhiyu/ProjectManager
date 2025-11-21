@@ -6,13 +6,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabaseLockedException;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
@@ -28,6 +28,10 @@ import com.project.manager.ui.bookkeeping.TagString;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.ui.bookkeeping.tag.Tag;
 
+import org.jetbrains.annotations.Contract;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -43,12 +47,15 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             RunningAccountType.EXPENSE,
             RunningAccountType.TRANSFER
     };
-    private final List<AccountSourceCard> expenseSourceCardList = new ArrayList<>();    //支出来源列表
-    private final List<AccountSourceCard> incomeSourceCardList = new ArrayList<>();     //收入来源列表
-    private int year, month, day;                                   //年月日
-    DateRangeType dateRangeType = DateRangeType.TODAY;              //日期范围种类
-    RecyclerView expense_source_recycler, income_source_recycler;   //收支来源布局
-    AccountSourceAdapter expense_adapter, income_adapter;           //收支来源布局适配器
+    private final List<AccountSourceInfo> expenseSourceCardList = new ArrayList<>();        //支出来源列表
+    private final List<AccountSourceInfo> incomeSourceCardList = new ArrayList<>();         //收入来源列表
+    private int year, month, day;                                                           //年月日
+    private DateRangeType dateRangeType = DateRangeType.TODAY;                              //日期范围种类
+    private AccountSourceAdapter expense_adapter, income_adapter;                           //收支来源布局适配器
+    private MonthAccountInfoType monthAccountInfoType = MonthAccountInfoType.BALANCE;       //月流水信息种类
+    private final List<MonthAccountInfo> monthAccountInfoList = new ArrayList<>();          //月流水信息列表
+    private MonthAccountAdapter month_account_adapter;                                      //月流水信息适配器
+    private double year_expense = 0, year_income = 0;                                       //年支出和年收入
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,8 +64,13 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
 
         initViews();
 
-        List<ReportRunningAccountData> dataList = loadReportData(); //加载报表数据
-        updateViews(dataList);                                      //更新视图
+        List<ReportRunningAccountData> dataList = loadReportData(dateRangeType);    //加载报表数据
+        updateSourceViews(dataList);                                                //更新收支来源视图
+
+        //读取本年的流水数据并生成每月流水总结
+        dataList = loadReportData(DateRangeType.THIS_YEAR);
+        updateMonthAccountData(dataList);                                           //初始化每月流水数据
+        refreshMonthAccountInfoViews();                                             //刷新每月流水数据视图
     }
 
     @Override
@@ -67,6 +79,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             showDatePickerDialog();
         } else if (v.getId() == R.id.date_range_select_view) {
             showDateRangeSelectPopupMenu(v);
+        } else if (v.getId() == R.id.month_account_type_select_view) {
+            showMonthAccountInfoTypePopupMenu(v);
         }
     }
 
@@ -90,35 +104,26 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         date_textview.setOnClickListener(this);
         MaterialTextView date_range_select_view = findViewById(R.id.date_range_select_view);
         date_range_select_view.setOnClickListener(this);
+        MaterialTextView month_account_info_type_select_view = findViewById(R.id.month_account_type_select_view);
+        month_account_info_type_select_view.setOnClickListener(this);
 
-        //获取收支来源RecyclerView并设置适配器
-        expense_source_recycler = findViewById(R.id.expense_source_recycler);
+        //获取RecyclerView并设置适配器
+        RecyclerView expense_source_recycler = findViewById(R.id.expense_source_recycler);
         expense_adapter = new AccountSourceAdapter(expenseSourceCardList);
         expense_source_recycler.setAdapter(expense_adapter);
-        income_source_recycler = findViewById(R.id.income_source_recycler);
+        RecyclerView income_source_recycler = findViewById(R.id.income_source_recycler);
         income_adapter = new AccountSourceAdapter(incomeSourceCardList);
         income_source_recycler.setAdapter(income_adapter);
-
-        //禁用两个RecyclerView的滚动
-        expense_source_recycler.setLayoutManager(new LinearLayoutManager(this) {
-            @Override
-            public boolean canScrollVertically() {
-                return false; // 禁止竖向滑动
-            }
-        });
-        income_source_recycler.setLayoutManager(new LinearLayoutManager(this) {
-            @Override
-            public boolean canScrollVertically() {
-                return false; // 禁止竖向滑动
-            }
-        });
+        RecyclerView month_account_recycler = findViewById(R.id.month_account_recycler);
+        month_account_adapter = new MonthAccountAdapter(monthAccountInfoList, monthAccountInfoType, this);
+        month_account_recycler.setAdapter(month_account_adapter);
     }
 
     /**
      * 加载流水信息并生成报表数据
      */
     @SuppressLint("DefaultLocale")
-    private List<ReportRunningAccountData> loadReportData() {
+    private List<ReportRunningAccountData> loadReportData(@NonNull DateRangeType dateRangeType) {
         List<ReportRunningAccountData> dataList = new ArrayList<>();
 
         try (RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(this)) {
@@ -127,7 +132,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             String[] columns = new String[]{
                     RunningAccountColumns.AMOUNT.toString(),
                     RunningAccountColumns.TYPE.toString(),
-                    RunningAccountColumns.TAG_NO.toString()
+                    RunningAccountColumns.TAG_NO.toString(),
+                    RunningAccountColumns.DATETIME.toString()
             };
             String selection = RunningAccountColumns.DATETIME + ">=? AND " + RunningAccountColumns.DATETIME + "<?";
 
@@ -174,8 +180,14 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                 RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.TYPE.toString())));
                 double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.AMOUNT.toString()));
                 long tag_no = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.TAG_NO.toString()));
+                String date_time = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.DATETIME.toString()));
 
-                ReportRunningAccountData oneRecordedData = new ReportRunningAccountData(type, amount, tag_no);
+                //获取月份
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                LocalDateTime localDateTime = LocalDateTime.parse(date_time, formatter);
+                int month = localDateTime.getMonthValue();
+
+                ReportRunningAccountData oneRecordedData = new ReportRunningAccountData(type, amount, tag_no, month);
                 dataList.add(oneRecordedData);
             }
 
@@ -189,12 +201,12 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     /**
-     * 更新视图
+     * 更新收支来源视图
      *
      * @param dataList 更新视图所需的数据
      */
     @SuppressLint({"NotifyDataSetChanged", "DefaultLocale"})
-    private void updateViews(@NonNull List<ReportRunningAccountData> dataList) {
+    private void updateSourceViews(@NonNull List<ReportRunningAccountData> dataList) {
         double expense = 0, income = 0; //总支出和总收入
         double balance = 0;             //结余
         incomeSourceCardList.clear();
@@ -205,7 +217,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             long tag_no = oneRecordedData.getTag_no();
 
             //处理金额数据
-            List<AccountSourceCard> targetList = null;  //待操作的来源列表
+            List<AccountSourceInfo> targetList = null;  //待操作的来源列表
             if (isContainedInArray(income_type_array, type)) {
                 income += amount;
                 balance += amount;
@@ -223,10 +235,10 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                 } else {
                     if (tag_no != 0) {  //判断该流水记录是否有标签
                         String tag_name = Tag.tagNoTransToName(tag_no, this);
-                        AccountSourceCard newSource = new AccountSourceCard(amount, tag_name, tag_no);
+                        AccountSourceInfo newSource = new AccountSourceInfo(amount, tag_name, tag_no);
                         targetList.add(newSource);
                     } else {
-                        AccountSourceCard otherSource = new AccountSourceCard(amount, "其他", tag_no);
+                        AccountSourceInfo otherSource = new AccountSourceInfo(amount, "其他", tag_no);
                         targetList.add(otherSource);
                     }
                 }
@@ -241,33 +253,33 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         expense_income_textview.setText(expenditure_income);
 
         //计算各来源的收支占比
-        for (AccountSourceCard expenseSourceCard : expenseSourceCardList) {
+        for (AccountSourceInfo expenseSourceCard : expenseSourceCardList) {
             double source_amount = expenseSourceCard.getAmount();
             int percentage = (int) (source_amount * 100 / expense);
             expenseSourceCard.setPercentage(percentage);
         }
-        for (AccountSourceCard incomeSourceCard : incomeSourceCardList) {
+        for (AccountSourceInfo incomeSourceCard : incomeSourceCardList) {
             double source_amount = incomeSourceCard.getAmount();
             int percentage = (int) (source_amount * 100 / income);
             incomeSourceCard.setPercentage(percentage);
         }
 
         //将收支卡片按照占比排序（降序）
-        expenseSourceCardList.sort(Comparator.comparing(AccountSourceCard::getAmount).reversed());
-        incomeSourceCardList.sort(Comparator.comparing(AccountSourceCard::getAmount).reversed());
+        expenseSourceCardList.sort(Comparator.comparing(AccountSourceInfo::getAmount).reversed());
+        incomeSourceCardList.sort(Comparator.comparing(AccountSourceInfo::getAmount).reversed());
 
         //补偿占比精度问题（占比总和不为100时为最小的来源占比+1）
         int expensePercentage = 0, incomePercentage = 0;
-        for (AccountSourceCard expenseSource : expenseSourceCardList)
+        for (AccountSourceInfo expenseSource : expenseSourceCardList)
             expensePercentage += expenseSource.getPercentage();
-        for (AccountSourceCard incomeSource : incomeSourceCardList)
+        for (AccountSourceInfo incomeSource : incomeSourceCardList)
             incomePercentage += incomeSource.getPercentage();
         if (expensePercentage < 100 && expenseSourceCardList.size() > 1) {
-            AccountSourceCard minExpenseSource = expenseSourceCardList.get(0);
+            AccountSourceInfo minExpenseSource = expenseSourceCardList.get(0);
             minExpenseSource.setPercentage(minExpenseSource.getPercentage() + 1);
         }
         if (incomePercentage < 100 && incomeSourceCardList.size() > 1) {
-            AccountSourceCard minIncomeSource = incomeSourceCardList.get(0);
+            AccountSourceInfo minIncomeSource = incomeSourceCardList.get(0);
             minIncomeSource.setPercentage(minIncomeSource.getPercentage() + 1);
         }
 
@@ -300,6 +312,91 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     /**
+     * 更新每月流水数据
+     *
+     * @param dataList 新数据列表
+     */
+    @Contract(pure = true)
+    private void updateMonthAccountData(@NonNull List<ReportRunningAccountData> dataList) {
+        double[] month_expense = new double[12];    //月支出
+        double[] month_income = new double[12];     //月收入
+        year_expense = 0;
+        year_income = 0;
+        monthAccountInfoList.clear();               //清空每月流水数据
+
+        //读取数据并计算每月收支金额以及年度收支金额
+        for (ReportRunningAccountData data : dataList) {
+            RunningAccountType type = data.getType();
+            double amount = data.getAmount();
+            int month = data.getMonth();
+
+            if (isContainedInArray(expense_type_array, type)) {
+                month_expense[month - 1] += amount;
+                year_expense += amount;
+            } else {
+                month_income[month - 1] += amount;
+                year_income += amount;
+            }
+        }
+
+        for (int index = 0; index < 12; index++) {
+            MonthAccountInfo monthAccountInfo = new MonthAccountInfo(month_expense[index], month_income[index]);
+            monthAccountInfoList.add(monthAccountInfo);
+        }
+    }
+
+    //刷新每月收支数据视图
+    private void refreshMonthAccountInfoViews() {
+        switch (monthAccountInfoType) {
+            case BALANCE:
+                double year_balance = year_income - year_expense;
+                for (MonthAccountInfo monthAccountInfo : monthAccountInfoList) {
+                    double month_expense = monthAccountInfo.getExpense();
+                    double month_income = monthAccountInfo.getIncome();
+                    double month_balance = month_income - month_expense;
+
+                    int percentage = (int) (month_balance * 100 / year_balance);
+                    monthAccountInfo.setPercentage(percentage);
+                }
+                break;
+            case INCOME:
+                for (MonthAccountInfo monthAccountInfo : monthAccountInfoList) {
+                    double month_income = monthAccountInfo.getIncome();
+
+                    int percentage = (int) (month_income * 100 / year_income);
+                    monthAccountInfo.setPercentage(percentage);
+                }
+                break;
+            case EXPENSE:
+                for (MonthAccountInfo monthAccountInfo : monthAccountInfoList) {
+                    double month_expense = monthAccountInfo.getExpense();
+
+                    int percentage = (int) (month_expense * 100 / year_expense);
+                    monthAccountInfo.setPercentage(percentage);
+                }
+                break;
+        }
+
+        //补偿浮点数精度导致的百分比总和不为100
+        int index = 0;
+        int minPercentageIndex = 0;
+        int minPercentage = monthAccountInfoList.get(0).getPercentage();
+        int totalPercentage = 0;
+        for (MonthAccountInfo monthAccountInfo : monthAccountInfoList) {
+            int currentPercentage = monthAccountInfo.getPercentage();
+            if (currentPercentage < minPercentage) {
+                minPercentage = currentPercentage;
+                minPercentageIndex = index;
+            }
+            totalPercentage += currentPercentage;
+            index++;
+        }
+        if (totalPercentage != 0 && totalPercentage < 100) {
+            monthAccountInfoList.get(minPercentageIndex).setPercentage(minPercentage + 1);
+        }
+    }
+
+    /**
      * 判断某种类是否包含于指定的数组中
      *
      * @param typeArray 流水种类数组
@@ -317,13 +414,13 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     /**
      * 判断某来源是否在来源列表中
      *
-     * @param accountSourceCardList 来源列表
+     * @param accountSourceInfoList 来源列表
      * @param source_no             该来源的编号
      * @return 该来源对应在列表中的下标（未找到为-1）
      */
-    private int isContainedInArray(@NonNull List<AccountSourceCard> accountSourceCardList, long source_no) {
+    private int isContainedInArray(@NonNull List<AccountSourceInfo> accountSourceInfoList, long source_no) {
         int index = 0;
-        for (AccountSourceCard oneCard : accountSourceCardList) {
+        for (AccountSourceInfo oneCard : accountSourceInfoList) {
             if (oneCard.getSource_no() == source_no) {
                 return index;
             }
@@ -357,6 +454,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             selected_calendar.setTimeInMillis(selection);
 
             //更新日期文本视图
+            int old_year = this.year;
             this.year = selected_calendar.get(Calendar.YEAR);
             this.month = selected_calendar.get(Calendar.MONTH) + 1;
             this.day = selected_calendar.get(Calendar.DAY_OF_MONTH);
@@ -364,8 +462,14 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             date_textview.setText(String.format("%04d年%02d月%02d日", year, month, day));
 
             //重新加载报表信息
-            List<ReportRunningAccountData> dataList = loadReportData();
-            updateViews(dataList);
+            List<ReportRunningAccountData> dataList = loadReportData(dateRangeType);
+            updateSourceViews(dataList);
+            if (old_year != selected_calendar.get(Calendar.YEAR)) {
+                dataList = loadReportData(DateRangeType.THIS_YEAR);
+                updateMonthAccountData(dataList);
+                refreshMonthAccountInfoViews();
+                month_account_adapter.onYearChanged();
+            }
         });
     }
 
@@ -379,32 +483,75 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         dateRangeSelectMenu.getMenuInflater().inflate(R.menu.popup_menu_date_range_select, dateRangeSelectMenu.getMenu());
 
         dateRangeSelectMenu.setOnMenuItemClickListener(item -> {
+            LinearLayout monthAccountLayout = findViewById(R.id.month_account_layout);
             boolean itemClicked = false;    //是否点击某个选项
             if (item.getItemId() == R.id.action_today) {
+                monthAccountLayout.setVisibility(View.GONE);
                 dateRangeType = DateRangeType.TODAY;
                 ((MaterialTextView) view).setText(R.string.today);
                 itemClicked = true;
             } else if (item.getItemId() == R.id.action_this_month) {
+                monthAccountLayout.setVisibility(View.GONE);
                 dateRangeType = DateRangeType.THIS_MONTH;
                 ((MaterialTextView) view).setText(R.string.this_month);
                 itemClicked = true;
             } else if (item.getItemId() == R.id.action_recent_3_month) {
+                monthAccountLayout.setVisibility(View.GONE);
                 dateRangeType = DateRangeType.RECENT_3_MONTH;
                 ((MaterialTextView) view).setText(R.string.recent_3_month);
                 itemClicked = true;
             } else if (item.getItemId() == R.id.action_this_year) {
+                monthAccountLayout.setVisibility(View.VISIBLE);
                 dateRangeType = DateRangeType.THIS_YEAR;
                 ((MaterialTextView) view).setText(R.string.this_year);
                 itemClicked = true;
             }
 
             if (itemClicked) {
-                List<ReportRunningAccountData> dataList = loadReportData();
-                updateViews(dataList);
+                List<ReportRunningAccountData> dataList = loadReportData(dateRangeType);
+                updateSourceViews(dataList);
             }
             return itemClicked;
         });
 
         dateRangeSelectMenu.show();
+    }
+
+    /**
+     * 显示选择月流水数据类型的下拉框
+     *
+     * @param view 绑定到的视图
+     */
+    private void showMonthAccountInfoTypePopupMenu(View view) {
+        PopupMenu monthAccountInfoTypeMenu = new PopupMenu(this, view);
+        monthAccountInfoTypeMenu.getMenuInflater().inflate(R.menu.popup_menu_month_account_type_select, monthAccountInfoTypeMenu.getMenu());
+
+        monthAccountInfoTypeMenu.setOnMenuItemClickListener(item -> {
+            boolean itemClicked = false;    //是否点击了选项
+            if (item.getItemId() == R.id.action_balance) {
+                monthAccountInfoType = MonthAccountInfoType.BALANCE;
+                ((MaterialTextView) view).setText(R.string.balance);
+                itemClicked = true;
+            } else if (item.getItemId() == R.id.action_expense) {
+                monthAccountInfoType = MonthAccountInfoType.EXPENSE;
+                ((MaterialTextView) view).setText(R.string.expense);
+                itemClicked = true;
+            } else if (item.getItemId() == R.id.action_income) {
+                monthAccountInfoType = MonthAccountInfoType.INCOME;
+                ((MaterialTextView) view).setText(R.string.income);
+                itemClicked = true;
+            }
+
+            if (itemClicked) {
+                List<ReportRunningAccountData> dataList = loadReportData(DateRangeType.THIS_YEAR);
+                updateMonthAccountData(dataList);
+                refreshMonthAccountInfoViews();
+                month_account_adapter.onMonthAccountInfoTypeChanged(monthAccountInfoType);
+            }
+
+            return itemClicked;
+        });
+
+        monthAccountInfoTypeMenu.show();
     }
 }

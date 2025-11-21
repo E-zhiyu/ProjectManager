@@ -15,25 +15,25 @@ import com.project.manager.R;
 import java.util.List;
 
 public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdapter.AccountScourceViewHolder> {
-    private final List<AccountSourceCard> sourceCardList;  //来源卡片列表
+    private final List<AccountSourceInfo> sourceCardList;  //来源卡片列表
 
     public static class AccountScourceViewHolder extends RecyclerView.ViewHolder {
         MaterialTextView source_name_text;  //标签名称文本
-        MaterialTextView percentage_text;   //金额占比文本
+        MaterialTextView proportion_text;   //金额占比文本
         MaterialTextView amount_text;       //金额文本
-        ProgressBar percentage_bar;         //占比进度条
+        ProgressBar proportion_bar;         //占比进度条
 
         public AccountScourceViewHolder(@NonNull View itemView) {
             super(itemView);
 
             source_name_text = itemView.findViewById(R.id.source_name_text);
-            percentage_text = itemView.findViewById(R.id.percentage_text);
+            proportion_text = itemView.findViewById(R.id.percentage_text);
             amount_text = itemView.findViewById(R.id.amount_text);
-            percentage_bar = itemView.findViewById(R.id.percentage_bar);
+            proportion_bar = itemView.findViewById(R.id.percentage_bar);
         }
     }
 
-    public AccountSourceAdapter(List<AccountSourceCard> sourceCardList) {
+    public AccountSourceAdapter(List<AccountSourceInfo> sourceCardList) {
         this.sourceCardList = sourceCardList;
     }
 
@@ -41,7 +41,7 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
     @Override
     public AccountScourceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.card_view_account_source, parent, false);
+                .inflate(R.layout.card_view_amount_proportion, parent, false);
         return new AccountScourceViewHolder(view);
     }
 
@@ -53,15 +53,15 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
     @Override
     @SuppressLint("DefaultLocale")
     public void onBindViewHolder(@NonNull AccountScourceViewHolder holder, int position) {
-        AccountSourceCard oneSourceCard = sourceCardList.get(position);
-        String source_name = oneSourceCard.getSource_name();
-        int percentage = oneSourceCard.getPercentage();
-        double amount = oneSourceCard.getAmount();
+        AccountSourceInfo oneSourceInfo = sourceCardList.get(position);
+        String source_name = oneSourceInfo.getSource_name();
+        int percentage = oneSourceInfo.getPercentage();
+        double amount = oneSourceInfo.getAmount();
 
         holder.source_name_text.setText(source_name);               //来源名称
         holder.amount_text.setText(String.format("%.2f", amount));  //金额
         String percentage_str = String.format("%d%%", percentage);
-        holder.percentage_text.setText(percentage_str);             //百分比文本
-        holder.percentage_bar.setProgress(percentage);              //百分比进度条
+        holder.proportion_text.setText(percentage_str);             //百分比文本
+        holder.proportion_bar.setProgress(percentage);              //百分比进度条
     }
 }

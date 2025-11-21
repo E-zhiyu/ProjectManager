@@ -8,6 +8,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+    <color name="warning_red">#FF5722</color>
     <color name="page_background">#f9f8fe</color>
     <color name="page_background_night">#10131c</color>
     <color name="dialog_background">#f3f3ff</color>

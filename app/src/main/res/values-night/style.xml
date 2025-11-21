@@ -43,6 +43,16 @@
         <item name="drawableTint">@color/unchecked_gray</item>
     </style>
 
+    <!-- 下拉框文本视图样式 -->
+    <style name="SpinnerTextViewStyle">
+        <item name="android:textSize">17sp</item>
+        <item name="android:padding">10sp</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:drawableEnd">@drawable/baseline_arrow_drop_down_24</item>
+    </style>
+
     <!-- 圆角卡片容器器样式 -->
     <style name="RoundCardStyle">
         <item name="cardBackgroundColor">@color/card_background_night</item>
