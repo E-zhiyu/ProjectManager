@@ -18,7 +18,6 @@ import com.project.manager.ResultCode;
 import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.TagString;
-import com.project.manager.ui.bookkeeping.tag.Tag;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.SheetTagBtnRecyclerAdapter;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
 import com.project.manager.ui.view_model.AccountTagModifyID;
@@ -247,8 +246,6 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
         String error = null;
         if (tag_name.isEmpty()) {
             error = "标签名不能为空";
-        } else if (Tag.nameTransToTno(tag_name, this) != 0) {
-            error = "已存在同名标签";
         } else if (tag_group.isEmpty()) {
             error = "分组名不能为空";
         }
