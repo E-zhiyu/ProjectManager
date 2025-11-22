@@ -44,7 +44,6 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
     protected TextInputEditText amount_input, tag_input;    //金额和标签文本输入框
     private long tag_no = 0;                                //用户选择的标签编号（默认无标签则为0）
     private AccountTagViewModel tagViewModel;               //用于更新标签名称的ViewModel
-
     private TagSelectBottomSheet tag_sheet;                 //底部弹出窗口
 
     @Override
@@ -97,7 +96,6 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
             TextInputLayout text_edit_layout;   //被验证的文本框对应的布局管理器
             edittext_str = String.valueOf(((TextInputEditText) v).getText());   //获取待验证组件的文本内容
             if (v.getId() == R.id.amount_input) {
-                error = "金额不能为空";
                 text_edit_layout = amount_layout;
             } else {
                 NullPointerException e = new NullPointerException("无法获取有效视图ID");
@@ -107,6 +105,11 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
 
             //判断待验证的字符串是否为空
             if (edittext_str.isEmpty()) {
+                error = "金额不能为空";
+                text_edit_layout.setErrorEnabled(true);
+                text_edit_layout.setError(error);
+            } else if (edittext_str.startsWith("0")) {
+                error = "金额不能以0开头";
                 text_edit_layout.setErrorEnabled(true);
                 text_edit_layout.setError(error);
             } else {
@@ -191,6 +194,10 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
         //判断是否输入金额
         if (String.valueOf(amount_input.getText()).isEmpty()) {
             error = "金额不能为空";
+            amount_layout.setErrorEnabled(true);
+            amount_layout.setError(error);
+        } else if (String.valueOf(amount_input.getText()).startsWith("0")) {
+            error = "金额不能以0开头";
             amount_layout.setErrorEnabled(true);
             amount_layout.setError(error);
         }

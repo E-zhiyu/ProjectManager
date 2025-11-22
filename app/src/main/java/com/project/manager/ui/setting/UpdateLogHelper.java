@@ -14,6 +14,7 @@ public class UpdateLogHelper {
     private static final String update_log_md = "# v1.3.2  \n" +
             "## 修改内容  \n" +
             "- 每月结余所占比例由除以年结余改为除以月结余绝对值总和  \n" +
+            "- 限制金额输入不能以0开头  \n" +
             "## BUG修复  \n" +
             "- 修复显示每月结余时可能出现负数百分比的BUG  \n" +
             "- 修复显示每月结余可能导致结余为0的月份显示1%比例的BUG  \n" +
