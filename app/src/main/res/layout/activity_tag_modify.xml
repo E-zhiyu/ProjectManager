@@ -42,7 +42,9 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tag_name_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                app:endIconDrawable="@drawable/baseline_clear_24"
+                app:endIconMode="clear_text">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tag_name_input"
