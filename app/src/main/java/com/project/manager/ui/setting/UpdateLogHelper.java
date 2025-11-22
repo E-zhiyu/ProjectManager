@@ -12,8 +12,11 @@ import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.3.2  \n" +
+            "## 修改内容  \n" +
+            "- 每月结余所占比例由除以年结余改为除以月结余绝对值总和  \n" +
             "## BUG修复  \n" +
             "- 修复显示每月结余时可能出现负数百分比的BUG  \n" +
+            "- 修复显示每月结余可能导致结余为0的月份显示1%比例的BUG  \n" +
             "# v1.3.1  \n" +
             "## BUG修复  \n" +
             "- 修复标签过多时标签选择菜单不能正常滚动到底部的BUG  \n" +

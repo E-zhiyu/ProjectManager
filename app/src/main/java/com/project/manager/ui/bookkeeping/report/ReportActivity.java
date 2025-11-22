@@ -368,7 +368,15 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     private void refreshMonthAccountInfoViews() {
         switch (monthAccountInfoType) {
             case BALANCE:
-                double year_balance = year_income - year_expense;
+                double abs_total_balance = 0;   //各月份结余绝对值总和
+                for (MonthAccountInfo monthAccountInfo : monthAccountInfoList) {
+                    double month_expense = monthAccountInfo.getExpense();
+                    double month_income = monthAccountInfo.getIncome();
+                    double month_balance = month_income - month_expense;
+
+                    abs_total_balance += (month_balance < 0) ? -month_balance : month_balance;
+                }
+
                 for (MonthAccountInfo monthAccountInfo : monthAccountInfoList) {
                     double month_expense = monthAccountInfo.getExpense();
                     double month_income = monthAccountInfo.getIncome();
@@ -399,15 +407,26 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
 
         //补偿浮点数精度导致的百分比总和不为100
         int index = 0;
+        boolean isNonZeroFound = false;
         int minPercentageIndex = 0;
-        int minPercentage = monthAccountInfoList.get(0).getPercentage();
+        int minPercentage = 0;
         int totalPercentage = 0;
         for (MonthAccountInfo monthAccountInfo : monthAccountInfoList) {
             int currentPercentage = monthAccountInfo.getPercentage();
-            if (currentPercentage < minPercentage) {
-                minPercentage = currentPercentage;
-                minPercentageIndex = index;
+
+            //寻找非零最小百分比
+            if (currentPercentage != 0) {
+                if (!isNonZeroFound) {
+                    isNonZeroFound = true;
+                    minPercentage = currentPercentage;
+                    minPercentageIndex = index;
+                }
+                if (currentPercentage < minPercentage) {
+                    minPercentageIndex = index;
+                    minPercentage = currentPercentage;
+                }
             }
+
             totalPercentage += currentPercentage;
             index++;
         }
