@@ -11,7 +11,10 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.3.1  \n" +
+    private static final String update_log_md = "# v1.3.2  \n" +
+            "## BUG修复  \n" +
+            "- 修复显示每月结余时可能出现负数百分比的BUG  \n" +
+            "# v1.3.1  \n" +
             "## BUG修复  \n" +
             "- 修复标签过多时标签选择菜单不能正常滚动到底部的BUG  \n" +
             "- 修复修改标签时必须修改标签名才能保存的BUG  \n" +

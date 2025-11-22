@@ -374,7 +374,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                     double month_income = monthAccountInfo.getIncome();
                     double month_balance = month_income - month_expense;
 
-                    int percentage = (int) (month_balance * 100 / year_balance);
+                    int percentage = (int) (month_balance * 100 / abs_total_balance);
+                    if (percentage < 0) percentage = -percentage;
                     monthAccountInfo.setPercentage(percentage);
                 }
                 break;
