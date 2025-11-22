@@ -547,6 +547,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
 
         monthAccountInfoTypeMenu.setOnMenuItemClickListener(item -> {
             boolean itemClicked = false;    //是否点击了选项
+            MonthAccountInfoType old_type = monthAccountInfoType;
             if (item.getItemId() == R.id.action_balance) {
                 monthAccountInfoType = MonthAccountInfoType.BALANCE;
                 ((MaterialTextView) view).setText(R.string.balance);
@@ -561,7 +562,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                 itemClicked = true;
             }
 
-            if (itemClicked) {
+            if (itemClicked && old_type != monthAccountInfoType) {
                 List<ReportRunningAccountData> dataList = loadReportData(DateRangeType.THIS_YEAR);
                 updateMonthAccountData(dataList);
                 refreshMonthAccountInfoViews();
