@@ -11,7 +11,12 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.3.2  \n" +
+    private static final String update_log_md = "# v1.4.0  \n" +
+            "## 修改内容  \n" +
+            "- 添加标签和修改标签时如果分组名称留空则将该标签归为默认分组  \n" +
+            "## BUG修复  \n" +
+            "- 修复当某个分组没有标签时无法在标签编辑界面显示的BUG  \n" +
+            "# v1.3.2  \n" +
             "## 修改内容  \n" +
             "- 每月结余所占比例由除以年结余改为除以月结余绝对值总和  \n" +
             "- 限制金额输入不能以0开头  \n" +
