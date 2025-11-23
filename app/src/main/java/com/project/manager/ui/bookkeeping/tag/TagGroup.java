@@ -136,41 +136,50 @@ public class TagGroup {
     public static List<TagGroup> loadTagGroups(Context context) throws SQLiteException {
         RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
-
-        //查询标签并分组
-        Cursor tag_cursor = db.query(
-                RunningAccountTables.TAG + " NATURAL JOIN " + RunningAccountTables.TAG_GROUP,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-
         List<TagGroup> tagGroupList = new ArrayList<>();    //标签组实例列表
-        while (tag_cursor.moveToNext()) {
-            String tag_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(RunningAccountColumns.TAG_NAME.toString()));      //标签名称
-            long tag_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(RunningAccountColumns.TAG_NO.toString()));               //标签编号
-            long group_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(RunningAccountColumns.GROUP_NO.toString()));           //分组编号
-            String group_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(RunningAccountColumns.GROUP_NAME.toString()));  //分组名称                                //分组名称
 
-            boolean isGroupFound = false;   //判断是否找到同号分组
+        //先查询分组表
+        Cursor group_cursor = db.query(
+                RunningAccountTables.TAG_GROUP.toString(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                RunningAccountColumns.GROUP_NO.toString()
+        );
+        while (group_cursor.moveToNext()) {
+            String group_name = group_cursor.getString(group_cursor.getColumnIndexOrThrow(RunningAccountColumns.GROUP_NAME.toString()));
+            long group_no = group_cursor.getLong(group_cursor.getColumnIndexOrThrow(RunningAccountColumns.GROUP_NO.toString()));
+            tagGroupList.add(new TagGroup(group_name, group_no));
+        }
+
+        //再查询标签表
+        Cursor tag_cursor = db.query(
+                RunningAccountTables.TAG.toString(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                RunningAccountColumns.TAG_NO.toString()
+        );
+        while (tag_cursor.moveToNext()) {
+            String tag_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(RunningAccountColumns.TAG_NAME.toString()));    //标签名称
+            long tag_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(RunningAccountColumns.TAG_NO.toString()));            //标签编号
+            long group_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(RunningAccountColumns.GROUP_NO.toString()));        //分组编号
+            Tag oneTag = new Tag(tag_name, tag_no);
+
             for (TagGroup group : tagGroupList) {
-                if (group.group_no == group_no) {
-                    group.addTag(new Tag(tag_name, tag_no));    //找到同号分组：将标签添加至该分组
-                    isGroupFound = true;
+                if (group.getGroup_no() == group_no) {
+                    group.addTag(oneTag);
                     break;
                 }
-            }
-            if (!isGroupFound) {
-                TagGroup newGroup = new TagGroup(group_name, group_no);
-                newGroup.addTag(new Tag(tag_name, tag_no));     //找不到同号分组：新建分组并添加标签至该分组
-                tagGroupList.add(newGroup);
             }
         }
 
         tag_cursor.close();
+        group_cursor.close();
         db.close();
         return tagGroupList;
     }
