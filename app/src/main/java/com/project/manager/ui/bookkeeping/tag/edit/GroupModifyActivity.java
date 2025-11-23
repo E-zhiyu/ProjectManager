@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -153,10 +154,13 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnFoc
         group_input.setOnFocusChangeListener(this);
 
         //设置按钮点击监听器
+        MaterialButton delete_btn, group_merge_btn;
+        delete_btn = findViewById(R.id.delete_btn);
+        delete_btn.setOnClickListener(this);
+        group_merge_btn = findViewById(R.id.group_merge_btn);
+        group_merge_btn.setOnClickListener(this);
         findViewById(R.id.finish_btn).setOnClickListener(this);
         findViewById(R.id.cancel_btn).setOnClickListener(this);
-        findViewById(R.id.delete_btn).setOnClickListener(this);
-        findViewById(R.id.group_merge_btn).setOnClickListener(this);
 
         //加载传入的数据
         Bundle dataBundle = getIntent().getExtras();
@@ -166,6 +170,12 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnFoc
             group_input.setText(group_name);
         } else {
             Toast.makeText(this, "无法初始化分组信息", Toast.LENGTH_SHORT).show();
+        }
+
+        //当修改默认分组时隐藏部分组件
+        if (group_no == 0) {
+            delete_btn.setVisibility(View.GONE);
+            group_merge_btn.setVisibility(View.GONE);
         }
     }
 
