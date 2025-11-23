@@ -249,7 +249,7 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
      * @param new_tag   新标签对象
      * @param new_group 新分组对象
      */
-    public void addNewTag(Tag new_tag, TagGroup new_group) {
+    public void addNewTag(Tag new_tag, @NonNull TagGroup new_group) {
         int list_size = this.tagGroupList.size();
         new_group.addTag(new_tag);
         this.tagGroupList.add(new_group);
@@ -294,16 +294,16 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
     /**
      * 编辑标签（更换分组）
      *
-     * @param new_tag_name    新标签名称
-     * @param tag_no          标签编号
-     * @param new_group_name  新标签分组名称
-     * @param origin_group_no 原标签分组编号
-     * @param new_group_no    新标签分组编号
+     * @param new_tag_name             新标签名称
+     * @param tag_no                   标签编号
+     * @param new_group_name           新标签分组名称
+     * @param origin_group_no          原标签分组编号
+     * @param group_no_after_modifying 新标签分组编号
      */
-    public void modifyTag(String new_tag_name, long tag_no, String new_group_name, long origin_group_no, long new_group_no) {
+    public void modifyTag(String new_tag_name, long tag_no, String new_group_name, long origin_group_no, long group_no_after_modifying) {
         //将数据保存至数据库
         try {
-            Tag.modifyTag(new_tag_name, tag_no, new_group_no, context);
+            Tag.modifyTag(new_tag_name, tag_no, group_no_after_modifying, context);
             Toast.makeText(context, "标签修改成功", Toast.LENGTH_SHORT).show();
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
@@ -311,16 +311,16 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
         }
 
         //判断是否需要新建标签分组
-        if (new_group_no == 0) {
+        if (group_no_after_modifying == -1) {
             try {
-                new_group_no = TagGroup.saveNewGroup(new_group_name, context);
+                group_no_after_modifying = TagGroup.saveNewGroup(new_group_name, context);  //获取为新分组分配的编号
             } catch (SQLiteException e) {
                 ExceptionHelper.showExceptionDialog(context, e);
                 Toast.makeText(context, "标签修改失败", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            TagGroup newGroup = new TagGroup(new_group_name, new_group_no);
+            TagGroup newGroup = new TagGroup(new_group_name, group_no_after_modifying);
             newGroup.addTag(new Tag(new_tag_name, tag_no));
             this.tagGroupList.add(newGroup);
 
@@ -328,7 +328,7 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
         } else {
             int new_group_index = 0;    //待新增标签的分组下标
             for (TagGroup group : this.tagGroupList) {
-                if (group.getGroup_no() == new_group_no) {
+                if (group.getGroup_no() == group_no_after_modifying) {
                     Tag new_tag = new Tag(new_tag_name, tag_no);
                     group.addTag(new_tag);
                     break;

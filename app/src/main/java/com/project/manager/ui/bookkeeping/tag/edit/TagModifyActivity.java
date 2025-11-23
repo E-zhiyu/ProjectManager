@@ -241,13 +241,10 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
     //输入内容合法性校验
     private String inputInfoVerify() {
         String tag_name = String.valueOf(tag_name_input.getText());
-        String tag_group = String.valueOf(tag_group_input.getText());
 
         String error = null;
         if (tag_name.isEmpty()) {
             error = "标签名不能为空";
-        } else if (tag_group.isEmpty()) {
-            error = "分组名不能为空";
         }
 
         if (error != null) {

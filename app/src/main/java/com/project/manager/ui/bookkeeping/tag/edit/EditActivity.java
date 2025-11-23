@@ -124,7 +124,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                         NullPointerException e = new NullPointerException("无法获取新建标签数据");
                         ExceptionHelper.showExceptionDialog(this, e);
                     } else {
-                        addNewTag(resultCode, data);
+                        onNewTagActivityResulted(resultCode, data);
                     }
                 }
         );
@@ -139,7 +139,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                         NullPointerException e = new NullPointerException("无法获取修改后的标签数据");
                         ExceptionHelper.showExceptionDialog(this, e);
                     } else {
-                        modifyTag(resultCode, data);
+                        onTagModifyActivityResulted(resultCode, data);
                     }
                 }
         );
@@ -160,7 +160,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         );
     }
 
-    private void addNewTag(int resultCode, Intent resultIntent) {
+    private void onNewTagActivityResulted(int resultCode, Intent resultIntent) {
         if (resultCode == ResultCode.RESULT_OK.ordinal()) {
             Bundle dataBundle = resultIntent.getExtras();
             String tag_name = null;         //标签名称
@@ -174,17 +174,23 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             long group_no = 0;   //分组编号
             List<TagGroup> tagGroupList = adapter.getTagGroupList();
             boolean needNewGroup = true;
-            for (TagGroup oneGroup : tagGroupList) {
-                if (oneGroup.getGroup_name().equals(group_name)) {
-                    needNewGroup = false;
-                    try {
-                        group_no = TagGroup.nameTransToGno(group_name, this);
-                    } catch (SQLiteException e) {
-                        ExceptionHelper.showExceptionDialog(this, e);
+            if (group_name != null && !group_name.isEmpty()) {
+                for (TagGroup oneGroup : tagGroupList) {
+                    if (oneGroup.getGroup_name().equals(group_name)) {
+                        needNewGroup = false;
+                        try {
+                            group_no = TagGroup.nameTransToGno(group_name, this);
+                        } catch (SQLiteException e) {
+                            ExceptionHelper.showExceptionDialog(this, e);
+                        }
+                        break;
                     }
-                    break;
                 }
+            } else {
+                needNewGroup = false;   //如果用户没有输入分组名称，则添加至默认分组（编号为0的分组）
             }
+
+            //如果需要添加新分组，则通过数据库获取为新分组分配的编号
             if (needNewGroup) {
                 try {
                     group_no = TagGroup.saveNewGroup(group_name, this);
@@ -195,7 +201,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             }
 
             //将新标签的数据写入数据库
-            long tag_no = 0; //获取标签编号
+            long tag_no = 0;
             try {
                 tag_no = Tag.saveNewTag(tag_name, group_no, this);
                 Toast.makeText(this, "标签保存成功", Toast.LENGTH_SHORT).show();
@@ -215,7 +221,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void modifyTag(int resultCode, Intent resultIntent) {
+    private void onTagModifyActivityResulted(int resultCode, Intent resultIntent) {
         if (resultCode == Activity.RESULT_CANCELED) {
             return;
         }
@@ -234,19 +240,23 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             String group_name = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
 
             //获取修改后的分组编号
-            long new_group_no;
-            try {
-                new_group_no = TagGroup.nameTransToGno(group_name, this);
-            } catch (SQLiteException e) {
-                ExceptionHelper.showExceptionDialog(this, e);
-                Toast.makeText(this, "标签修改失败", Toast.LENGTH_SHORT).show();
-                return;
+            long group_no_after_modifying;
+            if (group_name != null && !group_name.isEmpty()) {  //判断用户是否输入了分组名称
+                try {
+                    group_no_after_modifying = TagGroup.nameTransToGno(group_name, this);
+                } catch (SQLiteException e) {
+                    ExceptionHelper.showExceptionDialog(this, e);
+                    Toast.makeText(this, "标签修改失败", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } else {
+                group_no_after_modifying = 0;
             }
 
-            if (origin_group_no == new_group_no) {
+            if (origin_group_no == group_no_after_modifying) {
                 adapter.modifyTag(tag_name, tag_no, origin_group_no);
             } else {
-                adapter.modifyTag(tag_name, tag_no, group_name, origin_group_no, new_group_no);
+                adapter.modifyTag(tag_name, tag_no, group_name, origin_group_no, group_no_after_modifying);
             }
         } else if (resultCode == ResultCode.RESULT_DELETE.ordinal()) {
             adapter.deleteTag(tag_no, origin_group_no);

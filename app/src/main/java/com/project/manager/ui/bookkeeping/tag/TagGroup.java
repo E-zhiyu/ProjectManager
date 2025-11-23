@@ -72,7 +72,7 @@ public class TagGroup {
      *
      * @param group_name 标签组名称
      * @param context    用于打开数据库的上下文
-     * @return 对应的标签编号（未找到则返回0）
+     * @return 对应的标签编号（未找到则返回-1）
      * @throws SQLiteException 读取失败产生的数据库异常
      */
     public static long nameTransToGno(String group_name, Context context) throws SQLiteException {
@@ -97,7 +97,7 @@ public class TagGroup {
         if (cursor.moveToNext()) {
             group_no = cursor.getLong(cursor.getColumnIndexOrThrow(RunningAccountColumns.GROUP_NO.toString()));
         } else {
-            group_no = 0;
+            group_no = -1;
         }
 
         cursor.close();
