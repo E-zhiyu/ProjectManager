@@ -16,6 +16,7 @@ public class RunningAccountDatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "running_account.db";   //数据库名称
     private static final int DATABASE_VERSION = 3;                      //数据库版本
     private final Context context;                                      //上下文
+    public static final String defaultGroupName = "默认分组";           //默认分组名称
 
     public RunningAccountDatabaseHelper(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -54,7 +55,7 @@ public class RunningAccountDatabaseHelper extends SQLiteOpenHelper {
 
             ContentValues default_group_values = new ContentValues();
             default_group_values.put(RunningAccountColumns.GROUP_NO.toString(), 0);
-            default_group_values.put(RunningAccountColumns.GROUP_NAME.toString(), "默认分组");
+            default_group_values.put(RunningAccountColumns.GROUP_NAME.toString(), defaultGroupName);
             db.insert(RunningAccountTables.TAG_GROUP.toString(), null, default_group_values);
         } catch (SQLException e) {
             ExceptionHelper.showExceptionDialog(context, e);
@@ -169,11 +170,11 @@ public class RunningAccountDatabaseHelper extends SQLiteOpenHelper {
     }
 
     //数据库版本：2->3
-    //tag_group表添加group_no=0,group_name="默认分组"的记录
+    //tag_group表添加一条group_no=0,group_name=defaultGroupName的记录
     private void up2To3(@NonNull SQLiteDatabase db) {
         ContentValues default_group_values = new ContentValues();
         default_group_values.put("GroupNO", 0);
-        default_group_values.put("GroupName", "默认分组");
+        default_group_values.put("GroupName", defaultGroupName);
         db.insert("tag_group_data", null, default_group_values);
     }
 }

@@ -249,15 +249,26 @@ public class RunningAccountDataHelper {
         //删除之前表的内容
         db.delete(RunningAccountTables.TAG_GROUP.toString(), null, null);
 
+        boolean isDefaultGroupInImportedData = false;
         for (PojoTagGroup tag_group_data : pojoTagGroupList) {
             String group_name = tag_group_data.getGroup_name();
             long group_no = tag_group_data.getGroup_no();
+
+            if (group_no == 0) isDefaultGroupInImportedData = true; //判断导入的数据是否含有编号为0的默认分组
 
             //将数据写入数据库
             ContentValues group_values = new ContentValues();
             group_values.put(RunningAccountColumns.GROUP_NAME.toString(), group_name);
             group_values.put(RunningAccountColumns.GROUP_NO.toString(), group_no);
             db.insert(RunningAccountTables.TAG_GROUP.toString(), null, group_values);
+        }
+
+        //如果没有默认分组，则添加一个默认分组记录
+        if (!isDefaultGroupInImportedData) {
+            ContentValues default_group_values = new ContentValues();
+            default_group_values.put(RunningAccountColumns.GROUP_NAME.toString(), RunningAccountDatabaseHelper.defaultGroupName);
+            default_group_values.put(RunningAccountColumns.GROUP_NO.toString(), 0);
+            db.insert(RunningAccountTables.TAG_GROUP.toString(), null, default_group_values);
         }
 
         db.close();
