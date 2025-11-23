@@ -1,5 +1,6 @@
 package com.project.manager.database;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,7 +14,7 @@ import com.project.manager.exception.ExceptionHelper;
 
 public class RunningAccountDatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "running_account.db";   //数据库名称
-    private static final int DATABASE_VERSION = 2;                      //数据库版本
+    private static final int DATABASE_VERSION = 3;                      //数据库版本
     private final Context context;                                      //上下文
 
     public RunningAccountDatabaseHelper(@Nullable Context context) {
@@ -40,7 +41,7 @@ public class RunningAccountDatabaseHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onCreate(SQLiteDatabase db) {
+    public void onCreate(@NonNull SQLiteDatabase db) {
         String create;
 
         try {
@@ -50,6 +51,11 @@ public class RunningAccountDatabaseHelper extends SQLiteOpenHelper {
                     RunningAccountColumns.GROUP_NAME + " VARCHAR(20) NOT NULL UNIQUE" +
                     ")";
             db.execSQL(create);
+
+            ContentValues default_group_values = new ContentValues();
+            default_group_values.put(RunningAccountColumns.GROUP_NO.toString(), 0);
+            default_group_values.put(RunningAccountColumns.GROUP_NAME.toString(), "默认分组");
+            db.insert(RunningAccountTables.TAG_GROUP.toString(), null, default_group_values);
         } catch (SQLException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             Toast.makeText(context, "标签分组数据库异常", Toast.LENGTH_SHORT).show();
@@ -123,6 +129,8 @@ public class RunningAccountDatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         while (oldVersion < newVersion) {
             if (oldVersion == 1) up1To2(db);
+            else if (oldVersion == 2) up2To3(db);
+
             oldVersion++;
         }
     }
@@ -158,5 +166,14 @@ public class RunningAccountDatabaseHelper extends SQLiteOpenHelper {
         //新表重命名为旧表名称
         sql = "ALTER TABLE new_basic_data RENAME TO basic_data";
         db.execSQL(sql);
+    }
+
+    //数据库版本：2->3
+    //tag_group表添加group_no=0,group_name="默认分组"的记录
+    private void up2To3(@NonNull SQLiteDatabase db) {
+        ContentValues default_group_values = new ContentValues();
+        default_group_values.put("GroupNO", 0);
+        default_group_values.put("GroupName", "默认分组");
+        db.insert("tag_group_data", null, default_group_values);
     }
 }
