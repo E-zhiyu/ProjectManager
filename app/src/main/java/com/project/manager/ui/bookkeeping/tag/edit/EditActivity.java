@@ -204,7 +204,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             long tag_no = 0;
             try {
                 tag_no = Tag.saveNewTag(tag_name, group_no, this);
-                Toast.makeText(this, "标签保存成功", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "成功新建标签", Toast.LENGTH_SHORT).show();
             } catch (SQLiteException e) {
                 ExceptionHelper.showExceptionDialog(this, e);
             }
