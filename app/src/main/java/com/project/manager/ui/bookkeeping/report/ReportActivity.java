@@ -276,11 +276,11 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             incomePercentage += incomeSource.getPercentage();
         if (expensePercentage < 100 && expenseSourceCardList.size() > 1) {
             AccountSourceInfo minExpenseSource = expenseSourceCardList.get(0);
-            minExpenseSource.setPercentage(minExpenseSource.getPercentage() + 1);
+            minExpenseSource.setPercentage(minExpenseSource.getPercentage() + 100 - expensePercentage);
         }
         if (incomePercentage < 100 && incomeSourceCardList.size() > 1) {
             AccountSourceInfo minIncomeSource = incomeSourceCardList.get(0);
-            minIncomeSource.setPercentage(minIncomeSource.getPercentage() + 1);
+            minIncomeSource.setPercentage(minIncomeSource.getPercentage() + 100 - incomePercentage);
         }
 
         //设置收支来源卡片容器可见性
@@ -416,11 +416,12 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
 
             //寻找非零最小百分比
             if (currentPercentage != 0) {
-                if (!isNonZeroFound) {
+                if (!isNonZeroFound) {  //只执行一次，功能：找到第一个非零元素
                     isNonZeroFound = true;
                     minPercentage = currentPercentage;
                     minPercentageIndex = index;
                 }
+
                 if (currentPercentage < minPercentage) {
                     minPercentageIndex = index;
                     minPercentage = currentPercentage;
@@ -431,7 +432,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             index++;
         }
         if (totalPercentage != 0 && totalPercentage < 100) {
-            monthAccountInfoList.get(minPercentageIndex).setPercentage(minPercentage + 1);
+            monthAccountInfoList.get(minPercentageIndex).setPercentage(minPercentage + 100 - totalPercentage);
         }
     }
 
