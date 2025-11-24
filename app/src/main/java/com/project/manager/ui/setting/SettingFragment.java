@@ -20,6 +20,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.project.manager.R;
 import com.project.manager.databinding.FragmentSettingBinding;
 import com.project.manager.exception.ExceptionHelper;
+import com.project.manager.preference.BookKeepingStartDatePreference;
 import com.project.manager.ui.setting.helpers.AboutHelper;
 import com.project.manager.ui.setting.helpers.ThemeModeHelper;
 import com.project.manager.ui.setting.helpers.UpdateLogHelper;
@@ -119,6 +120,9 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                         if (data != null) {
                             Uri uri = data.getData();
                             RunningAccountDataHelper.readFileAndSave(uri, requireContext());
+
+                            //清空已保存的开始记账的日期
+                            BookKeepingStartDatePreference.saveStartDate("", requireContext());
                         } else {
                             NullPointerException e = new NullPointerException("无法导入数据");
                             ExceptionHelper.showExceptionDialog(requireContext(), e);
