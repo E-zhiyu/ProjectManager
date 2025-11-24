@@ -1,7 +1,15 @@
 package com.project.manager.ui.bookkeeping;
 
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
+
 import androidx.annotation.NonNull;
 
+import com.project.manager.database.RunningAccountColumns;
+import com.project.manager.database.RunningAccountDatabaseHelper;
+import com.project.manager.database.RunningAccountTables;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 
 public abstract class RunningAccountBase {
@@ -43,6 +51,42 @@ public abstract class RunningAccountBase {
 
     public void setRno(long rno) {
         this.rno = rno;
+    }
+
+    /**
+     * 获取最早的流水日期
+     *
+     * @param context 上下文
+     * @return 最早日期字符串
+     * @throws SQLiteException 读取失败引发的数据库异常
+     */
+    public static String getEarliestAccountDate(Context context) throws SQLiteException {
+        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
+        SQLiteDatabase db = db_helper.openReadLink();
+
+        String[] columns = {RunningAccountColumns.DATETIME.toString()};
+        Cursor basic_cursor = db.query(
+                RunningAccountTables.BASIC.toString(),
+                columns,
+                null,
+                null,
+                null,
+                null,
+                RunningAccountColumns.DATETIME.toString(),
+                "1"
+        );
+
+        String earliest_date_str = "";
+        if (basic_cursor.moveToNext()) {
+            earliest_date_str = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.DATETIME.toString()));
+
+            //去除后面的时间部分
+            earliest_date_str = earliest_date_str.substring(0, 10);
+        }
+
+        basic_cursor.close();
+        db.close();
+        return earliest_date_str;
     }
 }
 

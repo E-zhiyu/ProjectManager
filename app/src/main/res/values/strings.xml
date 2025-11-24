@@ -68,4 +68,6 @@
     <string name="group_merge">合并分组</string>
     <string name="tag_new_modify_tip">输入已存在的标签分组名称会将标签添加至对应分组，输入不存在的标签分组名称则会创建新分组并将标签添加至新创建的分组，留空则将标签添加至默认分组</string>
     <string name="running_account_every_month">每月流水总结</string>
+    <string name="num_of_bookkeeping_days">记账天数</string>
+    <string name="num_of_running_account">流水记录数量</string>
 </resources>

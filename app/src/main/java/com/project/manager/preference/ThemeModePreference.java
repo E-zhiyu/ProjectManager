@@ -1,11 +1,13 @@
-package com.project.manager.ui.setting.theme_mode;
+package com.project.manager.preference;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 
-public class ThemePreference {
+import com.project.manager.ui.setting.ThemeModeHelper;
+
+public class ThemeModePreference {
     private static final String PREF_NAME = "ThemePreference";
     private static final String KEY_THEME_MODE = "theme_mode";
 
@@ -16,6 +18,6 @@ public class ThemePreference {
 
     public static int getThemeMode(@NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        return pref.getInt(KEY_THEME_MODE, ThemeModeHelper.SYSTEM_MODE);
+        return pref.getInt(KEY_THEME_MODE, ThemeModeHelper.FOLLOW_SYSTEM);
     }
 }

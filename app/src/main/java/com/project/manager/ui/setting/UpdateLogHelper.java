@@ -12,6 +12,8 @@ import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.4.0  \n" +
+            "## 新增内容  \n" +
+            "- 流水账界面添加显示记账天数和流水记录数量的文本  \n" +
             "## 修改内容  \n" +
             "- 添加标签和修改标签时如果分组名称留空则将该标签归为默认分组  \n" +
             "## BUG修复  \n" +

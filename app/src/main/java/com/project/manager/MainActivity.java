@@ -10,8 +10,8 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.project.manager.databinding.ActivityMainBinding;
-import com.project.manager.ui.setting.theme_mode.ThemeModeHelper;
-import com.project.manager.ui.setting.theme_mode.ThemePreference;
+import com.project.manager.ui.setting.ThemeModeHelper;
+import com.project.manager.preference.ThemeModePreference;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
     //初始化主题模式
     private void initThemeMode() {
-        int theme_mode = ThemePreference.getThemeMode(this);
+        int theme_mode = ThemeModePreference.getThemeMode(this);
         ThemeModeHelper.applyTheme(theme_mode);
     }
 }

@@ -1,9 +1,11 @@
 package com.project.manager.ui.bookkeeping;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,50 +19,45 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
 import com.project.manager.database.RunningAccountColumns;
 import com.project.manager.database.RunningAccountDatabaseHelper;
 import com.project.manager.database.RunningAccountTables;
 import com.project.manager.databinding.FragmentBookkeepingBinding;
 import com.project.manager.exception.ExceptionHelper;
+import com.project.manager.preference.BookKeepingStartDatePreference;
 import com.project.manager.ui.bookkeeping.running_account_edit.modify.RunningAccountModifyActivity;
 import com.project.manager.ui.bookkeeping.running_account_edit.new_running_account.NewRunningAccountActivity;
 import com.project.manager.ResultCode;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.ui.bookkeeping.report.ReportActivity;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BookKeepingFragment extends Fragment implements View.OnClickListener, RunningAccountRecyclerAdapter.OnRunningAccountViewClickListener {
-    RunningAccountRecyclerAdapter runningAccountRecyclerAdapter;    //流水列表适配器
-    RecyclerView runningAccountRecyclerView;                        //流水列表视图
-    RunningAccountDatabaseHelper running_account_db_helper;         //流水数据库帮助器
+    private RunningAccountRecyclerAdapter runningAccountRecyclerAdapter;    //流水列表适配器
+    private RecyclerView runningAccountRecyclerView;                        //流水列表视图
+    private RunningAccountDatabaseHelper running_account_db_helper;         //流水数据库帮助器
     private ActivityResultLauncher<Intent> newRunningAccountLauncher, modifyRunningAccountLauncher;  //子活动启动器
-
+    MaterialTextView account_num_text;                                      //流水记录数量文本视图
+    private int account_num;                                                //流水记录数量
+    private long bookkeeping_days;                                          //记账天数
     private FragmentBookkeepingBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
-
-        initActivityLauncher();
 
         //实例化数据库帮助器
         running_account_db_helper = new RunningAccountDatabaseHelper(getActivity());
 
-        //绑定单击按钮监听器
-        root.findViewById(R.id.new_running_account_btn).setOnClickListener(this);
-        root.findViewById(R.id.report_btn).setOnClickListener(this);
+        initActivityLauncher();
+        initViews();
 
-        //创建列表视图的适配器
-        List<RunningAccountBase> runningAccountList = loadRunningAccountData();
-        runningAccountRecyclerAdapter = new RunningAccountRecyclerAdapter(runningAccountList, this);   //绑定适配器项点击事件的监听器
-        runningAccountRecyclerView = binding.runningAccountRecyclerView;
-        runningAccountRecyclerView.setLayoutManager(new LinearLayoutManager(requireActivity()));  //设置线性布局
-        runningAccountRecyclerView.setAdapter(runningAccountRecyclerAdapter);
-
-        return root;
+        return binding.getRoot();
     }
 
     @Override
@@ -126,7 +123,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
                     if (resultCode == ResultCode.RESULT_OK.ordinal()) {
                         if (data != null) {
-                            addNewRunningAccount(data);
+                            onNewAccountAdded(data);
                         } else {
                             NullPointerException e = new NullPointerException("无法获取新增流水的数据");
                             ExceptionHelper.showExceptionDialog(requireContext(), e);
@@ -143,14 +140,14 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
                     if (resultCode == ResultCode.RESULT_DELETE.ordinal()) {
                         if (data != null) {
-                            deleteRunningAccount(data);
+                            onAccountDeleted(data);
                         } else {
                             NullPointerException e = new NullPointerException("无法读取编辑后的流水数据");
                             ExceptionHelper.showExceptionDialog(requireContext(), e);
                         }
                     } else if (resultCode == ResultCode.RESULT_OK.ordinal()) {
                         if (data != null) {
-                            modifyRunningAccount(data);
+                            onAccountModified(data);
                         } else {
                             NullPointerException e = new NullPointerException("无法读取编辑后的流水数据");
                             ExceptionHelper.showExceptionDialog(requireContext(), e);
@@ -160,12 +157,50 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         );
     }
 
+    //初始化视图
+    @SuppressLint("DefaultLocale")
+    private void initViews() {
+        //绑定单击按钮监听器
+        View root = binding.getRoot();
+        root.findViewById(R.id.new_running_account_btn).setOnClickListener(this);
+        root.findViewById(R.id.report_btn).setOnClickListener(this);
+
+        List<RunningAccountBase> runningAccountList = loadRunningAccountData();     //读取流水数据
+
+        //初始化记账日期和流水记录数量文本
+        MaterialTextView bookkeeping_days_text = root.findViewById(R.id.bookkeeping_days_text); //显示记账天数和流水记录数量的文本视图
+        account_num_text = root.findViewById(R.id.account_num_text);
+        account_num = runningAccountList.size();
+        String start_date_str = getBookKeepingStartDate();  //获取开始记账的日期
+        if (!start_date_str.isEmpty()) {
+            LocalDate startDate = LocalDate.parse(start_date_str);
+            LocalDate currentDate = LocalDate.now();
+
+            bookkeeping_days = ChronoUnit.DAYS.between(startDate, currentDate);  //计算相差的天数
+        } else {
+            bookkeeping_days = 0;   //无法获取则说明是第一天记账
+        }
+        if (bookkeeping_days != 0) {
+            bookkeeping_days_text.setText(String.format("您已累计记账%d天", bookkeeping_days));
+            account_num_text.setText(String.format("共计%d条流水记录", account_num));
+        } else {
+            bookkeeping_days_text.setText("这是您记账的第一天");
+            account_num_text.setText(String.format("已产生%d条流水记录", account_num));
+        }
+
+        //创建列表视图的适配器
+        runningAccountRecyclerAdapter = new RunningAccountRecyclerAdapter(runningAccountList, this);
+        runningAccountRecyclerView = binding.runningAccountRecyclerView;
+        runningAccountRecyclerView.setLayoutManager(new LinearLayoutManager(requireActivity()));  //设置线性布局
+        runningAccountRecyclerView.setAdapter(runningAccountRecyclerAdapter);
+    }
+
     /**
      * 将新建的流水添加至列表视图
      *
      * @param resultIntent 包含流水数据的意图对象
      */
-    private void addNewRunningAccount(@NonNull Intent resultIntent) {
+    private void onNewAccountAdded(@NonNull Intent resultIntent) {
         ContentValues basic_values, special_values;           //基本数据和特殊数据记录
         SQLiteDatabase db = running_account_db_helper.openWriteLink();   //数据库写连接
 
@@ -222,6 +257,10 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         runningAccountRecyclerAdapter.addNewRunningAccountView(newRunningAccountView);  //将新建的流水视图添加至列表视图适配器
         runningAccountRecyclerView.scrollToPosition(0);     //滚动到顶部（因为添加的新记录在顶部）
         Toast.makeText(getActivity(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
+
+        //更新记录数量
+        account_num++;
+        refreshAccountNumText();
     }
 
     /**
@@ -229,7 +268,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
      *
      * @param resultIntent 带有编辑后数据的意图对象
      */
-    private void modifyRunningAccount(@NonNull Intent resultIntent) {
+    private void onAccountModified(@NonNull Intent resultIntent) {
         ContentValues basic_values, special_values;           //基本数据和特殊数据记录
         SQLiteDatabase db = running_account_db_helper.openWriteLink();   //数据库写连接
 
@@ -302,7 +341,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     /**
      * 删除流水
      */
-    private void deleteRunningAccount(@NonNull Intent resultIntent) {
+    private void onAccountDeleted(@NonNull Intent resultIntent) {
         Bundle dataBundle = resultIntent.getExtras();
         SQLiteDatabase db = running_account_db_helper.openWriteLink();
 
@@ -336,6 +375,10 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         db.close();
         runningAccountRecyclerAdapter.deleteRunningAccountView(position);
         Toast.makeText(getActivity(), "流水记录已删除", Toast.LENGTH_SHORT).show();
+
+        //刷新流水记录数量文本
+        account_num--;
+        refreshAccountNumText();
     }
 
     /**
@@ -406,7 +449,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
                     break;
                 default:
-                    RuntimeException e = new RuntimeException("加载流水数据时获取到的流水类型不合法");
+                    RuntimeException e = new RuntimeException("无法辨别获取到的流水类型");
                     ExceptionHelper.showExceptionDialog(requireContext(), e);
                     break;
             }
@@ -418,5 +461,36 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         db.close();
 
         return runningAccountList;
+    }
+
+    /**
+     * 获取开始记账的日期
+     *
+     * @return 开始记账的日期字符串（无法获取则为空串）
+     */
+    private String getBookKeepingStartDate() {
+        String start_date_str = BookKeepingStartDatePreference.getStartDate(requireContext());
+        if (start_date_str.isEmpty()) {
+            try {
+                start_date_str = RunningAccountBase.getEarliestAccountDate(requireContext());
+                if (!start_date_str.isEmpty()) {
+                    BookKeepingStartDatePreference.saveStartDate(start_date_str, requireContext());
+                }
+            } catch (SQLiteException e) {
+                ExceptionHelper.showExceptionDialog(requireContext(), e);
+            }
+        }
+
+        return start_date_str;
+    }
+
+    //刷新流水记录数量文本
+    @SuppressLint("DefaultLocale")
+    private void refreshAccountNumText() {
+        if (bookkeeping_days != 0) {
+            account_num_text.setText(String.format("共计%d条流水记录", account_num));
+        } else {
+            account_num_text.setText(String.format("已产生%d条流水记录", account_num));
+        }
     }
 }

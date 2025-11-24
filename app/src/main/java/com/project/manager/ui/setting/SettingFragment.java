@@ -22,8 +22,7 @@ import com.project.manager.databinding.FragmentSettingBinding;
 import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.setting.running_account_data.RunningAccountDataHelper;
 import com.project.manager.ui.setting.running_account_data.pojo.TotalDataMap;
-import com.project.manager.ui.setting.theme_mode.ThemeModeHelper;
-import com.project.manager.ui.setting.theme_mode.ThemePreference;
+import com.project.manager.preference.ThemeModePreference;
 
 import java.util.Calendar;
 
@@ -172,13 +171,13 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
     //显示主题模式选择对话框
     private void showThemeModeSelectDialog() {
         String[] themeModeStr = {"浅色模式", "深色模式", "跟随系统"};
-        int theme_mode = ThemePreference.getThemeMode(requireContext());
+        int theme_mode = ThemeModePreference.getThemeMode(requireContext());
 
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("主题模式")
                 .setSingleChoiceItems(themeModeStr, theme_mode, ((dialog, which) -> {
                     ThemeModeHelper.applyTheme(which);
-                    ThemePreference.saveThemeMode(requireContext(), which);
+                    ThemeModePreference.saveThemeMode(requireContext(), which);
                     dialog.dismiss();
                 }))
                 .setNegativeButton("关闭", (dialog, which) -> dialog.dismiss())

@@ -17,23 +17,48 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:padding="7dp">
+            android:orientation="vertical">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/new_running_account_btn"
-                style="@style/BtnStyle"
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/bookkeeping_days_text"
+                style="@style/LabelTextViewStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/new_running_account" />
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="0sp"
+                android:text="@string/num_of_bookkeeping_days" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/report_btn"
-                style="@style/BtnStyle"
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/account_num_text"
+                style="@style/LabelTextViewStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/check_report" />
+                android:layout_gravity="center_horizontal"
+                android:paddingTop="0sp"
+                android:paddingBottom="0sp"
+                android:text="@string/num_of_running_account" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingBottom="7sp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/new_running_account_btn"
+                    style="@style/BtnStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/new_running_account" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/report_btn"
+                    style="@style/BtnStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/check_report" />
+            </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
