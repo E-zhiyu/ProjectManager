@@ -268,7 +268,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         expenseSourceCardList.sort(Comparator.comparing(AccountSourceInfo::getAmount).reversed());
         incomeSourceCardList.sort(Comparator.comparing(AccountSourceInfo::getAmount).reversed());
 
-        //补偿占比精度问题（占比总和不为100时为最小的来源占比+1）
+        //补偿占比精度问题
         int expensePercentage = 0, incomePercentage = 0;
         for (AccountSourceInfo expenseSource : expenseSourceCardList)
             expensePercentage += expenseSource.getPercentage();
