@@ -94,6 +94,8 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
                 setResult(ResultCode.RESULT_OK.ordinal(), result2TagEdit);
                 finish();
             }
+        } else if (v.getId() == R.id.cancel_btn) {
+            finish();
         }
     }
 
@@ -109,6 +111,7 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
         tag_group_input.setOnFocusChangeListener(this);
 
         findViewById(R.id.finish_btn).setOnClickListener(this);
+        findViewById(R.id.cancel_btn).setOnClickListener(this);
     }
 
     //输入内容合法性校验
