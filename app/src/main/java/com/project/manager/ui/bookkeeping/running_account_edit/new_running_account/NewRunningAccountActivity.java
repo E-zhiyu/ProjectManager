@@ -23,8 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NewRunningAccountActivity extends AppCompatActivity implements View.OnClickListener {
-    ViewPager2 runningAccountFragmentPager;         //翻页视图
-    RunningAccountFragmentBase current_fragment;    //翻页视图显示的Fragment
+    private RunningAccountFragmentBase current_fragment;    //翻页视图显示的Fragment
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +66,7 @@ public class NewRunningAccountActivity extends AppCompatActivity implements View
         fragmentList.add(new TransferFragment());
 
         //初始化ViewPager并设置ViewPager适配器
-        runningAccountFragmentPager = findViewById(R.id.new_running_account_pager);
+        ViewPager2 runningAccountFragmentPager = findViewById(R.id.new_running_account_pager);  //翻页视图
         NewRunningAccountFragmentAdapter viewPagerAdapter = new NewRunningAccountFragmentAdapter(this, fragmentList);
         runningAccountFragmentPager.setAdapter(viewPagerAdapter);
 
@@ -87,6 +86,7 @@ public class NewRunningAccountActivity extends AppCompatActivity implements View
                 current_fragment = viewPagerAdapter.getFragment(position);
             }
         });
+        runningAccountFragmentPager.setOffscreenPageLimit(1);
     }
 
     /**

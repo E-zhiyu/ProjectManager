@@ -19,8 +19,8 @@ public class IncomeFragment extends RunningAccountFragmentBase {
     }
 
     @Override
-    protected void initViews(@NonNull View view) {
-        super.initViews(view);
+    protected void initViews() {
+        super.initViews();
     }
 
     @Override

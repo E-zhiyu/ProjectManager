@@ -45,11 +45,12 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
     private long tag_no = 0;                                //用户选择的标签编号（默认无标签则为0）
     private AccountTagViewModel tagViewModel;               //用于更新标签名称的ViewModel
     private TagSelectBottomSheet tag_sheet;                 //底部弹出窗口
+    private long lastFocusChangeTime = 0;                   //上次触发onFocusChange()方法的时间
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = inflater.inflate(getLayoutResId(), container, false);
-        initViews(binding);
+        initViews();
 
         //获取Application中的ViewModel
         ManagerAssistant app = (ManagerAssistant) requireActivity().getApplication();
@@ -91,6 +92,12 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
 
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastFocusChangeTime < 200) { //200ms内忽略重复事件
+            return;
+        }
+        lastFocusChangeTime = currentTime;
+
         if (!hasFocus) {
             String edittext_str, error;         //文本框内容和错误提示
             TextInputLayout text_edit_layout;   //被验证的文本框对应的布局管理器
@@ -98,12 +105,9 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
             if (v.getId() == R.id.amount_input) {
                 text_edit_layout = amount_layout;
             } else {
-                NullPointerException e = new NullPointerException("无法获取有效视图ID");
-                ExceptionHelper.showExceptionDialog(requireContext(), e);
                 return;
             }
 
-            //判断待验证的字符串是否为空
             if (edittext_str.isEmpty()) {
                 error = "金额不能为空";
                 text_edit_layout.setErrorEnabled(true);
@@ -135,8 +139,8 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
     }
 
     //初始化碎片布局
-    protected void initViews(@NonNull View view) {
-        TextInputEditText dt_input = view.findViewById(R.id.datetime_input);
+    protected void initViews() {
+        TextInputEditText dt_input = binding.findViewById(R.id.datetime_input);
         amount_layout = binding.findViewById(R.id.amount_layout);
         amount_input = binding.findViewById(R.id.amount_input);
         tag_layout = binding.findViewById(R.id.running_account_tag_layout);
