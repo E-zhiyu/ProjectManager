@@ -1,4 +1,4 @@
-package com.project.manager.ui.setting;
+package com.project.manager.ui.setting.helpers;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;

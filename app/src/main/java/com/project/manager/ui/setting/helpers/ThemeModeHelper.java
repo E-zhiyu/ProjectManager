@@ -1,4 +1,4 @@
-package com.project.manager.ui.setting;
+package com.project.manager.ui.setting.helpers;
 
 import androidx.appcompat.app.AppCompatDelegate;
 
