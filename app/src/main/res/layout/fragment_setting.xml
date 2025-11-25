@@ -32,12 +32,11 @@
                 <!-- 这里放入软件设置相关组件 -->
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/setting_theme_mode"
-                    style="@style/SubSettingCardStyle"
+                    style="@style/ClickableSettingOptionStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/baseline_dark_mode_24"
                     android:text="@string/theme_mode" />
-
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -59,7 +58,7 @@
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/setting_export_running_account"
-                    style="@style/SubSettingCardStyle"
+                    style="@style/ClickableSettingOptionStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/round_export_data_24"
@@ -67,7 +66,7 @@
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/setting_import_running_account"
-                    style="@style/SubSettingCardStyle"
+                    style="@style/ClickableSettingOptionStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/baseline_import_data_24"
@@ -75,11 +74,52 @@
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/setting_clear_running_account"
-                    style="@style/SubSettingCardStyle"
+                    style="@style/ClickableSettingOptionStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/baseline_delete_forever_24"
                     android:text="@string/clear_data" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/ContentCardStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/LabelTextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/auto_bookkeeping" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/notification_analysis_switch"
+                    style="@style/SwitchSettingOptionStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/baseline_notifications_24"
+                    android:text="@string/notification_analysis_mode" />
+
+                <LinearLayout
+                    android:id="@+id/notification_analysis_option_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/notification_analysis_rules"
+                        style="@style/ClickableSettingOptionStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableStart="@drawable/baseline_rule_24"
+                        android:text="@string/notification_analysis_rules" />
+                </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -102,7 +142,7 @@
                 <!-- 放入关于软件选项 -->
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/setting_about"
-                    style="@style/SubSettingCardStyle"
+                    style="@style/ClickableSettingOptionStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/baseline_info_24"
@@ -110,7 +150,7 @@
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/setting_update_log"
-                    style="@style/SubSettingCardStyle"
+                    style="@style/ClickableSettingOptionStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/baseline_update_24"

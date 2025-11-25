@@ -73,10 +73,21 @@
         <item name="android:layout_margin">10dp</item>
     </style>
 
-    <!-- 子设置项卡片容器样式 -->
-    <style name="SubSettingCardStyle">
+    <!-- 点击式设置项样式 -->
+    <style name="ClickableSettingOptionStyle">
         <item name="android:drawableEnd">@drawable/baseline_keyboard_arrow_right_24</item>
         <item name="android:drawablePadding">5dp</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+
+    <!-- 开关设置项样式 -->
+    <style name="SwitchSettingOptionStyle" parent="Widget.Material3.CompoundButton.MaterialSwitch">
+        <item name="android:drawablePadding">5dp</item>
+        <item name="thumbTint">@color/switch_thumb_color_selector</item>
         <item name="android:textSize">18sp</item>
         <item name="android:padding">10dp</item>
         <item name="android:clickable">true</item>

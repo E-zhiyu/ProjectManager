@@ -70,4 +70,7 @@
     <string name="running_account_every_month">每月流水总结</string>
     <string name="num_of_bookkeeping_days">记账天数</string>
     <string name="num_of_running_account">流水记录数量</string>
+    <string name="auto_bookkeeping">自动记账</string>
+    <string name="notification_analysis_mode">通知解析</string>
+    <string name="notification_analysis_rules">解析规则</string>
 </resources>
