@@ -90,9 +90,6 @@
         <item name="thumbTint">@color/switch_thumb_color_selector</item>
         <item name="android:textSize">18sp</item>
         <item name="android:padding">10dp</item>
-        <item name="android:clickable">true</item>
-        <item name="android:focusable">true</item>
-        <item name="android:background">?attr/selectableItemBackground</item>
     </style>
 
     <!-- 流水视图样式 -->
@@ -133,14 +130,6 @@
     <!-- 复选框样式 -->
     <style name="CheckBoxStyle">
         <item name="buttonTint">@color/theme_blue</item>
-    </style>
-
-    <!-- 文本框布局样式 -->
-    <style name="TextInputLayoutStyle" parent="Widget.Material3.TextInputEditText.OutlinedBox">
-        <item name="boxBackgroundColor">@color/page_background</item>
-        <item name="backgroundTint">@color/theme_blue</item>
-        <item name="boxStrokeColor">@color/text_input_edittext_border_selector</item>
-        <item name="cursorColor">@color/theme_blue</item>
     </style>
 
     <!-- 需要用户输入文本的文本框样式 -->

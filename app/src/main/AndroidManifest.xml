@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <application
         android:name=".ManagerAssistant"
@@ -10,7 +10,13 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ProjectManager">
+        android:theme="@style/Theme.ProjectManager" >
+        <activity
+            android:name=".ui.setting.auto_bookkeeping.NewRuleActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.setting.auto_bookkeeping.NotificationAnalysisActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.bookkeeping.tag.edit.GroupModifyActivity"
             android:exported="false" />
@@ -35,7 +41,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/title_activity_main">
+            android:label="@string/title_activity_main" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
