@@ -47,8 +47,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             RunningAccountType.EXPENSE,
             RunningAccountType.TRANSFER
     };
-    private final List<AccountSourceInfo> expenseSourceCardList = new ArrayList<>();        //支出来源列表
-    private final List<AccountSourceInfo> incomeSourceCardList = new ArrayList<>();         //收入来源列表
+    private final List<AccountSourceInfo> expenseSourceInfoList = new ArrayList<>();        //支出来源列表
+    private final List<AccountSourceInfo> incomeSourceInfoList = new ArrayList<>();         //收入来源列表
     private int year, month, day;                                                           //年月日
     private DateRangeType dateRangeType = DateRangeType.TODAY;                              //日期范围种类
     private AccountSourceAdapter expense_adapter, income_adapter;                           //收支来源布局适配器
@@ -109,10 +109,10 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
 
         //获取RecyclerView并设置适配器
         RecyclerView expense_source_recycler = findViewById(R.id.expense_source_recycler);
-        expense_adapter = new AccountSourceAdapter(expenseSourceCardList);
+        expense_adapter = new AccountSourceAdapter(expenseSourceInfoList);
         expense_source_recycler.setAdapter(expense_adapter);
         RecyclerView income_source_recycler = findViewById(R.id.income_source_recycler);
-        income_adapter = new AccountSourceAdapter(incomeSourceCardList);
+        income_adapter = new AccountSourceAdapter(incomeSourceInfoList);
         income_source_recycler.setAdapter(income_adapter);
         RecyclerView month_account_recycler = findViewById(R.id.month_account_recycler);
         month_account_adapter = new MonthAccountAdapter(monthAccountInfoList, monthAccountInfoType, this);
@@ -209,8 +209,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     private void updateSourceViews(@NonNull List<ReportRunningAccountData> dataList) {
         double expense = 0, income = 0; //总支出和总收入
         double balance = 0;             //结余
-        incomeSourceCardList.clear();
-        expenseSourceCardList.clear();
+        incomeSourceInfoList.clear();
+        expenseSourceInfoList.clear();
         for (ReportRunningAccountData oneRecordedData : dataList) {
             RunningAccountType type = oneRecordedData.getType();
             double amount = oneRecordedData.getAmount();
@@ -221,11 +221,11 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             if (isContainedInArray(income_type_array, type)) {
                 income += amount;
                 balance += amount;
-                targetList = incomeSourceCardList;
+                targetList = incomeSourceInfoList;
             } else if (isContainedInArray(expense_type_array, type)) {
                 expense += amount;
                 balance -= amount;
-                targetList = expenseSourceCardList;
+                targetList = expenseSourceInfoList;
             }
 
             if (targetList != null) {   //判断目标列表是否为空
@@ -253,47 +253,57 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         expense_income_textview.setText(expenditure_income);
 
         //计算各来源的收支占比
-        for (AccountSourceInfo expenseSourceCard : expenseSourceCardList) {
+        for (AccountSourceInfo expenseSourceCard : expenseSourceInfoList) {
             double source_amount = expenseSourceCard.getAmount();
             int percentage = (int) (source_amount * 100 / expense);
             expenseSourceCard.setPercentage(percentage);
         }
-        for (AccountSourceInfo incomeSourceCard : incomeSourceCardList) {
+        for (AccountSourceInfo incomeSourceCard : incomeSourceInfoList) {
             double source_amount = incomeSourceCard.getAmount();
             int percentage = (int) (source_amount * 100 / income);
             incomeSourceCard.setPercentage(percentage);
         }
 
         //将收支卡片按照占比排序（降序）
-        expenseSourceCardList.sort(Comparator.comparing(AccountSourceInfo::getAmount).reversed());
-        incomeSourceCardList.sort(Comparator.comparing(AccountSourceInfo::getAmount).reversed());
+        expenseSourceInfoList.sort(Comparator.comparing(AccountSourceInfo::getAmount).reversed());
+        incomeSourceInfoList.sort(Comparator.comparing(AccountSourceInfo::getAmount).reversed());
 
         //补偿占比精度问题
         int expensePercentage = 0, incomePercentage = 0;
-        for (AccountSourceInfo expenseSource : expenseSourceCardList)
+        for (AccountSourceInfo expenseSource : expenseSourceInfoList)
             expensePercentage += expenseSource.getPercentage();
-        for (AccountSourceInfo incomeSource : incomeSourceCardList)
+        for (AccountSourceInfo incomeSource : incomeSourceInfoList)
             incomePercentage += incomeSource.getPercentage();
-        if (expensePercentage < 100 && expenseSourceCardList.size() > 1) {
-            AccountSourceInfo minExpenseSource = expenseSourceCardList.get(0);
-            minExpenseSource.setPercentage(minExpenseSource.getPercentage() + 100 - expensePercentage);
+        if (expensePercentage < 100 && expenseSourceInfoList.size() > 1) {
+            int index = expenseSourceInfoList.size() - 1;
+            for (int count = 0; count < (100 - expensePercentage); count++) {
+                if (index - count < 0) break;
+
+                AccountSourceInfo info = expenseSourceInfoList.get(index - count);
+                info.setPercentage(info.getPercentage() + 1);
+            }
         }
-        if (incomePercentage < 100 && incomeSourceCardList.size() > 1) {
-            AccountSourceInfo minIncomeSource = incomeSourceCardList.get(0);
-            minIncomeSource.setPercentage(minIncomeSource.getPercentage() + 100 - incomePercentage);
+        if (incomePercentage < 100 && incomeSourceInfoList.size() > 1) {
+            int index = incomeSourceInfoList.size() - 1;
+            for (int count = 0; count < (100 - incomePercentage); count++) {
+                if (index - count < 0) break;
+
+                AccountSourceInfo info = incomeSourceInfoList.get(index - count);
+                info.setPercentage(info.getPercentage() + 1);
+            }
         }
 
         //设置收支来源卡片容器可见性
         boolean isNoExpense = false, isNoIncome = false;
         MaterialCardView expenseSourceCard = findViewById(R.id.expense_source_card);
-        if (expenseSourceCardList.isEmpty()) {
+        if (expenseSourceInfoList.isEmpty()) {
             expenseSourceCard.setVisibility(View.GONE);
             isNoExpense = true;
         } else {
             expenseSourceCard.setVisibility(View.VISIBLE);
         }
         MaterialCardView incomeSourceCard = findViewById(R.id.income_source_card);
-        if (incomeSourceCardList.isEmpty()) {
+        if (incomeSourceInfoList.isEmpty()) {
             incomeSourceCard.setVisibility(View.GONE);
             isNoIncome = true;
         } else {
