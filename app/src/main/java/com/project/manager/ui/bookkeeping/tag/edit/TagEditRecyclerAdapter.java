@@ -1,9 +1,6 @@
 package com.project.manager.ui.bookkeeping.tag.edit;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.sqlite.SQLiteException;
@@ -24,6 +21,7 @@ import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
 import com.project.manager.exception.ExceptionHelper;
+import com.project.manager.ui.animation.AnimationHelper;
 import com.project.manager.ui.view_model.AccountTagModifyID;
 import com.project.manager.ui.view_model.AccountTagViewModel;
 import com.project.manager.ui.bookkeeping.tag.Tag;
@@ -87,38 +85,17 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
                     }
 
                     isAnimating = true;
-                    animateHeight(sub_view_layout, expandedHeight, 0, () -> {
+                    AnimationHelper.animateHeight(sub_view_layout, expandedHeight, 0, () -> {
                         isAnimating = false;
                         sub_view_layout.setVisibility(View.GONE);
                     });
                 } else {
                     sub_view_layout.setVisibility(View.VISIBLE);
                     isAnimating = true;
-                    animateHeight(sub_view_layout, 0, expandedHeight, () -> isAnimating = false);
+                    AnimationHelper.animateHeight(sub_view_layout, 0, expandedHeight, () -> isAnimating = false);
                 }
             });
         }
-    }
-
-    private void animateHeight(final View view, int start, int end, Runnable onEnd) {
-        ValueAnimator animator = ValueAnimator.ofInt(start, end);
-        animator.addUpdateListener((animation) -> {
-            int height = (int) animation.getAnimatedValue();
-            ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-            layoutParams.height = height;
-            view.setLayoutParams(layoutParams);
-        });
-
-        //设置动画结束后执行的代码
-        animator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                if (onEnd != null) onEnd.run();
-            }
-        });
-
-        animator.setDuration(200);
-        animator.start();
     }
 
     public TagEditRecyclerAdapter(List<TagGroup> tagGroupList, Context context, OnTextViewClickedListener listener) {

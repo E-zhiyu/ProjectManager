@@ -110,7 +110,8 @@
                     android:id="@+id/notification_analysis_option_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:visibility="gone">
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/setting_notification_analysis_rules"

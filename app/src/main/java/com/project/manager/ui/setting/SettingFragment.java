@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -17,10 +18,12 @@ import androidx.fragment.app.Fragment;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.project.manager.R;
 import com.project.manager.databinding.FragmentSettingBinding;
 import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.preference.BookKeepingStartDatePreference;
+import com.project.manager.ui.animation.AnimationHelper;
 import com.project.manager.ui.setting.auto_bookkeeping.NotificationAnalysisActivity;
 import com.project.manager.ui.setting.helpers.AboutHelper;
 import com.project.manager.ui.setting.helpers.ThemeModeHelper;
@@ -178,6 +181,33 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         binding.settingClearRunningAccount.setOnClickListener(this);
         binding.settingUpdateLog.setOnClickListener(this);
         binding.settingNotificationAnalysisRules.setOnClickListener(this);
+
+        //TODO: 保存开关的状态并且完成开关初始化操作
+
+        //设置开关按钮的监听器
+        MaterialSwitch notification_analysis_switch = binding.notificationAnalysisSwitch;
+        notification_analysis_switch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            LinearLayout notification_analysis_layout = binding.notificationAnalysisOptionLayout;
+
+            //临时改为可见
+            int originVisibility = notification_analysis_layout.getVisibility();
+            notification_analysis_layout.setVisibility(View.VISIBLE);
+
+            // 测量视图
+            int widthSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+            int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+            notification_analysis_layout.measure(widthSpec, heightSpec);
+            int layout_height = notification_analysis_layout.getMeasuredHeight();   //获得测量的高度
+
+            notification_analysis_layout.setVisibility(originVisibility);   //恢复原来的可见性
+
+            if (isChecked) {
+                notification_analysis_layout.setVisibility(View.VISIBLE);
+                AnimationHelper.animateHeight(notification_analysis_layout, 0, layout_height, null);
+            } else {
+                AnimationHelper.animateHeight(notification_analysis_layout, layout_height, 0, () -> notification_analysis_layout.setVisibility(View.GONE));
+            }
+        });
     }
 
     //显示主题模式选择对话框
