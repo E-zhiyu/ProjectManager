@@ -113,7 +113,7 @@
                     android:orientation="vertical">
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/notification_analysis_rules"
+                        android:id="@+id/setting_notification_analysis_rules"
                         style="@style/ClickableSettingOptionStyle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

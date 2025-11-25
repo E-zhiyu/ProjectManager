@@ -21,6 +21,7 @@ import com.project.manager.R;
 import com.project.manager.databinding.FragmentSettingBinding;
 import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.preference.BookKeepingStartDatePreference;
+import com.project.manager.ui.setting.auto_bookkeeping.NotificationAnalysisActivity;
 import com.project.manager.ui.setting.helpers.AboutHelper;
 import com.project.manager.ui.setting.helpers.ThemeModeHelper;
 import com.project.manager.ui.setting.helpers.UpdateLogHelper;
@@ -84,6 +85,9 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                     .show();
         } else if (v.getId() == R.id.setting_update_log) {
             UpdateLogHelper.showUpdateLogDialog(requireContext());
+        } else if (v.getId() == R.id.setting_notification_analysis_rules) {
+            Intent skip2NotificationRulesActivity = new Intent(getActivity(), NotificationAnalysisActivity.class);
+            startActivity(skip2NotificationRulesActivity);
         } else {
             RuntimeException e = new RuntimeException("无法获取正确的视图ID");
             ExceptionHelper.showExceptionDialog(requireContext(), e);
@@ -173,6 +177,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         binding.settingImportRunningAccount.setOnClickListener(this);
         binding.settingClearRunningAccount.setOnClickListener(this);
         binding.settingUpdateLog.setOnClickListener(this);
+        binding.settingNotificationAnalysisRules.setOnClickListener(this);
     }
 
     //显示主题模式选择对话框
