@@ -13,14 +13,16 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.project.manager.R;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
+import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 
 public class RuleAddActivity extends AppCompatActivity implements View.OnClickListener {
-    private TextInputEditText rule_name_input;              //规则名称输入框
-    private TextInputEditText type_input;                   //种类输入框
-    private TextInputEditText package_name_input;           //包名输入框
-    private TextInputEditText notification_title_input;     //通知标题输入框
-    private TextInputEditText notification_content_input;   //通知内容输入框
-    private long tag_no = 0;                                //标签编号
+    private TextInputEditText rule_name_input;                      //规则名称输入框
+    private TextInputEditText type_input;                           //种类输入框
+    private TextInputEditText package_name_input;                   //包名输入框
+    private TextInputEditText notification_title_input;             //通知标题输入框
+    private TextInputEditText notification_content_input;           //通知内容输入框
+    private long tag_no = 0;                                        //标签编号
+    private RunningAccountType type = RunningAccountType.EXPENSE;   //流水种类
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +63,8 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
         notification_title_input = findViewById(R.id.notification_title_input);
         notification_content_input = findViewById(R.id.notification_content_input);
 
+        type_input.setText(RunningAccountType.EXPENSE.getTitle());
+
         findViewById(R.id.input_introduce_btn).setOnClickListener(this);
         findViewById(R.id.finish_btn).setOnClickListener(this);
         findViewById(R.id.cancel_btn).setOnClickListener(this);
@@ -89,13 +93,12 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
         Bundle dataBundle = new Bundle();
 
         String rule_name = String.valueOf(rule_name_input.getText());
-        String type = String.valueOf(type_input.getText());
         String package_name = String.valueOf(package_name_input.getText());
         String notification_title = String.valueOf(notification_title_input.getText());
         String notification_content = String.valueOf(notification_content_input.getText());
 
         dataBundle.putString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue(), rule_name);
-        dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type);
+        dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());
         dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
         dataBundle.putString(KeyValueStrings.PACKAGE_NAME.getValue(), package_name);
         dataBundle.putString(KeyValueStrings.NOTIFICATION_TITLE.getValue(), notification_title);
