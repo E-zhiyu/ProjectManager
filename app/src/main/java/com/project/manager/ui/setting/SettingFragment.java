@@ -22,6 +22,7 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 import com.project.manager.R;
 import com.project.manager.databinding.FragmentSettingBinding;
 import com.project.manager.exception.ExceptionHelper;
+import com.project.manager.preference.AutoBookKeepingPreference;
 import com.project.manager.preference.BookKeepingStartDatePreference;
 import com.project.manager.ui.animation.AnimationHelper;
 import com.project.manager.ui.setting.auto_bookkeeping.NotificationAnalysisActivity;
@@ -182,12 +183,20 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         binding.settingUpdateLog.setOnClickListener(this);
         binding.settingNotificationAnalysisRules.setOnClickListener(this);
 
-        //TODO: 保存开关的状态并且完成开关初始化操作
+        //完成开关状态初始化
+        MaterialSwitch notification_analysis_switch = binding.notificationAnalysisSwitch;
+        LinearLayout notification_analysis_layout = binding.notificationAnalysisOptionLayout;
+        boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(requireActivity());
+        notification_analysis_switch.setChecked(isNotificationAnalysisOpened);
+        if (isNotificationAnalysisOpened) {
+            notification_analysis_layout.setVisibility(View.VISIBLE);
+        } else {
+            notification_analysis_layout.setVisibility(View.GONE);
+        }
 
         //设置开关按钮的监听器
-        MaterialSwitch notification_analysis_switch = binding.notificationAnalysisSwitch;
         notification_analysis_switch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            LinearLayout notification_analysis_layout = binding.notificationAnalysisOptionLayout;
+            AutoBookKeepingPreference.setNotificationAnalysisOpened(isChecked, requireActivity());  //将打开状态写入文件
 
             //临时改为可见
             int originVisibility = notification_analysis_layout.getVisibility();
