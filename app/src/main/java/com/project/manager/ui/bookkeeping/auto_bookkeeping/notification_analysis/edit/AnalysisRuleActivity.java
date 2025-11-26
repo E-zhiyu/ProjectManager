@@ -1,5 +1,6 @@
 package com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.edit;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -12,12 +13,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.project.manager.R;
+import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.AnalysisRule;
 
 import java.util.List;
 
 public class AnalysisRuleActivity extends AppCompatActivity implements View.OnClickListener {
     private ActivityResultLauncher<Intent> ruleAddLauncher; //添加规则界面的启动器
+    private AnalysisRuleAdapter rule_adapter;               //规则列表适配器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,17 +48,38 @@ public class AnalysisRuleActivity extends AppCompatActivity implements View.OnCl
 
         //设置RecyclerView的适配器
         List<AnalysisRule> ruleList = AnalysisRule.loadAnalysisRule(this);
-        AnalysisRuleAdapter adapter = new AnalysisRuleAdapter(ruleList);
+        rule_adapter = new AnalysisRuleAdapter(ruleList, this);
         RecyclerView rule_recycler = findViewById(R.id.rule_recycler);
-        rule_recycler.setAdapter(adapter);
+        rule_recycler.setAdapter(rule_adapter);
     }
 
     private void initLaunchers() {
         ruleAddLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    //TODO: 完善规则添加回调
+                    int resultCode = result.getResultCode();
+                    Intent data = result.getData();
+
+                    if (resultCode == Activity.RESULT_OK) {
+                        if (data != null) {
+                            onAnalysisRuleAdded(data);
+                        } else {
+                            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据");
+                            ExceptionHelper.showExceptionDialog(this, e);
+                        }
+                    }
                 }
         );
+    }
+
+    private void onAnalysisRuleAdded(@NonNull Intent resuleIntent) {
+        Bundle dataBundle = resuleIntent.getExtras();
+        if (dataBundle == null) {
+            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据");
+            ExceptionHelper.showExceptionDialog(this, e);
+            return;
+        }
+
+        rule_adapter.addRule(dataBundle);
     }
 }

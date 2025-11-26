@@ -1,15 +1,18 @@
 package com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
 import com.project.manager.database.BookKeepingColumns;
 import com.project.manager.database.BookKeepingDatabaseHelper;
 import com.project.manager.database.BookKeepingTables;
+import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 
 import java.util.ArrayList;
@@ -101,5 +104,31 @@ public class AnalysisRule {
         rule_cursor.close();
         db.close();
         return ruleList;
+    }
+
+    public static long saveNewRule(@NonNull Bundle newRuleData, Context context) throws SQLiteException {
+        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        SQLiteDatabase db = db_helper.openWriteLink();
+
+        //解析规则数据
+        String rule_name = newRuleData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());
+        String type = newRuleData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue());
+        long tag_no = newRuleData.getLong(KeyValueStrings.TAG_NO.getValue());
+        String package_name = newRuleData.getString(KeyValueStrings.PACKAGE_NAME.getValue());
+        String notification_title = newRuleData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
+        String notification_content = newRuleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
+
+        //将数据写入数据库
+        ContentValues rule_values = new ContentValues();
+        rule_values.put(BookKeepingColumns.RULE_NAME.toString(), rule_name);
+        rule_values.put(BookKeepingColumns.TYPE.toString(), type);
+        rule_values.put(BookKeepingColumns.TAG_NO.toString(), tag_no);
+        rule_values.put(BookKeepingColumns.PACKAGE_NAME.toString(), package_name);
+        rule_values.put(BookKeepingColumns.NOTIFICATION_TITLE.toString(), notification_title);
+        rule_values.put(BookKeepingColumns.NOTIFICATION_CONTENT.toString(), notification_content);
+        long rule_no = db.insert(BookKeepingTables.ANALYSIS_RULE.toString(), null, rule_values);    //获取自增主键值
+
+        db.close();
+        return rule_no;
     }
 }
