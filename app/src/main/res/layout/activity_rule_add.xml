@@ -57,7 +57,7 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/type_input"
-                    style="@style/UserInputEditTextStyle"
+                    style="@style/ClickableEditTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:focusable="false"
@@ -70,7 +70,7 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tag_name_input"
-                    style="@style/UserInputEditTextStyle"
+                    style="@style/ClickableEditTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:focusable="false"
@@ -83,11 +83,12 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/package_name_input"
-                    style="@style/UserInputEditTextStyle"
+                    style="@style/ClickableEditTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:focusable="false"
-                    android:hint="@string/package_name" />
+                    android:hint="@string/package_name"
+                    android:maxLength="50" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -111,7 +112,8 @@
                     style="@style/UserInputEditTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="@string/notification_content" />
+                    android:hint="@string/notification_content"
+                    android:maxLength="50" />
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
     </ScrollView>

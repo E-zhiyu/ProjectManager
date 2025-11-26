@@ -139,6 +139,12 @@
         <item name="android:maxLength">20</item>
     </style>
 
+    <!-- 需要点击的文本框样式 -->
+    <style name="ClickableEditTextStyle" parent="Widget.Material3.TextInputEditText.OutlinedBox">
+        <item name="android:inputType">text</item>
+        <item name="android:textColorHighlight">@color/theme_blue_variant</item>
+    </style>
+
     <!-- 底部导航栏样式 -->
     <style name="NaviStyle" parent="Widget.Material3.BottomNavigationView">
         <item name="itemTextColor">@color/bottom_navigation_selector</item>
