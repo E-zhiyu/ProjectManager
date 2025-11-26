@@ -2,6 +2,7 @@ package com.project.manager.database;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -109,10 +110,10 @@ public class BookKeepingDatabaseHelper extends SQLiteOpenHelper {
 
             //创建通知解析规则表
             err = "通知解析规则表创建错误";
-            create = "CREATE TABLE IF NOT EXISTS " + BookKeepingTables.NOTIFICATION_ANALYSIS_RULE + "(" +
+            create = "CREATE TABLE IF NOT EXISTS " + BookKeepingTables.ANALYSIS_RULE + "(" +
                     BookKeepingColumns.RULE_NAME + " VARCHAR(20) NOT NULL," +
                     BookKeepingColumns.RULE_NO + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
-                    BookKeepingColumns.ACCOUNT_TYPE + " VARCHAR(20) NOT NULL," +
+                    BookKeepingColumns.TYPE + " VARCHAR(20) NOT NULL," +
                     BookKeepingColumns.TAG_NO + " INTEGER DEFAULT 0," +
                     BookKeepingColumns.PACKAGE_NAME + " VARCHAR(50) NOT NULL," +
                     BookKeepingColumns.NOTIFICATION_TITLE + " VARCHAR(20) NOT NULL," +
@@ -135,6 +136,7 @@ public class BookKeepingDatabaseHelper extends SQLiteOpenHelper {
         while (oldVersion < newVersion) {
             if (oldVersion == 1) up1To2(db);
             else if (oldVersion == 2) up2To3(db);
+            else if (oldVersion == 3) up3To4(db);
 
             oldVersion++;
         }
@@ -180,5 +182,31 @@ public class BookKeepingDatabaseHelper extends SQLiteOpenHelper {
         default_group_values.put("GroupNO", 0);
         default_group_values.put("GroupName", defaultGroupName);
         db.insert("tag_group_data", null, default_group_values);
+    }
+
+    //数据库版本：3->4
+    //添加通知解析规则表
+    private void up3To4(@NonNull SQLiteDatabase db) {
+        String err = "通知解析规则表创建错误";
+        try {
+            String create = "CREATE TABLE IF NOT EXISTS analysis_rule_data(" +
+                    "Rule_name VARCHAR(20) NOT NULL," +
+                    "Rule_no INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                    "Type VARCHAR(20) NOT NULL," +
+                    "TagNo INTEGER DEFAULT 0," +
+                    "Package_name VARCHAR(50) NOT NULL," +
+                    "Notification_title VARCHAR(20) NOT NULL," +
+                    "Notification_content VARCHAR(50) NOT NULL," +
+
+                    "CONSTRAINT fk_tag_no" +
+                    " FOREIGN KEY (TagNo)" +
+                    " REFERENCES tag_data(TagNo)" +
+                    " ON DELETE SET DEFAULT" +
+                    ")";
+            db.execSQL(create);
+        } catch (SQLException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+            Toast.makeText(context, err, Toast.LENGTH_SHORT).show();
+        }
     }
 }
