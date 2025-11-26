@@ -142,6 +142,8 @@
     <!-- 需要点击的文本框样式 -->
     <style name="ClickableEditTextStyle" parent="Widget.Material3.TextInputEditText.OutlinedBox">
         <item name="android:inputType">text</item>
+        <item name="android:focusable">false</item>
+        <item name="android:clickable">true</item>
         <item name="android:textColorHighlight">@color/theme_blue_variant_night</item>
     </style>
 
