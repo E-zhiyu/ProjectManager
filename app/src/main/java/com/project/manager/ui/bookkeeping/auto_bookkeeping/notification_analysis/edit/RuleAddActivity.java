@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.project.manager.R;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
@@ -36,6 +37,27 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(@NonNull View v) {
         if (v.getId() == R.id.input_introduce_btn) {
             //TODO: 完善输入内容介绍按钮点击逻辑
+        } else if (v.getId() == R.id.type_input) {
+            String[] types = {RunningAccountType.EXPENSE.getTitle(),
+                    RunningAccountType.INCOME.getTitle()
+            };
+
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("流水种类选择")
+                    .setSingleChoiceItems(types, type.ordinal(), (dialog, which) -> {
+                        int index = 0;
+                        for (RunningAccountType selected_type : RunningAccountType.values()) {
+                            if (index == which) {
+                                type = selected_type;
+                                type_input.setText(type.getTitle());
+                                break;
+                            }
+                            index++;
+                        }
+                        dialog.dismiss();
+                    })
+                    .setNegativeButton("关闭", (dialog, which) -> dialog.dismiss())
+                    .show();
         } else if (v.getId() == R.id.finish_btn) {
             String err = verifyInput();
             if (err == null) {
@@ -65,6 +87,7 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
 
         type_input.setText(RunningAccountType.EXPENSE.getTitle());
 
+        type_input.setOnClickListener(this);
         findViewById(R.id.input_introduce_btn).setOnClickListener(this);
         findViewById(R.id.finish_btn).setOnClickListener(this);
         findViewById(R.id.cancel_btn).setOnClickListener(this);
