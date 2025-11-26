@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjectManager" >
         <activity
-            android:name=".ui.setting.auto_bookkeeping.NewRuleActivity"
+            android:name=".ui.setting.auto_bookkeeping.RuleAddActivity"
             android:exported="false" />
         <activity
             android:name=".ui.setting.auto_bookkeeping.NotificationAnalysisActivity"
@@ -27,7 +27,7 @@
             android:name=".ui.bookkeeping.tag.edit.EditActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.tag.edit.NewTagActivity"
+            android:name=".ui.bookkeeping.tag.edit.TagAddActivity"
             android:exported="false" />
         <activity
             android:name=".ui.bookkeeping.report.ReportActivity"
@@ -36,7 +36,7 @@
             android:name=".ui.bookkeeping.running_account_edit.modify.RunningAccountModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.running_account_edit.new_running_account.NewRunningAccountActivity"
+            android:name=".ui.bookkeeping.running_account_edit.new_running_account.RunningAccountAddActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

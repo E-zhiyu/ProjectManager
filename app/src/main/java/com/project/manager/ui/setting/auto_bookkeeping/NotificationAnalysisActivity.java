@@ -27,7 +27,7 @@ public class NotificationAnalysisActivity extends AppCompatActivity implements V
     @Override
     public void onClick(@NonNull View v) {
         if (v.getId() == R.id.rule_add_btn) {
-            Intent skip2RuleAdd = new Intent(this, NewRuleActivity.class);
+            Intent skip2RuleAdd = new Intent(this, RuleAddActivity.class);
             ruleAddLauncher.launch(skip2RuleAdd);
         }
     }

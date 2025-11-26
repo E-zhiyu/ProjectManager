@@ -25,7 +25,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="end"
             android:drawableLeft="@drawable/baseline_add_24"
-            android:text="@string/new_tag" />
+            android:text="@string/tag_add" />
     </com.google.android.material.appbar.MaterialToolbar>
 
     <androidx.recyclerview.widget.RecyclerView

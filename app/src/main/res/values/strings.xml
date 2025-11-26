@@ -22,7 +22,7 @@
     <string name="title_edit_tag">标签编辑</string>
     <string name="title_new_tag">新建标签</string>
     <string name="title_modify_tag">标签修改</string>
-    <string name="new_running_account">新建流水</string>
+    <string name="running_account_add">新建流水</string>
     <string name="running_account_edit">流水编辑</string>
     <string name="finish">完成</string>
     <string name="amount">金额</string>
@@ -53,7 +53,7 @@
     <string name="this_year">这一年</string>
     <string name="percentage_100">100%</string>
     <string name="check_report">查看报表</string>
-    <string name="new_tag">新建标签</string>
+    <string name="tag_add">新建标签</string>
     <string name="version_name">版本名称</string>
     <string name="setting">应用设置</string>
     <string name="theme_mode">主题模式</string>

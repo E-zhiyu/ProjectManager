@@ -9,11 +9,11 @@ import com.project.manager.ui.bookkeeping.running_account_edit.fragments.Running
 
 import java.util.List;
 
-public class NewRunningAccountFragmentAdapter extends FragmentStateAdapter {
+public class RunningAccountAddFragmentAdapter extends FragmentStateAdapter {
     private final List<RunningAccountFragmentBase> fragmentList;  //碎片列表
 
     //适配器构造方法
-    public NewRunningAccountFragmentAdapter(@NonNull FragmentActivity fragmentActivity, List<RunningAccountFragmentBase> fragmentList) {
+    public RunningAccountAddFragmentAdapter(@NonNull FragmentActivity fragmentActivity, List<RunningAccountFragmentBase> fragmentList) {
         super(fragmentActivity);
         this.fragmentList = fragmentList;
     }

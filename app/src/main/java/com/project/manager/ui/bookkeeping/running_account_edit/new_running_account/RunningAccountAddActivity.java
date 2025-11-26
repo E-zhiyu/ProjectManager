@@ -22,13 +22,13 @@ import com.project.manager.ResultCode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NewRunningAccountActivity extends AppCompatActivity implements View.OnClickListener {
+public class RunningAccountAddActivity extends AppCompatActivity implements View.OnClickListener {
     private RunningAccountFragmentBase current_fragment;    //翻页视图显示的Fragment
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_running_account);
+        setContentView(R.layout.activity_running_account_add);
 
         initViews();
     }
@@ -66,12 +66,12 @@ public class NewRunningAccountActivity extends AppCompatActivity implements View
         fragmentList.add(new TransferFragment());
 
         //初始化ViewPager并设置ViewPager适配器
-        ViewPager2 runningAccountFragmentPager = findViewById(R.id.new_running_account_pager);  //翻页视图
-        NewRunningAccountFragmentAdapter viewPagerAdapter = new NewRunningAccountFragmentAdapter(this, fragmentList);
+        ViewPager2 runningAccountFragmentPager = findViewById(R.id.running_account_add_pager);  //翻页视图
+        RunningAccountAddFragmentAdapter viewPagerAdapter = new RunningAccountAddFragmentAdapter(this, fragmentList);
         runningAccountFragmentPager.setAdapter(viewPagerAdapter);
 
         //绑定ViewPager和TabLayout
-        TabLayout tabLayout = findViewById(R.id.new_running_account_tab_layout);
+        TabLayout tabLayout = findViewById(R.id.running_account_add_tab_layout);
         new TabLayoutMediator(
                 tabLayout,
                 runningAccountFragmentPager,

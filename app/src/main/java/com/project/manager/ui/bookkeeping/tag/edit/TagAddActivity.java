@@ -20,7 +20,7 @@ import com.project.manager.ui.bookkeeping.tag.Tag;
 
 import java.util.ArrayList;
 
-public class NewTagActivity extends AppCompatActivity implements View.OnFocusChangeListener, View.OnClickListener {
+public class TagAddActivity extends AppCompatActivity implements View.OnFocusChangeListener, View.OnClickListener {
     TextInputLayout tag_name_layout, tag_group_layout;
     TextInputEditText tag_name_input, tag_group_input;
     int selected_index = -1; //选择的分组的索引
@@ -28,7 +28,7 @@ public class NewTagActivity extends AppCompatActivity implements View.OnFocusCha
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_tag);
+        setContentView(R.layout.activity_tag_add);
 
         tag_name_input = findViewById(R.id.tag_name_input);
         tag_group_input = findViewById(R.id.group_name_input);

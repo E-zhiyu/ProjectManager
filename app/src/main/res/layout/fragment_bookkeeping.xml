@@ -46,11 +46,11 @@
                 android:paddingBottom="7sp">
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/new_running_account_btn"
+                    android:id="@+id/running_account_add_btn"
                     style="@style/BtnStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/new_running_account" />
+                    android:text="@string/running_account_add" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/report_btn"

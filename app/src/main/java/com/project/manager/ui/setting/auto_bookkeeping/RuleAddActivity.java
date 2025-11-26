@@ -9,11 +9,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.project.manager.R;
 
-public class NewRuleActivity extends AppCompatActivity implements View.OnClickListener {
+public class RuleAddActivity extends AppCompatActivity implements View.OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_rule);
+        setContentView(R.layout.activity_rule_add);
 
         initViews();
     }

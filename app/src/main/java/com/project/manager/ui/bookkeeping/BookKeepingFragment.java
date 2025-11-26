@@ -28,7 +28,7 @@ import com.project.manager.databinding.FragmentBookkeepingBinding;
 import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.preference.BookKeepingStartDatePreference;
 import com.project.manager.ui.bookkeeping.running_account_edit.modify.RunningAccountModifyActivity;
-import com.project.manager.ui.bookkeeping.running_account_edit.new_running_account.NewRunningAccountActivity;
+import com.project.manager.ui.bookkeeping.running_account_edit.new_running_account.RunningAccountAddActivity;
 import com.project.manager.ResultCode;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.ui.bookkeeping.report.ReportActivity;
@@ -42,7 +42,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     private RunningAccountRecyclerAdapter runningAccountRecyclerAdapter;    //流水列表适配器
     private RecyclerView runningAccountRecyclerView;                        //流水列表视图
     private RunningAccountDatabaseHelper running_account_db_helper;         //流水数据库帮助器
-    private ActivityResultLauncher<Intent> newRunningAccountLauncher, modifyRunningAccountLauncher;  //子活动启动器
+    private ActivityResultLauncher<Intent> runningAccountAddLauncher, modifyRunningAccountLauncher;  //子活动启动器
     MaterialTextView account_num_text;                                      //流水记录数量文本视图
     private int account_num;                                                //流水记录数量
     private long bookkeeping_days;                                          //记账天数
@@ -68,9 +68,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
     @Override
     public void onClick(@NonNull View v) {
-        if (v.getId() == R.id.new_running_account_btn) {    //新建流水
-            Intent skip2NewRunningAccount = new Intent(getActivity(), NewRunningAccountActivity.class);
-            newRunningAccountLauncher.launch(skip2NewRunningAccount);
+        if (v.getId() == R.id.running_account_add_btn) {    //新建流水
+            Intent skip2NewRunningAccount = new Intent(getActivity(), RunningAccountAddActivity.class);
+            runningAccountAddLauncher.launch(skip2NewRunningAccount);
         } else if (v.getId() == R.id.report_btn) {          //查看报表
             Intent skip2Report = new Intent(getActivity(), ReportActivity.class);
             startActivity(skip2Report);
@@ -115,7 +115,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
     //初始化活动启动器
     private void initActivityLauncher() {
-        newRunningAccountLauncher = registerForActivityResult(
+        runningAccountAddLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     int resultCode = result.getResultCode();
@@ -162,7 +162,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     private void initViews() {
         //绑定单击按钮监听器
         View root = binding.getRoot();
-        root.findViewById(R.id.new_running_account_btn).setOnClickListener(this);
+        root.findViewById(R.id.running_account_add_btn).setOnClickListener(this);
         root.findViewById(R.id.report_btn).setOnClickListener(this);
 
         List<RunningAccountBase> runningAccountList = loadRunningAccountData();     //读取流水数据

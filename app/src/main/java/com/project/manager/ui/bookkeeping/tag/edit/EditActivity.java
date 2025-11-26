@@ -27,7 +27,7 @@ import java.util.List;
 
 public class EditActivity extends AppCompatActivity implements View.OnClickListener, TagEditRecyclerAdapter.OnTextViewClickedListener {
     private TagEditRecyclerAdapter adapter;
-    private ActivityResultLauncher<Intent> newTagLauncher, modifyTagLauncher, modifyGroupLauncher;  //活动启动器
+    private ActivityResultLauncher<Intent> tagAddLauncher, modifyTagLauncher, modifyGroupLauncher;  //活动启动器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +54,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(@NonNull View v) {
         if (v.getId() == R.id.tag_add_btn) {
-            Intent skip2NewTag = new Intent(this, NewTagActivity.class);
+            Intent skip2NewTag = new Intent(this, TagAddActivity.class);
 
             //获取已保存的标签分组信息
             List<TagGroup> tagGroupList = adapter.getTagGroupList();
@@ -64,7 +64,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             }
             skip2NewTag.putStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue(), groupNameList);
 
-            newTagLauncher.launch(skip2NewTag);
+            tagAddLauncher.launch(skip2NewTag);
         }
     }
 
@@ -114,7 +114,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
     //初始化活动启动器
     private void initActivityLauncher() {
-        newTagLauncher = registerForActivityResult(
+        tagAddLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     int resultCode = result.getResultCode();
