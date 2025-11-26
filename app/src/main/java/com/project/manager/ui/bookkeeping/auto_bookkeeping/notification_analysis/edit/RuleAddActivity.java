@@ -1,4 +1,4 @@
-package com.project.manager.ui.setting.auto_bookkeeping;
+package com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.edit;
 
 import android.os.Bundle;
 import android.view.View;

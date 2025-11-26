@@ -12,10 +12,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjectManager" >
         <activity
-            android:name=".ui.setting.auto_bookkeeping.RuleAddActivity"
+            android:name=".ui.bookkeeping.auto_bookkeeping.notification_analysis.edit.RuleAddActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.setting.auto_bookkeeping.NotificationAnalysisActivity"
+            android:name=".ui.bookkeeping.auto_bookkeeping.notification_analysis.edit.AnalysisRuleActivity"
             android:exported="false" />
         <activity
             android:name=".ui.bookkeeping.tag.edit.GroupModifyActivity"

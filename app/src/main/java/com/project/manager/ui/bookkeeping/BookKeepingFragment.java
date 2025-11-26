@@ -21,9 +21,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
-import com.project.manager.database.RunningAccountColumns;
-import com.project.manager.database.RunningAccountDatabaseHelper;
-import com.project.manager.database.RunningAccountTables;
+import com.project.manager.database.BookKeepingColumns;
+import com.project.manager.database.BookKeepingDatabaseHelper;
+import com.project.manager.database.BookKeepingTables;
 import com.project.manager.databinding.FragmentBookkeepingBinding;
 import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.preference.BookKeepingStartDatePreference;
@@ -41,7 +41,7 @@ import java.util.List;
 public class BookKeepingFragment extends Fragment implements View.OnClickListener, RunningAccountRecyclerAdapter.OnRunningAccountViewClickListener {
     private RunningAccountRecyclerAdapter runningAccountRecyclerAdapter;    //流水列表适配器
     private RecyclerView runningAccountRecyclerView;                        //流水列表视图
-    private RunningAccountDatabaseHelper running_account_db_helper;         //流水数据库帮助器
+    private BookKeepingDatabaseHelper running_account_db_helper;         //流水数据库帮助器
     private ActivityResultLauncher<Intent> runningAccountAddLauncher, modifyRunningAccountLauncher;  //子活动启动器
     MaterialTextView account_num_text;                                      //流水记录数量文本视图
     private int account_num;                                                //流水记录数量
@@ -52,7 +52,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
 
         //实例化数据库帮助器
-        running_account_db_helper = new RunningAccountDatabaseHelper(getActivity());
+        running_account_db_helper = new BookKeepingDatabaseHelper(getActivity());
 
         initActivityLauncher();
         initViews();
@@ -221,13 +221,13 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
         long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
         basic_values = new ContentValues();
-        basic_values.put(RunningAccountColumns.TYPE.toString(), type.toString());                   //种类
-        basic_values.put(RunningAccountColumns.AMOUNT.toString(), amount);                          //金额
-        basic_values.put(RunningAccountColumns.REMARK.toString(), isDefaultRemark ? null : remark); //备注
-        basic_values.put(RunningAccountColumns.DATETIME.toString(), date_time);                     //日期
-        basic_values.put(RunningAccountColumns.TAG_NO.toString(), tag_no);                          //标签编号
+        basic_values.put(BookKeepingColumns.TYPE.toString(), type.toString());                   //种类
+        basic_values.put(BookKeepingColumns.AMOUNT.toString(), amount);                          //金额
+        basic_values.put(BookKeepingColumns.REMARK.toString(), isDefaultRemark ? null : remark); //备注
+        basic_values.put(BookKeepingColumns.DATETIME.toString(), date_time);                     //日期
+        basic_values.put(BookKeepingColumns.TAG_NO.toString(), tag_no);                          //标签编号
 
-        long rno = db.insert(RunningAccountTables.BASIC.toString(), null, basic_values);   //获取自增主键值
+        long rno = db.insert(BookKeepingTables.BASIC.toString(), null, basic_values);   //获取自增主键值
 
         //获取特殊数据并实例化流水类
         special_values = new ContentValues();
@@ -240,10 +240,10 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
             String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
 
-            special_values.put(RunningAccountColumns.RNO.toString(), rno);
-            special_values.put(RunningAccountColumns.EXPORT.toString(), exportAccount);
-            special_values.put(RunningAccountColumns.IMPORT.toString(), importAccount);
-            db.insert(RunningAccountTables.TRANSFER.toString(), null, special_values);
+            special_values.put(BookKeepingColumns.RNO.toString(), rno);
+            special_values.put(BookKeepingColumns.EXPORT.toString(), exportAccount);
+            special_values.put(BookKeepingColumns.IMPORT.toString(), importAccount);
+            db.insert(BookKeepingTables.TRANSFER.toString(), null, special_values);
 
             newRunningAccountView = new TransferRunningAccount(remark, date_time, amount, isDefaultRemark, exportAccount, importAccount);
         } else {
@@ -290,16 +290,16 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
         //将基本数据存放至数据库
         basic_values = new ContentValues();
-        basic_values.put(RunningAccountColumns.TYPE.toString(), type.toString());                   //种类
-        basic_values.put(RunningAccountColumns.AMOUNT.toString(), amount);                          //金额
-        basic_values.put(RunningAccountColumns.REMARK.toString(), isDefaultRemark ? null : remark); //备注
-        basic_values.put(RunningAccountColumns.DATETIME.toString(), date_time);                     //日期
-        basic_values.put(RunningAccountColumns.TAG_NO.toString(), tag_no);                          //标签编号
-        String selection = RunningAccountColumns.RNO + "=?";
+        basic_values.put(BookKeepingColumns.TYPE.toString(), type.toString());                   //种类
+        basic_values.put(BookKeepingColumns.AMOUNT.toString(), amount);                          //金额
+        basic_values.put(BookKeepingColumns.REMARK.toString(), isDefaultRemark ? null : remark); //备注
+        basic_values.put(BookKeepingColumns.DATETIME.toString(), date_time);                     //日期
+        basic_values.put(BookKeepingColumns.TAG_NO.toString(), tag_no);                          //标签编号
+        String selection = BookKeepingColumns.RNO + "=?";
         long rno = (runningAccountRecyclerAdapter.getItem(position)).getRno();                      //编号
         String[] selectionArgs = new String[]{String.valueOf(rno)};
         db.update(
-                RunningAccountTables.BASIC.toString(),
+                BookKeepingTables.BASIC.toString(),
                 basic_values,
                 selection,
                 selectionArgs
@@ -316,10 +316,10 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
             String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
 
-            special_values.put(RunningAccountColumns.EXPORT.toString(), exportAccount);
-            special_values.put(RunningAccountColumns.IMPORT.toString(), importAccount);
+            special_values.put(BookKeepingColumns.EXPORT.toString(), exportAccount);
+            special_values.put(BookKeepingColumns.IMPORT.toString(), importAccount);
             db.update(
-                    RunningAccountTables.TRANSFER.toString(),
+                    BookKeepingTables.TRANSFER.toString(),
                     special_values,
                     selection,
                     selectionArgs
@@ -356,17 +356,17 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         position = dataBundle.getInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), -1);
         RunningAccountBase target_running_account_view = runningAccountRecyclerAdapter.getItem(position);
         long rno = target_running_account_view.getRno();
-        String selection = RunningAccountColumns.RNO + "=?";
+        String selection = BookKeepingColumns.RNO + "=?";
         String[] selectionArgs = {String.valueOf(rno)};
         db.delete(
-                RunningAccountTables.BASIC.toString(),
+                BookKeepingTables.BASIC.toString(),
                 selection,
                 selectionArgs
         );
         RunningAccountType type = target_running_account_view.getType();
         if (type == RunningAccountType.TRANSFER) {
             db.delete(
-                    RunningAccountTables.TRANSFER.toString(),
+                    BookKeepingTables.TRANSFER.toString(),
                     selection,
                     selectionArgs
             );
@@ -390,32 +390,32 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
         //定义查询光标
         Cursor basic_cursor = db.query(
-                RunningAccountTables.BASIC.toString(),
+                BookKeepingTables.BASIC.toString(),
                 null,
                 null,           //无WHERE子句
                 null,
                 null,
                 null,
-                RunningAccountColumns.DATETIME + " DESC," + RunningAccountColumns.RNO + " DESC"
+                BookKeepingColumns.DATETIME + " DESC," + BookKeepingColumns.RNO + " DESC"
         );
 
         //查询数据
         List<RunningAccountBase> runningAccountList = new ArrayList<>();
         while (basic_cursor.moveToNext()) {
             //流水编号
-            long rno = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.RNO.toString()));
+            long rno = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.RNO.toString()));
             //金额
-            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.AMOUNT.toString()));
+            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.AMOUNT.toString()));
             //种类
-            RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.TYPE.toString())));
+            RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.TYPE.toString())));
             //备注
-            String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.REMARK.toString()));
+            String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.REMARK.toString()));
             if (remark == null) remark = "";
             //是否使用默认备注
             boolean isDefaultRemark;
             isDefaultRemark = remark.isEmpty();
             //日期和时间
-            String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.DATETIME.toString()));
+            String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.DATETIME.toString()));
 
             RunningAccountBase runningAccountView = null;
             switch (type) {
@@ -426,12 +426,12 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                     runningAccountView = new IncomeRunningAccount(rno, remark, datetime, amount, isDefaultRemark);
                     break;
                 case TRANSFER:
-                    String[] columns = {RunningAccountColumns.EXPORT.toString(), RunningAccountColumns.IMPORT.toString()};
-                    String selection = RunningAccountColumns.RNO + "=?";
+                    String[] columns = {BookKeepingColumns.EXPORT.toString(), BookKeepingColumns.IMPORT.toString()};
+                    String selection = BookKeepingColumns.RNO + "=?";
                     String[] selectionArgs = {String.valueOf(rno)};
 
                     Cursor transfer_cursor = db.query(
-                            RunningAccountTables.TRANSFER.toString(),
+                            BookKeepingTables.TRANSFER.toString(),
                             columns,
                             selection,
                             selectionArgs,
@@ -441,8 +441,8 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                     );
 
                     while (transfer_cursor.moveToNext()) {
-                        String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(RunningAccountColumns.EXPORT.toString()));
-                        String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(RunningAccountColumns.IMPORT.toString()));
+                        String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(BookKeepingColumns.EXPORT.toString()));
+                        String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(BookKeepingColumns.IMPORT.toString()));
                         transfer_cursor.close();
                         runningAccountView = new TransferRunningAccount(rno, remark, datetime, amount, isDefaultRemark, exportAccount, importAccount);
                     }

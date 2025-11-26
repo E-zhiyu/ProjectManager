@@ -7,9 +7,9 @@ import android.database.sqlite.SQLiteException;
 
 import androidx.annotation.NonNull;
 
-import com.project.manager.database.RunningAccountColumns;
-import com.project.manager.database.RunningAccountDatabaseHelper;
-import com.project.manager.database.RunningAccountTables;
+import com.project.manager.database.BookKeepingColumns;
+import com.project.manager.database.BookKeepingDatabaseHelper;
+import com.project.manager.database.BookKeepingTables;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 
 public abstract class RunningAccountBase {
@@ -61,24 +61,24 @@ public abstract class RunningAccountBase {
      * @throws SQLiteException 读取失败引发的数据库异常
      */
     public static String getEarliestAccountDate(Context context) throws SQLiteException {
-        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
+        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
 
-        String[] columns = {RunningAccountColumns.DATETIME.toString()};
+        String[] columns = {BookKeepingColumns.DATETIME.toString()};
         Cursor basic_cursor = db.query(
-                RunningAccountTables.BASIC.toString(),
+                BookKeepingTables.BASIC.toString(),
                 columns,
                 null,
                 null,
                 null,
                 null,
-                RunningAccountColumns.DATETIME.toString(),
+                BookKeepingColumns.DATETIME.toString(),
                 "1"
         );
 
         String earliest_date_str = "";
         if (basic_cursor.moveToNext()) {
-            earliest_date_str = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.DATETIME.toString()));
+            earliest_date_str = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.DATETIME.toString()));
 
             //去除后面的时间部分
             earliest_date_str = earliest_date_str.substring(0, 10);

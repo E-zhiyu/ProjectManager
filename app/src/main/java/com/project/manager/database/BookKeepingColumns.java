@@ -2,7 +2,7 @@ package com.project.manager.database;
 
 import androidx.annotation.NonNull;
 
-public enum RunningAccountColumns {
+public enum BookKeepingColumns {
     RNO("Rno"),                 //流水编号
     AMOUNT("Amount"),           //金额
     TYPE("Type"),               //种类
@@ -13,10 +13,16 @@ public enum RunningAccountColumns {
     TAG_NAME("TagName"),        //标签名称
     TAG_NO("TagNo"),            //标签编号
     GROUP_NAME("GroupName"),    //标签分组名称
-    GROUP_NO("GroupNO");        //标签分组编号
+    GROUP_NO("GroupNO"),        //标签分组编号
+    RULE_NO("rule_no"),
+    RULE_NAME("rule_name"),
+    ACCOUNT_TYPE("account_type"),
+    PACKAGE_NAME("package_name"),
+    NOTIFICATION_TITLE("notification_title"),
+    NOTIFICATION_CONTENT("notification_content");
     final String value;
 
-    RunningAccountColumns(String value) {
+    BookKeepingColumns(String value) {
         this.value = value;
     }
 

@@ -2,14 +2,16 @@ package com.project.manager.database;
 
 import androidx.annotation.NonNull;
 
-public enum RunningAccountConstraints {
-    FK_TAG_NO("fk_tag_no"),         //标签编号外键约束
-    FK_RNO("fk_rno"),               //流水账编号外键约束
-    FK_GROUP_NO("fk_group_no");     //分组编号外键约束
+public enum BookKeepingTables {
+    BASIC("basic_data"),
+    TRANSFER("transfer_data"),
+    TAG("tag_data"),
+    TAG_GROUP("tag_group_data"),
+    NOTIFICATION_ANALYSIS_RULE("notification_analysis_rule_data");
 
     final String value;
 
-    RunningAccountConstraints(String value) {
+    BookKeepingTables(String value) {
         this.value = value;
     }
 

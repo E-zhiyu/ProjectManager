@@ -9,9 +9,9 @@ import android.database.sqlite.SQLiteStatement;
 
 import androidx.annotation.NonNull;
 
-import com.project.manager.database.RunningAccountColumns;
-import com.project.manager.database.RunningAccountDatabaseHelper;
-import com.project.manager.database.RunningAccountTables;
+import com.project.manager.database.BookKeepingColumns;
+import com.project.manager.database.BookKeepingDatabaseHelper;
+import com.project.manager.database.BookKeepingTables;
 
 import org.jetbrains.annotations.Contract;
 
@@ -47,14 +47,14 @@ public class Tag {
      * @throws SQLiteException 数据库读取失败产生的异常
      */
     public static int nameTransToTno(String name, Context context) throws SQLiteException {
-        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
+        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
 
-        String[] columns = {RunningAccountColumns.TAG_NO.toString()};
-        String selection = RunningAccountColumns.TAG_NAME + "=?";
+        String[] columns = {BookKeepingColumns.TAG_NO.toString()};
+        String selection = BookKeepingColumns.TAG_NAME + "=?";
         String[] selectionArgs = {name};
         Cursor cursor = db.query(
-                RunningAccountTables.TAG.toString(),
+                BookKeepingTables.TAG.toString(),
                 columns,
                 selection,
                 selectionArgs,
@@ -66,7 +66,7 @@ public class Tag {
 
         int tag_no;
         if (cursor.moveToNext()) {
-            tag_no = cursor.getInt(cursor.getColumnIndexOrThrow(RunningAccountColumns.TAG_NO.toString()));
+            tag_no = cursor.getInt(cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));
         } else {
             tag_no = 0;
         }
@@ -85,14 +85,14 @@ public class Tag {
      * @throws SQLiteException 无法修改数据库时引发的异常
      */
     public static String tagNoTransToName(long tag_no, Context context) throws SQLiteException {
-        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
+        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
 
-        String[] columns = {RunningAccountColumns.TAG_NAME.toString()};
-        String selection = RunningAccountColumns.TAG_NO + "=?";
+        String[] columns = {BookKeepingColumns.TAG_NAME.toString()};
+        String selection = BookKeepingColumns.TAG_NO + "=?";
         String[] selectionArgs = {String.valueOf(tag_no)};
         Cursor cursor = db.query(
-                RunningAccountTables.TAG.toString(),
+                BookKeepingTables.TAG.toString(),
                 columns,
                 selection,
                 selectionArgs,
@@ -104,7 +104,7 @@ public class Tag {
 
         String tag_name;
         if (cursor.moveToNext()) {
-            tag_name = cursor.getString(cursor.getColumnIndexOrThrow(RunningAccountColumns.TAG_NAME.toString()));
+            tag_name = cursor.getString(cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NAME.toString()));
         } else {
             tag_name = "";
         }
@@ -126,13 +126,13 @@ public class Tag {
     public static long saveNewTag(String tag_name, long group_no, Context context) throws SQLiteException {
         long tag_no;    //标签编号
 
-        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
+        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         ContentValues tag_values = new ContentValues();
-        tag_values.put(RunningAccountColumns.TAG_NAME.toString(), tag_name);
-        tag_values.put(RunningAccountColumns.GROUP_NO.toString(), group_no);
-        tag_no = db.insert(RunningAccountTables.TAG.toString(), null, tag_values);
+        tag_values.put(BookKeepingColumns.TAG_NAME.toString(), tag_name);
+        tag_values.put(BookKeepingColumns.GROUP_NO.toString(), group_no);
+        tag_no = db.insert(BookKeepingTables.TAG.toString(), null, tag_values);
 
         db.close();
         return tag_no;
@@ -148,15 +148,15 @@ public class Tag {
      */
     public static void modifyTag(String new_name, long tag_no, Context context) throws SQLiteException {
         ContentValues tag_values = new ContentValues();
-        tag_values.put(RunningAccountColumns.TAG_NAME.toString(), new_name);
-        String whereStr = RunningAccountColumns.TAG_NO + "=?";
+        tag_values.put(BookKeepingColumns.TAG_NAME.toString(), new_name);
+        String whereStr = BookKeepingColumns.TAG_NO + "=?";
         String[] whereStrArgs = {String.valueOf(tag_no)};
 
-        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
+        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         db.update(
-                RunningAccountTables.TAG.toString(),
+                BookKeepingTables.TAG.toString(),
                 tag_values,
                 whereStr,
                 whereStrArgs
@@ -176,16 +176,16 @@ public class Tag {
      */
     public static void modifyTag(String new_tag_name, long tag_no, long new_group_no, Context context) throws SQLiteException {
         ContentValues tag_values = new ContentValues();
-        tag_values.put(RunningAccountColumns.TAG_NAME.toString(), new_tag_name);
-        tag_values.put(RunningAccountColumns.GROUP_NO.toString(), new_group_no);
-        String whereStr = RunningAccountColumns.TAG_NO + "=?";
+        tag_values.put(BookKeepingColumns.TAG_NAME.toString(), new_tag_name);
+        tag_values.put(BookKeepingColumns.GROUP_NO.toString(), new_group_no);
+        String whereStr = BookKeepingColumns.TAG_NO + "=?";
         String[] whereStrArgs = {String.valueOf(tag_no)};
 
-        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
+        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         db.update(
-                RunningAccountTables.TAG.toString(),
+                BookKeepingTables.TAG.toString(),
                 tag_values,
                 whereStr,
                 whereStrArgs
@@ -202,17 +202,17 @@ public class Tag {
      * @throws SQLiteException 无法修改数据库时引发的异常
      */
     public static void deleteTag(long tag_no, Context context) throws SQLiteException {
-        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
+        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         ContentValues basic_values = new ContentValues();
-        basic_values.put(RunningAccountColumns.TAG_NO.toString(), 0);
-        String whereStr = RunningAccountColumns.TAG_NO + "=?";
+        basic_values.put(BookKeepingColumns.TAG_NO.toString(), 0);
+        String whereStr = BookKeepingColumns.TAG_NO + "=?";
         String[] whereStrArgs = {String.valueOf(tag_no)};
 
         //先将流水基本数据表的标签清除（修改为0）
         db.update(
-                RunningAccountTables.BASIC.toString(),
+                BookKeepingTables.BASIC.toString(),
                 basic_values,
                 whereStr,
                 whereStrArgs
@@ -220,7 +220,7 @@ public class Tag {
 
         //再删除对应标签
         db.delete(
-                RunningAccountTables.TAG.toString(),
+                BookKeepingTables.TAG.toString(),
                 whereStr,
                 whereStrArgs
         );
@@ -236,7 +236,7 @@ public class Tag {
      * @throws SQLiteException 无法修改数据库时引发的异常
      */
     public static void deleteTag(@NonNull List<Tag> tagList, Context context) throws SQLiteException {
-        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
+        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         long[] tag_no_list = new long[tagList.size()];
@@ -254,9 +254,9 @@ public class Tag {
         //清除流水表的标签
         String sql;
         SQLiteStatement stmt;
-        sql = "UPDATE " + RunningAccountTables.BASIC +
-                " SET " + RunningAccountColumns.TAG_NO + " =0" +
-                " WHERE " + RunningAccountColumns.TAG_NO + " IN (" + placeholders + ")";
+        sql = "UPDATE " + BookKeepingTables.BASIC +
+                " SET " + BookKeepingColumns.TAG_NO + " =0" +
+                " WHERE " + BookKeepingColumns.TAG_NO + " IN (" + placeholders + ")";
         stmt = db.compileStatement(sql);
         index = 1;
         for (long tagNo : tag_no_list) {
@@ -265,8 +265,8 @@ public class Tag {
         stmt.execute();
 
         //删除标签表的记录
-        sql = "DELETE FROM " + RunningAccountTables.TAG +
-                " WHERE " + RunningAccountColumns.TAG_NO + " IN (" + placeholders + ")";
+        sql = "DELETE FROM " + BookKeepingTables.TAG +
+                " WHERE " + BookKeepingColumns.TAG_NO + " IN (" + placeholders + ")";
         stmt = db.compileStatement(sql);
         index = 1;
         for (long tagNo : tag_no_list) {
@@ -286,18 +286,18 @@ public class Tag {
      * @throws SQLiteException 写入数据库可能引发的异常
      */
     public static void mergeTag(long merged_tag_no, long merge_target_tag_no, Context context) throws SQLiteException {
-        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
+        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //更改对应流水记录的标签
-        String where = RunningAccountColumns.TAG_NO + "=?";
+        String where = BookKeepingColumns.TAG_NO + "=?";
         String[] whereArgs = {String.valueOf(merged_tag_no)};
         ContentValues target_tag_no_values = new ContentValues();
-        target_tag_no_values.put(RunningAccountColumns.TAG_NO.toString(), merge_target_tag_no);
-        db.update(RunningAccountTables.BASIC.toString(), target_tag_no_values, where, whereArgs);
+        target_tag_no_values.put(BookKeepingColumns.TAG_NO.toString(), merge_target_tag_no);
+        db.update(BookKeepingTables.BASIC.toString(), target_tag_no_values, where, whereArgs);
 
         //删除被合并的标签
-        db.delete(RunningAccountTables.TAG.toString(), where, whereArgs);
+        db.delete(BookKeepingTables.TAG.toString(), where, whereArgs);
 
         db.close();
     }
@@ -313,15 +313,15 @@ public class Tag {
     @NonNull
     @Contract("_, _ -> new")
     public static Tag getTagByRno(long rno, Context context) throws SQLiteException {
-        RunningAccountDatabaseHelper db_helper = new RunningAccountDatabaseHelper(context);
+        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //查询标签编号
-        String[] columns = {RunningAccountColumns.TAG_NO.toString()};
-        String selection = RunningAccountColumns.RNO + "=?";
+        String[] columns = {BookKeepingColumns.TAG_NO.toString()};
+        String selection = BookKeepingColumns.RNO + "=?";
         String[] selectionArgs = {String.valueOf(rno)};
         Cursor basic_cursor = db.query(
-                RunningAccountTables.BASIC.toString(),
+                BookKeepingTables.BASIC.toString(),
                 columns,
                 selection,
                 selectionArgs,
@@ -333,15 +333,15 @@ public class Tag {
 
         long tag_no = 0;
         if (basic_cursor.moveToNext()) {
-            tag_no = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(RunningAccountColumns.TAG_NO.toString()));
+            tag_no = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));
         }
 
         //查询标签名称
-        String[] tag_columns = {RunningAccountColumns.TAG_NAME.toString()};
-        String tag_selection = RunningAccountColumns.TAG_NO + "=?";
+        String[] tag_columns = {BookKeepingColumns.TAG_NAME.toString()};
+        String tag_selection = BookKeepingColumns.TAG_NO + "=?";
         String[] tag_selectionArgs = {String.valueOf(tag_no)};
         Cursor tag_cursor = db.query(
-                RunningAccountTables.TAG.toString(),
+                BookKeepingTables.TAG.toString(),
                 tag_columns,
                 tag_selection, tag_selectionArgs,
                 null,
@@ -352,7 +352,7 @@ public class Tag {
 
         String tag_name = "";
         if (tag_cursor.moveToNext()) {
-            tag_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(RunningAccountColumns.TAG_NAME.toString()));
+            tag_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NAME.toString()));
         }
 
         basic_cursor.close();
