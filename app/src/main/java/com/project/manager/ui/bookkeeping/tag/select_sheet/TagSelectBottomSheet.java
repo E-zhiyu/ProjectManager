@@ -28,8 +28,22 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
     private boolean isTagExcepted = false;  //是否存在被排除的标签
     private final SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener tagBtnClickedListener; //标签按钮点击事件的监听器
 
-    public TagSelectBottomSheet(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener) {
+    public interface TagDataObserver {
+        void startObserveTag();
+    }
+
+    /**
+     * 标签选择菜单构造方法
+     *
+     * @param listener 标签按钮点击监听器
+     * @param observer 标签数据更改观察者，用于观察标签是否修改/删除
+     */
+    public TagSelectBottomSheet(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener, TagDataObserver observer) {
         this.tagBtnClickedListener = listener;
+        //标签数据观察者（观察标签是否更改或者删除）
+        if (observer != null) {
+            observer.startObserveTag();
+        }
     }
 
     /**

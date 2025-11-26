@@ -12,18 +12,28 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
+import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
+import com.project.manager.ui.bookkeeping.TagString;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
+import com.project.manager.ui.bookkeeping.tag.Tag;
+import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
+import com.project.manager.ui.view_model.AccountTagModifyID;
+import com.project.manager.ui.view_model.AccountTagViewModel;
+import com.project.manager.ui.view_model.TagWithModifyID;
 
-public class RuleAddActivity extends AppCompatActivity implements View.OnClickListener {
+public class RuleAddActivity extends AppCompatActivity implements View.OnClickListener{
     private TextInputEditText rule_name_input;                      //规则名称输入框
     private TextInputEditText type_input;                           //种类输入框
+    private TextInputEditText tag_input;                            //标签名称输入框
     private TextInputEditText package_name_input;                   //包名输入框
     private TextInputEditText notification_title_input;             //通知标题输入框
     private TextInputEditText notification_content_input;           //通知内容输入框
     private long tag_no = 0;                                        //标签编号
     private RunningAccountType type = RunningAccountType.EXPENSE;   //流水种类
+    private AccountTagViewModel tagViewModel;                       //用于更新标签名称的ViewModel
+    private TagSelectBottomSheet tag_sheet;                         //标签选择弹出菜单
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +41,10 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
         setContentView(R.layout.activity_rule_add);
 
         initViews();
+
+        //获取更新Tag名称的ViewModel
+        ManagerAssistant app = (ManagerAssistant) getApplication();
+        tagViewModel = app.getAccountTagViewModel();
     }
 
     @Override
@@ -58,6 +72,9 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
                     })
                     .setNegativeButton("关闭", (dialog, which) -> dialog.dismiss())
                     .show();
+        } else if (v.getId() == R.id.tag_name_input) {
+            tag_sheet = new TagSelectBottomSheet(this::onTagBtnClicked, this::startObserveTag);
+            tag_sheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
         } else if (v.getId() == R.id.finish_btn) {
             String err = verifyInput();
             if (err == null) {
@@ -81,6 +98,7 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
 
         rule_name_input = findViewById(R.id.rule_name_input);
         type_input = findViewById(R.id.type_input);
+        tag_input = findViewById(R.id.tag_name_input);
         package_name_input = findViewById(R.id.package_name_input);
         notification_title_input = findViewById(R.id.notification_title_input);
         notification_content_input = findViewById(R.id.notification_content_input);
@@ -88,9 +106,47 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
         type_input.setText(RunningAccountType.EXPENSE.getTitle());
 
         type_input.setOnClickListener(this);
+        tag_input.setOnClickListener(this);
         findViewById(R.id.input_introduce_btn).setOnClickListener(this);
         findViewById(R.id.finish_btn).setOnClickListener(this);
         findViewById(R.id.cancel_btn).setOnClickListener(this);
+    }
+
+    //处理标签按钮点击事件
+    public void onTagBtnClicked(long tag_no, String tag_name) {
+        this.tag_no = tag_no;
+        tag_input.setText(tag_name);
+        tag_sheet.dismiss();
+    }
+
+    //观察标签数据变化
+    private void startObserveTag() {
+        tagViewModel.getTag().observe(this, tagList -> {
+            if (tagList != null) {  //判断是否为调用resetTagValue()方法后传入的null值
+                for (TagWithModifyID tag : tagList) {
+                    String tag_name = tag.getTag_name();
+                    long tag_no = tag.getTag_no();
+                    AccountTagModifyID modifyID = tag.getModifyID();
+
+                    if (tag_no == this.tag_no) {    //只有找到匹配的标签编号才修改
+                        switch (modifyID) {
+                            case MODIFY:
+                                tag_input.setText(tag_name);
+                                break;
+                            case DELETE:
+                                this.tag_no = 0;
+                                tag_input.setText("");
+                                break;
+                            case MERGE:
+                                this.tag_no = Tag.nameTransToTno(tag_name, this);
+                                tag_input.setText(tag_name);
+                                break;
+                        }
+                    }
+                }
+                tagViewModel.resetTagValue();
+            }
+        });
     }
 
     /**

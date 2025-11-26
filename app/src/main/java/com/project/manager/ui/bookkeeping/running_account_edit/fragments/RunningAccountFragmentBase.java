@@ -25,7 +25,6 @@ import com.project.manager.ui.view_model.AccountTagModifyID;
 import com.project.manager.ui.view_model.AccountTagViewModel;
 import com.project.manager.ui.bookkeeping.tag.Tag;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
-import com.project.manager.ui.bookkeeping.tag.select_sheet.SheetTagBtnRecyclerAdapter;
 import com.project.manager.ui.view_model.TagWithModifyID;
 
 import java.time.LocalDateTime;
@@ -33,8 +32,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 
-public abstract class RunningAccountFragmentBase extends Fragment implements
-        View.OnClickListener, View.OnFocusChangeListener, SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener {
+public abstract class RunningAccountFragmentBase extends Fragment implements View.OnClickListener, View.OnFocusChangeListener{
     Bundle initData = null;                                 //初始化控件内容的数据（用于编辑流水记录时）
     View binding;                                           //绑定的XML界面
     protected String name;                                  //碎片名称
@@ -56,13 +54,10 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
         ManagerAssistant app = (ManagerAssistant) requireActivity().getApplication();
         tagViewModel = app.getAccountTagViewModel();
 
-        startObserveTag();    //监听标签变化
-
         //判断是否传递了外部数据，如果传递了则将数据填入对应控件
         if (initData != null) {
             initViewsWhenModifying(initData);
         }
-
 
         return binding;
     }
@@ -128,7 +123,6 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
         }
     }
 
-    @Override
     public void onTagBtnClicked(long tag_no, String tag_name) {
         this.tag_no = tag_no;   //更新全局变量中的标签编号
 
@@ -352,7 +346,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements
 
     //显示选择标签的底部弹出视图
     private void showTagSelectSheet() {
-        tag_sheet = new TagSelectBottomSheet(this);
+        tag_sheet = new TagSelectBottomSheet(this::onTagBtnClicked, this::startObserveTag);
         tag_sheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
     }
 }
