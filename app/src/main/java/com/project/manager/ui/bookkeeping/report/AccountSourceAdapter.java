@@ -14,16 +14,16 @@ import com.project.manager.R;
 
 import java.util.List;
 
-public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdapter.AccountScourceViewHolder> {
+public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdapter.AccountProportionViewHolder> {
     private final List<AccountSourceInfo> sourceCardList;  //来源卡片列表
 
-    public static class AccountScourceViewHolder extends RecyclerView.ViewHolder {
+    public static class AccountProportionViewHolder extends RecyclerView.ViewHolder {
         MaterialTextView source_name_text;  //标签名称文本
         MaterialTextView proportion_text;   //金额占比文本
         MaterialTextView amount_text;       //金额文本
         ProgressBar proportion_bar;         //占比进度条
 
-        public AccountScourceViewHolder(@NonNull View itemView) {
+        public AccountProportionViewHolder(@NonNull View itemView) {
             super(itemView);
 
             source_name_text = itemView.findViewById(R.id.source_name_text);
@@ -39,10 +39,10 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
 
     @NonNull
     @Override
-    public AccountScourceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public AccountProportionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.card_view_amount_proportion, parent, false);
-        return new AccountScourceViewHolder(view);
+                .inflate(R.layout.view_holder_amount_proportion, parent, false);
+        return new AccountProportionViewHolder(view);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
 
     @Override
     @SuppressLint("DefaultLocale")
-    public void onBindViewHolder(@NonNull AccountScourceViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull AccountProportionViewHolder holder, int position) {
         AccountSourceInfo oneSourceInfo = sourceCardList.get(position);
         String source_name = oneSourceInfo.getSource_name();
         int percentage = oneSourceInfo.getPercentage();

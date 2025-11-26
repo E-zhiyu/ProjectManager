@@ -47,7 +47,7 @@ public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapte
     @Override
     public MonthAccountAdapter.MonthAccountViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.card_view_amount_proportion, parent, false);
+                .inflate(R.layout.view_holder_amount_proportion, parent, false);
         return new MonthAccountAdapter.MonthAccountViewHolder(view);
     }
 

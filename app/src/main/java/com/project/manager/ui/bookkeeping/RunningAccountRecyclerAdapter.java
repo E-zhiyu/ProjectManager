@@ -30,7 +30,7 @@ public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningA
     @Override
     public RunningAccountViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.running_account_view, parent, false);
+                .inflate(R.layout.view_holder_running_account, parent, false);
         return new RunningAccountViewHolder(view, listener);
     }
 

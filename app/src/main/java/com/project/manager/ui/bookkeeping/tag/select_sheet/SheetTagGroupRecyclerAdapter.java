@@ -48,7 +48,7 @@ public class SheetTagGroupRecyclerAdapter extends RecyclerView.Adapter<SheetTagG
     @Override
     public TagSelectHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View tag_group = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.tag_group_in_bottom_sheet, parent, false);
+                .inflate(R.layout.view_holder_tag_select, parent, false);
 
         return new TagSelectHolder(tag_group);
     }
