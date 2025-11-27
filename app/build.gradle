@@ -33,7 +33,7 @@ android {
 
 dependencies {
     implementation libs.appcompat
-    implementation libs.material
+    implementation libs.material.v1130
     implementation libs.recyclerview
     implementation libs.constraintlayout
     implementation libs.lifecycle.livedata.ktx

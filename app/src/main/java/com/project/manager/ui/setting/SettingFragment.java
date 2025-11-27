@@ -25,7 +25,7 @@ import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.preference.AutoBookKeepingPreference;
 import com.project.manager.preference.BookKeepingStartDatePreference;
 import com.project.manager.ui.animation.AnimationHelper;
-import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.edit.AnalysisRuleActivity;
+import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleActivity;
 import com.project.manager.ui.setting.helpers.AboutHelper;
 import com.project.manager.ui.setting.helpers.ThemeModeHelper;
 import com.project.manager.ui.setting.helpers.UpdateLogHelper;

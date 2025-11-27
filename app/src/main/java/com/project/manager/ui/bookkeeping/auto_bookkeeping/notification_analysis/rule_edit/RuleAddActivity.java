@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.edit;
+package com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,8 +17,10 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
+import com.project.manager.exception.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.TagString;
+import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select.PackageNameSelectActivity;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.ui.bookkeeping.tag.Tag;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
@@ -39,6 +43,7 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
     private RunningAccountType type = RunningAccountType.EXPENSE;   //流水种类
     private AccountTagViewModel tagViewModel;                       //用于更新标签名称的ViewModel
     private TagSelectBottomSheet tag_sheet;                         //标签选择弹出菜单
+    private ActivityResultLauncher<Intent> packageNameSelectLauncher;   //包名选择启动器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +51,7 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
         setContentView(R.layout.activity_rule_add);
 
         initViews();
+        initLaunchers();
 
         //获取更新Tag名称的ViewModel
         ManagerAssistant app = (ManagerAssistant) getApplication();
@@ -78,7 +84,8 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
                     .setNegativeButton("关闭", (dialog, which) -> dialog.dismiss())
                     .show();
         } else if (v.getId() == R.id.package_name_input) {
-            //TODO: 完善包名选择逻辑
+            Intent skip2PackageNameSelect = new Intent(this, PackageNameSelectActivity.class);
+            packageNameSelectLauncher.launch(skip2PackageNameSelect);
         } else if (v.getId() == R.id.tag_name_input) {
             tag_sheet = new TagSelectBottomSheet(this::onTagBtnClicked, this::startObserveTag);
             tag_sheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
@@ -173,6 +180,29 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
         package_name_input.setOnFocusChangeListener(this);
         notification_title_input.setOnFocusChangeListener(this);
         notification_content_input.setOnFocusChangeListener(this);
+    }
+
+    private void initLaunchers() {
+        packageNameSelectLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    int resultCode = result.getResultCode();
+                    Intent data = result.getData();
+
+                    if (resultCode == Activity.RESULT_OK) {
+                        if (data != null) {
+                            onPackageNameSelected(data);
+                        } else {
+                            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据");
+                            ExceptionHelper.showExceptionDialog(this, e);
+                        }
+                    }
+                }
+        );
+    }
+
+    private void onPackageNameSelected(Intent data) {
+        //TODO: 完善包名选择回调
     }
 
     //处理标签按钮点击事件

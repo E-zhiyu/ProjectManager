@@ -147,6 +147,16 @@
         <item name="android:textColorHighlight">@color/theme_blue_variant_night</item>
     </style>
 
+    <!-- SearchBar样式 -->
+    <style name="SearchBarStyle" parent="Widget.Material3.SearchBar">
+        <item name="backgroundTint">@color/card_background_night</item>
+    </style>
+
+    <!-- SearchView样式 -->
+    <style name="SearchViewStyle" parent="Widget.Material3.SearchView">
+        <item name="backgroundTint">@color/page_background_night</item>
+    </style>
+
     <!-- 底部导航栏样式 -->
     <style name="NaviStyle">
         <item name="itemTextColor">@color/bottom_navigation_selector</item>

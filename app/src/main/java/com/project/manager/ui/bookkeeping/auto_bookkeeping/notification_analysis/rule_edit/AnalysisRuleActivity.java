@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.edit;
+package com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit;
 
 import android.app.Activity;
 import android.content.Intent;
