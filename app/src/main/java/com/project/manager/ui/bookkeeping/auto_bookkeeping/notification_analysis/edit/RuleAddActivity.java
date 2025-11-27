@@ -24,7 +24,7 @@ import com.project.manager.ui.view_model.AccountTagModifyID;
 import com.project.manager.ui.view_model.AccountTagViewModel;
 import com.project.manager.ui.view_model.TagWithModifyID;
 
-public class RuleAddActivity extends AppCompatActivity implements View.OnClickListener {
+public class RuleAddActivity extends AppCompatActivity implements View.OnClickListener, View.OnFocusChangeListener {
     private TextInputEditText rule_name_input;                      //规则名称输入框
     private TextInputLayout rule_name_layout;                       //规则名称输入框布局管理器
     private TextInputEditText type_input;                           //种类输入框
@@ -77,6 +77,8 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
                     })
                     .setNegativeButton("关闭", (dialog, which) -> dialog.dismiss())
                     .show();
+        } else if (v.getId() == R.id.package_name_input) {
+            //TODO: 完善包名选择逻辑
         } else if (v.getId() == R.id.tag_name_input) {
             tag_sheet = new TagSelectBottomSheet(this::onTagBtnClicked, this::startObserveTag);
             tag_sheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
@@ -96,11 +98,54 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
+    @Override
+    public void onFocusChange(View v, boolean hasFocus) {
+        if (!hasFocus) {
+            String err = null;
+            if (v == rule_name_input && String.valueOf(rule_name_input.getText()).isEmpty()) {
+                err = "规则名称不能为空";
+                rule_name_layout.setErrorEnabled(true);
+                rule_name_layout.setError(err);
+            } else if (v == package_name_input && String.valueOf(package_name_input.getText()).isEmpty()) {
+                err = "包名不能为空";
+                package_name_layout.setErrorEnabled(true);
+                package_name_layout.setError(err);
+            } else if (v == notification_title_input && String.valueOf(notification_title_input.getText()).isEmpty()) {
+                err = "通知标题不能为空";
+                notification_title_layout.setErrorEnabled(true);
+                notification_title_layout.setError(err);
+            } else if (v == notification_content_input && String.valueOf(notification_content_input.getText()).isEmpty()) {
+                err = "通知内容不能为空";
+                notification_content_layout.setErrorEnabled(true);
+                notification_content_layout.setError(err);
+            }
+
+            if (err != null) {
+                Toast.makeText(this, err, Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            if (v == rule_name_input) {
+                rule_name_layout.setErrorEnabled(false);
+                rule_name_layout.setError(null);
+            } else if (v == package_name_input) {
+                package_name_layout.setErrorEnabled(false);
+                package_name_layout.setError(null);
+            } else if (v == notification_title_input) {
+                notification_title_layout.setErrorEnabled(false);
+                notification_title_layout.setError(null);
+            } else if (v == notification_content_input) {
+                notification_content_layout.setErrorEnabled(false);
+                notification_content_layout.setError(null);
+            }
+        }
+    }
+
     private void initViews() {
         //设置标题栏的图标点击监听器
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> finish());
 
+        //获取输入框引用
         rule_name_input = findViewById(R.id.rule_name_input);
         type_input = findViewById(R.id.type_input);
         tag_input = findViewById(R.id.tag_name_input);
@@ -108,17 +153,26 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
         notification_title_input = findViewById(R.id.notification_title_input);
         notification_content_input = findViewById(R.id.notification_content_input);
 
+        //获取输入框布局管理器引用
         rule_name_layout = findViewById(R.id.rule_name_layout);
         package_name_layout = findViewById(R.id.package_name_layout);
         notification_title_layout = findViewById(R.id.notification_title_layout);
         notification_content_layout = findViewById(R.id.notification_content_layout);
 
+        //设置点击监听器以及文本内容
         type_input.setText(RunningAccountType.EXPENSE.getTitle());
         type_input.setOnClickListener(this);
         tag_input.setOnClickListener(this);
+        package_name_input.setOnClickListener(this);
         findViewById(R.id.input_introduce_btn).setOnClickListener(this);
         findViewById(R.id.finish_btn).setOnClickListener(this);
         findViewById(R.id.cancel_btn).setOnClickListener(this);
+
+        //设置焦点变更监听器
+        rule_name_input.setOnFocusChangeListener(this);
+        package_name_input.setOnFocusChangeListener(this);
+        notification_title_input.setOnFocusChangeListener(this);
+        notification_content_input.setOnFocusChangeListener(this);
     }
 
     //处理标签按钮点击事件
