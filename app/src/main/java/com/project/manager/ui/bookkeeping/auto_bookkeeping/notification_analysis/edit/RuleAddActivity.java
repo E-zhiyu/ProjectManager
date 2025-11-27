@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
@@ -23,13 +24,17 @@ import com.project.manager.ui.view_model.AccountTagModifyID;
 import com.project.manager.ui.view_model.AccountTagViewModel;
 import com.project.manager.ui.view_model.TagWithModifyID;
 
-public class RuleAddActivity extends AppCompatActivity implements View.OnClickListener{
+public class RuleAddActivity extends AppCompatActivity implements View.OnClickListener {
     private TextInputEditText rule_name_input;                      //规则名称输入框
+    private TextInputLayout rule_name_layout;                       //规则名称输入框布局管理器
     private TextInputEditText type_input;                           //种类输入框
     private TextInputEditText tag_input;                            //标签名称输入框
     private TextInputEditText package_name_input;                   //包名输入框
+    private TextInputLayout package_name_layout;                    //包名输入框布局管理器
     private TextInputEditText notification_title_input;             //通知标题输入框
+    private TextInputLayout notification_title_layout;              //通知标题输入框布局管理器
     private TextInputEditText notification_content_input;           //通知内容输入框
+    private TextInputLayout notification_content_layout;            //通知内容输入框布局管理器
     private long tag_no = 0;                                        //标签编号
     private RunningAccountType type = RunningAccountType.EXPENSE;   //流水种类
     private AccountTagViewModel tagViewModel;                       //用于更新标签名称的ViewModel
@@ -103,8 +108,12 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
         notification_title_input = findViewById(R.id.notification_title_input);
         notification_content_input = findViewById(R.id.notification_content_input);
 
-        type_input.setText(RunningAccountType.EXPENSE.getTitle());
+        rule_name_layout = findViewById(R.id.rule_name_layout);
+        package_name_layout = findViewById(R.id.package_name_layout);
+        notification_title_layout = findViewById(R.id.notification_title_layout);
+        notification_content_layout = findViewById(R.id.notification_content_layout);
 
+        type_input.setText(RunningAccountType.EXPENSE.getTitle());
         type_input.setOnClickListener(this);
         tag_input.setOnClickListener(this);
         findViewById(R.id.input_introduce_btn).setOnClickListener(this);
@@ -156,8 +165,26 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
      */
     private String verifyInput() {
         String err = null;
+        TextInputLayout errLayout = null;
 
-        //TODO: 完善输入内容检测方法
+        if (String.valueOf(rule_name_input.getText()).isEmpty()) {
+            errLayout = rule_name_layout;
+            err = "规则名称不能为空";
+        } else if (String.valueOf(package_name_input.getText()).isEmpty()) {
+            errLayout = package_name_layout;
+            err = "包名不能为空";
+        } else if (String.valueOf(notification_title_input.getText()).isEmpty()) {
+            errLayout = notification_title_layout;
+            err = "通知标题不能为空";
+        } else if (String.valueOf(notification_content_input.getText()).isEmpty()) {
+            errLayout = notification_content_layout;
+            err = "通知内容不能为空";
+        }
+
+        if (errLayout != null) {
+            errLayout.setErrorEnabled(true);
+            errLayout.setError(err);
+        }
 
         return err;
     }
