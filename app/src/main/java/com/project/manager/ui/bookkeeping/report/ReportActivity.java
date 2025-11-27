@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
+import java.util.TimeZone;
 
 public class ReportActivity extends AppCompatActivity implements View.OnClickListener {
     //余额增加的流水种类
@@ -485,8 +486,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
      */
     @SuppressLint("DefaultLocale")
     private void showDatePickerDialog() {
-        //获取已选中的日期的日历对象
-        Calendar selectedCalendar = Calendar.getInstance();
+        //实例化一个日期对象用于存放选中的日期
+        Calendar selectedCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));  //指定UTC时区以确保早晨不会选择到昨天
         selectedCalendar.set(year, month - 1, day);
 
         //创建日期选择器
