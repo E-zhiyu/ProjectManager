@@ -19,7 +19,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
-import com.project.manager.exception.ExceptionHelper;
+import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.TagString;
 import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select.PackageNameSelectActivity;

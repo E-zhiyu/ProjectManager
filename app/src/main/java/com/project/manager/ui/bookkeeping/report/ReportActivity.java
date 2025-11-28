@@ -23,7 +23,7 @@ import com.project.manager.R;
 import com.project.manager.database.BookKeepingColumns;
 import com.project.manager.database.BookKeepingDatabaseHelper;
 import com.project.manager.database.BookKeepingTables;
-import com.project.manager.exception.ExceptionHelper;
+import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.TagString;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.ui.bookkeeping.tag.Tag;

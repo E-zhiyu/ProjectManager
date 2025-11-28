@@ -1,4 +1,4 @@
-package com.project.manager.ui.animation;
+package com.project.manager.helpers;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

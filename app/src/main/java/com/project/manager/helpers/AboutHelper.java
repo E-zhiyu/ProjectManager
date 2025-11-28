@@ -1,4 +1,4 @@
-package com.project.manager.ui.setting.helpers;
+package com.project.manager.helpers;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -13,7 +13,6 @@ import androidx.annotation.NonNull;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
-import com.project.manager.exception.ExceptionHelper;
 
 import io.noties.markwon.Markwon;
 

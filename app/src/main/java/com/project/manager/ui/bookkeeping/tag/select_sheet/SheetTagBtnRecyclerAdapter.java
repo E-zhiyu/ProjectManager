@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
-import com.project.manager.exception.ExceptionHelper;
+import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.tag.Tag;
 
 import java.util.List;

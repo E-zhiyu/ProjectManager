@@ -1,4 +1,4 @@
-package com.project.manager.exception;
+package com.project.manager.helpers;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;

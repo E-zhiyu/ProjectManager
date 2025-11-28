@@ -11,7 +11,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.project.manager.exception.ExceptionHelper;
+import com.project.manager.helpers.ExceptionHelper;
 
 public class BookKeepingDatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "running_account.db";   //数据库名称
