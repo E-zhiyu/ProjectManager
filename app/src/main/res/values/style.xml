@@ -126,6 +126,11 @@
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
     </style>
+    
+    <!-- 图标视图样式 -->
+    <style name="RoundShapeableImageViewStyle">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Material3.Corner.Medium</item>
+    </style>
 
     <!-- 复选框样式 -->
     <style name="CheckBoxStyle">
