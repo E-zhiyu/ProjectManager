@@ -21,6 +21,7 @@ import java.util.List;
 public class AnalysisRuleActivity extends AppCompatActivity implements View.OnClickListener {
     private ActivityResultLauncher<Intent> ruleAddLauncher; //添加规则界面的启动器
     private AnalysisRuleAdapter rule_adapter;               //规则列表适配器
+    private RecyclerView rule_recycler;                     //规则列表视图
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +50,7 @@ public class AnalysisRuleActivity extends AppCompatActivity implements View.OnCl
         //设置RecyclerView的适配器
         List<AnalysisRule> ruleList = AnalysisRule.loadAnalysisRule(this);
         rule_adapter = new AnalysisRuleAdapter(ruleList, this);
-        RecyclerView rule_recycler = findViewById(R.id.rule_recycler);
+        rule_recycler = findViewById(R.id.rule_recycler);
         rule_recycler.setAdapter(rule_adapter);
     }
 
@@ -81,5 +82,6 @@ public class AnalysisRuleActivity extends AppCompatActivity implements View.OnCl
         }
 
         rule_adapter.addRule(dataBundle);
+        rule_recycler.scrollToPosition(0);
     }
 }
