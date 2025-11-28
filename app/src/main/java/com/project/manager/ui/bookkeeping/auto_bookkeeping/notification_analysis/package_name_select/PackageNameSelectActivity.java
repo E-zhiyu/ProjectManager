@@ -4,12 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.TypedValue;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -26,8 +22,14 @@ import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public class PackageNameSelectActivity extends AppCompatActivity {
     private List<AppInfo> fullAppInfoList;                  //完整的应用列表
+    private CompositeDisposable disposables = new CompositeDisposable();    //订阅列表
     private boolean isSysAppIncluded = false;               //应用列表是否包含系统应用
     private SearchView searchView;                          //搜索视图
     private AppListAdapter fullAppAdapter, searchAdapter;   //完整的应用列表适配器和搜索结果适配器
@@ -40,16 +42,40 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         initViews();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // 防止内存泄漏
+        disposables.dispose();
+    }
+
     //初始化视图
     private void initViews() {
         searchView = findViewById(R.id.search_view);
 
-        //TODO: 将下面的代码放置于另一个线程中执行
-        fullAppInfoList = getInstalledApps();
         RecyclerView full_app_list_recycler = findViewById(R.id.app_list_recycler);         //打开页面时显示的完整应用列表视图
-        fullAppAdapter = new AppListAdapter(fullAppInfoList, this::onAppClicked, this);
-        full_app_list_recycler.setAdapter(fullAppAdapter);
         RecyclerView search_result_recycler = findViewById(R.id.search_result_recycler);    //搜索结果列表视图
+
+        //使用多线程实现应用列表加载
+        disposables.add(
+                Observable.fromCallable(() ->
+                        fullAppInfoList = getInstalledApps()
+                )
+                .subscribeOn(Schedulers.io()) //在 IO 线程执行查询
+                .observeOn(AndroidSchedulers.mainThread()) //切换到主线程更新 UI
+                .subscribe(
+                        apps -> {
+                            fullAppAdapter = new AppListAdapter(fullAppInfoList, this::onAppClicked, this);
+                            full_app_list_recycler.setAdapter(fullAppAdapter);
+                        },  //成功回调
+                        e -> {
+                            fullAppAdapter = new AppListAdapter(new ArrayList<>(), this::onAppClicked, this);
+                            full_app_list_recycler.setAdapter(fullAppAdapter);
+                            ExceptionHelper.showExceptionDialog(this, e);
+                        }   //错误处理
+                ));
+
+        full_app_list_recycler.setAdapter(fullAppAdapter);
         searchAdapter = new AppListAdapter(new ArrayList<>(), this::onAppClicked, this);
         search_result_recycler.setAdapter(searchAdapter);
     }

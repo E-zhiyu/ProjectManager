@@ -11,7 +11,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.project.manager.R;
 
 public class ExceptionHelper {
-    public static void showExceptionDialog(Context context, @NonNull Exception e) {
+    public static void showExceptionDialog(Context context, @NonNull Throwable e) {
         String err_message = e.getMessage();
         new MaterialAlertDialogBuilder(context)
                 .setTitle("运行出错")

@@ -48,4 +48,6 @@ dependencies {
     implementation libs.jackson.databind
     implementation libs.viewpager2
     implementation libs.core
+    implementation libs.rxandroid
+    implementation libs.rxjava
 }
