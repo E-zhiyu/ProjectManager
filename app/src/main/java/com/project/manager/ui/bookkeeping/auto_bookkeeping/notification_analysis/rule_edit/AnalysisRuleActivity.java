@@ -49,7 +49,7 @@ public class AnalysisRuleActivity extends AppCompatActivity implements View.OnCl
 
         //设置RecyclerView的适配器
         List<AnalysisRule> ruleList = AnalysisRule.loadAnalysisRule(this);
-        rule_adapter = new AnalysisRuleAdapter(ruleList, this);
+        rule_adapter = new AnalysisRuleAdapter(ruleList, this::onRuleClicked, this);
         rule_recycler = findViewById(R.id.rule_recycler);
         rule_recycler.setAdapter(rule_adapter);
     }
@@ -71,6 +71,11 @@ public class AnalysisRuleActivity extends AppCompatActivity implements View.OnCl
                     }
                 }
         );
+    }
+
+    //TODO: 规则点击处理方法
+    private void onRuleClicked(int position) {
+
     }
 
     private void onAnalysisRuleAdded(@NonNull Intent resuleIntent) {

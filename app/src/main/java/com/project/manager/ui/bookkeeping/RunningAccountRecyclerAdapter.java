@@ -16,6 +16,22 @@ public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningA
     private final List<RunningAccountBase> runningAccountList;   //数据源
     private final OnRunningAccountViewClickListener listener;   //单击接口对象
 
+    public static class RunningAccountViewHolder extends RecyclerView.ViewHolder {
+        MaterialTextView amount_text, remark_text, name_datetime_text;
+
+        public RunningAccountViewHolder(@NonNull View itemView) {
+            super(itemView);
+            amount_text = itemView.findViewById(R.id.amount_text);
+            remark_text = itemView.findViewById(R.id.remark_textview);
+            name_datetime_text = itemView.findViewById(R.id.name_datetime_textview);
+        }
+    }
+
+    //定义流水视图点击事件接口
+    public interface OnRunningAccountViewClickListener {
+        void onRunningAccountViewClick(int position, RunningAccountBase runningAccountBase);
+    }
+
     /**
      * 构造方法
      *
@@ -31,7 +47,7 @@ public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningA
     public RunningAccountViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.view_holder_running_account, parent, false);
-        return new RunningAccountViewHolder(view, listener);
+        return new RunningAccountViewHolder(view);
     }
 
     @Override
@@ -45,34 +61,13 @@ public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningA
         holder.remark_text.setText(currentRunningAccount.getRemark());                  //备注
         holder.name_datetime_text.setText(name_and_datetime);                           //名称和日期
         holder.amount_text.setText(String.valueOf(currentRunningAccount.getAmount()));  //金额
+
+        holder.itemView.setOnClickListener(v -> listener.onRunningAccountViewClick(position, currentRunningAccount));
     }
 
     @Override
     public int getItemCount() {
         return this.runningAccountList.size();
-    }
-
-    //定义流水视图点击事件接口
-    public interface OnRunningAccountViewClickListener {
-        void onRunningAccountViewClick(int position, RunningAccountBase runningAccountBase);
-    }
-
-    public class RunningAccountViewHolder extends RecyclerView.ViewHolder {
-        MaterialTextView amount_text, remark_text, name_datetime_text;
-
-        public RunningAccountViewHolder(@NonNull View itemView, OnRunningAccountViewClickListener listener) {
-            super(itemView);
-            amount_text = itemView.findViewById(R.id.amount_text);
-            remark_text = itemView.findViewById(R.id.remark_textview);
-            name_datetime_text = itemView.findViewById(R.id.name_datetime_textview);
-
-            //绑定点击事件
-            itemView.setOnClickListener(v -> {
-                if (listener != null && getAdapterPosition() != RecyclerView.NO_POSITION) {
-                    listener.onRunningAccountViewClick(getAdapterPosition(), runningAccountList.get(getAdapterPosition()));
-                }
-            });
-        }
     }
 
     /**

@@ -1,8 +1,10 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/ContentCardStyle"
+    style="@style/InfoCardStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="0sp"
+    android:layout_marginLeft="10sp"
+    android:layout_marginTop="5sp"
+    android:layout_marginRight="10sp"
     android:background="?selectableItemBackground"
     android:clickable="true"
     android:focusable="true">

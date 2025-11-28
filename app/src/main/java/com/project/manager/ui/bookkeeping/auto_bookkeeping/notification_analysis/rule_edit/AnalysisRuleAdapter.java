@@ -23,6 +23,7 @@ import java.util.List;
 
 public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapter.AnalysisRuleViewHolder> {
     private final Context context;
+    private final RuleClickedListener listener; //规则视图点击监听器
     private final List<AnalysisRule> ruleList;
 
     public static class AnalysisRuleViewHolder extends RecyclerView.ViewHolder {
@@ -37,8 +38,18 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         }
     }
 
-    public AnalysisRuleAdapter(List<AnalysisRule> ruleList, Context context) {
+    public interface RuleClickedListener {
+        /**
+         * 规则点击回调方法
+         *
+         * @param position 点击的规则的下标
+         */
+        void onRuleClicked(int position);
+    }
+
+    public AnalysisRuleAdapter(List<AnalysisRule> ruleList, RuleClickedListener listener, Context context) {
         this.ruleList = ruleList;
+        this.listener = listener;
         this.context = context;
     }
 
@@ -71,6 +82,8 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         holder.rule_name_text.setText(rule_name);
         holder.type_text.setText(type_str);
         holder.tag_name_text.setText(tag_name);
+
+        holder.itemView.setOnClickListener(v -> listener.onRuleClicked(position));
     }
 
     @Override
