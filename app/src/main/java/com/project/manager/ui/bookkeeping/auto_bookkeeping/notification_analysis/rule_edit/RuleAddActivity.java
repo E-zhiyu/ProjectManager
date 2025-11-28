@@ -205,8 +205,9 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
         );
     }
 
-    private void onPackageNameSelected(Intent data) {
-        //TODO: 完善包名选择回调
+    private void onPackageNameSelected(@NonNull Intent data) {
+        String package_name = data.getStringExtra(KeyValueStrings.PACKAGE_NAME.getValue());
+        package_name_input.setText(package_name);
     }
 
     //处理标签按钮点击事件

@@ -66,6 +66,8 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppInfoV
         holder.app_name_text.setText(app_name);
         holder.package_name_text.setText(package_name);
         holder.app_icon_view.setImageDrawable(app_icon);
+
+        holder.itemView.setOnClickListener(v -> listener.onAppClicked(package_name));   //绑定点击动作
     }
 
     @Override
