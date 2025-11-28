@@ -65,6 +65,9 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         List<ApplicationInfo> apps = pm.getInstalledApplications(PackageManager.GET_META_DATA);
 
         for (ApplicationInfo app : apps) {
+            if (!isSysAppIncluded && ((app.flags & ApplicationInfo.FLAG_SYSTEM) != 0))
+                continue;   //动态排除系统应用
+
             String appName = pm.getApplicationLabel(app).toString();    //获取应用名称
             String packageName = app.packageName;                       //获取包名
             Drawable originIcon;                                        //获取应用图标（Drawable）
