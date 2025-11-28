@@ -19,7 +19,7 @@
         app:title="@string/add_rule">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/input_introduce_btn"
+            android:id="@+id/input_instruction_btn"
             style="@style/TransparentBtnStyle"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"

@@ -3,6 +3,7 @@ package com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysi
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
 
@@ -15,6 +16,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
 import com.project.manager.exception.ExceptionHelper;
@@ -27,6 +29,8 @@ import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
 import com.project.manager.ui.view_model.AccountTagModifyID;
 import com.project.manager.ui.view_model.AccountTagViewModel;
 import com.project.manager.ui.view_model.TagWithModifyID;
+
+import io.noties.markwon.Markwon;
 
 public class RuleAddActivity extends AppCompatActivity implements View.OnClickListener, View.OnFocusChangeListener {
     private TextInputEditText rule_name_input;                      //规则名称输入框
@@ -60,8 +64,8 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
 
     @Override
     public void onClick(@NonNull View v) {
-        if (v.getId() == R.id.input_introduce_btn) {
-            //TODO: 完善输入内容介绍按钮点击逻辑
+        if (v.getId() == R.id.input_instruction_btn) {
+            showInputInstructionDialog();
         } else if (v.getId() == R.id.type_input) {
             String[] types = {RunningAccountType.EXPENSE.getTitle(),
                     RunningAccountType.INCOME.getTitle()
@@ -171,7 +175,7 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
         type_input.setOnClickListener(this);
         tag_input.setOnClickListener(this);
         package_name_input.setOnClickListener(this);
-        findViewById(R.id.input_introduce_btn).setOnClickListener(this);
+        findViewById(R.id.input_instruction_btn).setOnClickListener(this);
         findViewById(R.id.finish_btn).setOnClickListener(this);
         findViewById(R.id.cancel_btn).setOnClickListener(this);
 
@@ -295,5 +299,29 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
         dataBundle.putString(KeyValueStrings.NOTIFICATION_CONTENT.getValue(), notification_content);
 
         return dataBundle;
+    }
+
+    //显示输入说明对话框
+    private void showInputInstructionDialog() {
+        String instruction = "- 规则名称：该通知解析规则的名称  \n" +
+                "- 流水类型：通过该规则解析得到的流水记录的类型  \n" +
+                "- 标签名称（可选）：通过该规则解析得到的流水记录的标签  \n" +
+                "- 应用包名：发送通知的APP包名  \n" +
+                "- 通知标题：通知的标题（如“微信支付”）  \n" +
+                "- 通知内容（正则表达式）：待匹配的通知内容，若内容成功匹配则自动添加一条流水记录";
+
+        View update_dialog_view = LayoutInflater.from(this)
+                .inflate(R.layout.md_textview_in_dialog, null);
+        MaterialTextView text_view = update_dialog_view.findViewById(R.id.md_textview_in_dialog);
+
+        //使用Markown渲染Markdown文本
+        Markwon markwon = Markwon.create(this);
+        markwon.setMarkdown(text_view, instruction);
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("输入说明")
+                .setView(update_dialog_view)
+                .setNegativeButton("关闭", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 }
