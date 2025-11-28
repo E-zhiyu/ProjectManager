@@ -1,5 +1,6 @@
 package com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
@@ -13,12 +14,13 @@ import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppInfoViewHolder> {
     private final Context context;
     private final AppClickedListener listener;
-    private final List<AppInfo> appInfoList;    //应用列表
+    private List<AppInfo> appInfoList;    //应用列表
 
     public static class AppInfoViewHolder extends RecyclerView.ViewHolder {
         ShapeableImageView app_icon_view;                   //应用图标视图
@@ -42,8 +44,8 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppInfoV
         void onAppClicked(String package_name);
     }
 
-    public AppListAdapter(List<AppInfo> appInfoList, AppClickedListener listener, Context context) {
-        this.appInfoList = appInfoList;
+    public AppListAdapter(AppClickedListener listener, Context context) {
+        this.appInfoList = new ArrayList<>();
         this.listener = listener;
         this.context = context;
     }
@@ -73,5 +75,16 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppInfoV
     @Override
     public int getItemCount() {
         return appInfoList.size();
+    }
+
+    /**
+     * 刷新应用信息
+     *
+     * @param appInfoList 刷新后的应用信息列表
+     */
+    @SuppressLint("NotifyDataSetChanged")
+    public void setAppInfoList(List<AppInfo> appInfoList) {
+        this.appInfoList = appInfoList;
+        notifyDataSetChanged();
     }
 }

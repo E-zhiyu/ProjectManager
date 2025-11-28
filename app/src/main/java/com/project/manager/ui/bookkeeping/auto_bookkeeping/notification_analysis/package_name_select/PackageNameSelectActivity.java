@@ -6,6 +6,8 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -29,9 +31,10 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class PackageNameSelectActivity extends AppCompatActivity {
     private List<AppInfo> fullAppInfoList;                  //完整的应用列表
-    private CompositeDisposable disposables = new CompositeDisposable();    //订阅列表
+    private final CompositeDisposable disposables = new CompositeDisposable();    //多线程订阅列表
     private boolean isSysAppIncluded = false;               //应用列表是否包含系统应用
     private SearchView searchView;                          //搜索视图
+    private ProgressBar progressBar, searchProgressBar;     //加载列表时的进度条
     private AppListAdapter fullAppAdapter, searchAdapter;   //完整的应用列表适配器和搜索结果适配器
 
     @Override
@@ -45,6 +48,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
         // 防止内存泄漏
         disposables.dispose();
     }
@@ -52,32 +56,38 @@ public class PackageNameSelectActivity extends AppCompatActivity {
     //初始化视图
     private void initViews() {
         searchView = findViewById(R.id.search_view);
+        progressBar = findViewById(R.id.progress_bar);
+        searchProgressBar = findViewById(R.id.search_progress_bar);
 
         RecyclerView full_app_list_recycler = findViewById(R.id.app_list_recycler);         //打开页面时显示的完整应用列表视图
+        fullAppAdapter = new AppListAdapter(this::onAppClicked, this);
+        full_app_list_recycler.setAdapter(fullAppAdapter);
         RecyclerView search_result_recycler = findViewById(R.id.search_result_recycler);    //搜索结果列表视图
+        searchAdapter = new AppListAdapter(this::onAppClicked, this);
+        search_result_recycler.setAdapter(searchAdapter);
 
         //使用多线程实现应用列表加载
         disposables.add(
-                Observable.fromCallable(() ->
-                        fullAppInfoList = getInstalledApps()
-                )
-                .subscribeOn(Schedulers.io()) //在 IO 线程执行查询
-                .observeOn(AndroidSchedulers.mainThread()) //切换到主线程更新 UI
-                .subscribe(
-                        apps -> {
-                            fullAppAdapter = new AppListAdapter(fullAppInfoList, this::onAppClicked, this);
-                            full_app_list_recycler.setAdapter(fullAppAdapter);
-                        },  //成功回调
-                        e -> {
-                            fullAppAdapter = new AppListAdapter(new ArrayList<>(), this::onAppClicked, this);
-                            full_app_list_recycler.setAdapter(fullAppAdapter);
-                            ExceptionHelper.showExceptionDialog(this, e);
-                        }   //错误处理
-                ));
-
-        full_app_list_recycler.setAdapter(fullAppAdapter);
-        searchAdapter = new AppListAdapter(new ArrayList<>(), this::onAppClicked, this);
-        search_result_recycler.setAdapter(searchAdapter);
+                Observable.fromCallable(() -> {
+                            progressBar.setVisibility(View.VISIBLE);    //显示不确定进度的进度条
+                            return getInstalledApps();
+                        })
+                        .subscribeOn(Schedulers.io()) //在 IO 线程执行查询
+                        .observeOn(AndroidSchedulers.mainThread()) //切换到主线程更新 UI
+                        .subscribe(
+                                apps -> {
+                                    fullAppInfoList = apps;
+                                    fullAppAdapter.setAppInfoList(fullAppInfoList);
+                                    progressBar.setVisibility(View.GONE);
+                                },  //成功回调
+                                e -> {
+                                    fullAppAdapter = new AppListAdapter(this::onAppClicked, this);
+                                    full_app_list_recycler.setAdapter(fullAppAdapter);
+                                    progressBar.setVisibility(View.GONE);
+                                    ExceptionHelper.showExceptionDialog(this, e);
+                                }   //错误处理
+                        )
+        );
     }
 
     /**

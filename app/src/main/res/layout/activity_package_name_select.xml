@@ -26,6 +26,15 @@
                 android:hint="@string/search_app" />
         </com.google.android.material.appbar.AppBarLayout>
 
+        <!-- 旋转进度条（ProgressBar） -->
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:indeterminate="true"
+            android:visibility="gone" />
+
         <androidx.core.widget.NestedScrollView
             style="@style/PageStyle"
             android:layout_width="match_parent"
@@ -48,10 +57,25 @@
         android:hint="@string/search_app"
         app:layout_anchor="@id/search_bar">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/search_result_recycler"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+            android:orientation="vertical">
+
+            <!-- 旋转进度条（ProgressBar） -->
+            <ProgressBar
+                android:id="@+id/search_progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:indeterminate="true"
+                android:visibility="visible" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/search_result_recycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        </LinearLayout>
     </com.google.android.material.search.SearchView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
