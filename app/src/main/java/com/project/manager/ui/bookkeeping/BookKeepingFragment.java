@@ -99,7 +99,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         long rno = runningAccountView.getRno();                         //流水编号
         dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
 
-        dataBundle.putInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), position);  //将待修改的流水实例下标放入包裹
+        dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), position);  //将待修改的流水实例下标放入包裹
 
         //获取特殊数据
         if (type == RunningAccountType.TRANSFER) {
@@ -280,7 +280,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         }
 
         RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-        int position = dataBundle.getInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), -1);    //原视图下标
+        int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), -1);    //原视图下标
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
         if (remark == null) remark = "";
@@ -353,7 +353,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         }
 
         //从数据库中删除
-        position = dataBundle.getInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), -1);
+        position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), -1);
         RunningAccountBase target_running_account_view = runningAccountRecyclerAdapter.getItem(position);
         long rno = target_running_account_view.getRno();
         String selection = BookKeepingColumns.RNO + "=?";

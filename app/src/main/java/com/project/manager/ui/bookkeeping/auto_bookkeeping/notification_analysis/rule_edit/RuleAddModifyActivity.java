@@ -13,12 +13,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
+import com.project.manager.ResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.TagString;
@@ -32,7 +34,11 @@ import com.project.manager.ui.view_model.TagWithModifyID;
 
 import io.noties.markwon.Markwon;
 
-public class RuleAddActivity extends AppCompatActivity implements View.OnClickListener, View.OnFocusChangeListener {
+public class RuleAddModifyActivity extends AppCompatActivity implements View.OnClickListener, View.OnFocusChangeListener {
+    private boolean isModifyMode = false;                           //是否为规则编辑模式
+    private int viewHolderPosition;                                 //规则ViewHolder下标
+    private long rule_no;                                           //规则编号
+    private long tag_no = 0;                                        //标签编号
     private TextInputEditText rule_name_input;                      //规则名称输入框
     private TextInputLayout rule_name_layout;                       //规则名称输入框布局管理器
     private TextInputEditText type_input;                           //种类输入框
@@ -43,7 +49,6 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
     private TextInputLayout notification_title_layout;              //通知标题输入框布局管理器
     private TextInputEditText notification_content_input;           //通知内容输入框
     private TextInputLayout notification_content_layout;            //通知内容输入框布局管理器
-    private long tag_no = 0;                                        //标签编号
     private RunningAccountType type = RunningAccountType.EXPENSE;   //流水种类
     private AccountTagViewModel tagViewModel;                       //用于更新标签名称的ViewModel
     private TagSelectBottomSheet tag_sheet;                         //标签选择弹出菜单
@@ -52,9 +57,10 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_rule_add);
+        setContentView(R.layout.activity_rule_add_modify);
 
         initViews();
+        receiveInitData();
         initLaunchers();
 
         //获取更新Tag名称的ViewModel
@@ -106,6 +112,22 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
             }
         } else if (v.getId() == R.id.cancel_btn) {
             finish();
+        } else if (v.getId() == R.id.delete_btn) {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("删除规则")
+                    .setMessage("确定要删除这条规则吗？")
+                    .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
+                    .setPositiveButton("确定", (dialog, which) -> {
+                        Intent result2AnalysisRuleActivity = new Intent();
+                        Bundle dataBundle = new Bundle();
+                        dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), viewHolderPosition);
+                        result2AnalysisRuleActivity.putExtras(dataBundle);
+
+                        setResult(ResultCode.RESULT_DELETE.ordinal(), result2AnalysisRuleActivity);
+                        dialog.dismiss();
+                        finish();
+                    })
+                    .show();
         }
     }
 
@@ -186,6 +208,39 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
         notification_content_input.setOnFocusChangeListener(this);
     }
 
+    //接收编辑模式下的初始化数据
+    private void receiveInitData() {
+        Bundle initData = getIntent().getExtras();
+
+        if (initData != null) {
+            isModifyMode = true;
+
+            MaterialButton deleteBtn = findViewById(R.id.delete_btn);
+            deleteBtn.setVisibility(View.VISIBLE);
+            deleteBtn.setOnClickListener(this);
+
+            MaterialToolbar toolbar = findViewById(R.id.toolbar);
+            toolbar.setTitle(R.string.modify_rule);
+
+            //解析数据
+            String rule_name = initData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());
+            rule_no = initData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());
+            viewHolderPosition = initData.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
+            type = RunningAccountType.valueOf(initData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
+            tag_no = initData.getLong(KeyValueStrings.TAG_NO.getValue());
+            String package_name = initData.getString(KeyValueStrings.PACKAGE_NAME.getValue());
+            String notification_title = initData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
+            String notification_content = initData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
+
+            rule_name_input.setText(rule_name);
+            type_input.setText(type.getTitle());
+            tag_input.setText(Tag.tagNoTransToName(tag_no, this));
+            package_name_input.setText(package_name);
+            notification_title_input.setText(notification_title);
+            notification_content_input.setText(notification_content);
+        }
+    }
+
     private void initLaunchers() {
         packageNameSelectLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -205,6 +260,7 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
         );
     }
 
+    //处理包名选择方法
     private void onPackageNameSelected(@NonNull Intent data) {
         String package_name = data.getStringExtra(KeyValueStrings.PACKAGE_NAME.getValue());
         package_name_input.setText(package_name);
@@ -298,6 +354,11 @@ public class RuleAddActivity extends AppCompatActivity implements View.OnClickLi
         dataBundle.putString(KeyValueStrings.PACKAGE_NAME.getValue(), package_name);
         dataBundle.putString(KeyValueStrings.NOTIFICATION_TITLE.getValue(), notification_title);
         dataBundle.putString(KeyValueStrings.NOTIFICATION_CONTENT.getValue(), notification_content);
+
+        if (isModifyMode) {
+            dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), viewHolderPosition);
+            dataBundle.putLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue(), rule_no);
+        }
 
         return dataBundle;
     }

@@ -26,10 +26,10 @@
             android:name=".ui.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select.PackageNameSelectActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.RuleAddActivity"
+            android:name=".ui.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.RuleAddModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleActivity"
+            android:name=".ui.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity"
             android:exported="false" />
         <activity
             android:name=".ui.bookkeeping.tag.edit.GroupModifyActivity"

@@ -37,7 +37,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
         Bundle dataBundle = getIntent().getExtras();
         if (dataBundle != null) {
             type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-            position = dataBundle.getInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), -1);
+            position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), -1);
         } else {
             NullPointerException e = new NullPointerException("编辑流水时无法读取原有的数据");
             ExceptionHelper.showExceptionDialog(this, e);
@@ -100,7 +100,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
                     .setMessage("此流水记录将会被永久删除，确认继续吗？")
                     .setPositiveButton("确认", (dialog, which) -> {
                         Bundle dataBundle = new Bundle();
-                        dataBundle.putInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), position);
+                        dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), position);
                         result2BookKeeping.putExtras(dataBundle);
                         setResult(ResultCode.RESULT_DELETE.ordinal(), result2BookKeeping);
                         finish();
@@ -126,7 +126,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
     private Bundle getDataAfterModifying() {
         Bundle dataBundle = runningAccountFragment.getInputData();
 
-        dataBundle.putInt(KeyValueStrings.ACCOUNT_VIEW_POSITION.getValue(), position);        //将下标存放至包裹
+        dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), position);        //将下标存放至包裹
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());       //将种类存放至包裹
 
         return dataBundle;

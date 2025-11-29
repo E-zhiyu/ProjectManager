@@ -25,7 +25,7 @@ import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.preference.AutoBookKeepingPreference;
 import com.project.manager.preference.BookKeepingStartDatePreference;
 import com.project.manager.helpers.AnimationHelper;
-import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleActivity;
+import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
 import com.project.manager.helpers.AboutHelper;
 import com.project.manager.helpers.ThemeModeHelper;
 import com.project.manager.helpers.UpdateLogHelper;
@@ -90,7 +90,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         } else if (v.getId() == R.id.setting_update_log) {
             UpdateLogHelper.showUpdateLogDialog(requireContext());
         } else if (v.getId() == R.id.setting_notification_analysis_rules) {
-            Intent skip2NotificationRulesActivity = new Intent(getActivity(), AnalysisRuleActivity.class);
+            Intent skip2NotificationRulesActivity = new Intent(getActivity(), AnalysisRuleManageActivity.class);
             startActivity(skip2NotificationRulesActivity);
         } else {
             RuntimeException e = new RuntimeException("无法获取正确的视图ID");

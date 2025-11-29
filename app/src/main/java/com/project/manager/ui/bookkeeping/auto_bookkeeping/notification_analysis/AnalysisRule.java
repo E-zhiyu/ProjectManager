@@ -131,4 +131,43 @@ public class AnalysisRule {
         db.close();
         return rule_no;
     }
+
+    public static void modifyRule(@NonNull Bundle ruleData, Context context) throws SQLiteException {
+        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        SQLiteDatabase db = db_helper.openWriteLink();
+
+        //解析规则数据
+        String rule_name = ruleData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());
+        long rule_no = ruleData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());
+        String type = ruleData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue());
+        long tag_no = ruleData.getLong(KeyValueStrings.TAG_NO.getValue());
+        String package_name = ruleData.getString(KeyValueStrings.PACKAGE_NAME.getValue());
+        String notification_title = ruleData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
+        String notification_content = ruleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
+
+        String where = BookKeepingColumns.RULE_NO + "=?";
+        String[] whereArgs = {String.valueOf(rule_no)};
+        ContentValues rule_values = new ContentValues();
+        rule_values.put(BookKeepingColumns.RULE_NAME.toString(), rule_name);
+        rule_values.put(BookKeepingColumns.TYPE.toString(), type);
+        rule_values.put(BookKeepingColumns.TAG_NO.toString(), tag_no);
+        rule_values.put(BookKeepingColumns.PACKAGE_NAME.toString(), package_name);
+        rule_values.put(BookKeepingColumns.NOTIFICATION_TITLE.toString(), notification_title);
+        rule_values.put(BookKeepingColumns.NOTIFICATION_CONTENT.toString(), notification_content);
+
+        db.update(BookKeepingTables.ANALYSIS_RULE.toString(), rule_values, where, whereArgs);
+
+        db.close();
+    }
+
+    public static void deleteRule(long rule_no, Context context) throws SQLiteException {
+        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        SQLiteDatabase db = db_helper.openWriteLink();
+
+        String where = BookKeepingColumns.RULE_NO + "=?";
+        String[] whereArgs = {String.valueOf(rule_no)};
+        db.delete(BookKeepingTables.ANALYSIS_RULE.toString(), where, whereArgs);
+
+        db.close();
+    }
 }

@@ -43,8 +43,9 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
          * 规则点击回调方法
          *
          * @param position 点击的规则的下标
+         * @param rule     被点击的规则实例
          */
-        void onRuleClicked(int position);
+        void onRuleClicked(int position, AnalysisRule rule);
     }
 
     public AnalysisRuleAdapter(List<AnalysisRule> ruleList, RuleClickedListener listener, Context context) {
@@ -83,7 +84,7 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         holder.type_text.setText(type_str);
         holder.tag_name_text.setText(tag_name);
 
-        holder.itemView.setOnClickListener(v -> listener.onRuleClicked(position));
+        holder.itemView.setOnClickListener(v -> listener.onRuleClicked(position, rule));
     }
 
     @Override
@@ -91,6 +92,11 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         return ruleList.size();
     }
 
+    /**
+     * 添加新规则
+     *
+     * @param newRuleData 新规则数据
+     */
     public void addRule(Bundle newRuleData) {
         long rule_no;
         try {
@@ -113,5 +119,59 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         AnalysisRule newRule = new AnalysisRule(rule_name, rule_no, type, tag_no, package_name, notification_title, notification_content);
         ruleList.add(0, newRule);
         notifyItemInserted(0);
+        Toast.makeText(context, "解析规则添加成功", Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * 修改规则
+     *
+     * @param modifiedRuleData 修改后的规则数据
+     */
+    public void modifyRule(Bundle modifiedRuleData) {
+        try {
+            AnalysisRule.modifyRule(modifiedRuleData, context);
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+            Toast.makeText(context, "规则数据保存失败", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        //解析规则数据
+        int position = modifiedRuleData.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
+        String rule_name = modifiedRuleData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());
+        long rule_no = modifiedRuleData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());
+        RunningAccountType type = RunningAccountType.valueOf(modifiedRuleData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
+        long tag_no = modifiedRuleData.getLong(KeyValueStrings.TAG_NO.getValue());
+        String package_name = modifiedRuleData.getString(KeyValueStrings.PACKAGE_NAME.getValue());
+        String notification_title = modifiedRuleData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
+        String notification_content = modifiedRuleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
+
+        //更新UI
+        AnalysisRule modifiedRule = new AnalysisRule(rule_name, rule_no, type, tag_no, package_name, notification_title, notification_content);
+        ruleList.set(position, modifiedRule);
+        notifyItemChanged(position);
+        Toast.makeText(context, "解析规则修改成功", Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * 删除规则
+     *
+     * @param position 待删除标签的下标
+     */
+    public void deleteRule(int position) {
+        AnalysisRule rule = ruleList.get(position);
+        long rule_no = rule.getRuleNo();
+
+        try {
+            AnalysisRule.deleteRule(rule_no, context);
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+            Toast.makeText(context, "规则删除失败", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        ruleList.remove(position);
+        notifyItemRemoved(position);
+        Toast.makeText(context, "规则删除成功", Toast.LENGTH_SHORT).show();
     }
 }
