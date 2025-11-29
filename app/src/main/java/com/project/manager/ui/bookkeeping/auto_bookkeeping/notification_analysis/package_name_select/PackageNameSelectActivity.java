@@ -2,26 +2,23 @@ package com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysi
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.content.res.AppCompatResources;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.search.SearchView;
 import com.project.manager.R;
 import com.project.manager.helpers.ExceptionHelper;
-import com.project.manager.helpers.ImageHelper;
+import com.project.manager.helpers.PackageNameHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
+import com.project.manager.ui.view_model.package_name_search.AppInfoSearchViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -30,10 +27,9 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class PackageNameSelectActivity extends AppCompatActivity {
-    private List<AppInfo> fullAppInfoList;                  //完整的应用列表
-    private final CompositeDisposable disposables = new CompositeDisposable();    //多线程订阅列表
-    private boolean isSysAppIncluded = false;               //应用列表是否包含系统应用
+    private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
     private SearchView searchView;                          //搜索视图
+    private AppInfoSearchViewModel searchViewModel;         //搜索应用的ViewModel
     private ProgressBar progressBar, searchProgressBar;     //加载列表时的进度条
     private AppListAdapter fullAppAdapter, searchAdapter;   //完整的应用列表适配器和搜索结果适配器
 
@@ -70,16 +66,12 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         disposables.add(
                 Observable.fromCallable(() -> {
                             progressBar.setVisibility(View.VISIBLE);    //显示不确定进度的进度条
-                            return getInstalledApps();
+                            return PackageNameHelper.getInstalledApps(false, this);
                         })
                         .subscribeOn(Schedulers.io()) //在 IO 线程执行查询
                         .observeOn(AndroidSchedulers.mainThread()) //切换到主线程更新 UI
                         .subscribe(
-                                apps -> {
-                                    fullAppInfoList = apps;
-                                    fullAppAdapter.setAppInfoList(fullAppInfoList);
-                                    progressBar.setVisibility(View.GONE);
-                                },  //成功回调
+                                this::onAppListLoadSuccessfully,  //成功回调
                                 e -> {
                                     fullAppAdapter = new AppListAdapter(this::onAppClicked, this);
                                     full_app_list_recycler.setAdapter(fullAppAdapter);
@@ -90,38 +82,33 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         );
     }
 
-    /**
-     * 加载应用列表
-     *
-     * @return 包含应用信息的列表
-     */
-    @NonNull
-    private List<AppInfo> getInstalledApps() {
-        List<AppInfo> appInfoList = new ArrayList<>();
-        PackageManager pm = getPackageManager();
-        List<ApplicationInfo> apps = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+    //应用列表加载成功的回调方法
+    private void onAppListLoadSuccessfully(List<AppInfo> fullAppInfoList) {
+        fullAppAdapter.setAppInfoList(fullAppInfoList);
+        progressBar.setVisibility(View.GONE);
 
-        for (ApplicationInfo app : apps) {
-            if (!isSysAppIncluded && ((app.flags & ApplicationInfo.FLAG_SYSTEM) != 0))
-                continue;   //动态排除系统应用
+        searchViewModel = new ViewModelProvider(this).get(AppInfoSearchViewModel.class);
+        searchViewModel.setFullAppInfoList(fullAppInfoList);
+        searchViewModel.init();
+        startObserveSearchResult();
 
-            String appName = pm.getApplicationLabel(app).toString();    //获取应用名称
-            String packageName = app.packageName;                       //获取包名
-            Drawable originIcon;                                        //获取应用图标（Drawable）
-            try {
-                originIcon = pm.getApplicationIcon(packageName);
-            } catch (PackageManager.NameNotFoundException e) {
-                ExceptionHelper.showExceptionDialog(this, e);
-                Toast.makeText(this, "获取应用图标时出错", Toast.LENGTH_SHORT).show();
-                originIcon = AppCompatResources.getDrawable(this, R.mipmap.unknown_app_ic_channel);
+        searchView.getEditText().addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
             }
 
-            Drawable scaledIcon = ImageHelper.resizeIcon(originIcon, 48, this);
-            AppInfo appInfo = new AppInfo(appName, packageName, scaledIcon);
-            appInfoList.add(appInfo);
-        }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
-        return appInfoList;
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!String.valueOf(s).isEmpty()) {
+                    searchProgressBar.setVisibility(View.VISIBLE);
+                }
+                searchViewModel.onSearchQueryChanged(String.valueOf(s));
+            }
+        });
     }
 
     //处理应用选择的方法
@@ -130,5 +117,12 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         result2RuleAddActivity.putExtra(KeyValueStrings.PACKAGE_NAME.getValue(), package_name);
         setResult(Activity.RESULT_OK, result2RuleAddActivity);
         finish();
+    }
+
+    private void startObserveSearchResult() {
+        searchViewModel.getResultsLiveData().observe(this, result -> {
+            searchAdapter.setAppInfoList(result);
+            searchProgressBar.setVisibility(View.GONE);
+        });
     }
 }

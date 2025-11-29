@@ -22,11 +22,11 @@ import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.helpers.AnimationHelper;
-import com.project.manager.ui.view_model.AccountTagModifyID;
-import com.project.manager.ui.view_model.AccountTagViewModel;
+import com.project.manager.ui.view_model.tag_modify.AccountTagModifyID;
+import com.project.manager.ui.view_model.tag_modify.AccountTagViewModel;
 import com.project.manager.ui.bookkeeping.tag.Tag;
 import com.project.manager.ui.bookkeeping.tag.TagGroup;
-import com.project.manager.ui.view_model.TagWithModifyID;
+import com.project.manager.ui.view_model.tag_modify.TagWithModifyID;
 
 import java.util.ArrayList;
 import java.util.List;

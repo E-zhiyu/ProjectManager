@@ -1,4 +1,4 @@
-package com.project.manager.ui.view_model;
+package com.project.manager.ui.view_model.tag_modify;
 
 public class TagWithModifyID {
     private final String tag_name;
