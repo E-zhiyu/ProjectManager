@@ -155,6 +155,11 @@
         <item name="android:textColorHighlight">@color/theme_blue_variant</item>
     </style>
 
+    <!-- AppBarLayout样式 -->
+    <style name="AppBarLayoutStyle" parent="Widget.Material3.AppBarLayout">
+        <item name="android:backgroundTint">@color/page_background</item>
+    </style>
+
     <!-- SearchBar样式 -->
     <style name="SearchBarStyle" parent="Widget.Material3.SearchBar">
         <item name="backgroundTint">@color/card_background</item>

@@ -8,7 +8,7 @@
     tools:context=".ui.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select.PackageNameSelectActivity">
 
     <com.google.android.material.appbar.AppBarLayout
-        style="@style/PageStyle"
+        style="@style/AppBarLayoutStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -35,26 +35,21 @@
             android:indeterminate="true"
             android:visibility="gone" />
 
-        <androidx.core.widget.NestedScrollView
-            style="@style/PageStyle"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/app_list_recycler"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/app_list_recycler"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-        </androidx.core.widget.NestedScrollView>
+            android:layout_height="wrap_content"
+            android:paddingBottom="30sp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
     </LinearLayout>
 
     <com.google.android.material.search.SearchView
         android:id="@+id/search_view"
         style="@style/SearchViewStyle"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:hint="@string/search_app"
-        app:layout_anchor="@id/search_bar">
+        app:layout_behavior="com.google.android.material.search.SearchView$Behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -74,6 +69,7 @@
                 android:id="@+id/search_result_recycler"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingBottom="30sp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
         </LinearLayout>
     </com.google.android.material.search.SearchView>

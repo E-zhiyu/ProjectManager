@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.search.SearchBar;
 import com.google.android.material.search.SearchView;
 import com.project.manager.R;
 import com.project.manager.helpers.ExceptionHelper;
@@ -54,6 +55,10 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         searchView = findViewById(R.id.search_view);
         progressBar = findViewById(R.id.progress_bar);
         searchProgressBar = findViewById(R.id.search_progress_bar);
+
+        //绑定SearchView弹出逻辑
+        SearchBar searchBar = findViewById(R.id.search_bar);
+        searchBar.setOnClickListener(v -> searchView.show());
 
         RecyclerView full_app_list_recycler = findViewById(R.id.app_list_recycler);         //打开页面时显示的完整应用列表视图
         fullAppAdapter = new AppListAdapter(this::onAppClicked, this);
