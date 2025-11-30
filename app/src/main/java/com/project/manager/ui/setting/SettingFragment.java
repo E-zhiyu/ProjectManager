@@ -198,24 +198,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         notification_analysis_switch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             AutoBookKeepingPreference.setNotificationAnalysisOpened(isChecked, requireActivity());  //将打开状态写入文件
 
-            //临时改为可见
-            int originVisibility = notification_analysis_layout.getVisibility();
-            notification_analysis_layout.setVisibility(View.VISIBLE);
-
-            // 测量视图
-            int widthSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-            int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-            notification_analysis_layout.measure(widthSpec, heightSpec);
-            int layout_height = notification_analysis_layout.getMeasuredHeight();   //获得测量的高度
-
-            notification_analysis_layout.setVisibility(originVisibility);   //恢复原来的可见性
-
-            if (isChecked) {
-                notification_analysis_layout.setVisibility(View.VISIBLE);
-                AnimationHelper.animateHeight(notification_analysis_layout, 0, layout_height, null);
-            } else {
-                AnimationHelper.animateHeight(notification_analysis_layout, layout_height, 0, () -> notification_analysis_layout.setVisibility(View.GONE));
-            }
+            AnimationHelper.switchViewFoldOrExpanded(isChecked, notification_analysis_layout);
         });
     }
 

@@ -6,6 +6,8 @@ import android.animation.ValueAnimator;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+
 public class AnimationHelper {
     /**
      * 执行平滑滑动动画
@@ -34,5 +36,32 @@ public class AnimationHelper {
 
         animator.setDuration(200);
         animator.start();
+    }
+
+    /**
+     * 切换视图展开或折叠状态（平滑动画）
+     *
+     * @param isExpanded 是否切换为展开状态
+     * @param view       需要执行动画的视图
+     */
+    public static void switchViewFoldOrExpanded(boolean isExpanded, @NonNull View view) {
+        //临时改为可见
+        int originVisibility = view.getVisibility();
+        view.setVisibility(View.VISIBLE);
+
+        // 测量视图
+        int widthSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        view.measure(widthSpec, heightSpec);
+        int layout_height = view.getMeasuredHeight();   //获得测量的高度
+
+        view.setVisibility(originVisibility);   //恢复原来的可见性
+
+        if (isExpanded) {
+            view.setVisibility(View.VISIBLE);
+            AnimationHelper.animateHeight(view, 0, layout_height, null);
+        } else {
+            AnimationHelper.animateHeight(view, layout_height, 0, () -> view.setVisibility(View.GONE));
+        }
     }
 }
