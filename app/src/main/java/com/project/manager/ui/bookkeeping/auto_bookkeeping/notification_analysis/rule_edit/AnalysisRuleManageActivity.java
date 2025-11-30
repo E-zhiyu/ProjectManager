@@ -39,6 +39,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
     public void onClick(@NonNull View v) {
         if (v.getId() == R.id.rule_add_btn) {
             Intent skip2RuleAdd = new Intent(this, RuleAddModifyActivity.class);
+            skip2RuleAdd.putExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), false);
             ruleAddLauncher.launch(skip2RuleAdd);
         }
     }
@@ -115,6 +116,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
         dataBundle.putString(KeyValueStrings.NOTIFICATION_CONTENT.getValue(), notification_content);
 
         skip2RuleModify.putExtras(dataBundle);
+        skip2RuleModify.putExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), true);
         ruleModifyLauncher.launch(skip2RuleModify);
     }
 

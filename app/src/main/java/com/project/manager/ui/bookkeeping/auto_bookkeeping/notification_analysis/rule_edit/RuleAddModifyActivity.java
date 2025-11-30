@@ -211,10 +211,8 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
     //接收编辑模式下的初始化数据
     private void receiveInitData() {
         Bundle initData = getIntent().getExtras();
-
-        if (initData != null) {
-            isModifyMode = true;
-
+        isModifyMode = getIntent().getBooleanExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), false);
+        if (initData != null && isModifyMode) {
             MaterialButton deleteBtn = findViewById(R.id.delete_btn);
             deleteBtn.setVisibility(View.VISIBLE);
             deleteBtn.setOnClickListener(this);

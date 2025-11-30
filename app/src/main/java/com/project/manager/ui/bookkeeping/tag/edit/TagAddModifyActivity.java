@@ -32,7 +32,6 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
     private boolean isModifyMode = false;
     int selected_group_index = -1;                              //选择的分组的索引
     long tag_no = 0, group_no = 0;                              //标签和标签分组编号
-    private String[] group_names;                               //标签分组名称数组
     private TagSelectBottomSheet tag_sheet;                     //标签选择底部弹窗
 
     @Override
@@ -187,6 +186,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
             } else {
                 //初始化分组名列表选择下标
                 ArrayList<String> tagGroupArrayList = getIntent().getStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue());
+                String[] group_names;   //标签分组名称数组
                 if (tagGroupArrayList != null) {
                     group_names = tagGroupArrayList.toArray(new String[0]);
 
@@ -194,8 +194,6 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
                         if (group_name.equals(group_names[selected_group_index]))
                             break;
                     }
-                } else {
-                    group_names = new String[0];
                 }
             }
         }
