@@ -27,12 +27,12 @@ import java.util.List;
 
 public class TagManageActivity extends AppCompatActivity implements View.OnClickListener, TagManageRecyclerAdapter.OnTextViewClickedListener {
     private TagManageRecyclerAdapter adapter;
-    private ActivityResultLauncher<Intent> tagAddLauncher, modifyTagLauncher, modifyGroupLauncher;  //活动启动器
+    private ActivityResultLauncher<Intent> tagAddLauncher, tagModifyLauncher, modifyGroupLauncher;  //活动启动器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tag_edit);
+        setContentView(R.layout.activity_tag_manage);
 
         initActivityLauncher();
         initViews();
@@ -54,7 +54,7 @@ public class TagManageActivity extends AppCompatActivity implements View.OnClick
     @Override
     public void onClick(@NonNull View v) {
         if (v.getId() == R.id.tag_add_btn) {
-            Intent skip2NewTag = new Intent(this, TagAddActivity.class);
+            Intent skip2TagAdd = new Intent(this, TagAddModifyActivity.class);
 
             //获取已保存的标签分组信息
             List<TagGroup> tagGroupList = adapter.getTagGroupList();
@@ -62,15 +62,17 @@ public class TagManageActivity extends AppCompatActivity implements View.OnClick
             for (TagGroup group : tagGroupList) {
                 groupNameList.add(group.getGroup_name());
             }
-            skip2NewTag.putStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue(), groupNameList);
+            skip2TagAdd.putStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue(), groupNameList);
 
-            tagAddLauncher.launch(skip2NewTag);
+            skip2TagAdd.putExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), false);
+
+            tagAddLauncher.launch(skip2TagAdd);
         }
     }
 
     @Override
     public void onTagTextViewClicked(long tag_no, String tag_name, long group_no, String group_name) {
-        Intent skip2ModifyTag = new Intent(this, TagModifyActivity.class);
+        Intent skip2ModifyTag = new Intent(this, TagAddModifyActivity.class);
         Bundle clickedTagData = new Bundle();
 
         clickedTagData.putString(KeyValueStrings.TAG_NAME.getValue(), tag_name);
@@ -87,7 +89,8 @@ public class TagManageActivity extends AppCompatActivity implements View.OnClick
         clickedTagData.putStringArrayList(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue(), groupNameList);
 
         skip2ModifyTag.putExtras(clickedTagData);
-        modifyTagLauncher.launch(skip2ModifyTag);
+        skip2ModifyTag.putExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), true);
+        tagModifyLauncher.launch(skip2ModifyTag);
     }
 
     @Override
@@ -129,7 +132,7 @@ public class TagManageActivity extends AppCompatActivity implements View.OnClick
                 }
         );
 
-        modifyTagLauncher = registerForActivityResult(
+        tagModifyLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     int resultCode = result.getResultCode();

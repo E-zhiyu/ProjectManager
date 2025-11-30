@@ -32,13 +32,10 @@
             android:name=".ui.bookkeeping.tag.edit.GroupModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.tag.edit.TagModifyActivity"
-            android:exported="false" />
-        <activity
             android:name=".ui.bookkeeping.tag.edit.TagManageActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.tag.edit.TagAddActivity"
+            android:name=".ui.bookkeeping.tag.edit.TagAddModifyActivity"
             android:exported="false" />
         <activity
             android:name=".ui.bookkeeping.report.ReportActivity"

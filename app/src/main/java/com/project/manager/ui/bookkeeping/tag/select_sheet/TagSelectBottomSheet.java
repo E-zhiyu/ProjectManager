@@ -93,8 +93,8 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
             edit_tag_btn.setOnClickListener(this);
             clear_input_btn.setOnClickListener(this);
         } else {
-            edit_tag_btn.setVisibility(View.INVISIBLE);
-            clear_input_btn.setVisibility(View.INVISIBLE);
+            edit_tag_btn.setVisibility(View.GONE);
+            clear_input_btn.setVisibility(View.GONE);
         }
     }
 

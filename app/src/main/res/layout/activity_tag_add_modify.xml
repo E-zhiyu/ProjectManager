@@ -5,7 +5,7 @@
     style="@style/PageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.bookkeeping.tag.edit.TagAddActivity">
+    tools:context=".ui.bookkeeping.tag.edit.TagAddModifyActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -15,7 +15,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="@drawable/baseline_arrow_back_ios_new_24"
-        app:title="@string/title_new_tag" />
+        app:title="@string/title_new_tag">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/tag_merge_btn"
+            style="@style/TransparentBtnStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:drawableLeft="@drawable/baseline_merge_24"
+            android:text="@string/tag_merge"
+            android:visibility="gone" />
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -31,10 +42,10 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tag_name_layout"
-                app:endIconDrawable="@drawable/baseline_clear_24"
-                app:endIconMode="clear_text"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                app:endIconDrawable="@drawable/baseline_clear_24"
+                app:endIconMode="clear_text">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tag_name_input"
@@ -80,6 +91,14 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/delete_btn"
+                style="@style/BtnStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/delete"
+                android:visibility="gone" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/cancel_btn"

@@ -12,6 +12,7 @@ public enum KeyValueStrings {
     VIEW_HOLDER_POSITION("account_view_position"),         //流水视图在列表中的索引值
     ACCOUNT_EXPORT("account_export"),                       //流水转出账户
     ACCOUNT_IMPORT("account_import"),                       //流水转入账户
+    IS_MODIFY_MODE("is_modify_mode"),                       //是否为修改模式
     TAG_NAME("tag_name"),                                   //标签名称
     TAG_NO("tag_no"),                                       //标签编号
     TAG_GROUP_NAME("tag_group_name"),                       //标签分组名称
