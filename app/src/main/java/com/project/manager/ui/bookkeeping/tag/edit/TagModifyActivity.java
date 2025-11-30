@@ -14,7 +14,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
-import com.project.manager.ResultCode;
+import com.project.manager.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.TagString;
@@ -74,7 +74,7 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
                 tagViewModel.updateTag(tag_name, tag_no, AccountTagModifyID.MODIFY);    //更新ViewModel中的标签数据
 
                 result2TagEdit.putExtras(dataBundle);
-                setResult(ResultCode.RESULT_OK.ordinal(), result2TagEdit);
+                setResult(RequestResultCode.RESULT_OK.ordinal(), result2TagEdit);
                 finish();
             }
         } else if (v.getId() == R.id.delete_btn) {
@@ -85,13 +85,13 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
                         tagViewModel.updateTag("", tag_no, AccountTagModifyID.DELETE);    //更新ViewModel中的标签数据
 
                         result2TagEdit.putExtras(dataBundle);
-                        setResult(ResultCode.RESULT_DELETE.ordinal(), result2TagEdit);
+                        setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2TagEdit);
                         finish();
                     }))
                     .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
                     .show();
         } else if (v.getId() == R.id.cancel_btn) {
-            setResult(ResultCode.RESULT_CANCEL.ordinal(), result2TagEdit);
+            setResult(RequestResultCode.RESULT_CANCEL.ordinal(), result2TagEdit);
             finish();
         } else {
             NullPointerException e = new NullPointerException("无法获取正确的视图ID");
@@ -151,7 +151,7 @@ public class TagModifyActivity extends AppCompatActivity implements View.OnFocus
         dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), this.tag_no);             //被合并标签的编号
         dataBundle.putLong(KeyValueStrings.MERGE_TARGET_NO.getValue(), tag_no);
         result2TagEdit.putExtras(dataBundle);
-        setResult(ResultCode.RESULT_MERGE.ordinal(), result2TagEdit);
+        setResult(RequestResultCode.RESULT_MERGE.ordinal(), result2TagEdit);
         finish();
     }
 

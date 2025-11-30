@@ -17,7 +17,7 @@ import com.project.manager.ui.bookkeeping.running_account_edit.fragments.Expense
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.IncomeFragment;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountFragmentBase;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.TransferFragment;
-import com.project.manager.ResultCode;
+import com.project.manager.RequestResultCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,7 +97,7 @@ public class RunningAccountAddActivity extends AppCompatActivity implements View
         Bundle dataBundle = current_fragment.getInputData();    //获取输入的信息并打包
 
         result2BookKeeping.putExtras(dataBundle);
-        setResult(ResultCode.RESULT_OK.ordinal(), result2BookKeeping);
+        setResult(RequestResultCode.RESULT_OK.ordinal(), result2BookKeeping);
         finish();
     }
 }

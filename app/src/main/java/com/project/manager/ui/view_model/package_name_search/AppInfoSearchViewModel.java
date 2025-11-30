@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel;
 import com.project.manager.helpers.PackageNameHelper;
 import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select.AppInfo;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -19,7 +20,7 @@ import io.reactivex.rxjava3.subjects.PublishSubject;
 import io.reactivex.rxjava3.subjects.Subject;
 
 public class AppInfoSearchViewModel extends ViewModel {
-    private List<AppInfo> fullAppInfoList;    //完整的应用列表
+    private List<AppInfo> fullAppInfoList = new ArrayList<>();  //完整的应用列表
     private final MutableLiveData<List<AppInfo>> resultsLiveData = new MutableLiveData<>();
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
     private final Subject<String> searchSubject = PublishSubject.create();

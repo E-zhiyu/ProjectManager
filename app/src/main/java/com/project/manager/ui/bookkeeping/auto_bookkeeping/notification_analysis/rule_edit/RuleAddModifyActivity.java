@@ -20,7 +20,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
-import com.project.manager.ResultCode;
+import com.project.manager.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.TagString;
@@ -123,7 +123,7 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
                         dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), viewHolderPosition);
                         result2AnalysisRuleActivity.putExtras(dataBundle);
 
-                        setResult(ResultCode.RESULT_DELETE.ordinal(), result2AnalysisRuleActivity);
+                        setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2AnalysisRuleActivity);
                         dialog.dismiss();
                         finish();
                     })

@@ -29,7 +29,7 @@ import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.preference.BookKeepingStartDatePreference;
 import com.project.manager.ui.bookkeeping.running_account_edit.modify.RunningAccountModifyActivity;
 import com.project.manager.ui.bookkeeping.running_account_edit.new_running_account.RunningAccountAddActivity;
-import com.project.manager.ResultCode;
+import com.project.manager.RequestResultCode;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.ui.bookkeeping.report.ReportActivity;
 
@@ -121,7 +121,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    if (resultCode == ResultCode.RESULT_OK.ordinal()) {
+                    if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
                         if (data != null) {
                             onNewAccountAdded(data);
                         } else {
@@ -138,14 +138,14 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    if (resultCode == ResultCode.RESULT_DELETE.ordinal()) {
+                    if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
                         if (data != null) {
                             onAccountDeleted(data);
                         } else {
                             NullPointerException e = new NullPointerException("无法读取编辑后的流水数据");
                             ExceptionHelper.showExceptionDialog(requireContext(), e);
                         }
-                    } else if (resultCode == ResultCode.RESULT_OK.ordinal()) {
+                    } else if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
                         if (data != null) {
                             onAccountModified(data);
                         } else {

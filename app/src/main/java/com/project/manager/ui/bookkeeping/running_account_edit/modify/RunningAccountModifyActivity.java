@@ -12,7 +12,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.project.manager.R;
-import com.project.manager.ResultCode;
+import com.project.manager.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.ExpenseFragment;
@@ -91,7 +91,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
             } else {
                 Bundle dataBundle = getDataAfterModifying();
                 result2BookKeeping.putExtras(dataBundle);
-                setResult(ResultCode.RESULT_OK.ordinal(), result2BookKeeping);
+                setResult(RequestResultCode.RESULT_OK.ordinal(), result2BookKeeping);
                 finish();
             }
         } else if (v.getId() == R.id.delete_btn) {
@@ -102,14 +102,14 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
                         Bundle dataBundle = new Bundle();
                         dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), position);
                         result2BookKeeping.putExtras(dataBundle);
-                        setResult(ResultCode.RESULT_DELETE.ordinal(), result2BookKeeping);
+                        setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2BookKeeping);
                         finish();
                     })
                     .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
                     .show();
         } else if (v.getId() == R.id.cancel_btn) {
             //取消按钮实际上不进行任何操作
-            setResult(ResultCode.RESULT_CANCEL.ordinal(), result2BookKeeping);
+            setResult(RequestResultCode.RESULT_CANCEL.ordinal(), result2BookKeeping);
             finish();
         } else {
             RuntimeException e = new RuntimeException("无法获取正确的按钮ID");

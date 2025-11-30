@@ -2,12 +2,16 @@ package com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysi
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.search.SearchBar;
 import com.google.android.material.search.SearchView;
 import com.project.manager.R;
+import com.project.manager.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.helpers.PackageNameHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
@@ -40,6 +45,59 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         setContentView(R.layout.activity_package_name_select);
 
         initViews();
+
+        searchViewModel = new ViewModelProvider(this).get(AppInfoSearchViewModel.class);
+        searchViewModel.init();
+        searchView.getEditText().addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!String.valueOf(s).isEmpty()) {
+                    searchProgressBar.setVisibility(View.VISIBLE);
+                }
+                searchViewModel.onSearchQueryChanged(String.valueOf(s));
+            }
+        });
+        startObserveSearchResult();
+
+        PackageNameHelper.getPermission(this);
+    }
+
+    //处理动态权限申请结果的方法
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == RequestResultCode.REQUEST_GET_PERMISSION.ordinal()) {
+            if (grantResults[0] == 0) {
+                progressBar.setVisibility(View.VISIBLE);    //显示不确定进度的进度条
+
+                disposables.add(
+                        Observable.fromCallable(() -> PackageNameHelper.getInstalledApps(false, this))
+                                .subscribeOn(Schedulers.io())               //在IO线程执行查询
+                                .observeOn(AndroidSchedulers.mainThread())  //切换到主线程更新 UI
+                                .subscribe(
+                                        this::onAppListLoadFinished,        //成功回调
+                                        e -> {
+                                            progressBar.setVisibility(View.GONE);
+                                            ExceptionHelper.showExceptionDialog(this, e);
+                                        }   //错误处理
+                                )
+                );
+            } else if (grantResults[0] == -1) {
+                Toast.makeText(this, "权限申请被拒绝，请手动授予应用列表权限并重启应用", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                intent.setData(Uri.parse("package:" + getPackageName()));
+                startActivity(intent);
+            }
+        }
     }
 
     @Override
@@ -73,13 +131,11 @@ public class PackageNameSelectActivity extends AppCompatActivity {
                             progressBar.setVisibility(View.VISIBLE);    //显示不确定进度的进度条
                             return PackageNameHelper.getInstalledApps(false, this);
                         })
-                        .subscribeOn(Schedulers.io()) //在 IO 线程执行查询
-                        .observeOn(AndroidSchedulers.mainThread()) //切换到主线程更新 UI
+                        .subscribeOn(Schedulers.io())               //在IO线程执行查询
+                        .observeOn(AndroidSchedulers.mainThread())  //切换到主线程更新 UI
                         .subscribe(
-                                this::onAppListLoadSuccessfully,  //成功回调
+                                this::onAppListLoadFinished,        //成功回调
                                 e -> {
-                                    fullAppAdapter = new AppListAdapter(this::onAppClicked, this);
-                                    full_app_list_recycler.setAdapter(fullAppAdapter);
                                     progressBar.setVisibility(View.GONE);
                                     ExceptionHelper.showExceptionDialog(this, e);
                                 }   //错误处理
@@ -87,33 +143,15 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         );
     }
 
-    //应用列表加载成功的回调方法
-    private void onAppListLoadSuccessfully(List<AppInfo> fullAppInfoList) {
+    /**
+     * 应用列表加载完成回调
+     *
+     * @param fullAppInfoList 加载得到的应用列表
+     */
+    private void onAppListLoadFinished(List<AppInfo> fullAppInfoList) {
         fullAppAdapter.setAppInfoList(fullAppInfoList);
-        progressBar.setVisibility(View.GONE);
-
-        searchViewModel = new ViewModelProvider(this).get(AppInfoSearchViewModel.class);
         searchViewModel.setFullAppInfoList(fullAppInfoList);
-        searchViewModel.init();
-        startObserveSearchResult();
-
-        searchView.getEditText().addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!String.valueOf(s).isEmpty()) {
-                    searchProgressBar.setVisibility(View.VISIBLE);
-                }
-                searchViewModel.onSearchQueryChanged(String.valueOf(s));
-            }
-        });
+        progressBar.setVisibility(View.GONE);
     }
 
     //处理应用选择的方法
@@ -124,6 +162,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         finish();
     }
 
+    //开始观察搜索结果变化
     private void startObserveSearchResult() {
         searchViewModel.getResultsLiveData().observe(this, result -> {
             searchAdapter.setAppInfoList(result);

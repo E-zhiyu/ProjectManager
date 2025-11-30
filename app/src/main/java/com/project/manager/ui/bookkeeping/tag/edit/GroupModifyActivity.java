@@ -15,7 +15,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.project.manager.R;
-import com.project.manager.ResultCode;
+import com.project.manager.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.tag.TagGroup;
@@ -53,11 +53,11 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnFoc
                 dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), new_group_name);
 
                 result2EditActivity.putExtras(dataBundle);
-                setResult(ResultCode.RESULT_OK.ordinal(), result2EditActivity);
+                setResult(RequestResultCode.RESULT_OK.ordinal(), result2EditActivity);
                 finish();
             }
         } else if (v.getId() == R.id.cancel_btn) {
-            setResult(ResultCode.RESULT_CANCEL.ordinal(), result2EditActivity);
+            setResult(RequestResultCode.RESULT_CANCEL.ordinal(), result2EditActivity);
             finish();
         } else if (v.getId() == R.id.delete_btn) {
             new MaterialAlertDialogBuilder(this)
@@ -65,7 +65,7 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnFoc
                     .setMessage("此操作将清空分组内的所有标签并清除对应流水记录的标签，确认继续吗？")
                     .setPositiveButton("确定", ((dialog, which) -> {
                         result2EditActivity.putExtras(dataBundle);
-                        setResult(ResultCode.RESULT_DELETE.ordinal(), result2EditActivity);
+                        setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2EditActivity);
                         finish();
                     }))
                     .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
@@ -107,7 +107,7 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnFoc
                                     long merged_no = groupList.get(select_which).getGroup_no(); //获取合并到的分组的编号
                                     dataBundle.putLong(KeyValueStrings.MERGE_TARGET_NO.getValue(), merged_no);
                                     result2EditActivity.putExtras(dataBundle);
-                                    setResult(ResultCode.RESULT_MERGE.ordinal(), result2EditActivity);
+                                    setResult(RequestResultCode.RESULT_MERGE.ordinal(), result2EditActivity);
                                     finish();
 
                                     select_dialog.dismiss();

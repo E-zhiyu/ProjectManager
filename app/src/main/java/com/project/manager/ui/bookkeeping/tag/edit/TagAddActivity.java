@@ -14,7 +14,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.project.manager.R;
-import com.project.manager.ResultCode;
+import com.project.manager.RequestResultCode;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.tag.Tag;
 
@@ -91,7 +91,7 @@ public class TagAddActivity extends AppCompatActivity implements View.OnFocusCha
                 dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), group_name); //分组名称
 
                 result2TagEdit.putExtras(dataBundle);
-                setResult(ResultCode.RESULT_OK.ordinal(), result2TagEdit);
+                setResult(RequestResultCode.RESULT_OK.ordinal(), result2TagEdit);
                 finish();
             }
         } else if (v.getId() == R.id.cancel_btn) {

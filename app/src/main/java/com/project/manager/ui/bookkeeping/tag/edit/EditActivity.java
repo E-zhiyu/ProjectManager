@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.project.manager.R;
-import com.project.manager.ResultCode;
+import com.project.manager.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.tag.Tag;
@@ -161,7 +161,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void onNewTagActivityResulted(int resultCode, Intent resultIntent) {
-        if (resultCode == ResultCode.RESULT_OK.ordinal()) {
+        if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
             Bundle dataBundle = resultIntent.getExtras();
             String tag_name = null;         //标签名称
             String group_name = null;       //分组名称
@@ -235,7 +235,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
         long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());                    //标签编号
         long origin_group_no = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());     //原分组编号
-        if (resultCode == ResultCode.RESULT_OK.ordinal()) {
+        if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
             String tag_name = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
             String group_name = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
 
@@ -258,16 +258,16 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             } else {
                 adapter.modifyTag(tag_name, tag_no, group_name, origin_group_no, group_no_after_modifying);
             }
-        } else if (resultCode == ResultCode.RESULT_DELETE.ordinal()) {
+        } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
             adapter.deleteTag(tag_no, origin_group_no);
-        } else if (resultCode == ResultCode.RESULT_MERGE.ordinal()) {
+        } else if (resultCode == RequestResultCode.RESULT_MERGE.ordinal()) {
             long merge_target_tag_no = dataBundle.getLong(KeyValueStrings.MERGE_TARGET_NO.getValue());  //获取合并到的目标标签编号
             adapter.mergeTag(tag_no, merge_target_tag_no, origin_group_no);
         }
     }
 
     private void modifyGroup(int resultCode, Intent data) {
-        if (resultCode == ResultCode.RESULT_CANCEL.ordinal()) {
+        if (resultCode == RequestResultCode.RESULT_CANCEL.ordinal()) {
             return;
         }
 
@@ -279,14 +279,14 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         long group_no = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());
-        if (resultCode == ResultCode.RESULT_OK.ordinal()) {
+        if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
             String new_group_name = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
 
             //修改视图中的分组并保存
             adapter.modifyGroup(group_no, new_group_name);
-        } else if (resultCode == ResultCode.RESULT_DELETE.ordinal()) {
+        } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
             adapter.deleteGroup(group_no);
-        } else if (resultCode == ResultCode.RESULT_MERGE.ordinal()) {
+        } else if (resultCode == RequestResultCode.RESULT_MERGE.ordinal()) {
             long merge_target_no = dataBundle.getLong(KeyValueStrings.MERGE_TARGET_NO.getValue());
             adapter.mergeGroup(group_no, merge_target_no);
         }

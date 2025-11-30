@@ -1,15 +1,23 @@
 package com.project.manager.helpers;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.PermissionInfo;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.provider.Settings;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.project.manager.R;
+import com.project.manager.RequestResultCode;
 import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select.AppInfo;
 
 import java.util.ArrayList;
@@ -19,7 +27,9 @@ public class PackageNameHelper {
     /**
      * 加载应用列表
      *
-     * @return 包含应用信息的列表
+     * @param isSysAppIncluded 是否包含系统应用
+     * @param context          上下文
+     * @return 读取到的应用信息列表
      */
     @NonNull
     public static List<AppInfo> getInstalledApps(boolean isSysAppIncluded, @NonNull Context context) {
@@ -68,5 +78,52 @@ public class PackageNameHelper {
         }
 
         return searchResult;
+    }
+
+    /**
+     * 动态申请应用列表权限（此方法只能在主线程调用）
+     *
+     * @param activity 申请权限的Activity，申请结果通过onRequestPermissionsResult()方法获取
+     */
+    public static void getPermission(@NonNull Activity activity) {
+        try {
+            PermissionInfo permissionInfo = activity.getPackageManager().getPermissionInfo("com.android.permission.GET_INSTALLED_APPS", 0);
+            if (permissionInfo != null && permissionInfo.packageName.equals("com.lbe.security.miui")) {
+                //MIUI 系统支持动态申请该权限
+                if (ContextCompat.checkSelfPermission(activity, "com.android.permission.GET_INSTALLED_APPS") != PackageManager.PERMISSION_GRANTED) {
+                    //没有权限，需要申请
+                    ActivityCompat.requestPermissions(activity,
+                            new String[]{"com.android.permission.GET_INSTALLED_APPS"},
+                            RequestResultCode.REQUEST_GET_PERMISSION.ordinal()
+                    );
+                }
+            } else {
+                //其他系统的动态申请逻辑
+                if (isRuntimePermissionEnable(activity)) {
+                    if (ContextCompat.checkSelfPermission(activity, "com.android.permission.GET_INSTALLED_APPS") != PackageManager.PERMISSION_GRANTED) {
+                        //没有权限，需要申请
+                        ActivityCompat.requestPermissions(activity,
+                                new String[]{"com.android.permission.GET_INSTALLED_APPS"},
+                                RequestResultCode.REQUEST_GET_PERMISSION.ordinal()
+                        );
+                    }
+                } else {
+                    //不能动态申请则需要手动授权
+                    Toast.makeText(activity, "您的系统不支持动态申请应用列表权限，请手动授权并重启应用", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    intent.setData(Uri.parse("package:" + activity.getPackageName()));
+                    activity.startActivity(intent);
+                }
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            ExceptionHelper.showExceptionDialog(activity, e);
+            Toast.makeText(activity, "应用列表权限申请失败，请手动授权并重启应用", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    //判断是否支持动态权限申请
+    private static boolean isRuntimePermissionEnable(@NonNull Activity activity) {
+        return Settings.Secure.getInt(activity.getContentResolver(),
+                "oem_installed_apps_runtime_permission_enable", 0) > 0;
     }
 }

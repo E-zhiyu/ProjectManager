@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.project.manager.R;
-import com.project.manager.ResultCode;
+import com.project.manager.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.AnalysisRule;
@@ -140,7 +140,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
 
         if (resultCode == Activity.RESULT_OK) {
             rule_adapter.modifyRule(dataBundle);
-        } else if (resultCode == ResultCode.RESULT_DELETE.ordinal()) {
+        } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
             int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
             rule_adapter.deleteRule(position);
         }
