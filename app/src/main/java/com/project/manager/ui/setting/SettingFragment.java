@@ -22,6 +22,7 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 import com.project.manager.R;
 import com.project.manager.databinding.FragmentSettingBinding;
 import com.project.manager.helpers.ExceptionHelper;
+import com.project.manager.helpers.NotificationPermissionHelper;
 import com.project.manager.preference.AutoBookKeepingPreference;
 import com.project.manager.preference.BookKeepingStartDatePreference;
 import com.project.manager.helpers.AnimationHelper;
@@ -198,7 +199,23 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         notification_analysis_switch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             AutoBookKeepingPreference.setNotificationAnalysisOpened(isChecked, requireActivity());  //将打开状态写入文件
 
-            AnimationHelper.switchViewFoldOrExpanded(isChecked, notification_analysis_layout);
+            if (!NotificationPermissionHelper.isNotificationServiceEnabled(requireContext()) && isChecked) {
+                new MaterialAlertDialogBuilder(requireContext())
+                        .setTitle("权限说明")
+                        .setMessage("此功能需要使用“通知使用权”权限，该权限允许应用读取其他软件发送的通知内容。本应用不会使用该权限获取用户隐私信息，仅用于解析通知中可能出现的流水账信息，请您放心使用。\n是否进行授权操作？")
+                        .setPositiveButton("确认", (dialog, which) -> {
+                            dialog.dismiss();
+                            NotificationPermissionHelper.requestNotificationPermission(requireContext());
+                            AnimationHelper.switchViewFoldOrExpanded(true, notification_analysis_layout);  //切换通知解析选项布局的可见性
+                        })
+                        .setNegativeButton("取消", (dialog, which) -> {
+                            notification_analysis_switch.setChecked(false);
+                            dialog.dismiss();
+                        })
+                        .show();
+            } else {
+                AnimationHelper.switchViewFoldOrExpanded(isChecked, notification_analysis_layout);  //切换通知解析选项布局的可见性
+            }
         });
     }
 
