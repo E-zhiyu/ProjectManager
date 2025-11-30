@@ -183,6 +183,7 @@ public class TagManageActivity extends AppCompatActivity implements View.OnClick
                         needNewGroup = false;
                         try {
                             group_no = TagGroup.nameTransToGno(group_name, this);
+                            Toast.makeText(this, "标签已成功添加", Toast.LENGTH_SHORT).show();
                         } catch (SQLiteException e) {
                             ExceptionHelper.showExceptionDialog(this, e);
                         }
@@ -207,7 +208,6 @@ public class TagManageActivity extends AppCompatActivity implements View.OnClick
             long tag_no = 0;
             try {
                 tag_no = Tag.saveNewTag(tag_name, group_no, this);
-                Toast.makeText(this, "成功新建标签", Toast.LENGTH_SHORT).show();
             } catch (SQLiteException e) {
                 ExceptionHelper.showExceptionDialog(this, e);
             }

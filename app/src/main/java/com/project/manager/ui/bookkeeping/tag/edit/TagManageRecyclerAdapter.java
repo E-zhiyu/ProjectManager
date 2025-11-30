@@ -463,6 +463,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             //刷新UI
             notifyItemRemoved(old_group_index);
             notifyItemChanged(target_group_index);
+            Toast.makeText(context, "分组合并成功", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -501,6 +502,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
         }
         if (merged_tag_group_index != -1) { //更新UI
             notifyItemChanged(merged_tag_group_index);
+            Toast.makeText(context, "标签合并成功", Toast.LENGTH_SHORT).show();
         }
     }
 }
