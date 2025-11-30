@@ -83,8 +83,9 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                     .setTitle("清除数据")
                     .setMessage("此操作将清除所有流水账数据，确认执行吗？")
                     .setPositiveButton("确认", ((dialog, which) -> {
-                        RunningAccountDataHelper.deleteAllData(requireContext());
                         dialog.dismiss();
+                        RunningAccountDataHelper.deleteAllData(requireContext());
+                        BookKeepingStartDatePreference.saveStartDate("", requireContext()); //清空已保存的开始记账的日期
                     }))
                     .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
                     .show();
