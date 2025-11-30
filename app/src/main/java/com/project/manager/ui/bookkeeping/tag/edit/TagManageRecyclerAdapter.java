@@ -31,7 +31,7 @@ import com.project.manager.ui.view_model.tag_modify.TagWithModifyID;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecyclerAdapter.TagEditViewHolder> {
+public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecyclerAdapter.TagEditViewHolder> {
     List<TagGroup> tagGroupList;                        //标签组列表
     Context context;                                    //上下文
     OnTextViewClickedListener textClickedListener;    //标签文本点击事件监听器
@@ -82,7 +82,7 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
         }
     }
 
-    public TagEditRecyclerAdapter(List<TagGroup> tagGroupList, Context context, OnTextViewClickedListener listener) {
+    public TagManageRecyclerAdapter(List<TagGroup> tagGroupList, Context context, OnTextViewClickedListener listener) {
         this.tagGroupList = tagGroupList;
         this.context = context;
         this.textClickedListener = listener;
@@ -408,7 +408,7 @@ public class TagEditRecyclerAdapter extends RecyclerView.Adapter<TagEditRecycler
             Toast.makeText(context, "标签分组已删除", Toast.LENGTH_SHORT).show();
 
             //获取ViewModel通知流水账数据输入界面更新UI
-            ManagerAssistant app = (ManagerAssistant) ((EditActivity) context).getApplication();
+            ManagerAssistant app = (ManagerAssistant) ((TagManageActivity) context).getApplication();
             AccountTagViewModel viewModel = app.getAccountTagViewModel();
 
             List<TagWithModifyID> tagWithModifyIDList = new ArrayList<>();

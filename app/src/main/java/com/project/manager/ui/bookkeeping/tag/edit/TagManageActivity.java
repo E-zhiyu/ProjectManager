@@ -25,8 +25,8 @@ import com.project.manager.ui.bookkeeping.tag.TagGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EditActivity extends AppCompatActivity implements View.OnClickListener, TagEditRecyclerAdapter.OnTextViewClickedListener {
-    private TagEditRecyclerAdapter adapter;
+public class TagManageActivity extends AppCompatActivity implements View.OnClickListener, TagManageRecyclerAdapter.OnTextViewClickedListener {
+    private TagManageRecyclerAdapter adapter;
     private ActivityResultLauncher<Intent> tagAddLauncher, modifyTagLauncher, modifyGroupLauncher;  //活动启动器
 
     @Override
@@ -47,7 +47,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         RecyclerView tagGroupRecycler = findViewById(R.id.tag_group_recycler);
-        adapter = new TagEditRecyclerAdapter(tagGroupList, this, this);
+        adapter = new TagManageRecyclerAdapter(tagGroupList, this, this);
         tagGroupRecycler.setAdapter(adapter);
     }
 

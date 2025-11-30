@@ -6,7 +6,7 @@
     style="@style/PageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.bookkeeping.tag.edit.EditActivity">
+    tools:context=".ui.bookkeeping.tag.edit.TagManageActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -16,7 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="@drawable/baseline_arrow_back_ios_new_24"
-        app:title="@string/title_edit_tag">
+        app:title="@string/title_manage_tag">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/tag_add_btn"

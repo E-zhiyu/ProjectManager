@@ -17,7 +17,7 @@ import com.google.android.material.button.MaterialButton;
 import com.project.manager.R;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.tag.TagGroup;
-import com.project.manager.ui.bookkeeping.tag.edit.EditActivity;
+import com.project.manager.ui.bookkeeping.tag.edit.TagManageActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,7 +101,7 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
     @Override
     public void onClick(@NonNull View v) {
         if (v.getId() == R.id.edit_tag_btn) {
-            Intent skip2TagEdit = new Intent(requireContext(), EditActivity.class);
+            Intent skip2TagEdit = new Intent(requireContext(), TagManageActivity.class);
             startActivity(skip2TagEdit);
             dismiss();
         } else if (v.getId() == R.id.clear_input_btn) {

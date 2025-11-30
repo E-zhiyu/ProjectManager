@@ -35,7 +35,7 @@
             android:name=".ui.bookkeeping.tag.edit.TagModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.tag.edit.EditActivity"
+            android:name=".ui.bookkeeping.tag.edit.TagManageActivity"
             android:exported="false" />
         <activity
             android:name=".ui.bookkeeping.tag.edit.TagAddActivity"

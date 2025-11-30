@@ -12,18 +12,16 @@
     <!-- Sync Preferences -->
     <string name="sync_title">Sync email periodically</string>
     <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails</string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="title_activity_main">@string/app_name</string>
     <string name="title_bookkeeping">流水账</string>
     <string name="title_setting">设置</string>
     <string name="title_report">流水报表</string>
-    <string name="title_edit_tag">标签编辑</string>
+    <string name="title_manage_tag">标签管理</string>
     <string name="title_new_tag">新建标签</string>
     <string name="title_modify_tag">标签修改</string>
     <string name="running_account_add">新建流水</string>
-    <string name="running_account_edit">流水编辑</string>
     <string name="finish">完成</string>
     <string name="amount">金额</string>
     <string name="remark">备注</string>
@@ -42,7 +40,7 @@
     <string name="expense">支出</string>
     <string name="tag_name">标签名称</string>
     <string name="tag_group">标签分组</string>
-    <string name="edit_tag">编辑标签</string>
+    <string name="manage_tag">标签管理</string>
     <string name="clear_input">清除输入</string>
     <string name="select_tag">标签选择</string>
     <string name="expand_fold_btn">press_to_expand_or_fold</string>
