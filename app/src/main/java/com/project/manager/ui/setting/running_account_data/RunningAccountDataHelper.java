@@ -388,10 +388,12 @@ public class RunningAccountDataHelper {
             db.delete(BookKeepingTables.TAG.toString(), null, null);
             db.delete(BookKeepingTables.TAG_GROUP.toString(), null, null);
 
-            db.close();
+            //删除通知解析规则的标签数据
+            ContentValues rule_tag_value = new ContentValues();
+            rule_tag_value.put(BookKeepingColumns.TAG_NO.toString(), 0);
+            db.update(BookKeepingTables.ANALYSIS_RULE.toString(), rule_tag_value, null, null);
+
             tip_str = "数据清除成功";
-
-
         } catch (SQLiteDatabaseLockedException e) {
             tip_str = "数据清除失败，无法打开数据库";
         } finally {
