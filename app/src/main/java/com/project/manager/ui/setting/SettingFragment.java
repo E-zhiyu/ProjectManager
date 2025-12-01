@@ -208,6 +208,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                             dialog.dismiss();
                             NotificationPermissionHelper.requestNotificationPermission(requireContext());
                             AnimationHelper.switchViewFoldOrExpanded(true, notification_analysis_layout);  //切换通知解析选项布局的可见性
+
                         })
                         .setNegativeButton("取消", (dialog, which) -> {
                             notification_analysis_switch.setChecked(false);
