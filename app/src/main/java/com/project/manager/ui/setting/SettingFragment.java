@@ -189,11 +189,13 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         MaterialSwitch notification_analysis_switch = binding.notificationAnalysisSwitch;
         LinearLayout notification_analysis_layout = binding.notificationAnalysisOptionLayout;
         boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(requireActivity());
-        notification_analysis_switch.setChecked(isNotificationAnalysisOpened);
-        if (isNotificationAnalysisOpened) {
+        if (isNotificationAnalysisOpened && NotificationPermissionHelper.isNotificationServiceEnabled(requireContext())) {
             notification_analysis_layout.setVisibility(View.VISIBLE);
+            notification_analysis_switch.setChecked(true);
         } else {
             notification_analysis_layout.setVisibility(View.GONE);
+            notification_analysis_switch.setChecked(false);
+            AutoBookKeepingPreference.setNotificationAnalysisOpened(false, requireContext());
         }
 
         //设置开关按钮的监听器
