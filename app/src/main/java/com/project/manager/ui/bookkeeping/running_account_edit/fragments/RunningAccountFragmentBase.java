@@ -32,7 +32,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 
-public abstract class RunningAccountFragmentBase extends Fragment implements View.OnClickListener, View.OnFocusChangeListener{
+public abstract class RunningAccountFragmentBase extends Fragment implements View.OnClickListener, View.OnFocusChangeListener {
     Bundle initData = null;                                 //初始化控件内容的数据（用于编辑流水记录时）
     View binding;                                           //绑定的XML界面
     protected String name;                                  //碎片名称
@@ -66,7 +66,8 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         return name;
     }
 
-    public void setInitData(Bundle initData) {
+    //修改流水时接收初始化数据
+    public void receiveInitData(Bundle initData) {
         this.initData = initData;
     }
 

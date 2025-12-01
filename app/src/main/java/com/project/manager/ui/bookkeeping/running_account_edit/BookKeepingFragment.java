@@ -1,7 +1,6 @@
-package com.project.manager.ui.bookkeeping;
+package com.project.manager.ui.bookkeeping.running_account_edit;
 
 import android.annotation.SuppressLint;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -27,6 +26,7 @@ import com.project.manager.database.BookKeepingTables;
 import com.project.manager.databinding.FragmentBookkeepingBinding;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.preference.BookKeepingStartDatePreference;
+import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.running_account_edit.modify.RunningAccountModifyActivity;
 import com.project.manager.ui.bookkeeping.running_account_edit.new_running_account.RunningAccountAddActivity;
 import com.project.manager.RequestResultCode;
@@ -189,7 +189,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         }
 
         //创建列表视图的适配器
-        runningAccountRecyclerAdapter = new RunningAccountRecyclerAdapter(runningAccountList, this);
+        runningAccountRecyclerAdapter = new RunningAccountRecyclerAdapter(runningAccountList, this, requireContext());
         runningAccountRecyclerView = binding.runningAccountRecyclerView;
         runningAccountRecyclerView.setLayoutManager(new LinearLayoutManager(requireActivity()));  //设置线性布局
         runningAccountRecyclerView.setAdapter(runningAccountRecyclerAdapter);
@@ -201,62 +201,16 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
      * @param resultIntent 包含流水数据的意图对象
      */
     private void onNewAccountAdded(@NonNull Intent resultIntent) {
-        ContentValues basic_values, special_values;           //基本数据和特殊数据记录
-        SQLiteDatabase db = running_account_db_helper.openWriteLink();   //数据库写连接
-
         Bundle dataBundle = resultIntent.getExtras();
         if (dataBundle == null) {
-            db.close();
             NullPointerException e = new NullPointerException("无法获取新建的流水数据");
             ExceptionHelper.showExceptionDialog(requireContext(), e);
             return;
         }
 
-        //获取基本流水数据
-        RunningAccountType type = RunningAccountType.valueOf(resultIntent.getStringExtra(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-        String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
-        if (remark == null) remark = "";
-        boolean isDefaultRemark = dataBundle.getBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue());
-        double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
-        String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
-        long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
-        basic_values = new ContentValues();
-        basic_values.put(BookKeepingColumns.TYPE.toString(), type.toString());                   //种类
-        basic_values.put(BookKeepingColumns.AMOUNT.toString(), amount);                          //金额
-        basic_values.put(BookKeepingColumns.REMARK.toString(), isDefaultRemark ? null : remark); //备注
-        basic_values.put(BookKeepingColumns.DATETIME.toString(), date_time);                     //日期
-        basic_values.put(BookKeepingColumns.TAG_NO.toString(), tag_no);                          //标签编号
-
-        long rno = db.insert(BookKeepingTables.BASIC.toString(), null, basic_values);   //获取自增主键值
-
-        //获取特殊数据并实例化流水类
-        special_values = new ContentValues();
-        RunningAccountBase newRunningAccountView;
-        if (type == RunningAccountType.EXPENSE) {
-            newRunningAccountView = new ExpenseRunningAccount(remark, date_time, amount, isDefaultRemark);
-        } else if (type == RunningAccountType.INCOME) {
-            newRunningAccountView = new IncomeRunningAccount(remark, date_time, amount, isDefaultRemark);
-        } else if (type == RunningAccountType.TRANSFER) {
-            String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
-            String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
-
-            special_values.put(BookKeepingColumns.RNO.toString(), rno);
-            special_values.put(BookKeepingColumns.EXPORT.toString(), exportAccount);
-            special_values.put(BookKeepingColumns.IMPORT.toString(), importAccount);
-            db.insert(BookKeepingTables.TRANSFER.toString(), null, special_values);
-
-            newRunningAccountView = new TransferRunningAccount(remark, date_time, amount, isDefaultRemark, exportAccount, importAccount);
-        } else {
-            NullPointerException e = new NullPointerException("流水类型获取失败");
-            ExceptionHelper.showExceptionDialog(requireContext(), e);
-            return;
-        }
-
-        db.close();
-        newRunningAccountView.setRno(rno);  //将自增主键值保存
-        runningAccountRecyclerAdapter.addNewRunningAccountView(newRunningAccountView);  //将新建的流水视图添加至列表视图适配器
-        runningAccountRecyclerView.scrollToPosition(0);     //滚动到顶部（因为添加的新记录在顶部）
-        Toast.makeText(getActivity(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
+        runningAccountRecyclerAdapter.addNewRunningAccount(dataBundle);  //将新建的流水视图添加至列表视图适配器
+        runningAccountRecyclerView.scrollToPosition(0);                  //滚动到顶部（因为添加的新记录在顶部）
+        Toast.makeText(getContext(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
 
         //更新记录数量
         account_num++;
@@ -269,9 +223,6 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
      * @param resultIntent 带有编辑后数据的意图对象
      */
     private void onAccountModified(@NonNull Intent resultIntent) {
-        ContentValues basic_values, special_values;           //基本数据和特殊数据记录
-        SQLiteDatabase db = running_account_db_helper.openWriteLink();   //数据库写连接
-
         Bundle dataBundle = resultIntent.getExtras();
         if (dataBundle == null) {
             NullPointerException e = new NullPointerException("无法获取修改后的流水数据");
@@ -279,62 +230,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             return;
         }
 
-        RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-        int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), -1);    //原视图下标
-        double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
-        String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
-        if (remark == null) remark = "";
-        boolean isDefaultRemark = dataBundle.getBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue());
-        String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
-        long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
-
-        //将基本数据存放至数据库
-        basic_values = new ContentValues();
-        basic_values.put(BookKeepingColumns.TYPE.toString(), type.toString());                   //种类
-        basic_values.put(BookKeepingColumns.AMOUNT.toString(), amount);                          //金额
-        basic_values.put(BookKeepingColumns.REMARK.toString(), isDefaultRemark ? null : remark); //备注
-        basic_values.put(BookKeepingColumns.DATETIME.toString(), date_time);                     //日期
-        basic_values.put(BookKeepingColumns.TAG_NO.toString(), tag_no);                          //标签编号
-        String selection = BookKeepingColumns.RNO + "=?";
-        long rno = (runningAccountRecyclerAdapter.getItem(position)).getRno();                      //编号
-        String[] selectionArgs = new String[]{String.valueOf(rno)};
-        db.update(
-                BookKeepingTables.BASIC.toString(),
-                basic_values,
-                selection,
-                selectionArgs
-        );
-
-        //实例化流水类
-        RunningAccountBase newRunningAccountView;
-        special_values = new ContentValues();
-        if (type == RunningAccountType.EXPENSE) {
-            newRunningAccountView = new ExpenseRunningAccount(remark, date_time, amount, isDefaultRemark);
-        } else if (type == RunningAccountType.INCOME) {
-            newRunningAccountView = new IncomeRunningAccount(remark, date_time, amount, isDefaultRemark);
-        } else if (type == RunningAccountType.TRANSFER) {
-            String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
-            String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
-
-            special_values.put(BookKeepingColumns.EXPORT.toString(), exportAccount);
-            special_values.put(BookKeepingColumns.IMPORT.toString(), importAccount);
-            db.update(
-                    BookKeepingTables.TRANSFER.toString(),
-                    special_values,
-                    selection,
-                    selectionArgs
-            );
-
-            newRunningAccountView = new TransferRunningAccount(remark, date_time, amount, isDefaultRemark, exportAccount, importAccount);
-        } else {
-            NullPointerException e = new NullPointerException("流水类型获取失败");
-            ExceptionHelper.showExceptionDialog(requireContext(), e);
-            return;
-        }
-
-        db.close();
-        newRunningAccountView.setRno(rno);
-        runningAccountRecyclerAdapter.modifyRunningAccountView(position, newRunningAccountView);
+        runningAccountRecyclerAdapter.modifyRunningAccountView(dataBundle);
         Toast.makeText(getActivity(), "成功修改流水记录", Toast.LENGTH_SHORT).show();
     }
 
@@ -343,40 +239,18 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
      */
     private void onAccountDeleted(@NonNull Intent resultIntent) {
         Bundle dataBundle = resultIntent.getExtras();
-        SQLiteDatabase db = running_account_db_helper.openWriteLink();
 
-        int position;
         if (dataBundle == null) {
             NullPointerException e = new NullPointerException("无法获取流水记录下标");
             ExceptionHelper.showExceptionDialog(requireContext(), e);
             return;
         }
 
-        //从数据库中删除
-        position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), -1);
-        RunningAccountBase target_running_account_view = runningAccountRecyclerAdapter.getItem(position);
-        long rno = target_running_account_view.getRno();
-        String selection = BookKeepingColumns.RNO + "=?";
-        String[] selectionArgs = {String.valueOf(rno)};
-        db.delete(
-                BookKeepingTables.BASIC.toString(),
-                selection,
-                selectionArgs
-        );
-        RunningAccountType type = target_running_account_view.getType();
-        if (type == RunningAccountType.TRANSFER) {
-            db.delete(
-                    BookKeepingTables.TRANSFER.toString(),
-                    selection,
-                    selectionArgs
-            );
-        }
-
-        db.close();
+        int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), -1);
         runningAccountRecyclerAdapter.deleteRunningAccountView(position);
-        Toast.makeText(getActivity(), "流水记录已删除", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), "流水记录已删除", Toast.LENGTH_SHORT).show();
 
-        //刷新流水记录数量文本
+        //更新流水记录数量文本
         account_num--;
         refreshAccountNumText();
     }

@@ -15,10 +15,6 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
 
         // 处理通知内容
         // 注意：这里只是示例，实际使用时应该考虑权限和隐私问题
-    }
 
-    @Override
-    public void onNotificationRemoved(StatusBarNotification sbn) {
-        // 当通知被移除时调用
     }
 }

@@ -22,8 +22,9 @@ import com.project.manager.ui.bookkeeping.running_account_edit.fragments.IncomeF
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.TransferFragment;
 
 public class RunningAccountModifyActivity extends AppCompatActivity implements View.OnClickListener {
-    RunningAccountType type = null;                     //流水种类
+    RunningAccountType type = null;                         //流水种类
     int position = -1;                                      //流水项目的下标
+    long rno;                                               //流水编号
     RunningAccountFragmentBase runningAccountFragment;      //流水账数据输入碎片
 
     @Override
@@ -37,7 +38,8 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
         Bundle dataBundle = getIntent().getExtras();
         if (dataBundle != null) {
             type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-            position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), -1);
+            position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
+            rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
         } else {
             NullPointerException e = new NullPointerException("编辑流水时无法读取原有的数据");
             ExceptionHelper.showExceptionDialog(this, e);
@@ -61,7 +63,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.add(R.id.running_account_edit_fragment_container, runningAccountFragment);
             transaction.commit();
-            runningAccountFragment.setInitData(dataBundle);   //将原本的数据传递给碎片实例
+            runningAccountFragment.receiveInitData(dataBundle);   //将原本的数据传递给碎片实例
         }
     }
 
@@ -89,7 +91,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
             if (error != null) {
                 Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
             } else {
-                Bundle dataBundle = getDataAfterModifying();
+                Bundle dataBundle = getInputData();
                 result2BookKeeping.putExtras(dataBundle);
                 setResult(RequestResultCode.RESULT_OK.ordinal(), result2BookKeeping);
                 finish();
@@ -123,11 +125,12 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
      * @return 包含修改后数据的包裹
      */
     @NonNull
-    private Bundle getDataAfterModifying() {
+    private Bundle getInputData() {
         Bundle dataBundle = runningAccountFragment.getInputData();
 
-        dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), position);        //将下标存放至包裹
-        dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());       //将种类存放至包裹
+        dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), position);       //流水视图下标
+        dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());     //流水种类
+        dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);                     //流水编号
 
         return dataBundle;
     }
