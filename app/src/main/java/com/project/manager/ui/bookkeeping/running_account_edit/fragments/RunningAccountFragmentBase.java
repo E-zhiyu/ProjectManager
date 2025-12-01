@@ -217,7 +217,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
 
         String tag_name = "";
         try {
-            Tag tag = Tag.getTagByRno(rno, requireContext());
+            Tag tag = Tag.getTagOfRunningAccount(rno, requireContext());
             tag_no = tag.getTno();
             tag_name = tag.getName();
         } catch (SQLiteException e) {

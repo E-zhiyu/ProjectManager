@@ -22,16 +22,14 @@ public class AnalysisRule {
     private final String ruleName;                //规则名称
     private final long ruleNo;                    //规则编号
     private final RunningAccountType type;        //流水种类
-    private final long tagNo;                     //流水标签编号
     private final String packageName;             //包名
     private final String notificationTitle;       //通知标题
     private final String notificationContent;     //通知内容
 
-    public AnalysisRule(String ruleName, long ruleNo, RunningAccountType accountType, long tagNo, String packageName, String notificationTitle, String notificationContent) {
+    public AnalysisRule(String ruleName, long ruleNo, RunningAccountType accountType, String packageName, String notificationTitle, String notificationContent) {
         this.ruleName = ruleName;
         this.ruleNo = ruleNo;
         this.type = accountType;
-        this.tagNo = tagNo;
         this.packageName = packageName;
         this.notificationTitle = notificationTitle;
         this.notificationContent = notificationContent;
@@ -47,10 +45,6 @@ public class AnalysisRule {
 
     public RunningAccountType getType() {
         return type;
-    }
-
-    public long getTagNo() {
-        return tagNo;
     }
 
     public String getPackageName() {
@@ -92,12 +86,11 @@ public class AnalysisRule {
             String rule_name = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.RULE_NAME.toString()));
             long rule_no = rule_cursor.getLong(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.RULE_NO.toString()));
             RunningAccountType type = RunningAccountType.valueOf(rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.TYPE.toString())));
-            long tag_no = rule_cursor.getLong(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));
             String package_name = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.PACKAGE_NAME.toString()));
             String notification_title = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.NOTIFICATION_TITLE.toString()));
             String notification_content = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.NOTIFICATION_CONTENT.toString()));
 
-            AnalysisRule rule = new AnalysisRule(rule_name, rule_no, type, tag_no, package_name, notification_title, notification_content);
+            AnalysisRule rule = new AnalysisRule(rule_name, rule_no, type, package_name, notification_title, notification_content);
             ruleList.add(rule);
         }
 

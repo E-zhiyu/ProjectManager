@@ -205,15 +205,23 @@ public class Tag {
         BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
-        ContentValues basic_values = new ContentValues();
-        basic_values.put(BookKeepingColumns.TAG_NO.toString(), 0);
+        ContentValues non_tag_values = new ContentValues();
+        non_tag_values.put(BookKeepingColumns.TAG_NO.toString(), 0);
         String whereStr = BookKeepingColumns.TAG_NO + "=?";
         String[] whereStrArgs = {String.valueOf(tag_no)};
 
         //先将流水基本数据表的标签清除（修改为0）
         db.update(
                 BookKeepingTables.BASIC.toString(),
-                basic_values,
+                non_tag_values,
+                whereStr,
+                whereStrArgs
+        );
+
+        //将规则表的标签清除
+        db.update(
+                BookKeepingTables.ANALYSIS_RULE.toString(),
+                non_tag_values,
                 whereStr,
                 whereStrArgs
         );
@@ -246,6 +254,7 @@ public class Tag {
             index++;
         }
 
+        //创建待填充的字符串
         StringBuilder placeholders = new StringBuilder();
         for (int i = 0; i < tagList.size(); i++) {
             placeholders.append(i == 0 ? "?" : ",?");
@@ -255,6 +264,17 @@ public class Tag {
         String sql;
         SQLiteStatement stmt;
         sql = "UPDATE " + BookKeepingTables.BASIC +
+                " SET " + BookKeepingColumns.TAG_NO + " =0" +
+                " WHERE " + BookKeepingColumns.TAG_NO + " IN (" + placeholders + ")";
+        stmt = db.compileStatement(sql);
+        index = 1;
+        for (long tagNo : tag_no_list) {
+            stmt.bindLong(index++, tagNo);
+        }
+        stmt.execute();
+
+        //清除规则表的标签记录
+        sql = "UPDATE " + BookKeepingTables.ANALYSIS_RULE +
                 " SET " + BookKeepingColumns.TAG_NO + " =0" +
                 " WHERE " + BookKeepingColumns.TAG_NO + " IN (" + placeholders + ")";
         stmt = db.compileStatement(sql);
@@ -312,7 +332,7 @@ public class Tag {
      */
     @NonNull
     @Contract("_, _ -> new")
-    public static Tag getTagByRno(long rno, Context context) throws SQLiteException {
+    public static Tag getTagOfRunningAccount(long rno, Context context) throws SQLiteException {
         BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
@@ -334,6 +354,8 @@ public class Tag {
         long tag_no = 0;
         if (basic_cursor.moveToNext()) {
             tag_no = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));
+            if (tag_no == 0)
+                return new Tag("", 0);
         }
 
         //查询标签名称
@@ -356,6 +378,67 @@ public class Tag {
         }
 
         basic_cursor.close();
+        tag_cursor.close();
+        db.close();
+        return new Tag(tag_name, tag_no);
+    }
+
+    /**
+     * 获取通知解析规则的标签实例
+     *
+     * @param rule_no 规则编号
+     * @param context 上下文
+     * @return 获取到的标签实例
+     * @throws SQLiteException 读取数据库可能引发的异常
+     */
+    @NonNull
+    @Contract("_, _ -> new")
+    public static Tag getTagOfAnalysisRule(long rule_no, Context context) throws SQLiteException {
+        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        SQLiteDatabase db = db_helper.openWriteLink();
+
+        //查询标签编号
+        String[] columns = {BookKeepingColumns.TAG_NO.toString()};
+        String selection = BookKeepingColumns.RULE_NO + "=?";
+        String[] selectionArgs = {String.valueOf(rule_no)};
+        Cursor rule_cursor = db.query(
+                BookKeepingTables.ANALYSIS_RULE.toString(),
+                columns,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null,
+                "1"
+        );
+
+        long tag_no = 0;
+        if (rule_cursor.moveToNext()) {
+            tag_no = rule_cursor.getLong(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));
+            if (tag_no == 0)
+                return new Tag("", 0);
+        }
+
+        //查询标签名称
+        String[] tag_columns = {BookKeepingColumns.TAG_NAME.toString()};
+        String tag_selection = BookKeepingColumns.TAG_NO + "=?";
+        String[] tag_selectionArgs = {String.valueOf(tag_no)};
+        Cursor tag_cursor = db.query(
+                BookKeepingTables.TAG.toString(),
+                tag_columns,
+                tag_selection, tag_selectionArgs,
+                null,
+                null,
+                null,
+                "1"
+        );
+
+        String tag_name = "";
+        if (tag_cursor.moveToNext()) {
+            tag_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NAME.toString()));
+        }
+
+        rule_cursor.close();
         tag_cursor.close();
         db.close();
         return new Tag(tag_name, tag_no);

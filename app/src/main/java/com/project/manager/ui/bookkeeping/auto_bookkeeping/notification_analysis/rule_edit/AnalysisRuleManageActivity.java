@@ -102,7 +102,6 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
         String rule_name = rule.getRuleName();                          //规则名称
         long rule_no = rule.getRuleNo();                                //规则编号
         String account_type = rule.getType().toString();                //流水记录类型
-        long tag_no = rule.getTagNo();                                  //标签编号
         String package_name = rule.getPackageName();                    //目标包名
         String notification_title = rule.getNotificationTitle();        //通知标题
         String notification_content = rule.getNotificationContent();    //通知内容
@@ -110,7 +109,6 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
         dataBundle.putString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue(), rule_name);
         dataBundle.putLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue(), rule_no);
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), account_type);
-        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
         dataBundle.putString(KeyValueStrings.PACKAGE_NAME.getValue(), package_name);
         dataBundle.putString(KeyValueStrings.NOTIFICATION_TITLE.getValue(), notification_title);
         dataBundle.putString(KeyValueStrings.NOTIFICATION_CONTENT.getValue(), notification_content);

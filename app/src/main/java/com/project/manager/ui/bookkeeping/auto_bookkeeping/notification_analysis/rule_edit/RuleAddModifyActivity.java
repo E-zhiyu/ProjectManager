@@ -221,18 +221,19 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
             toolbar.setTitle(R.string.modify_rule);
 
             //解析数据
-            String rule_name = initData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());
-            rule_no = initData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());
-            viewHolderPosition = initData.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
-            type = RunningAccountType.valueOf(initData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-            tag_no = initData.getLong(KeyValueStrings.TAG_NO.getValue());
-            String package_name = initData.getString(KeyValueStrings.PACKAGE_NAME.getValue());
-            String notification_title = initData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
-            String notification_content = initData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
+            String rule_name = initData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());               //规则名称
+            rule_no = initData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());                            //规则编号
+            viewHolderPosition = initData.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());              //视图下标
+            type = RunningAccountType.valueOf(initData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));     //流水种类
+            Tag rule_tag = Tag.getTagOfAnalysisRule(rule_no, this);                                     //标签
+            tag_no = rule_tag.getTno();
+            String package_name = initData.getString(KeyValueStrings.PACKAGE_NAME.getValue());                  //包名
+            String notification_title = initData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());      //通知标题
+            String notification_content = initData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());  //通知内容
 
             rule_name_input.setText(rule_name);
             type_input.setText(type.getTitle());
-            tag_input.setText(Tag.tagNoTransToName(tag_no, this));
+            tag_input.setText(rule_tag.getName());
             package_name_input.setText(package_name);
             notification_title_input.setText(notification_title);
             notification_content_input.setText(notification_content);

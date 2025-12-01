@@ -119,7 +119,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
         } else if (v.getId() == R.id.delete_btn) {
             new MaterialAlertDialogBuilder(this)
                     .setTitle("删除标签")
-                    .setMessage("此操作将清空所有相应流水的标签数据，确认继续吗？")
+                    .setMessage("此操作将清空所有相应流水记录和通知解析规则的标签数据，确认继续吗？")
                     .setPositiveButton("确定", ((dialog, which) -> {
                         tagViewModel.updateTag("", tag_no, AccountTagModifyID.DELETE);    //更新ViewModel中的标签数据
 
