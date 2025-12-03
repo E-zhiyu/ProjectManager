@@ -386,7 +386,7 @@ public class RunningAccountDataHelper {
             db.delete(BookKeepingTables.TRANSFER.toString(), null, null);
             db.delete(BookKeepingTables.BASIC.toString(), null, null);
             db.delete(BookKeepingTables.TAG.toString(), null, null);
-            db.delete(BookKeepingTables.TAG_GROUP.toString(), null, null);
+            db.delete(BookKeepingTables.TAG_GROUP.toString(), BookKeepingColumns.GROUP_NO + "!=0", null);
 
             //删除通知解析规则的标签数据
             ContentValues rule_tag_value = new ContentValues();
