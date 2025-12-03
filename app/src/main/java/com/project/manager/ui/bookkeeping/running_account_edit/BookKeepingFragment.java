@@ -71,11 +71,6 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
 
         //取消注册广播接收器
         if (accountUpdatedReceiver != null) {
@@ -208,7 +203,6 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         //创建列表视图的适配器
         runningAccountRecyclerAdapter = new RunningAccountRecyclerAdapter(runningAccountList, this, requireContext());
         runningAccountRecyclerView = binding.runningAccountRecyclerView;
-        runningAccountRecyclerView.setLayoutManager(new LinearLayoutManager(requireActivity()));  //设置线性布局
         runningAccountRecyclerView.setAdapter(runningAccountRecyclerAdapter);
     }
 
