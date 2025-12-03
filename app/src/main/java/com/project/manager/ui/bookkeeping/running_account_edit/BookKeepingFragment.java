@@ -29,7 +29,7 @@ import com.project.manager.preference.BookKeepingStartDatePreference;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.running_account_edit.modify.RunningAccountModifyActivity;
 import com.project.manager.ui.bookkeeping.running_account_edit.new_running_account.RunningAccountAddActivity;
-import com.project.manager.RequestResultCode;
+import com.project.manager.ui.RequestResultCode;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.ui.bookkeeping.report.ReportActivity;
 

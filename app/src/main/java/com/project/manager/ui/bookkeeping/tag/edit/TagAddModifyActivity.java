@@ -15,7 +15,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
-import com.project.manager.RequestResultCode;
+import com.project.manager.ui.RequestResultCode;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.TagString;
 import com.project.manager.ui.bookkeeping.tag.Tag;

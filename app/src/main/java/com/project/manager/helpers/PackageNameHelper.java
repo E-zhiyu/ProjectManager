@@ -17,7 +17,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.project.manager.R;
-import com.project.manager.RequestResultCode;
+import com.project.manager.ui.RequestResultCode;
 import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select.AppInfo;
 
 import java.util.ArrayList;

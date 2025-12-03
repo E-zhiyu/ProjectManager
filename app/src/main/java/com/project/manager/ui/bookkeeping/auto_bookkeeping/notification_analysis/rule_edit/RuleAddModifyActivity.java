@@ -20,7 +20,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
-import com.project.manager.RequestResultCode;
+import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.TagString;
@@ -274,7 +274,7 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
 
     //观察标签数据变化
     private void startObserveTag() {
-        tagViewModel.getTag().observe(this, tagList -> {
+        tagViewModel.getTagData().observe(this, tagList -> {
             if (tagList != null) {  //判断是否为调用resetTagValue()方法后传入的null值
                 for (TagWithModifyID tag : tagList) {
                     String tag_name = tag.getTag_name();

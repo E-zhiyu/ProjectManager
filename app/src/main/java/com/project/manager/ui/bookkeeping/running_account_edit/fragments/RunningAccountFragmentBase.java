@@ -158,7 +158,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
 
     //观察标签数据变化
     private void startObserveTag() {
-        tagViewModel.getTag().observe(getViewLifecycleOwner(), tagList -> {
+        tagViewModel.getTagData().observe(getViewLifecycleOwner(), tagList -> {
             if (tagList != null) {  //判断是否为调用resetTagValue()方法后传入的null值
                 for (TagWithModifyID tag : tagList) {
                     String tag_name = tag.getTag_name();

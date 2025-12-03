@@ -17,7 +17,7 @@ import com.project.manager.ui.bookkeeping.running_account_edit.fragments.Expense
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.IncomeFragment;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountFragmentBase;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.TransferFragment;
-import com.project.manager.RequestResultCode;
+import com.project.manager.ui.RequestResultCode;
 
 import java.util.ArrayList;
 import java.util.List;

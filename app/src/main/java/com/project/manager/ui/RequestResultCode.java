@@ -1,4 +1,4 @@
-package com.project.manager;
+package com.project.manager.ui;
 
 public enum RequestResultCode {
     RESULT_CANCEL,          //应答拒绝

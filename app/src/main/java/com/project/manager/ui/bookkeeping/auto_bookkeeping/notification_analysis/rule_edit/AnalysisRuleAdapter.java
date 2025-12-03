@@ -1,6 +1,7 @@
 package com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
+import com.project.manager.broadcast.BroadcastConstants;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.AnalysisRule;
@@ -24,7 +26,7 @@ import java.util.List;
 public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapter.AnalysisRuleViewHolder> {
     private final Context context;
     private final RuleClickedListener listener; //规则视图点击监听器
-    private final List<AnalysisRule> ruleList;
+    private final List<AnalysisRule> ruleList;  //规则列表
 
     public static class AnalysisRuleViewHolder extends RecyclerView.ViewHolder {
         MaterialTextView rule_name_text, tag_name_text, type_text;
@@ -118,6 +120,8 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         ruleList.add(0, newRule);
         notifyItemInserted(0);
         Toast.makeText(context, "解析规则添加成功", Toast.LENGTH_SHORT).show();
+
+        sendRuleUpdatedBroadcast();
     }
 
     /**
@@ -148,6 +152,8 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         ruleList.set(position, modifiedRule);
         notifyItemChanged(position);
         Toast.makeText(context, "解析规则修改成功", Toast.LENGTH_SHORT).show();
+
+        sendRuleUpdatedBroadcast();
     }
 
     /**
@@ -170,5 +176,13 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         ruleList.remove(position);
         notifyItemRemoved(position);
         Toast.makeText(context, "规则删除成功", Toast.LENGTH_SHORT).show();
+
+        sendRuleUpdatedBroadcast();
+    }
+
+    //发送规则变更的广播
+    private void sendRuleUpdatedBroadcast() {
+        Intent ruleUpdated = new Intent(BroadcastConstants.ACTION_RULES_UPDATED.toString());
+        context.sendBroadcast(ruleUpdated);
     }
 }
