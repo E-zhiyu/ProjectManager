@@ -52,6 +52,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     private int account_num;                                                //流水记录数量
     private long bookkeeping_days;                                          //记账天数
     private FragmentBookkeepingBinding binding;                             //绑定的XML视图
+    private RunningAccountUpdatedBroadcastReceiver accountUpdatedReceiver;  //流水数据更新的广播接收器
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
@@ -70,6 +71,16 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        //取消注册广播接收器
+        if (accountUpdatedReceiver != null) {
+            requireContext().unregisterReceiver(accountUpdatedReceiver);
+        }
     }
 
     @Override
@@ -203,8 +214,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
     //初始化广播接收器
     private void setUpBroadcastReceiver() {
-        RunningAccountUpdatedBroadcastReceiver accountUpdatedReceiver = new RunningAccountUpdatedBroadcastReceiver(this::onNewAccountAdded);
-
+        accountUpdatedReceiver = new RunningAccountUpdatedBroadcastReceiver(this::onNewAccountAdded);
         IntentFilter filter = new IntentFilter();
         filter.addAction(BroadcastConstants.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

@@ -50,6 +50,8 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        //注销广播接收器防止重复刷新UI
         if (ruleUpdateReceiver != null) {
             unregisterReceiver(ruleUpdateReceiver);
         }
