@@ -12,7 +12,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.project.manager.LogTags;
-import com.project.manager.broadcast.AutoBookKeepingBroadcastReceiver;
+import com.project.manager.broadcast.NotificationAnalysisBroadcastReceiver;
 import com.project.manager.broadcast.BroadcastConstants;
 import com.project.manager.preference.AutoBookKeepingPreference;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
@@ -22,9 +22,9 @@ import com.project.manager.ui.bookkeeping.running_account_edit.fragments.Running
 
 import java.util.List;
 
-public class AutoBookKeepingNotificationListenerService extends NotificationListenerService implements AutoBookKeepingBroadcastReceiver.BroadcastListener {
+public class AutoBookKeepingNotificationListenerService extends NotificationListenerService implements NotificationAnalysisBroadcastReceiver.BroadcastListener {
     private List<AnalysisRule> ruleList;                            //解析规则列表
-    private AutoBookKeepingBroadcastReceiver ruleUpdateReceiver;    //规则更新的广播接收器
+    private NotificationAnalysisBroadcastReceiver ruleUpdateReceiver;    //规则更新的广播接收器
     private boolean isFunctionOpened;                               //通知解析功能是否开启
 
     @Override
@@ -35,7 +35,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         isFunctionOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(getBaseContext());   //启动时加载功能开关状态
 
         //注册规则更新的广播接收器
-        ruleUpdateReceiver = new AutoBookKeepingBroadcastReceiver(this);
+        ruleUpdateReceiver = new NotificationAnalysisBroadcastReceiver(this);
         IntentFilter filter = new IntentFilter();
         filter.addAction(BroadcastConstants.ACTION_RULES_UPDATED.toString());       //过滤规则更新动作
         filter.addAction(BroadcastConstants.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString()); //过滤通知解析功能开关状态变化

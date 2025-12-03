@@ -12,7 +12,7 @@ import com.project.manager.LogTags;
 /**
  * 自动记账相关的广播接收器
  */
-public class AutoBookKeepingBroadcastReceiver extends BroadcastReceiver {
+public class NotificationAnalysisBroadcastReceiver extends BroadcastReceiver {
     private final BroadcastListener listener;
 
     public interface BroadcastListener {
@@ -24,11 +24,11 @@ public class AutoBookKeepingBroadcastReceiver extends BroadcastReceiver {
     }
 
     /**
-     * 自动记账相关的广播接收器
+     * 通知解析相关的广播接收器
      *
-     * @param listener 自动记账相关的监听器
+     * @param listener 接收广播后执行动作的监听器
      */
-    public AutoBookKeepingBroadcastReceiver(BroadcastListener listener) {
+    public NotificationAnalysisBroadcastReceiver(BroadcastListener listener) {
         this.listener = listener;
     }
 
