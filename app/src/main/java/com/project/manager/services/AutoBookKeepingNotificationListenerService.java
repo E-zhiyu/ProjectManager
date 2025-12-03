@@ -16,12 +16,20 @@ import com.project.manager.LogTags;
 import com.project.manager.broadcast.NotificationAnalysisBroadcastReceiver;
 import com.project.manager.broadcast.BroadcastConstants;
 import com.project.manager.data_save.preference.AutoBookKeepingPreference;
+import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.AnalysisRule;
 import com.project.manager.ui.bookkeeping.running_account_edit.RunningAccountBase;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
+import com.project.manager.ui.bookkeeping.tag.Tag;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AutoBookKeepingNotificationListenerService extends NotificationListenerService implements NotificationAnalysisBroadcastReceiver.BroadcastListener {
     private List<AnalysisRule> ruleList;                            //解析规则列表
@@ -63,6 +71,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         String packageName = sbn.getPackageName();
         String title = sbn.getNotification().extras.getString("android.title");
         String text = sbn.getNotification().extras.getString("android.text");
+        if (text == null) return;
 
         Log.i(LogTags.NOTIFICATION_SERVICE.getV(), String.format("通知发送者包名：%s", packageName));
         Log.i(LogTags.NOTIFICATION_SERVICE.getV(), String.format("通知标题：%s", title));
@@ -74,18 +83,27 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
             String rule_title = rule.getNotificationTitle();
             String rule_content = rule.getNotificationContent();
 
-            //TODO:完善正则表达式匹配内容的逻辑
-            if (isFunctionOpened && rule_package_name.equals(packageName) && rule_title.equals(title)) {
-                //TODO: 完善正则表达式解析数据的逻辑
-                Bundle dataBundle = new Bundle();
-                dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), 0);
-                dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), "2025-12-01 08:00");
-                dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), RunningAccountType.EXPENSE.toString());
-                dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), 11.0);
-                dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), "自动记账测试");
+            Pattern pattern = Pattern.compile(rule_content);    //编译为正则表达式
+            Matcher matcher = pattern.matcher(text);            //匹配通知内容
 
-                long rno = RunningAccountBase.saveNewAccount(dataBundle, getApplicationContext());
-                dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
+            if (isFunctionOpened && rule_package_name.equals(packageName) && rule_title.equals(title) && matcher.find()) {
+                Bundle dataBundle;
+                try {
+                    //获取标签编号
+                    long rule_no = rule.getRuleNo();
+                    long tag_no = Tag.getTagOfAnalysisRule(rule_no, getBaseContext()).getTno();
+
+                    dataBundle = saveNewAccount(matcher, rule.getType(), tag_no, rule.getRuleName());
+                    Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据保存成功");
+                } catch (SQLiteException e) {
+                    Log.e(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据保存失败或标签编号读取失败");
+                    ExceptionHelper.showExceptionDialog(getBaseContext(), e);
+                    return;
+                } catch (NullPointerException e) {
+                    Log.e(LogTags.NOTIFICATION_SERVICE.getV(), "通知解析失败");
+                    ExceptionHelper.showExceptionDialog(getBaseContext(), e);
+                    return;
+                }
 
                 //发送流水账记录增加的广播
                 Intent accountAdded = new Intent(BroadcastConstants.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
@@ -113,5 +131,43 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "收到功能开关状态变更广播");
         isFunctionOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(getBaseContext());
         Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "通知解析功能：" + isFunctionOpened);
+    }
+
+    /**
+     * 解析并保存得到的流水记录
+     *
+     * @param matcher  正则表达式的匹配对象
+     * @param type     解析规则中的流水种类
+     * @param tag_no   解析规则对应的标签编号
+     * @param ruleName 解析规则的名称
+     * @return 解析通知内容后生成的流水数据包
+     * @throws SQLiteException 流水数据保存失败引发的异常
+     */
+    @NonNull
+    private Bundle saveNewAccount(@NonNull Matcher matcher, @NonNull RunningAccountType type, long tag_no, String ruleName) throws SQLiteException {
+        //获取匹配到的金额数据
+        double amount = Double.parseDouble(Objects.requireNonNull(matcher.group(1)));
+
+        //获取当前的时间
+        long currentTimeMillis = System.currentTimeMillis();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+        Date now = new Date(currentTimeMillis);
+        String time_str = dateFormat.format(now);
+
+        //生成备注
+        String remark = "自动记账：" + ruleName;
+
+        //生成流水记录数据包
+        Bundle dataBundle = new Bundle();
+        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
+        dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), time_str);
+        dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());
+        dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
+        dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
+
+        long rno = RunningAccountBase.saveNewAccount(dataBundle, getApplicationContext());
+        dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
+
+        return dataBundle;
     }
 }
