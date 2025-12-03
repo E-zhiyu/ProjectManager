@@ -4,7 +4,6 @@
     style="@style/PageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".ui.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select.PackageNameSelectActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -17,7 +16,8 @@
             style="@style/SearchBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/search_app" />
+            android:hint="@string/search_app"
+            app:layout_scrollFlags="scroll|enterAlways|snap" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
