@@ -386,7 +386,7 @@ public class RunningAccountDataHelper {
             db.delete(RunningAccountTables.TRANSFER.toString(), null, null);
             db.delete(RunningAccountTables.BASIC.toString(), null, null);
             db.delete(RunningAccountTables.TAG.toString(), null, null);
-            db.delete(RunningAccountTables.TAG_GROUP.toString(), null, null);
+            db.delete(RunningAccountTables.TAG_GROUP.toString(), RunningAccountColumns.GROUP_NO + "!=0", null);
 
             db.close();
             tip_str = "数据清除成功";
