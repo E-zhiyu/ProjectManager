@@ -208,8 +208,8 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
             //开启开关时检测是否没有权限，如果没有则提示用户授权
             if (!NotificationPermissionHelper.isNotificationServiceEnabled(requireContext()) && isChecked) {
                 new MaterialAlertDialogBuilder(requireContext())
-                        .setTitle("权限说明")
-                        .setMessage("此功能需要使用“通知使用权”权限，该权限允许应用读取其他软件发送的通知内容。本应用不会使用该权限获取用户隐私信息，仅用于解析通知中可能出现的流水账信息，请您放心使用。\n是否进行授权操作？")
+                        .setTitle("权限申请说明")
+                        .setMessage("此功能需要使用“通知使用权”权限，该权限允许应用读取其他软件发送的通知内容。本应用不会也无法使用该权限获取用户隐私信息，仅用于解析通知中可能出现的流水账信息，请您放心使用。\n是否为本应用授权？")
                         .setPositiveButton("确认", (dialog, which) -> {
                             dialog.dismiss();
                             NotificationPermissionHelper.requestNotificationPermission(requireContext());
