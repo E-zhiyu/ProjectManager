@@ -11,7 +11,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.project.manager.databinding.ActivityMainBinding;
 import com.project.manager.helpers.ThemeModeHelper;
-import com.project.manager.preference.ThemeModePreference;
+import com.project.manager.data_save.preference.ThemeModePreference;
 
 public class MainActivity extends AppCompatActivity {
 

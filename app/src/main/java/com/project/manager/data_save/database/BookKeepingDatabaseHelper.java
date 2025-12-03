@@ -1,4 +1,4 @@
-package com.project.manager.database;
+package com.project.manager.data_save.database;
 
 import android.content.ContentValues;
 import android.content.Context;

@@ -9,9 +9,9 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
-import com.project.manager.database.BookKeepingColumns;
-import com.project.manager.database.BookKeepingDatabaseHelper;
-import com.project.manager.database.BookKeepingTables;
+import com.project.manager.data_save.database.BookKeepingColumns;
+import com.project.manager.data_save.database.BookKeepingDatabaseHelper;
+import com.project.manager.data_save.database.BookKeepingTables;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 

@@ -15,7 +15,7 @@ import androidx.annotation.NonNull;
 import com.project.manager.LogTags;
 import com.project.manager.broadcast.NotificationAnalysisBroadcastReceiver;
 import com.project.manager.broadcast.BroadcastConstants;
-import com.project.manager.preference.AutoBookKeepingPreference;
+import com.project.manager.data_save.preference.AutoBookKeepingPreference;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.AnalysisRule;
 import com.project.manager.ui.bookkeeping.running_account_edit.RunningAccountBase;

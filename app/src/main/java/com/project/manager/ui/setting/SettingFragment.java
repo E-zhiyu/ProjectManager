@@ -24,8 +24,8 @@ import com.project.manager.broadcast.BroadcastConstants;
 import com.project.manager.databinding.FragmentSettingBinding;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.helpers.NotificationPermissionHelper;
-import com.project.manager.preference.AutoBookKeepingPreference;
-import com.project.manager.preference.BookKeepingStartDatePreference;
+import com.project.manager.data_save.preference.AutoBookKeepingPreference;
+import com.project.manager.data_save.preference.BookKeepingStartDatePreference;
 import com.project.manager.helpers.AnimationHelper;
 import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
 import com.project.manager.helpers.AboutHelper;
@@ -33,7 +33,7 @@ import com.project.manager.helpers.ThemeModeHelper;
 import com.project.manager.helpers.UpdateLogHelper;
 import com.project.manager.ui.setting.running_account_data.RunningAccountDataHelper;
 import com.project.manager.ui.setting.running_account_data.pojo.TotalDataMap;
-import com.project.manager.preference.ThemeModePreference;
+import com.project.manager.data_save.preference.ThemeModePreference;
 
 import java.util.Calendar;
 
