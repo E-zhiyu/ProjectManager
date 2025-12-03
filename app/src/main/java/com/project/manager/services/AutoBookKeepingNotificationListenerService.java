@@ -1,6 +1,7 @@
 package com.project.manager.services;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.sqlite.SQLiteException;
 import android.os.Build;
@@ -80,7 +81,16 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                 dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), RunningAccountType.EXPENSE.toString());
                 dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), 11.0);
                 dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), "自动记账测试");
-                RunningAccountBase.saveNewAccount(dataBundle, getApplicationContext());
+
+                long rno = RunningAccountBase.saveNewAccount(dataBundle, getApplicationContext());
+                dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
+
+                //发送流水账记录增加的广播
+                Intent accountAdded = new Intent(BroadcastConstants.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
+                accountAdded.putExtras(dataBundle);
+                getBaseContext().sendBroadcast(accountAdded);
+
+                break;  //匹配到规则则结束循环
             }
         }
     }

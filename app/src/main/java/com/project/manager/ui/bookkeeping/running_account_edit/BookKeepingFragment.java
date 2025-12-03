@@ -1,10 +1,13 @@
 package com.project.manager.ui.bookkeeping.running_account_edit;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +23,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
+import com.project.manager.broadcast.BroadcastConstants;
+import com.project.manager.broadcast.RunningAccountUpdatedBroadcastReceiver;
 import com.project.manager.database.BookKeepingColumns;
 import com.project.manager.database.BookKeepingDatabaseHelper;
 import com.project.manager.database.BookKeepingTables;
@@ -41,12 +46,12 @@ import java.util.List;
 public class BookKeepingFragment extends Fragment implements View.OnClickListener, RunningAccountRecyclerAdapter.OnRunningAccountViewClickListener {
     private RunningAccountRecyclerAdapter runningAccountRecyclerAdapter;    //流水列表适配器
     private RecyclerView runningAccountRecyclerView;                        //流水列表视图
-    private BookKeepingDatabaseHelper running_account_db_helper;         //流水数据库帮助器
+    private BookKeepingDatabaseHelper running_account_db_helper;            //流水数据库帮助器
     private ActivityResultLauncher<Intent> runningAccountAddLauncher, modifyRunningAccountLauncher;  //子活动启动器
     MaterialTextView account_num_text;                                      //流水记录数量文本视图
     private int account_num;                                                //流水记录数量
     private long bookkeeping_days;                                          //记账天数
-    private FragmentBookkeepingBinding binding;
+    private FragmentBookkeepingBinding binding;                             //绑定的XML视图
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
@@ -56,6 +61,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
         initActivityLauncher();
         initViews();
+        setUpBroadcastReceiver();
 
         return binding.getRoot();
     }
@@ -195,6 +201,35 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         runningAccountRecyclerView.setAdapter(runningAccountRecyclerAdapter);
     }
 
+    //初始化广播接收器
+    private void setUpBroadcastReceiver() {
+        RunningAccountUpdatedBroadcastReceiver accountUpdatedReceiver = new RunningAccountUpdatedBroadcastReceiver(this::onNewAccountAdded);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BroadcastConstants.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requireContext().registerReceiver(accountUpdatedReceiver, filter, Context.RECEIVER_EXPORTED);
+        } else {
+            requireContext().registerReceiver(accountUpdatedReceiver, filter);
+        }
+    }
+
+    /**
+     * 通过监听广播增加的流水账记录
+     *
+     * @param dataBundle 新增流水记录的数据
+     */
+    private void onNewAccountAdded(Bundle dataBundle) {
+        if (dataBundle != null) {
+            runningAccountRecyclerAdapter.addNewRunningAccountNoSave(dataBundle);
+            runningAccountRecyclerView.scrollToPosition(0);
+            Toast.makeText(requireContext(), "成功添加一条流水记录（自动记账）", Toast.LENGTH_SHORT).show();
+
+            account_num++;
+            refreshAccountNumText();
+        }
+    }
+
     /**
      * 将新建的流水添加至列表视图
      *
@@ -210,7 +245,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
         runningAccountRecyclerAdapter.addNewRunningAccount(dataBundle);  //将新建的流水视图添加至列表视图适配器
         runningAccountRecyclerView.scrollToPosition(0);                  //滚动到顶部（因为添加的新记录在顶部）
-        Toast.makeText(getContext(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
 
         //更新记录数量
         account_num++;

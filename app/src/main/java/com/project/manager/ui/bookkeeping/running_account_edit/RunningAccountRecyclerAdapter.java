@@ -135,6 +135,39 @@ public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningA
         notifyItemInserted(0);
     }
 
+    public void addNewRunningAccountNoSave(@NonNull Bundle dataBundle) {
+        //解析数据
+        long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
+        RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
+        double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
+        String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
+        if (remark == null) remark = "";
+        boolean isDefaultRemark = dataBundle.getBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue());
+        String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
+
+        //实例化流水类
+        RunningAccountBase runningAccount;
+        if (type == RunningAccountType.EXPENSE) {
+            runningAccount = new ExpenseRunningAccount(remark, date_time, amount, isDefaultRemark);
+        } else if (type == RunningAccountType.INCOME) {
+            runningAccount = new IncomeRunningAccount(remark, date_time, amount, isDefaultRemark);
+        } else if (type == RunningAccountType.TRANSFER) {
+            String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
+            String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
+            runningAccount = new TransferRunningAccount(remark, date_time, amount, isDefaultRemark, exportAccount, importAccount);
+        } else {
+            NullPointerException e = new NullPointerException("流水类型获取失败");
+            ExceptionHelper.showExceptionDialog(context, e);
+            return;
+        }
+
+        runningAccount.setRno(rno);
+
+        //刷新UI
+        this.runningAccountList.add(0, runningAccount);
+        notifyItemInserted(0);
+    }
+
     /**
      * 修改指定下标的流水视图
      *
