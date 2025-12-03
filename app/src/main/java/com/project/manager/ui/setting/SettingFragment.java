@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.project.manager.R;
+import com.project.manager.broadcast.BroadcastConstants;
 import com.project.manager.databinding.FragmentSettingBinding;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.helpers.NotificationPermissionHelper;
@@ -188,13 +189,15 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         //完成开关状态初始化
         MaterialSwitch notification_analysis_switch = binding.notificationAnalysisSwitch;
         LinearLayout notification_analysis_layout = binding.notificationAnalysisOptionLayout;
-        boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(requireActivity());
+        boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(requireContext());
         if (isNotificationAnalysisOpened && NotificationPermissionHelper.isNotificationServiceEnabled(requireContext())) {
             notification_analysis_layout.setVisibility(View.VISIBLE);
             notification_analysis_switch.setChecked(true);
         } else {
             notification_analysis_layout.setVisibility(View.GONE);
             notification_analysis_switch.setChecked(false);
+
+            //考虑到无授权情况下自动关闭通知解析功能
             AutoBookKeepingPreference.setNotificationAnalysisOpened(false, requireContext());
         }
 
@@ -202,6 +205,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         notification_analysis_switch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             AutoBookKeepingPreference.setNotificationAnalysisOpened(isChecked, requireActivity());  //将打开状态写入文件
 
+            //开启开关时检测是否没有权限，如果没有则提示用户授权
             if (!NotificationPermissionHelper.isNotificationServiceEnabled(requireContext()) && isChecked) {
                 new MaterialAlertDialogBuilder(requireContext())
                         .setTitle("权限说明")
@@ -211,6 +215,9 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                             NotificationPermissionHelper.requestNotificationPermission(requireContext());
                             AnimationHelper.switchViewFoldOrExpanded(true, notification_analysis_layout);  //切换通知解析选项布局的可见性
 
+                            //发送功能开关变更广播
+                            Intent functionSwitched = new Intent(BroadcastConstants.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString());
+                            requireContext().sendBroadcast(functionSwitched);
                         })
                         .setNegativeButton("取消", (dialog, which) -> {
                             notification_analysis_switch.setChecked(false);
@@ -218,6 +225,9 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                         })
                         .show();
             } else {
+                //发送功能开关变更广播
+                Intent functionSwitched = new Intent(BroadcastConstants.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString());
+                requireContext().sendBroadcast(functionSwitched);
                 AnimationHelper.switchViewFoldOrExpanded(isChecked, notification_analysis_layout);  //切换通知解析选项布局的可见性
             }
         });
