@@ -2,6 +2,7 @@ package com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysi
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
@@ -12,7 +13,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.project.manager.R;
+import com.project.manager.data_save.preference.AutoBookKeepingPreference;
+import com.project.manager.helpers.PermissionHelper;
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
@@ -33,6 +37,23 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
 
         initViews();
         initLaunchers();
+
+        //判断是否为小米系统并提示授予自启动权限
+        String manufacturer = Build.MANUFACTURER.toLowerCase();
+        if (manufacturer.contains("xiaomi") && !AutoBookKeepingPreference.getHintXiaomiAutoStart(this)) {
+            AutoBookKeepingPreference.setHintXiaomiAutoStart(true, this);
+
+            //弹出提示框
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("自启动权限提醒")
+                    .setMessage("检测到您使用的是小米系统，由于小米系统的权限管理机制，使用该功能前必须授予应用自启动权限，需要跳转到自启动权限管理界面吗？")
+                    .setNegativeButton("不用了", ((dialog, which) -> dialog.dismiss()))
+                    .setPositiveButton("前往授权", ((dialog, which) -> {
+                        dialog.dismiss();
+                        PermissionHelper.requestAutoStartPermission(this);
+                    }))
+                    .show();
+        }
     }
 
     @Override
