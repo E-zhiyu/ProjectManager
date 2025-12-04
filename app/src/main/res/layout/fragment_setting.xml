@@ -141,12 +141,12 @@
                     android:text="@string/background_process_settings" />
 
                 <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/hide_recent_task"
+                    android:id="@+id/hide_recents_switch"
                     style="@style/SwitchSettingOptionStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/baseline_recent_task_24"
-                    android:text="@string/hide_recent_task" />
+                    android:text="@string/exit_hide_recent_task" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/self_starting_permission"

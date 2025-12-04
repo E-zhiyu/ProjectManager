@@ -2,6 +2,7 @@ package com.project.manager;
 
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -9,6 +10,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.project.manager.data_save.preference.KeepAlivePreference;
 import com.project.manager.databinding.ActivityMainBinding;
 import com.project.manager.helpers.ThemeModeHelper;
 import com.project.manager.data_save.preference.ThemeModePreference;
@@ -21,6 +23,18 @@ public class MainActivity extends AppCompatActivity {
 
         initThemeMode();
         initViews();
+
+        //拦截返回行为
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (KeepAlivePreference.getHideRecents(getBaseContext())) {
+                    finishAndRemoveTask();
+                } else {
+                    finish();
+                }
+            }
+        });
     }
 
     private void initViews() {

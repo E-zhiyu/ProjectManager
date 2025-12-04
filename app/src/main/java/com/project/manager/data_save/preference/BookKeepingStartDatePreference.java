@@ -5,6 +5,9 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 
+/**
+ * 保存记账开始日期的Preference
+ */
 public class BookKeepingStartDatePreference {
     private static final String PREF_NAME = "BookKeepingStartDatePreference";
     private static final String KEY_START_DATE = "start_date";

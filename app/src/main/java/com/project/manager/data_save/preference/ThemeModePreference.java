@@ -7,6 +7,9 @@ import androidx.annotation.NonNull;
 
 import com.project.manager.helpers.ThemeModeHelper;
 
+/**
+ * 应用主题模式的Preference
+ */
 public class ThemeModePreference {
     private static final String PREF_NAME = "ThemePreference";
     private static final String KEY_THEME_MODE = "theme_mode";

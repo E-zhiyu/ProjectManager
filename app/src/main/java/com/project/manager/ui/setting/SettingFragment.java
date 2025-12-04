@@ -22,6 +22,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.project.manager.R;
 import com.project.manager.broadcast.BroadcastConstants;
+import com.project.manager.data_save.preference.KeepAlivePreference;
 import com.project.manager.databinding.FragmentSettingBinding;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.helpers.PermissionHelper;
@@ -96,11 +97,9 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         } else if (v.getId() == R.id.setting_notification_analysis_rules) {
             Intent skip2NotificationRulesActivity = new Intent(getActivity(), AnalysisRuleManageActivity.class);
             startActivity(skip2NotificationRulesActivity);
-        } else if (v.getId() == R.id.hide_recent_task) {
-            //TODO: 最近任务隐藏逻辑
         } else if (v.getId() == R.id.self_starting_permission) {
             PermissionHelper.requestAutoStartPermission(requireContext());
-            Toast.makeText(requireContext(), "请手动授予自启动权限", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "请为本应用授予自启动权限", Toast.LENGTH_SHORT).show();
         } else if (v.getId() == R.id.battery_optimization) {
             if (PermissionHelper.isIgnoringBatteryOptimizations(requireContext())) {
                 PermissionHelper.requestIgnoreBatteryOptimizations(requireContext());
@@ -193,10 +192,10 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         binding.settingUpdateLog.setOnClickListener(this);
         binding.settingNotificationAnalysisRules.setOnClickListener(this);
         binding.selfStartingPermission.setOnClickListener(this);
-        binding.hideRecentTask.setOnClickListener(this);
+        binding.hideRecentsSwitch.setOnClickListener(this);
         binding.batteryOptimization.setOnClickListener(this);
 
-        //完成开关状态初始化
+        //完成通知解析开关状态初始化
         MaterialSwitch notification_analysis_switch = binding.notificationAnalysisSwitch;
         LinearLayout notification_analysis_layout = binding.notificationAnalysisOptionLayout;
         boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(requireContext());
@@ -211,7 +210,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
             AutoBookKeepingPreference.setNotificationAnalysisOpened(false, requireContext());
         }
 
-        //设置开关按钮的监听器
+        //设置通知解析开关按钮的监听器
         notification_analysis_switch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             AutoBookKeepingPreference.setNotificationAnalysisOpened(isChecked, requireActivity());  //将打开状态写入文件
 
@@ -239,6 +238,19 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                 Intent functionSwitched = new Intent(BroadcastConstants.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString());
                 requireContext().sendBroadcast(functionSwitched);
                 AnimationHelper.switchViewFoldOrExpanded(isChecked, notification_analysis_layout);  //切换通知解析选项布局的可见性
+            }
+        });
+
+        //完成最近任务隐藏开关的初始化
+        MaterialSwitch hide_recents_switch = binding.hideRecentsSwitch;
+        hide_recents_switch.setChecked(KeepAlivePreference.getHideRecents(requireContext()));
+
+        //设置最近任务隐藏开关的监听器
+        hide_recents_switch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            KeepAlivePreference.setHideRecents(isChecked, requireContext());
+
+            if (isChecked) {
+                Toast.makeText(requireContext(), "同时还建议您在最近任务锁定本应用", Toast.LENGTH_SHORT).show();
             }
         });
     }

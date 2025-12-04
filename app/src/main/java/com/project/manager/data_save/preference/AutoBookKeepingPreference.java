@@ -5,6 +5,9 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 
+/**
+ * 自动记账相关设置的Preference
+ */
 public class AutoBookKeepingPreference {
     private static final String PREF_NAME = "AutoBookKeepingPreference";
     private static final String KEY_NOTIFICATION_ANALYSIS_OPENED = "notification_analysis_opened";

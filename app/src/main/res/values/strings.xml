@@ -80,7 +80,7 @@
     <string name="notification_content">通知内容</string>
     <string name="input_introduce">输入说明</string>
     <string name="search_app">搜索应用……</string>
-    <string name="hide_recent_task">最近任务隐藏</string>
+    <string name="exit_hide_recent_task">退出后隐藏最近任务</string>
     <string name="self_starting_permission">自启动权限</string>
     <string name="battery_optimization">电池优化</string>
     <string name="background_process_settings">后台设置</string>
