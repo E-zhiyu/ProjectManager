@@ -29,28 +29,28 @@ public class PermissionHelper {
      *
      * @param activity 申请权限的Activity，申请结果通过onRequestPermissionsResult()方法获取
      */
-    public static void getRuleListPermission(@NonNull Activity activity) {
+    public static void getAppListPermission(@NonNull Activity activity) {
         try {
+            if (ContextCompat.checkSelfPermission(activity, "com.android.permission.GET_INSTALLED_APPS") == PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+
             PermissionInfo permissionInfo = activity.getPackageManager().getPermissionInfo("com.android.permission.GET_INSTALLED_APPS", 0);
-            if (permissionInfo != null && permissionInfo.packageName.equals("com.lbe.security.miui")) {
+            String permissionInfoPackageName = permissionInfo.packageName;
+            if (permissionInfoPackageName.equals("com.lbe.security.miui") || permissionInfoPackageName.equals("oplus")) {
                 //MIUI 系统支持动态申请该权限
-                if (ContextCompat.checkSelfPermission(activity, "com.android.permission.GET_INSTALLED_APPS") != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(activity,
+                        new String[]{"com.android.permission.GET_INSTALLED_APPS"},
+                        RequestResultCode.REQUEST_GET_PERMISSION.ordinal()
+                );
+            } else {
+                //其他系统的动态申请逻辑
+                if (isRuntimeAppListPermissionEnable(activity)) {
                     //没有权限，需要申请
                     ActivityCompat.requestPermissions(activity,
                             new String[]{"com.android.permission.GET_INSTALLED_APPS"},
                             RequestResultCode.REQUEST_GET_PERMISSION.ordinal()
                     );
-                }
-            } else {
-                //其他系统的动态申请逻辑
-                if (isRuntimeRuleListPermissionEnable(activity)) {
-                    if (ContextCompat.checkSelfPermission(activity, "com.android.permission.GET_INSTALLED_APPS") != PackageManager.PERMISSION_GRANTED) {
-                        //没有权限，需要申请
-                        ActivityCompat.requestPermissions(activity,
-                                new String[]{"com.android.permission.GET_INSTALLED_APPS"},
-                                RequestResultCode.REQUEST_GET_PERMISSION.ordinal()
-                        );
-                    }
                 } else {
                     //不能动态申请则需要手动授权
                     Toast.makeText(activity, "您的系统不支持动态申请应用列表权限，请手动授权并重启应用", Toast.LENGTH_SHORT).show();
@@ -71,7 +71,7 @@ public class PermissionHelper {
      * @param activity 活动类
      * @return 是否支持动态应用列表权限申请
      */
-    private static boolean isRuntimeRuleListPermissionEnable(@NonNull Activity activity) {
+    private static boolean isRuntimeAppListPermissionEnable(@NonNull Activity activity) {
         return Settings.Secure.getInt(activity.getContentResolver(),
                 "oem_installed_apps_runtime_permission_enable", 0) > 0;
     }
@@ -211,7 +211,6 @@ public class PermissionHelper {
 
             Intent intent;
             if (manufacturer.contains("xiaomi")) {
-                //fuck小米隐藏电池优化界面（感谢HyperCeiler提供的代码思路）
                 intent = new Intent("android.intent.action.MAIN");
                 intent.addCategory("android.intent.category.DEFAULT");
                 intent.setComponent(new ComponentName("com.android.settings", "com.android.settings.SubSettings"));
