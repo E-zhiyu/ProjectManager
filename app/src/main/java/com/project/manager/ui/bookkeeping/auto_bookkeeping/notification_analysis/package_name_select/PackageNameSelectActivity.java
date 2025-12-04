@@ -68,7 +68,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         });
         startObserveSearchResult();
 
-        PermissionHelper.getPermission(this);
+        PermissionHelper.getRuleListPermission(this);
     }
 
     //处理动态权限申请结果的方法

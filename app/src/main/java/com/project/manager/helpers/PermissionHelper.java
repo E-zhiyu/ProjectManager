@@ -29,7 +29,7 @@ public class PermissionHelper {
      *
      * @param activity 申请权限的Activity，申请结果通过onRequestPermissionsResult()方法获取
      */
-    public static void getPermission(@NonNull Activity activity) {
+    public static void getRuleListPermission(@NonNull Activity activity) {
         try {
             PermissionInfo permissionInfo = activity.getPackageManager().getPermissionInfo("com.android.permission.GET_INSTALLED_APPS", 0);
             if (permissionInfo != null && permissionInfo.packageName.equals("com.lbe.security.miui")) {
@@ -43,7 +43,7 @@ public class PermissionHelper {
                 }
             } else {
                 //其他系统的动态申请逻辑
-                if (isRuntimePermissionEnable(activity)) {
+                if (isRuntimeRuleListPermissionEnable(activity)) {
                     if (ContextCompat.checkSelfPermission(activity, "com.android.permission.GET_INSTALLED_APPS") != PackageManager.PERMISSION_GRANTED) {
                         //没有权限，需要申请
                         ActivityCompat.requestPermissions(activity,
@@ -71,7 +71,7 @@ public class PermissionHelper {
      * @param activity 活动类
      * @return 是否支持动态应用列表权限申请
      */
-    private static boolean isRuntimePermissionEnable(@NonNull Activity activity) {
+    private static boolean isRuntimeRuleListPermissionEnable(@NonNull Activity activity) {
         return Settings.Secure.getInt(activity.getContentResolver(),
                 "oem_installed_apps_runtime_permission_enable", 0) > 0;
     }
@@ -211,7 +211,7 @@ public class PermissionHelper {
 
             Intent intent;
             if (manufacturer.contains("xiaomi")) {
-                //fuck小米隐藏电池优化界面（感谢HyperCeiler的代码）
+                //fuck小米隐藏电池优化界面（感谢HyperCeiler提供的代码思路）
                 intent = new Intent("android.intent.action.MAIN");
                 intent.addCategory("android.intent.category.DEFAULT");
                 intent.setComponent(new ComponentName("com.android.settings", "com.android.settings.SubSettings"));

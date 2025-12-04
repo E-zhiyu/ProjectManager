@@ -9,7 +9,7 @@ import android.util.TypedValue;
 
 import androidx.annotation.NonNull;
 
-public class ImageHelper {
+public class IconHelper {
     /**
      * 将Drawable转换为Bitmap
      *

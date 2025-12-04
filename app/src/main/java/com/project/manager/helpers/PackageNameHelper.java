@@ -44,7 +44,7 @@ public class PackageNameHelper {
                 originIcon = AppCompatResources.getDrawable(context, R.mipmap.unknown_app_ic_channel);
             }
 
-            Drawable scaledIcon = ImageHelper.resizeIcon(originIcon, 48, context);
+            Drawable scaledIcon = IconHelper.resizeIcon(originIcon, 48, context);
             AppInfo appInfo = new AppInfo(appName, packageName, scaledIcon);
             appInfoList.add(appInfo);
         }
