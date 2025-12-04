@@ -9,7 +9,7 @@ public enum BookKeepingTables {
     TAG_GROUP("tag_group_data"),
     ANALYSIS_RULE("analysis_rule_data");
 
-    final String value;
+    private final String value;
 
     BookKeepingTables(String value) {
         this.value = value;

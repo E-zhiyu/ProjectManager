@@ -19,7 +19,7 @@ public enum BookKeepingColumns {
     PACKAGE_NAME("Package_name"),
     NOTIFICATION_TITLE("Notification_title"),
     NOTIFICATION_CONTENT("Notification_content");
-    final String value;
+    private final String value;
 
     BookKeepingColumns(String value) {
         this.value = value;

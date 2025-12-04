@@ -7,7 +7,7 @@ public enum BookKeepingConstraints {
     FK_RNO("fk_rno"),               //流水账编号外键约束
     FK_GROUP_NO("fk_group_no");     //分组编号外键约束
 
-    final String value;
+    private final String value;
 
     BookKeepingConstraints(String value) {
         this.value = value;
