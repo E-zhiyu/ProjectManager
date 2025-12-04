@@ -131,6 +131,48 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/LabelTextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/background_process_settings" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/hide_recent_task"
+                    style="@style/SwitchSettingOptionStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/baseline_recent_task_24"
+                    android:text="@string/hide_recent_task" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/self_starting_permission"
+                    style="@style/ClickableSettingOptionStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/baseline_autorenew_24"
+                    android:text="@string/self_starting_permission" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/battery_optimization"
+                    style="@style/ClickableSettingOptionStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/baseline_battery_5_bar_24"
+                    android:text="@string/battery_optimization" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/ContentCardStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 

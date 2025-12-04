@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.search.SearchBar;
 import com.google.android.material.search.SearchView;
 import com.project.manager.R;
+import com.project.manager.helpers.PermissionHelper;
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.helpers.PackageNameHelper;
@@ -67,7 +68,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         });
         startObserveSearchResult();
 
-        PackageNameHelper.getPermission(this);
+        PermissionHelper.getPermission(this);
     }
 
     //处理动态权限申请结果的方法

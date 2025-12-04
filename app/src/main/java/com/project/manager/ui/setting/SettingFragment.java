@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -23,7 +24,7 @@ import com.project.manager.R;
 import com.project.manager.broadcast.BroadcastConstants;
 import com.project.manager.databinding.FragmentSettingBinding;
 import com.project.manager.helpers.ExceptionHelper;
-import com.project.manager.helpers.NotificationPermissionHelper;
+import com.project.manager.helpers.PermissionHelper;
 import com.project.manager.data_save.preference.AutoBookKeepingPreference;
 import com.project.manager.data_save.preference.BookKeepingStartDatePreference;
 import com.project.manager.helpers.AnimationHelper;
@@ -95,9 +96,15 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         } else if (v.getId() == R.id.setting_notification_analysis_rules) {
             Intent skip2NotificationRulesActivity = new Intent(getActivity(), AnalysisRuleManageActivity.class);
             startActivity(skip2NotificationRulesActivity);
-        } else {
-            RuntimeException e = new RuntimeException("无法获取正确的视图ID");
-            ExceptionHelper.showExceptionDialog(requireContext(), e);
+        } else if (v.getId() == R.id.hide_recent_task) {
+            //TODO: 最近任务隐藏逻辑
+        } else if (v.getId() == R.id.self_starting_permission) {
+            PermissionHelper.requestAutoStartPermission(requireContext());
+            Toast.makeText(requireContext(), "请手动授予自启动权限", Toast.LENGTH_SHORT).show();
+        } else if (v.getId() == R.id.battery_optimization) {
+            if (PermissionHelper.isIgnoringBatteryOptimizations(requireContext())) {
+                PermissionHelper.requestIgnoreBatteryOptimizations(requireContext());
+            }
         }
     }
 
@@ -185,12 +192,15 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         binding.settingClearRunningAccount.setOnClickListener(this);
         binding.settingUpdateLog.setOnClickListener(this);
         binding.settingNotificationAnalysisRules.setOnClickListener(this);
+        binding.selfStartingPermission.setOnClickListener(this);
+        binding.hideRecentTask.setOnClickListener(this);
+        binding.batteryOptimization.setOnClickListener(this);
 
         //完成开关状态初始化
         MaterialSwitch notification_analysis_switch = binding.notificationAnalysisSwitch;
         LinearLayout notification_analysis_layout = binding.notificationAnalysisOptionLayout;
         boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(requireContext());
-        if (isNotificationAnalysisOpened && NotificationPermissionHelper.isNotificationServiceEnabled(requireContext())) {
+        if (isNotificationAnalysisOpened && PermissionHelper.isNotificationServiceEnabled(requireContext())) {
             notification_analysis_layout.setVisibility(View.VISIBLE);
             notification_analysis_switch.setChecked(true);
         } else {
@@ -206,13 +216,13 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
             AutoBookKeepingPreference.setNotificationAnalysisOpened(isChecked, requireActivity());  //将打开状态写入文件
 
             //开启开关时检测是否没有权限，如果没有则提示用户授权
-            if (!NotificationPermissionHelper.isNotificationServiceEnabled(requireContext()) && isChecked) {
+            if (!PermissionHelper.isNotificationServiceEnabled(requireContext()) && isChecked) {
                 new MaterialAlertDialogBuilder(requireContext())
                         .setTitle("权限申请说明")
                         .setMessage("此功能需要使用“通知使用权”权限，该权限允许应用读取其他软件发送的通知内容。本应用不会也无法使用该权限获取用户隐私信息，仅用于解析通知中可能出现的流水账信息，请您放心使用。\n是否为本应用授权？")
                         .setPositiveButton("确认", (dialog, which) -> {
                             dialog.dismiss();
-                            NotificationPermissionHelper.requestNotificationPermission(requireContext());
+                            PermissionHelper.requestNotificationPermission(requireContext());
                             AnimationHelper.switchViewFoldOrExpanded(true, notification_analysis_layout);  //切换通知解析选项布局的可见性
 
                             //发送功能开关变更广播

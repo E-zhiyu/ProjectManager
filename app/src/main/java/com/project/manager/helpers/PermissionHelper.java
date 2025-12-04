@@ -1,0 +1,239 @@
+package com.project.manager.helpers;
+
+import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.PermissionInfo;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.PowerManager;
+import android.provider.Settings;
+import android.text.TextUtils;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.project.manager.ui.RequestResultCode;
+
+/**
+ * 与应用权限有关的帮助器
+ */
+public class PermissionHelper {
+    /**
+     * 动态申请应用列表权限（此方法只能在主线程调用）
+     *
+     * @param activity 申请权限的Activity，申请结果通过onRequestPermissionsResult()方法获取
+     */
+    public static void getPermission(@NonNull Activity activity) {
+        try {
+            PermissionInfo permissionInfo = activity.getPackageManager().getPermissionInfo("com.android.permission.GET_INSTALLED_APPS", 0);
+            if (permissionInfo != null && permissionInfo.packageName.equals("com.lbe.security.miui")) {
+                //MIUI 系统支持动态申请该权限
+                if (ContextCompat.checkSelfPermission(activity, "com.android.permission.GET_INSTALLED_APPS") != PackageManager.PERMISSION_GRANTED) {
+                    //没有权限，需要申请
+                    ActivityCompat.requestPermissions(activity,
+                            new String[]{"com.android.permission.GET_INSTALLED_APPS"},
+                            RequestResultCode.REQUEST_GET_PERMISSION.ordinal()
+                    );
+                }
+            } else {
+                //其他系统的动态申请逻辑
+                if (isRuntimePermissionEnable(activity)) {
+                    if (ContextCompat.checkSelfPermission(activity, "com.android.permission.GET_INSTALLED_APPS") != PackageManager.PERMISSION_GRANTED) {
+                        //没有权限，需要申请
+                        ActivityCompat.requestPermissions(activity,
+                                new String[]{"com.android.permission.GET_INSTALLED_APPS"},
+                                RequestResultCode.REQUEST_GET_PERMISSION.ordinal()
+                        );
+                    }
+                } else {
+                    //不能动态申请则需要手动授权
+                    Toast.makeText(activity, "您的系统不支持动态申请应用列表权限，请手动授权并重启应用", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    intent.setData(Uri.parse("package:" + activity.getPackageName()));
+                    activity.startActivity(intent);
+                }
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            ExceptionHelper.showExceptionDialog(activity, e);
+            Toast.makeText(activity, "应用列表权限申请失败，请手动授权并重启应用", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * 判断是否支持动态应用列表权限申请
+     *
+     * @param activity 活动类
+     * @return 是否支持动态应用列表权限申请
+     */
+    private static boolean isRuntimePermissionEnable(@NonNull Activity activity) {
+        return Settings.Secure.getInt(activity.getContentResolver(),
+                "oem_installed_apps_runtime_permission_enable", 0) > 0;
+    }
+
+    /**
+     * 检查通知使用权的授予情况
+     *
+     * @param context 上下文
+     * @return 是否授予通知使用权
+     */
+    public static boolean isNotificationServiceEnabled(@NonNull Context context) {
+        String pkgName = context.getPackageName();
+        final String flat = Settings.Secure.getString(context.getContentResolver(),
+                "enabled_notification_listeners");
+        if (!TextUtils.isEmpty(flat)) {
+            final String[] names = flat.split(":");
+            for (String name : names) {
+                final ComponentName cn = ComponentName.unflattenFromString(name);
+                if (cn != null) {
+                    if (TextUtils.equals(pkgName, cn.getPackageName())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 申请通知使用权
+     *
+     * @param context 上下文
+     */
+    public static void requestNotificationPermission(@NonNull Context context) {
+        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
+
+    /**
+     * 检查并引导用户开启自启动权限
+     *
+     * @param context 上下文
+     */
+    public static void requestAutoStartPermission(Context context) {
+        String manufacturer = Build.MANUFACTURER.toLowerCase();
+
+        Intent intent = new Intent();
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        try {
+            // 根据设备厂商跳转到不同的设置页面
+            if (manufacturer.contains("xiaomi")) {
+                // 小米设备
+                intent.setComponent(new ComponentName(
+                        "com.miui.securitycenter",
+                        "com.miui.permcenter.autostart.AutoStartManagementActivity"));
+            } else if (manufacturer.contains("oppo")) {
+                // OPPO设备
+                intent.setComponent(new ComponentName(
+                        "com.coloros.safecenter",
+                        "com.coloros.safecenter.permission.startup.StartupAppListActivity"));
+            } else if (manufacturer.contains("vivo")) {
+                // VIVO设备
+                intent.setComponent(new ComponentName(
+                        "com.vivo.permissionmanager",
+                        "com.vivo.permissionmanager.activity.BgStartUpManagerActivity"));
+            } else if (manufacturer.contains("huawei")) {
+                // 华为设备
+                intent.setComponent(new ComponentName(
+                        "com.huawei.systemmanager",
+                        "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity"));
+            } else if (manufacturer.contains("samsung")) {
+                // 三星设备
+                intent.setAction("android.settings.BATTERY_SAVER_SETTINGS");
+            } else if (manufacturer.contains("letv")) {
+                // 乐视设备
+                intent.setAction("com.letv.android.permissionautoboot");
+            } else {
+                // 其他设备，跳转到应用详情页
+                intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                intent.setData(Uri.fromParts("package", context.getPackageName(), null));
+            }
+
+            // 检查是否能处理这个intent
+            if (context.getPackageManager().resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) != null) {
+                context.startActivity(intent);
+            } else {
+                // 如果无法处理，跳转到通用设置页面
+                showDefaultAutoStartSetting(context);
+            }
+        } catch (Exception e) {
+            // 如果出现异常，跳转到通用设置页面
+            showDefaultAutoStartSetting(context);
+        }
+    }
+
+    /**
+     * 显示默认的自启动设置引导（跳转到应用详情页）
+     *
+     * @param context 上下文
+     */
+    private static void showDefaultAutoStartSetting(Context context) {
+        try {
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            intent.setData(Uri.fromParts("package", context.getPackageName(), null));
+            context.startActivity(intent);
+        } catch (Exception e) {
+            // 如果还是失败，跳转到系统设置主页面
+            Intent intent = new Intent(Settings.ACTION_SETTINGS);
+            context.startActivity(intent);
+        }
+    }
+
+    /**
+     * 判断是否已经忽略电池优化
+     *
+     * @param context 上下文
+     * @return 是否忽略电池优化
+     */
+    public static boolean isIgnoringBatteryOptimizations(@NonNull Context context) {
+        PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        if (powerManager != null) {
+            return powerManager.isIgnoringBatteryOptimizations(context.getPackageName());
+        }
+        return false;
+    }
+
+    /**
+     * 请求用户忽略电池优化
+     *
+     * @param context 上下文
+     */
+    public static void requestIgnoreBatteryOptimizations(Context context) {
+        try {
+            String manufacturer = Build.MANUFACTURER.toLowerCase();
+
+            Intent intent;
+            if (manufacturer.contains("xiaomi")) {
+                //fuck小米隐藏电池优化界面（感谢HyperCeiler的代码）
+                intent = new Intent("android.intent.action.MAIN");
+                intent.addCategory("android.intent.category.DEFAULT");
+                intent.setComponent(new ComponentName("com.android.settings", "com.android.settings.SubSettings"));
+                intent.putExtra(":settings:show_fragment", "com.android.settings.applications.manageapplications.ManageApplications");
+                Bundle bundle = new Bundle();
+                bundle.putString("classname", "com.android.settings.Settings$HighPowerApplicationsActivity");
+                intent.putExtra(":settings:show_fragment_args", bundle);
+            } else {
+                intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+                intent.setData(Uri.parse("package:" + context.getPackageName()));
+            }
+            context.startActivity(intent);
+        } catch (Exception e) {
+            // 如果跳转失败，跳转到通用电池优化设置
+            try {
+                Intent intent = new Intent(Settings.ACTION_BATTERY_SAVER_SETTINGS);
+                context.startActivity(intent);
+            } catch (Exception e2) {
+                // 备用：跳转到应用信息页面
+                context.startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                        .setData(Uri.fromParts("package", context.getPackageName(), null)));
+            }
+        }
+    }
+}
