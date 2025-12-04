@@ -149,7 +149,7 @@
                     android:text="@string/exit_hide_recent_task" />
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/self_starting_permission"
+                    android:id="@+id/auto_start_permission"
                     style="@style/ClickableSettingOptionStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

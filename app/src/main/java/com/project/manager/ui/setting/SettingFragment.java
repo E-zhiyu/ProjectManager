@@ -97,12 +97,6 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         } else if (v.getId() == R.id.setting_notification_analysis_rules) {
             Intent skip2NotificationRulesActivity = new Intent(getActivity(), AnalysisRuleManageActivity.class);
             startActivity(skip2NotificationRulesActivity);
-        } else if (v.getId() == R.id.self_starting_permission) {
-            PermissionHelper.requestAutoStartPermission(requireContext());
-            Toast.makeText(requireContext(), "请为本应用授予自启动权限", Toast.LENGTH_SHORT).show();
-        } else if (v.getId() == R.id.battery_optimization) {
-            PermissionHelper.requestIgnoreBatteryOptimizations(requireContext());
-            Toast.makeText(requireContext(), "请将本应用的电池优化策略改为“无限制”", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -190,9 +184,8 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         binding.settingClearRunningAccount.setOnClickListener(this);
         binding.settingUpdateLog.setOnClickListener(this);
         binding.settingNotificationAnalysisRules.setOnClickListener(this);
-        binding.selfStartingPermission.setOnClickListener(this);
-        binding.hideRecentsSwitch.setOnClickListener(this);
-        binding.batteryOptimization.setOnClickListener(this);
+        binding.autoStartPermission.setOnClickListener(v -> PermissionHelper.requestAutoStartPermission(requireContext()));
+        binding.batteryOptimization.setOnClickListener(v -> PermissionHelper.requestIgnoreBatteryOptimizations(requireContext()));
 
         //完成通知解析开关状态初始化
         MaterialSwitch notification_analysis_switch = binding.notificationAnalysisSwitch;
