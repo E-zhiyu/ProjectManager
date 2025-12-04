@@ -263,6 +263,8 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
     private void onPackageNameSelected(@NonNull Intent data) {
         String package_name = data.getStringExtra(KeyValueStrings.PACKAGE_NAME.getValue());
         package_name_input.setText(package_name);
+        package_name_layout.setError(null);
+        package_name_layout.setErrorEnabled(false);
     }
 
     //处理标签按钮点击事件
@@ -366,10 +368,11 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
     private void showInputInstructionDialog() {
         String instruction = "- 规则名称：该通知解析规则的名称  \n" +
                 "- 流水类型：通过该规则解析得到的流水记录的类型  \n" +
-                "- 标签名称（可选）：通过该规则解析得到的流水记录的标签  \n" +
+                "- 标签(可选)：通过该规则解析得到的流水记录的标签  \n" +
                 "- 应用包名：发送通知的APP包名  \n" +
-                "- 通知标题：通知的标题（如“微信支付”）  \n" +
-                "- 通知内容（正则表达式）：待匹配的通知内容，若内容成功匹配则自动添加一条流水记录";
+                "- 通知标题：通知的标题(如“微信支付”)  \n" +
+                "- 通知内容(正则表达式)：使用正则表达式匹配通知内容，若成功匹配则按照该规则添加新的流水记录。(注意：第一个捕获组务必为金额信息)  \n\n" +
+                "**提示：如果您不会使用正则表达式，请尝试询问AI，并在[regex101](https://regex101.com/)中测试您的正则表达式**";
 
         View update_dialog_view = LayoutInflater.from(this)
                 .inflate(R.layout.md_textview_in_dialog, null);

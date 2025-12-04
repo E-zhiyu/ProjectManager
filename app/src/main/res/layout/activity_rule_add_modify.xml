@@ -72,7 +72,7 @@
                     style="@style/ClickableEditTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="@string/tag_name" />
+                    android:hint="@string/tag_optional" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -112,9 +112,15 @@
                     style="@style/UserInputEditTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="@string/notification_content"
+                    android:hint="@string/notification_content_regex"
                     android:maxLength="50" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textview.MaterialTextView
+                style="@style/TipTextViewStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/analysis_rule_tip" />
         </LinearLayout>
     </ScrollView>
 
