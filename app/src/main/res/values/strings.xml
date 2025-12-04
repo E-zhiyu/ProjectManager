@@ -84,6 +84,6 @@
     <string name="self_starting_permission">自启动权限</string>
     <string name="battery_optimization">电池优化</string>
     <string name="background_process_settings">后台设置</string>
-    <string name="analysis_rule_tip">为保证能够稳定在后台监听通知，请确保您已经完成以下操作：\n1.授予自启动权限\n2.将电池优化设置为“无限制”\n3.在最近任务中锁定本应用\n4.打开退出应用后隐藏最近任务的开关（可选）</string>
+    <string name="analysis_rule_tip">为保证能够稳定在后台监听通知，请确保您已经完成以下操作：\n1.授予自启动权限(小米系统必须授予)\n2.将电池优化设置为“无限制”(可选)\n3.在最近任务中锁定本应用(可选)\n4.打开退出应用后隐藏最近任务的开关(可选)</string>
     <string name="tag_optional">标签(可选)</string>
 </resources>
