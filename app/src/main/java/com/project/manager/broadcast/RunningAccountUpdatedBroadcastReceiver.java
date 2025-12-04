@@ -28,7 +28,6 @@ public class RunningAccountUpdatedBroadcastReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         if (BroadcastConstants.ACTION_RUNNING_ACCOUNT_UPDATED.toString().equals(action)) {
             if (listener != null) {
-                //修复解析通知成功后该方法被调用两次的BUG
                 listener.onAccountAdded(intent.getExtras());
             }
         }

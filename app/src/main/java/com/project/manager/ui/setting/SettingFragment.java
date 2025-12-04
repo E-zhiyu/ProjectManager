@@ -101,9 +101,8 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
             PermissionHelper.requestAutoStartPermission(requireContext());
             Toast.makeText(requireContext(), "请为本应用授予自启动权限", Toast.LENGTH_SHORT).show();
         } else if (v.getId() == R.id.battery_optimization) {
-            if (PermissionHelper.isIgnoringBatteryOptimizations(requireContext())) {
-                PermissionHelper.requestIgnoreBatteryOptimizations(requireContext());
-            }
+            PermissionHelper.requestIgnoreBatteryOptimizations(requireContext());
+            Toast.makeText(requireContext(), "请将本应用的电池优化策略改为“无限制”", Toast.LENGTH_SHORT).show();
         }
     }
 
