@@ -1,6 +1,5 @@
 package com.project.manager.ui.bookkeeping.tag.edit;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.sqlite.SQLiteException;
@@ -8,7 +7,6 @@ import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -60,7 +58,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
         return tagGroupList;
     }
 
-    public class TagEditViewHolder extends RecyclerView.ViewHolder {
+    public static class TagEditViewHolder extends RecyclerView.ViewHolder {
         MaterialTextView group_name_text;       //分组名称文本视图
         ImageView expand_fold_view;             //控制卡片展开和折叠的按钮
         LinearLayout sub_view_layout;           //子组件的线性布局管理器
@@ -74,7 +72,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             //设置展开和折叠视图的点击方法
             expand_fold_view.setOnClickListener(v -> {
                 //旋转分组名称文本右侧的图标
-                rotateIcon(expand_fold_view, sub_view_layout.getVisibility() == View.VISIBLE);
+                AnimationHelper.rotateIcon(expand_fold_view, sub_view_layout.getVisibility() == View.VISIBLE);
 
                 //切换子组件布局的可见性
                 AnimationHelper.switchViewFoldOrExpanded(sub_view_layout.getVisibility() != View.VISIBLE, sub_view_layout);
@@ -152,37 +150,6 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
     @Override
     public int getItemCount() {
         return this.tagGroupList.size();
-    }
-
-    /**
-     * 旋转视图的图标
-     *
-     * @param expand_fold_view 需要旋转图标的视图
-     * @param isExpanded       原先是否为展开状态
-     */
-    private void rotateIcon(ImageView expand_fold_view, boolean isExpanded) {
-        //使用 ObjectAnimator 动画旋转
-        ObjectAnimator animator;
-        if (!isExpanded) {
-            //不是展开状态，则将旋转了180°的图标旋转至360°
-            animator = ObjectAnimator.ofFloat(
-                    expand_fold_view,
-                    "rotation",
-                    180f,
-                    360f
-            );
-        } else {
-            animator = ObjectAnimator.ofFloat(
-                    expand_fold_view,
-                    "rotation",
-                    0f,
-                    180f
-            );
-        }
-
-        animator.setDuration(250);
-        animator.setInterpolator(new LinearInterpolator()); //匀速
-        animator.start();
     }
 
     /**
