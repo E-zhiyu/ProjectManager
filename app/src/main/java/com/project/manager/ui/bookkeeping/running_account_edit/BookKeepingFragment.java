@@ -181,8 +181,11 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         root.findViewById(R.id.running_account_add_btn).setOnClickListener(this);
         root.findViewById(R.id.report_btn).setOnClickListener(this);
 
-        //创建列表视图的适配器
+        MaterialTextView bookkeeping_days_text = root.findViewById(R.id.bookkeeping_days_text); //显示记账天数和流水记录数量的文本视图
         SwipeRefreshLayout refreshLayout = binding.refreshLayout;   //获取下拉刷新布局
+        account_num_text = root.findViewById(R.id.account_num_text);
+
+        //创建列表视图的适配器
         refreshLayout.setRefreshing(true);
         List<RunningAccountBase> runningAccountList = loadRunningAccountData();     //读取流水数据
         runningAccountRecyclerAdapter = new RunningAccountRecyclerAdapter(runningAccountList, this, requireContext());
@@ -191,8 +194,6 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         refreshLayout.setRefreshing(false);
 
         //初始化记账日期和流水记录数量文本
-        MaterialTextView bookkeeping_days_text = root.findViewById(R.id.bookkeeping_days_text); //显示记账天数和流水记录数量的文本视图
-        account_num_text = root.findViewById(R.id.account_num_text);
         account_num = runningAccountList.size();
         String start_date_str = getBookKeepingStartDate();  //获取开始记账的日期
         if (!start_date_str.isEmpty()) {
@@ -216,6 +217,16 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             List<RunningAccountBase> refreshedAccount = loadRunningAccountData();
             runningAccountRecyclerAdapter.refreshRunningAccount(refreshedAccount);
             refreshLayout.setRefreshing(false);
+
+            account_num = refreshedAccount.size();
+
+            if (bookkeeping_days != 0) {
+                bookkeeping_days_text.setText(String.format("您已累计记账%d天", bookkeeping_days));
+                account_num_text.setText(String.format("共计%d条流水记录", account_num));
+            } else {
+                bookkeeping_days_text.setText("这是您记账的第一天");
+                account_num_text.setText(String.format("已产生%d条流水记录", account_num));
+            }
         });
     }
 
