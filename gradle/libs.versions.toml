@@ -1,5 +1,6 @@
 [versions]
 agp = "8.13.0"
+api = "13.1.5"
 core = "4.6.2"
 googleMaterial = "1.13.0"
 gradle = "8.13.0"
@@ -21,6 +22,7 @@ rxjava = "3.1.12"
 viewpager2 = "1.0.0"
 
 [libraries]
+api = { module = "rikka.shizuku:api", version.ref = "api" }
 core = { module = "io.noties.markwon:core", version.ref = "core" }
 gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jacksonDatabind" }
@@ -36,6 +38,7 @@ materialdatetimepicker = { module = "com.wdullaer:materialdatetimepicker", versi
 navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
 navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigationUi" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+provider = { module = "rikka.shizuku:provider", version.ref = "api" }
 recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
 rxandroid = { module = "io.reactivex.rxjava3:rxandroid", version.ref = "rxandroid" }
 rxjava = { module = "io.reactivex.rxjava3:rxjava", version.ref = "rxjava" }
