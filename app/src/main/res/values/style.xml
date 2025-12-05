@@ -14,8 +14,8 @@
         <item name="android:textColor">@color/black</item>
     </style>
 
-    <!-- 页面样式 -->
-    <style name="PageStyle">
+    <!-- 普通页面样式 -->
+    <style name="CommonPageStyle">
         <item name="android:fitsSystemWindows">true</item>
         <item name="android:background">@color/page_background</item>
     </style>

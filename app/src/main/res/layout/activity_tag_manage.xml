@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
-    style="@style/PageStyle"
+    style="@style/CommonPageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.bookkeeping.tag.edit.TagManageActivity">
@@ -25,7 +25,8 @@
             android:layout_height="match_parent"
             android:layout_gravity="end"
             android:drawableLeft="@drawable/baseline_add_24"
-            android:text="@string/tag_add" />
+            android:text="@string/tag_add"
+            tools:ignore="RtlHardcoded" />
     </com.google.android.material.appbar.MaterialToolbar>
 
     <androidx.recyclerview.widget.RecyclerView

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/PageStyle"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/CommonPageStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -30,7 +31,8 @@
             android:drawableLeft="@drawable/sharp_edit_note_24"
             android:text="@string/manage_tag"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="RtlHardcoded" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/clear_input_btn"
@@ -40,7 +42,8 @@
             android:drawableLeft="@drawable/baseline_delete_forever_24"
             android:text="@string/clear_input"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="RtlHardcoded" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView

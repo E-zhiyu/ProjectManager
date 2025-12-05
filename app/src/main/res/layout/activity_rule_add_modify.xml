@@ -1,7 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/PageStyle"
+    style="@style/CommonPageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -24,7 +24,8 @@
             android:layout_height="match_parent"
             android:layout_gravity="end"
             android:drawableLeft="@drawable/baseline_info_24"
-            android:text="@string/input_introduce" />
+            android:text="@string/input_introduce"
+            tools:ignore="RtlHardcoded" />
     </com.google.android.material.appbar.MaterialToolbar>
 
     <ScrollView

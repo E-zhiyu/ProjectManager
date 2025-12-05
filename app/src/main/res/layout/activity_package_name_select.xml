@@ -1,9 +1,10 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/PageStyle"
+    style="@style/CommonPageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="false"
     tools:context=".ui.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select.PackageNameSelectActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -46,6 +47,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:hint="@string/search_app"
+        app:layout_anchor="@id/search_bar"
         app:layout_behavior="com.google.android.material.search.SearchView$Behavior">
 
         <LinearLayout

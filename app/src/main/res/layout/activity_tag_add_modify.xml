@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/PageStyle"
+    style="@style/CommonPageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.bookkeeping.tag.edit.TagAddModifyActivity">
@@ -25,7 +25,8 @@
             android:layout_gravity="end"
             android:drawableLeft="@drawable/baseline_merge_24"
             android:text="@string/tag_merge"
-            android:visibility="gone" />
+            android:visibility="gone"
+            tools:ignore="RtlHardcoded" />
     </com.google.android.material.appbar.MaterialToolbar>
 
     <ScrollView
