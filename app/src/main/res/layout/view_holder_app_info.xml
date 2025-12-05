@@ -19,7 +19,6 @@
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/app_icon_view"
-            style="@style/RoundShapeableImageViewStyle"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:src="@mipmap/unknown_app_ic_channel" />

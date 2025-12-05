@@ -36,7 +36,7 @@ public class PackageNameHelper {
             Drawable originDrawable = app.loadIcon(pm);                 //获取应用图标
 
             //转换为Bitmap并缩放
-            Bitmap scaledBitmap = IconHelper.getUniformIconBitmapWithPadding(context, originDrawable);
+            Bitmap scaledBitmap = IconHelper.getRoundedCornerIcon(context, originDrawable);
             AppInfo appInfo = new AppInfo(appName, packageName, scaledBitmap);
             appInfoList.add(appInfo);
         }

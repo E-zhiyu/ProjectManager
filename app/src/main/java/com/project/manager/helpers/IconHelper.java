@@ -2,7 +2,12 @@ package com.project.manager.helpers;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.RectF;
+import android.graphics.Shader;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 
@@ -10,6 +15,28 @@ import androidx.annotation.NonNull;
 
 public class IconHelper {
     private static final int TARGET_ICON_SIZE = 48;    //图标的目标大小（dp）
+    private static final int CORNER_RADIUS = 24;       //圆角大小（dp）
+
+    /**
+     * 将Drawable图标转换为Bitmap
+     *
+     * @param drawable 原始Drawable图标
+     * @param height   目标高度(px)
+     * @param width    目标宽度(px)
+     * @return 转换后的Bitmap图标
+     */
+    private static Bitmap drawableToBitmap(Drawable drawable, int width, int height) {
+        if (drawable instanceof BitmapDrawable) {
+            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+            return Bitmap.createScaledBitmap(bitmap, width, height, true);
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+        return bitmap;
+    }
 
     /**
      * 将dp转换为像素
@@ -22,38 +49,32 @@ public class IconHelper {
         return Math.round(IconHelper.TARGET_ICON_SIZE * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 
+    /**
+     * 获取统一大小的圆角图标
+     *
+     * @param context  上下文
+     * @param drawable 原始Drawable图标
+     * @return 重新缩放后的圆角Bitmap图标
+     */
     @NonNull
-    public static Bitmap getUniformIconBitmapWithPadding(Context context, @NonNull Drawable drawable) {
+    public static Bitmap getRoundedCornerIcon(Context context, @NonNull Drawable drawable) {
         int targetSize = dpToPx(context);
 
-        // 计算原始图标的宽高比
-        int intrinsicWidth = drawable.getIntrinsicWidth();
-        int intrinsicHeight = drawable.getIntrinsicHeight();
-        float aspectRatio = (float) intrinsicWidth / intrinsicHeight;
+        //将Drawable转换为Bitmap
+        Bitmap originalBitmap = drawableToBitmap(drawable, targetSize, targetSize);
 
-        // 计算目标尺寸，保持宽高比
-        int destWidth, destHeight;
-        if (aspectRatio > 1) {
-            // 宽图
-            destWidth = targetSize;
-            destHeight = Math.round(targetSize / aspectRatio);
-        } else {
-            // 高图
-            destHeight = targetSize;
-            destWidth = Math.round(targetSize * aspectRatio);
-        }
-
-        // 创建目标Bitmap
+        //创建目标Bitmap
         Bitmap output = Bitmap.createBitmap(targetSize, targetSize, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(output);
 
-        // 计算绘制位置（居中）
-        int left = (targetSize - destWidth) / 2;
-        int top = (targetSize - destHeight) / 2;
+        //创建Paint并设置BitmapShader
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        BitmapShader shader = new BitmapShader(originalBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+        paint.setShader(shader);
 
-        // 绘制图标
-        drawable.setBounds(left, top, left + destWidth, top + destHeight);
-        drawable.draw(canvas);
+        //创建圆角矩形路径并绘制
+        RectF rect = new RectF(0, 0, targetSize, targetSize);
+        canvas.drawRoundRect(rect, CORNER_RADIUS, CORNER_RADIUS, paint);
 
         return output;
     }
