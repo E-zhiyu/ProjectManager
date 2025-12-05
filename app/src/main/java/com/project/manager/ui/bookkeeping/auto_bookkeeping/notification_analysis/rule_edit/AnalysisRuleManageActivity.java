@@ -2,7 +2,6 @@ package com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysi
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
@@ -38,15 +37,14 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
         initViews();
         initLaunchers();
 
-        //判断是否为小米系统并提示授予自启动权限
-        String manufacturer = Build.MANUFACTURER.toLowerCase();
-        if (manufacturer.contains("xiaomi") && !AutoBookKeepingPreference.getHintXiaomiAutoStart(this)) {
-            AutoBookKeepingPreference.setHintXiaomiAutoStart(true, this);
+        //第一次打开提示授予自启动权限
+        if (!AutoBookKeepingPreference.getHintAutoStart(this)) {
+            AutoBookKeepingPreference.setHintAutoStart(true, this);
 
             //弹出提示框
             new MaterialAlertDialogBuilder(this)
-                    .setTitle("自启动权限提醒")
-                    .setMessage("检测到您使用的是小米系统，由于小米系统的权限管理机制，使用该功能前必须授予应用自启动权限，需要跳转到自启动权限管理界面吗？")
+                    .setTitle("提示")
+                    .setMessage("由于国内厂商的电池策略，使用该功能前必须授予应用自启动权限，需要跳转到自启动权限管理界面吗？")
                     .setNegativeButton("不用了", ((dialog, which) -> dialog.dismiss()))
                     .setPositiveButton("前往授权", ((dialog, which) -> {
                         dialog.dismiss();

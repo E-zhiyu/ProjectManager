@@ -131,7 +131,7 @@ public class PermissionHelper {
             } else {
                 //其他设备跳转到设置界面
                 intent.setAction(Settings.ACTION_SETTINGS);
-                Toast.makeText(context, "请前往自启动管理页面为本应用授权", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "您的设备不支持直接跳转，请前往自启动管理页面为本应用授权", Toast.LENGTH_SHORT).show();
             }
             context.startActivity(intent);
         } catch (Exception e) {
@@ -165,7 +165,7 @@ public class PermissionHelper {
         Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
         context.startActivity(intent);
         if (!hasIgnored) {
-            Toast.makeText(context, "请将本应用的优化策略改为“无限制”", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "请将本应用的优化策略改为“无限制”\n(提示：开关按钮左侧是可点击的)", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(context, "电池优化策略已为“无限制”，无需更改", Toast.LENGTH_SHORT).show();
         }
