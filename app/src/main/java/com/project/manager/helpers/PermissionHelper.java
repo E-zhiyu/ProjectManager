@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -157,38 +156,18 @@ public class PermissionHelper {
     }
 
     /**
-     * 请求用户忽略电池优化
+     * 打开电池优化界面
      *
      * @param context 上下文
      */
-    public static void requestIgnoreBatteryOptimizations(Context context) {
-        try {
-            String manufacturer = Build.MANUFACTURER.toLowerCase();
-
-            Intent intent;
-            if (manufacturer.contains("xiaomi")) {
-                intent = new Intent("android.intent.action.MAIN");
-                intent.addCategory("android.intent.category.DEFAULT");
-                intent.setComponent(new ComponentName("com.android.settings", "com.android.settings.SubSettings"));
-                intent.putExtra(":settings:show_fragment", "com.android.settings.applications.manageapplications.ManageApplications");
-                Bundle bundle = new Bundle();
-                bundle.putString("classname", "com.android.settings.Settings$HighPowerApplicationsActivity");
-                intent.putExtra(":settings:show_fragment_args", bundle);
-            } else {
-                intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-                intent.setData(Uri.parse("package:" + context.getPackageName()));
-            }
-            context.startActivity(intent);
-        } catch (Exception e) {
-            // 如果跳转失败，跳转到通用电池优化设置
-            try {
-                Intent intent = new Intent(Settings.ACTION_BATTERY_SAVER_SETTINGS);
-                context.startActivity(intent);
-            } catch (Exception e2) {
-                // 备用：跳转到应用信息页面
-                context.startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                        .setData(Uri.fromParts("package", context.getPackageName(), null)));
-            }
+    public static void openBatteryOptimizations(@NonNull Context context) {
+        boolean hasIgnored = isIgnoringBatteryOptimizations(context);
+        Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+        context.startActivity(intent);
+        if (!hasIgnored) {
+            Toast.makeText(context, "请将本应用的优化策略改为“无限制”", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(context, "电池优化策略已为“无限制”，无需更改", Toast.LENGTH_SHORT).show();
         }
     }
 }

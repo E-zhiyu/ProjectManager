@@ -50,6 +50,4 @@ dependencies {
     implementation libs.core
     implementation libs.rxandroid
     implementation libs.rxjava
-    implementation libs.api
-    implementation libs.provider
 }

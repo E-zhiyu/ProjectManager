@@ -185,12 +185,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         binding.settingUpdateLog.setOnClickListener(this);
         binding.settingNotificationAnalysisRules.setOnClickListener(this);
         binding.autoStartPermission.setOnClickListener(v -> PermissionHelper.requestAutoStartPermission(requireContext()));
-        binding.batteryOptimization.setOnClickListener(v -> {
-            PermissionHelper.requestIgnoreBatteryOptimizations(requireContext());
-            if (PermissionHelper.isIgnoringBatteryOptimizations(requireContext())) {
-                Toast.makeText(requireContext(), "电池策略已设置为“无限制”，无需进一步设置", Toast.LENGTH_SHORT).show();
-            }
-        });
+        binding.batteryOptimization.setOnClickListener(v -> PermissionHelper.openBatteryOptimizations(requireContext()));
 
         //完成通知解析开关状态初始化
         MaterialSwitch notification_analysis_switch = binding.notificationAnalysisSwitch;
