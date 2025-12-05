@@ -185,7 +185,12 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         binding.settingUpdateLog.setOnClickListener(this);
         binding.settingNotificationAnalysisRules.setOnClickListener(this);
         binding.autoStartPermission.setOnClickListener(v -> PermissionHelper.requestAutoStartPermission(requireContext()));
-        binding.batteryOptimization.setOnClickListener(v -> PermissionHelper.requestIgnoreBatteryOptimizations(requireContext()));
+        binding.batteryOptimization.setOnClickListener(v -> {
+            PermissionHelper.requestIgnoreBatteryOptimizations(requireContext());
+            if (PermissionHelper.isIgnoringBatteryOptimizations(requireContext())) {
+                Toast.makeText(requireContext(), "电池策略已设置为“无限制”，无需进一步设置", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         //完成通知解析开关状态初始化
         MaterialSwitch notification_analysis_switch = binding.notificationAnalysisSwitch;
@@ -242,7 +247,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
             KeepAlivePreference.setHideRecents(isChecked, requireContext());
 
             if (isChecked) {
-                Toast.makeText(requireContext(), "同时还建议您在最近任务锁定本应用", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "建议额外在最近任务中锁定本应用", Toast.LENGTH_SHORT).show();
             }
         });
     }

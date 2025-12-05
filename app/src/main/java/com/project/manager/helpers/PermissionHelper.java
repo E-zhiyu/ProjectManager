@@ -129,60 +129,16 @@ public class PermissionHelper {
                 intent.setComponent(new ComponentName(
                         "com.miui.securitycenter",
                         "com.miui.permcenter.autostart.AutoStartManagementActivity"));
-            } else if (manufacturer.contains("oppo")) {
-                // OPPO设备
-                intent.setComponent(new ComponentName(
-                        "com.coloros.safecenter",
-                        "com.coloros.safecenter.permission.startup.StartupAppListActivity"));
-            } else if (manufacturer.contains("vivo")) {
-                // VIVO设备
-                intent.setComponent(new ComponentName(
-                        "com.vivo.permissionmanager",
-                        "com.vivo.permissionmanager.activity.BgStartUpManagerActivity"));
-            } else if (manufacturer.contains("huawei")) {
-                // 华为设备
-                intent.setComponent(new ComponentName(
-                        "com.huawei.systemmanager",
-                        "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity"));
-            } else if (manufacturer.contains("samsung")) {
-                // 三星设备
-                intent.setAction("android.settings.BATTERY_SAVER_SETTINGS");
-            } else if (manufacturer.contains("letv")) {
-                // 乐视设备
-                intent.setAction("com.letv.android.permissionautoboot");
             } else {
-                // 其他设备，跳转到应用详情页
-                intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                intent.setData(Uri.fromParts("package", context.getPackageName(), null));
+                //其他设备跳转到设置界面
+                intent.setAction(Settings.ACTION_SETTINGS);
+                Toast.makeText(context, "请前往自启动管理页面为本应用授权", Toast.LENGTH_SHORT).show();
             }
-
-            // 检查是否能处理这个intent
-            if (context.getPackageManager().resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) != null) {
-                context.startActivity(intent);
-            } else {
-                // 如果无法处理，跳转到通用设置页面
-                showDefaultAutoStartSetting(context);
-            }
+            context.startActivity(intent);
         } catch (Exception e) {
-            // 如果出现异常，跳转到通用设置页面
-            showDefaultAutoStartSetting(context);
-        }
-    }
-
-    /**
-     * 显示默认的自启动设置引导（跳转到应用详情页）
-     *
-     * @param context 上下文
-     */
-    private static void showDefaultAutoStartSetting(Context context) {
-        try {
-            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            //如果出现异常，跳转到设置
+            intent.setAction(Settings.ACTION_SETTINGS);
             intent.setData(Uri.fromParts("package", context.getPackageName(), null));
-            context.startActivity(intent);
-        } catch (Exception e) {
-            // 如果还是失败，跳转到系统设置主页面
-            Intent intent = new Intent(Settings.ACTION_SETTINGS);
-            context.startActivity(intent);
         }
     }
 
