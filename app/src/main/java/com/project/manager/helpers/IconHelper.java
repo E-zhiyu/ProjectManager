@@ -3,63 +3,58 @@ package com.project.manager.helpers;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.util.TypedValue;
+import android.util.DisplayMetrics;
 
 import androidx.annotation.NonNull;
 
 public class IconHelper {
-    /**
-     * 将Drawable转换为Bitmap
-     *
-     * @param drawable     原Drawable图标
-     * @param targetWidth  目标宽度
-     * @param targetHeight 目标高度
-     * @return 转换后的图标
-     */
-    public static Bitmap drawableToBitmap(Drawable drawable, int targetWidth, int targetHeight) {
-        if (drawable instanceof BitmapDrawable) {
-            //如果是 BitmapDrawable，直接获取 Bitmap 并缩放
-            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-            return Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true);
-        }
+    private static final int TARGET_ICON_SIZE = 48;    //图标的目标大小（dp）
 
-        //其他类型（VectorDrawable、AdaptiveIconDrawable 等）需要绘制到 Bitmap
-        Bitmap bitmap = Bitmap.createBitmap(
-                targetWidth,
-                targetHeight,
-                Bitmap.Config.ARGB_8888
-        );
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-        return bitmap;
+    /**
+     * 将dp转换为像素
+     *
+     * @param context 上下文
+     * @return 目标dp对应的像素数量
+     */
+    private static int dpToPx(@NonNull Context context) {
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        return Math.round(IconHelper.TARGET_ICON_SIZE * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 
-    /**
-     * 将图标缩放至目标大小
-     *
-     * @param originIcon 原始图标
-     * @param size 目标像素大小
-     * @param context 上下文
-     * @return 缩放后的图标
-     */
-    public static Drawable resizeIcon(Drawable originIcon, int size, @NonNull Context context) {
-        //统一缩放为固定尺寸
-        int targetSize = (int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                size,
-                context.getResources().getDisplayMetrics()
-        );
+    @NonNull
+    public static Bitmap getUniformIconBitmapWithPadding(Context context, @NonNull Drawable drawable) {
+        int targetSize = dpToPx(context);
 
-        Drawable scaledIcon = null;
-        if (originIcon != null) {
-            Bitmap bitmap = drawableToBitmap(originIcon, targetSize, targetSize);
-            Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, targetSize, targetSize, true);
-            scaledIcon = new BitmapDrawable(context.getResources(), scaledBitmap);
+        // 计算原始图标的宽高比
+        int intrinsicWidth = drawable.getIntrinsicWidth();
+        int intrinsicHeight = drawable.getIntrinsicHeight();
+        float aspectRatio = (float) intrinsicWidth / intrinsicHeight;
+
+        // 计算目标尺寸，保持宽高比
+        int destWidth, destHeight;
+        if (aspectRatio > 1) {
+            // 宽图
+            destWidth = targetSize;
+            destHeight = Math.round(targetSize / aspectRatio);
+        } else {
+            // 高图
+            destHeight = targetSize;
+            destWidth = Math.round(targetSize * aspectRatio);
         }
 
-        return scaledIcon;
+        // 创建目标Bitmap
+        Bitmap output = Bitmap.createBitmap(targetSize, targetSize, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+
+        // 计算绘制位置（居中）
+        int left = (targetSize - destWidth) / 2;
+        int top = (targetSize - destHeight) / 2;
+
+        // 绘制图标
+        drawable.setBounds(left, top, left + destWidth, top + destHeight);
+        drawable.draw(canvas);
+
+        return output;
     }
 }

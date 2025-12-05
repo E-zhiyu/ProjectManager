@@ -3,13 +3,11 @@ package com.project.manager.helpers;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.content.res.AppCompatResources;
 
-import com.project.manager.R;
 import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select.AppInfo;
 
 import java.util.ArrayList;
@@ -33,19 +31,13 @@ public class PackageNameHelper {
             if (!isSysAppIncluded && ((app.flags & ApplicationInfo.FLAG_SYSTEM) != 0))
                 continue;   //动态排除系统应用
 
-            String appName = pm.getApplicationLabel(app).toString();    //获取应用名称
+            String appName = app.loadLabel(pm).toString();              //获取应用名称
             String packageName = app.packageName;                       //获取包名
-            Drawable originIcon;                                        //获取应用图标（Drawable）
-            try {
-                originIcon = pm.getApplicationIcon(packageName);
-            } catch (PackageManager.NameNotFoundException e) {
-                ExceptionHelper.showExceptionDialog(context, e);
-                Toast.makeText(context, "获取应用图标时出错", Toast.LENGTH_SHORT).show();
-                originIcon = AppCompatResources.getDrawable(context, R.mipmap.unknown_app_ic_channel);
-            }
+            Drawable originDrawable = app.loadIcon(pm);                 //获取应用图标
 
-            Drawable scaledIcon = IconHelper.resizeIcon(originIcon, 48, context);
-            AppInfo appInfo = new AppInfo(appName, packageName, scaledIcon);
+            //转换为Bitmap并缩放
+            Bitmap scaledBitmap = IconHelper.getUniformIconBitmapWithPadding(context, originDrawable);
+            AppInfo appInfo = new AppInfo(appName, packageName, scaledBitmap);
             appInfoList.add(appInfo);
         }
 
