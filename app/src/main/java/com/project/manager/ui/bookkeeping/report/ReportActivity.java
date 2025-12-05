@@ -20,13 +20,15 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
-import com.project.manager.data_save.database.BookKeepingColumns;
-import com.project.manager.data_save.database.BookKeepingDatabaseHelper;
-import com.project.manager.data_save.database.BookKeepingTables;
+import com.project.manager.data.data_class.AccountSourceInfo;
+import com.project.manager.data.data_class.MonthAccountInfo;
+import com.project.manager.data.data_save.database.BookKeepingColumns;
+import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
+import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.TagString;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
-import com.project.manager.ui.bookkeeping.tag.Tag;
+import com.project.manager.data.data_class.Tag;
 
 import org.jetbrains.annotations.Contract;
 

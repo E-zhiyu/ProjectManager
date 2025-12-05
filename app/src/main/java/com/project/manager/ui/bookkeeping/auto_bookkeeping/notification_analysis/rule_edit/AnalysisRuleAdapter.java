@@ -18,9 +18,9 @@ import com.project.manager.R;
 import com.project.manager.broadcast.BroadcastConstants;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
-import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.AnalysisRule;
+import com.project.manager.data.data_class.AnalysisRule;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
-import com.project.manager.ui.bookkeeping.tag.Tag;
+import com.project.manager.data.data_class.Tag;
 
 import java.util.List;
 

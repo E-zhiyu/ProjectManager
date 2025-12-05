@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.report;
+package com.project.manager.data.data_class;
 
 public class AccountSourceInfo {
     private int percentage;             //此来源占支出/收入的比例

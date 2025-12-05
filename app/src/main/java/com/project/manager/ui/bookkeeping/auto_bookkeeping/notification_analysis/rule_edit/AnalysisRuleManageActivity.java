@@ -15,12 +15,12 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.project.manager.R;
-import com.project.manager.data_save.preference.AutoBookKeepingPreference;
+import com.project.manager.data.data_save.preference.AutoBookKeepingPreference;
 import com.project.manager.helpers.PermissionHelper;
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
-import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.AnalysisRule;
+import com.project.manager.data.data_class.AnalysisRule;
 
 import java.util.List;
 

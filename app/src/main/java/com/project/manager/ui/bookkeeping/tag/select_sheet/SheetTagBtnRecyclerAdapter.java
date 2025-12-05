@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.project.manager.helpers.ExceptionHelper;
-import com.project.manager.ui.bookkeeping.tag.Tag;
+import com.project.manager.data.data_class.Tag;
 
 import java.util.List;
 

@@ -26,7 +26,7 @@ import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.TagString;
 import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select.PackageNameSelectActivity;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
-import com.project.manager.ui.bookkeeping.tag.Tag;
+import com.project.manager.data.data_class.Tag;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
 import com.project.manager.ui.view_model.tag_modify.AccountTagModifyID;
 import com.project.manager.ui.view_model.tag_modify.AccountTagViewModel;

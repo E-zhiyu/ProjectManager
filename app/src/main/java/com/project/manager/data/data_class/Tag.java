@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.tag;
+package com.project.manager.data.data_class;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,9 +9,9 @@ import android.database.sqlite.SQLiteStatement;
 
 import androidx.annotation.NonNull;
 
-import com.project.manager.data_save.database.BookKeepingColumns;
-import com.project.manager.data_save.database.BookKeepingDatabaseHelper;
-import com.project.manager.data_save.database.BookKeepingTables;
+import com.project.manager.data.data_save.database.BookKeepingColumns;
+import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
+import com.project.manager.data.data_save.database.BookKeepingTables;
 
 import org.jetbrains.annotations.Contract;
 

@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis;
+package com.project.manager.data.data_class;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,9 +9,9 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
-import com.project.manager.data_save.database.BookKeepingColumns;
-import com.project.manager.data_save.database.BookKeepingDatabaseHelper;
-import com.project.manager.data_save.database.BookKeepingTables;
+import com.project.manager.data.data_save.database.BookKeepingColumns;
+import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
+import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 

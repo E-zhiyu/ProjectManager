@@ -1,4 +1,4 @@
-package com.project.manager.data_save.preference;
+package com.project.manager.data.data_save.preference;
 
 import android.content.Context;
 import android.content.SharedPreferences;

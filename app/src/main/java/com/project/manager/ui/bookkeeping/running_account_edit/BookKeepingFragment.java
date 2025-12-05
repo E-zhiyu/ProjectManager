@@ -25,12 +25,16 @@ import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
 import com.project.manager.broadcast.BroadcastConstants;
 import com.project.manager.broadcast.RunningAccountUpdatedBroadcastReceiver;
-import com.project.manager.data_save.database.BookKeepingColumns;
-import com.project.manager.data_save.database.BookKeepingDatabaseHelper;
-import com.project.manager.data_save.database.BookKeepingTables;
+import com.project.manager.data.data_class.running_account.ExpenseRunningAccount;
+import com.project.manager.data.data_class.running_account.IncomeRunningAccount;
+import com.project.manager.data.data_class.running_account.RunningAccountBase;
+import com.project.manager.data.data_class.running_account.TransferRunningAccount;
+import com.project.manager.data.data_save.database.BookKeepingColumns;
+import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
+import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.databinding.FragmentBookkeepingBinding;
 import com.project.manager.helpers.ExceptionHelper;
-import com.project.manager.data_save.preference.BookKeepingStartDatePreference;
+import com.project.manager.data.data_save.preference.BookKeepingStartDatePreference;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.running_account_edit.modify.RunningAccountModifyActivity;
 import com.project.manager.ui.bookkeeping.running_account_edit.new_running_account.RunningAccountAddActivity;
@@ -115,9 +119,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
         //获取特殊数据
         if (type == RunningAccountType.TRANSFER) {
-            String exportAccount = ((TransferRunningAccount) runningAccountView).exportAccount;  //转出账户
+            String exportAccount = ((TransferRunningAccount) runningAccountView).getExportAccount();  //转出账户
             dataBundle.putString(KeyValueStrings.ACCOUNT_EXPORT.getValue(), exportAccount);
-            String importAccount = ((TransferRunningAccount) runningAccountView).importAccount;  //转入账户
+            String importAccount = ((TransferRunningAccount) runningAccountView).getImportAccount();  //转入账户
             dataBundle.putString(KeyValueStrings.ACCOUNT_IMPORT.getValue(), importAccount);
         }
 

@@ -18,7 +18,7 @@ import com.project.manager.R;
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
-import com.project.manager.ui.bookkeeping.tag.TagGroup;
+import com.project.manager.data.data_class.TagGroup;
 import com.project.manager.ui.setting.running_account_data.pojo.PojoTagGroup;
 
 import java.util.List;

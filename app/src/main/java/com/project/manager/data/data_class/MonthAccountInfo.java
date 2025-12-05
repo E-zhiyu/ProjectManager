@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.report;
+package com.project.manager.data.data_class;
 
 public class MonthAccountInfo {
     private final double expense;   //月支出

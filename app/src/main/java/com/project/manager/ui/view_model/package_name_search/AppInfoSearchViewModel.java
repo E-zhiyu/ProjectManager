@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.project.manager.helpers.PackageNameHelper;
-import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select.AppInfo;
+import com.project.manager.data.data_class.AppInfo;
 
 import java.util.ArrayList;
 import java.util.Collections;

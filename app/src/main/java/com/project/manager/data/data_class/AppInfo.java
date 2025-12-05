@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select;
+package com.project.manager.data.data_class;
 
 import android.graphics.Bitmap;
 

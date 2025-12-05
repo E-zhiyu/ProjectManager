@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
+import com.project.manager.data.data_class.AppInfo;
 
 import java.util.ArrayList;
 import java.util.List;

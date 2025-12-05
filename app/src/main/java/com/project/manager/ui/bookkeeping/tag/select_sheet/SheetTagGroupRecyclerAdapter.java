@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
-import com.project.manager.ui.bookkeeping.tag.Tag;
-import com.project.manager.ui.bookkeeping.tag.TagGroup;
+import com.project.manager.data.data_class.Tag;
+import com.project.manager.data.data_class.TagGroup;
 
 import java.util.List;
 
