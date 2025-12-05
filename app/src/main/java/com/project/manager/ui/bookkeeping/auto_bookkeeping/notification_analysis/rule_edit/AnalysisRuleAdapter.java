@@ -1,5 +1,6 @@
 package com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteException;
@@ -26,7 +27,7 @@ import java.util.List;
 public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapter.AnalysisRuleViewHolder> {
     private final Context context;
     private final RuleClickedListener listener; //规则视图点击监听器
-    private final List<AnalysisRule> ruleList;  //规则列表
+    private List<AnalysisRule> ruleList;  //规则列表
 
     public static class AnalysisRuleViewHolder extends RecyclerView.ViewHolder {
         MaterialTextView rule_name_text, tag_name_text, type_text;
@@ -178,6 +179,12 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         Toast.makeText(context, "规则删除成功", Toast.LENGTH_SHORT).show();
 
         sendRuleUpdatedBroadcast();
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void onListRefreshed(List<AnalysisRule> newList) {
+        this.ruleList = newList;
+        notifyDataSetChanged();
     }
 
     //发送规则变更的广播

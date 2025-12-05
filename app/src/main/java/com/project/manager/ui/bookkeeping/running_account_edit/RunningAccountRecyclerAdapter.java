@@ -1,5 +1,6 @@
 package com.project.manager.ui.bookkeeping.running_account_edit;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
@@ -20,7 +21,7 @@ import com.project.manager.ui.bookkeeping.running_account_edit.fragments.Running
 import java.util.List;
 
 public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningAccountRecyclerAdapter.RunningAccountViewHolder> {
-    private final List<RunningAccountBase> runningAccountList;   //数据源
+    private List<RunningAccountBase> runningAccountList;   //数据源
     private final Context context;                              //上下文
     private final OnRunningAccountViewClickListener listener;   //单击接口对象
 
@@ -173,7 +174,7 @@ public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningA
      *
      * @param dataBundle 修改后的流水数据
      */
-    public void modifyRunningAccountView(@NonNull Bundle dataBundle) {
+    public void modifyRunningAccount(@NonNull Bundle dataBundle) {
         //将数据保存至数据库
         try {
             RunningAccountBase.modifyAccount(dataBundle, context);
@@ -220,7 +221,7 @@ public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningA
      *
      * @param position 待删除的流水记录的下标
      */
-    public void deleteRunningAccountView(int position) {
+    public void deleteRunningAccount(int position) {
         if (position == -1) return;
 
         //获取待删除的流水数据
@@ -240,5 +241,16 @@ public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningA
         //刷新UI
         runningAccountList.remove(position);
         notifyItemRemoved(position);
+    }
+
+    /**
+     * 刷新流水账视图
+     *
+     * @param refreshedList 刷新后的流水账数据列表
+     */
+    @SuppressLint("NotifyDataSetChanged")
+    public void refreshRunningAccount(List<RunningAccountBase> refreshedList) {
+        runningAccountList = refreshedList;
+        notifyDataSetChanged();
     }
 }

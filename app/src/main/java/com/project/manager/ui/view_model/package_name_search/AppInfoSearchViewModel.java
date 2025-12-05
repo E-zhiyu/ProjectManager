@@ -33,21 +33,20 @@ public class AppInfoSearchViewModel extends ViewModel {
     public void init() {
         compositeDisposable.add(
                 searchSubject
-                        .debounce(300, TimeUnit.MILLISECONDS)  // 1. 防抖
-                        .distinctUntilChanged()               // 2. 忽略重复查询
-                        .switchMap(query -> {                 // 3. 切换搜索任务
+                        .debounce(300, TimeUnit.MILLISECONDS)  //防抖
+                        .switchMap(query -> {                 //切换搜索任务
                             if (query.isEmpty()) {
-                                return Observable.just(Collections.emptyList()); // 空查询返回空
+                                return Observable.just(Collections.emptyList()); //空查询返回空
                             }
                             return Observable.fromCallable(() -> PackageNameHelper.searchInFullAppList(query, fullAppInfoList)) // 实际搜索
-                                    .subscribeOn(Schedulers.computation()) // 4. 指定在计算进程执行
+                                    .subscribeOn(Schedulers.computation()) //指定在计算进程执行
                                     .cast(List.class) //显式声明泛型类型
-                                    .onErrorResumeNext(throwable -> { // 5. 错误处理
+                                    .onErrorResumeNext(throwable -> { //错误处理
                                         return Observable.just(Collections.emptyList());
                                     });
                         })
-                        .observeOn(AndroidSchedulers.mainThread()) // 6. 切换到主线程
-                        .subscribe(resultsLiveData::postValue)     // 7. 更新结果到 LiveData
+                        .observeOn(AndroidSchedulers.mainThread()) //切换到主线程
+                        .subscribe(resultsLiveData::postValue)     //更新结果到LiveData
         );
     }
 

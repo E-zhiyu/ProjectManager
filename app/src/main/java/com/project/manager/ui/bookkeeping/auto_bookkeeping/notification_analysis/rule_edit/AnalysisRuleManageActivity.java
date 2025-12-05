@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -32,7 +33,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_notification_analysis);
+        setContentView(R.layout.activity_analysis_rule_manage);
 
         initViews();
         initLaunchers();
@@ -71,10 +72,20 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
         findViewById(R.id.rule_add_btn).setOnClickListener(this);
 
         //设置RecyclerView的适配器
+        SwipeRefreshLayout refreshLayout = findViewById(R.id.refresh_layout);   //获取下拉刷新视图
+        refreshLayout.setRefreshing(true);
         List<AnalysisRule> ruleList = AnalysisRule.loadAnalysisRule(this);
         rule_adapter = new AnalysisRuleAdapter(ruleList, this::onRuleClicked, this);
         rule_recycler = findViewById(R.id.rule_recycler);
+        refreshLayout.setRefreshing(false);
         rule_recycler.setAdapter(rule_adapter);
+
+        //设置下拉刷新布局的刷新监听器
+        refreshLayout.setOnRefreshListener(() -> {
+            List<AnalysisRule> refreshedList = AnalysisRule.loadAnalysisRule(this);
+            rule_adapter.onListRefreshed(refreshedList);
+            refreshLayout.setRefreshing(false);
+        });
     }
 
     private void initLaunchers() {

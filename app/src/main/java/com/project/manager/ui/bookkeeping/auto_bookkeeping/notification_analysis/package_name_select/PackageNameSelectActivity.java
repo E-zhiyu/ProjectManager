@@ -7,14 +7,13 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.search.SearchBar;
 import com.google.android.material.search.SearchView;
@@ -35,10 +34,10 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class PackageNameSelectActivity extends AppCompatActivity {
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
-    private SearchView searchView;                          //搜索视图
-    private AppInfoSearchViewModel searchViewModel;         //搜索应用的ViewModel
-    private ProgressBar progressBar, searchProgressBar;     //加载列表时的进度条
-    private AppListAdapter fullAppAdapter, searchAdapter;   //完整的应用列表适配器和搜索结果适配器
+    private SearchView searchView;                                          //搜索视图
+    private AppInfoSearchViewModel searchViewModel;                         //搜索应用的ViewModel
+    private AppListAdapter fullAppAdapter, searchAdapter;                   //完整的应用列表适配器和搜索结果适配器
+    private SwipeRefreshLayout appListRefreshLayout, searchRefreshLayout;   //下拉刷新布局
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +60,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (!String.valueOf(s).isEmpty()) {
-                    searchProgressBar.setVisibility(View.VISIBLE);
+                    searchRefreshLayout.setRefreshing(true);
                 }
                 searchViewModel.onSearchQueryChanged(String.valueOf(s));
             }
@@ -78,7 +77,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
 
         if (requestCode == RequestResultCode.REQUEST_GET_PERMISSION.ordinal()) {
             if (grantResults[0] == 0) {
-                progressBar.setVisibility(View.VISIBLE);    //显示不确定进度的进度条
+                appListRefreshLayout.setRefreshing(true);
 
                 disposables.add(
                         Observable.fromCallable(() -> PackageNameHelper.getInstalledApps(false, this))
@@ -87,7 +86,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
                                 .subscribe(
                                         this::onAppListLoadFinished,        //成功回调
                                         e -> {
-                                            progressBar.setVisibility(View.GONE);
+                                            appListRefreshLayout.setRefreshing(false);
                                             ExceptionHelper.showExceptionDialog(this, e);
                                         }   //错误处理
                                 )
@@ -112,8 +111,6 @@ public class PackageNameSelectActivity extends AppCompatActivity {
     //初始化视图
     private void initViews() {
         searchView = findViewById(R.id.search_view);
-        progressBar = findViewById(R.id.progress_bar);
-        searchProgressBar = findViewById(R.id.search_progress_bar);
 
         //绑定SearchView弹出逻辑
         SearchBar searchBar = findViewById(R.id.search_bar);
@@ -126,10 +123,11 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         searchAdapter = new AppListAdapter(this::onAppClicked, this);
         search_result_recycler.setAdapter(searchAdapter);
 
-        //使用多线程实现应用列表加载
-        disposables.add(
+        //设置下拉刷新布局的监听器
+        appListRefreshLayout = findViewById(R.id.app_list_refresh_layout);
+        appListRefreshLayout.setOnRefreshListener(() -> disposables.add(
                 Observable.fromCallable(() -> {
-                            progressBar.setVisibility(View.VISIBLE);    //显示不确定进度的进度条
+                            appListRefreshLayout.setRefreshing(true);
                             return PackageNameHelper.getInstalledApps(false, this);
                         })
                         .subscribeOn(Schedulers.io())               //在IO线程执行查询
@@ -137,7 +135,29 @@ public class PackageNameSelectActivity extends AppCompatActivity {
                         .subscribe(
                                 this::onAppListLoadFinished,        //成功回调
                                 e -> {
-                                    progressBar.setVisibility(View.GONE);
+                                    appListRefreshLayout.setRefreshing(false);
+                                    ExceptionHelper.showExceptionDialog(this, e);
+                                }   //错误处理
+                        )
+        ));
+        searchRefreshLayout = findViewById(R.id.search_refresh_layout);
+        searchRefreshLayout.setOnRefreshListener(() -> {
+            String searchViewText = searchView.getText().toString();
+            searchViewModel.onSearchQueryChanged(searchViewText);
+        });
+
+        //使用多线程实现应用列表加载
+        disposables.add(
+                Observable.fromCallable(() -> {
+                            appListRefreshLayout.setRefreshing(true);
+                            return PackageNameHelper.getInstalledApps(false, this);
+                        })
+                        .subscribeOn(Schedulers.io())               //在IO线程执行查询
+                        .observeOn(AndroidSchedulers.mainThread())  //切换到主线程更新 UI
+                        .subscribe(
+                                this::onAppListLoadFinished,        //成功回调
+                                e -> {
+                                    appListRefreshLayout.setRefreshing(false);
                                     ExceptionHelper.showExceptionDialog(this, e);
                                 }   //错误处理
                         )
@@ -152,7 +172,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
     private void onAppListLoadFinished(List<AppInfo> fullAppInfoList) {
         fullAppAdapter.setAppInfoList(fullAppInfoList);
         searchViewModel.setFullAppInfoList(fullAppInfoList);
-        progressBar.setVisibility(View.GONE);
+        appListRefreshLayout.setRefreshing(false);
     }
 
     //处理应用选择的方法
@@ -167,7 +187,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
     private void startObserveSearchResult() {
         searchViewModel.getResultsLiveData().observe(this, result -> {
             searchAdapter.setAppInfoList(result);
-            searchProgressBar.setVisibility(View.GONE);
+            searchRefreshLayout.setRefreshing(false);
         });
     }
 }

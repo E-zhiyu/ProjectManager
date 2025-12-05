@@ -18,8 +18,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
@@ -177,7 +177,14 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         root.findViewById(R.id.running_account_add_btn).setOnClickListener(this);
         root.findViewById(R.id.report_btn).setOnClickListener(this);
 
+        //创建列表视图的适配器
+        SwipeRefreshLayout refreshLayout = binding.refreshLayout;   //获取下拉刷新布局
+        refreshLayout.setRefreshing(true);
         List<RunningAccountBase> runningAccountList = loadRunningAccountData();     //读取流水数据
+        runningAccountRecyclerAdapter = new RunningAccountRecyclerAdapter(runningAccountList, this, requireContext());
+        runningAccountRecyclerView = binding.runningAccountRecyclerView;
+        runningAccountRecyclerView.setAdapter(runningAccountRecyclerAdapter);
+        refreshLayout.setRefreshing(false);
 
         //初始化记账日期和流水记录数量文本
         MaterialTextView bookkeeping_days_text = root.findViewById(R.id.bookkeeping_days_text); //显示记账天数和流水记录数量的文本视图
@@ -200,10 +207,12 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             account_num_text.setText(String.format("已产生%d条流水记录", account_num));
         }
 
-        //创建列表视图的适配器
-        runningAccountRecyclerAdapter = new RunningAccountRecyclerAdapter(runningAccountList, this, requireContext());
-        runningAccountRecyclerView = binding.runningAccountRecyclerView;
-        runningAccountRecyclerView.setAdapter(runningAccountRecyclerAdapter);
+        //设置下拉刷新布局的监听器
+        refreshLayout.setOnRefreshListener(() -> {
+            List<RunningAccountBase> refreshedAccount = loadRunningAccountData();
+            runningAccountRecyclerAdapter.refreshRunningAccount(refreshedAccount);
+            refreshLayout.setRefreshing(false);
+        });
     }
 
     //初始化广播接收器
@@ -269,7 +278,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             return;
         }
 
-        runningAccountRecyclerAdapter.modifyRunningAccountView(dataBundle);
+        runningAccountRecyclerAdapter.modifyRunningAccount(dataBundle);
         Toast.makeText(getActivity(), "成功修改流水记录", Toast.LENGTH_SHORT).show();
     }
 
@@ -286,7 +295,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         }
 
         int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), -1);
-        runningAccountRecyclerAdapter.deleteRunningAccountView(position);
+        runningAccountRecyclerAdapter.deleteRunningAccount(position);
         Toast.makeText(requireContext(), "流水记录已删除", Toast.LENGTH_SHORT).show();
 
         //更新流水记录数量文本
