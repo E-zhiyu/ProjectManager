@@ -51,7 +51,7 @@ public class AppInfoSearchViewModel extends ViewModel {
     }
 
     public void onSearchQueryChanged(String newQuery) {
-        searchSubject.onNext(newQuery); // 8. 触发搜索流
+        searchSubject.onNext(newQuery); //触发搜索流
     }
 
     public LiveData<List<AppInfo>> getResultsLiveData() {

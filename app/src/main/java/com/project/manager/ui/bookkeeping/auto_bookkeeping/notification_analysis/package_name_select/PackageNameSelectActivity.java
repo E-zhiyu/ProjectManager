@@ -7,19 +7,20 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.material.search.SearchBar;
 import com.google.android.material.search.SearchView;
 import com.project.manager.R;
-import com.project.manager.data.data_class.AppInfo;
 import com.project.manager.helpers.PermissionHelper;
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
@@ -27,14 +28,13 @@ import com.project.manager.helpers.PackageNameHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.view_model.package_name_search.AppInfoSearchViewModel;
 
-import java.util.List;
-
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class PackageNameSelectActivity extends AppCompatActivity {
+    private boolean isSysAppIncluded = false;                               //应用列表是否包含系统应用
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
     private SearchView searchView;                                          //搜索视图
     private AppInfoSearchViewModel searchViewModel;                         //搜索应用的ViewModel
@@ -93,19 +93,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         if (requestCode == RequestResultCode.REQUEST_GET_PERMISSION.ordinal()) {
             if (grantResults[0] == 0) {
                 appListRefreshLayout.setRefreshing(true);
-
-                disposables.add(
-                        Observable.fromCallable(() -> PackageNameHelper.getInstalledApps(false, this))
-                                .subscribeOn(Schedulers.io())               //在IO线程执行查询
-                                .observeOn(AndroidSchedulers.mainThread())  //切换到主线程更新 UI
-                                .subscribe(
-                                        this::onAppListLoadFinished,        //成功回调
-                                        e -> {
-                                            appListRefreshLayout.setRefreshing(false);
-                                            ExceptionHelper.showExceptionDialog(this, e);
-                                        }   //错误处理
-                                )
-                );
+                startLoadAppList();
             } else if (grantResults[0] == -1) {
                 Toast.makeText(this, "权限申请被拒绝，请手动授予应用列表权限并重启应用", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
@@ -134,62 +122,44 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         searchAdapter = new AppListAdapter(this::onAppClicked, this);
         search_result_recycler.setAdapter(searchAdapter);
 
-        SearchBar searchBar = findViewById(R.id.search_bar);
-        searchBar.setOnClickListener(v -> {
-            full_app_list_recycler.setPadding(0, 0, 0, 35);
-            searchView.show();
-        });
+        //开始加载应用列表
+        appListRefreshLayout = findViewById(R.id.app_list_refresh_layout);
+        appListRefreshLayout.setRefreshing(true);
+        startLoadAppList();
 
         //设置下拉刷新布局的监听器
-        appListRefreshLayout = findViewById(R.id.app_list_refresh_layout);
-        appListRefreshLayout.setOnRefreshListener(() -> disposables.add(
-                Observable.fromCallable(() -> {
-                            appListRefreshLayout.setRefreshing(true);
-                            return PackageNameHelper.getInstalledApps(false, this);
-                        })
-                        .subscribeOn(Schedulers.io())               //在IO线程执行查询
-                        .observeOn(AndroidSchedulers.mainThread())  //切换到主线程更新 UI
-                        .subscribe(
-                                this::onAppListLoadFinished,        //成功回调
-                                e -> {
-                                    appListRefreshLayout.setRefreshing(false);
-                                    ExceptionHelper.showExceptionDialog(this, e);
-                                }   //错误处理
-                        )
-        ));
+        appListRefreshLayout.setOnRefreshListener(this::startLoadAppList);
         searchRefreshLayout = findViewById(R.id.search_refresh_layout);
         searchRefreshLayout.setOnRefreshListener(() -> {
             String searchViewText = searchView.getText().toString();
             searchViewModel.onSearchQueryChanged(searchViewText);
         });
 
-        //使用多线程实现应用列表加载
+        //设置图标按钮点击监听器
+        ImageView expandListBtn = findViewById(R.id.expand_list_btn);
+        expandListBtn.setOnClickListener(this::showPopupMenu);
+    }
+
+    /**
+     * 在IO线程开始加载应用列表
+     */
+    private void startLoadAppList() {
         disposables.add(
-                Observable.fromCallable(() -> {
-                            appListRefreshLayout.setRefreshing(true);
-                            return PackageNameHelper.getInstalledApps(false, this);
-                        })
+                Observable.fromCallable(() -> PackageNameHelper.getInstalledApps(isSysAppIncluded, this))
                         .subscribeOn(Schedulers.io())               //在IO线程执行查询
                         .observeOn(AndroidSchedulers.mainThread())  //切换到主线程更新 UI
                         .subscribe(
-                                this::onAppListLoadFinished,        //成功回调
+                                fullAppInfoList -> {
+                                    fullAppAdapter.setAppInfoList(fullAppInfoList);
+                                    searchViewModel.setFullAppInfoList(fullAppInfoList);
+                                    appListRefreshLayout.setRefreshing(false);
+                                },  //成功回调
                                 e -> {
                                     appListRefreshLayout.setRefreshing(false);
                                     ExceptionHelper.showExceptionDialog(this, e);
                                 }   //错误处理
                         )
         );
-    }
-
-    /**
-     * 应用列表加载完成回调
-     *
-     * @param fullAppInfoList 加载得到的应用列表
-     */
-    private void onAppListLoadFinished(List<AppInfo> fullAppInfoList) {
-        fullAppAdapter.setAppInfoList(fullAppInfoList);
-        searchViewModel.setFullAppInfoList(fullAppInfoList);
-        appListRefreshLayout.setRefreshing(false);
     }
 
     //处理应用选择的方法
@@ -206,5 +176,32 @@ public class PackageNameSelectActivity extends AppCompatActivity {
             searchAdapter.setAppInfoList(result);
             searchRefreshLayout.setRefreshing(false);
         });
+    }
+
+    /**
+     * 展示下拉菜单
+     *
+     * @param view 下拉菜单绑定的视图
+     */
+    private void showPopupMenu(View view) {
+        PopupMenu popupMenu = new PopupMenu(this, view);
+        popupMenu.getMenuInflater().inflate(R.menu.popup_menu_package_select, popupMenu.getMenu());
+
+        popupMenu.getMenu().getItem(0).setChecked(isSysAppIncluded);    //初始化复选框的状态
+
+        popupMenu.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.is_sys_app_included) {
+                isSysAppIncluded = !isSysAppIncluded;
+                item.setChecked(!item.isChecked());
+
+                appListRefreshLayout.setRefreshing(true);
+                startLoadAppList();
+                return true;
+            }
+
+            return false;
+        });
+
+        popupMenu.show();
     }
 }
