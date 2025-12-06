@@ -11,7 +11,10 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.4.1  \n" +
+    private static final String update_log_md = "# v1.4.2  \n" +
+            "**修改内容**  \n" +
+            "- 取消上个版本将包名选择窗口调整为全屏的更改  \n" +
+            "# v1.4.1  \n" +
             "**修改内容**  \n" +
             "- 优化更新日志对话框的显示效果，删除不必要的标题下划线  \n" +
             "- 包名选择窗口显示为全屏以获得更好的动画体验  \n\n" +

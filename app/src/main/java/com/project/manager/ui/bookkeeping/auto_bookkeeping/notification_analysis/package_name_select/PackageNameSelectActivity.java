@@ -3,23 +3,19 @@ package com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysi
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.Window;
-import android.view.WindowInsets;
-import android.view.WindowInsetsController;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.search.SearchBar;
 import com.google.android.material.search.SearchView;
 import com.project.manager.R;
 import com.project.manager.data.data_class.AppInfo;
@@ -50,11 +46,6 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         setContentView(R.layout.activity_package_name_select);
 
         initViews();
-
-        //安卓11以上进入全屏模式
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            enterFullScreen();
-        }
 
         searchViewModel = new ViewModelProvider(this).get(AppInfoSearchViewModel.class);
         searchViewModel.init();
@@ -118,23 +109,6 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         disposables.dispose();
     }
 
-    /**
-     * 进入全屏模式（隐藏状态栏和导航栏）
-     */
-    @RequiresApi(api = Build.VERSION_CODES.R)
-    private void enterFullScreen() {
-        Window window = getWindow();
-
-        // 获取 WindowInsetsController 并配置全屏行为
-        WindowInsetsController controller = window.getInsetsController();
-        if (controller != null) {
-            controller.hide(WindowInsets.Type.systemBars()); // 隐藏系统栏
-            controller.setSystemBarsBehavior(
-                    WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            ); // 滑动临时显示系统栏
-        }
-    }
-
     //初始化视图
     private void initViews() {
         searchView = findViewById(R.id.search_view);
@@ -145,6 +119,12 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         RecyclerView search_result_recycler = findViewById(R.id.search_result_recycler);    //搜索结果列表视图
         searchAdapter = new AppListAdapter(this::onAppClicked, this);
         search_result_recycler.setAdapter(searchAdapter);
+
+        SearchBar searchBar = findViewById(R.id.search_bar);
+        searchBar.setOnClickListener(v -> {
+            full_app_list_recycler.setPadding(0, 0, 0, 35);
+            searchView.show();
+        });
 
         //设置下拉刷新布局的监听器
         appListRefreshLayout = findViewById(R.id.app_list_refresh_layout);
