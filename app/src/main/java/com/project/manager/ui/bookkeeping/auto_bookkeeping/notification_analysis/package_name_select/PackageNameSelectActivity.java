@@ -9,6 +9,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -68,7 +69,20 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         });
         startObserveSearchResult();
 
+        //进入该界面时尝试申请权限
         PermissionHelper.getAppListPermission(this);
+
+        //拦截返回键功能：先关闭搜索界面再返回上一级
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (searchView.isShowing()) {
+                    searchView.hide();
+                } else {
+                    finish();
+                }
+            }
+        });
     }
 
     //处理动态权限申请结果的方法
