@@ -24,6 +24,7 @@ import com.project.manager.ui.bookkeeping.running_account_edit.fragments.Running
 import com.project.manager.data.data_class.Tag;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -40,7 +41,13 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
     public void onCreate() {
         super.onCreate();
 
-        ruleList = AnalysisRule.loadAnalysisRule(getBaseContext()); //启动则加载规则
+        //启动时则加载规则
+        try {
+            ruleList = AnalysisRule.loadAnalysisRule(getBaseContext());
+        } catch (SQLiteException e) {
+            ruleList = new ArrayList<>();
+            ExceptionHelper.showExceptionDialog(getBaseContext(), e);
+        }
         isFunctionOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(getBaseContext());   //启动时加载功能开关状态
 
         //注册规则更新的广播接收器
@@ -123,6 +130,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
             Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "规则更新成功");
         } catch (SQLiteException e) {
             Log.w(LogTags.NOTIFICATION_SERVICE.getV(), "规则更新失败");
+            ExceptionHelper.showExceptionDialog(getBaseContext(), e);
         }
     }
 

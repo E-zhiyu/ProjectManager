@@ -2,6 +2,7 @@ package com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysi
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.View;
 
@@ -22,13 +23,13 @@ import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.data.data_class.AnalysisRule;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AnalysisRuleManageActivity extends AppCompatActivity implements View.OnClickListener {
     private ActivityResultLauncher<Intent> ruleAddLauncher;     //添加规则界面的启动器
     private ActivityResultLauncher<Intent> ruleModifyLauncher;  //修改规则的启动器
     private AnalysisRuleAdapter rule_adapter;                   //规则列表适配器
-    private RecyclerView rule_recycler;                         //规则列表视图
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,15 +75,27 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
         //设置RecyclerView的适配器
         SwipeRefreshLayout refreshLayout = findViewById(R.id.refresh_layout);   //获取下拉刷新视图
         refreshLayout.setRefreshing(true);
-        List<AnalysisRule> ruleList = AnalysisRule.loadAnalysisRule(this);
+        List<AnalysisRule> ruleList;
+        try {
+            ruleList = AnalysisRule.loadAnalysisRule(this);
+        } catch (SQLiteException e) {
+            ruleList = new ArrayList<>();
+            ExceptionHelper.showExceptionDialog(this, e);
+        }
         rule_adapter = new AnalysisRuleAdapter(ruleList, this::onRuleClicked, this);
-        rule_recycler = findViewById(R.id.rule_recycler);
+        RecyclerView rule_recycler = findViewById(R.id.rule_recycler);          //规则列表视图
         refreshLayout.setRefreshing(false);
         rule_recycler.setAdapter(rule_adapter);
 
         //设置下拉刷新布局的刷新监听器
         refreshLayout.setOnRefreshListener(() -> {
-            List<AnalysisRule> refreshedList = AnalysisRule.loadAnalysisRule(this);
+            List<AnalysisRule> refreshedList;
+            try {
+                refreshedList = AnalysisRule.loadAnalysisRule(this);
+            } catch (SQLiteException e) {
+                refreshedList = new ArrayList<>();
+                ExceptionHelper.showExceptionDialog(this, e);
+            }
             rule_adapter.onListRefreshed(refreshedList);
             refreshLayout.setRefreshing(false);
         });
@@ -139,6 +152,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
         dataBundle.putString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue(), rule_name);
         dataBundle.putLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue(), rule_no);
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), account_type);
+        dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), position);
         dataBundle.putString(KeyValueStrings.PACKAGE_NAME.getValue(), package_name);
         dataBundle.putString(KeyValueStrings.NOTIFICATION_TITLE.getValue(), notification_title);
         dataBundle.putString(KeyValueStrings.NOTIFICATION_CONTENT.getValue(), notification_content);
@@ -157,7 +171,6 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
         }
 
         rule_adapter.addRule(dataBundle);
-        rule_recycler.scrollToPosition(0);
     }
 
     private void onAnalysisRuleModified(@NonNull Intent resuleIntent, int resultCode) {

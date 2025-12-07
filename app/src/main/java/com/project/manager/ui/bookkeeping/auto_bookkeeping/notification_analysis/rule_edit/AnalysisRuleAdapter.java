@@ -118,8 +118,8 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
 
         //刷新视图
         AnalysisRule newRule = new AnalysisRule(rule_name, rule_no, type, package_name, notification_title, notification_content);
-        ruleList.add(0, newRule);
-        notifyItemInserted(0);
+        ruleList.add(newRule);
+        notifyItemInserted(ruleList.size() - 1);
         Toast.makeText(context, "解析规则添加成功", Toast.LENGTH_SHORT).show();
 
         sendRuleUpdatedBroadcast();

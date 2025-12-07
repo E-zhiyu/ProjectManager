@@ -11,7 +11,10 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.4.2  \n" +
+    private static final String update_log_md = "# v1.4.3  \n" +
+            "**BUG修复**  \n" +
+            "- 修复修改或删除通知解析规则时改变的永远是第一个规则的BUG  \n\n" +
+            "# v1.4.2  \n" +
             "**修改内容**  \n" +
             "- 取消上个版本将包名选择窗口调整为全屏的更改  \n" +
             "- 在包名选择窗口返回时会先关闭搜索界面再返回上一级界面  \n" +
