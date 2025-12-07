@@ -62,13 +62,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(@NonNull View v) {
-        if (v.getId() == R.id.setting_about) {
-            AboutHelper.showAboutDialog(requireContext());
-        } else if (v.getId() == R.id.setting_theme_mode) {
-            showThemeModeSelectDialog();
-        } else if (v.getId() == R.id.setting_export_running_account) {
-            exportRunningAccountData();
-        } else if (v.getId() == R.id.setting_import_running_account) {
+        if (v.getId() == R.id.setting_import_running_account) {
             new MaterialAlertDialogBuilder(requireContext())
                     .setTitle("导入数据")
                     .setMessage("新数据将覆盖原有的数据，确认继续吗？")
@@ -92,11 +86,6 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                     }))
                     .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
                     .show();
-        } else if (v.getId() == R.id.setting_update_log) {
-            UpdateLogHelper.showUpdateLogDialog(requireContext());
-        } else if (v.getId() == R.id.setting_notification_analysis_rules) {
-            Intent skip2NotificationRulesActivity = new Intent(getActivity(), AnalysisRuleManageActivity.class);
-            startActivity(skip2NotificationRulesActivity);
         }
     }
 
@@ -177,13 +166,16 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
 
     //初始化视图
     private void initViews() {
-        binding.settingAbout.setOnClickListener(this);
-        binding.settingThemeMode.setOnClickListener(this);
-        binding.settingExportRunningAccount.setOnClickListener(this);
+        binding.settingAbout.setOnClickListener(v -> AboutHelper.showAboutDialog(requireContext()));
+        binding.settingThemeMode.setOnClickListener(v -> showThemeModeSelectDialog());
+        binding.settingExportRunningAccount.setOnClickListener(v -> exportRunningAccountData());
         binding.settingImportRunningAccount.setOnClickListener(this);
         binding.settingClearRunningAccount.setOnClickListener(this);
-        binding.settingUpdateLog.setOnClickListener(this);
-        binding.settingNotificationAnalysisRules.setOnClickListener(this);
+        binding.settingUpdateLog.setOnClickListener(v -> UpdateLogHelper.showUpdateLogDialog(requireContext()));
+        binding.settingNotificationAnalysisRules.setOnClickListener(v -> {
+            Intent skip2NotificationRulesActivity = new Intent(getActivity(), AnalysisRuleManageActivity.class);
+            startActivity(skip2NotificationRulesActivity);
+        });
         binding.autoStartPermission.setOnClickListener(v -> PermissionHelper.requestAutoStartPermission(requireContext()));
         binding.batteryOptimization.setOnClickListener(v -> PermissionHelper.openBatteryOptimizations(requireContext()));
 
