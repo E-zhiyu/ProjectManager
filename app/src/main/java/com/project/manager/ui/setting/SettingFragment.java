@@ -161,21 +161,29 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
      * @param dataHelper 数据帮助器
      */
     private void importData(DataHelperBase<? extends SQLiteOpenHelper, ?> dataHelper) {
-        safFileHelper.openFileAndReadContent(
-                new SAFFileHelper.SAFFileReadCallback() {
-                    @Override
-                    public void onFileRead(String content) {
-                        dataHelper.saveJsonDataToDb(content);
-                    }
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("导入数据")
+                .setMessage("导入的数据将覆盖现有的数据，确定继续吗？")
+                .setPositiveButton("确定", (dialog, which) -> {
+                    dialog.dismiss();
+                    safFileHelper.openFileAndReadContent(
+                            new SAFFileHelper.SAFFileReadCallback() {
+                                @Override
+                                public void onFileRead(String content) {
+                                    dataHelper.saveJsonDataToDb(content);
+                                }
 
-                    @Override
-                    public void onError(String errMessage) {
-                        Toast.makeText(requireContext(), "导入失败：" + errMessage, Toast.LENGTH_SHORT).show();
-                    }
-                },
-                "application/json",
-                importDataLauncher
-        );
+                                @Override
+                                public void onError(String errMessage) {
+                                    Toast.makeText(requireContext(), "导入失败：" + errMessage, Toast.LENGTH_SHORT).show();
+                                }
+                            },
+                            "application/json",
+                            importDataLauncher
+                    );
+                })
+                .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 
     //初始化视图
