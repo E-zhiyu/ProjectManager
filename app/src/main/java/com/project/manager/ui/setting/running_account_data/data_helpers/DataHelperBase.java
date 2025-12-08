@@ -2,10 +2,10 @@ package com.project.manager.ui.setting.running_account_data.data_helpers;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.widget.Toast;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.manager.helpers.ExceptionHelper;
 
 /**
  * 数据帮助器基类
@@ -21,7 +21,10 @@ abstract public class DataHelperBase<H extends SQLiteOpenHelper, M> {
     public DataHelperBase(Context context) {
         this.context = context;
         db_helper = createHelper();
+        mapClass = getMapClass();
     }
+
+    protected abstract Class<M> getMapClass();
 
     protected abstract H createHelper();                //子类需要实现的生成helper类的方法
 
@@ -42,8 +45,10 @@ abstract public class DataHelperBase<H extends SQLiteOpenHelper, M> {
 
             //将对应的数据写入数据库
             saveDataInMapToDb(dataMap);
+
+            Toast.makeText(context, "数据导入成功", Toast.LENGTH_SHORT).show();
         } catch (JsonProcessingException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
+            Toast.makeText(context,"数据导入失败：无法解析文本内容",Toast.LENGTH_SHORT).show();
         }
     }
 

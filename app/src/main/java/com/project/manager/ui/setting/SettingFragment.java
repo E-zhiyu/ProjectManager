@@ -1,7 +1,7 @@
 package com.project.manager.ui.setting;
 
 import android.content.Intent;
-import android.net.Uri;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -88,30 +88,19 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    safFileHelper.onFileSelected(resultCode, data);
+                    safFileHelper.handleActivityResult(resultCode, data, true);
                 }
         );
 
-//        importDataLauncher = registerForActivityResult(
-//                new ActivityResultContracts.StartActivityForResult(),
-//                result -> {
-//                    int resultCode = result.getResultCode();
-//                    Intent data = result.getData();
-//
-//                    if (resultCode == Activity.RESULT_OK) {
-//                        if (data != null) {
-//                            Uri uri = data.getData();
-//                            RunningAccountDataHelper.saveJsonData(uri, requireContext());
-//
-//                            //清空已保存的开始记账的日期
-//                            BookKeepingStartDatePreference.saveStartDate("", requireContext());
-//                        } else {
-//                            NullPointerException e = new NullPointerException("无法导入数据");
-//                            ExceptionHelper.showExceptionDialog(requireContext(), e);
-//                        }
-//                    }
-//                }
-//        );
+        importDataLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    int resultCode = result.getResultCode();
+                    Intent data = result.getData();
+
+                    safFileHelper.handleActivityResult(resultCode, data, false);
+                }
+        );
     }
 
     /**
@@ -136,21 +125,46 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         String default_filename = String.format("%s_%s.json", default_file_head, now_date);
 
         //启动系统文件选择器(SAF)
-        safFileHelper.createFileWithContent("application/json",
-                default_filename,
-                json_str,
-                exportDataLauncher,
-                new SAFFileHelper.SAFFileCallback() {
+        safFileHelper.createFileWithContent(
+                new SAFFileHelper.SAFFileWriteCallback() {
                     @Override
-                    public void onFileCreated(Uri fileUri) {
+                    public void onFileWrote() {
                         Toast.makeText(requireContext(), "数据导出成功", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
-                    public void onError(String errorMessage) {
-                        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                    public void onError(String errMessage) {
+                        Toast.makeText(requireContext(), "数据导出失败：" + errMessage, Toast.LENGTH_SHORT).show();
                     }
-                });
+                },
+                "application/json",
+                default_filename,
+                json_str,
+                exportDataLauncher
+        );
+    }
+
+    /**
+     * 从文件导入数据
+     *
+     * @param dataHelper 数据帮助器
+     */
+    private void importData(DataHelperBase<? extends SQLiteOpenHelper, ?> dataHelper) {
+        safFileHelper.openFileAndReadContent(
+                new SAFFileHelper.SAFFileReadCallback() {
+                    @Override
+                    public void onFileRead(String content) {
+                        dataHelper.saveJsonDataToDb(content);
+                    }
+
+                    @Override
+                    public void onError(String errMessage) {
+                        Toast.makeText(requireContext(), "数据导入失败：" + errMessage, Toast.LENGTH_SHORT).show();
+                    }
+                },
+                "application/json",
+                importDataLauncher
+        );
     }
 
     //初始化视图
@@ -167,8 +181,8 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
             }
         });
         binding.settingImportRunningAccount.setOnClickListener(v -> {
-//            DataHelperBase<BookKeepingDatabaseHelper, TotalAccountDataMap> dataHelper = new RunningAccountDataHelper(requireContext());
-//            dataHelper.importData();
+            DataHelperBase<BookKeepingDatabaseHelper, TotalAccountDataMap> dataHelper = new RunningAccountDataHelper(requireContext());
+            importData(dataHelper);
         });
         binding.settingClearRunningAccount.setOnClickListener(this);
         binding.settingUpdateLog.setOnClickListener(v -> UpdateLogHelper.showUpdateLogDialog(requireContext()));

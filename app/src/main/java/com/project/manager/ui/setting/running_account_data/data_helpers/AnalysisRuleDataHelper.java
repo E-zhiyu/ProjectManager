@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 
 import com.project.manager.data.data_save.database.BookKeepingColumns;
 import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
@@ -25,6 +24,11 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookKeepingDatabaseHe
     @Override
     protected BookKeepingDatabaseHelper createHelper() {
         return new BookKeepingDatabaseHelper(context);
+    }
+
+    @Override
+    protected Class<TotalRuleDataMap> getMapClass() {
+        return TotalRuleDataMap.class;
     }
 
     @Override

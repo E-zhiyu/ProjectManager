@@ -5,29 +5,19 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabaseLockedException;
-import android.net.Uri;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.manager.data.data_save.database.BookKeepingColumns;
 import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
-import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.setting.running_account_data.pojo.PojoBasicRunningAccount;
 import com.project.manager.ui.setting.running_account_data.pojo.PojoTag;
 import com.project.manager.ui.setting.running_account_data.pojo.PojoTagGroup;
 import com.project.manager.ui.setting.running_account_data.maps.TotalAccountDataMap;
 import com.project.manager.ui.setting.running_account_data.pojo.PojoTransferRunningAccount;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +29,11 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDatabase
     @Override
     protected BookKeepingDatabaseHelper createHelper() {
         return new BookKeepingDatabaseHelper(context);
+    }
+
+    @Override
+    protected Class<TotalAccountDataMap> getMapClass() {
+        return TotalAccountDataMap.class;
     }
 
     @Override
