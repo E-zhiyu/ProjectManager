@@ -70,7 +70,7 @@
     <string name="num_of_running_account">流水记录数量</string>
     <string name="auto_bookkeeping">自动记账</string>
     <string name="notification_analysis_mode">通知解析</string>
-    <string name="notification_analysis_rules">解析规则</string>
+    <string name="notification_analysis_rules_manage">解析规则管理</string>
     <string name="add_rule">添加规则</string>
     <string name="modify_rule">修改规则</string>
     <string name="rule_name">规则名称</string>
@@ -88,7 +88,7 @@
     <string name="tag_optional">标签(可选)</string>
     <string name="btn_expands_list">展开列表选项的按钮</string>
     <string name="isSysAppIncluded">包含系统应用</string>
-    <string name="clear_rule">清除规则</string>
+    <string name="reset_rule">重置规则</string>
     <string name="import_rule">导入规则</string>
     <string name="export_rule">导出规则</string>
 </resources>

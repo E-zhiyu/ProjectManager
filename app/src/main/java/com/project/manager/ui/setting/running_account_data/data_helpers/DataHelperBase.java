@@ -46,9 +46,9 @@ abstract public class DataHelperBase<H extends SQLiteOpenHelper, M> {
             //将对应的数据写入数据库
             saveDataInMapToDb(dataMap);
 
-            Toast.makeText(context, "数据导入成功", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "导入成功", Toast.LENGTH_SHORT).show();
         } catch (JsonProcessingException e) {
-            Toast.makeText(context,"数据导入失败：无法解析文本内容",Toast.LENGTH_SHORT).show();
+            Toast.makeText(context,"导入失败：无法解析文本内容",Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -119,7 +119,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:drawableStart="@drawable/baseline_rule_24"
-                        android:text="@string/notification_analysis_rules" />
+                        android:text="@string/notification_analysis_rules_manage" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/rule_export"
@@ -142,8 +142,8 @@
                         style="@style/ClickableSettingOptionStyle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:drawableStart="@drawable/baseline_delete_forever_24"
-                        android:text="@string/clear_rule" />
+                        android:drawableStart="@drawable/baseline_restart_alt_24"
+                        android:text="@string/reset_rule" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

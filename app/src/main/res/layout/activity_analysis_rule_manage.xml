@@ -16,7 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="@drawable/baseline_arrow_back_ios_new_24"
-        app:title="@string/notification_analysis_rules">
+        app:title="@string/notification_analysis_rules_manage">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/rule_add_btn"

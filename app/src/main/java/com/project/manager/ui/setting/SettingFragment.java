@@ -170,7 +170,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
 
                     @Override
                     public void onError(String errMessage) {
-                        Toast.makeText(requireContext(), "数据导入失败：" + errMessage, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), "导入失败：" + errMessage, Toast.LENGTH_SHORT).show();
                     }
                 },
                 "application/json",
