@@ -12,6 +12,8 @@ import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.4.3  \n" +
+            "**新增内容**  \n" +
+            "- 添加通知解析规则导入导出、和重置的功能  \n\n" +
             "**BUG修复**  \n" +
             "- 更正默认规则中微信支付通知内容的正则表达式(旧规则不影响使用)  \n" +
             "- 修复修改或删除通知解析规则时改变的永远是第一个规则的BUG  \n\n" +

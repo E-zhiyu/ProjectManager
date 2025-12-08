@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -114,5 +116,25 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookKeepingDatabaseHe
         }
 
         db.close();
+    }
+
+    public static void resetRule(Context context) {
+        String tip_str = "数据清除失败：未知原因";
+        try {
+            BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+            SQLiteDatabase db = db_helper.openWriteLink();
+
+            db.delete(BookKeepingTables.ANALYSIS_RULE.toString(), null, null);
+
+            //恢复默认规则
+            BookKeepingDatabaseHelper.addDefaultRule(db);
+
+            db.close();
+            tip_str = "规则重置成功";
+        } catch (SQLiteException e) {
+            tip_str = "规则重置失败：数据库异常";
+        } finally {
+            Toast.makeText(context, tip_str, Toast.LENGTH_SHORT).show();
+        }
     }
 }

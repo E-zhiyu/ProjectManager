@@ -17,7 +17,6 @@ import androidx.fragment.app.Fragment;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
-import com.project.manager.R;
 import com.project.manager.broadcast.BroadcastConstants;
 import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
 import com.project.manager.data.data_save.preference.KeepAlivePreference;
@@ -32,10 +31,12 @@ import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis
 import com.project.manager.helpers.AboutHelper;
 import com.project.manager.helpers.ThemeModeHelper;
 import com.project.manager.helpers.UpdateLogHelper;
+import com.project.manager.ui.setting.running_account_data.data_helpers.AnalysisRuleDataHelper;
 import com.project.manager.ui.setting.running_account_data.data_helpers.DataHelperBase;
 import com.project.manager.ui.setting.running_account_data.data_helpers.RunningAccountDataHelper;
 import com.project.manager.data.data_save.preference.ThemeModePreference;
 import com.project.manager.ui.setting.running_account_data.maps.TotalAccountDataMap;
+import com.project.manager.ui.setting.running_account_data.maps.TotalRuleDataMap;
 
 import java.util.Calendar;
 import java.util.Locale;
@@ -66,14 +67,24 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(@NonNull View v) {
-        if (v.getId() == R.id.setting_clear_running_account) {
+        if (v == binding.settingClearRunningAccount) {
             new MaterialAlertDialogBuilder(requireContext())
                     .setTitle("清除数据")
-                    .setMessage("此操作将清除所有流水账数据，确认执行吗？")
+                    .setMessage("此操作将清除所有流水账数据，确认继续吗？")
                     .setPositiveButton("确认", ((dialog, which) -> {
                         dialog.dismiss();
                         RunningAccountDataHelper.deleteAllData(requireContext());
                         BookKeepingStartDatePreference.saveStartDate("", requireContext()); //清空已保存的开始记账的日期
+                    }))
+                    .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
+                    .show();
+        } else if (v == binding.ruleReset) {
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("重置规则")
+                    .setMessage("此操作将重置通知解析规则为默认规则，确认继续吗？")
+                    .setPositiveButton("确认", ((dialog, which) -> {
+                        dialog.dismiss();
+                        AnalysisRuleDataHelper.resetRule(requireContext());
                     }))
                     .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
                     .show();
@@ -129,12 +140,12 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                 new SAFFileHelper.SAFFileWriteCallback() {
                     @Override
                     public void onFileWrote() {
-                        Toast.makeText(requireContext(), "数据导出成功", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), "导出成功", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onError(String errMessage) {
-                        Toast.makeText(requireContext(), "数据导出失败：" + errMessage, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), "导出失败：" + errMessage, Toast.LENGTH_SHORT).show();
                     }
                 },
                 "application/json",
@@ -178,6 +189,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
                 exportData(json_str, "RunningAccount");
             } catch (JsonProcessingException e) {
                 ExceptionHelper.showExceptionDialog(requireContext(), e);
+                Toast.makeText(requireContext(), "JSON序列化时出错", Toast.LENGTH_SHORT).show();
             }
         });
         binding.settingImportRunningAccount.setOnClickListener(v -> {
@@ -192,6 +204,21 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         });
         binding.autoStartPermission.setOnClickListener(v -> PermissionHelper.requestAutoStartPermission(requireContext()));
         binding.batteryOptimization.setOnClickListener(v -> PermissionHelper.openBatteryOptimizations(requireContext()));
+        binding.ruleExport.setOnClickListener(v -> {
+            DataHelperBase<BookKeepingDatabaseHelper, TotalRuleDataMap> dataHelper = new AnalysisRuleDataHelper(requireContext());
+            try {
+                String json_str = dataHelper.getDataInJSON();
+                exportData(json_str, "AnalysisRule");
+            } catch (JsonProcessingException e) {
+                ExceptionHelper.showExceptionDialog(requireContext(), e);
+                Toast.makeText(requireContext(), "JSON序列化时出错", Toast.LENGTH_SHORT).show();
+            }
+        });
+        binding.ruleImport.setOnClickListener(v -> {
+            DataHelperBase<BookKeepingDatabaseHelper, TotalRuleDataMap> dataHelper = new AnalysisRuleDataHelper(requireContext());
+            importData(dataHelper);
+        });
+        binding.ruleReset.setOnClickListener(this);
 
         //完成通知解析开关状态初始化
         MaterialSwitch notification_analysis_switch = binding.notificationAnalysisSwitch;

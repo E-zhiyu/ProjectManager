@@ -138,7 +138,7 @@
                         android:text="@string/import_rule" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/rule_clear"
+                        android:id="@+id/rule_reset"
                         style="@style/ClickableSettingOptionStyle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

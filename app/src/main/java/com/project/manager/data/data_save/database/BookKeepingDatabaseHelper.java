@@ -127,14 +127,7 @@ public class BookKeepingDatabaseHelper extends SQLiteOpenHelper {
                     ")";
             db.execSQL(create);
 
-            //添加默认规则（微信支付）
-            ContentValues rule_values = new ContentValues();
-            rule_values.put(BookKeepingColumns.RULE_NAME.toString(), "微信支付");                       //名称
-            rule_values.put(BookKeepingColumns.TYPE.toString(), RunningAccountType.EXPENSE.toString());//流水种类
-            rule_values.put(BookKeepingColumns.PACKAGE_NAME.toString(), "com.tencent.mm");              //包名
-            rule_values.put(BookKeepingColumns.NOTIFICATION_TITLE.toString(), "微信支付");              //通知标题
-            rule_values.put(BookKeepingColumns.NOTIFICATION_CONTENT.toString(), "已支付.([\\w\\.]+)"); //匹配通知内容
-            db.insert(BookKeepingTables.ANALYSIS_RULE.toString(), null, rule_values);
+            addDefaultRule(db);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             Toast.makeText(context, err, Toast.LENGTH_SHORT).show();
@@ -215,17 +208,21 @@ public class BookKeepingDatabaseHelper extends SQLiteOpenHelper {
                     ")";
             db.execSQL(create);
 
-            //添加默认规则（微信支付）
-            ContentValues rule_values = new ContentValues();
-            rule_values.put(BookKeepingColumns.RULE_NAME.toString(), "微信支付");                       //名称
-            rule_values.put(BookKeepingColumns.TYPE.toString(), RunningAccountType.EXPENSE.toString());//流水种类
-            rule_values.put(BookKeepingColumns.PACKAGE_NAME.toString(), "com.tencent.mm");              //包名
-            rule_values.put(BookKeepingColumns.NOTIFICATION_TITLE.toString(), "微信支付");              //通知标题
-            rule_values.put(BookKeepingColumns.NOTIFICATION_CONTENT.toString(), "已支付.([\\w\\.]+)"); //匹配通知内容
-            db.insert(BookKeepingTables.ANALYSIS_RULE.toString(), null, rule_values);
+            addDefaultRule(db);
         } catch (SQLException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             Toast.makeText(context, err, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public static void addDefaultRule(@NonNull SQLiteDatabase db) {
+        //添加默认规则（微信支付）
+        ContentValues rule_values = new ContentValues();
+        rule_values.put(BookKeepingColumns.RULE_NAME.toString(), "微信支付");                       //名称
+        rule_values.put(BookKeepingColumns.TYPE.toString(), RunningAccountType.EXPENSE.toString());//流水种类
+        rule_values.put(BookKeepingColumns.PACKAGE_NAME.toString(), "com.tencent.mm");              //包名
+        rule_values.put(BookKeepingColumns.NOTIFICATION_TITLE.toString(), "微信支付");              //通知标题
+        rule_values.put(BookKeepingColumns.NOTIFICATION_CONTENT.toString(), "已支付.([\\w\\.]+)"); //匹配通知内容
+        db.insert(BookKeepingTables.ANALYSIS_RULE.toString(), null, rule_values);
     }
 }

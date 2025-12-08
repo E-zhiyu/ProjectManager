@@ -325,7 +325,7 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDatabase
 
             tip_str = "数据清除成功";
         } catch (SQLiteDatabaseLockedException e) {
-            tip_str = "数据清除失败，无法打开数据库";
+            tip_str = "数据清除失败：数据库异常";
         } finally {
             Toast.makeText(context, tip_str, Toast.LENGTH_SHORT).show();
         }
