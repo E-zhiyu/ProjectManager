@@ -1,7 +1,5 @@
 package com.project.manager.ui.setting;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,11 +15,11 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.project.manager.R;
 import com.project.manager.broadcast.BroadcastConstants;
+import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
 import com.project.manager.data.data_save.preference.KeepAlivePreference;
 import com.project.manager.databinding.FragmentSettingBinding;
 import com.project.manager.helpers.ExceptionHelper;
@@ -29,27 +27,33 @@ import com.project.manager.helpers.PermissionHelper;
 import com.project.manager.data.data_save.preference.AutoBookKeepingPreference;
 import com.project.manager.data.data_save.preference.BookKeepingStartDatePreference;
 import com.project.manager.helpers.AnimationHelper;
+import com.project.manager.helpers.SAFFileHelper;
 import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
 import com.project.manager.helpers.AboutHelper;
 import com.project.manager.helpers.ThemeModeHelper;
 import com.project.manager.helpers.UpdateLogHelper;
-import com.project.manager.ui.setting.running_account_data.RunningAccountDataHelper;
-import com.project.manager.ui.setting.running_account_data.pojo.TotalDataMap;
+import com.project.manager.ui.setting.running_account_data.data_helpers.DataHelperBase;
+import com.project.manager.ui.setting.running_account_data.data_helpers.RunningAccountDataHelper;
 import com.project.manager.data.data_save.preference.ThemeModePreference;
+import com.project.manager.ui.setting.running_account_data.maps.TotalAccountDataMap;
 
 import java.util.Calendar;
+import java.util.Locale;
+
 
 public class SettingFragment extends Fragment implements View.OnClickListener {
     private FragmentSettingBinding binding;
-    private String json_str; //导出数据时序列化的JSON字符串
     private ActivityResultLauncher<Intent> importDataLauncher, exportDataLauncher;  //活动启动器
+    private SAFFileHelper safFileHelper;    //SAF文件帮助器
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentSettingBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        initActivityLauncher();
         initViews();
+        initActivityLaunchers();
+
+        safFileHelper = new SAFFileHelper(requireContext());
 
         return root;
     }
@@ -62,20 +66,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(@NonNull View v) {
-        if (v.getId() == R.id.setting_import_running_account) {
-            new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("导入数据")
-                    .setMessage("新数据将覆盖原有的数据，确认继续吗？")
-                    .setPositiveButton("确认", ((dialog, which) -> {
-                        Intent startSAF = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                        startSAF.addCategory(Intent.CATEGORY_OPENABLE);
-                        startSAF.setType("application/json"); //允许json文件类型
-                        importDataLauncher.launch(startSAF);
-                        dialog.dismiss();
-                    }))
-                    .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
-                    .show();
-        } else if (v.getId() == R.id.setting_clear_running_account) {
+        if (v.getId() == R.id.setting_clear_running_account) {
             new MaterialAlertDialogBuilder(requireContext())
                     .setTitle("清除数据")
                     .setMessage("此操作将清除所有流水账数据，确认执行吗？")
@@ -90,86 +81,95 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
     }
 
     //初始化活动启动器
-    private void initActivityLauncher() {
+    private void initActivityLaunchers() {
         exportDataLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    if (resultCode == Activity.RESULT_OK) {
-                        if (data != null) {
-                            Uri uri = data.getData();
-                            RunningAccountDataHelper.writeJsonToFile(uri, json_str, requireContext());
-                        } else {
-                            NullPointerException e = new NullPointerException("无法导出数据");
-                            ExceptionHelper.showExceptionDialog(requireContext(), e);
-                        }
-                    }
+                    safFileHelper.onFileSelected(resultCode, data);
                 }
         );
 
-        importDataLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    int resultCode = result.getResultCode();
-                    Intent data = result.getData();
-
-                    if (resultCode == Activity.RESULT_OK) {
-                        if (data != null) {
-                            Uri uri = data.getData();
-                            RunningAccountDataHelper.readFileAndSave(uri, requireContext());
-
-                            //清空已保存的开始记账的日期
-                            BookKeepingStartDatePreference.saveStartDate("", requireContext());
-                        } else {
-                            NullPointerException e = new NullPointerException("无法导入数据");
-                            ExceptionHelper.showExceptionDialog(requireContext(), e);
-                        }
-                    }
-                }
-        );
+//        importDataLauncher = registerForActivityResult(
+//                new ActivityResultContracts.StartActivityForResult(),
+//                result -> {
+//                    int resultCode = result.getResultCode();
+//                    Intent data = result.getData();
+//
+//                    if (resultCode == Activity.RESULT_OK) {
+//                        if (data != null) {
+//                            Uri uri = data.getData();
+//                            RunningAccountDataHelper.saveJsonData(uri, requireContext());
+//
+//                            //清空已保存的开始记账的日期
+//                            BookKeepingStartDatePreference.saveStartDate("", requireContext());
+//                        } else {
+//                            NullPointerException e = new NullPointerException("无法导入数据");
+//                            ExceptionHelper.showExceptionDialog(requireContext(), e);
+//                        }
+//                    }
+//                }
+//        );
     }
 
-    //导出流水账数据
-    private void exportRunningAccountData() {
-        try {
-            //获取所有数据并序列化为JSON字符串
-            RunningAccountDataHelper dataHelper = new RunningAccountDataHelper(requireContext());
-            ObjectMapper mapper = new ObjectMapper();
-            TotalDataMap totalDataMap = dataHelper.getAllDataInMap();
-            json_str = mapper.writeValueAsString(totalDataMap);
+    /**
+     * 导出数据并创建文件
+     *
+     * @param json_str          需要写入文件的JSON字符串
+     * @param default_file_head 默认的文件名开头
+     */
+    private void exportData(String json_str, String default_file_head) {
+        //获取当前日期和时间并生成默认文件名
+        Calendar calendar = Calendar.getInstance();
+        String now_date = String.format(
+                Locale.getDefault(),
+                "%04d%02d%02d(%02d%02d%02d)",
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH),
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                calendar.get(Calendar.SECOND)
+        );
+        String default_filename = String.format("%s_%s.json", default_file_head, now_date);
 
-            //获取当前日期并生成默认文件名
-            Calendar calendar = Calendar.getInstance();
-            @SuppressLint("DefaultLocale") String now_date = String.format(
-                    "%04d%02d%02d(%02d%02d%02d)",
-                    calendar.get(Calendar.YEAR),
-                    calendar.get(Calendar.MONTH),
-                    calendar.get(Calendar.DAY_OF_MONTH),
-                    calendar.get(Calendar.HOUR_OF_DAY),
-                    calendar.get(Calendar.MINUTE),
-                    calendar.get(Calendar.SECOND)
-            );
-            String default_filename = String.format("RunningAccount_%s.json", now_date);
+        //启动系统文件选择器(SAF)
+        safFileHelper.createFileWithContent("application/json",
+                default_filename,
+                json_str,
+                exportDataLauncher,
+                new SAFFileHelper.SAFFileCallback() {
+                    @Override
+                    public void onFileCreated(Uri fileUri) {
+                        Toast.makeText(requireContext(), "数据导出成功", Toast.LENGTH_SHORT).show();
+                    }
 
-            //启动系统文件选择器(SAF)
-            Intent startSAF = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-            startSAF.addCategory(Intent.CATEGORY_OPENABLE);
-            startSAF.setType("application/json");
-            startSAF.putExtra(Intent.EXTRA_TITLE, default_filename);
-            exportDataLauncher.launch(startSAF);
-        } catch (JsonProcessingException e) {
-            ExceptionHelper.showExceptionDialog(requireContext(), e);
-        }
+                    @Override
+                    public void onError(String errorMessage) {
+                        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     //初始化视图
     private void initViews() {
         binding.settingAbout.setOnClickListener(v -> AboutHelper.showAboutDialog(requireContext()));
         binding.settingThemeMode.setOnClickListener(v -> showThemeModeSelectDialog());
-        binding.settingExportRunningAccount.setOnClickListener(v -> exportRunningAccountData());
-        binding.settingImportRunningAccount.setOnClickListener(this);
+        binding.settingExportRunningAccount.setOnClickListener(v -> {
+            DataHelperBase<BookKeepingDatabaseHelper, TotalAccountDataMap> dataHelper = new RunningAccountDataHelper(requireContext());
+            try {
+                String json_str = dataHelper.getDataInJSON();
+                exportData(json_str, "RunningAccount");
+            } catch (JsonProcessingException e) {
+                ExceptionHelper.showExceptionDialog(requireContext(), e);
+            }
+        });
+        binding.settingImportRunningAccount.setOnClickListener(v -> {
+//            DataHelperBase<BookKeepingDatabaseHelper, TotalAccountDataMap> dataHelper = new RunningAccountDataHelper(requireContext());
+//            dataHelper.importData();
+        });
         binding.settingClearRunningAccount.setOnClickListener(this);
         binding.settingUpdateLog.setOnClickListener(v -> UpdateLogHelper.showUpdateLogDialog(requireContext()));
         binding.settingNotificationAnalysisRules.setOnClickListener(v -> {

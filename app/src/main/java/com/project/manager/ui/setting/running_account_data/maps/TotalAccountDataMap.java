@@ -1,9 +1,14 @@
-package com.project.manager.ui.setting.running_account_data.pojo;
+package com.project.manager.ui.setting.running_account_data.maps;
+
+import com.project.manager.ui.setting.running_account_data.pojo.PojoBasicRunningAccount;
+import com.project.manager.ui.setting.running_account_data.pojo.PojoTag;
+import com.project.manager.ui.setting.running_account_data.pojo.PojoTagGroup;
+import com.project.manager.ui.setting.running_account_data.pojo.PojoTransferRunningAccount;
 
 import java.util.List;
 
 //数据最外层Map结构（该POJO类被序列化后成为最外层的JSON字典）
-public class TotalDataMap {
+public class TotalAccountDataMap {
     private List<PojoBasicRunningAccount> basic_data;
     private List<PojoTransferRunningAccount> transfer_data;
     private List<PojoTag> tag_data;
@@ -41,7 +46,7 @@ public class TotalDataMap {
         this.tag_group_data = tag_group_data;
     }
 
-    public TotalDataMap() {
+    public TotalAccountDataMap() {
 
     }
 }

@@ -1,4 +1,4 @@
-package com.project.manager.ui.setting.running_account_data;
+package com.project.manager.ui.setting.running_account_data.data_helpers;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,7 +20,7 @@ import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.setting.running_account_data.pojo.PojoBasicRunningAccount;
 import com.project.manager.ui.setting.running_account_data.pojo.PojoTag;
 import com.project.manager.ui.setting.running_account_data.pojo.PojoTagGroup;
-import com.project.manager.ui.setting.running_account_data.pojo.TotalDataMap;
+import com.project.manager.ui.setting.running_account_data.maps.TotalAccountDataMap;
 import com.project.manager.ui.setting.running_account_data.pojo.PojoTransferRunningAccount;
 
 import java.io.BufferedReader;
@@ -30,13 +31,28 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RunningAccountDataHelper {
-    Context context;                //用于打开数据库的上下文
-    BookKeepingDatabaseHelper db_helper;   //流水数据库帮助器
-
+public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDatabaseHelper, TotalAccountDataMap> {
     public RunningAccountDataHelper(Context context) {
-        this.context = context;
-        this.db_helper = new BookKeepingDatabaseHelper(context);
+        super(context);
+    }
+
+    @Override
+    protected BookKeepingDatabaseHelper createHelper() {
+        return new BookKeepingDatabaseHelper(context);
+    }
+
+    @Override
+    protected void saveDataInMapToDb(@NonNull TotalAccountDataMap map) {
+        List<PojoTagGroup> pojoTagGroupList = map.getTag_group_data();
+        List<PojoTag> pojoTagList = map.getTag_data();
+        List<PojoBasicRunningAccount> pojoBasicRunningAccountList = map.getBasic_data();
+        List<PojoTransferRunningAccount> pojoTransferRunningAccountList = map.getTransfer_data();
+
+        //将对应的数据写入数据库
+        setTagGroupData(pojoTagGroupList);
+        setTagData(pojoTagList);
+        setBasicData(pojoBasicRunningAccountList);
+        setTransferData(pojoTransferRunningAccountList);
     }
 
     //获取所有流水账基本数据（对应基本流水记录表）
@@ -274,12 +290,8 @@ public class RunningAccountDataHelper {
         db.close();
     }
 
-    /**
-     * 获取流水账数据库的所有数据
-     *
-     * @return 包含所有数据的Map字典，键值：对应表名
-     */
-    public TotalDataMap getAllDataInMap() {
+    @Override
+    public TotalAccountDataMap getAllDataInMap() {
         //读取所有数据
         List<PojoBasicRunningAccount> pojoBasicRunningAccountList = getBasicData();
         List<PojoTransferRunningAccount> pojoTransferRunningAccountList = getTransferData();
@@ -287,90 +299,13 @@ public class RunningAccountDataHelper {
         List<PojoTagGroup> pojoTagGroupList = getTagGroupData();
 
         //将所有数据合并至一个字典
-        TotalDataMap totalDataMap = new TotalDataMap();
-        totalDataMap.setBasic_data(pojoBasicRunningAccountList);
-        totalDataMap.setTransfer_data(pojoTransferRunningAccountList);
-        totalDataMap.setTag_data(pojoTagList);
-        totalDataMap.setTag_group_data(pojoTagGroupList);
+        TotalAccountDataMap totalAccountDataMap = new TotalAccountDataMap();
+        totalAccountDataMap.setBasic_data(pojoBasicRunningAccountList);
+        totalAccountDataMap.setTransfer_data(pojoTransferRunningAccountList);
+        totalAccountDataMap.setTag_data(pojoTagList);
+        totalAccountDataMap.setTag_group_data(pojoTagGroupList);
 
-        return totalDataMap;
-    }
-
-    /**
-     * 将JSON字符串写入文件
-     *
-     * @param uri        待写入文件的uri
-     * @param jsonString 需要写入的JSON字符串
-     * @param context    活动上下文
-     */
-    public static void writeJsonToFile(Uri uri, String jsonString, Context context) {
-        try (OutputStream outputStream = context.getContentResolver().openOutputStream(uri)) {
-            if (outputStream != null) {
-                outputStream.write(jsonString.getBytes());
-                outputStream.flush();
-                Toast.makeText(context, "文件保存成功", Toast.LENGTH_SHORT).show();
-            }
-        } catch (IOException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            Toast.makeText(context, "数据保存失败", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /**
-     * 读取文件中的JSON字符串并保存至数据库
-     *
-     * @param uri     待读取文件的uri
-     * @param context 活动上下文
-     */
-    public static void readFileAndSave(Uri uri, Context context) {
-        String tip_str = "数据导入失败";
-        try (InputStream inputStream = context.getContentResolver().openInputStream(uri)) {
-            if (inputStream != null) {
-                //将 InputStream 转换为字符串
-                String jsonString = convertStreamToString(inputStream);
-
-                ObjectMapper mapper = new ObjectMapper();
-                try {
-                    TotalDataMap dataMap = mapper.readValue(jsonString, TotalDataMap.class);
-                    List<PojoTagGroup> pojoTagGroupList = dataMap.getTag_group_data();
-                    List<PojoTag> pojoTagList = dataMap.getTag_data();
-                    List<PojoBasicRunningAccount> pojoBasicRunningAccountList = dataMap.getBasic_data();
-                    List<PojoTransferRunningAccount> pojoTransferRunningAccountList = dataMap.getTransfer_data();
-
-                    //将对应的数据写入数据库
-                    RunningAccountDataHelper helper = new RunningAccountDataHelper(context);
-                    helper.setTagGroupData(pojoTagGroupList);
-                    helper.setTagData(pojoTagList);
-                    helper.setBasicData(pojoBasicRunningAccountList);
-                    helper.setTransferData(pojoTransferRunningAccountList);
-
-                    tip_str = "数据已成功导入";
-                } catch (JsonProcessingException e) {
-                    tip_str = "无法解析备份文件的内容";
-                }
-            } else {
-                NullPointerException e = new NullPointerException("无法正常创建输入流");
-                ExceptionHelper.showExceptionDialog(context, e);
-                tip_str = "无法读取备份文件";
-            }
-        } catch (IOException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            tip_str = "无法打开备份文件";
-        } finally {
-            Toast.makeText(context, tip_str, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    //将 InputStream 转为 String
-    @NonNull
-    private static String convertStreamToString(InputStream is) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            sb.append(line).append("\n");
-        }
-        return sb.toString();
+        return totalAccountDataMap;
     }
 
     /**
