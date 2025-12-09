@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.running_account_edit;
+package com.project.manager.ui.bookkeeping;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -35,7 +35,7 @@ import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.databinding.FragmentBookkeepingBinding;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.data.data_save.preference.BookKeepingStartDatePreference;
-import com.project.manager.ui.bookkeeping.KeyValueStrings;
+import com.project.manager.ui.bookkeeping.running_account_edit.RunningAccountRecyclerAdapter;
 import com.project.manager.ui.bookkeeping.running_account_edit.modify.RunningAccountModifyActivity;
 import com.project.manager.ui.bookkeeping.running_account_edit.new_running_account.RunningAccountAddActivity;
 import com.project.manager.ui.RequestResultCode;

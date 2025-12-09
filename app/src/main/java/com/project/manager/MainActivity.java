@@ -46,12 +46,12 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_bookkeeping, R.id.navigation_mine)
+                R.id.navigation_bookkeeping, R.id.navigation_home, R.id.navigation_mine)
                 .build();
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);  //设置标题随导航栏变化
-        NavigationUI.setupWithNavController(binding.bottomNavi, navController);  //设置导航切换控制器
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+        NavigationUI.setupWithNavController(binding.bottomNavi, navController);
     }
 
     //初始化主题模式

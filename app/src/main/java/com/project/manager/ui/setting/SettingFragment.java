@@ -49,14 +49,13 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentSettingBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
 
         initViews();
         initActivityLaunchers();
 
         safFileHelper = new SAFFileHelper(requireContext());
 
-        return root;
+        return binding.getRoot();
     }
 
     @Override

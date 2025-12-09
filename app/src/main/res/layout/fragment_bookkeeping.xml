@@ -1,10 +1,9 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/bookkeeping_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.bookkeeping.running_account_edit.BookKeepingFragment">
+    tools:context=".ui.bookkeeping.BookKeepingFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         style="@style/AppBarLayoutStyle"
