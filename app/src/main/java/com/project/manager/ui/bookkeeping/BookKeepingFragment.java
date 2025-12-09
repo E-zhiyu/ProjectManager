@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -34,7 +33,6 @@ import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.databinding.FragmentBookkeepingBinding;
 import com.project.manager.helpers.ExceptionHelper;
-import com.project.manager.data.data_save.preference.BookKeepingStartDatePreference;
 import com.project.manager.ui.bookkeeping.running_account_edit.RunningAccountRecyclerAdapter;
 import com.project.manager.ui.bookkeeping.running_account_edit.modify.RunningAccountModifyActivity;
 import com.project.manager.ui.bookkeeping.running_account_edit.new_running_account.RunningAccountAddActivity;
@@ -42,8 +40,6 @@ import com.project.manager.ui.RequestResultCode;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.ui.bookkeeping.report.ReportActivity;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +50,6 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     private ActivityResultLauncher<Intent> runningAccountAddLauncher, modifyRunningAccountLauncher;  //子活动启动器
     MaterialTextView account_num_text;                                      //流水记录数量文本视图
     private int account_num;                                                //流水记录数量
-    private long bookkeeping_days;                                          //记账天数
     private FragmentBookkeepingBinding binding;                             //绑定的XML视图
     private RunningAccountUpdatedBroadcastReceiver accountUpdatedReceiver;  //流水数据更新的广播接收器
 
@@ -181,7 +176,6 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         root.findViewById(R.id.running_account_add_btn).setOnClickListener(this);
         root.findViewById(R.id.report_btn).setOnClickListener(this);
 
-        MaterialTextView bookkeeping_days_text = root.findViewById(R.id.bookkeeping_days_text); //显示记账天数和流水记录数量的文本视图
         SwipeRefreshLayout refreshLayout = binding.refreshLayout;   //获取下拉刷新布局
         account_num_text = root.findViewById(R.id.account_num_text);
 
@@ -193,24 +187,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         runningAccountRecyclerView.setAdapter(runningAccountRecyclerAdapter);
         refreshLayout.setRefreshing(false);
 
-        //初始化记账日期和流水记录数量文本
+        //初始化流水记录数量文本
         account_num = runningAccountList.size();
-        String start_date_str = getBookKeepingStartDate();  //获取开始记账的日期
-        if (!start_date_str.isEmpty()) {
-            LocalDate startDate = LocalDate.parse(start_date_str);
-            LocalDate currentDate = LocalDate.now();
-
-            bookkeeping_days = ChronoUnit.DAYS.between(startDate, currentDate);  //计算相差的天数
-        } else {
-            bookkeeping_days = 0;   //无法获取则说明是第一天记账
-        }
-        if (bookkeeping_days != 0) {
-            bookkeeping_days_text.setText(String.format("您已累计记账%d天", bookkeeping_days));
-            account_num_text.setText(String.format("共计%d条流水记录", account_num));
-        } else {
-            bookkeeping_days_text.setText("这是您记账的第一天");
-            account_num_text.setText(String.format("已产生%d条流水记录", account_num));
-        }
+        account_num_text.setText(String.format("共计%d条流水记录", account_num));
 
         //设置下拉刷新布局的监听器
         refreshLayout.setOnRefreshListener(() -> {
@@ -219,14 +198,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             refreshLayout.setRefreshing(false);
 
             account_num = refreshedAccount.size();
-
-            if (bookkeeping_days != 0) {
-                bookkeeping_days_text.setText(String.format("您已累计记账%d天", bookkeeping_days));
-                account_num_text.setText(String.format("共计%d条流水记录", account_num));
-            } else {
-                bookkeeping_days_text.setText("这是您记账的第一天");
-                account_num_text.setText(String.format("已产生%d条流水记录", account_num));
-            }
+            account_num_text.setText(String.format("共计%d条流水记录", account_num));
         });
     }
 
@@ -400,34 +372,9 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         return runningAccountList;
     }
 
-    /**
-     * 获取开始记账的日期
-     *
-     * @return 开始记账的日期字符串（无法获取则为空串）
-     */
-    private String getBookKeepingStartDate() {
-        String start_date_str = BookKeepingStartDatePreference.getStartDate(requireContext());
-        if (start_date_str.isEmpty()) {
-            try {
-                start_date_str = RunningAccountBase.getEarliestAccountDate(requireContext());
-                if (!start_date_str.isEmpty()) {
-                    BookKeepingStartDatePreference.saveStartDate(start_date_str, requireContext());
-                }
-            } catch (SQLiteException e) {
-                ExceptionHelper.showExceptionDialog(requireContext(), e);
-            }
-        }
-
-        return start_date_str;
-    }
-
     //刷新流水记录数量文本
     @SuppressLint("DefaultLocale")
     private void refreshAccountNumText() {
-        if (bookkeeping_days != 0) {
-            account_num_text.setText(String.format("共计%d条流水记录", account_num));
-        } else {
-            account_num_text.setText(String.format("已产生%d条流水记录", account_num));
-        }
+        account_num_text.setText(String.format("共计%d条流水记录", account_num));
     }
 }

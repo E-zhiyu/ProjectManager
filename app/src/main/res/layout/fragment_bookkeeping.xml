@@ -24,21 +24,11 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/bookkeeping_days_text"
-                    style="@style/LabelTextViewStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:paddingBottom="0sp"
-                    android:text="@string/num_of_bookkeeping_days" />
-
-                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/account_num_text"
                     style="@style/LabelTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:paddingTop="0sp"
                     android:paddingBottom="0sp"
                     android:text="@string/num_of_running_account" />
 
