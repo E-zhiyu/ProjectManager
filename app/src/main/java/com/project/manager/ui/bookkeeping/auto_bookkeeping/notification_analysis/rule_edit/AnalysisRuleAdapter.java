@@ -86,7 +86,8 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         holder.type_text.setText(type_str);
         holder.tag_name_text.setText(rule_tag.getName());
 
-        holder.itemView.setOnClickListener(v -> listener.onRuleClicked(position, rule));
+        holder.itemView.setOnClickListener(v ->
+                listener.onRuleClicked(holder.getBindingAdapterPosition(), rule));
     }
 
     @Override
