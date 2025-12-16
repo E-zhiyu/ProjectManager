@@ -186,7 +186,7 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnFoc
         String error = null;
         if (group_name.isEmpty()) {
             error = "分组名不能为空";
-        } else if (TagGroup.nameTransToGno(group_name, this) != 0) {
+        } else if (TagGroup.nameTransToGno(group_name, this) != -1) {
             error = "已存在同名分组";
         }
 

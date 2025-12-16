@@ -11,7 +11,10 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.4.3  \n" +
+    private static final String update_log_md = "# v1.4.4  \n" +
+            "**BUG修复**  \n" +
+            "- 修复修改分组名称时总是弹出“已有同名分组”提示的BUG  \n\n" +
+            "# v1.4.3  \n" +
             "**新增内容**  \n" +
             "- 添加通知解析规则导入导出、和重置的功能  \n\n" +
             "**BUG修复**  \n" +
