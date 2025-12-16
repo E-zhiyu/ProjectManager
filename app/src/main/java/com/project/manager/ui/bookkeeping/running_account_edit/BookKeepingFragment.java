@@ -51,7 +51,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     private RunningAccountRecyclerAdapter runningAccountRecyclerAdapter;    //流水列表适配器
     private RecyclerView runningAccountRecyclerView;                        //流水列表视图
     private BookKeepingDatabaseHelper running_account_db_helper;            //流水数据库帮助器
-    private ActivityResultLauncher<Intent> runningAccountAddLauncher, modifyRunningAccountLauncher;  //子活动启动器
+    private ActivityResultLauncher<Intent> addRunningAccountLauncher, modifyRunningAccountLauncher;  //子活动启动器
     MaterialTextView account_num_text;                                      //流水记录数量文本视图
     private int account_num;                                                //流水记录数量
     private long bookkeeping_days;                                          //记账天数
@@ -62,7 +62,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
 
         //实例化数据库帮助器
-        running_account_db_helper = new BookKeepingDatabaseHelper(getActivity());
+        running_account_db_helper = new BookKeepingDatabaseHelper(requireContext());
 
         initActivityLauncher();
         initViews();
@@ -85,10 +85,10 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     @Override
     public void onClick(@NonNull View v) {
         if (v.getId() == R.id.running_account_add_btn) {    //新建流水
-            Intent skip2NewRunningAccount = new Intent(getActivity(), RunningAccountAddActivity.class);
-            runningAccountAddLauncher.launch(skip2NewRunningAccount);
+            Intent skip2NewRunningAccount = new Intent(requireContext(), RunningAccountAddActivity.class);
+            addRunningAccountLauncher.launch(skip2NewRunningAccount);
         } else if (v.getId() == R.id.report_btn) {          //查看报表
-            Intent skip2Report = new Intent(getActivity(), ReportActivity.class);
+            Intent skip2Report = new Intent(requireContext(), ReportActivity.class);
             startActivity(skip2Report);
         }
     }
@@ -96,32 +96,32 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     //处理流水记录项的点击事件
     @Override
     public void onRunningAccountViewClick(int position, RunningAccountBase runningAccountBase) {
-        RunningAccountBase runningAccountView = runningAccountRecyclerAdapter.getItem(position);
+        RunningAccountBase runningAccount = runningAccountRecyclerAdapter.getItem(position);
 
-        Intent skip2RunningAccountModify = new Intent(getActivity(), RunningAccountModifyActivity.class);
+        Intent skip2RunningAccountModify = new Intent(requireContext(), RunningAccountModifyActivity.class);
         Bundle dataBundle = new Bundle();
 
         //获取基本数据
-        RunningAccountType type = runningAccountView.getType();         //类型
+        RunningAccountType type = runningAccount.getType();         //类型
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());
-        double amount = runningAccountView.getAmount();                 //金额
+        double amount = runningAccount.getAmount();                 //金额
         dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
-        String remark = runningAccountView.getRemark();                 //备注
+        String remark = runningAccount.getRemark();                 //备注
         dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
-        boolean isDefaultRemark = runningAccountView.isDefaultRemark(); //是否使用默认备注
+        boolean isDefaultRemark = runningAccount.isDefaultRemark(); //是否使用默认备注
         dataBundle.putBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue(), isDefaultRemark);
-        String date_time = runningAccountView.getDate_time();           //日期
+        String date_time = runningAccount.getDate_time();           //日期
         dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), date_time);
-        long rno = runningAccountView.getRno();                         //流水编号
+        long rno = runningAccount.getRno();                         //流水编号
         dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
 
         dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), position);  //将待修改的流水实例下标放入包裹
 
         //获取特殊数据
         if (type == RunningAccountType.TRANSFER) {
-            String exportAccount = ((TransferRunningAccount) runningAccountView).getExportAccount();  //转出账户
+            String exportAccount = ((TransferRunningAccount) runningAccount).getExportAccount();  //转出账户
             dataBundle.putString(KeyValueStrings.ACCOUNT_EXPORT.getValue(), exportAccount);
-            String importAccount = ((TransferRunningAccount) runningAccountView).getImportAccount();  //转入账户
+            String importAccount = ((TransferRunningAccount) runningAccount).getImportAccount();  //转入账户
             dataBundle.putString(KeyValueStrings.ACCOUNT_IMPORT.getValue(), importAccount);
         }
 
@@ -131,7 +131,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
     //初始化活动启动器
     private void initActivityLauncher() {
-        runningAccountAddLauncher = registerForActivityResult(
+        addRunningAccountLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     int resultCode = result.getResultCode();
@@ -294,7 +294,7 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         }
 
         runningAccountRecyclerAdapter.modifyRunningAccount(dataBundle);
-        Toast.makeText(getActivity(), "成功修改流水记录", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), "成功修改流水记录", Toast.LENGTH_SHORT).show();
     }
 
     /**
