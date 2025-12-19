@@ -217,7 +217,10 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
             error = "标签名不能为空";
         } else if (Tag.nameTransToTno(tag_name, this) != 0 && !isModifyMode) {  //仅在添加模式检测同名
             error = "已存在同名标签";
-        } else {
+        }
+
+        //判断是否需要显示错误提示
+        if (error != null) {
             tag_name_layout.setErrorEnabled(true);
             tag_name_layout.setError(error);
         }
