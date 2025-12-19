@@ -1,5 +1,6 @@
 package com.project.manager.ui.bookkeeping.tag.edit;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.sqlite.SQLiteException;
@@ -396,6 +397,17 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
         tagGroupList.remove(group_index);
         notifyItemRemoved(group_index);
+    }
+
+    /**
+     * 刷新UI的方法
+     *
+     * @param tagGroupList 刷新时重新获取的数据
+     */
+    @SuppressLint("NotifyDataSetChanged")
+    public void refreshUI(List<TagGroup> tagGroupList) {
+        this.tagGroupList = tagGroupList;
+        notifyDataSetChanged();
     }
 
     /**
