@@ -11,7 +11,15 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.4.4  \n" +
+    private static final String update_log_md = "# v1.4.5  \n" +
+            "**BUG修复**  \n" +
+            "- 去除标签编辑和添加界面的标签分组名称输入框的焦点检测  \n" +
+            "- 标签编辑界面不再会检测是否已有同名标签，避免仅移动分组的时候提示“已有同名标签”  \n" +
+            "- 修复编辑标签时将其移动到新分组会导致标签被“隐藏”的BUG  \n\n" +
+            "**修改内容**  \n" +
+            "- 修改报表界面的浮点数精度补偿方法，使收支来源的百分比之和等于100的同时严格按照从大到小的顺序排列  \n" +
+            "- 修改标签分组名称成功后会弹出相应的提示  \n\n" +
+            "# v1.4.4  \n" +
             "**BUG修复**  \n" +
             "- 修复新增或删除流水记录后点击某条记录会导致读取的数据错位的BUG  \n" +
             "- 修复修改分组名称时总是弹出“已有同名分组”提示的BUG  \n\n" +

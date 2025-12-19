@@ -29,7 +29,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
     TextInputLayout tag_name_layout, tag_group_layout;
     TextInputEditText tag_name_input, tag_group_input;
     private AccountTagViewModel tagViewModel;                   //标签数据更新用的ViewModel
-    private boolean isModifyMode = false;
+    private boolean isModifyMode = false;                       //是否为标签编辑模式
     int selected_group_index = -1;                              //选择的分组的索引
     long tag_no = 0, group_no = 0;                              //标签和标签分组编号
     private TagSelectBottomSheet tag_sheet;                     //标签选择底部弹窗
@@ -64,16 +64,6 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
                 } else {
                     tag_name_layout.setError(null);
                     tag_name_layout.setErrorEnabled(false);
-                }
-            } else if (v.getId() == R.id.group_name_input) {
-                String tag_group_name = String.valueOf(tag_group_input.getText());
-
-                if (tag_group_name.isEmpty()) {
-                    tag_group_layout.setErrorEnabled(true);
-                    tag_group_layout.setError("分组名不能为空");
-                } else {
-                    tag_group_layout.setError(null);
-                    tag_group_layout.setErrorEnabled(false);
                 }
             }
         } else {
@@ -141,7 +131,6 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
         tag_group_layout.setEndIconOnClickListener((v -> onGroupLayoutEndIconClicked()));
 
         tag_name_input.setOnFocusChangeListener(this);
-        tag_group_input.setOnFocusChangeListener(this);
 
         findViewById(R.id.delete_btn).setOnClickListener(this);
         findViewById(R.id.finish_btn).setOnClickListener(this);
@@ -226,10 +215,11 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
         String error = null;
         if (tag_name.isEmpty()) {
             error = "标签名不能为空";
-        } else if (Tag.nameTransToTno(tag_name, this) != 0) {
+        } else if (Tag.nameTransToTno(tag_name, this) != 0 && !isModifyMode) {  //仅在添加模式检测同名
             error = "已存在同名标签";
         }
 
+        //判断是否需要显示错误提示
         if (error != null) {
             tag_name_layout.setErrorEnabled(true);
             tag_name_layout.setError(error);
