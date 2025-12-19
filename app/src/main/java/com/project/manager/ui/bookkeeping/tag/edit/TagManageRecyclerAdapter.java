@@ -229,17 +229,9 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
      * @param group_no_after_modifying 新标签分组编号
      */
     public void modifyTag(String new_tag_name, long tag_no, String new_group_name, long origin_group_no, long group_no_after_modifying) {
-        //将数据保存至数据库
-        try {
-            Tag.modifyTag(new_tag_name, tag_no, group_no_after_modifying, context);
-            Toast.makeText(context, "标签修改成功", Toast.LENGTH_SHORT).show();
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            return;
-        }
-
         //判断是否需要新建标签分组
         if (group_no_after_modifying == -1) {
+            //保存新标签分组
             try {
                 group_no_after_modifying = TagGroup.saveNewGroup(new_group_name, context);  //获取为新分组分配的编号
             } catch (SQLiteException e) {
@@ -250,9 +242,11 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
             TagGroup newGroup = new TagGroup(new_group_name, group_no_after_modifying);
             newGroup.addTag(new Tag(new_tag_name, tag_no));
-            this.tagGroupList.add(newGroup);
 
-            notifyItemInserted(this.tagGroupList.size() - 1);   //更新列表视图
+            int new_group_index = tagGroupList.size();
+            tagGroupList.add(newGroup);
+
+            notifyItemInserted(new_group_index);   //更新列表视图
         } else {
             int new_group_index = 0;    //待新增标签的分组下标
             for (TagGroup group : this.tagGroupList) {
@@ -265,6 +259,15 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             }
 
             notifyItemChanged(new_group_index);
+        }
+
+        //将数据保存至数据库
+        try {
+            Tag.modifyTag(new_tag_name, tag_no, group_no_after_modifying, context);
+            Toast.makeText(context, "标签修改成功", Toast.LENGTH_SHORT).show();
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+            return;
         }
 
         //删除原分组中对应的标签

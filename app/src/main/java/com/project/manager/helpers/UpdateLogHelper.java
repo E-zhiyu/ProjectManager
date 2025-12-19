@@ -11,7 +11,10 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.4.4  \n" +
+    private static final String update_log_md = "# v1.4.5  \n" +
+            "**BUG修复**  \n" +
+            "- 修复编辑标签时将其移动到新分组会导致标签被“隐藏”的BUG  \n\n" +
+            "# v1.4.4  \n" +
             "**BUG修复**  \n" +
             "- 修复新增或删除流水记录后点击某条记录会导致读取的数据错位的BUG  \n" +
             "- 修复修改分组名称时总是弹出“已有同名分组”提示的BUG  \n\n" +
