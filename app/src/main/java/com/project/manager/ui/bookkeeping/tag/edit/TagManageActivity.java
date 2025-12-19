@@ -24,8 +24,14 @@ import com.project.manager.data.data_class.TagGroup;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public class TagManageActivity extends AppCompatActivity implements TagManageRecyclerAdapter.OnTextViewClickedListener {
     private TagManageRecyclerAdapter adapter;
+    private final CompositeDisposable disposables = new CompositeDisposable();                      //订阅列表（便于取消订阅）
     private ActivityResultLauncher<Intent> tagAddLauncher, tagModifyLauncher, modifyGroupLauncher;  //活动启动器
 
     @Override
@@ -48,6 +54,14 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         RecyclerView tagGroupRecycler = findViewById(R.id.tag_group_recycler);
         adapter = new TagManageRecyclerAdapter(tagGroupList, this, this);
         tagGroupRecycler.setAdapter(adapter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // 防止内存泄漏
+        disposables.dispose();
     }
 
     @Override
@@ -111,18 +125,19 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
 
         //设置刷新布局的刷新动作监听
         SwipeRefreshLayout refreshLayout = findViewById(R.id.refresh_layout);
-        refreshLayout.setOnRefreshListener(() -> {
-            List<TagGroup> tagGroupList;    //获取标签分组数据
-            try {
-                tagGroupList = TagGroup.loadTagGroups(this);
-                adapter.refreshUI(tagGroupList);
-            } catch (SQLiteException e) {
-                ExceptionHelper.showExceptionDialog(this, e);
-                Toast.makeText(this, "刷新失败", Toast.LENGTH_SHORT).show();
-            } finally {
-                refreshLayout.setRefreshing(false);
-            }
-        });
+        refreshLayout.setOnRefreshListener(() -> disposables.add(
+                Observable.fromCallable(() -> TagGroup.loadTagGroups(this))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(tagGroupList -> {
+                            refreshLayout.setRefreshing(false);
+                            adapter.refreshUI(tagGroupList);
+                        }, e -> {
+                            refreshLayout.setRefreshing(false);
+                            ExceptionHelper.showExceptionDialog(this, e);
+                            Toast.makeText(this, "刷新失败", Toast.LENGTH_SHORT).show();
+                        })
+        ));
     }
 
     //初始化活动启动器
