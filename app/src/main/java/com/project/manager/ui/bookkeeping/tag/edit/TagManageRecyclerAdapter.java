@@ -336,6 +336,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
         //将数据保存至数据库
         try {
             TagGroup.modifyGroupName(group_no, new_group_name, context);
+            Toast.makeText(context, "标签分组修改成功", Toast.LENGTH_SHORT).show();
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             return;
