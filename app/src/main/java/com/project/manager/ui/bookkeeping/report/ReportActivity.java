@@ -272,29 +272,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         incomeSourceInfoList.sort(Comparator.comparing(AccountSourceInfo::getAmount).reversed());
 
         //补偿占比精度问题
-        int expensePercentage = 0, incomePercentage = 0;
-        for (AccountSourceInfo expenseSource : expenseSourceInfoList)
-            expensePercentage += expenseSource.getPercentage();
-        for (AccountSourceInfo incomeSource : incomeSourceInfoList)
-            incomePercentage += incomeSource.getPercentage();
-        if (expensePercentage < 100 && expenseSourceInfoList.size() > 1) {
-            int index = expenseSourceInfoList.size() - 1;
-            for (int count = 0; count < (100 - expensePercentage); count++) {
-                if (index - count < 0) break;
-
-                AccountSourceInfo info = expenseSourceInfoList.get(index - count);
-                info.setPercentage(info.getPercentage() + 1);
-            }
-        }
-        if (incomePercentage < 100 && incomeSourceInfoList.size() > 1) {
-            int index = incomeSourceInfoList.size() - 1;
-            for (int count = 0; count < (100 - incomePercentage); count++) {
-                if (index - count < 0) break;
-
-                AccountSourceInfo info = incomeSourceInfoList.get(index - count);
-                info.setPercentage(info.getPercentage() + 1);
-            }
-        }
+        compensatePrecision(expenseSourceInfoList);
+        compensatePrecision(incomeSourceInfoList);
 
         //设置收支来源卡片容器可见性
         boolean isNoExpense = false, isNoIncome = false;
@@ -341,6 +320,43 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         //更新收支来源视图
         expense_adapter.notifyDataSetChanged();
         income_adapter.notifyDataSetChanged();
+    }
+
+    /**
+     * 补偿计算金额百分比时的精度问题，使百分比之和恰好为100
+     *
+     * @param sourceInfoList 需要补偿精度的金额来源列表
+     */
+    private void compensatePrecision(@NonNull List<AccountSourceInfo> sourceInfoList) {
+        if (sourceInfoList.isEmpty()) return;
+
+        int percentage = 100;
+        for (AccountSourceInfo sourceInfo : sourceInfoList) {
+            percentage -= sourceInfo.getPercentage();
+        }
+        if (percentage == 0) return;    //如果百分比之和恰好为100则直接结束该方法
+
+        boolean isEndNotZero;   //标记列表末尾的元素的百分比是否为0
+        isEndNotZero = sourceInfoList.get(sourceInfoList.size() - 1).getPercentage() != 0;
+
+        //根据末尾是否为0%进行不同的补偿方法
+        if (isEndNotZero) {
+            for (AccountSourceInfo sourceInfo : sourceInfoList) {
+                if (percentage == 0) break;
+                int currentPercentage = sourceInfo.getPercentage();
+                sourceInfo.setPercentage(currentPercentage + 1);
+                percentage--;
+            }
+        } else {
+            for (AccountSourceInfo sourceInfo : sourceInfoList) {
+                if (percentage == 0) break;
+                int currentPercentage = sourceInfo.getPercentage();
+                if (currentPercentage == 0) {
+                    sourceInfo.setPercentage(currentPercentage + 1);
+                    percentage--;
+                }
+            }
+        }
     }
 
     /**
