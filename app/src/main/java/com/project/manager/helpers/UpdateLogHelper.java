@@ -13,6 +13,8 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.4.5  \n" +
             "**BUG修复**  \n" +
+            "- 去除标签编辑和添加界面的标签分组名称输入框的焦点检测  \n" +
+            "- 标签编辑界面不再会检测是否已有同名标签，避免仅移动分组的时候提示“已有同名标签”  \n" +
             "- 修复编辑标签时将其移动到新分组会导致标签被“隐藏”的BUG  \n\n" +
             "# v1.4.4  \n" +
             "**BUG修复**  \n" +
