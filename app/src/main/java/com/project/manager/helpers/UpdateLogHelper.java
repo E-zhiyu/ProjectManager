@@ -11,7 +11,12 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.4.5  \n" +
+    private static final String update_log_md = "# v1.5.0  \n" +
+            "**新增内容**  \n" +
+            "- 新增主页界面，并将流水记录管理的部分组件移动至该界面  \n\n" +
+            "**修改内容**  \n" +
+            "- 调整数据输入界面的按钮样式  \n\n" +
+            "# v1.4.5  \n" +
             "**BUG修复**  \n" +
             "- 去除标签编辑和添加界面的标签分组名称输入框的焦点检测  \n" +
             "- 标签编辑界面不再会检测是否已有同名标签，避免仅移动分组的时候提示“已有同名标签”  \n" +

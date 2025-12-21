@@ -32,7 +32,7 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/btn_card_view"
-        style="@style/RoundCardStyle"
+        style="@style/RightAngleCardStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -45,14 +45,14 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/cancel_btn"
-                style="@style/BtnStyle"
+                style="@style/OutlinedBtnStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/cancel" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/finish_btn"
-                style="@style/BtnStyle"
+                style="@style/CommonBtnStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/finish" />
