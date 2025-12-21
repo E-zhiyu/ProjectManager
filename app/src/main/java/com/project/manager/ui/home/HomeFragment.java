@@ -102,7 +102,7 @@ public class HomeFragment extends Fragment {
      */
     private void getTodayBalanceInfo() throws SQLiteException {
         BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(requireContext());
-        SQLiteDatabase db = db_helper.getReadableDatabase();
+        SQLiteDatabase db = db_helper.openReadLink();
 
         //获取当前日期
         Calendar now = Calendar.getInstance();

@@ -1,6 +1,5 @@
 package com.project.manager.ui.bookkeeping;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -37,6 +36,7 @@ import com.project.manager.ui.bookkeeping.running_account_edit.modify.RunningAcc
 import com.project.manager.ui.bookkeeping.running_account_edit.new_running_account.RunningAccountAddActivity;
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
+import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +50,8 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
     private int account_num;                                                //流水记录数量
     private FragmentBookkeepingBinding binding;                             //绑定的XML视图
     private RunningAccountUpdatedBroadcastReceiver accountUpdatedReceiver;  //流水数据更新的广播接收器
+    private TagSelectBottomSheet tagSelectBottomSheet;                      //标签选择弹窗
+    private long filter_tag_no = 0;                                         //过滤器过滤的标签编号
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
@@ -111,6 +113,98 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
         modifyRunningAccountLauncher.launch(skip2RunningAccountModify);
     }
 
+    /**
+     * 从数据库中加载流水视图
+     */
+    @NonNull
+    private List<RunningAccountBase> loadRunningAccountData(long tag_no) {
+        SQLiteDatabase db = running_account_db_helper.openReadLink();  //获取读连接
+
+        String selection;
+        String[] selectionArgs;
+        if (tag_no == 0) {
+            selection = null;
+            selectionArgs = null;
+        } else {
+            selection = BookKeepingColumns.TAG_NO + "=?";
+            selectionArgs = new String[]{String.valueOf(tag_no)};
+        }
+
+        //定义查询光标
+        Cursor basic_cursor = db.query(
+                BookKeepingTables.BASIC.toString(),
+                null,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                BookKeepingColumns.DATETIME + " DESC," + BookKeepingColumns.RNO + " DESC"
+        );
+
+        //查询数据
+        List<RunningAccountBase> runningAccountList = new ArrayList<>();
+        while (basic_cursor.moveToNext()) {
+            //流水编号
+            long rno = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.RNO.toString()));
+            //金额
+            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.AMOUNT.toString()));
+            //种类
+            RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.TYPE.toString())));
+            //备注
+            String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.REMARK.toString()));
+            if (remark == null) remark = "";
+            //是否使用默认备注
+            boolean isDefaultRemark;
+            isDefaultRemark = remark.isEmpty();
+            //日期和时间
+            String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.DATETIME.toString()));
+
+            RunningAccountBase runningAccountView = null;
+            switch (type) {
+                case EXPENSE:
+                    runningAccountView = new ExpenseRunningAccount(rno, remark, datetime, amount, isDefaultRemark);
+                    break;
+                case INCOME:
+                    runningAccountView = new IncomeRunningAccount(rno, remark, datetime, amount, isDefaultRemark);
+                    break;
+                case TRANSFER:
+                    String[] columns = {BookKeepingColumns.EXPORT.toString(), BookKeepingColumns.IMPORT.toString()};
+                    String transfer_selection = BookKeepingColumns.RNO + "=?";
+                    String[] transfer_selectionArgs = {String.valueOf(rno)};
+
+                    Cursor transfer_cursor = db.query(
+                            BookKeepingTables.TRANSFER.toString(),
+                            columns,
+                            transfer_selection,
+                            transfer_selectionArgs,
+                            null,
+                            null,
+                            null
+                    );
+
+                    while (transfer_cursor.moveToNext()) {
+                        String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(BookKeepingColumns.EXPORT.toString()));
+                        String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(BookKeepingColumns.IMPORT.toString()));
+                        transfer_cursor.close();
+                        runningAccountView = new TransferRunningAccount(rno, remark, datetime, amount, isDefaultRemark, exportAccount, importAccount);
+                    }
+
+                    break;
+                default:
+                    RuntimeException e = new RuntimeException("无法辨别获取到的流水类型");
+                    ExceptionHelper.showExceptionDialog(requireContext(), e);
+                    break;
+            }
+            if (runningAccountView != null) {
+                runningAccountList.add(runningAccountView);
+            }
+        }
+        basic_cursor.close();
+        db.close();
+
+        return runningAccountList;
+    }
+
     //初始化活动启动器
     private void initActivityLauncher() {
         runningAccountAddLauncher = registerForActivityResult(
@@ -156,7 +250,6 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
     }
 
     //初始化视图
-    @SuppressLint("DefaultLocale")
     private void initViews() {
         //绑定单击按钮监听器
         binding.runningAccountAddBtn.setOnClickListener(v -> {
@@ -164,11 +257,16 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
             runningAccountAddLauncher.launch(skip2NewRunningAccount);
         });
 
+        binding.filterText.setOnClickListener(v -> {
+            tagSelectBottomSheet = new TagSelectBottomSheet(this::onTagBtnClicked, null, "清空过滤");
+            tagSelectBottomSheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
+        });
+
         SwipeRefreshLayout refreshLayout = binding.refreshLayout;   //获取下拉刷新布局
 
         //创建列表视图的适配器
         refreshLayout.setRefreshing(true);
-        List<RunningAccountBase> runningAccountList = loadRunningAccountData();     //读取流水数据
+        List<RunningAccountBase> runningAccountList = loadRunningAccountData(filter_tag_no);    //读取流水数据
         runningAccountRecyclerAdapter = new RunningAccountRecyclerAdapter(runningAccountList, this, requireContext());
         runningAccountRecyclerView = binding.runningAccountRecyclerView;
         runningAccountRecyclerView.setAdapter(runningAccountRecyclerAdapter);
@@ -181,11 +279,12 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
 
         //设置下拉刷新布局的监听器
         refreshLayout.setOnRefreshListener(() -> {
-            List<RunningAccountBase> refreshedAccount = loadRunningAccountData();
+            List<RunningAccountBase> refreshedAccount = loadRunningAccountData(filter_tag_no);
             runningAccountRecyclerAdapter.refreshRunningAccount(refreshedAccount);
             refreshLayout.setRefreshing(false);
 
             account_num = refreshedAccount.size();
+            refreshAccountNumText();
         });
     }
 
@@ -277,92 +376,36 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
         refreshAccountNumText();
     }
 
-    /**
-     * 从数据库中加载流水视图
-     */
-    @NonNull
-    private List<RunningAccountBase> loadRunningAccountData() {
-        SQLiteDatabase db = running_account_db_helper.openReadLink();  //获取读连接
-
-        //定义查询光标
-        Cursor basic_cursor = db.query(
-                BookKeepingTables.BASIC.toString(),
-                null,
-                null,           //无WHERE子句
-                null,
-                null,
-                null,
-                BookKeepingColumns.DATETIME + " DESC," + BookKeepingColumns.RNO + " DESC"
-        );
-
-        //查询数据
-        List<RunningAccountBase> runningAccountList = new ArrayList<>();
-        while (basic_cursor.moveToNext()) {
-            //流水编号
-            long rno = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.RNO.toString()));
-            //金额
-            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.AMOUNT.toString()));
-            //种类
-            RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.TYPE.toString())));
-            //备注
-            String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.REMARK.toString()));
-            if (remark == null) remark = "";
-            //是否使用默认备注
-            boolean isDefaultRemark;
-            isDefaultRemark = remark.isEmpty();
-            //日期和时间
-            String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.DATETIME.toString()));
-
-            RunningAccountBase runningAccountView = null;
-            switch (type) {
-                case EXPENSE:
-                    runningAccountView = new ExpenseRunningAccount(rno, remark, datetime, amount, isDefaultRemark);
-                    break;
-                case INCOME:
-                    runningAccountView = new IncomeRunningAccount(rno, remark, datetime, amount, isDefaultRemark);
-                    break;
-                case TRANSFER:
-                    String[] columns = {BookKeepingColumns.EXPORT.toString(), BookKeepingColumns.IMPORT.toString()};
-                    String selection = BookKeepingColumns.RNO + "=?";
-                    String[] selectionArgs = {String.valueOf(rno)};
-
-                    Cursor transfer_cursor = db.query(
-                            BookKeepingTables.TRANSFER.toString(),
-                            columns,
-                            selection,
-                            selectionArgs,
-                            null,
-                            null,
-                            null
-                    );
-
-                    while (transfer_cursor.moveToNext()) {
-                        String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(BookKeepingColumns.EXPORT.toString()));
-                        String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(BookKeepingColumns.IMPORT.toString()));
-                        transfer_cursor.close();
-                        runningAccountView = new TransferRunningAccount(rno, remark, datetime, amount, isDefaultRemark, exportAccount, importAccount);
-                    }
-
-                    break;
-                default:
-                    RuntimeException e = new RuntimeException("无法辨别获取到的流水类型");
-                    ExceptionHelper.showExceptionDialog(requireContext(), e);
-                    break;
-            }
-            if (runningAccountView != null) {
-                runningAccountList.add(runningAccountView);
-            }
-        }
-        basic_cursor.close();
-        db.close();
-
-        return runningAccountList;
-    }
-
     //刷新流水记录数量文本
-    @SuppressLint("DefaultLocale")
     private void refreshAccountNumText() {
         MaterialTextView accountNumText = binding.accountNumText;
         accountNumText.setText(String.format(Locale.getDefault(), "显示数量：%d", account_num));
+    }
+
+    /**
+     * 处理标签按钮点击的回调
+     *
+     * @param tag_no   点击的标签编号
+     * @param tag_name 点击的标签名称
+     */
+    private void onTagBtnClicked(long tag_no, String tag_name) {
+        filter_tag_no = tag_no;
+
+        if (tag_no == 0) {
+            binding.filterText.setText("全部");
+        } else {
+            binding.filterText.setText(tag_name);
+        }
+
+        List<RunningAccountBase> refreshedAccount = loadRunningAccountData(filter_tag_no);
+        runningAccountRecyclerAdapter.refreshRunningAccount(refreshedAccount);
+        account_num = refreshedAccount.size();
+        refreshAccountNumText();
+
+        loadRunningAccountData(filter_tag_no);
+        if (tagSelectBottomSheet != null) {
+            tagSelectBottomSheet.dismiss();
+            tagSelectBottomSheet = null;
+        }
     }
 }

@@ -41,11 +41,15 @@
                     android:text="@string/num_of_shown" />
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/filter_spinner"
-                    style="@style/SpinnerTextViewStyle"
+                    android:id="@+id/filter_text"
+                    style="@style/SmallLabelTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
                     android:drawableStart="@drawable/baseline_filter_alt_24"
+                    android:drawableEnd="@drawable/baseline_keyboard_arrow_right_24"
+                    android:focusable="true"
                     android:text="@string/all" />
             </LinearLayout>
         </LinearLayout>

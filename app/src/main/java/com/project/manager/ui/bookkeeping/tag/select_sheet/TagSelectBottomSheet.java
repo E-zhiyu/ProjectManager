@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
 import com.project.manager.R;
+import com.project.manager.databinding.BottomSheetTagSelectBinding;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.data.data_class.TagGroup;
 import com.project.manager.ui.bookkeeping.tag.edit.TagManageActivity;
@@ -23,10 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TagSelectBottomSheet extends BottomSheetDialogFragment implements View.OnClickListener {
-    private View binding;                   //绑定的XML视图
-    private long excepted_tag_no = 0;       //被排除的标签编号（不会显示）
-    private boolean isTagExcepted = false;  //是否存在被排除的标签
+    private BottomSheetTagSelectBinding binding;    //绑定的XML视图
+    private long excepted_tag_no = 0;               //被排除的标签编号（不会显示）
+    private boolean isTagExcepted = false;          //是否存在被排除的标签
     private final SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener tagBtnClickedListener; //标签按钮点击事件的监听器
+    private String edit_btn_str = "标签管理";       //左侧编辑按钮文本
+    private String clear_btn_str = "清除输入";      //右侧清除按钮文本
 
     public interface TagDataObserver {
         void startObserveTag();
@@ -47,6 +50,19 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
     }
 
     /**
+     * 标签选择菜单构造方法
+     *
+     * @param listener      标签按钮点击监听器
+     * @param edit_btn_str  标签编辑按钮的文本
+     * @param clear_btn_str 清除输入按钮的文本
+     */
+    public TagSelectBottomSheet(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener, String edit_btn_str, String clear_btn_str) {
+        this.tagBtnClickedListener = listener;
+        this.edit_btn_str = edit_btn_str;
+        this.clear_btn_str = clear_btn_str;
+    }
+
+    /**
      * 指定排除的标签的构造方法
      *
      * @param listener        标签按钮点击的监听器
@@ -61,11 +77,11 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = inflater.inflate(R.layout.bottom_sheet_tag_select, container, false);
+        binding = BottomSheetTagSelectBinding.inflate(inflater, container, false);
 
         initViews();
 
-        RecyclerView tag_group_recycler_view = binding.findViewById(R.id.tag_group_recycler);
+        RecyclerView tag_group_recycler_view = binding.tagGroupRecycler;
         List<TagGroup> tagGroupList;
         try {
             tagGroupList = TagGroup.loadTagGroups(requireContext());
@@ -81,13 +97,25 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
         //设置标签按钮点击事件监听器
         tagAdapter.setOnTagBtnClickedListener(this.tagBtnClickedListener);
 
-        return binding;
+        return binding.getRoot();
     }
 
     //初始化视图
     private void initViews() {
-        MaterialButton edit_tag_btn = binding.findViewById(R.id.edit_tag_btn);
-        MaterialButton clear_input_btn = binding.findViewById(R.id.clear_input_btn);
+        MaterialButton edit_tag_btn = binding.editTagBtn;
+        MaterialButton clear_input_btn = binding.clearInputBtn;
+
+        //设置按钮文本
+        if (edit_btn_str != null) {
+            edit_tag_btn.setText(edit_btn_str);
+        } else {
+            edit_tag_btn.setVisibility(View.GONE);
+        }
+        if (clear_btn_str != null) {
+            clear_input_btn.setText(clear_btn_str);
+        } else {
+            clear_input_btn.setVisibility(View.GONE);
+        }
 
         if (!isTagExcepted) {
             edit_tag_btn.setOnClickListener(this);
