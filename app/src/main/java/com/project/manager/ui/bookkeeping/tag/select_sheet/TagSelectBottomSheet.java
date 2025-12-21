@@ -1,12 +1,10 @@
 package com.project.manager.ui.bookkeeping.tag.select_sheet;
 
 import android.content.Intent;
-import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,8 +18,10 @@ import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.data.data_class.TagGroup;
 import com.project.manager.ui.bookkeeping.tag.edit.TagManageActivity;
 
-import java.util.ArrayList;
-import java.util.List;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class TagSelectBottomSheet extends BottomSheetDialogFragment implements View.OnClickListener {
     private BottomSheetTagSelectBinding binding;    //绑定的XML视图
@@ -30,6 +30,7 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
     private final SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener tagBtnClickedListener; //标签按钮点击事件的监听器
     private String edit_btn_str = "标签管理";       //左侧编辑按钮文本
     private String clear_btn_str = "清除输入";      //右侧清除按钮文本
+    private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
 
     public interface TagDataObserver {
         void startObserveTag();
@@ -81,18 +82,12 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
 
         initViews();
 
+        //设置标签列表视图适配器
         RecyclerView tag_group_recycler_view = binding.tagGroupRecycler;
-        List<TagGroup> tagGroupList;
-        try {
-            tagGroupList = TagGroup.loadTagGroups(requireContext());
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(requireContext(), e);
-            Toast.makeText(requireContext(), "标签数据读取失败", Toast.LENGTH_SHORT).show();
-            tagGroupList = new ArrayList<>();
-        }
-        //标签列表视图适配器
-        SheetTagGroupRecyclerAdapter tagAdapter = new SheetTagGroupRecyclerAdapter(tagGroupList, excepted_tag_no, requireContext());
+        SheetTagGroupRecyclerAdapter tagAdapter = new SheetTagGroupRecyclerAdapter(excepted_tag_no, requireContext());
         tag_group_recycler_view.setAdapter(tagAdapter);
+
+        loadTagGroupData(tagAdapter);
 
         //设置标签按钮点击事件监听器
         tagAdapter.setOnTagBtnClickedListener(this.tagBtnClickedListener);
@@ -104,12 +99,25 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+        disposables.dispose();
+    }
+
+    @Override
+    public void onClick(@NonNull View v) {
+        if (v.getId() == R.id.edit_tag_btn) {
+            Intent skip2TagEdit = new Intent(requireContext(), TagManageActivity.class);
+            startActivity(skip2TagEdit);
+            dismiss();
+        } else if (v.getId() == R.id.clear_input_btn) {
+            tagBtnClickedListener.onTagBtnClicked(0, "");
+        }
     }
 
     //初始化视图
     private void initViews() {
         MaterialButton edit_tag_btn = binding.editTagBtn;
         MaterialButton clear_input_btn = binding.clearInputBtn;
+        binding.refreshLayout.setEnabled(false);    //禁用手动下拉刷新
 
         //设置按钮文本
         if (edit_btn_str != null) {
@@ -132,14 +140,22 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
         }
     }
 
-    @Override
-    public void onClick(@NonNull View v) {
-        if (v.getId() == R.id.edit_tag_btn) {
-            Intent skip2TagEdit = new Intent(requireContext(), TagManageActivity.class);
-            startActivity(skip2TagEdit);
-            dismiss();
-        } else if (v.getId() == R.id.clear_input_btn) {
-            tagBtnClickedListener.onTagBtnClicked(0, "");
-        }
+    private void loadTagGroupData(SheetTagGroupRecyclerAdapter tagAdapter) {
+        binding.refreshLayout.setRefreshing(true);
+        disposables.add(
+                Observable.fromCallable(() -> TagGroup.loadTagGroups(requireContext()))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                tagGroupList -> {
+                                    tagAdapter.setTagGroupList(tagGroupList);
+                                    binding.refreshLayout.setRefreshing(false);
+                                },
+                                e -> {
+                                    binding.refreshLayout.setRefreshing(false);
+                                    ExceptionHelper.showExceptionDialog(requireContext(), e);
+                                }
+                        )
+        );
     }
 }

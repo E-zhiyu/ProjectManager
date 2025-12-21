@@ -278,9 +278,7 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
         });
 
         binding.filterText.setOnClickListener(v -> {
-            if (tagSelectBottomSheet== null) {
-                tagSelectBottomSheet = new TagSelectBottomSheet(this::onTagBtnClicked, null, "清空过滤");
-            }
+            tagSelectBottomSheet = new TagSelectBottomSheet(this::onTagBtnClicked, null, "清空过滤");
             tagSelectBottomSheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
         });
 
@@ -440,6 +438,7 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
 
         if (tagSelectBottomSheet != null) {
             tagSelectBottomSheet.dismiss();
+            tagSelectBottomSheet = null;
         }
     }
 }

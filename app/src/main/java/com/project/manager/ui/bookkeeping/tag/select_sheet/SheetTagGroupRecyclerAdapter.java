@@ -1,5 +1,6 @@
 package com.project.manager.ui.bookkeeping.tag.select_sheet;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +18,7 @@ import com.project.manager.data.data_class.TagGroup;
 import java.util.List;
 
 public class SheetTagGroupRecyclerAdapter extends RecyclerView.Adapter<SheetTagGroupRecyclerAdapter.TagSelectHolder> {
-    private final List<TagGroup> tagGroupList;  //标签组列表
+    private List<TagGroup> tagGroupList;        //标签组列表
     private final Context context;              //上下文
     private final long excepted_tag_no;         //被排除的标签编号（不会显示在视图中）
     private SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener tagBtnClickedListener;   //标签按钮点击监听器
@@ -38,8 +39,7 @@ public class SheetTagGroupRecyclerAdapter extends RecyclerView.Adapter<SheetTagG
         }
     }
 
-    public SheetTagGroupRecyclerAdapter(List<TagGroup> tagGroupList, long excepted_tag_no, Context context) {
-        this.tagGroupList = tagGroupList;
+    public SheetTagGroupRecyclerAdapter(long excepted_tag_no, Context context) {
         this.excepted_tag_no = excepted_tag_no;
         this.context = context;
     }
@@ -93,6 +93,17 @@ public class SheetTagGroupRecyclerAdapter extends RecyclerView.Adapter<SheetTagG
 
     @Override
     public int getItemCount() {
-        return this.tagGroupList.size();
+        return tagGroupList != null ? tagGroupList.size() : 0;
+    }
+
+    /**
+     * 设置标签分组数据并刷新UI
+     *
+     * @param tagGroupList 标签分组列表
+     */
+    @SuppressLint("NotifyDataSetChanged")
+    public void setTagGroupList(List<TagGroup> tagGroupList) {
+        this.tagGroupList = tagGroupList;
+        notifyDataSetChanged();
     }
 }

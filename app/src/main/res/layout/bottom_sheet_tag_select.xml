@@ -45,9 +45,15 @@
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/tag_group_recycler"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        android:id="@+id/refresh_layout">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/tag_group_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </LinearLayout>
