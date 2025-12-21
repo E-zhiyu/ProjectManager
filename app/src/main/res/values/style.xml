@@ -138,20 +138,20 @@
         <item name="iconPadding">2dp</item>
     </style>
 
+    <!-- 仅保留边框的按钮样式 -->
     <style name="OutlinedBtnStyle" parent="Widget.Material3.Button.OutlinedButton">
         <item name="android:textColor">?attr/colorPrimary</item>
         <item name="strokeColor">?attr/colorPrimary</item>
-        <item name="strokeWidth">2dp</item>
+        <item name="strokeWidth">1dp</item>
         <item name="android:layout_marginStart">10sp</item>
         <item name="android:layout_marginEnd">10sp</item>
     </style>
 
     <!-- 图标按钮样式 -->
-    <style name="ClickableImageViewStyle" parent="Widget.AppCompat.ImageButton">
+    <style name="ImageButtonStyle" parent="Widget.AppCompat.ImageButton">
         <item name="tint">?attr/colorPrimary</item>
         <item name="android:padding">10sp</item>
-        <item name="android:clickable">true</item>
-        <item name="android:focusable">true</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
     </style>
 
     <!-- 复选框样式 -->

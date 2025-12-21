@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.broadcast.BroadcastConstants;
 import com.project.manager.broadcast.RunningAccountUpdatedBroadcastReceiver;
 import com.project.manager.data.data_class.running_account.ExpenseRunningAccount;
@@ -39,6 +40,7 @@ import com.project.manager.ui.bookkeeping.running_account_edit.fragments.Running
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class BookKeepingFragment extends Fragment implements RunningAccountRecyclerAdapter.OnRunningAccountViewClickListener {
     private RunningAccountRecyclerAdapter runningAccountRecyclerAdapter;    //流水列表适配器
@@ -174,6 +176,8 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
 
         //初始化流水记录数量文本
         account_num = runningAccountList.size();
+        MaterialTextView accountNumText = binding.accountNumText;
+        accountNumText.setText(String.format(Locale.getDefault(), "显示数量：%d", account_num));
 
         //设置下拉刷新布局的监听器
         refreshLayout.setOnRefreshListener(() -> {
@@ -358,6 +362,7 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
     //刷新流水记录数量文本
     @SuppressLint("DefaultLocale")
     private void refreshAccountNumText() {
-
+        MaterialTextView accountNumText = binding.accountNumText;
+        accountNumText.setText(String.format(Locale.getDefault(), "显示数量：%d", account_num));
     }
 }

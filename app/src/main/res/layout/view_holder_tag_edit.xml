@@ -24,12 +24,11 @@
                 android:focusable="true"
                 android:text="@string/tag_group" />
 
-            <ImageView
+            <ImageButton
                 android:id="@+id/expand_fold_btn"
-                style="@style/ClickableImageViewStyle"
+                style="@style/ImageButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:background="?attr/selectableItemBackground"
                 android:contentDescription="@string/expand_fold_btn"
                 android:src="@drawable/baseline_keyboard_arrow_down_24" />
         </LinearLayout>

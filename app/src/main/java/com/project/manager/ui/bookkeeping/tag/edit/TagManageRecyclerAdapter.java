@@ -8,7 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -61,7 +61,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
     public static class TagEditViewHolder extends RecyclerView.ViewHolder {
         MaterialTextView group_name_text;       //分组名称文本视图
-        ImageView expand_fold_view;             //控制卡片展开和折叠的按钮
+        ImageButton expand_fold_view;           //控制卡片展开和折叠的按钮
         LinearLayout sub_view_layout;           //子组件的线性布局管理器
 
         public TagEditViewHolder(@NonNull View itemView) {

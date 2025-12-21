@@ -8,7 +8,7 @@ import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.widget.ImageView;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
@@ -136,7 +136,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         });
 
         //设置图标按钮点击监听器
-        ImageView expandListBtn = findViewById(R.id.expand_list_btn);
+        ImageButton expandListBtn = findViewById(R.id.expand_list_btn);
         expandListBtn.setOnClickListener(this::showPopupMenu);
     }
 

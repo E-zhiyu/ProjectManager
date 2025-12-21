@@ -95,4 +95,7 @@
     <string name="welcome_string">欢迎使用经理助手</string>
     <string name="today_balance">今日结余</string>
     <string name="check_more_data">查看更多统计数据</string>
+    <string name="btn_to_filter">过滤按钮</string>
+    <string name="all">全部</string>
+    <string name="num_of_shown">显示数量：∞</string>
 </resources>
