@@ -23,9 +23,9 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="end"
-            android:drawableLeft="@drawable/baseline_info_24"
-            android:text="@string/input_introduce"
-            tools:ignore="RtlHardcoded" />
+            app:icon="@drawable/baseline_info_24"
+            app:iconGravity="textStart"
+            android:text="@string/input_introduce" />
     </com.google.android.material.appbar.MaterialToolbar>
 
     <ScrollView

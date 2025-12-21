@@ -22,9 +22,9 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="end"
-            android:drawableLeft="@drawable/baseline_merge_24"
             android:text="@string/group_merge"
-            tools:ignore="RtlHardcoded" />
+            app:icon="@drawable/baseline_merge_24"
+            app:iconGravity="textStart" />
     </com.google.android.material.appbar.MaterialToolbar>
 
     <ScrollView
