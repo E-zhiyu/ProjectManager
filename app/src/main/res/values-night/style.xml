@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 标题栏样式 -->
-    <style name="ToolBarStyle" parent="Widget.Material3.Toolbar">
-        <item name="android:background">@color/toolbar_background_night</item>
-        <item name="navigationIconTint">@color/theme_blue_night</item>
-        <item name="contentInsetStart">10dp</item>
-        <item name="titleTextAppearance">@style/TitleStyle</item>
-    </style>
-
     <!-- 标题文本样式 -->
     <style name="TitleStyle">
         <item name="android:textSize">23sp</item>
@@ -20,84 +12,12 @@
         <item name="android:background">@color/page_background_night</item>
     </style>
 
-    <!-- 报表内容文本视图样式 -->
-    <style name="ReportInfoTextViewStyle">
-        <item name="android:paddingTop">5dp</item>
-        <item name="android:paddingLeft">35dp</item>
-    </style>
-
-    <!-- 标签文本视图样式 -->
-    <style name="LabelTextViewStyle">
-        <item name="android:paddingStart">10dp</item>
-        <item name="android:paddingEnd">10dp</item>
-        <item name="android:paddingTop">10dp</item>
-        <item name="android:paddingBottom">10dp</item>
-        <item name="android:textSize">20sp</item>
-    </style>
-
     <!-- 提示文本视图样式 -->
     <style name="TipTextViewStyle">
         <item name="android:paddingTop">10dp</item>
-        <item name="android:textColor">@color/unchecked_gray</item>
+        <item name="android:textColor">@color/unchecked_gray_night</item>
         <item name="android:drawableStart">@drawable/baseline_error_outline_24</item>
-        <item name="drawableTint">@color/unchecked_gray</item>
-    </style>
-
-    <!-- 下拉框文本视图样式 -->
-    <style name="SpinnerTextViewStyle">
-        <item name="android:textSize">17sp</item>
-        <item name="android:padding">10sp</item>
-        <item name="android:background">?attr/selectableItemBackground</item>
-        <item name="android:clickable">true</item>
-        <item name="android:focusable">true</item>
-        <item name="android:drawableEnd">@drawable/baseline_arrow_drop_down_24</item>
-    </style>
-
-    <!-- 圆角卡片容器器样式 -->
-    <style name="RoundCardStyle">
-        <item name="cardBackgroundColor">@color/card_background_night</item>
-        <item name="cardCornerRadius">50dp</item>
-        <item name="android:layout_margin">10dp</item>
-    </style>
-
-    <!-- 透明背景卡片容器样式 -->
-    <style name="TransparentCardStyle">
-        <item name="cardBackgroundColor">@android:color/transparent</item>
-        <item name="strokeColor">@android:color/transparent</item>
-    </style>
-
-    <!-- 带有多项内容的卡片容器 -->
-    <style name="ContentCardStyle">
-        <item name="cardBackgroundColor">@color/card_background_night</item>
-        <item name="cardCornerRadius">10dp</item>
-        <item name="android:layout_marginTop">10dp</item>
-        <item name="android:layout_marginStart">10dp</item>
-        <item name="android:layout_marginEnd">10dp</item>
-        <item name="android:layout_marginBottom">10dp</item>
-    </style>
-
-    <!-- 点击式设置项样式 -->
-    <style name="ClickableSettingOptionStyle">
-        <item name="android:drawableEnd">@drawable/baseline_keyboard_arrow_right_24</item>
-        <item name="android:drawablePadding">5dp</item>
-        <item name="android:textSize">18sp</item>
-        <item name="android:padding">10dp</item>
-        <item name="android:clickable">true</item>
-        <item name="android:focusable">true</item>
-        <item name="android:background">?attr/selectableItemBackground</item>
-    </style>
-
-    <!-- 开关设置项样式 -->
-    <style name="SwitchSettingOptionStyle" parent="Widget.Material3.CompoundButton.MaterialSwitch">
-        <item name="android:drawablePadding">5dp</item>
-        <item name="thumbTint">@color/switch_thumb_color_selector</item>
-        <item name="android:textSize">18sp</item>
-        <item name="android:padding">10dp</item>
-    </style>
-
-    <!-- 信息展示卡片样式 -->
-    <style name="InfoCardStyle">
-        <item name="cardBackgroundColor">@color/card_background_night</item>
+        <item name="drawableTint">@color/unchecked_gray_night</item>
     </style>
 
     <!-- 新建流水界面卡片容器样式 -->
@@ -107,7 +27,7 @@
 
     <!-- 按钮样式 -->
     <style name="BtnStyle" parent="Widget.Material3.Button">
-        <item name="backgroundTint">@color/theme_blue_night</item>
+        <item name="backgroundTint">?attr/colorPrimary</item>
         <item name="android:textColor">@color/black</item>
         <item name="android:textSize">15sp</item>
         <item name="cornerRadius">20dp</item>
@@ -115,49 +35,9 @@
         <item name="android:padding">10dp</item>
     </style>
 
-    <!-- 透明背景按钮样式 -->
-    <style name="TransparentBtnStyle" parent="Widget.Material3.Button">
-        <item name="android:background">?attr/selectableItemBackground</item>
-        <item name="android:textColor">@color/theme_blue_night</item>
-        <item name="iconPadding">2dp</item>
-    </style>
-
-    <!-- 图标按钮样式 -->
-    <style name="ClickableImageViewStyle" parent="Widget.AppCompat.ImageButton">
-        <item name="tint">@color/theme_blue_night</item>
-        <item name="android:padding">10sp</item>
-        <item name="android:clickable">true</item>
-        <item name="android:focusable">true</item>
-    </style>
-
-    <!-- 复选框样式 -->
-    <style name="CheckBoxStyle">
-        <item name="buttonTint">@color/theme_blue_night</item>
-    </style>
-
-    <!-- 需要用户输入文本的文本框样式 -->
-    <style name="UserInputEditTextStyle" parent="Widget.Material3.TextInputEditText.OutlinedBox">
-        <item name="android:inputType">text</item>
-        <item name="android:textColorHighlight">@color/theme_blue_variant_night</item>
-        <item name="android:maxLength">20</item>
-    </style>
-
-    <!-- 需要点击的文本框样式 -->
-    <style name="ClickableEditTextStyle" parent="Widget.Material3.TextInputEditText.OutlinedBox">
-        <item name="android:inputType">text</item>
-        <item name="android:focusable">false</item>
-        <item name="android:clickable">true</item>
-        <item name="android:textColorHighlight">@color/theme_blue_variant_night</item>
-    </style>
-
     <!-- AppBarLayout样式 -->
     <style name="AppBarLayoutStyle" parent="Widget.Material3.AppBarLayout">
         <item name="android:backgroundTint">@color/page_background_night</item>
-    </style>
-
-    <!-- SearchBar样式 -->
-    <style name="SearchBarStyle" parent="Widget.Material3.SearchBar">
-        <item name="backgroundTint">@color/card_background_night</item>
     </style>
 
     <!-- SearchView样式 -->
@@ -165,30 +45,10 @@
         <item name="backgroundTint">@color/page_background_night</item>
     </style>
 
-    <!-- 底部导航栏样式 -->
-    <style name="NaviStyle">
-        <item name="itemTextColor">@color/bottom_navigation_selector</item>
-        <item name="itemIconTint">@color/bottom_navigation_selector</item>
-        <item name="itemRippleColor">@color/ripple_night</item>
-        <item name="android:background">@color/card_background_night</item>
-        <item name="itemActiveIndicatorStyle">@style/NaviActiveIndicator</item>
-    </style>
-
-    <!-- 底部导航栏指示器颜色 -->
-    <style name="NaviActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
-        <item name="android:color">@color/navi_indicator_night</item>
-    </style>
-
     <!-- TabLayout样式 -->
     <style name="TabLayoutStyle" parent="android:Widget">
         <item name="android:background">@color/page_background_night</item>
         <item name="tabTextColor">@color/tab_layout_selector</item>
-        <item name="tabIndicatorColor">@color/theme_blue_night</item>
-        <item name="tabRippleColor">@color/ripple_night</item>
-    </style>
-
-    <!-- 普通文本样式 -->
-    <style name="CommonTextAppearance">
-        <item name="android:textSize">17sp</item>
+        <item name="tabIndicatorColor">?attr/colorPrimary</item>
     </style>
 </resources>

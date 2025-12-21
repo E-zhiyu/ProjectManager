@@ -45,7 +45,7 @@
     <string name="select_tag">标签选择</string>
     <string name="expand_fold_btn">press_to_expand_or_fold</string>
     <string name="group_name">分组名称</string>
-    <string name="today">当天</string>
+    <string name="today">这一天</string>
     <string name="this_month">这个月</string>
     <string name="recent_3_month">近三个月</string>
     <string name="this_year">这一年</string>
@@ -92,4 +92,7 @@
     <string name="import_rule">导入规则</string>
     <string name="export_rule">导出规则</string>
     <string name="home_page">主页</string>
+    <string name="welcome_string">欢迎使用经理助手</string>
+    <string name="today_balance">今日结余</string>
+    <string name="check_more_data">查看更多统计数据</string>
 </resources>

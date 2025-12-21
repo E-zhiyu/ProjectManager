@@ -6,11 +6,11 @@
         <item name="colorPrimaryVariant">@color/theme_blue_variant_night</item>
         <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_200</item>
+        <item name="colorSecondary">@color/card_background_night</item>
+        <item name="colorSecondaryVariant">@color/toolbar_background_night</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">@color/page_background_night</item>
+        <item name="android:statusBarColor">@color/toolbar_background_night</item>
         <!-- Customize your theme here. -->
         <item name="toolbarStyle">@style/ToolBarStyle</item>
         <item name="drawableTint">@color/theme_blue_night</item>

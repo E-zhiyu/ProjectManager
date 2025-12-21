@@ -20,8 +20,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.material.textview.MaterialTextView;
-import com.project.manager.R;
 import com.project.manager.broadcast.BroadcastConstants;
 import com.project.manager.broadcast.RunningAccountUpdatedBroadcastReceiver;
 import com.project.manager.data.data_class.running_account.ExpenseRunningAccount;
@@ -38,17 +36,15 @@ import com.project.manager.ui.bookkeeping.running_account_edit.modify.RunningAcc
 import com.project.manager.ui.bookkeeping.running_account_edit.new_running_account.RunningAccountAddActivity;
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
-import com.project.manager.ui.bookkeeping.report.ReportActivity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BookKeepingFragment extends Fragment implements View.OnClickListener, RunningAccountRecyclerAdapter.OnRunningAccountViewClickListener {
+public class BookKeepingFragment extends Fragment implements RunningAccountRecyclerAdapter.OnRunningAccountViewClickListener {
     private RunningAccountRecyclerAdapter runningAccountRecyclerAdapter;    //流水列表适配器
     private RecyclerView runningAccountRecyclerView;                        //流水列表视图
     private BookKeepingDatabaseHelper running_account_db_helper;            //流水数据库帮助器
     private ActivityResultLauncher<Intent> runningAccountAddLauncher, modifyRunningAccountLauncher;  //子活动启动器
-    MaterialTextView account_num_text;                                      //流水记录数量文本视图
     private int account_num;                                                //流水记录数量
     private FragmentBookkeepingBinding binding;                             //绑定的XML视图
     private RunningAccountUpdatedBroadcastReceiver accountUpdatedReceiver;  //流水数据更新的广播接收器
@@ -74,17 +70,6 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
         //取消注册广播接收器
         if (accountUpdatedReceiver != null) {
             requireContext().unregisterReceiver(accountUpdatedReceiver);
-        }
-    }
-
-    @Override
-    public void onClick(@NonNull View v) {
-        if (v.getId() == R.id.running_account_add_btn) {    //新建流水
-            Intent skip2NewRunningAccount = new Intent(getActivity(), RunningAccountAddActivity.class);
-            runningAccountAddLauncher.launch(skip2NewRunningAccount);
-        } else if (v.getId() == R.id.report_btn) {          //查看报表
-            Intent skip2Report = new Intent(getActivity(), ReportActivity.class);
-            startActivity(skip2Report);
         }
     }
 
@@ -172,12 +157,12 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     @SuppressLint("DefaultLocale")
     private void initViews() {
         //绑定单击按钮监听器
-        View root = binding.getRoot();
-        root.findViewById(R.id.running_account_add_btn).setOnClickListener(this);
-        root.findViewById(R.id.report_btn).setOnClickListener(this);
+        binding.runningAccountAddBtn.setOnClickListener(v -> {
+            Intent skip2NewRunningAccount = new Intent(getActivity(), RunningAccountAddActivity.class);
+            runningAccountAddLauncher.launch(skip2NewRunningAccount);
+        });
 
         SwipeRefreshLayout refreshLayout = binding.refreshLayout;   //获取下拉刷新布局
-        account_num_text = root.findViewById(R.id.account_num_text);
 
         //创建列表视图的适配器
         refreshLayout.setRefreshing(true);
@@ -189,7 +174,6 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
 
         //初始化流水记录数量文本
         account_num = runningAccountList.size();
-        account_num_text.setText(String.format("共计%d条流水记录", account_num));
 
         //设置下拉刷新布局的监听器
         refreshLayout.setOnRefreshListener(() -> {
@@ -198,7 +182,6 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
             refreshLayout.setRefreshing(false);
 
             account_num = refreshedAccount.size();
-            account_num_text.setText(String.format("共计%d条流水记录", account_num));
         });
     }
 
@@ -375,6 +358,6 @@ public class BookKeepingFragment extends Fragment implements View.OnClickListene
     //刷新流水记录数量文本
     @SuppressLint("DefaultLocale")
     private void refreshAccountNumText() {
-        account_num_text.setText(String.format("共计%d条流水记录", account_num));
+
     }
 }

@@ -2,8 +2,8 @@
 <resources>
     <!-- 标题栏样式 -->
     <style name="ToolBarStyle" parent="Widget.Material3.Toolbar">
-        <item name="android:background">@color/toolbar_background</item>
-        <item name="navigationIconTint">@color/theme_blue</item>
+        <item name="android:background">?attr/colorSecondaryVariant</item>
+        <item name="navigationIconTint">?attr/colorPrimary</item>
         <item name="contentInsetStart">10dp</item>
         <item name="titleTextAppearance">@style/TitleStyle</item>
     </style>
@@ -23,7 +23,7 @@
     <!-- 报表内容文本视图样式 -->
     <style name="ReportInfoTextViewStyle">
         <item name="android:paddingTop">5dp</item>
-        <item name="android:paddingLeft">35dp</item>
+        <item name="android:paddingStart">15dp</item>
     </style>
 
     <!-- 标签文本视图样式 -->
@@ -33,6 +33,15 @@
         <item name="android:paddingTop">10dp</item>
         <item name="android:paddingBottom">10dp</item>
         <item name="android:textSize">20sp</item>
+    </style>
+
+    <!-- 缩小版标签文本样式 -->
+    <style name="SmallLabelTextViewStyle">
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">10dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:textSize">17sp</item>
     </style>
 
     <!-- 提示文本视图样式 -->
@@ -55,7 +64,7 @@
 
     <!-- 圆角卡片容器器样式 -->
     <style name="RoundCardStyle">
-        <item name="cardBackgroundColor">@color/card_background</item>
+        <item name="cardBackgroundColor">?attr/colorSecondary</item>
         <item name="cardCornerRadius">50dp</item>
         <item name="android:layout_margin">10dp</item>
     </style>
@@ -68,8 +77,8 @@
 
     <!-- 带有多项内容的卡片容器 -->
     <style name="ContentCardStyle">
-        <item name="cardBackgroundColor">@color/card_background</item>
-        <item name="cardCornerRadius">10dp</item>
+        <item name="cardBackgroundColor">?attr/colorSecondary</item>
+        <item name="cardCornerRadius">15dp</item>
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:layout_marginStart">10dp</item>
         <item name="android:layout_marginEnd">10dp</item>
@@ -97,7 +106,7 @@
 
     <!-- 信息展示卡片样式 -->
     <style name="InfoCardStyle">
-        <item name="cardBackgroundColor">@color/card_background</item>
+        <item name="cardBackgroundColor">?attr/colorSecondary</item>
     </style>
 
     <!-- 新建流水界面卡片容器样式 -->
@@ -107,7 +116,7 @@
 
     <!-- 按钮样式 -->
     <style name="BtnStyle" parent="Widget.Material3.Button">
-        <item name="backgroundTint">@color/theme_blue</item>
+        <item name="backgroundTint">?attr/colorPrimary</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:textSize">15sp</item>
         <item name="cornerRadius">20dp</item>
@@ -118,13 +127,22 @@
     <!-- 透明背景按钮样式 -->
     <style name="TransparentBtnStyle" parent="Widget.Material3.Button">
         <item name="android:background">?attr/selectableItemBackground</item>
-        <item name="android:textColor">@color/theme_blue</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
         <item name="iconPadding">2dp</item>
+    </style>
+
+    <style name="OutlinedBtnStyle" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="strokeColor">?attr/colorPrimary</item>
+        <item name="strokeWidth">2dp</item>
+        <item name="android:layout_marginStart">10sp</item>
+        <item name="android:layout_marginEnd">10sp</item>
     </style>
 
     <!-- 图标按钮样式 -->
     <style name="ClickableImageViewStyle" parent="Widget.AppCompat.ImageButton">
-        <item name="tint">@color/theme_blue</item>
+        <item name="tint">?attr/colorPrimary</item>
         <item name="android:padding">10sp</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
@@ -132,13 +150,13 @@
 
     <!-- 复选框样式 -->
     <style name="CheckBoxStyle">
-        <item name="buttonTint">@color/theme_blue</item>
+        <item name="buttonTint">?attr/colorPrimary</item>
     </style>
 
     <!-- 需要用户输入文本的文本框样式 -->
     <style name="UserInputEditTextStyle" parent="Widget.Material3.TextInputEditText.OutlinedBox">
         <item name="android:inputType">text</item>
-        <item name="android:textColorHighlight">@color/theme_blue_variant</item>
+        <item name="android:textColorHighlight">?attr/colorPrimaryVariant</item>
         <item name="android:maxLength">20</item>
     </style>
 
@@ -147,7 +165,7 @@
         <item name="android:inputType">text</item>
         <item name="android:focusable">false</item>
         <item name="android:clickable">true</item>
-        <item name="android:textColorHighlight">@color/theme_blue_variant</item>
+        <item name="android:textColorHighlight">?attr/colorPrimaryVariant</item>
     </style>
 
     <!-- AppBarLayout样式 -->
@@ -157,7 +175,7 @@
 
     <!-- SearchBar样式 -->
     <style name="SearchBarStyle" parent="Widget.Material3.SearchBar">
-        <item name="backgroundTint">@color/card_background</item>
+        <item name="backgroundTint">?attr/colorSecondary</item>
     </style>
 
     <!-- SearchView样式 -->
@@ -169,22 +187,20 @@
     <style name="NaviStyle" parent="Widget.Material3.BottomNavigationView">
         <item name="itemTextColor">@color/bottom_navigation_selector</item>
         <item name="itemIconTint">@color/bottom_navigation_selector</item>
-        <item name="itemRippleColor">@color/ripple</item>
-        <item name="backgroundTint">@color/card_background</item>
+        <item name="backgroundTint">?attr/colorSecondary</item>
         <item name="itemActiveIndicatorStyle">@style/NaviActiveIndicator</item>
     </style>
 
     <!-- 底部导航栏指示器颜色 -->
     <style name="NaviActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
-        <item name="android:color">@color/navi_indicator</item>
+        <item name="android:color">?attr/colorSecondaryVariant</item>
     </style>
 
     <!-- TabLayout样式 -->
     <style name="TabLayoutStyle" parent="android:Widget">
         <item name="android:background">@color/page_background</item>
         <item name="tabTextColor">@color/tab_layout_selector</item>
-        <item name="tabIndicatorColor">@color/theme_blue</item>
-        <item name="tabRippleColor">@color/ripple</item>
+        <item name="tabIndicatorColor">?attr/colorPrimary</item>
     </style>
 
     <!-- 普通文本样式 -->

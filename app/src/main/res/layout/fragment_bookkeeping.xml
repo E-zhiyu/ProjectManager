@@ -11,50 +11,15 @@
         android:layout_height="wrap_content">
 
         <!-- 顶部按钮视图 -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/btn_card_view"
-            style="@style/RoundCardStyle"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/running_account_add_btn"
+            style="@style/OutlinedBtnStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_scrollFlags="scroll|enterAlways|snap">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/account_num_text"
-                    style="@style/LabelTextViewStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:paddingBottom="0sp"
-                    android:text="@string/num_of_running_account" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingBottom="7sp">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/running_account_add_btn"
-                        style="@style/BtnStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/running_account_add" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/report_btn"
-                        style="@style/BtnStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/check_report" />
-                </LinearLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+            android:layout_marginTop="10sp"
+            android:layout_marginBottom="10sp"
+            android:text="@string/running_account_add"
+            app:layout_scrollFlags="scroll|enterAlways|snap" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout

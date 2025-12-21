@@ -1,5 +1,6 @@
 package com.project.manager.ui.home;
 
+import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import com.project.manager.data.data_class.running_account.RunningAccountBase;
 import com.project.manager.data.data_save.preference.BookKeepingStartDatePreference;
 import com.project.manager.databinding.FragmentHomeBinding;
 import com.project.manager.helpers.ExceptionHelper;
+import com.project.manager.ui.bookkeeping.report.ReportActivity;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -36,7 +38,13 @@ public class HomeFragment extends Fragment {
     }
 
     private void initViews() {
-        MaterialTextView bookKeepingDaysText = binding.bookkeepingDaysText;
+        //设置按钮的点击监听器
+        binding.reportBtn.setOnClickListener(v -> {
+            Intent skip2Report = new Intent(requireContext(), ReportActivity.class);
+            startActivity(skip2Report);
+        });
+
+        MaterialTextView bookKeepingDaysText = binding.bookkeepingDaysText;     //记账天数文本视图
 
         //初始化记账日期
         String start_date_str = getBookKeepingStartDate();  //获取开始记账的日期
