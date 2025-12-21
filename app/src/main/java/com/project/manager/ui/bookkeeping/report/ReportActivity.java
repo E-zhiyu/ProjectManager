@@ -3,7 +3,7 @@ package com.project.manager.ui.bookkeeping.report;
 import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabaseLockedException;
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -38,18 +38,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public class ReportActivity extends AppCompatActivity implements View.OnClickListener {
-    //余额增加的流水种类
-    private final RunningAccountType[] income_type_array = {
-            RunningAccountType.INCOME
-    };
-    //余额减少的流水种类
-    private final RunningAccountType[] expense_type_array = {
-            RunningAccountType.EXPENSE,
-            RunningAccountType.TRANSFER
-    };
     private final List<AccountSourceInfo> expenseSourceInfoList = new ArrayList<>();        //支出来源列表
     private final List<AccountSourceInfo> incomeSourceInfoList = new ArrayList<>();         //收入来源列表
     private int year, month, day;                                                           //年月日
@@ -125,82 +117,88 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     /**
      * 加载流水信息并生成报表数据
      */
-    @SuppressLint("DefaultLocale")
-    private List<ReportRunningAccountData> loadReportData(@NonNull DateRangeType dateRangeType) {
+    private List<ReportRunningAccountData> loadReportData(@NonNull DateRangeType dateRangeType) throws SQLiteException {
         List<ReportRunningAccountData> dataList = new ArrayList<>();
+        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(this);
+        SQLiteDatabase db = db_helper.openReadLink();
 
-        try (BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(this)) {
-            SQLiteDatabase db = db_helper.openReadLink();
+        String[] columns = new String[]{
+                BookKeepingColumns.AMOUNT.toString(),
+                BookKeepingColumns.TYPE.toString(),
+                BookKeepingColumns.TAG_NO.toString(),
+                BookKeepingColumns.DATETIME.toString()
+        };
+        String selection = BookKeepingColumns.DATETIME + ">=? AND " + BookKeepingColumns.DATETIME + "<?";
 
-            String[] columns = new String[]{
-                    BookKeepingColumns.AMOUNT.toString(),
-                    BookKeepingColumns.TYPE.toString(),
-                    BookKeepingColumns.TAG_NO.toString(),
-                    BookKeepingColumns.DATETIME.toString()
-            };
-            String selection = BookKeepingColumns.DATETIME + ">=? AND " + BookKeepingColumns.DATETIME + "<?";
-
-            //根据日期范围设置selection语句的参数
-            String[] selectionArgs;
-            switch (dateRangeType) {
-                case TODAY:
-                    selectionArgs = new String[]{String.format("%04d-%02d-%02d", year, month, day), String.format("%04d-%02d-%02d", year, month, day + 1)};
-                    break;
-                case THIS_MONTH:
-                    selectionArgs = new String[]{String.format("%04d-%02d-01", year, month), String.format("%04d-%02d-01", year, month + 1)};
-                    break;
-                case RECENT_3_MONTH:
-                    int early_month = month - 2;
-                    int early_year;
-                    if (early_month <= 0) {
-                        early_year = year - 1;
-                        early_month += 12;
-                    } else {
-                        early_year = year;
-                    }
-                    selectionArgs = new String[]{String.format("%04d-%02d-01", early_year, early_month), String.format("%04d-%02d-01", year, month + 1)};
-                    break;
-                case THIS_YEAR:
-                    selectionArgs = new String[]{String.format("%04d-01-01", year), String.format("%04d-01-01", year + 1)};
-                    break;
-                default:
-                    NullPointerException e = new NullPointerException("无法设置合法的日期范围");
-                    ExceptionHelper.showExceptionDialog(this, e);
-                    return dataList;
-            }
-
-            Cursor basic_cursor = db.query(
-                    BookKeepingTables.BASIC.toString(),
-                    columns,
-                    selection,
-                    selectionArgs,
-                    null,
-                    null,
-                    BookKeepingColumns.DATETIME + " DESC"
-            );
-
-            while (basic_cursor.moveToNext()) {
-                RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.TYPE.toString())));
-                double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.AMOUNT.toString()));
-                long tag_no = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));
-                String date_time = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.DATETIME.toString()));
-
-                //获取月份
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-                LocalDateTime localDateTime = LocalDateTime.parse(date_time, formatter);
-                int month = localDateTime.getMonthValue();
-
-                ReportRunningAccountData oneRecordedData = new ReportRunningAccountData(type, amount, tag_no, month);
-                dataList.add(oneRecordedData);
-            }
-
-            basic_cursor.close();
-            db.close();
-            return dataList;
-        } catch (SQLiteDatabaseLockedException e) {
-            ExceptionHelper.showExceptionDialog(this, e);
-            return dataList;
+        //根据日期范围设置selection语句的参数
+        String[] selectionArgs;
+        switch (dateRangeType) {
+            case TODAY:
+                selectionArgs = new String[]{
+                        String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month, day),
+                        String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month, day + 1)
+                };
+                break;
+            case THIS_MONTH:
+                selectionArgs = new String[]{
+                        String.format(Locale.getDefault(), "%04d-%02d-01", year, month),
+                        String.format(Locale.getDefault(), "%04d-%02d-01", year, month + 1)
+                };
+                break;
+            case RECENT_3_MONTH:
+                int early_month = month - 2;
+                int early_year;
+                if (early_month <= 0) {
+                    early_year = year - 1;
+                    early_month += 12;
+                } else {
+                    early_year = year;
+                }
+                selectionArgs = new String[]{
+                        String.format(Locale.getDefault(), "%04d-%02d-01", early_year, early_month),
+                        String.format(Locale.getDefault(), "%04d-%02d-01", year, month + 1)
+                };
+                break;
+            case THIS_YEAR:
+                selectionArgs = new String[]{
+                        String.format(Locale.getDefault(), "%04d-01-01", year),
+                        String.format(Locale.getDefault(), "%04d-01-01", year + 1)
+                };
+                break;
+            default:
+                NullPointerException e = new NullPointerException("无法设置合法的日期范围");
+                ExceptionHelper.showExceptionDialog(this, e);
+                return dataList;
         }
+
+        Cursor basic_cursor = db.query(
+                BookKeepingTables.BASIC.toString(),
+                columns,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                BookKeepingColumns.DATETIME + " DESC"
+        );
+
+        while (basic_cursor.moveToNext()) {
+            RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.TYPE.toString())));
+            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.AMOUNT.toString()));
+            long tag_no = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));
+            String date_time = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.DATETIME.toString()));
+
+            //获取月份
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            LocalDateTime localDateTime = LocalDateTime.parse(date_time, formatter);
+            int month = localDateTime.getMonthValue();
+
+            ReportRunningAccountData oneRecordedData = new ReportRunningAccountData(type, amount, tag_no, month);
+            dataList.add(oneRecordedData);
+        }
+
+        basic_cursor.close();
+        db.close();
+        return dataList;
     }
 
     /**
@@ -220,39 +218,38 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             long tag_no = oneRecordedData.getTag_no();
 
             //处理金额数据
-            List<AccountSourceInfo> targetList = null;  //待操作的来源列表
-            if (isContainedInArray(income_type_array, type)) {
+            List<AccountSourceInfo> targetList; //待操作的来源列表
+            if (!type.isExpenseType()) {
                 income += amount;
                 balance += amount;
                 targetList = incomeSourceInfoList;
-            } else if (isContainedInArray(expense_type_array, type)) {
+            } else {
                 expense += amount;
                 balance -= amount;
                 targetList = expenseSourceInfoList;
             }
 
-            if (targetList != null) {   //判断目标列表是否为空
-                int index = isContainedInArray(targetList, tag_no);
-                if (index != -1) {      //判断是否查询到对应的来源卡片
-                    targetList.get(index).amountAdd(amount);
+            //判断目标列表是否为空
+            int index = isContainedInArray(targetList, tag_no);
+            if (index != -1) {      //判断是否查询到对应的来源卡片
+                targetList.get(index).amountAdd(amount);
+            } else {
+                if (tag_no != 0) {  //判断该流水记录是否有标签
+                    String tag_name = Tag.tagNoTransToName(tag_no, this);
+                    AccountSourceInfo newSource = new AccountSourceInfo(amount, tag_name, tag_no);
+                    targetList.add(newSource);
                 } else {
-                    if (tag_no != 0) {  //判断该流水记录是否有标签
-                        String tag_name = Tag.tagNoTransToName(tag_no, this);
-                        AccountSourceInfo newSource = new AccountSourceInfo(amount, tag_name, tag_no);
-                        targetList.add(newSource);
-                    } else {
-                        AccountSourceInfo otherSource = new AccountSourceInfo(amount, "其他", tag_no);
-                        targetList.add(otherSource);
-                    }
+                    AccountSourceInfo otherSource = new AccountSourceInfo(amount, "其他", tag_no);
+                    targetList.add(otherSource);
                 }
             }
         }
 
         //更新文本视图
-        MaterialTextView balance_textview = findViewById(R.id.report_balance_textview);
+        MaterialTextView balance_textview = findViewById(R.id.balance_text);
         balance_textview.setText(String.format("%.2f", balance));
         String expenditure_income = String.format("支出：%.2f | 收入：%.2f", expense, income);
-        MaterialTextView expense_income_textview = findViewById(R.id.expense_income_textview);
+        MaterialTextView expense_income_textview = findViewById(R.id.expense_income_text);
         expense_income_textview.setText(expenditure_income);
 
         //计算各来源的收支占比
@@ -362,7 +359,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             double amount = data.getAmount();
             int month = data.getMonth();
 
-            if (isContainedInArray(expense_type_array, type)) {
+            if (type.isExpenseType()) {
                 month_expense[month - 1] += amount;
                 year_expense += amount;
             } else {
@@ -447,21 +444,6 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         if (totalPercentage != 0 && totalPercentage < 100) {
             monthAccountInfoList.get(minPercentageIndex).setPercentage(minPercentage + 100 - totalPercentage);
         }
-    }
-
-    /**
-     * 判断某种类是否包含于指定的数组中
-     *
-     * @param typeArray 流水种类数组
-     * @param type      流水种类
-     * @return 指定的种类是否包含于数组中
-     */
-    private boolean isContainedInArray(@NonNull RunningAccountType[] typeArray, RunningAccountType type) {
-        for (RunningAccountType runningAccountType : typeArray) {
-            if (runningAccountType == type) return true;
-        }
-
-        return false;
     }
 
     /**

@@ -13,7 +13,8 @@
         <com.google.android.material.card.MaterialCardView
             style="@style/RoundCardStyle"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            app:layout_scrollFlags="scroll|snap">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -45,6 +46,7 @@
         android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+        <!-- 主内容布局 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -66,11 +68,12 @@
                         style="@style/ReportInfoTextViewStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:paddingTop="10sp"
                         android:text="@string/today_balance"
                         android:textSize="20sp" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/report_balance_textview"
+                        android:id="@+id/balance_text"
                         style="@style/ReportInfoTextViewStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -78,11 +81,11 @@
                         android:textSize="25sp" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/expense_income_textview"
+                        android:id="@+id/expense_income_text"
                         style="@style/ReportInfoTextViewStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingBottom="5sp"
+                        android:paddingBottom="10sp"
                         android:text="@string/expense_and_income" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

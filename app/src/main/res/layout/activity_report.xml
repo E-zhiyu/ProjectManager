@@ -81,7 +81,7 @@
                         android:textSize="15sp" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/report_balance_textview"
+                        android:id="@+id/balance_text"
                         style="@style/ReportInfoTextViewStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -89,7 +89,7 @@
                         android:textSize="25sp" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/expense_income_textview"
+                        android:id="@+id/expense_income_text"
                         style="@style/ReportInfoTextViewStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
