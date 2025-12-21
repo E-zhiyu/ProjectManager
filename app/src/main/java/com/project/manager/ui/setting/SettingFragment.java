@@ -206,7 +206,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         binding.settingClearRunningAccount.setOnClickListener(this);
         binding.settingUpdateLog.setOnClickListener(v -> UpdateLogHelper.showUpdateLogDialog(requireContext()));
         binding.settingNotificationAnalysisRules.setOnClickListener(v -> {
-            Intent skip2NotificationRulesActivity = new Intent(getActivity(), AnalysisRuleManageActivity.class);
+            Intent skip2NotificationRulesActivity = new Intent(requireContext(), AnalysisRuleManageActivity.class);
             startActivity(skip2NotificationRulesActivity);
         });
         binding.autoStartPermission.setOnClickListener(v -> PermissionHelper.requestAutoStartPermission(requireContext()));

@@ -4,14 +4,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -25,8 +24,14 @@ import com.project.manager.data.data_class.TagGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TagManageActivity extends AppCompatActivity implements View.OnClickListener, TagManageRecyclerAdapter.OnTextViewClickedListener {
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
+public class TagManageActivity extends AppCompatActivity implements TagManageRecyclerAdapter.OnTextViewClickedListener {
     private TagManageRecyclerAdapter adapter;
+    private final CompositeDisposable disposables = new CompositeDisposable();                      //订阅列表（便于取消订阅）
     private ActivityResultLauncher<Intent> tagAddLauncher, tagModifyLauncher, modifyGroupLauncher;  //活动启动器
 
     @Override
@@ -52,22 +57,11 @@ public class TagManageActivity extends AppCompatActivity implements View.OnClick
     }
 
     @Override
-    public void onClick(@NonNull View v) {
-        if (v.getId() == R.id.tag_add_btn) {
-            Intent skip2TagAdd = new Intent(this, TagAddModifyActivity.class);
+    protected void onDestroy() {
+        super.onDestroy();
 
-            //获取已保存的标签分组信息
-            List<TagGroup> tagGroupList = adapter.getTagGroupList();
-            ArrayList<String> groupNameList = new ArrayList<>();
-            for (TagGroup group : tagGroupList) {
-                groupNameList.add(group.getGroup_name());
-            }
-            skip2TagAdd.putStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue(), groupNameList);
-
-            skip2TagAdd.putExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), false);
-
-            tagAddLauncher.launch(skip2TagAdd);
-        }
+        // 防止内存泄漏
+        disposables.dispose();
     }
 
     @Override
@@ -111,8 +105,39 @@ public class TagManageActivity extends AppCompatActivity implements View.OnClick
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> finish());
 
+        //设置按钮点击监听
         MaterialButton tag_add_btn = findViewById(R.id.tag_add_btn);
-        tag_add_btn.setOnClickListener(this);
+        tag_add_btn.setOnClickListener(v -> {
+            Intent skip2TagAdd = new Intent(this, TagAddModifyActivity.class);
+
+            //获取已保存的标签分组信息
+            List<TagGroup> tagGroupList = adapter.getTagGroupList();
+            ArrayList<String> groupNameList = new ArrayList<>();
+            for (TagGroup group : tagGroupList) {
+                groupNameList.add(group.getGroup_name());
+            }
+            skip2TagAdd.putStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue(), groupNameList);
+
+            skip2TagAdd.putExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), false);
+
+            tagAddLauncher.launch(skip2TagAdd);
+        });
+
+        //设置刷新布局的刷新动作监听
+        SwipeRefreshLayout refreshLayout = findViewById(R.id.refresh_layout);
+        refreshLayout.setOnRefreshListener(() -> disposables.add(
+                Observable.fromCallable(() -> TagGroup.loadTagGroups(this))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(tagGroupList -> {
+                            refreshLayout.setRefreshing(false);
+                            adapter.refreshUI(tagGroupList);
+                        }, e -> {
+                            refreshLayout.setRefreshing(false);
+                            ExceptionHelper.showExceptionDialog(this, e);
+                            Toast.makeText(this, "刷新失败", Toast.LENGTH_SHORT).show();
+                        })
+        ));
     }
 
     //初始化活动启动器

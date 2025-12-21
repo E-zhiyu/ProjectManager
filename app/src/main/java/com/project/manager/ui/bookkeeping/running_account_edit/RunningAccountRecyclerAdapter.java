@@ -76,7 +76,11 @@ public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningA
         holder.name_datetime_text.setText(name_and_datetime);                           //名称和日期
         holder.amount_text.setText(String.valueOf(currentRunningAccount.getAmount()));  //金额
 
-        holder.itemView.setOnClickListener(v -> listener.onRunningAccountViewClick(position, currentRunningAccount));
+        holder.itemView.setOnClickListener(v ->
+                listener.onRunningAccountViewClick(
+                        holder.getBindingAdapterPosition(),
+                        currentRunningAccount)
+        );
     }
 
     @Override

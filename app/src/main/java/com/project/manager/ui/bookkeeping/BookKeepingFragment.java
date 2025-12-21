@@ -53,7 +53,7 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
 
         //实例化数据库帮助器
-        running_account_db_helper = new BookKeepingDatabaseHelper(getActivity());
+        running_account_db_helper = new BookKeepingDatabaseHelper(requireContext());
 
         initActivityLauncher();
         initViews();
@@ -78,7 +78,7 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
     public void onRunningAccountViewClick(int position, RunningAccountBase runningAccountBase) {
         RunningAccountBase runningAccountView = runningAccountRecyclerAdapter.getItem(position);
 
-        Intent skip2RunningAccountModify = new Intent(getActivity(), RunningAccountModifyActivity.class);
+        Intent skip2RunningAccountModify = new Intent(requireContext(), RunningAccountModifyActivity.class);
         Bundle dataBundle = new Bundle();
 
         //获取基本数据
@@ -158,7 +158,7 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
     private void initViews() {
         //绑定单击按钮监听器
         binding.runningAccountAddBtn.setOnClickListener(v -> {
-            Intent skip2NewRunningAccount = new Intent(getActivity(), RunningAccountAddActivity.class);
+            Intent skip2NewRunningAccount = new Intent(requireContext(), RunningAccountAddActivity.class);
             runningAccountAddLauncher.launch(skip2NewRunningAccount);
         });
 
@@ -249,7 +249,7 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
         }
 
         runningAccountRecyclerAdapter.modifyRunningAccount(dataBundle);
-        Toast.makeText(getActivity(), "成功修改流水记录", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), "成功修改流水记录", Toast.LENGTH_SHORT).show();
     }
 
     /**
