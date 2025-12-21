@@ -222,7 +222,7 @@ public class BookKeepingDatabaseHelper extends SQLiteOpenHelper {
         rule_values.put(BookKeepingColumns.TYPE.toString(), RunningAccountType.EXPENSE.toString());//流水种类
         rule_values.put(BookKeepingColumns.PACKAGE_NAME.toString(), "com.tencent.mm");              //包名
         rule_values.put(BookKeepingColumns.NOTIFICATION_TITLE.toString(), "微信支付");              //通知标题
-        rule_values.put(BookKeepingColumns.NOTIFICATION_CONTENT.toString(), "已支付.([\\w\\.]+)"); //匹配通知内容
+        rule_values.put(BookKeepingColumns.NOTIFICATION_CONTENT.toString(), "已支付.(\\d+\\.?\\d{0,2}"); //匹配通知内容
         db.insert(BookKeepingTables.ANALYSIS_RULE.toString(), null, rule_values);
     }
 }
