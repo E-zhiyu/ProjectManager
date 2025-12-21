@@ -22,6 +22,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.broadcast.BroadcastConstants;
 import com.project.manager.broadcast.RunningAccountUpdatedBroadcastReceiver;
+import com.project.manager.data.data_class.Tag;
 import com.project.manager.data.data_class.running_account.ExpenseRunningAccount;
 import com.project.manager.data.data_class.running_account.IncomeRunningAccount;
 import com.project.manager.data.data_class.running_account.RunningAccountBase;
@@ -120,6 +121,16 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
     private List<RunningAccountBase> loadRunningAccountData(long tag_no) {
         SQLiteDatabase db = running_account_db_helper.openReadLink();  //获取读连接
 
+        //判断该标签是否存在
+        String tag_name = Tag.tagNoTransToName(tag_no, requireContext());
+        if (tag_name.isEmpty() && tag_no != 0) {
+            tag_no = 0;
+            filter_tag_no = 0;
+            binding.filterText.setText("全部");
+            Toast.makeText(requireContext(), "标签被删除，已自动清空过滤器", Toast.LENGTH_SHORT).show();
+        }
+
+        //生成查询条件
         String selection;
         String[] selectionArgs;
         if (tag_no == 0) {

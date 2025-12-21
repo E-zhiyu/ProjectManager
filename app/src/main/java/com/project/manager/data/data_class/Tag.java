@@ -81,7 +81,7 @@ public class Tag {
      *
      * @param tag_no  标签编号
      * @param context 用于打开数据库的上下文
-     * @return 对应的标签名称
+     * @return 对应的标签名称（未找到时为空）
      * @throws SQLiteException 无法修改数据库时引发的异常
      */
     public static String tagNoTransToName(long tag_no, Context context) throws SQLiteException {
