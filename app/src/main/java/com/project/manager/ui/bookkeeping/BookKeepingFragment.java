@@ -43,6 +43,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public class BookKeepingFragment extends Fragment implements RunningAccountRecyclerAdapter.OnRunningAccountViewClickListener {
     private RunningAccountRecyclerAdapter runningAccountRecyclerAdapter;    //流水列表适配器
     private RecyclerView runningAccountRecyclerView;                        //流水列表视图
@@ -53,6 +58,7 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
     private RunningAccountUpdatedBroadcastReceiver accountUpdatedReceiver;  //流水数据更新的广播接收器
     private TagSelectBottomSheet tagSelectBottomSheet;                      //标签选择弹窗
     private long filter_tag_no = 0;                                         //过滤器过滤的标签编号
+    private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
@@ -71,6 +77,9 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+
+        // 防止内存泄漏
+        disposables.dispose();
 
         //取消注册广播接收器
         if (accountUpdatedReceiver != null) {
@@ -269,7 +278,9 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
         });
 
         binding.filterText.setOnClickListener(v -> {
-            tagSelectBottomSheet = new TagSelectBottomSheet(this::onTagBtnClicked, null, "清空过滤");
+            if (tagSelectBottomSheet== null) {
+                tagSelectBottomSheet = new TagSelectBottomSheet(this::onTagBtnClicked, null, "清空过滤");
+            }
             tagSelectBottomSheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
         });
 
@@ -401,6 +412,7 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
      */
     private void onTagBtnClicked(long tag_no, String tag_name) {
         filter_tag_no = tag_no;
+        binding.refreshLayout.setRefreshing(true);
 
         if (tag_no == 0) {
             binding.filterText.setText("全部");
@@ -408,15 +420,26 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
             binding.filterText.setText(tag_name);
         }
 
-        List<RunningAccountBase> refreshedAccount = loadRunningAccountData(filter_tag_no);
-        runningAccountRecyclerAdapter.refreshRunningAccount(refreshedAccount);
-        account_num = refreshedAccount.size();
-        refreshAccountNumText();
+        disposables.add(
+                Observable.fromCallable(() -> loadRunningAccountData(filter_tag_no))
+                        .subscribeOn(Schedulers.io())               //在IO线程执行查询
+                        .observeOn(AndroidSchedulers.mainThread())  //切换到主线程更新 UI
+                        .subscribe(
+                                refreshedAccount -> {
+                                    runningAccountRecyclerAdapter.refreshRunningAccount(refreshedAccount);
+                                    binding.refreshLayout.setRefreshing(false);
+                                    account_num = refreshedAccount.size();
+                                    refreshAccountNumText();
+                                },  //成功回调
+                                e -> {
+                                    binding.refreshLayout.setRefreshing(false);
+                                    ExceptionHelper.showExceptionDialog(requireContext(), e);
+                                }   //错误处理
+                        )
+        );
 
-        loadRunningAccountData(filter_tag_no);
         if (tagSelectBottomSheet != null) {
             tagSelectBottomSheet.dismiss();
-            tagSelectBottomSheet = null;
         }
     }
 }

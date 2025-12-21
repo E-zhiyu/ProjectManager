@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.5.0  \n" +
             "**新增内容**  \n" +
+            "- 流水记录界面添加标签过滤器  \n" +
             "- 新增主页界面，并将流水记录管理的部分组件移动至该界面  \n\n" +
             "**修改内容**  \n" +
             "- 调整数据输入界面的按钮样式  \n\n" +

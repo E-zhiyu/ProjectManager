@@ -100,6 +100,12 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
         return binding.getRoot();
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
     //初始化视图
     private void initViews() {
         MaterialButton edit_tag_btn = binding.editTagBtn;
