@@ -114,7 +114,7 @@ public class UpdateLogHelper {
 
     public static void showUpdateLogDialog(Context context) {
         View update_dialog_view = LayoutInflater.from(context)
-                .inflate(R.layout.md_textview_in_dialog, null);
+                .inflate(R.layout.view_md_text, null);
         MaterialTextView text_view = update_dialog_view.findViewById(R.id.md_textview_in_dialog);
 
         //使用Markown渲染Markdown文本

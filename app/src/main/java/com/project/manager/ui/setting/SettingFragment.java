@@ -1,21 +1,26 @@
 package com.project.manager.ui.setting;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
+import com.project.manager.R;
 import com.project.manager.broadcast.BroadcastConstants;
 import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
 import com.project.manager.data.data_save.preference.KeepAlivePreference;
@@ -44,6 +49,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -190,39 +196,81 @@ public class SettingFragment extends Fragment {
                         String[] type_names = Arrays.stream(EIDataType.values())
                                 .map(EIDataType::getName)
                                 .toArray(String[]::new);
-                        boolean[] choseItem = {true, true};
+                        boolean[] itemStats = {true, true};     //选项的选择状态
+                        boolean[] isItemFound = {true, true};   //是否找到对应名称的文件
 
-                        new MaterialAlertDialogBuilder(requireContext())
+                        //根据解压的临时JSON文件决定应该禁用哪些选项
+                        for (EIDataType eiDataType : EIDataType.values()) {
+                            boolean isFound = false;
+                            for (File tempFile : tempJsonFileList) {
+                                if (tempFile.getName().equals(eiDataType.getDefault_file_name())) {
+                                    isFound = true;
+                                    break;
+                                }
+                            }
+
+                            if (!isFound) {
+                                int index = eiDataType.ordinal();
+                                String type_name = eiDataType.getName();
+                                String disabled_name = String.format(Locale.getDefault(), "%s(未包含)", type_name);
+                                type_names[index] = disabled_name;
+                                itemStats[index] = false;
+                                isItemFound[index] = false;
+                            }
+                        }
+
+                        //实例化自定义对话框视图
+                        @SuppressLint("InflateParams") View mutiChoiceDialogView = getLayoutInflater().inflate(R.layout.view_multichoice, null);
+
+                        //构建对话框实例
+                        AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("选择需要导入的数据")
-                                .setMultiChoiceItems(
-                                        type_names,
-                                        choseItem,
-                                        (dialog, which, isChecked) -> choseItem[which] = isChecked
-                                )
+                                .setView(mutiChoiceDialogView)
                                 .setNegativeButton("取消", (dialog, which) -> {
                                     dialog.dismiss();
                                     safFileHelper.clearTempFile();
                                 })
                                 .setPositiveButton("确定", (dialog, which) -> {
-                                    //检测是否一个都没有选择
-                                    boolean isNonItemChosen = true;
-                                    for (boolean isChose : choseItem) {
-                                        if (isChose) {
-                                            isNonItemChosen = false;
-                                            break;
-                                        }
-                                    }
 
-                                    if (!isNonItemChosen) {
-                                        onImportConfirmed(choseItem, effectiveFileList);
-                                        dialog.dismiss();
-                                    } else {
-                                        Toast.makeText(requireContext(), "请选择至少一个选项", Toast.LENGTH_SHORT).show();
-                                    }
-
-                                    safFileHelper.clearTempFile();  //数据处理完成后清空临时文件
                                 })
-                                .show();
+                                .create();
+
+                        //设置对话框的显示监听器
+                        alertDialog.setOnShowListener(dialog -> {
+                            Button positiveBtn = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                            positiveBtn.setOnClickListener(v -> {
+                                //检测是否一个都没有选择
+                                boolean isNonItemChosen = true;
+                                for (boolean isChose : itemStats) {
+                                    if (isChose) {
+                                        isNonItemChosen = false;
+                                        break;
+                                    }
+                                }
+
+                                if (!isNonItemChosen) {
+                                    onImportConfirmed(itemStats, effectiveFileList);
+                                    dialog.dismiss();   //仅当满足要求时才关闭
+                                } else {
+                                    Toast.makeText(requireContext(), "请选择至少一个选项", Toast.LENGTH_SHORT).show();
+                                }
+
+                                safFileHelper.clearTempFile();  //数据处理完成后清空临时文件
+                            });
+                        });
+
+                        alertDialog.show();
+
+                        //设置适配器
+                        RecyclerView recyclerView = mutiChoiceDialogView.findViewById(R.id.item_recycler);
+                        MultiChoiceDialogAdapter adapter = new MultiChoiceDialogAdapter(
+                                requireContext(),
+                                isItemFound,
+                                itemStats,
+                                type_names,
+                                (position, isChecked) -> itemStats[position] = isChecked
+                        );
+                        recyclerView.setAdapter(adapter);
                     }
 
                     @Override
