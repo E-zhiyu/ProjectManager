@@ -26,16 +26,16 @@ import java.util.zip.ZipOutputStream;
 
 public class SAFFileHelper {
     private final Context context;                              //上下文
-    private SAFFileReadCallback readCallback;
-    private SAFFileWriteCallback writeCallback;
-    private final List<File> tempFileList = new ArrayList<>(); //临时文件列表
-    private final File tempDir;                                //临时文件目录
-    private File tempZipFile;                                  //临时zip压缩文件
+    private ReadCallback readCallback;                          //文件读取回调
+    private WriteCallback writeCallback;                        //文件写入回调
+    private final List<File> tempFileList = new ArrayList<>();  //临时文件列表
+    private final File tempDir;                                 //临时文件目录
+    private File tempZipFile;                                   //临时zip压缩文件
 
     /**
      * 文件写入回调接口
      */
-    public interface SAFFileWriteCallback {
+    public interface WriteCallback {
         void onFileWrote();
 
         void onError(String errMessage);
@@ -44,7 +44,7 @@ public class SAFFileHelper {
     /**
      * 文件读取回调接口
      */
-    public interface SAFFileReadCallback {
+    public interface ReadCallback {
         void onFileRead(String content);
 
         void onError(String errMessage);
@@ -56,12 +56,39 @@ public class SAFFileHelper {
     }
 
     /**
-     * 创建临时JSON文件
+     * 将临时文件打包至zip文件中
+     *
+     * @param writeCallback   文件写入回调
+     * @param launcher        启动SAF的意图启动器
+     * @param fileNameList    文件名列表
+     * @param fileContentList 与文件名列表对应的文件内容列表
+     */
+    public void packFileInZip(
+            WriteCallback writeCallback,
+            ActivityResultLauncher<Intent> launcher,
+            @NonNull List<String> fileNameList,
+            List<String> fileContentList) {
+        this.writeCallback = writeCallback;
+
+        //创建列表中的临时文件
+        for (int index = 0; index < fileNameList.size(); index++) {
+            String file_name = fileNameList.get(index);
+            String file_content = fileContentList.get(index);
+
+            createTempJsonFile(file_name, file_content);
+        }
+
+        //生成zip文件并
+        createTempZipFile(launcher);
+    }
+
+    /**
+     * 创建空白临时JSON文件
      *
      * @param file_name 文件名称
      * @param content   文件内容
      */
-    public void createTempJsonFile(String file_name, String content) {
+    private void createTempJsonFile(String file_name, String content) {
         //创建临时目录
         if (!tempDir.exists()) {
             tempDir.mkdirs();
@@ -92,8 +119,10 @@ public class SAFFileHelper {
 
     /**
      * 创建临时zip压缩包并将临时数据文件放入压缩包内
+     *
+     * @param launcher 启动SAF的意图启动器
      */
-    public void createTempZipFile(ActivityResultLauncher<Intent> launcher) {
+    private void createTempZipFile(ActivityResultLauncher<Intent> launcher) {
         //获取当前日期和时间并生成默认文件名
         Calendar calendar = Calendar.getInstance();
         String now_date = String.format(
@@ -128,7 +157,8 @@ public class SAFFileHelper {
             }
             saveFileUsingSAF(launcher, tempZipFile);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            ExceptionHelper.showExceptionDialog(context, e);
+            writeCallback.onError("无法创建临时zip文件");
         }
     }
 
@@ -182,7 +212,7 @@ public class SAFFileHelper {
      * @param fileType 文件类型
      * @param launcher SAF启动器
      */
-    public void openFileAndReadContent(SAFFileReadCallback callback,
+    public void openFileAndReadContent(ReadCallback callback,
                                        String fileType,
                                        ActivityResultLauncher<Intent> launcher) {
         this.readCallback = callback;
@@ -229,7 +259,7 @@ public class SAFFileHelper {
             ExceptionHelper.showExceptionDialog(context, e);
             writeCallback.onError("复制临时zip文件失败");
         } finally {
-            // 关闭所有流和删除临时文件
+            //关闭所有流并删除临时文件
             try {
                 if (fis != null) fis.close();
                 if (finalFos != null) finalFos.close();
@@ -237,6 +267,7 @@ public class SAFFileHelper {
                 clearTempFile();    //删除临时文件
             } catch (IOException e) {
                 ExceptionHelper.showExceptionDialog(context, e);
+                writeCallback.onError("无法正确关闭流或删除临时文件");
             }
         }
     }
@@ -244,7 +275,7 @@ public class SAFFileHelper {
     /**
      * 清除临时文件
      */
-    public void clearTempFile() {
+    private void clearTempFile() {
         for (File tempFile : tempFileList) {
             tempFile.delete();
         }

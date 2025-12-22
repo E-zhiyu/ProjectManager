@@ -38,7 +38,9 @@ import com.project.manager.data.data_save.preference.ThemeModePreference;
 import com.project.manager.ui.setting.running_account_data.maps.TotalAccountDataMap;
 import com.project.manager.ui.setting.running_account_data.maps.TotalRuleDataMap;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 
 public class SettingFragment extends Fragment {
@@ -47,13 +49,13 @@ public class SettingFragment extends Fragment {
     private SAFFileHelper safFileHelper;    //SAF文件帮助器
 
     //导入和导出的数据种类枚举
-    enum ExportImportDataType {
+    enum EIDataType {
         ACCOUNT_DATA("流水记录数据", "RunningAccount.json"),
         RULE_DATA("通知解析规则数据", "AnalysisRule.json");
         final String name;              //选项名称
         final String default_file_name; //默认文件名称
 
-        ExportImportDataType(String name, String default_file_name) {
+        EIDataType(String name, String default_file_name) {
             this.name = name;
             this.default_file_name = default_file_name;
         }
@@ -111,50 +113,52 @@ public class SettingFragment extends Fragment {
      * 导出数据并创建文件
      */
     private void exportData(@NonNull boolean[] choseItem) {
+        List<String> fileNameList = new ArrayList<>();      //用于导出数据的临时文件名列表
+        List<String> fileContentList = new ArrayList<>();   //用于导出数据的临时文件内容列表
+
         //根据选择的内容创建临时文件
-        if (choseItem[ExportImportDataType.ACCOUNT_DATA.ordinal()]) {
+        if (choseItem[EIDataType.ACCOUNT_DATA.ordinal()]) {
             DataHelperBase<BookKeepingDatabaseHelper, TotalAccountDataMap> dataHelper = new RunningAccountDataHelper(requireContext());
             try {
                 String json_str = dataHelper.getDataInJSON();
-                safFileHelper.createTempJsonFile(ExportImportDataType.ACCOUNT_DATA.getDefault_file_name(), json_str);
+                fileNameList.add(EIDataType.ACCOUNT_DATA.getDefault_file_name());
+                fileContentList.add(json_str);
             } catch (JsonProcessingException e) {
                 ExceptionHelper.showExceptionDialog(requireContext(), e);
                 Toast.makeText(requireContext(), "JSON序列化时出错", Toast.LENGTH_SHORT).show();
+                return;
             }
         }
-        if (choseItem[ExportImportDataType.RULE_DATA.ordinal()]) {
+        if (choseItem[EIDataType.RULE_DATA.ordinal()]) {
             DataHelperBase<BookKeepingDatabaseHelper, TotalRuleDataMap> dataHelper = new AnalysisRuleDataHelper(requireContext());
             try {
                 String json_str = dataHelper.getDataInJSON();
-                safFileHelper.createTempJsonFile(ExportImportDataType.RULE_DATA.getDefault_file_name(), json_str);
+                fileNameList.add(EIDataType.RULE_DATA.getDefault_file_name());
+                fileContentList.add(json_str);
             } catch (JsonProcessingException e) {
                 ExceptionHelper.showExceptionDialog(requireContext(), e);
                 Toast.makeText(requireContext(), "JSON序列化时出错", Toast.LENGTH_SHORT).show();
+                return;
             }
         }
 
-        safFileHelper.createTempZipFile(exportDataLauncher);
+        //将文件打包至压缩包内
+        safFileHelper.packFileInZip(
+                new SAFFileHelper.WriteCallback() {
+                    @Override
+                    public void onFileWrote() {
+                        Toast.makeText(requireContext(), "导出成功", Toast.LENGTH_SHORT).show();
+                    }
 
-//        String default_filename = String.format("%s_%s.json", default_file_head, now_date);
-
-//        //启动系统文件选择器(SAF)
-//        safFileHelper.createFileWithContent(
-//                new SAFFileHelper.SAFFileWriteCallback() {
-//                    @Override
-//                    public void onFileWrote() {
-//                        Toast.makeText(requireContext(), "导出成功", Toast.LENGTH_SHORT).show();
-//                    }
-//
-//                    @Override
-//                    public void onError(String errMessage) {
-//                        Toast.makeText(requireContext(), "导出失败：" + errMessage, Toast.LENGTH_SHORT).show();
-//                    }
-//                },
-//                "application/json",
-//                default_filename,
-//                json_str,
-//                exportDataLauncher
-//        );
+                    @Override
+                    public void onError(String errMessage) {
+                        Toast.makeText(requireContext(), "导出失败：" + errMessage, Toast.LENGTH_SHORT).show();
+                    }
+                },
+                exportDataLauncher,
+                fileNameList,
+                fileContentList
+        );
     }
 
     /**
@@ -169,7 +173,7 @@ public class SettingFragment extends Fragment {
                 .setPositiveButton("确定", (dialog, which) -> {
                     dialog.dismiss();
                     safFileHelper.openFileAndReadContent(
-                            new SAFFileHelper.SAFFileReadCallback() {
+                            new SAFFileHelper.ReadCallback() {
                                 @Override
                                 public void onFileRead(String content) {
                                     dataHelper.saveJsonDataToDb(content);
@@ -198,8 +202,8 @@ public class SettingFragment extends Fragment {
 
         //导出流水数据
         binding.settingExportRunningAccount.setOnClickListener(v -> {
-            String[] type_names = Arrays.stream(ExportImportDataType.values())
-                    .map(ExportImportDataType::getName)
+            String[] type_names = Arrays.stream(EIDataType.values())
+                    .map(EIDataType::getName)
                     .toArray(String[]::new);
             boolean[] choseItem = {true, true};
 
@@ -212,18 +216,18 @@ public class SettingFragment extends Fragment {
                     .setPositiveButton("确定", (dialog, which) -> {
                         //检测是否一个都没有选择
                         boolean isNonItemChosen = true;
-                        for (boolean isChose:choseItem) {
+                        for (boolean isChose : choseItem) {
                             if (isChose) {
                                 isNonItemChosen = false;
                                 break;
                             }
                         }
 
-                        if (!isNonItemChosen){
+                        if (!isNonItemChosen) {
                             exportData(choseItem);
                             dialog.dismiss();
                         } else {
-                            Toast.makeText(requireContext(),"请选择至少一个选项",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(requireContext(), "请选择至少一个选项", Toast.LENGTH_SHORT).show();
                         }
                     })
                     .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
