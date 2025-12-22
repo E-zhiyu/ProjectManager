@@ -121,22 +121,6 @@
                         android:text="@string/notification_analysis_rules_manage" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/rule_export"
-                        style="@style/ClickableSettingOptionStyle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:drawableStart="@drawable/round_export_data_24"
-                        android:text="@string/export_rule" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/rule_import"
-                        style="@style/ClickableSettingOptionStyle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:drawableStart="@drawable/baseline_import_data_24"
-                        android:text="@string/import_rule" />
-
-                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/rule_reset"
                         style="@style/ClickableSettingOptionStyle"
                         android:layout_width="match_parent"

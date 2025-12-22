@@ -1,7 +1,6 @@
 package com.project.manager.ui.setting;
 
 import android.content.Intent;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,9 +37,15 @@ import com.project.manager.data.data_save.preference.ThemeModePreference;
 import com.project.manager.ui.setting.running_account_data.maps.TotalAccountDataMap;
 import com.project.manager.ui.setting.running_account_data.maps.TotalRuleDataMap;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class SettingFragment extends Fragment {
@@ -52,8 +57,8 @@ public class SettingFragment extends Fragment {
     enum EIDataType {
         ACCOUNT_DATA("流水记录数据", "RunningAccount.json"),
         RULE_DATA("通知解析规则数据", "AnalysisRule.json");
-        final String name;              //选项名称
-        final String default_file_name; //默认文件名称
+        private final String name;              //选项名称
+        private final String default_file_name; //默认文件名称
 
         EIDataType(String name, String default_file_name) {
             this.name = name;
@@ -66,6 +71,17 @@ public class SettingFragment extends Fragment {
 
         public String getDefault_file_name() {
             return default_file_name;
+        }
+
+        /**
+         * 获取有效文件名列表
+         *
+         * @return 有效文件的文件名列表
+         */
+        public static List<String> getEffectiveFileNameList() {
+            return Stream.of(values())
+                    .map(EIDataType::getDefault_file_name)
+                    .collect(Collectors.toList());
         }
     }
 
@@ -163,36 +179,86 @@ public class SettingFragment extends Fragment {
 
     /**
      * 从文件导入数据
-     *
-     * @param dataHelper 数据帮助器
      */
-    private void importData(DataHelperBase<? extends SQLiteOpenHelper, ?> dataHelper) {
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("导入数据")
-                .setMessage("导入的数据将覆盖现有的数据，确定继续吗？")
-                .setPositiveButton("确定", (dialog, which) -> {
-                    dialog.dismiss();
-                    safFileHelper.openFileAndReadContent(
-                            new SAFFileHelper.ReadCallback() {
-                                @Override
-                                public void onFileRead(String content) {
-                                    dataHelper.saveJsonDataToDb(content);
-                                }
+    private void importData() {
+        safFileHelper.openZipBySAF(
+                new SAFFileHelper.ReadCallback() {
+                    @Override
+                    public void onFileRead(List<File> tempJsonFileList) {
+                        List<File> effectiveFileList = getEffectiveFileList(tempJsonFileList);
 
-                                @Override
-                                public void onError(String errMessage) {
-                                    Toast.makeText(requireContext(), "导入失败：" + errMessage, Toast.LENGTH_SHORT).show();
-                                }
-                            },
-                            "application/json",
-                            importDataLauncher
-                    );
-                })
-                .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
-                .show();
+                        String[] type_names = Arrays.stream(EIDataType.values())
+                                .map(EIDataType::getName)
+                                .toArray(String[]::new);
+                        boolean[] choseItem = {true, true};
+
+                        new MaterialAlertDialogBuilder(requireContext())
+                                .setTitle("选择需要导入的数据")
+                                .setMultiChoiceItems(
+                                        type_names,
+                                        choseItem,
+                                        (dialog, which, isChecked) -> choseItem[which] = isChecked
+                                )
+                                .setNegativeButton("取消", (dialog, which) -> {
+                                    dialog.dismiss();
+                                    safFileHelper.clearTempFile();
+                                })
+                                .setPositiveButton("确定", (dialog, which) -> {
+                                    //检测是否一个都没有选择
+                                    boolean isNonItemChosen = true;
+                                    for (boolean isChose : choseItem) {
+                                        if (isChose) {
+                                            isNonItemChosen = false;
+                                            break;
+                                        }
+                                    }
+
+                                    if (!isNonItemChosen) {
+                                        onImportConfirmed(choseItem, effectiveFileList);
+                                        dialog.dismiss();
+                                    } else {
+                                        Toast.makeText(requireContext(), "请选择至少一个选项", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                    safFileHelper.clearTempFile();  //数据处理完成后清空临时文件
+                                })
+                                .show();
+                    }
+
+                    @Override
+                    public void onError(String errMessage) {
+                        Toast.makeText(requireContext(), "导入失败：" + errMessage, Toast.LENGTH_SHORT).show();
+                    }
+                },
+                importDataLauncher
+        );
     }
 
-    //初始化视图
+    /**
+     * 从临时JSON文件列表中过滤有效的文件
+     *
+     * @param tempJsonFileList 临时JSON文件列表
+     * @return 包含有效文件的列表
+     */
+    @NonNull
+    private static List<File> getEffectiveFileList(@NonNull List<File> tempJsonFileList) {
+        List<String> effectiveFileNameList = EIDataType.getEffectiveFileNameList();
+        List<File> effectiveFileList = new ArrayList<>();   //能够正确解析内容的文件列表
+
+        //根据文件名筛选有效文件
+        for (File tempJsonFile : tempJsonFileList) {
+            //通过文件名称筛选文件
+            String file_name = tempJsonFile.getName();
+            if (!effectiveFileNameList.contains(file_name)) continue;
+
+            effectiveFileList.add(tempJsonFile);
+        }
+        return effectiveFileList;
+    }
+
+    /**
+     * 初始化视图
+     */
     private void initViews() {
         //关于软件
         binding.settingAbout.setOnClickListener(v -> AboutHelper.showAboutDialog(requireContext()));
@@ -232,21 +298,10 @@ public class SettingFragment extends Fragment {
                     })
                     .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
                     .show();
-
-//            DataHelperBase<BookKeepingDatabaseHelper, TotalAccountDataMap> dataHelper = new RunningAccountDataHelper(requireContext());
-//            try {
-//                String json_str = dataHelper.getDataInJSON();
-//            } catch (JsonProcessingException e) {
-//                ExceptionHelper.showExceptionDialog(requireContext(), e);
-//                Toast.makeText(requireContext(), "JSON序列化时出错", Toast.LENGTH_SHORT).show();
-//            }
         });
 
         //导入流水数据
-        binding.settingImportRunningAccount.setOnClickListener(v -> {
-            DataHelperBase<BookKeepingDatabaseHelper, TotalAccountDataMap> dataHelper = new RunningAccountDataHelper(requireContext());
-            importData(dataHelper);
-        });
+        binding.settingImportRunningAccount.setOnClickListener(v -> importData());
 
         //清空流水数据
         binding.settingClearRunningAccount.setOnClickListener(v -> new MaterialAlertDialogBuilder(requireContext())
@@ -275,24 +330,6 @@ public class SettingFragment extends Fragment {
 
         //电池优化
         binding.batteryOptimization.setOnClickListener(v -> PermissionHelper.openBatteryOptimizations(requireContext()));
-
-        //规则导出
-        binding.ruleExport.setOnClickListener(v -> {
-//            DataHelperBase<BookKeepingDatabaseHelper, TotalRuleDataMap> dataHelper = new AnalysisRuleDataHelper(requireContext());
-//            try {
-//                String json_str = dataHelper.getDataInJSON();
-//                exportData(json_str, "AnalysisRule");
-//            } catch (JsonProcessingException e) {
-//                ExceptionHelper.showExceptionDialog(requireContext(), e);
-//                Toast.makeText(requireContext(), "JSON序列化时出错", Toast.LENGTH_SHORT).show();
-//            }
-        });
-
-        //规则导入
-        binding.ruleImport.setOnClickListener(v -> {
-            DataHelperBase<BookKeepingDatabaseHelper, TotalRuleDataMap> dataHelper = new AnalysisRuleDataHelper(requireContext());
-            importData(dataHelper);
-        });
 
         //规则重置
         binding.ruleReset.setOnClickListener(v -> new MaterialAlertDialogBuilder(requireContext())
@@ -366,7 +403,9 @@ public class SettingFragment extends Fragment {
         });
     }
 
-    //显示主题模式选择对话框
+    /**
+     * 显示主题模式选择对话框
+     */
     private void showThemeModeSelectDialog() {
         String[] themeModeStr = {"浅色模式", "深色模式", "跟随系统"};
         int theme_mode = ThemeModePreference.getThemeMode(requireContext());
@@ -380,5 +419,39 @@ public class SettingFragment extends Fragment {
                 }))
                 .setNegativeButton("关闭", (dialog, which) -> dialog.dismiss())
                 .show();
+    }
+
+    /**
+     * 数据导入确认后触发的方法
+     *
+     * @param chosenItem        多选对话框的选择状况
+     * @param effectiveFileList 能够解析内容的有效文件列表
+     */
+    private void onImportConfirmed(boolean[] chosenItem, @NonNull List<File> effectiveFileList) {
+        for (File file : effectiveFileList) {
+            String file_name = file.getName();
+
+            DataHelperBase<BookKeepingDatabaseHelper, ?> dataHelperBase;
+            if (file_name.equals(EIDataType.ACCOUNT_DATA.getDefault_file_name()) && chosenItem[0]) {
+                dataHelperBase = new RunningAccountDataHelper(requireContext());
+            } else if (file_name.equals(EIDataType.RULE_DATA.getDefault_file_name()) && chosenItem[1]) {
+                dataHelperBase = new AnalysisRuleDataHelper(requireContext());
+            } else {
+                continue;
+            }
+
+            //将数据保存至数据库
+            StringBuilder content = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    content.append(line).append("\n");
+                }
+                dataHelperBase.saveJsonDataToDb(content.toString());
+            } catch (IOException e) {
+                ExceptionHelper.showExceptionDialog(requireContext(), e);
+                return;
+            }
+        }
     }
 }

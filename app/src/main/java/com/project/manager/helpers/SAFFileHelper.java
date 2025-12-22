@@ -16,21 +16,24 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class SAFFileHelper {
-    private final Context context;                              //上下文
-    private ReadCallback readCallback;                          //文件读取回调
-    private WriteCallback writeCallback;                        //文件写入回调
-    private final List<File> tempFileList = new ArrayList<>();  //临时文件列表
-    private final File tempDir;                                 //临时文件目录
-    private File tempZipFile;                                   //临时zip压缩文件
+    private final Context context;                                  //上下文
+    private ReadCallback readCallback;                              //文件读取回调
+    private WriteCallback writeCallback;                            //文件写入回调
+    private final List<File> tempJsonFileList = new ArrayList<>();  //临时JSON文件列表
+    private final File tempDir;                                     //临时文件目录
+    private File tempZipFile;                                       //临时zip压缩文件
 
     /**
      * 文件写入回调接口
@@ -45,7 +48,12 @@ public class SAFFileHelper {
      * 文件读取回调接口
      */
     public interface ReadCallback {
-        void onFileRead(String content);
+        /**
+         * 备份文件成功读取回调
+         *
+         * @param tempJsonFileList 临时JSON文件列表
+         */
+        void onFileRead(List<File> tempJsonFileList);
 
         void onError(String errMessage);
     }
@@ -80,23 +88,6 @@ public class SAFFileHelper {
 
         //生成zip文件并
         createTempZipFile(launcher);
-    }
-
-    /**
-     * 创建空白临时JSON文件
-     *
-     * @param file_name 文件名称
-     * @param content   文件内容
-     */
-    private void createTempJsonFile(String file_name, String content) {
-        //创建临时目录
-        if (!tempDir.exists()) {
-            tempDir.mkdirs();
-        }
-
-        File tempJsonFile = new File(tempDir, file_name);
-        tempFileList.add(tempJsonFile);
-        writeContentToFile(tempJsonFile, content);
     }
 
     /**
@@ -142,7 +133,7 @@ public class SAFFileHelper {
         try (FileOutputStream fos = new FileOutputStream(tempZipFile)) {
             ZipOutputStream zos = new ZipOutputStream(fos);
 
-            for (File tempFile : tempFileList) {
+            for (File tempFile : tempJsonFileList) {
                 try (FileInputStream fis = new FileInputStream(tempFile)) {
                     ZipEntry zipEntry = new ZipEntry(tempFile.getName());
                     zos.putNextEntry(zipEntry);
@@ -177,64 +168,11 @@ public class SAFFileHelper {
     }
 
     /**
-     * 处理SAF的结果（应在宿主的ActivityResultLauncher<Intent>类中调用）
-     *
-     * @param resultCode  回应代码
-     * @param data        包含目标文件Uri的Intent
-     * @param isWriteMode 是否为文件写入模式
-     */
-    public void handleActivityResult(int resultCode, @Nullable Intent data, boolean isWriteMode) {
-        // 处理创建文件的结果（保持原有逻辑）
-        if (isWriteMode) {
-            if (resultCode == Activity.RESULT_OK && data != null) {
-                Uri uri = data.getData();
-
-                if (uri != null) {
-                    copyZipToUri(uri);
-                }
-            }
-        }
-//        // 处理读取文件的结果
-//        else {
-//            if (resultCode == Activity.RESULT_OK && data != null) {
-//                Uri uri = data.getData();
-//                if (uri != null) {
-//                    readContentFromUri(uri);
-//                }
-//            }
-//        }
-    }
-
-    /**
-     * 通过SAF选择文件并读取内容
-     *
-     * @param callback 读取结果回调
-     * @param fileType 文件类型
-     * @param launcher SAF启动器
-     */
-    public void openFileAndReadContent(ReadCallback callback,
-                                       String fileType,
-                                       ActivityResultLauncher<Intent> launcher) {
-        this.readCallback = callback;
-
-        try {
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType(fileType); // 允许选择任何文件类型
-
-            launcher.launch(intent);
-        } catch (Exception e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            callback.onError("SAF出错");
-        }
-    }
-
-    /**
      * 将临时zip文件写入到uri指定的位置
      *
      * @param uri 用户通过SAF生成的uri
      */
-    private void copyZipToUri(Uri uri) {
+    private void copyTempZipToUri(Uri uri) {
         ContentResolver resolver = context.getContentResolver();
         ParcelFileDescriptor pfd = null;
         FileInputStream fis = null;
@@ -273,13 +211,172 @@ public class SAFFileHelper {
     }
 
     /**
+     * 处理SAF的结果（应在宿主的ActivityResultLauncher<Intent>类中调用）
+     *
+     * @param resultCode  回应代码
+     * @param data        包含目标文件Uri的Intent
+     * @param isWriteMode 是否为文件写入模式
+     */
+    public void handleActivityResult(int resultCode, @Nullable Intent data, boolean isWriteMode) {
+        // 处理创建文件的结果（保持原有逻辑）
+        if (isWriteMode) {
+            if (resultCode == Activity.RESULT_OK && data != null) {
+                Uri uri = data.getData();
+
+                if (uri != null) {
+                    copyTempZipToUri(uri);
+                }
+            }
+        }
+        // 处理读取文件的结果
+        else {
+            if (resultCode == Activity.RESULT_OK && data != null) {
+                Uri uri = data.getData();
+                if (uri != null) {
+                    copyUriToTempZip(uri);
+                }
+            }
+        }
+    }
+
+    public void openZipBySAF(ReadCallback callback,
+                             ActivityResultLauncher<Intent> launcher) {
+        this.readCallback = callback;
+
+        try {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("application/zip");
+            launcher.launch(intent);
+        } catch (Exception e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+            readCallback.onError("SAF出错");
+        }
+    }
+
+    /**
+     * 将用户选择的目标zip复制到临时目录
+     *
+     * @param uri 用户通过SAF选择的uri
+     */
+    private void copyUriToTempZip(Uri uri) {
+        //生成临时zip文件对象
+        tempZipFile = new File(tempDir, "backup_temp.zip");
+        if (!tempDir.exists() && !tempDir.mkdirs()) {
+            RuntimeException e = new RuntimeException("临时文件目录创建失败");
+            ExceptionHelper.showExceptionDialog(context, e);
+            readCallback.onError("临时文件目录创建失败");
+            return;
+        }
+
+        ParcelFileDescriptor pfd = null;
+        InputStream inputStream = null;
+        OutputStream outputStream = null;
+        try {
+            pfd = context.getContentResolver()
+                    .openFileDescriptor(uri, "r");
+            if (pfd == null) throw new RuntimeException("无法正确打开流");
+
+            inputStream = new FileInputStream(pfd.getFileDescriptor());
+            outputStream = new FileOutputStream(tempZipFile);
+
+            // 使用缓冲流提高复制效率
+            byte[] buffer = new byte[8192];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
+            }
+
+            //复制完成后解包
+            unpackZipFile();
+        } catch (Exception e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+            readCallback.onError("复制zip文件时出错");
+
+            //复制失败时清理可能残留的临时文件
+            clearTempFile();
+        } finally {
+            try {
+                if (pfd != null) pfd.close();
+                if (inputStream != null) inputStream.close();
+                if (outputStream != null) outputStream.close();
+            } catch (IOException e) {
+                ExceptionHelper.showExceptionDialog(context, e);
+                readCallback.onError("无法正确关闭流");
+            }
+        }
+    }
+
+    /**
+     * 解包临时zip文件
+     */
+    private void unpackZipFile() {
+        try (FileInputStream fis = new FileInputStream(tempZipFile);
+             ZipInputStream zis = new ZipInputStream(fis)) {
+
+            ZipEntry entry;
+            byte[] buffer = new byte[8192]; // 8KB缓冲区
+
+            while ((entry = zis.getNextEntry()) != null) {
+                File entryFile = new File(tempDir, entry.getName());
+                tempJsonFileList.add(entryFile);
+
+                if (entryFile.isDirectory()) continue;  //不处理目录类
+
+                // 写入文件内容
+                try (FileOutputStream fos = new FileOutputStream(entryFile)) {
+                    int length;
+                    while ((length = zis.read(buffer)) > 0) {
+                        fos.write(buffer, 0, length);
+                    }
+                }
+
+                zis.closeEntry(); //关闭当前条目
+            }
+
+            //读取解压得到的文件内容
+            if (!tempJsonFileList.isEmpty()) {
+                readCallback.onFileRead(tempJsonFileList);
+            } else {
+                readCallback.onError("zip文件为空");
+            }
+        } catch (IOException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+            readCallback.onError("zip文件解压失败");
+            clearTempFile();
+        }
+    }
+
+    /**
+     * 创建空白临时JSON文件
+     *
+     * @param file_name 文件名称
+     * @param content   文件内容
+     */
+    private void createTempJsonFile(String file_name, String content) {
+        //创建临时目录
+        if (!tempDir.exists() && !tempDir.mkdirs()) {
+            RuntimeException e = new RuntimeException("无法创建临时文件目录");
+            ExceptionHelper.showExceptionDialog(context, e);
+            clearTempFile();
+            return;
+        }
+
+        File tempJsonFile = new File(tempDir, file_name);
+        tempJsonFileList.add(tempJsonFile);
+        writeContentToFile(tempJsonFile, content);
+    }
+
+    /**
      * 清除临时文件
      */
-    private void clearTempFile() {
-        for (File tempFile : tempFileList) {
-            tempFile.delete();
+    public void clearTempFile() {
+        for (File tempFile : tempJsonFileList) {
+            if (tempFile.exists()) {
+                tempFile.delete();
+            }
         }
-        tempFileList.clear();
+        tempJsonFileList.clear();
 
         if (tempZipFile != null) {
             tempZipFile.delete();
