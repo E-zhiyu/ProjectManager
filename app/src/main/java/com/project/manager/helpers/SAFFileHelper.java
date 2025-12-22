@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
@@ -371,16 +372,22 @@ public class SAFFileHelper {
      * 清除临时文件
      */
     public void clearTempFile() {
+        boolean isFileDeleteFailed = false;
+
         for (File tempFile : tempJsonFileList) {
-            if (tempFile.exists()) {
-                tempFile.delete();
+            if (tempFile.exists() && !tempFile.delete()) {
+                isFileDeleteFailed =true;
             }
         }
         tempJsonFileList.clear();
 
-        if (tempZipFile != null) {
-            tempZipFile.delete();
-            tempZipFile = null;
+        if (tempZipFile != null && !tempZipFile.delete()) {
+            isFileDeleteFailed =true;
+        }
+        tempZipFile = null;
+
+        if (isFileDeleteFailed) {
+            Toast.makeText(context, "警告：临时文件删除失败", Toast.LENGTH_SHORT).show();
         }
     }
 }
