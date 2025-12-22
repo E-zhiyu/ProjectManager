@@ -277,8 +277,9 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
             runningAccountAddLauncher.launch(skip2NewRunningAccount);
         });
 
+        //绑定过滤器文本的点击监听器
         binding.filterText.setOnClickListener(v -> {
-            tagSelectBottomSheet = new TagSelectBottomSheet(this::onTagBtnClicked, null, "清空过滤");
+            tagSelectBottomSheet = new TagSelectBottomSheet(this::onTagBtnClicked, null, "清除过滤");
             tagSelectBottomSheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
         });
 

@@ -31,6 +31,7 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
     private String edit_btn_str = "标签管理";       //左侧编辑按钮文本
     private String clear_btn_str = "清除输入";      //右侧清除按钮文本
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
+    private SheetTagGroupRecyclerAdapter tagAdapter;    //标签按钮布局适配器
 
     public interface TagDataObserver {
         void startObserveTag();
@@ -54,8 +55,8 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
      * 标签选择菜单构造方法
      *
      * @param listener      标签按钮点击监听器
-     * @param edit_btn_str  标签编辑按钮的文本
-     * @param clear_btn_str 清除输入按钮的文本
+     * @param edit_btn_str  标签编辑按钮的文本（设置为null则隐藏按钮）
+     * @param clear_btn_str 清除输入按钮的文本（设置为null则隐藏按钮）
      */
     public TagSelectBottomSheet(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener, String edit_btn_str, String clear_btn_str) {
         this.tagBtnClickedListener = listener;
@@ -84,10 +85,10 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
 
         //设置标签列表视图适配器
         RecyclerView tag_group_recycler_view = binding.tagGroupRecycler;
-        SheetTagGroupRecyclerAdapter tagAdapter = new SheetTagGroupRecyclerAdapter(excepted_tag_no, requireContext());
+        tagAdapter = new SheetTagGroupRecyclerAdapter(excepted_tag_no, requireContext());
         tag_group_recycler_view.setAdapter(tagAdapter);
 
-        loadTagGroupData(tagAdapter);
+        loadTagGroupData();
 
         //设置标签按钮点击事件监听器
         tagAdapter.setOnTagBtnClickedListener(this.tagBtnClickedListener);
@@ -140,7 +141,7 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
         }
     }
 
-    private void loadTagGroupData(SheetTagGroupRecyclerAdapter tagAdapter) {
+    private void loadTagGroupData() {
         binding.refreshLayout.setRefreshing(true);
         disposables.add(
                 Observable.fromCallable(() -> TagGroup.loadTagGroups(requireContext()))
