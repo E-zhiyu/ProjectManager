@@ -2,7 +2,6 @@ package com.project.manager.ui.setting.running_account_data.data_helpers;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.widget.Toast;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,8 +35,9 @@ abstract public class DataHelperBase<H extends SQLiteOpenHelper, M> {
      * 将JSON中的数据保存到数据库
      *
      * @param json JSON数据字符串
+     * @return 是否导入成功
      */
-    public final void saveJsonDataToDb(String json) {
+    public final boolean saveJsonDataToDb(String json) {
         try {
             //得到数据字典实例
             ObjectMapper mapper = new ObjectMapper();
@@ -46,9 +46,9 @@ abstract public class DataHelperBase<H extends SQLiteOpenHelper, M> {
             //将对应的数据写入数据库
             saveDataInMapToDb(dataMap);
 
-            Toast.makeText(context, "导入成功", Toast.LENGTH_SHORT).show();
+            return true;
         } catch (JsonProcessingException e) {
-            Toast.makeText(context,"导入失败：无法解析文本内容",Toast.LENGTH_SHORT).show();
+            return false;
         }
     }
 

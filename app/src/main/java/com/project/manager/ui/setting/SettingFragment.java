@@ -184,7 +184,7 @@ public class SettingFragment extends Fragment {
         safFileHelper.openZipBySAF(
                 new SAFFileHelper.ReadCallback() {
                     @Override
-                    public void onFileRead(List<File> tempJsonFileList) {
+                    public void onZipUnpacked(List<File> tempJsonFileList) {
                         List<File> effectiveFileList = getEffectiveFileList(tempJsonFileList);
 
                         String[] type_names = Arrays.stream(EIDataType.values())
@@ -266,7 +266,7 @@ public class SettingFragment extends Fragment {
         //主题模式
         binding.settingThemeMode.setOnClickListener(v -> showThemeModeSelectDialog());
 
-        //导出流水数据
+        //导出数据
         binding.settingExportRunningAccount.setOnClickListener(v -> {
             String[] type_names = Arrays.stream(EIDataType.values())
                     .map(EIDataType::getName)
@@ -300,7 +300,7 @@ public class SettingFragment extends Fragment {
                     .show();
         });
 
-        //导入流水数据
+        //导入数据
         binding.settingImportRunningAccount.setOnClickListener(v -> importData());
 
         //清空流水数据
@@ -428,6 +428,8 @@ public class SettingFragment extends Fragment {
      * @param effectiveFileList 能够解析内容的有效文件列表
      */
     private void onImportConfirmed(boolean[] chosenItem, @NonNull List<File> effectiveFileList) {
+        boolean isImportSuccessfully = false;
+
         for (File file : effectiveFileList) {
             String file_name = file.getName();
 
@@ -447,11 +449,17 @@ public class SettingFragment extends Fragment {
                 while ((line = reader.readLine()) != null) {
                     content.append(line).append("\n");
                 }
-                dataHelperBase.saveJsonDataToDb(content.toString());
+                isImportSuccessfully = dataHelperBase.saveJsonDataToDb(content.toString()) || isImportSuccessfully;
             } catch (IOException e) {
                 ExceptionHelper.showExceptionDialog(requireContext(), e);
                 return;
             }
+        }
+
+        if (isImportSuccessfully) {
+            Toast.makeText(requireContext(), "数据导入成功", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(requireContext(), "数据导入失败：无法解析文件内容", Toast.LENGTH_SHORT).show();
         }
     }
 }

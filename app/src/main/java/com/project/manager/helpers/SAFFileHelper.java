@@ -49,11 +49,11 @@ public class SAFFileHelper {
      */
     public interface ReadCallback {
         /**
-         * 备份文件成功读取回调
+         * 导入数据的zip文件成功解压的回调
          *
          * @param tempJsonFileList 临时JSON文件列表
          */
-        void onFileRead(List<File> tempJsonFileList);
+        void onZipUnpacked(List<File> tempJsonFileList);
 
         void onError(String errMessage);
     }
@@ -336,7 +336,7 @@ public class SAFFileHelper {
 
             //读取解压得到的文件内容
             if (!tempJsonFileList.isEmpty()) {
-                readCallback.onFileRead(tempJsonFileList);
+                readCallback.onZipUnpacked(tempJsonFileList);
             } else {
                 readCallback.onError("zip文件为空");
             }
