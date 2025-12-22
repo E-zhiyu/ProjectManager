@@ -219,6 +219,11 @@ public class SettingFragment extends Fragment {
                             }
                         }
 
+                        if (!isItemFound[0] && isItemFound[1]) {
+                            Toast.makeText(requireContext(), "请选择正确的备份文件", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
                         //实例化自定义对话框视图
                         @SuppressLint("InflateParams") View mutiChoiceDialogView = getLayoutInflater().inflate(R.layout.view_multichoice, null);
 
@@ -258,7 +263,6 @@ public class SettingFragment extends Fragment {
                                 safFileHelper.clearTempFile();  //数据处理完成后清空临时文件
                             });
                         });
-
                         alertDialog.show();
 
                         //设置适配器

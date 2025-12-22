@@ -8,14 +8,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.project.manager.R;
 
 public class ExceptionHelper {
     public static void showExceptionDialog(Context context, @NonNull Throwable e) {
         String err_message = e.getMessage();
         new MaterialAlertDialogBuilder(context)
                 .setTitle("运行出错")
-                .setIcon(R.drawable.baseline_error_outline_24)
                 .setMessage(err_message)
                 .setPositiveButton("复制错误信息", (dialog, which) -> {
                     copyToClipboard(context, err_message);
