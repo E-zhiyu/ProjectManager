@@ -203,7 +203,6 @@ public class SAFFileHelper {
                 if (fis != null) fis.close();
                 if (finalFos != null) finalFos.close();
                 if (pfd != null) pfd.close();
-                clearTempFile();    //删除临时文件
             } catch (IOException e) {
                 ExceptionHelper.showExceptionDialog(context, e);
                 writeCallback.onError("无法正确关闭流或删除临时文件");
@@ -228,6 +227,7 @@ public class SAFFileHelper {
                     copyTempZipToUri(uri);
                 }
             }
+            clearTempFile();
         }
         // 处理读取文件的结果
         else {

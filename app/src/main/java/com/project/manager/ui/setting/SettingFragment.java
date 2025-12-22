@@ -236,7 +236,6 @@ public class SettingFragment extends Fragment {
                                     safFileHelper.clearTempFile();
                                 })
                                 .setPositiveButton("确定", (dialog, which) -> {
-
                                 })
                                 .create();
 
