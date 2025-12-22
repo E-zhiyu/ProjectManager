@@ -17,7 +17,7 @@
     <string name="title_activity_main">@string/app_name</string>
     <string name="title_bookkeeping">记账</string>
     <string name="title_setting">设置</string>
-    <string name="title_report">流水报表</string>
+    <string name="title_report">报表统计</string>
     <string name="title_manage_tag">标签管理</string>
     <string name="title_new_tag">新建标签</string>
     <string name="title_modify_tag">标签修改</string>
