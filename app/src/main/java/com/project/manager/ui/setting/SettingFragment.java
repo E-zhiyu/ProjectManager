@@ -38,14 +38,34 @@ import com.project.manager.data.data_save.preference.ThemeModePreference;
 import com.project.manager.ui.setting.running_account_data.maps.TotalAccountDataMap;
 import com.project.manager.ui.setting.running_account_data.maps.TotalRuleDataMap;
 
-import java.util.Calendar;
-import java.util.Locale;
+import java.util.Arrays;
 
 
-public class SettingFragment extends Fragment implements View.OnClickListener {
+public class SettingFragment extends Fragment {
     private FragmentSettingBinding binding;
     private ActivityResultLauncher<Intent> importDataLauncher, exportDataLauncher;  //活动启动器
     private SAFFileHelper safFileHelper;    //SAF文件帮助器
+
+    //导入和导出的数据种类枚举
+    enum ExportImportDataType {
+        ACCOUNT_DATA("流水记录数据", "RunningAccount.json"),
+        RULE_DATA("通知解析规则数据", "AnalysisRule.json");
+        final String name;              //选项名称
+        final String default_file_name; //默认文件名称
+
+        ExportImportDataType(String name, String default_file_name) {
+            this.name = name;
+            this.default_file_name = default_file_name;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getDefault_file_name() {
+            return default_file_name;
+        }
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentSettingBinding.inflate(inflater, container, false);
@@ -62,32 +82,6 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
-    }
-
-    @Override
-    public void onClick(@NonNull View v) {
-        if (v == binding.settingClearRunningAccount) {
-            new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("清除数据")
-                    .setMessage("此操作将清除所有流水账数据，确认继续吗？")
-                    .setPositiveButton("确认", ((dialog, which) -> {
-                        dialog.dismiss();
-                        RunningAccountDataHelper.deleteAllData(requireContext());
-                        BookKeepingStartDatePreference.saveStartDate("", requireContext()); //清空已保存的开始记账的日期
-                    }))
-                    .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
-                    .show();
-        } else if (v == binding.ruleReset) {
-            new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("重置规则")
-                    .setMessage("此操作将重置通知解析规则为默认规则，确认继续吗？")
-                    .setPositiveButton("确认", ((dialog, which) -> {
-                        dialog.dismiss();
-                        AnalysisRuleDataHelper.resetRule(requireContext());
-                    }))
-                    .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
-                    .show();
-        }
     }
 
     //初始化活动启动器
@@ -115,43 +109,52 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
 
     /**
      * 导出数据并创建文件
-     *
-     * @param json_str          需要写入文件的JSON字符串
-     * @param default_file_head 默认的文件名开头
      */
-    private void exportData(String json_str, String default_file_head) {
-        //获取当前日期和时间并生成默认文件名
-        Calendar calendar = Calendar.getInstance();
-        String now_date = String.format(
-                Locale.getDefault(),
-                "%04d%02d%02d(%02d%02d%02d)",
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH),
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE),
-                calendar.get(Calendar.SECOND)
-        );
-        String default_filename = String.format("%s_%s.json", default_file_head, now_date);
+    private void exportData(@NonNull boolean[] choseItem) {
+        //根据选择的内容创建临时文件
+        if (choseItem[ExportImportDataType.ACCOUNT_DATA.ordinal()]) {
+            DataHelperBase<BookKeepingDatabaseHelper, TotalAccountDataMap> dataHelper = new RunningAccountDataHelper(requireContext());
+            try {
+                String json_str = dataHelper.getDataInJSON();
+                safFileHelper.createTempJsonFile(ExportImportDataType.ACCOUNT_DATA.getDefault_file_name(), json_str);
+            } catch (JsonProcessingException e) {
+                ExceptionHelper.showExceptionDialog(requireContext(), e);
+                Toast.makeText(requireContext(), "JSON序列化时出错", Toast.LENGTH_SHORT).show();
+            }
+        }
+        if (choseItem[ExportImportDataType.RULE_DATA.ordinal()]) {
+            DataHelperBase<BookKeepingDatabaseHelper, TotalRuleDataMap> dataHelper = new AnalysisRuleDataHelper(requireContext());
+            try {
+                String json_str = dataHelper.getDataInJSON();
+                safFileHelper.createTempJsonFile(ExportImportDataType.RULE_DATA.getDefault_file_name(), json_str);
+            } catch (JsonProcessingException e) {
+                ExceptionHelper.showExceptionDialog(requireContext(), e);
+                Toast.makeText(requireContext(), "JSON序列化时出错", Toast.LENGTH_SHORT).show();
+            }
+        }
 
-        //启动系统文件选择器(SAF)
-        safFileHelper.createFileWithContent(
-                new SAFFileHelper.SAFFileWriteCallback() {
-                    @Override
-                    public void onFileWrote() {
-                        Toast.makeText(requireContext(), "导出成功", Toast.LENGTH_SHORT).show();
-                    }
+        safFileHelper.createTempZipFile(exportDataLauncher);
 
-                    @Override
-                    public void onError(String errMessage) {
-                        Toast.makeText(requireContext(), "导出失败：" + errMessage, Toast.LENGTH_SHORT).show();
-                    }
-                },
-                "application/json",
-                default_filename,
-                json_str,
-                exportDataLauncher
-        );
+//        String default_filename = String.format("%s_%s.json", default_file_head, now_date);
+
+//        //启动系统文件选择器(SAF)
+//        safFileHelper.createFileWithContent(
+//                new SAFFileHelper.SAFFileWriteCallback() {
+//                    @Override
+//                    public void onFileWrote() {
+//                        Toast.makeText(requireContext(), "导出成功", Toast.LENGTH_SHORT).show();
+//                    }
+//
+//                    @Override
+//                    public void onError(String errMessage) {
+//                        Toast.makeText(requireContext(), "导出失败：" + errMessage, Toast.LENGTH_SHORT).show();
+//                    }
+//                },
+//                "application/json",
+//                default_filename,
+//                json_str,
+//                exportDataLauncher
+//        );
     }
 
     /**
@@ -187,45 +190,117 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
 
     //初始化视图
     private void initViews() {
+        //关于软件
         binding.settingAbout.setOnClickListener(v -> AboutHelper.showAboutDialog(requireContext()));
+
+        //主题模式
         binding.settingThemeMode.setOnClickListener(v -> showThemeModeSelectDialog());
+
+        //导出流水数据
         binding.settingExportRunningAccount.setOnClickListener(v -> {
-            DataHelperBase<BookKeepingDatabaseHelper, TotalAccountDataMap> dataHelper = new RunningAccountDataHelper(requireContext());
-            try {
-                String json_str = dataHelper.getDataInJSON();
-                exportData(json_str, "RunningAccount");
-            } catch (JsonProcessingException e) {
-                ExceptionHelper.showExceptionDialog(requireContext(), e);
-                Toast.makeText(requireContext(), "JSON序列化时出错", Toast.LENGTH_SHORT).show();
-            }
+            String[] type_names = Arrays.stream(ExportImportDataType.values())
+                    .map(ExportImportDataType::getName)
+                    .toArray(String[]::new);
+            boolean[] choseItem = {true, true};
+
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("选择导出的数据")
+                    .setMultiChoiceItems(
+                            type_names,
+                            choseItem,
+                            (dialog, which, isChecked) -> choseItem[which] = isChecked)
+                    .setPositiveButton("确定", (dialog, which) -> {
+                        //检测是否一个都没有选择
+                        boolean isNonItemChosen = true;
+                        for (boolean isChose:choseItem) {
+                            if (isChose) {
+                                isNonItemChosen = false;
+                                break;
+                            }
+                        }
+
+                        if (!isNonItemChosen){
+                            exportData(choseItem);
+                            dialog.dismiss();
+                        } else {
+                            Toast.makeText(requireContext(),"请选择至少一个选项",Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
+                    .show();
+
+//            DataHelperBase<BookKeepingDatabaseHelper, TotalAccountDataMap> dataHelper = new RunningAccountDataHelper(requireContext());
+//            try {
+//                String json_str = dataHelper.getDataInJSON();
+//            } catch (JsonProcessingException e) {
+//                ExceptionHelper.showExceptionDialog(requireContext(), e);
+//                Toast.makeText(requireContext(), "JSON序列化时出错", Toast.LENGTH_SHORT).show();
+//            }
         });
+
+        //导入流水数据
         binding.settingImportRunningAccount.setOnClickListener(v -> {
             DataHelperBase<BookKeepingDatabaseHelper, TotalAccountDataMap> dataHelper = new RunningAccountDataHelper(requireContext());
             importData(dataHelper);
         });
-        binding.settingClearRunningAccount.setOnClickListener(this);
+
+        //清空流水数据
+        binding.settingClearRunningAccount.setOnClickListener(v -> new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("清除数据")
+                .setMessage("此操作将清除所有流水账数据，确认继续吗？")
+                .setPositiveButton("确认", ((dialog, which) -> {
+                    dialog.dismiss();
+                    RunningAccountDataHelper.deleteAllData(requireContext());
+                    BookKeepingStartDatePreference.saveStartDate("", requireContext()); //清空已保存的开始记账的日期
+                }))
+                .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
+                .show()
+        );
+
+        //更新日志
         binding.settingUpdateLog.setOnClickListener(v -> UpdateLogHelper.showUpdateLogDialog(requireContext()));
+
+        //管理通知解析规则
         binding.settingNotificationAnalysisRules.setOnClickListener(v -> {
             Intent skip2NotificationRulesActivity = new Intent(requireContext(), AnalysisRuleManageActivity.class);
             startActivity(skip2NotificationRulesActivity);
         });
+
+        //自启动
         binding.autoStartPermission.setOnClickListener(v -> PermissionHelper.requestAutoStartPermission(requireContext()));
+
+        //电池优化
         binding.batteryOptimization.setOnClickListener(v -> PermissionHelper.openBatteryOptimizations(requireContext()));
+
+        //规则导出
         binding.ruleExport.setOnClickListener(v -> {
-            DataHelperBase<BookKeepingDatabaseHelper, TotalRuleDataMap> dataHelper = new AnalysisRuleDataHelper(requireContext());
-            try {
-                String json_str = dataHelper.getDataInJSON();
-                exportData(json_str, "AnalysisRule");
-            } catch (JsonProcessingException e) {
-                ExceptionHelper.showExceptionDialog(requireContext(), e);
-                Toast.makeText(requireContext(), "JSON序列化时出错", Toast.LENGTH_SHORT).show();
-            }
+//            DataHelperBase<BookKeepingDatabaseHelper, TotalRuleDataMap> dataHelper = new AnalysisRuleDataHelper(requireContext());
+//            try {
+//                String json_str = dataHelper.getDataInJSON();
+//                exportData(json_str, "AnalysisRule");
+//            } catch (JsonProcessingException e) {
+//                ExceptionHelper.showExceptionDialog(requireContext(), e);
+//                Toast.makeText(requireContext(), "JSON序列化时出错", Toast.LENGTH_SHORT).show();
+//            }
         });
+
+        //规则导入
         binding.ruleImport.setOnClickListener(v -> {
             DataHelperBase<BookKeepingDatabaseHelper, TotalRuleDataMap> dataHelper = new AnalysisRuleDataHelper(requireContext());
             importData(dataHelper);
         });
-        binding.ruleReset.setOnClickListener(this);
+
+        //规则重置
+        binding.ruleReset.setOnClickListener(v -> new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("重置规则")
+                .setMessage("此操作将重置通知解析规则为默认规则，确认继续吗？")
+                .setPositiveButton("确认", ((dialog, which) -> {
+                    dialog.dismiss();
+                    AnalysisRuleDataHelper.resetRule(requireContext());
+                }))
+                .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
+                .show()
+        );
 
         //完成通知解析开关状态初始化
         MaterialSwitch notification_analysis_switch = binding.notificationAnalysisSwitch;
@@ -273,7 +348,7 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
             }
         });
 
-        //完成最近任务隐藏开关的初始化
+        //最近任务隐藏开关的初始化
         MaterialSwitch hide_recents_switch = binding.hideRecentsSwitch;
         hide_recents_switch.setChecked(KeepAlivePreference.getHideRecents(requireContext()));
 
