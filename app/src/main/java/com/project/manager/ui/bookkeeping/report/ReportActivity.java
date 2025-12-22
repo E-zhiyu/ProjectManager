@@ -327,32 +327,34 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     private void compensatePrecision(@NonNull List<AccountSourceInfo> sourceInfoList) {
         if (sourceInfoList.isEmpty()) return;
 
-        int percentage = 100;
+        int percentageLeft = 100;               //剩余的百分比
+        int first_zero_index = -1, index = 0;   //首个百分比为0的元素的下标
+        boolean isEndsWithZero = false;         //是否以百分比为0的元素结尾
         for (AccountSourceInfo sourceInfo : sourceInfoList) {
-            percentage -= sourceInfo.getPercentage();
+            int currentPercentage = sourceInfo.getPercentage();
+            percentageLeft -= currentPercentage;
+
+            //如果未找到百分比为0的元素且当前百分比为0，则记录该元素的下标
+            if (!isEndsWithZero && currentPercentage == 0) {
+                isEndsWithZero = true;
+                first_zero_index = index;
+            }
+            index++;
         }
-        if (percentage == 0) return;    //如果百分比之和恰好为100则直接结束该方法
+        if (percentageLeft == 0) return;    //如果百分比之和恰好为100则直接结束该方法
 
-        boolean isEndNotZero;   //标记列表末尾的元素的百分比是否为0
-        isEndNotZero = sourceInfoList.get(sourceInfoList.size() - 1).getPercentage() != 0;
-
-        //根据末尾是否为0%进行不同的补偿方法
-        if (isEndNotZero) {
-            for (AccountSourceInfo sourceInfo : sourceInfoList) {
-                if (percentage == 0) break;
-                int currentPercentage = sourceInfo.getPercentage();
-                sourceInfo.setPercentage(currentPercentage + 1);
-                percentage--;
-            }
+        //循环为每个元素百分比+1，直到剩余百分比为0
+        int cycle_index;
+        if (isEndsWithZero) {
+            cycle_index = first_zero_index;
         } else {
-            for (AccountSourceInfo sourceInfo : sourceInfoList) {
-                if (percentage == 0) break;
-                int currentPercentage = sourceInfo.getPercentage();
-                if (currentPercentage == 0) {
-                    sourceInfo.setPercentage(currentPercentage + 1);
-                    percentage--;
-                }
-            }
+            cycle_index = 0;
+        }
+        while (percentageLeft > 0) {
+            percentageLeft--;
+            AccountSourceInfo currentSource = sourceInfoList.get(cycle_index);
+            currentSource.setPercentage(currentSource.getPercentage() + 1);
+            cycle_index = (cycle_index + 1) % sourceInfoList.size();
         }
     }
 
