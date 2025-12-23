@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -31,6 +32,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 public class AutoBookKeepingNotificationListenerService extends NotificationListenerService implements NotificationAnalysisBroadcastReceiver.BroadcastListener {
     private List<AnalysisRule> ruleList;                            //解析规则列表
@@ -74,6 +76,8 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
 
     @Override
     public void onNotificationPosted(@NonNull StatusBarNotification sbn) {
+        if (!isFunctionOpened) return;  //功能未打开则直接结束
+
         //获取通知数据
         String packageName = sbn.getPackageName();
         String title = sbn.getNotification().extras.getString("android.title");
@@ -90,10 +94,24 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
             String rule_title = rule.getNotificationTitle();
             String rule_content = rule.getNotificationContent();
 
-            Pattern pattern = Pattern.compile(rule_content);    //编译为正则表达式
-            Matcher matcher = pattern.matcher(text);            //匹配通知内容
+            Matcher matcher;            //匹配通知内容
+            try {
+                Pattern pattern = Pattern.compile(rule_content);    //编译为正则表达式
+                matcher = pattern.matcher(text);
+            } catch (PatternSyntaxException e) {
+                Log.e(LogTags.NOTIFICATION_SERVICE.getV(), "正则表达式编译出错");
+                Toast.makeText(
+                        getBaseContext(),
+                        String.format(
+                                Locale.getDefault(),
+                                "规则%s的正则表达式编译出错，请检查",
+                                rule.getRuleName()),
+                        Toast.LENGTH_SHORT
+                ).show();
+                return;
+            }
 
-            if (isFunctionOpened && rule_package_name.equals(packageName) && rule_title.equals(title) && matcher.find()) {
+            if (rule_package_name.equals(packageName) && rule_title.equals(title) && matcher.find()) {
                 Bundle dataBundle;
                 try {
                     //获取标签编号
