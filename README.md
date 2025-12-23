@@ -4,17 +4,21 @@
 
 ## 特色功能
 
-- 为每条流水记录自定义标签
-- 报表界面显示收支来源
-- 通过解析其他应用发送的通知实现自动记账功能
-- 自定义通知内容解析规则
+- 符合Material Design You标准的极简UI设计
+- 数据完全本地处理，拒绝隐私泄露
+- 使用自定义标签标记每条流水记录以便日后查询
+- 报表统计显示您的金额变化情况
+- 利用正则表达式解析其他应用通知的自动记账功能，支持自定义通知解析规则
+- 一键式导入和导出应用数据，避免数据丢失
 
 ## 效果展示
 
 <div style="display: flex; justify-content: center; gap: 10px;">
-  <img src="https://github.com/user-attachments/assets/bdffb5d7-3c66-45bc-aac9-6d06bc02ba1e" width="30%" alt="示例图片"/>
-  <img src="https://github.com/user-attachments/assets/570087c8-e17c-4f99-ac48-da5a4be8d26c" width="30%" alt="示例图片"/>
-  <img src="https://github.com/user-attachments/assets/f1205387-a59b-4439-a2b7-d08785fa2fd4" width="30%" alt="示例图片"/>
+  <img src="https://github.com/user-attachments/assets/407b9b59-efed-4c9f-a564-d9a83a02ed9e" width="20%" alt="记账"/>
+  <img src="https://github.com/user-attachments/assets/0f4b5bd0-900c-472d-8820-0505600a36fb" width="20%" alt="主页"/>
+  <img src="https://github.com/user-attachments/assets/ee3f7b8a-8f01-45af-8b06-637bc00a4aa2" width="20%" alt="报表"/>
+  <img src="https://github.com/user-attachments/assets/5225cad4-56b7-4fd3-941d-b228b1ea6f8b" width="20%" alt="标签管理"/>
+  <img src="https://github.com/user-attachments/assets/292d4ca2-5b2f-453d-b094-9b18dfb86367" width="20%" alt="通知解析规则管理"/>
 </div>
 
 ## 权限说明
