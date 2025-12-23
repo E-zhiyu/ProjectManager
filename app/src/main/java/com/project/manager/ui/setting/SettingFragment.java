@@ -544,6 +544,7 @@ public class SettingFragment extends Fragment {
                 isImportSuccessfully = dataHelperBase.saveJsonDataToDb(content.toString()) || isImportSuccessfully;
             } catch (IOException e) {
                 ExceptionHelper.showExceptionDialog(requireContext(), e);
+                Toast.makeText(requireContext(), "临时文件读取失败，请重试", Toast.LENGTH_SHORT).show();
                 return;
             }
         }
