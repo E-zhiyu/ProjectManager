@@ -32,6 +32,9 @@ import com.project.manager.ui.view_model.tag_modify.AccountTagModifyID;
 import com.project.manager.ui.view_model.tag_modify.AccountTagViewModel;
 import com.project.manager.ui.view_model.tag_modify.TagWithModifyID;
 
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import io.noties.markwon.Markwon;
 
 public class RuleAddModifyActivity extends AppCompatActivity implements View.OnClickListener, View.OnFocusChangeListener {
@@ -151,6 +154,15 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
                 err = "通知内容不能为空";
                 notification_content_layout.setErrorEnabled(true);
                 notification_content_layout.setError(err);
+            } else if (v == notification_content_input) {
+                err = "通知内容正则表达式存在语法错误";
+                try {
+                    String content_pattern = String.valueOf(notification_content_input.getText());
+                    Pattern.compile(content_pattern);
+                } catch (PatternSyntaxException e) {
+                    notification_content_layout.setErrorEnabled(true);
+                    notification_content_layout.setError(err);
+                }
             }
 
             if (err != null) {
@@ -325,6 +337,14 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
         } else if (String.valueOf(notification_content_input.getText()).isEmpty()) {
             errLayout = notification_content_layout;
             err = "通知内容不能为空";
+        } else {
+            try {
+                String content_pattern = String.valueOf(notification_content_input.getText());
+                Pattern.compile(content_pattern);
+            } catch (PatternSyntaxException e) {
+                errLayout = notification_content_layout;
+                err = "通知内容正则表达式存在语法错误";
+            }
         }
 
         if (errLayout != null) {

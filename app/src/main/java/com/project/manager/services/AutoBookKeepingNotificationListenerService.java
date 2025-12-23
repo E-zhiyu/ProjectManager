@@ -108,7 +108,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                                 rule.getRuleName()),
                         Toast.LENGTH_SHORT
                 ).show();
-                return;
+                continue;
             }
 
             if (rule_package_name.equals(packageName) && rule_title.equals(title) && matcher.find()) {
