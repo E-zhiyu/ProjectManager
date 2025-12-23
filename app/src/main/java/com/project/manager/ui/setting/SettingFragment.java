@@ -288,14 +288,21 @@ public class SettingFragment extends Fragment {
             //实例化自定义多选视图
             @SuppressLint("InflateParams") View mutiChoiceDialogView = getLayoutInflater().inflate(R.layout.view_multichoice, null);
 
+            //设置适配器
+            RecyclerView recyclerView = mutiChoiceDialogView.findViewById(R.id.item_recycler);
+            MultiChoiceDialogAdapter adapter = new MultiChoiceDialogAdapter(
+                    itemStats,
+                    type_names,
+                    (position, isChecked) -> itemStats[position] = isChecked
+            );
+            recyclerView.setAdapter(adapter);
+
             //构建多选对话框
             AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireContext())
                     .setTitle("选择导出的数据")
                     .setView(mutiChoiceDialogView)
-                    .setPositiveButton("确定", (dialog, which) -> {
-
-                    })
-                    .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
+                    .setPositiveButton("确定", null)
+                    .setNegativeButton("取消", null)
                     .create();
 
             //设置对话框的显示监听器
@@ -320,16 +327,6 @@ public class SettingFragment extends Fragment {
                 });
             });
             alertDialog.show();
-
-            //设置适配器
-            RecyclerView recyclerView = mutiChoiceDialogView.findViewById(R.id.item_recycler);
-            MultiChoiceDialogAdapter adapter = new MultiChoiceDialogAdapter(
-                    requireContext(),
-                    itemStats,
-                    type_names,
-                    (position, isChecked) -> itemStats[position] = isChecked
-            );
-            recyclerView.setAdapter(adapter);
         });
 
         //导入数据
@@ -469,6 +466,16 @@ public class SettingFragment extends Fragment {
         //实例化自定义对话框视图
         @SuppressLint("InflateParams") View mutiChoiceDialogView = getLayoutInflater().inflate(R.layout.view_multichoice, null);
 
+        //设置适配器
+        RecyclerView recyclerView = mutiChoiceDialogView.findViewById(R.id.item_recycler);
+        MultiChoiceDialogAdapter adapter = new MultiChoiceDialogAdapter(
+                isItemEnabled,
+                itemStats,
+                choiceItems,
+                (position, isChecked) -> itemStats[position] = isChecked
+        );
+        recyclerView.setAdapter(adapter);
+
         //构建对话框实例
         AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("选择需要导入的数据")
@@ -477,8 +484,7 @@ public class SettingFragment extends Fragment {
                     dialog.dismiss();
                     safFileHelper.clearTempFile();
                 })
-                .setPositiveButton("确定", (dialog, which) -> {
-                })
+                .setPositiveButton("确定", null)
                 .create();
 
         //设置对话框的显示监听器
@@ -505,17 +511,6 @@ public class SettingFragment extends Fragment {
             });
         });
         alertDialog.show();
-
-        //设置适配器
-        RecyclerView recyclerView = mutiChoiceDialogView.findViewById(R.id.item_recycler);
-        MultiChoiceDialogAdapter adapter = new MultiChoiceDialogAdapter(
-                requireContext(),
-                isItemEnabled,
-                itemStats,
-                choiceItems,
-                (position, isChecked) -> itemStats[position] = isChecked
-        );
-        recyclerView.setAdapter(adapter);
     }
 
     /**

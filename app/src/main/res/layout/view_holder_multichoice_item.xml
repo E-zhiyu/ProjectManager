@@ -1,0 +1,14 @@
+<androidx.appcompat.widget.AppCompatCheckedTextView android:id="@+id/checked_text"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:drawableStart="?android:attr/listChoiceIndicatorMultiple"
+    android:gravity="center_vertical"
+    android:paddingTop="10dp"
+    android:paddingStart="25sp"
+    android:paddingEnd="25sp"
+    android:paddingBottom="10sp"
+    android:textSize="17sp"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+
+</androidx.appcompat.widget.AppCompatCheckedTextView>

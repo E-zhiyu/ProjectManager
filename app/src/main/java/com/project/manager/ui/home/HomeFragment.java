@@ -94,7 +94,7 @@ public class HomeFragment extends Fragment {
         expense_income_text = binding.expenseIncomeText;
 
         balance_text.setText(String.format(Locale.getDefault(), "%.2f", day_balance));
-        expense_income_text.setText(String.format(Locale.getDefault(), "支出：%s| 收入：%s", day_expense, day_income));
+        expense_income_text.setText(String.format(Locale.getDefault(), "支出：%s | 收入：%s", day_expense, day_income));
     }
 
     /**

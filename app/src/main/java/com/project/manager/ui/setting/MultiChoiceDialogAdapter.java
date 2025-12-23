@@ -1,26 +1,27 @@
 package com.project.manager.ui.setting;
 
-import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatCheckedTextView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.checkbox.MaterialCheckBox;
+import com.project.manager.R;
 
-public class MultiChoiceDialogAdapter extends RecyclerView.Adapter<MultiChoiceDialogAdapter.CheckBoxViewHolder> {
+public class MultiChoiceDialogAdapter extends RecyclerView.Adapter<MultiChoiceDialogAdapter.CheckedTextViewHolder> {
     private final String[] choiceItems;         //多选选项
     private final boolean[] itemStats;          //选项初始状态
     private final boolean[] itemEnabled;        //选项是否被禁用
-    private final Context context;              //上下文
     private final onCheckedListener listener;   //选择行为监听器
 
-    public static class CheckBoxViewHolder extends RecyclerView.ViewHolder {
-        MaterialCheckBox checkBox;
+    public static class CheckedTextViewHolder extends RecyclerView.ViewHolder {
+        AppCompatCheckedTextView checkedTextView;
 
-        public CheckBoxViewHolder(MaterialCheckBox checkBox) {
-            super(checkBox);
-            this.checkBox = checkBox;
+        public CheckedTextViewHolder(View itemView) {
+            super(itemView);
+            checkedTextView = itemView.findViewById(R.id.checked_text);
         }
     }
 
@@ -37,13 +38,11 @@ public class MultiChoiceDialogAdapter extends RecyclerView.Adapter<MultiChoiceDi
     /**
      * 不设置是否启用可选项的构造方法
      *
-     * @param context     上下文
      * @param itemStats   选项初始状态
      * @param choiceItems 选项名称
      * @param listener    选项点击监听器
      */
-    public MultiChoiceDialogAdapter(Context context, boolean[] itemStats, String[] choiceItems, onCheckedListener listener) {
-        this.context = context;
+    public MultiChoiceDialogAdapter(boolean[] itemStats, String[] choiceItems, onCheckedListener listener) {
         this.itemEnabled = null;
         this.itemStats = itemStats;
         this.choiceItems = choiceItems;
@@ -53,14 +52,12 @@ public class MultiChoiceDialogAdapter extends RecyclerView.Adapter<MultiChoiceDi
     /**
      * 不设置是否启用可选项的构造方法
      *
-     * @param context     上下文
      * @param itemStats   选项初始状态
      * @param itemEnabled 选项是否启用
      * @param choiceItems 选项名称
      * @param listener    选项点击监听器
      */
-    public MultiChoiceDialogAdapter(Context context, boolean[] itemEnabled, boolean[] itemStats, String[] choiceItems, onCheckedListener listener) {
-        this.context = context;
+    public MultiChoiceDialogAdapter(boolean[] itemEnabled, boolean[] itemStats, String[] choiceItems, onCheckedListener listener) {
         this.itemEnabled = itemEnabled;
         this.itemStats = itemStats;
         this.choiceItems = choiceItems;
@@ -69,30 +66,35 @@ public class MultiChoiceDialogAdapter extends RecyclerView.Adapter<MultiChoiceDi
 
     @NonNull
     @Override
-    public CheckBoxViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        MaterialCheckBox checkBox = new MaterialCheckBox(context);
-        return new CheckBoxViewHolder(checkBox);
+    public CheckedTextViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.view_holder_multichoice_item, parent, false);
+        return new CheckedTextViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CheckBoxViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull CheckedTextViewHolder holder, int position) {
         boolean isEnabled = true;
         if (itemEnabled != null) {
             isEnabled = itemEnabled[position];
         }
         boolean stat = itemStats[position];
 
-        holder.checkBox.setText(choiceItems[position]);
+        holder.checkedTextView.setText(choiceItems[position]);
         if (!isEnabled) {
-            holder.checkBox.setEnabled(false);
-            holder.checkBox.setChecked(false);
+            holder.checkedTextView.setEnabled(false);
+            holder.checkedTextView.setChecked(false);
         } else {
-            holder.checkBox.setChecked(stat);
+            holder.checkedTextView.setChecked(stat);
         }
 
         //绑定复选框的选择监听器
-        holder.checkBox.setOnCheckedChangeListener(
-                (buttonView, isChecked) -> listener.onChecked(position, isChecked)
+        holder.checkedTextView.setOnClickListener(
+                view -> {
+                    holder.checkedTextView.toggle();
+                    itemStats[position] = !itemStats[position];
+                    listener.onChecked(position, itemStats[position]);
+                }
         );
     }
 
