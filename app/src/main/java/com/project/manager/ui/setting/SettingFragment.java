@@ -3,6 +3,7 @@ package com.project.manager.ui.setting;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
+import com.project.manager.LogTags;
 import com.project.manager.R;
 import com.project.manager.broadcast.BroadcastConstants;
 import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
@@ -135,6 +137,7 @@ public class SettingFragment extends Fragment {
      * 导出数据并创建文件
      */
     private void exportData(@NonNull boolean[] choseItem) {
+        Log.i(LogTags.SETTING_FRAGMENT.getV(), "开始导出数据");
         List<String> fileNameList = new ArrayList<>();      //用于导出数据的临时文件名列表
         List<String> fileContentList = new ArrayList<>();   //用于导出数据的临时文件内容列表
 
@@ -187,6 +190,7 @@ public class SettingFragment extends Fragment {
      * 从文件导入数据
      */
     private void importData() {
+        Log.i(LogTags.SETTING_FRAGMENT.getV(), "开始导入数据……");
         safFileHelper.openZipBySAF(
                 new SAFFileHelper.ReadCallback() {
                     @Override
@@ -480,10 +484,7 @@ public class SettingFragment extends Fragment {
         AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("选择需要导入的数据")
                 .setView(mutiChoiceDialogView)
-                .setNegativeButton("取消", (dialog, which) -> {
-                    dialog.dismiss();
-                    safFileHelper.clearTempFile();
-                })
+                .setNegativeButton("取消", null)
                 .setPositiveButton("确定", null)
                 .create();
 
@@ -501,6 +502,7 @@ public class SettingFragment extends Fragment {
                 }
 
                 if (!isNonItemChosen) {
+                    Log.i(LogTags.SETTING_FRAGMENT.getV(), "用户选择需要导入的数据并确认进行下一步");
                     onImportConfirmed(itemStats, effectiveFileList);
                     dialog.dismiss();   //仅当满足要求时才关闭
                 } else {
@@ -509,6 +511,11 @@ public class SettingFragment extends Fragment {
 
                 safFileHelper.clearTempFile();  //数据处理完成后清空临时文件
             });
+        });
+        //设置对话框隐藏监听
+        alertDialog.setOnDismissListener(dialog -> {
+            Log.i(LogTags.SETTING_FRAGMENT.getV(), "用户关闭对话框并取消数据导入");
+            safFileHelper.clearTempFile();
         });
         alertDialog.show();
     }
@@ -526,15 +533,16 @@ public class SettingFragment extends Fragment {
             String file_name = file.getName();
 
             DataHelperBase<BookKeepingDatabaseHelper, ?> dataHelperBase;
-            if (file_name.equals(EIDataType.ACCOUNT_DATA.getDefault_file_name()) && chosenItem[0]) {
+            if (file_name.equals(EIDataType.ACCOUNT_DATA.getDefault_file_name()) && chosenItem[EIDataType.ACCOUNT_DATA.ordinal()]) {
                 dataHelperBase = new RunningAccountDataHelper(requireContext());
-            } else if (file_name.equals(EIDataType.RULE_DATA.getDefault_file_name()) && chosenItem[1]) {
+            } else if (file_name.equals(EIDataType.RULE_DATA.getDefault_file_name()) && chosenItem[EIDataType.RULE_DATA.ordinal()]) {
                 dataHelperBase = new AnalysisRuleDataHelper(requireContext());
             } else {
                 continue;
             }
 
             //将数据保存至数据库
+            Log.i(LogTags.SETTING_FRAGMENT.getV(), String.format(Locale.getDefault(), "正在尝试读取临时文件%s", file_name));
             StringBuilder content = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                 String line;
@@ -545,13 +553,16 @@ public class SettingFragment extends Fragment {
             } catch (IOException e) {
                 ExceptionHelper.showExceptionDialog(requireContext(), e);
                 Toast.makeText(requireContext(), "临时文件读取失败，请重试", Toast.LENGTH_SHORT).show();
+                Log.e(LogTags.SETTING_FRAGMENT.getV(), "临时文件读取失败");
                 return;
             }
         }
 
         if (isImportSuccessfully) {
+            Log.i(LogTags.SETTING_FRAGMENT.getV(), "该文件的数据已成功导入");
             Toast.makeText(requireContext(), "数据导入成功", Toast.LENGTH_SHORT).show();
         } else {
+            Log.w(LogTags.SETTING_FRAGMENT.getV(), "该文件的数据导入失败");
             Toast.makeText(requireContext(), "数据导入失败：无法解析文件内容", Toast.LENGTH_SHORT).show();
         }
     }

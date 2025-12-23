@@ -6,11 +6,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.project.manager.LogTags;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -92,29 +95,13 @@ public class SAFFileHelper {
     }
 
     /**
-     * 将字符串内容写入文件
-     *
-     * @param targetFile 待写入的目标文件
-     * @param content    字符串内容
-     */
-    private void writeContentToFile(File targetFile, String content) {
-        try (FileOutputStream fos = new FileOutputStream(targetFile)) {
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
-
-            writer.write(content);
-            writer.flush();
-        } catch (IOException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            writeCallback.onError("临时文件写入失败");
-        }
-    }
-
-    /**
      * 创建临时zip压缩包并将临时数据文件放入压缩包内
      *
      * @param launcher 启动SAF的意图启动器
      */
     private void createTempZipFile(ActivityResultLauncher<Intent> launcher) {
+        Log.d(LogTags.SAF_FILE_HELPER.getV(), "正在创建临时zip文件……");
+
         //获取当前日期和时间并生成默认文件名
         Calendar calendar = Calendar.getInstance();
         String now_date = String.format(
@@ -147,10 +134,13 @@ public class SAFFileHelper {
                     zos.closeEntry();
                 }
             }
+
+            Log.d(LogTags.SAF_FILE_HELPER.getV(), "临时zip文件创建成功");
             saveFileUsingSAF(launcher, tempZipFile);
         } catch (IOException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             writeCallback.onError("无法创建临时zip文件");
+            Log.e(LogTags.SAF_FILE_HELPER.getV(), "无法创建临时zip文件");
         }
     }
 
@@ -161,11 +151,15 @@ public class SAFFileHelper {
      * @param sourceFile 临时zip文件对象
      */
     private void saveFileUsingSAF(@NonNull ActivityResultLauncher<Intent> launcher, @NonNull File sourceFile) {
+        Log.d(LogTags.SAF_FILE_HELPER.getV(), "正在通过SAF指定zip备份文件存放位置……");
+
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("application/zip");
         intent.putExtra(Intent.EXTRA_TITLE, sourceFile.getName());
         launcher.launch(intent);
+
+        Log.d(LogTags.SAF_FILE_HELPER.getV(), "SAF启动成功");
     }
 
     /**
@@ -174,6 +168,8 @@ public class SAFFileHelper {
      * @param uri 用户通过SAF生成的uri
      */
     private void copyTempZipToUri(Uri uri) {
+        Log.d(LogTags.SAF_FILE_HELPER.getV(), "开始复制临时zip文件到指定位置");
+
         ContentResolver resolver = context.getContentResolver();
         ParcelFileDescriptor pfd = null;
         FileInputStream fis = null;
@@ -197,6 +193,7 @@ public class SAFFileHelper {
         } catch (IOException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             writeCallback.onError("复制临时zip文件失败");
+            Log.e(LogTags.SAF_FILE_HELPER.getV(), "复制临时zip文件失败");
         } finally {
             //关闭所有流并删除临时文件
             try {
@@ -205,7 +202,8 @@ public class SAFFileHelper {
                 if (pfd != null) pfd.close();
             } catch (IOException e) {
                 ExceptionHelper.showExceptionDialog(context, e);
-                writeCallback.onError("无法正确关闭流或删除临时文件");
+                writeCallback.onError("无法正确关闭流");
+                Log.e(LogTags.SAF_FILE_HELPER.getV(), "无法正确关闭流");
             }
         }
     }
@@ -218,7 +216,7 @@ public class SAFFileHelper {
      * @param isWriteMode 是否为文件写入模式
      */
     public void handleActivityResult(int resultCode, @Nullable Intent data, boolean isWriteMode) {
-        // 处理创建文件的结果（保持原有逻辑）
+        //处理导出数据的结果
         if (isWriteMode) {
             if (resultCode == Activity.RESULT_OK && data != null) {
                 Uri uri = data.getData();
@@ -226,22 +224,31 @@ public class SAFFileHelper {
                 if (uri != null) {
                     copyTempZipToUri(uri);
                 }
+                Log.i(LogTags.SAF_FILE_HELPER.getV(), "用户确认选择并进行下一步");
+            }
+            else {
+                Log.i(LogTags.SAF_FILE_HELPER.getV(), "用户取消选择并关闭SAF");
             }
             clearTempFile();
         }
-        // 处理读取文件的结果
+        //处理导入数据的结果
         else {
             if (resultCode == Activity.RESULT_OK && data != null) {
                 Uri uri = data.getData();
                 if (uri != null) {
                     copyUriToTempZip(uri);
                 }
+                Log.i(LogTags.SAF_FILE_HELPER.getV(), "用户确认选择并进行下一步");
+            }
+            else {
+                Log.i(LogTags.SAF_FILE_HELPER.getV(), "用户取消选择并关闭SAF");
             }
         }
     }
 
     public void openZipBySAF(ReadCallback callback,
                              ActivityResultLauncher<Intent> launcher) {
+        Log.d(LogTags.SAF_FILE_HELPER.getV(), "正在使用SAF选择zip备份文件……");
         this.readCallback = callback;
 
         try {
@@ -249,9 +256,11 @@ public class SAFFileHelper {
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("application/zip");
             launcher.launch(intent);
+            Log.d(LogTags.SAF_FILE_HELPER.getV(), "SAF启动成功");
         } catch (Exception e) {
             ExceptionHelper.showExceptionDialog(context, e);
             readCallback.onError("SAF出错");
+            Log.e(LogTags.SAF_FILE_HELPER.getV(), "SAF出错");
         }
     }
 
@@ -261,6 +270,8 @@ public class SAFFileHelper {
      * @param uri 用户通过SAF选择的uri
      */
     private void copyUriToTempZip(Uri uri) {
+        Log.d(LogTags.SAF_FILE_HELPER.getV(), "开始复制目标zip备份文件到临时目录……");
+
         //生成临时zip文件对象
         tempZipFile = new File(tempDir, "backup_temp.zip");
         if (!tempDir.exists() && !tempDir.mkdirs()) {
@@ -293,6 +304,7 @@ public class SAFFileHelper {
         } catch (Exception e) {
             ExceptionHelper.showExceptionDialog(context, e);
             readCallback.onError("复制zip文件时出错");
+            Log.e(LogTags.SAF_FILE_HELPER.getV(), "zip文件复制失败");
 
             //复制失败时清理可能残留的临时文件
             clearTempFile();
@@ -304,6 +316,7 @@ public class SAFFileHelper {
             } catch (IOException e) {
                 ExceptionHelper.showExceptionDialog(context, e);
                 readCallback.onError("无法正确关闭流");
+                Log.e(LogTags.SAF_FILE_HELPER.getV(), "无法正确关闭流");
             }
         }
     }
@@ -314,6 +327,7 @@ public class SAFFileHelper {
     private void unpackZipFile() {
         try (FileInputStream fis = new FileInputStream(tempZipFile);
              ZipInputStream zis = new ZipInputStream(fis)) {
+            Log.d(LogTags.SAF_FILE_HELPER.getV(), "开始解压zip备份文件……");
 
             ZipEntry entry;
             byte[] buffer = new byte[8192]; // 8KB缓冲区
@@ -337,13 +351,16 @@ public class SAFFileHelper {
 
             //读取解压得到的文件内容
             if (!tempJsonFileList.isEmpty()) {
+                Log.d(LogTags.SAF_FILE_HELPER.getV(), "zip备份文件解压完成");
                 readCallback.onZipUnpacked(tempJsonFileList);
             } else {
                 readCallback.onError("zip文件为空");
+                Log.w(LogTags.SAF_FILE_HELPER.getV(), "zip备份文件为空");
             }
         } catch (IOException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             readCallback.onError("zip文件解压失败");
+            Log.e(LogTags.SAF_FILE_HELPER.getV(), "zip备份文件解压失败");
             clearTempFile();
         }
     }
@@ -365,29 +382,57 @@ public class SAFFileHelper {
 
         File tempJsonFile = new File(tempDir, file_name);
         tempJsonFileList.add(tempJsonFile);
-        writeContentToFile(tempJsonFile, content);
+        writeContentToTempFile(tempJsonFile, content);
+    }
+
+    /**
+     * 将字符串内容写入临时文件
+     *
+     * @param targetFile 待写入的目标文件
+     * @param content    字符串内容
+     */
+    private void writeContentToTempFile(@NonNull File targetFile, String content) {
+        Log.d(
+                LogTags.SAF_FILE_HELPER.getV(),
+                String.format(Locale.getDefault(), "正在将内容写入文件%s……", targetFile.getName())
+        );
+        try (FileOutputStream fos = new FileOutputStream(targetFile)) {
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
+
+            writer.write(content);
+            writer.flush();
+            Log.d(LogTags.SAF_FILE_HELPER.getV(), "文件内容写入完毕");
+        } catch (IOException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+            writeCallback.onError("临时文件写入失败");
+            Log.e(LogTags.SAF_FILE_HELPER.getV(), "临时文件写入失败");
+        }
     }
 
     /**
      * 清除临时文件
      */
     public void clearTempFile() {
+        Log.d(LogTags.SAF_FILE_HELPER.getV(), "开始清除临时文件……");
         boolean isFileDeleteFailed = false;
 
         for (File tempFile : tempJsonFileList) {
             if (tempFile.exists() && !tempFile.delete()) {
-                isFileDeleteFailed =true;
+                isFileDeleteFailed = true;
             }
         }
         tempJsonFileList.clear();
 
         if (tempZipFile != null && !tempZipFile.delete()) {
-            isFileDeleteFailed =true;
+            isFileDeleteFailed = true;
         }
         tempZipFile = null;
 
         if (isFileDeleteFailed) {
             Toast.makeText(context, "警告：临时文件删除失败", Toast.LENGTH_SHORT).show();
+            Log.w(LogTags.SAF_FILE_HELPER.getV(), "临时文件清除失败");
+        } else {
+            Log.d(LogTags.SAF_FILE_HELPER.getV(), "临时文件清除完毕");
         }
     }
 }
