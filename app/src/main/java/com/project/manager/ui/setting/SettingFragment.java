@@ -219,61 +219,21 @@ public class SettingFragment extends Fragment {
                             }
                         }
 
-                        if (!isItemFound[0] && isItemFound[1]) {
+                        //判断是否所有选项都被禁用
+                        boolean isAllFalse = true;
+                        for (boolean isFound : isItemFound) {
+                            if (isFound) {
+                                isAllFalse = false;
+                                break;
+                            }
+                        }
+                        if (isAllFalse) {
                             Toast.makeText(requireContext(), "请选择正确的备份文件", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
-                        //实例化自定义对话框视图
-                        @SuppressLint("InflateParams") View mutiChoiceDialogView = getLayoutInflater().inflate(R.layout.view_multichoice, null);
-
-                        //构建对话框实例
-                        AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireContext())
-                                .setTitle("选择需要导入的数据")
-                                .setView(mutiChoiceDialogView)
-                                .setNegativeButton("取消", (dialog, which) -> {
-                                    dialog.dismiss();
-                                    safFileHelper.clearTempFile();
-                                })
-                                .setPositiveButton("确定", (dialog, which) -> {
-                                })
-                                .create();
-
-                        //设置对话框的显示监听器
-                        alertDialog.setOnShowListener(dialog -> {
-                            Button positiveBtn = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                            positiveBtn.setOnClickListener(v -> {
-                                //检测是否一个都没有选择
-                                boolean isNonItemChosen = true;
-                                for (boolean isChose : itemStats) {
-                                    if (isChose) {
-                                        isNonItemChosen = false;
-                                        break;
-                                    }
-                                }
-
-                                if (!isNonItemChosen) {
-                                    onImportConfirmed(itemStats, effectiveFileList);
-                                    dialog.dismiss();   //仅当满足要求时才关闭
-                                } else {
-                                    Toast.makeText(requireContext(), "请选择至少一个选项", Toast.LENGTH_SHORT).show();
-                                }
-
-                                safFileHelper.clearTempFile();  //数据处理完成后清空临时文件
-                            });
-                        });
-                        alertDialog.show();
-
-                        //设置适配器
-                        RecyclerView recyclerView = mutiChoiceDialogView.findViewById(R.id.item_recycler);
-                        MultiChoiceDialogAdapter adapter = new MultiChoiceDialogAdapter(
-                                requireContext(),
-                                isItemFound,
-                                itemStats,
-                                type_names,
-                                (position, isChecked) -> itemStats[position] = isChecked
-                        );
-                        recyclerView.setAdapter(adapter);
+                        //显示导入数据选择对话框
+                        showImportItemChoiceDialog(itemStats, isItemFound, type_names, effectiveFileList);
                     }
 
                     @Override
@@ -470,6 +430,71 @@ public class SettingFragment extends Fragment {
                 }))
                 .setNegativeButton("关闭", (dialog, which) -> dialog.dismiss())
                 .show();
+    }
+
+    /**
+     * 显示导入数据选择对话框
+     *
+     * @param itemStats         可选项的初始状态
+     * @param isItemEnabled     可选项是否启用
+     * @param choiceItems       选项名称数组
+     * @param effectiveFileList 能够解析的JSON文件列表
+     */
+    private void showImportItemChoiceDialog(
+            boolean[] itemStats,
+            boolean[] isItemEnabled,
+            String[] choiceItems,
+            List<File> effectiveFileList) {
+        //实例化自定义对话框视图
+        @SuppressLint("InflateParams") View mutiChoiceDialogView = getLayoutInflater().inflate(R.layout.view_multichoice, null);
+
+        //构建对话框实例
+        AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("选择需要导入的数据")
+                .setView(mutiChoiceDialogView)
+                .setNegativeButton("取消", (dialog, which) -> {
+                    dialog.dismiss();
+                    safFileHelper.clearTempFile();
+                })
+                .setPositiveButton("确定", (dialog, which) -> {
+                })
+                .create();
+
+        //设置对话框的显示监听器
+        alertDialog.setOnShowListener(dialog -> {
+            Button positiveBtn = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positiveBtn.setOnClickListener(v -> {
+                //检测是否一个都没有选择
+                boolean isNonItemChosen = true;
+                for (boolean isChose : itemStats) {
+                    if (isChose) {
+                        isNonItemChosen = false;
+                        break;
+                    }
+                }
+
+                if (!isNonItemChosen) {
+                    onImportConfirmed(itemStats, effectiveFileList);
+                    dialog.dismiss();   //仅当满足要求时才关闭
+                } else {
+                    Toast.makeText(requireContext(), "请选择至少一个选项", Toast.LENGTH_SHORT).show();
+                }
+
+                safFileHelper.clearTempFile();  //数据处理完成后清空临时文件
+            });
+        });
+        alertDialog.show();
+
+        //设置适配器
+        RecyclerView recyclerView = mutiChoiceDialogView.findViewById(R.id.item_recycler);
+        MultiChoiceDialogAdapter adapter = new MultiChoiceDialogAdapter(
+                requireContext(),
+                isItemEnabled,
+                itemStats,
+                choiceItems,
+                (position, isChecked) -> itemStats[position] = isChecked
+        );
+        recyclerView.setAdapter(adapter);
     }
 
     /**
