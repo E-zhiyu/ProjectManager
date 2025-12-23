@@ -34,6 +34,31 @@ public class MultiChoiceDialogAdapter extends RecyclerView.Adapter<MultiChoiceDi
         void onChecked(int position, boolean isChecked);
     }
 
+    /**
+     * 不设置是否启用可选项的构造方法
+     *
+     * @param context     上下文
+     * @param itemStats   选项初始状态
+     * @param choiceItems 选项名称
+     * @param listener    选项点击监听器
+     */
+    public MultiChoiceDialogAdapter(Context context, boolean[] itemStats, String[] choiceItems, onCheckedListener listener) {
+        this.context = context;
+        this.itemEnabled = null;
+        this.itemStats = itemStats;
+        this.choiceItems = choiceItems;
+        this.listener = listener;
+    }
+
+    /**
+     * 不设置是否启用可选项的构造方法
+     *
+     * @param context     上下文
+     * @param itemStats   选项初始状态
+     * @param itemEnabled 选项是否启用
+     * @param choiceItems 选项名称
+     * @param listener    选项点击监听器
+     */
     public MultiChoiceDialogAdapter(Context context, boolean[] itemEnabled, boolean[] itemStats, String[] choiceItems, onCheckedListener listener) {
         this.context = context;
         this.itemEnabled = itemEnabled;
@@ -51,7 +76,10 @@ public class MultiChoiceDialogAdapter extends RecyclerView.Adapter<MultiChoiceDi
 
     @Override
     public void onBindViewHolder(@NonNull CheckBoxViewHolder holder, int position) {
-        boolean isEnabled = itemEnabled[position];
+        boolean isEnabled = true;
+        if (itemEnabled != null) {
+            isEnabled = itemEnabled[position];
+        }
         boolean stat = itemStats[position];
 
         holder.checkBox.setText(choiceItems[position]);

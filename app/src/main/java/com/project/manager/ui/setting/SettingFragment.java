@@ -279,36 +279,57 @@ public class SettingFragment extends Fragment {
 
         //导出数据
         binding.settingExportRunningAccount.setOnClickListener(v -> {
+            //获取选项名称和状态
             String[] type_names = Arrays.stream(EIDataType.values())
                     .map(EIDataType::getName)
                     .toArray(String[]::new);
-            boolean[] choseItem = {true, true};
+            boolean[] itemStats = {true, true};
 
-            new MaterialAlertDialogBuilder(requireContext())
+            //实例化自定义多选视图
+            @SuppressLint("InflateParams") View mutiChoiceDialogView = getLayoutInflater().inflate(R.layout.view_multichoice, null);
+
+            //构建多选对话框
+            AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireContext())
                     .setTitle("选择导出的数据")
-                    .setMultiChoiceItems(
-                            type_names,
-                            choseItem,
-                            (dialog, which, isChecked) -> choseItem[which] = isChecked)
+                    .setView(mutiChoiceDialogView)
                     .setPositiveButton("确定", (dialog, which) -> {
-                        //检测是否一个都没有选择
-                        boolean isNonItemChosen = true;
-                        for (boolean isChose : choseItem) {
-                            if (isChose) {
-                                isNonItemChosen = false;
-                                break;
-                            }
-                        }
 
-                        if (!isNonItemChosen) {
-                            exportData(choseItem);
-                            dialog.dismiss();
-                        } else {
-                            Toast.makeText(requireContext(), "请选择至少一个选项", Toast.LENGTH_SHORT).show();
-                        }
                     })
                     .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
-                    .show();
+                    .create();
+
+            //设置对话框的显示监听器
+            alertDialog.setOnShowListener(dialog -> {
+                Button positiveBtn = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                positiveBtn.setOnClickListener(view -> {
+                    //检测是否一个都没有选择
+                    boolean isNonItemChosen = true;
+                    for (boolean isChose : itemStats) {
+                        if (isChose) {
+                            isNonItemChosen = false;
+                            break;
+                        }
+                    }
+
+                    if (!isNonItemChosen) {
+                        exportData(itemStats);
+                        dialog.dismiss();
+                    } else {
+                        Toast.makeText(requireContext(), "请选择至少一个选项", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            });
+            alertDialog.show();
+
+            //设置适配器
+            RecyclerView recyclerView = mutiChoiceDialogView.findViewById(R.id.item_recycler);
+            MultiChoiceDialogAdapter adapter = new MultiChoiceDialogAdapter(
+                    requireContext(),
+                    itemStats,
+                    type_names,
+                    (position, isChecked) -> itemStats[position] = isChecked
+            );
+            recyclerView.setAdapter(adapter);
         });
 
         //导入数据
