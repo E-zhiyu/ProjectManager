@@ -191,11 +191,11 @@ public class SettingFragment extends Fragment {
      */
     private void importData() {
         Log.i(LogTags.SETTING_FRAGMENT.getV(), "开始导入数据……");
-        safFileHelper.openZipBySAF(
+        safFileHelper.openFileBySAF(
                 new SAFFileHelper.ReadCallback() {
                     @Override
-                    public void onZipUnpacked(List<File> tempJsonFileList) {
-                        List<File> effectiveFileList = getEffectiveFileList(tempJsonFileList);
+                    public void onZipUnpacked(List<File> fileList) {
+                        List<File> effectiveFileList = getEffectiveFileList(fileList);
 
                         String[] type_names = Arrays.stream(EIDataType.values())
                                 .map(EIDataType::getName)
@@ -206,7 +206,7 @@ public class SettingFragment extends Fragment {
                         //根据解压的临时JSON文件决定应该禁用哪些选项
                         for (EIDataType eiDataType : EIDataType.values()) {
                             boolean isFound = false;
-                            for (File tempFile : tempJsonFileList) {
+                            for (File tempFile : fileList) {
                                 if (tempFile.getName().equals(eiDataType.getDefault_file_name())) {
                                     isFound = true;
                                     break;
@@ -239,6 +239,51 @@ public class SettingFragment extends Fragment {
                         //显示导入数据选择对话框
                         showImportItemChoiceDialog(itemStats, isItemFound, type_names, effectiveFileList);
                     }
+
+                    @Override
+                    public void onOneJsonFileRead(File jsonFile) {
+                        //读取选择的单个JSON文件
+                        StringBuilder content_builder = new StringBuilder();
+                        try (BufferedReader reader = new BufferedReader(new FileReader(jsonFile))) {
+                            String line;
+                            while ((line = reader.readLine()) != null) {
+                                content_builder.append(line).append("\n");
+                            }
+                        } catch (IOException e) {
+                            ExceptionHelper.showExceptionDialog(requireContext(), e);
+                            Toast.makeText(requireContext(), "临时文件读取失败，请重试", Toast.LENGTH_SHORT).show();
+                            Log.e(LogTags.SETTING_FRAGMENT.getV(), "临时文件读取失败");
+                        }
+
+                        //根据文件内容判断数据类型
+                        String content_str = content_builder.toString();
+                        if (content_str.startsWith("{\"basic_data\"")) {
+                            Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据类型：流水记录数据");
+                            RunningAccountDataHelper dataHelper = new RunningAccountDataHelper(requireContext());
+                            if (dataHelper.saveJsonDataToDb(content_str)) {
+                                Toast.makeText(requireContext(), "流水记录数据导入成功", Toast.LENGTH_SHORT).show();
+                                Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据导入成功");
+                            } else {
+                                Toast.makeText(requireContext(), "无法解析文件内容", Toast.LENGTH_SHORT).show();
+                            }
+                        } else if (content_str.startsWith("{\"rule_data\"")) {
+                            Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据类型：通知解析规则数据");
+                            AnalysisRuleDataHelper dataHelper = new AnalysisRuleDataHelper(requireContext());
+                            if (dataHelper.saveJsonDataToDb(content_str)) {
+                                Toast.makeText(requireContext(), "通知解析规则数据导入成功", Toast.LENGTH_SHORT).show();
+                                Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据导入成功");
+                            } else {
+                                Toast.makeText(requireContext(), "无法解析文件内容", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Log.e(LogTags.SETTING_FRAGMENT.getV(), "数据类型：未知");
+                            Toast.makeText(requireContext(), "无法解析文件内容", Toast.LENGTH_SHORT).show();
+                        }
+
+                        //清除临时文件
+                        safFileHelper.clearTempFile();
+                    }
+
 
                     @Override
                     public void onError(String errMessage) {

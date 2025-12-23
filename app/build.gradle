@@ -51,4 +51,5 @@ dependencies {
     implementation libs.rxandroid
     implementation libs.rxjava
     implementation libs.swiperefreshlayout
+    implementation libs.documentfile
 }

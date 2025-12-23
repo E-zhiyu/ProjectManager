@@ -1,13 +1,14 @@
 [versions]
 agp = "8.13.0"
 core = "4.6.2"
+documentfile = "1.1.0"
 googleMaterial = "1.13.0"
 gradle = "8.13.0"
 jacksonDatabind = "2.20.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
-appcompat = "1.7.0"
+appcompat = "1.7.1"
 constraintlayout = "2.1.4"
 lifecycleLivedataKtx = "2.6.2"
 lifecycleViewmodelKtx = "2.6.2"
@@ -23,6 +24,7 @@ viewpager2 = "1.0.0"
 
 [libraries]
 core = { module = "io.noties.markwon:core", version.ref = "core" }
+documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
 gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jacksonDatabind" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

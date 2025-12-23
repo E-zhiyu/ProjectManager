@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.documentfile.provider.DocumentFile;
 
 import com.project.manager.LogTags;
 
@@ -55,9 +56,16 @@ public class SAFFileHelper {
         /**
          * 导入数据的zip文件成功解压的回调
          *
-         * @param tempJsonFileList 临时JSON文件列表
+         * @param fileList 读取到的JSON文件列表
          */
-        void onZipUnpacked(List<File> tempJsonFileList);
+        void onZipUnpacked(List<File> fileList);
+
+        /**
+         * 用户选择单个JSON文件并成功的回调
+         *
+         * @param jsonFile 单个JSON文件对象
+         */
+        void onOneJsonFileRead(File jsonFile);
 
         void onError(String errMessage);
     }
@@ -225,8 +233,7 @@ public class SAFFileHelper {
                     copyTempZipToUri(uri);
                 }
                 Log.i(LogTags.SAF_FILE_HELPER.getV(), "用户确认选择并进行下一步");
-            }
-            else {
+            } else {
                 Log.i(LogTags.SAF_FILE_HELPER.getV(), "用户取消选择并关闭SAF");
             }
             clearTempFile();
@@ -235,26 +242,45 @@ public class SAFFileHelper {
         else {
             if (resultCode == Activity.RESULT_OK && data != null) {
                 Uri uri = data.getData();
-                if (uri != null) {
-                    copyUriToTempZip(uri);
+                String type = getMimeType(uri);
+                if (uri != null && type != null) {
+                    if (type.equals("application/zip")) {
+                        copyUriToTempZip(uri);
+                        Log.i(LogTags.SAF_FILE_HELPER.getV(), "用户选择zip备份文件");
+                    } else if (type.equals("application/json")) {
+                        File oneJsonFile = getFileFromDocumentUri(uri);
+                        readCallback.onOneJsonFileRead(oneJsonFile);
+                        Log.i(LogTags.SAF_FILE_HELPER.getV(), "用户选择JSON文件");
+                    } else {
+                        Log.e(LogTags.SAF_FILE_HELPER.getV(), "用户选择了未知种类的文件");
+                        readCallback.onError("请选择zip或json文件");
+                    }
+                } else {
+                    Log.e(LogTags.SAF_FILE_HELPER.getV(), "无法获取文件信息");
                 }
-                Log.i(LogTags.SAF_FILE_HELPER.getV(), "用户确认选择并进行下一步");
-            }
-            else {
+            } else {
                 Log.i(LogTags.SAF_FILE_HELPER.getV(), "用户取消选择并关闭SAF");
             }
         }
     }
 
-    public void openZipBySAF(ReadCallback callback,
-                             ActivityResultLauncher<Intent> launcher) {
+    /**
+     * 通过SAF打开备份文件
+     *
+     * @param callback 处理打开文件的回调
+     * @param launcher SAF启动器
+     */
+    public void openFileBySAF(ReadCallback callback,
+                              ActivityResultLauncher<Intent> launcher) {
         Log.d(LogTags.SAF_FILE_HELPER.getV(), "正在使用SAF选择zip备份文件……");
         this.readCallback = callback;
 
         try {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("application/zip");
+            intent.setType("*/*");
+            String[] fileTypes = {"application/json", "application/zip"};
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, fileTypes);    //限制只能打开JSON和zip文件
             launcher.launch(intent);
             Log.d(LogTags.SAF_FILE_HELPER.getV(), "SAF启动成功");
         } catch (Exception e) {
@@ -410,6 +436,46 @@ public class SAFFileHelper {
     }
 
     /**
+     * 将来自SAF的uri转换为File对象
+     *
+     * @param uri 来自SAF的uri
+     * @return 复制到临时目录下的JSON文件对象
+     */
+    @Nullable
+    private File getFileFromDocumentUri(Uri uri) {
+        try {
+            //获取DocumentFile对象
+            DocumentFile documentFile = DocumentFile.fromSingleUri(context, uri);
+            if (documentFile.canRead()) {
+                //复制文件到Android/data下的临时目录
+                File tempFile = new File(tempDir, "temp_json");
+                try (InputStream in = context.getContentResolver().openInputStream(uri);
+                     OutputStream out = new FileOutputStream(tempFile)) {
+                    byte[] buffer = new byte[1024];
+                    int length;
+                    if (in != null) {
+                        while ((length = in.read(buffer)) > 0) {
+                            out.write(buffer, 0, length);
+                        }
+
+                        tempJsonFileList.add(tempFile); //加入临时文件列表
+                        return tempFile;                //返回临时文件
+                    } else {
+                        throw new IOException("无法打开输入流");
+                    }
+                }
+            } else {
+                throw new IOException("文件无法读取");
+            }
+        } catch (IOException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+            readCallback.onError("JSON文件读取失败");
+            Log.e(LogTags.SAF_FILE_HELPER.getV(), "JSON文件读取失败");
+            return null;
+        }
+    }
+
+    /**
      * 清除临时文件
      */
     public void clearTempFile() {
@@ -434,5 +500,16 @@ public class SAFFileHelper {
         } else {
             Log.d(LogTags.SAF_FILE_HELPER.getV(), "临时文件清除完毕");
         }
+    }
+
+    /**
+     * 通过uri获取文件种类
+     *
+     * @param uri 目标文件的uri
+     * @return 文件种类
+     */
+    private String getMimeType(Uri uri) {
+        ContentResolver contentResolver = context.getContentResolver();
+        return contentResolver.getType(uri); // 返回 MIME 类型，如 "image/jpeg"
     }
 }
