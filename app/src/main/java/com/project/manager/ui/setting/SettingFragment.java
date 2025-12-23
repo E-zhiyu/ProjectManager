@@ -523,20 +523,23 @@ public class SettingFragment extends Fragment {
     /**
      * 数据导入确认后触发的方法
      *
-     * @param chosenItem        多选对话框的选择状况
+     * @param itemStats         多选对话框的选择状况
      * @param effectiveFileList 能够解析内容的有效文件列表
      */
-    private void onImportConfirmed(boolean[] chosenItem, @NonNull List<File> effectiveFileList) {
+    private void onImportConfirmed(@NonNull boolean[] itemStats, @NonNull List<File> effectiveFileList) {
         boolean isImportSuccessfully = false;
 
+        boolean isAccountDataChecked = itemStats[EIDataType.ACCOUNT_DATA.ordinal()];   //流水记录文件是否勾选
+        boolean isRuleDataChecked = itemStats[EIDataType.RULE_DATA.ordinal()];         //通知解析规则文件是否勾选
         for (File file : effectiveFileList) {
             String file_name = file.getName();
 
             DataHelperBase<BookKeepingDatabaseHelper, ?> dataHelperBase;
-            if (file_name.equals(EIDataType.ACCOUNT_DATA.getDefault_file_name()) && chosenItem[EIDataType.ACCOUNT_DATA.ordinal()]) {
+            if (file_name.equals(EIDataType.ACCOUNT_DATA.getDefault_file_name()) && isAccountDataChecked) {
                 dataHelperBase = new RunningAccountDataHelper(requireContext());
-            } else if (file_name.equals(EIDataType.RULE_DATA.getDefault_file_name()) && chosenItem[EIDataType.RULE_DATA.ordinal()]) {
-                dataHelperBase = new AnalysisRuleDataHelper(requireContext());
+            } else if (file_name.equals(EIDataType.RULE_DATA.getDefault_file_name()) && isRuleDataChecked) {
+                //isAccountDataChecked：当同时导入了流水账数据时才写入tag_no属性
+                dataHelperBase = new AnalysisRuleDataHelper(requireContext(), isAccountDataChecked);
             } else {
                 continue;
             }

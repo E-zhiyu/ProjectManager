@@ -3,6 +3,7 @@ package com.project.manager.ui.setting.running_account_data.pojo;
 public class PojoAnalysisRule {
     private String ruleName;    //规则名称
     private long ruleNo;        //规则编号
+    private long tag_no;        //标签编号
     private String type;        //流水种类
     private String packageName; //包名
     private String title;       //通知标题
@@ -11,9 +12,10 @@ public class PojoAnalysisRule {
     public PojoAnalysisRule() {
     }
 
-    public PojoAnalysisRule(String ruleName, long ruleNo, String type, String packageName, String title, String content) {
+    public PojoAnalysisRule(String ruleName, long ruleNo,long tag_no, String type, String packageName, String title, String content) {
         this.ruleName = ruleName;
         this.ruleNo = ruleNo;
+        this.tag_no = tag_no;
         this.type = type;
         this.packageName = packageName;
         this.title = title;
@@ -34,6 +36,14 @@ public class PojoAnalysisRule {
 
     public void setRuleNo(long ruleNo) {
         this.ruleNo = ruleNo;
+    }
+
+    public long getTag_no() {
+        return tag_no;
+    }
+
+    public void setTag_no(long tag_no) {
+        this.tag_no = tag_no;
     }
 
     public String getType() {

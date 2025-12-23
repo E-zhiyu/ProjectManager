@@ -19,8 +19,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AnalysisRuleDataHelper extends DataHelperBase<BookKeepingDatabaseHelper, TotalRuleDataMap> {
+    private final boolean isTagNoShouldWrite;
+
+    /**
+     * 读取数据时选用的构造方法
+     *
+     * @param context 上下文
+     */
     public AnalysisRuleDataHelper(Context context) {
         super(context);
+        this.isTagNoShouldWrite = false;
+    }
+
+    /**
+     * 写入数据时选用的构造方法
+     *
+     * @param context            上下文
+     * @param isTagNoShouldWrite 是否需要写入tag_no属性
+     */
+    public AnalysisRuleDataHelper(Context context, boolean isTagNoShouldWrite) {
+        super(context);
+        this.isTagNoShouldWrite = isTagNoShouldWrite;
     }
 
     @Override
@@ -56,17 +75,9 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookKeepingDatabaseHe
         List<PojoAnalysisRule> ruleList = new ArrayList<>();
         SQLiteDatabase db = db_helper.openReadLink();
 
-        String[] columns = {
-                BookKeepingColumns.RULE_NAME.toString(),
-                BookKeepingColumns.RULE_NO.toString(),
-                BookKeepingColumns.TYPE.toString(),
-                BookKeepingColumns.PACKAGE_NAME.toString(),
-                BookKeepingColumns.NOTIFICATION_TITLE.toString(),
-                BookKeepingColumns.NOTIFICATION_CONTENT.toString()
-        };
         Cursor rule_cursor = db.query(
                 BookKeepingTables.ANALYSIS_RULE.toString(),
-                columns,
+                null,
                 null,
                 null,
                 null,
@@ -77,12 +88,13 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookKeepingDatabaseHe
         while (rule_cursor.moveToNext()) {
             String ruleName = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.RULE_NAME.toString()));
             long rule_no = rule_cursor.getLong(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.RULE_NO.toString()));
+            long tag_no = rule_cursor.getLong(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));
             String type = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.TYPE.toString()));
             String package_name = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.PACKAGE_NAME.toString()));
             String title = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.NOTIFICATION_TITLE.toString()));
             String content = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.NOTIFICATION_CONTENT.toString()));
 
-            PojoAnalysisRule rule = new PojoAnalysisRule(ruleName, rule_no, type, package_name, title, content);
+            PojoAnalysisRule rule = new PojoAnalysisRule(ruleName, rule_no, tag_no, type, package_name, title, content);
             ruleList.add(rule);
         }
 
@@ -100,6 +112,7 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookKeepingDatabaseHe
         for (PojoAnalysisRule rule : ruleList) {
             String rule_name = rule.getRuleName();
             long rule_no = rule.getRuleNo();
+            long tag_no = rule.getTag_no();
             String type = rule.getType();
             String package_name = rule.getPackageName();
             String title = rule.getTitle();
@@ -108,6 +121,9 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookKeepingDatabaseHe
             ContentValues rule_values = new ContentValues();
             rule_values.put(BookKeepingColumns.RULE_NAME.toString(), rule_name);
             rule_values.put(BookKeepingColumns.RULE_NO.toString(), rule_no);
+            if (isTagNoShouldWrite) {
+                rule_values.put(BookKeepingColumns.TAG_NO.toString(), tag_no);
+            }
             rule_values.put(BookKeepingColumns.TYPE.toString(), type);
             rule_values.put(BookKeepingColumns.PACKAGE_NAME.toString(), package_name);
             rule_values.put(BookKeepingColumns.NOTIFICATION_TITLE.toString(), title);
