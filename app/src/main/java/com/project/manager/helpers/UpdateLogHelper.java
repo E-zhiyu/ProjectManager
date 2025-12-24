@@ -11,7 +11,10 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.5.0  \n" +
+    private static final String update_log_md = "# v1.5.1  \n" +
+            "**BUG修复**  \n" +
+            "- 修复添加和修改通知解析规则时通知内容输入框失去焦点时总会提示存在语法错误的BUG  \n\n" +
+            "# v1.5.0  \n" +
             "**新增内容**  \n" +
             "- 流水记录界面添加标签过滤器  \n" +
             "- 新增主页界面，并将流水记录管理的部分组件移动至该界面  \n\n" +

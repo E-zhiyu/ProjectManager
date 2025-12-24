@@ -155,11 +155,11 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
                 notification_content_layout.setErrorEnabled(true);
                 notification_content_layout.setError(err);
             } else if (v == notification_content_input) {
-                err = "通知内容正则表达式存在语法错误";
                 try {
                     String content_pattern = String.valueOf(notification_content_input.getText());
                     Pattern.compile(content_pattern);
                 } catch (PatternSyntaxException e) {
+                    err = "通知内容正则表达式存在语法错误";
                     notification_content_layout.setErrorEnabled(true);
                     notification_content_layout.setError(err);
                 }
