@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -244,9 +246,22 @@ public class SAFFileHelper {
                 Uri uri = data.getData();
                 String type = getMimeType(uri);
                 if (uri != null && type != null) {
+                    //判断文件类型
                     if (type.equals("application/zip")) {
-                        copyUriToTempZip(uri);
                         Log.i(LogTags.SAF_FILE_HELPER.getV(), "用户选择zip备份文件");
+
+                        //判断文件大小（字节）
+                        long fileSize = getFileSizeFromUri(uri);
+                        if (fileSize > 1024 * 1024 * 50) {
+                            readCallback.onError("文件大于50MB");
+                            Log.e(LogTags.SAF_FILE_HELPER.getV(), "文件大小超出限制");
+                        } else if (fileSize <= 0) {
+                            readCallback.onError("无法读取文件内容");
+                            Log.e(LogTags.SAF_FILE_HELPER.getV(), "无法读取文件内容");
+                        } else {
+                            Log.i(LogTags.SAF_FILE_HELPER.getV(), "zip备份文件大小合法");
+                            copyUriToTempZip(uri);
+                        }
                     } else if (type.equals("application/json")) {
                         File oneJsonFile = getFileFromDocumentUri(uri);
                         readCallback.onOneJsonFileRead(oneJsonFile);
@@ -511,5 +526,36 @@ public class SAFFileHelper {
     private String getMimeType(Uri uri) {
         ContentResolver contentResolver = context.getContentResolver();
         return contentResolver.getType(uri); // 返回 MIME 类型，如 "image/jpeg"
+    }
+
+    /**
+     * 通过SAF的Uri获取文件大小（字节）
+     *
+     * @param uri SAF返回的 Uri
+     * @return 文件大小（字节），失败返回 -1
+     */
+    public long getFileSizeFromUri(Uri uri) {
+        ContentResolver contentResolver = context.getContentResolver();
+        try (Cursor cursor = contentResolver.query(
+                uri,
+                new String[]{OpenableColumns.SIZE}, // 只查询大小
+                null,
+                null,
+                null
+        )) {
+            // 查询文件的元数据（只需 SIZE 和 DISPLAY_NAME）
+            // 只查询大小
+
+            if (cursor != null && cursor.moveToFirst()) {
+                // 获取 SIZE 列的索引
+                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                if (sizeIndex != -1) {
+                    return cursor.getLong(sizeIndex); // 返回文件大小（字节）
+                }
+            }
+        } catch (Exception e) {
+            Log.e("FileUtils", "查询文件大小失败: " + e.getMessage());
+        }
+        return -1; // 失败返回 -1
     }
 }

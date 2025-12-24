@@ -553,13 +553,12 @@ public class SettingFragment extends Fragment {
                 } else {
                     Toast.makeText(requireContext(), "请选择至少一个选项", Toast.LENGTH_SHORT).show();
                 }
-
-                safFileHelper.clearTempFile();  //数据处理完成后清空临时文件
             });
         });
+
         //设置对话框隐藏监听
         alertDialog.setOnDismissListener(dialog -> {
-            Log.i(LogTags.SETTING_FRAGMENT.getV(), "用户关闭对话框并取消数据导入");
+            Log.i(LogTags.SETTING_FRAGMENT.getV(), "对话框关闭");
             safFileHelper.clearTempFile();
         });
         alertDialog.show();
