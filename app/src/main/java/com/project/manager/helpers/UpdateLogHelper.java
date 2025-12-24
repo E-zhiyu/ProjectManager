@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.5.2  \n" +
             "**修改内容**  \n" +
+            "- 限制日期选择对话框不能选择未来的日期  \n" +
             "- 将透明背景的按钮的涟漪边缘设置为圆角形  \n" +
             "- 将标签管理界面的分组标题文本的涟漪范围调整至完全横向填充，并将右侧展开/折叠按钮涟漪边缘改为圆形  \n\n" +
             "# v1.5.1  \n" +

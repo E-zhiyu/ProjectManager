@@ -17,6 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
@@ -508,6 +510,11 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         //显示日期选择器
         MaterialDatePicker<Long> datePicker = dateBuilder
                 .setSelection(selectedCalendar.getTimeInMillis())
+                .setCalendarConstraints(
+                        new CalendarConstraints.Builder()
+                                .setValidator(DateValidatorPointBackward.now()) //限制为过去日期
+                                .build()
+                )
                 .build();
         datePicker.show(getSupportFragmentManager(), TagString.DATE_PICKER.getValue());
 

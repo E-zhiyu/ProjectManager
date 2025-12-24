@@ -11,6 +11,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -33,8 +35,8 @@ import java.util.Calendar;
 import java.util.Date;
 
 public abstract class RunningAccountFragmentBase extends Fragment implements View.OnClickListener, View.OnFocusChangeListener {
-    Bundle initData = null;                                 //初始化控件内容的数据（用于编辑流水记录时）
-    View binding;                                           //绑定的XML界面
+    protected Bundle initData = null;                       //初始化控件内容的数据（用于编辑流水记录时）
+    protected View contentView;                             //绑定的XML界面
     protected String name;                                  //碎片名称
     protected String default_remark = "Default Remark";     //默认备注
     protected RunningAccountType type;                      //流水类型
@@ -47,7 +49,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = inflater.inflate(getLayoutResId(), container, false);
+        contentView = inflater.inflate(getLayoutResId(), container, false);
         initViews();
 
         //获取Application中的ViewModel
@@ -59,7 +61,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
             initViewsWhenModifying(initData);
         }
 
-        return binding;
+        return contentView;
     }
 
     public String getName() {
@@ -135,11 +137,11 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
 
     //初始化碎片布局
     protected void initViews() {
-        TextInputEditText dt_input = binding.findViewById(R.id.datetime_input);
-        amount_layout = binding.findViewById(R.id.amount_layout);
-        amount_input = binding.findViewById(R.id.amount_input);
-        tag_layout = binding.findViewById(R.id.running_account_tag_layout);
-        tag_input = binding.findViewById(R.id.running_account_tag_input);
+        TextInputEditText dt_input = contentView.findViewById(R.id.datetime_input);
+        amount_layout = contentView.findViewById(R.id.amount_layout);
+        amount_input = contentView.findViewById(R.id.amount_input);
+        tag_layout = contentView.findViewById(R.id.running_account_tag_layout);
+        tag_input = contentView.findViewById(R.id.running_account_tag_input);
 
         amount_input.setOnFocusChangeListener(this);
         dt_input.setOnClickListener(this);
@@ -227,9 +229,9 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         }
 
         amount_input.setText(String.valueOf(amount));                               //金额
-        TextInputEditText remark_input = binding.findViewById(R.id.remark_input);   //备注
+        TextInputEditText remark_input = contentView.findViewById(R.id.remark_input);   //备注
         remark_input.setText(isDefaultRemark ? "" : remark);
-        TextInputEditText date_input = binding.findViewById(R.id.datetime_input);   //日期
+        TextInputEditText date_input = contentView.findViewById(R.id.datetime_input);   //日期
         date_input.setText(date_time);
         tag_input.setText(tag_name);                                                //标签名称
     }
@@ -243,10 +245,10 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         Bundle dataBundle = new Bundle();
 
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());     //种类
-        TextInputEditText dateTimeTextView = binding.findViewById(R.id.datetime_input);     //日期和时间
+        TextInputEditText dateTimeTextView = contentView.findViewById(R.id.datetime_input);     //日期和时间
         String date_time = String.valueOf(dateTimeTextView.getText());
         dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), date_time);
-        TextInputEditText remarkEditText = binding.findViewById(R.id.remark_input);         //备注
+        TextInputEditText remarkEditText = contentView.findViewById(R.id.remark_input);         //备注
         String remark = String.valueOf(remarkEditText.getText());
         boolean isDefaultRemark;                                                            //是否使用默认备注
         if (remark.isEmpty()) {
@@ -273,7 +275,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         dateBuilder.setTitleText("选择日期");
 
         //初始化日期格式化器
-        TextInputEditText dateTimeInput = binding.findViewById(R.id.datetime_input);
+        TextInputEditText dateTimeInput = contentView.findViewById(R.id.datetime_input);
         String input_datetime = String.valueOf(dateTimeInput.getText());
         String pattern = "yyyy-MM-dd HH:mm";    //日期字符串格式
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
@@ -291,6 +293,11 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         //显示日期选择器
         MaterialDatePicker<Long> datePicker = dateBuilder
                 .setSelection(initialCalendar.getTimeInMillis())    //默认选中输入的日期
+                .setCalendarConstraints(
+                        new CalendarConstraints.Builder()
+                                .setValidator(DateValidatorPointBackward.now()) //限制为过去日期
+                                .build()
+                )
                 .build();
         datePicker.show(getParentFragmentManager(), TagString.DATE_PICKER.getValue());
 
@@ -299,7 +306,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
             selected_calendar.setTimeInMillis(selection);
 
             //选择日期后，再弹出时间选择器
-            showTimePicker(selected_calendar, initialCalendar);
+            showMaterialTimePicker(selected_calendar, initialCalendar);
         });
     }
 
@@ -309,7 +316,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
      * @param selectionCalendar 包含选择日期信息的日历对象
      * @param initialCalendar   初始化用的日历对象
      */
-    private void showTimePicker(@NonNull Calendar selectionCalendar, @NonNull Calendar initialCalendar) {
+    private void showMaterialTimePicker(@NonNull Calendar selectionCalendar, @NonNull Calendar initialCalendar) {
         //创建时间选择器
         MaterialTimePicker.Builder timeBuilder = new MaterialTimePicker.Builder();
         timeBuilder.setTimeFormat(TimeFormat.CLOCK_24H); // 24小时制
@@ -334,7 +341,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
             selectionCalendar.set(Calendar.MINUTE, minute);
 
             //修改文本框的日期和时间
-            TextInputEditText datetime_input = binding.findViewById(R.id.datetime_input);
+            TextInputEditText datetime_input = contentView.findViewById(R.id.datetime_input);
             @SuppressLint("DefaultLocale") String datetime_str = String.format("%04d-%02d-%02d %02d:%02d",
                     selectionCalendar.get(Calendar.YEAR),
                     selectionCalendar.get(Calendar.MONTH) + 1,

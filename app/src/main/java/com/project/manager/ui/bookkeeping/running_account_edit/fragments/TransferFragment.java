@@ -29,10 +29,10 @@ public class TransferFragment extends RunningAccountFragmentBase {
     @Override
     protected void initViews() {
         super.initViews();
-        export_layout = binding.findViewById(R.id.export_account_layout);
-        export_input = binding.findViewById(R.id.export_account_input);
-        import_layout = binding.findViewById(R.id.import_account_layout);
-        import_input = binding.findViewById(R.id.import_account_input);
+        export_layout = contentView.findViewById(R.id.export_account_layout);
+        export_input = contentView.findViewById(R.id.export_account_input);
+        import_layout = contentView.findViewById(R.id.import_account_layout);
+        import_input = contentView.findViewById(R.id.import_account_input);
 
         export_input.setOnFocusChangeListener(this);
         import_input.setOnFocusChangeListener(this);
