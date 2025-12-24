@@ -21,6 +21,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.search.SearchView;
 import com.project.manager.R;
+import com.project.manager.databinding.ActivityPackageNameSelectBinding;
 import com.project.manager.helpers.PermissionHelper;
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
@@ -40,11 +41,14 @@ public class PackageNameSelectActivity extends AppCompatActivity {
     private AppInfoSearchViewModel searchViewModel;                         //搜索应用的ViewModel
     private AppListAdapter fullAppAdapter, searchAdapter;                   //完整的应用列表适配器和搜索结果适配器
     private SwipeRefreshLayout appListRefreshLayout, searchRefreshLayout;   //下拉刷新布局
+    private ActivityPackageNameSelectBinding binding;                       //绑定的XML视图引用
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_package_name_select);
+
+        binding = ActivityPackageNameSelectBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         initViews();
 
@@ -106,6 +110,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        binding = null;
 
         // 防止内存泄漏
         disposables.dispose();
@@ -113,30 +118,30 @@ public class PackageNameSelectActivity extends AppCompatActivity {
 
     //初始化视图
     private void initViews() {
-        searchView = findViewById(R.id.search_view);
+        searchView = binding.searchView;
 
-        RecyclerView full_app_list_recycler = findViewById(R.id.app_list_recycler);         //打开页面时显示的完整应用列表视图
+        RecyclerView full_app_list_recycler = binding.appListRecycler;         //打开页面时显示的完整应用列表视图
         fullAppAdapter = new AppListAdapter(this::onAppClicked, this);
         full_app_list_recycler.setAdapter(fullAppAdapter);
-        RecyclerView search_result_recycler = findViewById(R.id.search_result_recycler);    //搜索结果列表视图
+        RecyclerView search_result_recycler = binding.searchResultRecycler;    //搜索结果列表视图
         searchAdapter = new AppListAdapter(this::onAppClicked, this);
         search_result_recycler.setAdapter(searchAdapter);
 
         //开始加载应用列表
-        appListRefreshLayout = findViewById(R.id.app_list_refresh_layout);
+        appListRefreshLayout = binding.appListRefreshLayout;
         appListRefreshLayout.setRefreshing(true);
         startLoadAppList();
 
         //设置下拉刷新布局的监听器
         appListRefreshLayout.setOnRefreshListener(this::startLoadAppList);
-        searchRefreshLayout = findViewById(R.id.search_refresh_layout);
+        searchRefreshLayout = binding.searchRefreshLayout;
         searchRefreshLayout.setOnRefreshListener(() -> {
             String searchViewText = searchView.getText().toString();
             searchViewModel.onSearchQueryChanged(searchViewText);
         });
 
         //设置图标按钮点击监听器
-        ImageButton expandListBtn = findViewById(R.id.expand_list_btn);
+        ImageButton expandListBtn = binding.expandListBtn;
         expandListBtn.setOnClickListener(this::showPopupMenu);
     }
 

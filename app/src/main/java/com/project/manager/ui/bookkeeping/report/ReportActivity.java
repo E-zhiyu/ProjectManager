@@ -25,6 +25,7 @@ import com.project.manager.data.data_class.MonthAccountInfo;
 import com.project.manager.data.data_save.database.BookKeepingColumns;
 import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
+import com.project.manager.databinding.ActivityReportBinding;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.TagString;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
@@ -51,11 +52,13 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     private final List<MonthAccountInfo> monthAccountInfoList = new ArrayList<>();          //月流水信息列表
     private MonthAccountAdapter month_account_adapter;                                      //月流水信息适配器
     private double year_expense = 0, year_income = 0;                                       //年支出和年收入
+    private ActivityReportBinding binding;                                                  //XML界面绑定引用
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_report);
+        binding = ActivityReportBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         initViews();
 
@@ -66,6 +69,12 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         dataList = loadReportData(DateRangeType.THIS_YEAR);
         updateMonthAccountData(dataList);                                           //初始化每月流水数据
         refreshMonthAccountInfoViews();                                             //刷新每月流水数据视图
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
     }
 
     @Override
@@ -84,7 +93,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
      */
     private void initViews() {
         //设置标题栏的图标点击监听器
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        MaterialToolbar toolbar = binding.toolbar;
         toolbar.setNavigationOnClickListener(v -> finish());
 
         Calendar now = Calendar.getInstance();
@@ -94,22 +103,22 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         @SuppressLint("DefaultLocale") String date_str = String.format("%04d年%02d月%02d日", year, month, day);
 
         //设置点击监听器
-        MaterialTextView date_textview = findViewById(R.id.report_date_textview);
+        MaterialTextView date_textview = binding.reportDateTextview;
         date_textview.setText(date_str);
         date_textview.setOnClickListener(this);
-        MaterialTextView date_range_select_view = findViewById(R.id.date_range_select_view);
+        MaterialTextView date_range_select_view = binding.dateRangeSelectView;
         date_range_select_view.setOnClickListener(this);
-        MaterialTextView month_account_info_type_select_view = findViewById(R.id.month_account_type_select_view);
+        MaterialTextView month_account_info_type_select_view = binding.monthAccountTypeSelectView;
         month_account_info_type_select_view.setOnClickListener(this);
 
         //获取RecyclerView并设置适配器
-        RecyclerView expense_source_recycler = findViewById(R.id.expense_source_recycler);
+        RecyclerView expense_source_recycler = binding.expenseSourceRecycler;
         expense_adapter = new AccountSourceAdapter(expenseSourceInfoList);
         expense_source_recycler.setAdapter(expense_adapter);
-        RecyclerView income_source_recycler = findViewById(R.id.income_source_recycler);
+        RecyclerView income_source_recycler = binding.incomeSourceRecycler;
         income_adapter = new AccountSourceAdapter(incomeSourceInfoList);
         income_source_recycler.setAdapter(income_adapter);
-        RecyclerView month_account_recycler = findViewById(R.id.month_account_recycler);
+        RecyclerView month_account_recycler = binding.monthAccountRecycler;
         month_account_adapter = new MonthAccountAdapter(monthAccountInfoList, monthAccountInfoType, this);
         month_account_recycler.setAdapter(month_account_adapter);
     }
@@ -246,10 +255,10 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         //更新文本视图
-        MaterialTextView balance_textview = findViewById(R.id.balance_text);
+        MaterialTextView balance_textview = binding.balanceText;
         balance_textview.setText(String.format("%.2f", balance));
         String expenditure_income = String.format("支出：%.2f | 收入：%.2f", expense, income);
-        MaterialTextView expense_income_textview = findViewById(R.id.expense_income_text);
+        MaterialTextView expense_income_textview = binding.expenseIncomeText;
         expense_income_textview.setText(expenditure_income);
 
         //计算各来源的收支占比
@@ -274,14 +283,14 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
 
         //设置收支来源卡片容器可见性
         boolean isNoExpense = false, isNoIncome = false;
-        MaterialCardView expenseSourceCard = findViewById(R.id.expense_source_card);
+        MaterialCardView expenseSourceCard = binding.expenseSourceCard;
         if (expenseSourceInfoList.isEmpty()) {
             expenseSourceCard.setVisibility(View.GONE);
             isNoExpense = true;
         } else {
             expenseSourceCard.setVisibility(View.VISIBLE);
         }
-        MaterialCardView incomeSourceCard = findViewById(R.id.income_source_card);
+        MaterialCardView incomeSourceCard = binding.incomeSourceCard;
         if (incomeSourceInfoList.isEmpty()) {
             incomeSourceCard.setVisibility(View.GONE);
             isNoIncome = true;
@@ -305,12 +314,12 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                     break;
             }
             Toast.makeText(this, tip_str, Toast.LENGTH_SHORT).show();
-            findViewById(R.id.expense_income_layout).setVisibility(View.GONE);
-            findViewById(R.id.month_account_layout).setVisibility(View.GONE);
+            binding.expenseIncomeLayout.setVisibility(View.GONE);
+            binding.monthAccountLayout.setVisibility(View.GONE);
         } else {
-            findViewById(R.id.expense_income_layout).setVisibility(View.VISIBLE);
+            binding.expenseIncomeLayout.setVisibility(View.VISIBLE);
             if (dateRangeType == DateRangeType.THIS_YEAR) {
-                findViewById(R.id.month_account_layout).setVisibility(View.VISIBLE);
+                binding.monthAccountLayout.setVisibility(View.VISIBLE);
             }
         }
 
@@ -511,7 +520,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             this.year = selected_calendar.get(Calendar.YEAR);
             this.month = selected_calendar.get(Calendar.MONTH) + 1;
             this.day = selected_calendar.get(Calendar.DAY_OF_MONTH);
-            TextView date_textview = findViewById(R.id.report_date_textview);
+            TextView date_textview = binding.reportDateTextview;
             date_textview.setText(String.format("%04d年%02d月%02d日", year, month, day));
 
             //重新加载报表信息
@@ -536,7 +545,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         dateRangeSelectMenu.getMenuInflater().inflate(R.menu.popup_menu_date_range_select, dateRangeSelectMenu.getMenu());
 
         dateRangeSelectMenu.setOnMenuItemClickListener(item -> {
-            LinearLayout monthAccountLayout = findViewById(R.id.month_account_layout);
+            LinearLayout monthAccountLayout = binding.monthAccountLayout;
             boolean itemClicked = false;    //是否点击某个选项
             if (item.getItemId() == R.id.action_today) {
                 monthAccountLayout.setVisibility(View.GONE);

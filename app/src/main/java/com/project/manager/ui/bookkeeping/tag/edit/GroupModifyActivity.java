@@ -15,6 +15,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.project.manager.R;
+import com.project.manager.databinding.ActivityGroupModifyBinding;
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
@@ -24,17 +25,25 @@ import com.project.manager.ui.setting.running_account_data.pojo.PojoTagGroup;
 import java.util.List;
 
 public class GroupModifyActivity extends AppCompatActivity implements View.OnFocusChangeListener, View.OnClickListener {
-    long group_no;                  //分组编号
-    String group_name;              //分组名称
-    TextInputLayout group_layout;   //分组名称文本框Layout
-    TextInputEditText group_input;  //分组名称输入文本框
+    private long group_no;                      //分组编号
+    private TextInputLayout group_layout;       //分组名称文本框Layout
+    private TextInputEditText group_input;      //分组名称输入文本框
+    private ActivityGroupModifyBinding binding; //绑定的XML视图引用
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_group_modify);
+
+        binding = ActivityGroupModifyBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         initViews();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
     }
 
     @Override
@@ -70,7 +79,7 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnFoc
                     }))
                     .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
                     .show();
-        } else if (v.getId() == R.id.group_merge_btn) {
+        } else if (v.getId() == R.id.merge_btn) {
             new MaterialAlertDialogBuilder(this)
                     .setTitle("合并分组")
                     .setMessage("执行此操作会将本分组的标签全部移动至目标分组并删除本分组，确认继续吗？")
@@ -124,7 +133,7 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnFoc
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
         if (!hasFocus) {
-            if (v.getId() == R.id.group_name_input) {
+            if (v.getId() == R.id.tag_group_input) {
                 String group_name = String.valueOf(group_input.getText());
 
                 if (group_name.isEmpty()) {
@@ -136,7 +145,7 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnFoc
                 }
             }
         } else {
-            if (v.getId() == R.id.group_name_input) {
+            if (v.getId() == R.id.tag_group_input) {
                 group_layout.setError(null);
                 group_layout.setErrorEnabled(false);
             }
@@ -145,28 +154,28 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnFoc
 
     private void initViews() {
         //设置标题栏的图标点击监听器
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        MaterialToolbar toolbar = binding.toolbar;
         toolbar.setNavigationOnClickListener(v -> finish());
 
-        group_input = findViewById(R.id.group_name_input);
-        group_layout = findViewById(R.id.group_name_layout);
+        group_input = binding.tagGroupInput;
+        group_layout = binding.groupNameLayout;
 
         group_input.setOnFocusChangeListener(this);
 
         //设置按钮点击监听器
         MaterialButton delete_btn, group_merge_btn;
-        delete_btn = findViewById(R.id.delete_btn);
+        delete_btn = binding.deleteBtn;
         delete_btn.setOnClickListener(this);
-        group_merge_btn = findViewById(R.id.group_merge_btn);
+        group_merge_btn = binding.mergeBtn;
         group_merge_btn.setOnClickListener(this);
-        findViewById(R.id.finish_btn).setOnClickListener(this);
-        findViewById(R.id.cancel_btn).setOnClickListener(this);
+        binding.finishBtn.setOnClickListener(this);
+        binding.cancelBtn.setOnClickListener(this);
 
         //加载传入的数据
         Bundle dataBundle = getIntent().getExtras();
         if (dataBundle != null) {
             group_no = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());
-            group_name = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
+            String group_name = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
             group_input.setText(group_name);
         } else {
             Toast.makeText(this, "无法初始化分组信息", Toast.LENGTH_SHORT).show();

@@ -14,7 +14,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
-import com.project.manager.R;
+import com.project.manager.databinding.ActivityTagManageBinding;
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
@@ -33,11 +33,14 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
     private TagManageRecyclerAdapter adapter;
     private final CompositeDisposable disposables = new CompositeDisposable();                      //订阅列表（便于取消订阅）
     private ActivityResultLauncher<Intent> tagAddLauncher, tagModifyLauncher, modifyGroupLauncher;  //活动启动器
+    private ActivityTagManageBinding binding;   //绑定的XML视图的引用
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tag_manage);
+
+        binding = ActivityTagManageBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         initActivityLauncher();
         initViews();
@@ -51,7 +54,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
             tagGroupList = new ArrayList<>();
         }
 
-        RecyclerView tagGroupRecycler = findViewById(R.id.tag_group_recycler);
+        RecyclerView tagGroupRecycler = binding.tagGroupRecycler;
         adapter = new TagManageRecyclerAdapter(tagGroupList, this, this);
         tagGroupRecycler.setAdapter(adapter);
     }
@@ -59,6 +62,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        binding = null;
 
         // 防止内存泄漏
         disposables.dispose();
@@ -102,11 +106,11 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
     //初始化视图
     private void initViews() {
         //设置标题栏的图标点击监听器
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        MaterialToolbar toolbar = binding.toolbar;
         toolbar.setNavigationOnClickListener(v -> finish());
 
         //设置按钮点击监听
-        MaterialButton tag_add_btn = findViewById(R.id.tag_add_btn);
+        MaterialButton tag_add_btn = binding.tagAddBtn;
         tag_add_btn.setOnClickListener(v -> {
             Intent skip2TagAdd = new Intent(this, TagAddModifyActivity.class);
 
@@ -124,7 +128,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         });
 
         //设置刷新布局的刷新动作监听
-        SwipeRefreshLayout refreshLayout = findViewById(R.id.refresh_layout);
+        SwipeRefreshLayout refreshLayout = binding.refreshLayout;
         refreshLayout.setOnRefreshListener(() -> disposables.add(
                 Observable.fromCallable(() -> TagGroup.loadTagGroups(this))
                         .subscribeOn(Schedulers.io())

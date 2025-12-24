@@ -18,7 +18,7 @@
         app:title="@string/title_new_tag">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/tag_merge_btn"
+            android:id="@+id/merge_btn"
             style="@style/TransparentBtnStyle"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -64,7 +64,7 @@
                 app:endIconMode="custom">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/group_name_input"
+                    android:id="@+id/tag_group_input"
                     style="@style/UserInputEditTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

@@ -15,6 +15,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
+import com.project.manager.databinding.ActivityTagAddModifyBinding;
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.TagString;
@@ -26,23 +27,26 @@ import com.project.manager.ui.view_model.tag_modify.AccountTagViewModel;
 import java.util.ArrayList;
 
 public class TagAddModifyActivity extends AppCompatActivity implements View.OnFocusChangeListener, View.OnClickListener {
-    TextInputLayout tag_name_layout, tag_group_layout;
-    TextInputEditText tag_name_input, tag_group_input;
+    private TextInputLayout tag_name_layout, tag_group_layout;  //标签名称和标签分组输入框布局管理器
+    private TextInputEditText tag_name_input, tag_group_input;  //标签名称和标签分组输入框
     private AccountTagViewModel tagViewModel;                   //标签数据更新用的ViewModel
     private boolean isModifyMode = false;                       //是否为标签编辑模式
-    int selected_group_index = -1;                              //选择的分组的索引
-    long tag_no = 0, group_no = 0;                              //标签和标签分组编号
+    private int selected_group_index = -1;                      //选择的分组的索引
+    private long tag_no = 0, group_no = 0;                      //标签和标签分组编号
     private TagSelectBottomSheet tag_sheet;                     //标签选择底部弹窗
+    private ActivityTagAddModifyBinding binding;                //绑定的XML视图的引用
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tag_add_modify);
 
-        tag_name_input = findViewById(R.id.tag_name_input);
-        tag_group_input = findViewById(R.id.group_name_input);
-        tag_name_layout = findViewById(R.id.tag_name_layout);
-        tag_group_layout = findViewById(R.id.tag_group_layout);
+        binding = ActivityTagAddModifyBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        tag_name_input = binding.tagNameInput;
+        tag_group_input = binding.tagGroupInput;
+        tag_name_layout = binding.tagNameLayout;
+        tag_group_layout = binding.tagGroupLayout;
 
         //获取Application中的ViewModel
         ManagerAssistant app = (ManagerAssistant) getApplication();
@@ -50,6 +54,12 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
 
         initViews();
         receiveInitData();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
     }
 
     @Override
@@ -67,7 +77,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
                 }
             }
         } else {
-            if (v.getId() == R.id.group_name_input) {
+            if (v.getId() == R.id.tag_group_input) {
                 tag_group_layout.setError(null);
                 tag_group_layout.setErrorEnabled(false);
             } else if (v.getId() == R.id.tag_name_input) {
@@ -125,18 +135,18 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
     //初始化视图
     private void initViews() {
         //设置标题栏的图标点击监听器
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        MaterialToolbar toolbar = binding.toolbar;
         toolbar.setNavigationOnClickListener(v -> finish());
 
         tag_group_layout.setEndIconOnClickListener((v -> onGroupLayoutEndIconClicked()));
 
         tag_name_input.setOnFocusChangeListener(this);
 
-        findViewById(R.id.delete_btn).setOnClickListener(this);
-        findViewById(R.id.finish_btn).setOnClickListener(this);
-        findViewById(R.id.cancel_btn).setOnClickListener(this);
-        findViewById(R.id.tag_merge_btn).setOnClickListener(this);
-        findViewById(R.id.tag_merge_btn).setOnClickListener(v -> new MaterialAlertDialogBuilder(this)
+        binding.deleteBtn.setOnClickListener(this);
+        binding.finishBtn.setOnClickListener(this);
+        binding.cancelBtn.setOnClickListener(this);
+        binding.mergeBtn.setOnClickListener(this);
+        binding.mergeBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(this)
                 .setTitle("合并标签")
                 .setMessage("此操作会将本标签与其他标签合并，使用本标签标记的流水记录将自动替换为用合并后的标签标记，并且本标签将被永久删除，确认继续吗？")
                 .setPositiveButton("确认", (dialog, which) -> {
@@ -154,12 +164,12 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
         Bundle tagData = getIntent().getExtras();
         isModifyMode = getIntent().getBooleanExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), false);
         if (tagData != null && isModifyMode) {
-            MaterialToolbar toolbar = findViewById(R.id.toolbar);
+            MaterialToolbar toolbar = binding.toolbar;
             toolbar.setTitle(R.string.title_modify_tag);
 
             //显示隐藏的组件
-            findViewById(R.id.delete_btn).setVisibility(View.VISIBLE);
-            findViewById(R.id.tag_merge_btn).setVisibility(View.VISIBLE);
+            binding.deleteBtn.setVisibility(View.VISIBLE);
+            binding.mergeBtn.setVisibility(View.VISIBLE);
 
             tag_no = tagData.getLong(KeyValueStrings.TAG_NO.getValue());                        //该标签编号
             group_no = tagData.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());                //所属分组编号

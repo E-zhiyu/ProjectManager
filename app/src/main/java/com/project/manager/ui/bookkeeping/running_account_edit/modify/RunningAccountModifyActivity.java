@@ -2,7 +2,6 @@ package com.project.manager.ui.bookkeeping.running_account_edit.modify;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -12,6 +11,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.project.manager.R;
+import com.project.manager.databinding.ActivityRunningAccountModifyBinding;
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
@@ -21,16 +21,19 @@ import com.project.manager.ui.bookkeeping.running_account_edit.fragments.Running
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.IncomeFragment;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.TransferFragment;
 
-public class RunningAccountModifyActivity extends AppCompatActivity implements View.OnClickListener {
-    RunningAccountType type = null;                         //流水种类
-    int position = -1;                                      //流水项目的下标
-    long rno;                                               //流水编号
-    RunningAccountFragmentBase runningAccountFragment;      //流水账数据输入碎片
+public class RunningAccountModifyActivity extends AppCompatActivity {
+    private RunningAccountType type = null;                         //流水种类
+    private int position = -1;                                      //流水项目的下标
+    private long rno;                                               //流水编号
+    private RunningAccountFragmentBase runningAccountFragment;      //流水账数据输入碎片
+    private ActivityRunningAccountModifyBinding binding;            //绑定的XML视图引用
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_running_account_modify);
+
+        binding = ActivityRunningAccountModifyBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         initViews();
 
@@ -67,23 +70,22 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
+    }
+
     //初始化视图
     private void initViews() {
         //设置标题栏的图标点击监听器
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        MaterialToolbar toolbar = binding.toolbar;
         toolbar.setNavigationOnClickListener(v -> finish());
 
         //为按钮设置单击监听器
-        findViewById(R.id.cancel_btn).setOnClickListener(this);
-        findViewById(R.id.finish_btn).setOnClickListener(this);
-        findViewById(R.id.delete_btn).setOnClickListener(this);
-    }
-
-    @Override
-    public void onClick(@NonNull View v) {
-        Intent result2BookKeeping = new Intent();
-
-        if (v.getId() == R.id.finish_btn) {
+        binding.cancelBtn.setOnClickListener(v -> finish());
+        binding.finishBtn.setOnClickListener(v -> {
+            Intent result2BookKeeping = new Intent();
             String error;
             error = runningAccountFragment.verifyInputData();
 
@@ -96,7 +98,9 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
                 setResult(RequestResultCode.RESULT_OK.ordinal(), result2BookKeeping);
                 finish();
             }
-        } else if (v.getId() == R.id.delete_btn) {
+        });
+        binding.deleteBtn.setOnClickListener(v -> {
+            Intent result2BookKeeping = new Intent();
             new MaterialAlertDialogBuilder(this)
                     .setTitle("删除流水记录")
                     .setMessage("此流水记录将会被永久删除，确认继续吗？")
@@ -109,14 +113,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity implements V
                     })
                     .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
                     .show();
-        } else if (v.getId() == R.id.cancel_btn) {
-            //取消按钮实际上不进行任何操作
-            setResult(RequestResultCode.RESULT_CANCEL.ordinal(), result2BookKeeping);
-            finish();
-        } else {
-            RuntimeException e = new RuntimeException("无法获取正确的按钮ID");
-            ExceptionHelper.showExceptionDialog(this, e);
-        }
+        });
     }
 
     /**

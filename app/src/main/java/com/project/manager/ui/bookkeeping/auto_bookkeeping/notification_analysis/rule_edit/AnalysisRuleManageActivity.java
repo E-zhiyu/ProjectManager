@@ -17,6 +17,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.project.manager.R;
 import com.project.manager.data.data_save.preference.AutoBookKeepingPreference;
+import com.project.manager.databinding.ActivityAnalysisRuleManageBinding;
 import com.project.manager.helpers.PermissionHelper;
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
@@ -30,11 +31,14 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
     private ActivityResultLauncher<Intent> ruleAddLauncher;     //添加规则界面的启动器
     private ActivityResultLauncher<Intent> ruleModifyLauncher;  //修改规则的启动器
     private AnalysisRuleAdapter rule_adapter;                   //规则列表适配器
+    private ActivityAnalysisRuleManageBinding binding;          //XML视图绑定引用
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_analysis_rule_manage);
+
+        binding = ActivityAnalysisRuleManageBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         initViews();
         initLaunchers();
@@ -57,6 +61,12 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
+    }
+
+    @Override
     public void onClick(@NonNull View v) {
         if (v.getId() == R.id.rule_add_btn) {
             Intent skip2RuleAdd = new Intent(this, RuleAddModifyActivity.class);
@@ -67,13 +77,13 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
 
     private void initViews() {
         //设置标题栏的图标点击监听器
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        MaterialToolbar toolbar = binding.toolbar;
         toolbar.setNavigationOnClickListener(v -> finish());
 
-        findViewById(R.id.rule_add_btn).setOnClickListener(this);
+        binding.ruleAddBtn.setOnClickListener(this);
 
         //设置RecyclerView的适配器
-        SwipeRefreshLayout refreshLayout = findViewById(R.id.refresh_layout);   //获取下拉刷新视图
+        SwipeRefreshLayout refreshLayout = binding.refreshLayout;   //获取下拉刷新视图
         refreshLayout.setRefreshing(true);
         List<AnalysisRule> ruleList;
         try {
@@ -83,7 +93,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
             ExceptionHelper.showExceptionDialog(this, e);
         }
         rule_adapter = new AnalysisRuleAdapter(ruleList, this::onRuleClicked, this);
-        RecyclerView rule_recycler = findViewById(R.id.rule_recycler);          //规则列表视图
+        RecyclerView rule_recycler = binding.ruleRecycler;          //规则列表视图
         refreshLayout.setRefreshing(false);
         rule_recycler.setAdapter(rule_adapter);
 

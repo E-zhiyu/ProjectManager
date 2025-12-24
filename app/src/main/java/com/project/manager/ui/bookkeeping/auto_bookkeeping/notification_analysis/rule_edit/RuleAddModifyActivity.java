@@ -20,6 +20,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
+import com.project.manager.databinding.ActivityRuleAddModifyBinding;
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
@@ -56,11 +57,14 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
     private AccountTagViewModel tagViewModel;                       //用于更新标签名称的ViewModel
     private TagSelectBottomSheet tag_sheet;                         //标签选择弹出菜单
     private ActivityResultLauncher<Intent> packageNameSelectLauncher;   //包名选择启动器
+    private ActivityRuleAddModifyBinding binding;                   //绑定的XML视图引用
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_rule_add_modify);
+
+        binding = ActivityRuleAddModifyBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         initViews();
         receiveInitData();
@@ -69,6 +73,12 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
         //获取更新Tag名称的ViewModel
         ManagerAssistant app = (ManagerAssistant) getApplication();
         tagViewModel = app.getAccountTagViewModel();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
     }
 
     @Override
@@ -187,31 +197,31 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
 
     private void initViews() {
         //设置标题栏的图标点击监听器
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        MaterialToolbar toolbar = binding.toolbar;
         toolbar.setNavigationOnClickListener(v -> finish());
 
         //获取输入框引用
-        rule_name_input = findViewById(R.id.rule_name_input);
-        type_input = findViewById(R.id.type_input);
-        tag_input = findViewById(R.id.tag_name_input);
-        package_name_input = findViewById(R.id.package_name_input);
-        notification_title_input = findViewById(R.id.notification_title_input);
-        notification_content_input = findViewById(R.id.notification_content_input);
+        rule_name_input = binding.ruleNameInput;
+        type_input = binding.typeInput;
+        tag_input = binding.tagNameInput;
+        package_name_input = binding.packageNameInput;
+        notification_title_input = binding.notificationTitleInput;
+        notification_content_input = binding.notificationContentInput;
 
         //获取输入框布局管理器引用
-        rule_name_layout = findViewById(R.id.rule_name_layout);
-        package_name_layout = findViewById(R.id.package_name_layout);
-        notification_title_layout = findViewById(R.id.notification_title_layout);
-        notification_content_layout = findViewById(R.id.notification_content_layout);
+        rule_name_layout = binding.ruleNameLayout;
+        package_name_layout = binding.packageNameLayout;
+        notification_title_layout = binding.notificationTitleLayout;
+        notification_content_layout = binding.notificationContentLayout;
 
         //设置点击监听器以及文本内容
         type_input.setText(RunningAccountType.EXPENSE.getTitle());
         type_input.setOnClickListener(this);
         tag_input.setOnClickListener(this);
         package_name_input.setOnClickListener(this);
-        findViewById(R.id.input_instruction_btn).setOnClickListener(this);
-        findViewById(R.id.finish_btn).setOnClickListener(this);
-        findViewById(R.id.cancel_btn).setOnClickListener(this);
+        binding.inputInstructionBtn.setOnClickListener(this);
+        binding.finishBtn.setOnClickListener(this);
+        binding.cancelBtn.setOnClickListener(this);
 
         //设置焦点变更监听器
         rule_name_input.setOnFocusChangeListener(this);
@@ -225,11 +235,11 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
         Bundle initData = getIntent().getExtras();
         isModifyMode = getIntent().getBooleanExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), false);
         if (initData != null && isModifyMode) {
-            MaterialButton deleteBtn = findViewById(R.id.delete_btn);
+            MaterialButton deleteBtn = binding.deleteBtn;
             deleteBtn.setVisibility(View.VISIBLE);
             deleteBtn.setOnClickListener(this);
 
-            MaterialToolbar toolbar = findViewById(R.id.toolbar);
+            MaterialToolbar toolbar = binding.toolbar;
             toolbar.setTitle(R.string.modify_rule);
 
             //解析数据

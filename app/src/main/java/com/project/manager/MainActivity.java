@@ -16,10 +16,14 @@ import com.project.manager.helpers.ThemeModeHelper;
 import com.project.manager.data.data_save.preference.ThemeModePreference;
 
 public class MainActivity extends AppCompatActivity {
+    private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         initThemeMode();
         initViews();
@@ -37,12 +41,15 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void initViews() {
-        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
+    }
 
+    private void initViews() {
         //替换自带工具栏
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        MaterialToolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
