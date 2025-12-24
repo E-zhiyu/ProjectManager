@@ -70,7 +70,13 @@ public class HomeFragment extends Fragment {
             bookkeeping_days = 0;   //无法获取则说明是第一天记账
         }
         if (bookkeeping_days != 0) {
-            bookKeepingDaysText.setText(String.format(Locale.getDefault(), "您已累计记账%d天", bookkeeping_days));
+            bookKeepingDaysText.setText(
+                    String.format(
+                            Locale.getDefault(),
+                            "您已累计记账%d天",
+                            bookkeeping_days
+                    )
+            );
         } else {
             bookKeepingDaysText.setText("这是您记账的第一天");
         }
@@ -94,7 +100,13 @@ public class HomeFragment extends Fragment {
         expense_income_text = binding.expenseIncomeText;
 
         balance_text.setText(String.format(Locale.getDefault(), "%.2f", day_balance));
-        expense_income_text.setText(String.format(Locale.getDefault(), "支出：%s | 收入：%s", day_expense, day_income));
+        expense_income_text.setText(
+                String.format(
+                        Locale.getDefault(),
+                        "支出：%.2f | 收入：%.2f",
+                        day_expense, day_income
+                )
+        );
     }
 
     /**
