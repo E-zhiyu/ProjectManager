@@ -14,6 +14,7 @@ public class UpdateLogHelper {
     private static final String update_log_md = "# v1.5.1  \n" +
             "**BUG修复**  \n" +
             "- 修复主页显示的每日收入和支出可能会出现超长小数的BUG  \n" +
+            "- 修复底部导航栏高亮颜色不够明显的BUG  \n" +
             "- 修复添加和修改通知解析规则时通知内容输入框失去焦点时总会提示存在语法错误的BUG  \n\n" +
             "# v1.5.0  \n" +
             "**新增内容**  \n" +

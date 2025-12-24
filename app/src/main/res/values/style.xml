@@ -199,7 +199,7 @@
 
     <!-- 底部导航栏指示器颜色 -->
     <style name="NaviActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
-        <item name="android:color">?attr/colorSecondaryVariant</item>
+        <item name="android:color">?attr/colorPrimaryVariant</item>
     </style>
 
     <!-- TabLayout样式 -->
