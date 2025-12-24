@@ -21,7 +21,7 @@
             android:id="@+id/input_instruction_btn"
             style="@style/TransparentBtnStyle"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:text="@string/input_introduce"
             app:icon="@drawable/baseline_info_24"

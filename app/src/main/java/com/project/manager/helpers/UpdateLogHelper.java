@@ -11,7 +11,11 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.5.1  \n" +
+    private static final String update_log_md = "# v1.5.2  \n" +
+            "**修改内容**  \n" +
+            "- 将透明背景的按钮的涟漪边缘设置为圆角形  \n" +
+            "- 将标签管理界面的分组标题文本的涟漪范围调整至完全横向填充，并将右侧展开/折叠按钮涟漪边缘改为圆形  \n\n" +
+            "# v1.5.1  \n" +
             "**BUG修复**  \n" +
             "- 修复主页显示的每日收入和支出可能会出现超长小数的BUG  \n" +
             "- 修复底部导航栏高亮颜色不够明显的BUG  \n" +

@@ -22,11 +22,11 @@
             android:id="@+id/rule_add_btn"
             style="@style/TransparentBtnStyle"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="end"
+            android:text="@string/add_rule"
             app:icon="@drawable/baseline_add_24"
-            app:iconGravity="textStart"
-            android:text="@string/add_rule" />
+            app:iconGravity="textStart" />
     </com.google.android.material.appbar.MaterialToolbar>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
