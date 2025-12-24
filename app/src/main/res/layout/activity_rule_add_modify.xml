@@ -23,9 +23,9 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="end"
+            android:text="@string/input_introduce"
             app:icon="@drawable/baseline_info_24"
-            app:iconGravity="textStart"
-            android:text="@string/input_introduce" />
+            app:iconGravity="textStart" />
     </com.google.android.material.appbar.MaterialToolbar>
 
     <ScrollView
@@ -42,7 +42,9 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/rule_name_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                app:endIconDrawable="@drawable/baseline_clear_24"
+                app:endIconMode="clear_text">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/rule_name_input"
@@ -93,7 +95,9 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/notification_title_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                app:endIconDrawable="@drawable/baseline_clear_24"
+                app:endIconMode="clear_text">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/notification_title_input"
@@ -106,7 +110,9 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/notification_content_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                app:endIconDrawable="@drawable/baseline_clear_24"
+                app:endIconMode="clear_text">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/notification_content_input"
