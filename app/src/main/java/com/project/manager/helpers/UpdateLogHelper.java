@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.5.3  \n" +
             "**修改内容**  \n" +
+            "- 关于软件界面添加蓝奏云网盘的分享连接  \n" +
             "- 为大多数设置项添加说明文本  \n\n"+
             "# v1.5.2  \n" +
             "**修改内容**  \n" +

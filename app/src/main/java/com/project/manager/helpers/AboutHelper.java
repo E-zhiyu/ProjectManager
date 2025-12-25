@@ -18,10 +18,12 @@ import io.noties.markwon.Markwon;
 
 public class AboutHelper {
     private static final String about_md = "这是一款极简记账工具，秉持“简洁无广、隐私保护”的核心理念，为用户提供清爽、安全的记账体验  \n\n" +
-            "### 下载链接：[123云盘](https://www.123865.com/s/C5xcVv-kRYT3)  \n" +
+            "### 下载链接：  \n" +
+            "- **[蓝奏云(免登录)](https://wwbpw.lanzoue.com/b00mq19tih)**(密码:a1f3)  \n" +
+            "- **[123云盘(需要登录)](https://www.123865.com/s/C5xcVv-kRYT3)**  \n\n" +
             "### 联系作者：  \n" +
-            "- ### [酷安@E_zhiyu](http://www.coolapk.com/u/36112159)  \n" +
-            "- ### [GitHub@E-zhiyu](https://github.com/E-zhiyu)  \n\n";
+            "- **[酷安@E_zhiyu](http://www.coolapk.com/u/36112159)**  \n" +
+            "- **[GitHub@E-zhiyu](https://github.com/E-zhiyu)**  \n\n";
 
     //获取版本名称
     public static String getVersionName(@NonNull Context context) throws PackageManager.NameNotFoundException {
