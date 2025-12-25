@@ -1,6 +1,6 @@
-package com.project.manager.ui.setting.running_account_data.maps;
+package com.project.manager.ui.setting.data_io.maps;
 
-import com.project.manager.ui.setting.running_account_data.pojo.PojoAnalysisRule;
+import com.project.manager.ui.setting.data_io.pojo.PojoAnalysisRule;
 
 import java.util.List;
 

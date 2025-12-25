@@ -37,12 +37,13 @@ import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis
 import com.project.manager.helpers.AboutHelper;
 import com.project.manager.helpers.ThemeModeHelper;
 import com.project.manager.helpers.UpdateLogHelper;
-import com.project.manager.ui.setting.running_account_data.data_helpers.AnalysisRuleDataHelper;
-import com.project.manager.ui.setting.running_account_data.data_helpers.DataHelperBase;
-import com.project.manager.ui.setting.running_account_data.data_helpers.RunningAccountDataHelper;
+import com.project.manager.ui.setting.data_io.MultiChoiceDialogAdapter;
+import com.project.manager.ui.setting.data_io.data_helpers.AnalysisRuleDataHelper;
+import com.project.manager.ui.setting.data_io.data_helpers.DataHelperBase;
+import com.project.manager.ui.setting.data_io.data_helpers.RunningAccountDataHelper;
 import com.project.manager.data.data_save.preference.ThemeModePreference;
-import com.project.manager.ui.setting.running_account_data.maps.TotalAccountDataMap;
-import com.project.manager.ui.setting.running_account_data.maps.TotalRuleDataMap;
+import com.project.manager.ui.setting.data_io.maps.TotalAccountDataMap;
+import com.project.manager.ui.setting.data_io.maps.TotalRuleDataMap;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -62,13 +63,13 @@ public class SettingFragment extends Fragment {
     private SAFFileHelper safFileHelper;    //SAF文件帮助器
 
     //导入和导出的数据种类枚举
-    enum EIDataType {
+    enum IODataType {
         ACCOUNT_DATA("流水记录数据", "RunningAccount.json"),
         RULE_DATA("通知解析规则数据", "AnalysisRule.json");
         private final String name;              //选项名称
         private final String default_file_name; //默认文件名称
 
-        EIDataType(String name, String default_file_name) {
+        IODataType(String name, String default_file_name) {
             this.name = name;
             this.default_file_name = default_file_name;
         }
@@ -88,7 +89,7 @@ public class SettingFragment extends Fragment {
          */
         public static List<String> getEffectiveFileNameList() {
             return Stream.of(values())
-                    .map(EIDataType::getDefault_file_name)
+                    .map(IODataType::getDefault_file_name)
                     .collect(Collectors.toList());
         }
     }
@@ -142,11 +143,11 @@ public class SettingFragment extends Fragment {
         List<String> fileContentList = new ArrayList<>();   //用于导出数据的临时文件内容列表
 
         //根据选择的内容创建临时文件
-        if (choseItem[EIDataType.ACCOUNT_DATA.ordinal()]) {
+        if (choseItem[IODataType.ACCOUNT_DATA.ordinal()]) {
             DataHelperBase<BookKeepingDatabaseHelper, TotalAccountDataMap> dataHelper = new RunningAccountDataHelper(requireContext());
             try {
                 String json_str = dataHelper.getDataInJSON();
-                fileNameList.add(EIDataType.ACCOUNT_DATA.getDefault_file_name());
+                fileNameList.add(IODataType.ACCOUNT_DATA.getDefault_file_name());
                 fileContentList.add(json_str);
             } catch (JsonProcessingException e) {
                 ExceptionHelper.showExceptionDialog(requireContext(), e);
@@ -154,11 +155,11 @@ public class SettingFragment extends Fragment {
                 return;
             }
         }
-        if (choseItem[EIDataType.RULE_DATA.ordinal()]) {
+        if (choseItem[IODataType.RULE_DATA.ordinal()]) {
             DataHelperBase<BookKeepingDatabaseHelper, TotalRuleDataMap> dataHelper = new AnalysisRuleDataHelper(requireContext());
             try {
                 String json_str = dataHelper.getDataInJSON();
-                fileNameList.add(EIDataType.RULE_DATA.getDefault_file_name());
+                fileNameList.add(IODataType.RULE_DATA.getDefault_file_name());
                 fileContentList.add(json_str);
             } catch (JsonProcessingException e) {
                 ExceptionHelper.showExceptionDialog(requireContext(), e);
@@ -197,25 +198,25 @@ public class SettingFragment extends Fragment {
                     public void onZipUnpacked(List<File> fileList) {
                         List<File> effectiveFileList = getEffectiveFileList(fileList);
 
-                        String[] type_names = Arrays.stream(EIDataType.values())
-                                .map(EIDataType::getName)
+                        String[] type_names = Arrays.stream(IODataType.values())
+                                .map(IODataType::getName)
                                 .toArray(String[]::new);
                         boolean[] itemStats = {true, true};     //选项的选择状态
                         boolean[] isItemFound = {true, true};   //是否找到对应名称的文件
 
                         //根据解压的临时JSON文件决定应该禁用哪些选项
-                        for (EIDataType eiDataType : EIDataType.values()) {
+                        for (IODataType IODataType : IODataType.values()) {
                             boolean isFound = false;
                             for (File tempFile : fileList) {
-                                if (tempFile.getName().equals(eiDataType.getDefault_file_name())) {
+                                if (tempFile.getName().equals(IODataType.getDefault_file_name())) {
                                     isFound = true;
                                     break;
                                 }
                             }
 
                             if (!isFound) {
-                                int index = eiDataType.ordinal();
-                                String type_name = eiDataType.getName();
+                                int index = IODataType.ordinal();
+                                String type_name = IODataType.getName();
                                 String disabled_name = String.format(Locale.getDefault(), "%s(未包含)", type_name);
                                 type_names[index] = disabled_name;
                                 itemStats[index] = false;
@@ -302,7 +303,7 @@ public class SettingFragment extends Fragment {
      */
     @NonNull
     private static List<File> getEffectiveFileList(@NonNull List<File> tempJsonFileList) {
-        List<String> effectiveFileNameList = EIDataType.getEffectiveFileNameList();
+        List<String> effectiveFileNameList = IODataType.getEffectiveFileNameList();
         List<File> effectiveFileList = new ArrayList<>();   //能够正确解析内容的文件列表
 
         //根据文件名筛选有效文件
@@ -329,8 +330,8 @@ public class SettingFragment extends Fragment {
         //导出数据
         binding.settingExportRunningAccount.setOnClickListener(v -> {
             //获取选项名称和状态
-            String[] type_names = Arrays.stream(EIDataType.values())
-                    .map(EIDataType::getName)
+            String[] type_names = Arrays.stream(IODataType.values())
+                    .map(IODataType::getName)
                     .toArray(String[]::new);
             boolean[] itemStats = {true, true};
 
@@ -573,15 +574,15 @@ public class SettingFragment extends Fragment {
     private void onImportConfirmed(@NonNull boolean[] itemStats, @NonNull List<File> effectiveFileList) {
         boolean isImportSuccessfully = false;
 
-        boolean isAccountDataChecked = itemStats[EIDataType.ACCOUNT_DATA.ordinal()];   //流水记录文件是否勾选
-        boolean isRuleDataChecked = itemStats[EIDataType.RULE_DATA.ordinal()];         //通知解析规则文件是否勾选
+        boolean isAccountDataChecked = itemStats[IODataType.ACCOUNT_DATA.ordinal()];   //流水记录文件是否勾选
+        boolean isRuleDataChecked = itemStats[IODataType.RULE_DATA.ordinal()];         //通知解析规则文件是否勾选
         for (File file : effectiveFileList) {
             String file_name = file.getName();
 
             DataHelperBase<BookKeepingDatabaseHelper, ?> dataHelperBase;
-            if (file_name.equals(EIDataType.ACCOUNT_DATA.getDefault_file_name()) && isAccountDataChecked) {
+            if (file_name.equals(IODataType.ACCOUNT_DATA.getDefault_file_name()) && isAccountDataChecked) {
                 dataHelperBase = new RunningAccountDataHelper(requireContext());
-            } else if (file_name.equals(EIDataType.RULE_DATA.getDefault_file_name()) && isRuleDataChecked) {
+            } else if (file_name.equals(IODataType.RULE_DATA.getDefault_file_name()) && isRuleDataChecked) {
                 //isAccountDataChecked：当同时导入了流水账数据时才写入tag_no属性
                 dataHelperBase = new AnalysisRuleDataHelper(requireContext(), isAccountDataChecked);
             } else {
