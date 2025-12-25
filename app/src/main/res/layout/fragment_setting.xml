@@ -18,6 +18,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
+                android:id="@+id/app_settings_layout"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
@@ -26,15 +27,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/setting" />
-
-                <!-- 这里放入软件设置相关组件 -->
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/setting_theme_mode"
-                    style="@style/ClickableSettingOptionStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/baseline_dark_mode_24"
-                    android:text="@string/theme_mode" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

@@ -325,7 +325,13 @@ public class SettingFragment extends Fragment {
         binding.settingAbout.setOnClickListener(v -> AboutHelper.showAboutDialog(requireContext()));
 
         //主题模式
-        binding.settingThemeMode.setOnClickListener(v -> showThemeModeSelectDialog());
+        SettingClickableTextView themeModeOption = new SettingClickableTextView(requireContext());
+        themeModeOption.setActions(
+                R.string.theme_mode,
+                null,
+                R.drawable.baseline_dark_mode_24,
+                v -> showThemeModeSelectDialog());
+        binding.appSettingsLayout.addView(themeModeOption);
 
         //导出数据
         binding.settingExportRunningAccount.setOnClickListener(v -> {

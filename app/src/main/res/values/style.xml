@@ -92,6 +92,13 @@
         <item name="cardBackgroundColor">?attr/colorSecondary</item>
     </style>
 
+    <!-- 设置项卡片样式 -->
+    <style name="SettingOptionCardStyle">
+        <item name="cardBackgroundColor">?attr/colorSecondary</item>
+        <item name="strokeColor">@android:color/transparent</item>
+        <item name="cardCornerRadius">0dp</item>
+    </style>
+
     <!-- 点击式设置项样式 -->
     <style name="ClickableSettingOptionStyle">
         <item name="android:drawableEnd">@drawable/baseline_keyboard_arrow_right_24</item>
@@ -153,6 +160,12 @@
         <item name="tint">?attr/colorPrimary</item>
         <item name="android:padding">10sp</item>
         <item name="android:background">@drawable/ripple_circle</item>
+    </style>
+
+    <style name="ImageViewStyle">
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="tint">?attr/colorPrimary</item>
+        <item name="android:padding">10sp</item>
     </style>
 
     <!-- 复选框样式 -->
