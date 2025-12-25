@@ -52,7 +52,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         }
         isFunctionOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(getBaseContext());   //启动时加载功能开关状态
 
-        //注册规则更新的广播接收器
+        //注册规则更新和开关状态更新的广播接收器
         ruleUpdateReceiver = new NotificationAnalysisBroadcastReceiver(this);
         IntentFilter filter = new IntentFilter();
         filter.addAction(BroadcastConstants.ACTION_RULES_UPDATED.toString());       //过滤规则更新动作
@@ -62,6 +62,10 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         } else {
             registerReceiver(ruleUpdateReceiver, filter);
         }
+
+        //发送通知监听服务已运行的通知
+        sendBroadcast(new Intent(BroadcastConstants.ACTION_NOTIFICATION_LISTENER_ENABLED.toString()));
+        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "通知监听服务已启动");
     }
 
     @Override
@@ -140,6 +144,9 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         }
     }
 
+    /**
+     * 处理规则更新的接口回调
+     */
     @Override
     public void onRuleUpdated() {
         try {
@@ -152,6 +159,9 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         }
     }
 
+    /**
+     * 处理功能开关状态变更的接口回调
+     */
     @Override
     public void onFunctionSwitched() {
         Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "收到功能开关状态变更广播");
