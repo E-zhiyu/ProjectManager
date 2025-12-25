@@ -437,7 +437,7 @@ public class SettingFragment extends Fragment {
         hideBackgroundOption.setChecked(KeepAlivePreference.getHideRecents(requireContext()));
         hideBackgroundOption.setActions(
                 R.string.hide_background,
-                "从主页退出后在最近任务列表隐藏本应用",
+                "从主页退出后在最近任务列表隐藏",
                 R.drawable.baseline_recent_task_24,
                 (buttonView, isChecked) -> {
                     KeepAlivePreference.setHideRecents(isChecked, requireContext());
