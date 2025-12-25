@@ -27,7 +27,6 @@ import com.project.manager.LogTags;
 import com.project.manager.R;
 import com.project.manager.broadcast.BroadcastConstants;
 import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
-import com.project.manager.data.data_save.preference.KeepAlivePreference;
 import com.project.manager.databinding.FragmentSettingBinding;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.helpers.PermissionHelper;
@@ -431,23 +430,6 @@ public class SettingFragment extends Fragment {
                         .show()
         );
         binding.ruleManageLayout.addView(resetRuleOption);
-
-        //后台隐藏(最近任务隐藏)
-        SettingSwitchView hideBackgroundOption = new SettingSwitchView(requireContext());
-        hideBackgroundOption.setChecked(KeepAlivePreference.getHideRecents(requireContext()));
-        hideBackgroundOption.setActions(
-                R.string.hide_background,
-                "从主页退出后在最近任务列表隐藏",
-                R.drawable.baseline_recent_task_24,
-                (buttonView, isChecked) -> {
-                    KeepAlivePreference.setHideRecents(isChecked, requireContext());
-
-                    if (isChecked) {
-                        Toast.makeText(requireContext(), "建议额外在最近任务中锁定本应用", Toast.LENGTH_SHORT).show();
-                    }
-                }
-        );
-        binding.backgroundSettingsLayout.addView(hideBackgroundOption);
 
         //自启动
         SettingClickableTextView autoStartOption = new SettingClickableTextView(requireContext());
