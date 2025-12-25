@@ -112,8 +112,11 @@ public class SettingFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
 
-        if (notificationPermissionListener != null) {
+        //尝试注销广播接收器
+        try {
             requireContext().unregisterReceiver(notificationPermissionListener);
+        } catch (Exception e) {
+            Log.d(LogTags.SETTING_FRAGMENT.getV(), "广播接收器注销失败：该接收器未注册");
         }
         binding = null;
     }

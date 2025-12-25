@@ -65,13 +65,14 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
 
         //发送通知监听服务已运行的通知
         sendBroadcast(new Intent(BroadcastConstants.ACTION_NOTIFICATION_LISTENER_ENABLED.toString()));
-        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "通知监听服务已启动");
+        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "服务已创建");
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
 
+        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "服务已关闭");
         //注销广播接收器防止重复刷新UI
         if (ruleUpdateReceiver != null) {
             unregisterReceiver(ruleUpdateReceiver);
@@ -79,8 +80,17 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
     }
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "服务已启动");
+        return START_STICKY;
+    }
+
+    @Override
     public void onNotificationPosted(@NonNull StatusBarNotification sbn) {
-        if (!isFunctionOpened) return;  //功能未打开则直接结束
+        if (!isFunctionOpened) {
+            Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "功能未启用，拒绝处理通知");
+            return;
+        }  //功能未打开则直接结束
 
         //获取通知数据
         String packageName = sbn.getPackageName();
