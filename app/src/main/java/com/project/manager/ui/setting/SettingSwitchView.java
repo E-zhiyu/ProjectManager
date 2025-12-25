@@ -103,4 +103,13 @@ public class SettingSwitchView extends MaterialCardView {
         setIcon(resId);
         binding.settingSwitch.setOnCheckedChangeListener(listener);
     }
+
+    /**
+     * 设置开关状态(在setActions之前调用)
+     *
+     * @param isChecked 目标开关状态
+     */
+    public void setChecked(boolean isChecked) {
+        binding.settingSwitch.setChecked(isChecked);
+    }
 }

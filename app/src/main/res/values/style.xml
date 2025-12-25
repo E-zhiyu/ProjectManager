@@ -97,6 +97,7 @@
         <item name="cardBackgroundColor">?attr/colorSecondary</item>
         <item name="strokeColor">@android:color/transparent</item>
         <item name="cardCornerRadius">0dp</item>
+        <item name="cardElevation">0dp</item>
     </style>
 
     <!-- 点击式设置项样式 -->
