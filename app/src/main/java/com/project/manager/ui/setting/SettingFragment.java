@@ -397,52 +397,7 @@ public class SettingFragment extends Fragment {
                 R.string.notification_analysis_mode,
                 "通知解析功能的开关",
                 R.drawable.baseline_notifications_24,
-                (buttonView, isChecked) -> {
-                    AutoBookKeepingPreference.setNotificationAnalysisOpened(isChecked, requireActivity());  //将打开状态写入文件
-
-                    //实例化并注册权限授予通知
-                    notificationPermissionListener = new BroadcastReceiver() {
-                        @Override
-                        public void onReceive(Context context, Intent intent) {
-                            AnimationHelper.switchViewFoldOrExpanded(true, binding.ruleManageLayout);  //切换通知解析选项布局的可见性
-                            notificationAnalysisSwitchOption.setChecked(true);
-
-                            //发送功能开关变更广播
-                            Intent functionSwitched = new Intent(BroadcastConstants.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString());
-                            requireContext().sendBroadcast(functionSwitched);
-
-                            requireContext().unregisterReceiver(this);
-                        }
-                    };
-                    IntentFilter filter = new IntentFilter();
-                    filter.addAction(BroadcastConstants.ACTION_NOTIFICATION_LISTENER_ENABLED.toString());
-
-                    //开启开关时检测是否没有权限，如果没有则提示用户授权
-                    if (!PermissionHelper.isNotificationServiceEnabled(requireContext()) && isChecked) {
-                        notificationAnalysisSwitchOption.setChecked(false);
-                        new MaterialAlertDialogBuilder(requireContext())
-                                .setTitle("权限申请说明")
-                                .setMessage("此功能需要使用“通知使用权”权限，该权限允许应用读取其他软件发送的通知内容。本应用不会也无法使用该权限获取用户隐私信息，仅用于解析通知中可能出现的流水账信息，请您放心使用。\n是否为本应用授权？")
-                                .setPositiveButton("确认", (dialog, which) -> {
-                                    //注册通知接收器以接收通知监听服务是否启动
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                        requireContext().registerReceiver(notificationPermissionListener, filter, Context.RECEIVER_EXPORTED);
-                                    } else {
-                                        requireContext().registerReceiver(notificationPermissionListener, filter);
-                                    }
-
-                                    //申请通知监听权限
-                                    PermissionHelper.requestNotificationPermission(requireContext());
-                                })
-                                .setNegativeButton("取消", null)
-                                .show();
-                    } else {
-                        //发送功能开关变更广播
-                        Intent functionSwitched = new Intent(BroadcastConstants.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString());
-                        requireContext().sendBroadcast(functionSwitched);
-                        AnimationHelper.switchViewFoldOrExpanded(isChecked, binding.ruleManageLayout);  //切换通知解析选项布局的可见性
-                    }
-                }
+                (buttonView, isChecked) -> onNotificationAnalysisSwitchChanged(notificationAnalysisSwitchOption, isChecked)
         );
         binding.autoBookkeepingLayout.addView(notificationAnalysisSwitchOption, 1);
 
@@ -587,6 +542,60 @@ public class SettingFragment extends Fragment {
             });
         });
         alertDialog.show();
+    }
+
+    /**
+     * 通知解析开关状态变更调用的方法
+     */
+    private void onNotificationAnalysisSwitchChanged(SettingSwitchView switchView, boolean isChecked) {
+        AutoBookKeepingPreference.setNotificationAnalysisOpened(isChecked, requireActivity());  //将打开状态写入文件
+
+        //实例化并注册权限授予通知
+        notificationPermissionListener = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                AnimationHelper.switchViewFoldOrExpanded(true, binding.ruleManageLayout);  //切换通知解析选项布局的可见性
+                switchView.setChecked(true);
+
+                //发送功能开关变更广播
+                Intent functionSwitched = new Intent(BroadcastConstants.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString());
+                requireContext().sendBroadcast(functionSwitched);
+
+                try {
+                    requireContext().unregisterReceiver(this);
+                } catch (Exception e) {
+                    Log.d(LogTags.SETTING_FRAGMENT.getV(), "广播接收器注销失败：该接收器未注册");
+                }
+            }
+        };
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BroadcastConstants.ACTION_NOTIFICATION_LISTENER_ENABLED.toString());
+
+        //开启开关时检测是否没有权限，如果没有则提示用户授权
+        if (!PermissionHelper.isNotificationServiceEnabled(requireContext()) && isChecked) {
+            switchView.setChecked(false);
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("权限申请说明")
+                    .setMessage("此功能需要使用“通知使用权”权限，该权限允许应用读取其他软件发送的通知内容。本应用不会也无法使用该权限获取用户隐私信息，仅用于解析通知中可能出现的流水账信息，请您放心使用。\n是否为本应用授权？")
+                    .setPositiveButton("确认", (dialog, which) -> {
+                        //注册通知接收器以接收通知监听服务是否启动
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            requireContext().registerReceiver(notificationPermissionListener, filter, Context.RECEIVER_EXPORTED);
+                        } else {
+                            requireContext().registerReceiver(notificationPermissionListener, filter);
+                        }
+
+                        //申请通知监听权限
+                        PermissionHelper.requestNotificationPermission(requireContext());
+                    })
+                    .setNegativeButton("取消", null)
+                    .show();
+        } else {
+            //发送功能开关变更广播
+            Intent functionSwitched = new Intent(BroadcastConstants.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString());
+            requireContext().sendBroadcast(functionSwitched);
+            AnimationHelper.switchViewFoldOrExpanded(isChecked, binding.ruleManageLayout);  //切换通知解析选项布局的可见性
+        }
     }
 
     /**
