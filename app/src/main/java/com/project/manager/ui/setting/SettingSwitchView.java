@@ -1,13 +1,16 @@
 package com.project.manager.ui.setting;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.util.AttributeSet;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.materialswitch.MaterialSwitch;
@@ -16,6 +19,7 @@ import com.project.manager.databinding.ViewSettingSwitchBinding;
 
 public class SettingSwitchView extends MaterialCardView {
     private ViewSettingSwitchBinding binding;   //绑定的XML视图引用
+    private MaterialSwitch switchBtn;           //开关按钮
 
     public SettingSwitchView(Context context) {
         this(context, null);
@@ -32,7 +36,12 @@ public class SettingSwitchView extends MaterialCardView {
 
     private void initView(Context context) {
         binding = ViewSettingSwitchBinding.inflate(LayoutInflater.from(context), this, true);
-        binding.constraintLayout.setOnClickListener(v -> binding.settingSwitch.toggle());
+
+        switchBtn = new MaterialSwitch(new ContextThemeWrapper(context, R.style.SwitchBtnStyle));
+        ColorStateList thumbList = ContextCompat.getColorStateList(context, R.color.switch_thumb_color_selector);
+        switchBtn.setThumbTintList(thumbList);
+        binding.constraintLayout.setOnClickListener(v -> switchBtn.toggle());
+        binding.freeLayout.addView(switchBtn);
     }
 
     private void setTitle(String title) {
@@ -82,7 +91,8 @@ public class SettingSwitchView extends MaterialCardView {
         setTitle(title);
         setDescription(description);
         setIcon(resId);
-        binding.settingSwitch.setOnCheckedChangeListener(listener);
+
+        switchBtn.setOnCheckedChangeListener(listener);
     }
 
     /**
@@ -101,7 +111,7 @@ public class SettingSwitchView extends MaterialCardView {
         setTitle(title);
         setDescription(description);
         setIcon(resId);
-        binding.settingSwitch.setOnCheckedChangeListener(listener);
+        switchBtn.setOnCheckedChangeListener(listener);
     }
 
     /**
@@ -110,6 +120,8 @@ public class SettingSwitchView extends MaterialCardView {
      * @param isChecked 目标开关状态
      */
     public void setChecked(boolean isChecked) {
-        binding.settingSwitch.setChecked(isChecked);
+        if (switchBtn != null) {
+            switchBtn.setChecked(isChecked);
+        }
     }
 }

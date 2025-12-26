@@ -15,11 +15,11 @@
         android:paddingTop="5sp"
         android:paddingBottom="5sp">
 
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/setting_switch"
-            style="@style/SwitchSettingOptionStyle"
+        <LinearLayout
+            android:id="@+id/free_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

@@ -13,8 +13,8 @@
         <item name="android:statusBarColor">@color/toolbar_background_night</item>
         <!-- Customize your theme here. -->
         <item name="toolbarStyle">@style/ToolBarStyle</item>
-        <item name="drawableTint">@color/theme_blue_night</item>
-        <item name="colorControlActivated">@color/theme_blue_night</item>
+        <item name="drawableTint">?attr/colorPrimary</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>
 </resources>

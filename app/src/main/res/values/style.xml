@@ -112,7 +112,7 @@
     </style>
 
     <!-- 开关设置项样式 -->
-    <style name="SwitchSettingOptionStyle" parent="Widget.Material3.CompoundButton.MaterialSwitch">
+    <style name="SwitchBtnStyle" parent="Widget.Material3.CompoundButton.MaterialSwitch">
         <item name="android:drawablePadding">5dp</item>
         <item name="thumbTint">@color/switch_thumb_color_selector</item>
         <item name="android:textSize">18sp</item>
