@@ -1,6 +1,6 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="Theme.ManagerAssistant" parent="Theme.Material3.Dark.NoActionBar">
+    <style name="Theme.ManagerAssistant.Static" parent="Theme.Material3.Dark.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/theme_blue_night</item>
         <item name="colorPrimaryVariant">@color/theme_blue_variant_night</item>
@@ -10,11 +10,21 @@
         <item name="colorSecondaryVariant">@color/toolbar_background_night</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">@color/toolbar_background_night</item>
+        <item name="android:statusBarColor">?attr/colorSecondaryVariant</item>
         <!-- Customize your theme here. -->
         <item name="toolbarStyle">@style/ToolBarStyle</item>
         <item name="drawableTint">?attr/colorPrimary</item>
         <item name="colorControlActivated">?attr/colorPrimary</item>
         <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <style name="Theme.ManagerAssistant.Dynamic" parent="Theme.Material3.DynamicColors.Dark.NoActionBar">
+        <!-- 自定义颜色和样式 -->
+        <item name="toolbarStyle">@style/ToolBarStyle</item>
+        <item name="drawableTint">?attr/colorPrimary</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <item name="android:statusBarColor">?attr/colorSecondaryVariant</item>
     </style>
 </resources>
