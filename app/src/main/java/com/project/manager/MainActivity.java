@@ -10,6 +10,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.project.manager.data.data_save.preference.KeepAlivePreference;
 import com.project.manager.databinding.ActivityMainBinding;
 import com.project.manager.helpers.ThemeModeHelper;
 import com.project.manager.data.data_save.preference.ThemeModePreference;
@@ -31,7 +32,11 @@ public class MainActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
+                if (KeepAlivePreference.getHideRecents(getBaseContext())) {
                     finishAndRemoveTask();
+                } else {
+                    finish();
+                }
             }
         });
     }
