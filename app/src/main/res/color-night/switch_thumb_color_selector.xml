@@ -2,5 +2,5 @@
     <item android:color="?attr/colorPrimaryVariant" android:state_checked="true" />
 
     <!-- 关闭状态 -->
-    <item android:color="@color/unchecked_gray" />
+    <item android:color="@color/unchecked_gray_night" />
 </selector>
