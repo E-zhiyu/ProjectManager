@@ -62,7 +62,7 @@ public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapte
                 amount = oneMonthInfo.getIncome() - oneMonthInfo.getExpense();
 
                 if (amount < 0) {   //如果结余为负数，则将进度条设置为红色
-                    holder.proportion_bar.setProgressTintList(ColorStateList.valueOf(context.getColor(R.color.warning_red)));
+                    holder.proportion_bar.setProgressTintList(ColorStateList.valueOf(context.getColor(R.color.error_red)));
                 }
                 break;
             case EXPENSE:

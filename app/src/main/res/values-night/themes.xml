@@ -3,21 +3,22 @@
     <style name="Theme.ManagerAssistant.Static" parent="Theme.Material3.Dark.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/theme_blue_night</item>
-        <item name="colorPrimaryVariant">@color/theme_blue_variant_night</item>
-        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorPrimaryContainer">@color/card_background_night</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/card_background_night</item>
-        <item name="colorSecondaryVariant">@color/toolbar_background_night</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSecondary">@color/theme_secondary_night</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorSecondaryVariant</item>
+        <item name="android:statusBarColor">?attr/colorSecondaryContainer</item>
         <!-- Customize your theme here. -->
+        <item name="colorSurface">@color/page_background_night</item>
+        <item name="colorOnSurfaceVariant">@color/unchecked_gray_night</item>
+
         <item name="toolbarStyle">@style/ToolBarStyle</item>
         <item name="drawableTint">?attr/colorPrimary</item>
         <item name="colorControlActivated">?attr/colorPrimary</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>
 
+    <!-- 动态配色主题 -->
     <style name="Theme.ManagerAssistant.Dynamic" parent="Theme.Material3.DynamicColors.Dark.NoActionBar">
         <!-- 自定义颜色和样式 -->
         <item name="toolbarStyle">@style/ToolBarStyle</item>
