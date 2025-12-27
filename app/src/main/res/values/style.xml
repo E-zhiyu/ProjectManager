@@ -46,9 +46,9 @@
     <!-- 提示文本视图样式 -->
     <style name="TipTextViewStyle">
         <item name="android:paddingTop">10dp</item>
-        <item name="android:textColor">@color/unchecked_gray</item>
+        <item name="android:textColor">?attr/colorControlNormal</item>
         <item name="android:drawableStart">@drawable/baseline_error_outline_24</item>
-        <item name="drawableTint">@color/unchecked_gray</item>
+        <item name="drawableTint">?attr/colorControlNormal</item>
     </style>
 
     <!-- 下拉框文本视图样式 -->
@@ -123,11 +123,6 @@
         <item name="cardBackgroundColor">?attr/colorPrimaryContainer</item>
     </style>
 
-    <!-- 新建流水界面卡片容器样式 -->
-    <style name="NewRunningAccountCardStyle">
-        <item name="cardBackgroundColor">@color/page_background</item>
-    </style>
-
     <!-- 按钮样式 -->
     <style name="CommonBtnStyle" parent="Widget.Material3.Button">
         <item name="backgroundTint">?attr/colorPrimary</item>
@@ -200,7 +195,7 @@
 
     <!-- SearchView样式 -->
     <style name="SearchViewStyle" parent="Widget.Material3.SearchView">
-        <item name="backgroundTint">@color/page_background</item>
+        <item name="backgroundTint">?attr/colorSurface</item>
     </style>
 
     <!-- 底部导航栏样式 -->
