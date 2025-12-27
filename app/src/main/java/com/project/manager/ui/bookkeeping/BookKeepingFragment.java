@@ -32,7 +32,7 @@ import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.databinding.FragmentBookkeepingBinding;
 import com.project.manager.helpers.ExceptionHelper;
-import com.project.manager.ui.bookkeeping.running_account_edit.RunningAccountRecyclerAdapter;
+import com.project.manager.ui.bookkeeping.running_account_edit.AccountRecyclerAdapter;
 import com.project.manager.ui.bookkeeping.running_account_edit.modify.RunningAccountModifyActivity;
 import com.project.manager.ui.bookkeeping.running_account_edit.new_running_account.RunningAccountAddActivity;
 import com.project.manager.ui.RequestResultCode;
@@ -48,8 +48,8 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class BookKeepingFragment extends Fragment implements RunningAccountRecyclerAdapter.OnRunningAccountViewClickListener {
-    private RunningAccountRecyclerAdapter runningAccountRecyclerAdapter;    //流水列表适配器
+public class BookKeepingFragment extends Fragment {
+    private AccountRecyclerAdapter accountRecyclerAdapter;                  //流水列表适配器
     private RecyclerView runningAccountRecyclerView;                        //流水列表视图
     private BookKeepingDatabaseHelper running_account_db_helper;            //流水数据库帮助器
     private ActivityResultLauncher<Intent> runningAccountAddLauncher, modifyRunningAccountLauncher;  //子活动启动器
@@ -87,10 +87,14 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
         }
     }
 
-    //处理流水记录项的点击事件
-    @Override
+    /**
+     * 处理流水视图点击事件的方法
+     *
+     * @param position           点击的视图下标
+     * @param runningAccountBase 点击的流水数据实例
+     */
     public void onRunningAccountViewClick(int position, RunningAccountBase runningAccountBase) {
-        RunningAccountBase runningAccountView = runningAccountRecyclerAdapter.getItem(position);
+        RunningAccountBase runningAccountView = accountRecyclerAdapter.getItem(position);
 
         Intent skip2RunningAccountModify = new Intent(requireContext(), RunningAccountModifyActivity.class);
         Bundle dataBundle = new Bundle();
@@ -288,9 +292,9 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
         //创建列表视图的适配器
         refreshLayout.setRefreshing(true);
         List<RunningAccountBase> runningAccountList = loadRunningAccountData(filter_tag_no);    //读取流水数据
-        runningAccountRecyclerAdapter = new RunningAccountRecyclerAdapter(runningAccountList, this, requireContext());
+        accountRecyclerAdapter = new AccountRecyclerAdapter(runningAccountList, this::onRunningAccountViewClick, requireContext());
         runningAccountRecyclerView = binding.runningAccountRecyclerView;
-        runningAccountRecyclerView.setAdapter(runningAccountRecyclerAdapter);
+        runningAccountRecyclerView.setAdapter(accountRecyclerAdapter);
         refreshLayout.setRefreshing(false);
 
         //初始化流水记录数量文本
@@ -301,7 +305,7 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
         //设置下拉刷新布局的监听器
         refreshLayout.setOnRefreshListener(() -> {
             List<RunningAccountBase> refreshedAccount = loadRunningAccountData(filter_tag_no);
-            runningAccountRecyclerAdapter.refreshRunningAccount(refreshedAccount);
+            accountRecyclerAdapter.refreshRunningAccount(refreshedAccount);
             refreshLayout.setRefreshing(false);
 
             account_num = refreshedAccount.size();
@@ -328,7 +332,7 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
      */
     private void onNewAccountAdded(Bundle dataBundle) {
         if (dataBundle != null) {
-            runningAccountRecyclerAdapter.addNewRunningAccountNoSave(dataBundle);
+            accountRecyclerAdapter.addNewRunningAccountNoSave(dataBundle);
             runningAccountRecyclerView.scrollToPosition(0);
             Toast.makeText(requireContext(), "成功添加一条流水记录（自动记账）", Toast.LENGTH_SHORT).show();
 
@@ -350,7 +354,7 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
             return;
         }
 
-        runningAccountRecyclerAdapter.addNewRunningAccount(dataBundle);  //将新建的流水视图添加至列表视图适配器
+        accountRecyclerAdapter.addNewRunningAccount(dataBundle);  //将新建的流水视图添加至列表视图适配器
         runningAccountRecyclerView.scrollToPosition(0);                  //滚动到顶部（因为添加的新记录在顶部）
         Toast.makeText(requireContext(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
 
@@ -372,7 +376,7 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
             return;
         }
 
-        runningAccountRecyclerAdapter.modifyRunningAccount(dataBundle);
+        accountRecyclerAdapter.modifyRunningAccount(dataBundle);
         Toast.makeText(requireContext(), "成功修改流水记录", Toast.LENGTH_SHORT).show();
     }
 
@@ -389,7 +393,7 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
         }
 
         int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), -1);
-        runningAccountRecyclerAdapter.deleteRunningAccount(position);
+        accountRecyclerAdapter.deleteRunningAccount(position);
         Toast.makeText(requireContext(), "流水记录已删除", Toast.LENGTH_SHORT).show();
 
         //更新流水记录数量文本
@@ -425,7 +429,7 @@ public class BookKeepingFragment extends Fragment implements RunningAccountRecyc
                         .observeOn(AndroidSchedulers.mainThread())  //切换到主线程更新 UI
                         .subscribe(
                                 refreshedAccount -> {
-                                    runningAccountRecyclerAdapter.refreshRunningAccount(refreshedAccount);
+                                    accountRecyclerAdapter.refreshRunningAccount(refreshedAccount);
                                     binding.refreshLayout.setRefreshing(false);
                                     account_num = refreshedAccount.size();
                                     refreshAccountNumText();

@@ -24,15 +24,15 @@ import com.project.manager.ui.bookkeeping.running_account_edit.fragments.Running
 
 import java.util.List;
 
-public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningAccountRecyclerAdapter.RunningAccountViewHolder> {
-    private List<RunningAccountBase> runningAccountList;   //数据源
+public class AccountRecyclerAdapter extends RecyclerView.Adapter<AccountRecyclerAdapter.AccountViewHolder> {
+    private List<RunningAccountBase> accountList;               //数据源
     private final Context context;                              //上下文
     private final OnRunningAccountViewClickListener listener;   //单击接口对象
 
-    public static class RunningAccountViewHolder extends RecyclerView.ViewHolder {
+    public static class AccountViewHolder extends RecyclerView.ViewHolder {
         MaterialTextView amount_text, remark_text, name_datetime_text;
 
-        public RunningAccountViewHolder(@NonNull View itemView) {
+        public AccountViewHolder(@NonNull View itemView) {
             super(itemView);
             amount_text = itemView.findViewById(R.id.amount_text);
             remark_text = itemView.findViewById(R.id.remark_textview);
@@ -48,25 +48,25 @@ public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningA
     /**
      * 构造方法
      *
-     * @param runningAccountList 流水数据类型列表
+     * @param accountList 流水数据类型列表
      */
-    public RunningAccountRecyclerAdapter(List<RunningAccountBase> runningAccountList, OnRunningAccountViewClickListener listener, Context context) {
-        this.runningAccountList = runningAccountList;
+    public AccountRecyclerAdapter(List<RunningAccountBase> accountList, OnRunningAccountViewClickListener listener, Context context) {
+        this.accountList = accountList;
         this.listener = listener;
         this.context = context;
     }
 
     @NonNull
     @Override
-    public RunningAccountViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public AccountViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.view_holder_running_account, parent, false);
-        return new RunningAccountViewHolder(view);
+        return new AccountViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RunningAccountViewHolder holder, int position) {
-        RunningAccountBase currentRunningAccount = runningAccountList.get(position);
+    public void onBindViewHolder(@NonNull AccountViewHolder holder, int position) {
+        RunningAccountBase currentRunningAccount = accountList.get(position);
         String name_and_datetime = String.format("%s·%s",
                 currentRunningAccount.getName(),
                 currentRunningAccount.getDate_time()
@@ -85,7 +85,7 @@ public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningA
 
     @Override
     public int getItemCount() {
-        return this.runningAccountList.size();
+        return this.accountList.size();
     }
 
     /**
@@ -95,7 +95,7 @@ public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningA
      * @return 流水数据类型
      */
     public RunningAccountBase getItem(int position) {
-        return runningAccountList.get(position);
+        return accountList.get(position);
     }
 
     /**
@@ -140,7 +140,7 @@ public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningA
 
         newRunningAccount.setRno(rno);  //保存流水编号
 
-        this.runningAccountList.add(0, newRunningAccount);
+        this.accountList.add(0, newRunningAccount);
         notifyItemInserted(0);
     }
 
@@ -173,7 +173,7 @@ public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningA
         runningAccount.setRno(rno);
 
         //刷新UI
-        this.runningAccountList.add(0, runningAccount);
+        this.accountList.add(0, runningAccount);
         notifyItemInserted(0);
     }
 
@@ -220,7 +220,7 @@ public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningA
 
         runningAccount.setRno(rno);
 
-        this.runningAccountList.set(position, runningAccount);
+        this.accountList.set(position, runningAccount);
         notifyItemChanged(position);
     }
 
@@ -233,7 +233,7 @@ public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningA
         if (position == -1) return;
 
         //获取待删除的流水数据
-        RunningAccountBase runningAccount = runningAccountList.get(position);
+        RunningAccountBase runningAccount = accountList.get(position);
         RunningAccountType type = runningAccount.getType();
         long rno = runningAccount.getRno();
 
@@ -247,7 +247,7 @@ public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningA
         }
 
         //刷新UI
-        runningAccountList.remove(position);
+        accountList.remove(position);
         notifyItemRemoved(position);
     }
 
@@ -258,7 +258,7 @@ public class RunningAccountRecyclerAdapter extends RecyclerView.Adapter<RunningA
      */
     @SuppressLint("NotifyDataSetChanged")
     public void refreshRunningAccount(List<RunningAccountBase> refreshedList) {
-        runningAccountList = refreshedList;
+        accountList = refreshedList;
         notifyDataSetChanged();
     }
 }
