@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +31,7 @@ import com.project.manager.data.data_save.database.BookKeepingColumns;
 import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.databinding.FragmentBookkeepingBinding;
+import com.project.manager.helpers.ColorHelper;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.running_account_edit.AccountRecyclerAdapter;
 import com.project.manager.ui.bookkeeping.running_account_edit.modify.RunningAccountModifyActivity;
@@ -290,11 +290,12 @@ public class BookKeepingFragment extends Fragment {
 
         SwipeRefreshLayout refreshLayout = binding.refreshLayout;   //获取下拉刷新布局
 
-        //获取主题色并将其设置为刷新箭头颜色
-        TypedValue typedValue = new TypedValue();
-        requireContext().getTheme().resolveAttribute(androidx.appcompat.R.attr.colorPrimaryDark, typedValue, true);
-        int colorPrimary = typedValue.data;
-        refreshLayout.setColorSchemeColors(colorPrimary);
+        //获取颜色资源并设置下拉刷新布局的颜色
+        int colorPrimary = ColorHelper.getPrimaryColor(requireContext());
+        int colorSecondary = ColorHelper.getSecondaryPrimaryColor(requireContext());
+        refreshLayout.setColorSchemeColors(colorPrimary, colorSecondary);
+        int colorBackground = ColorHelper.getBackgroundColor(requireContext());
+        refreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
 
         //创建列表视图的适配器
         refreshLayout.setRefreshing(true);

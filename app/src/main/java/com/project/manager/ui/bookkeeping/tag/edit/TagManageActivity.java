@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
-import android.util.TypedValue;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -16,6 +15,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.project.manager.databinding.ActivityTagManageBinding;
+import com.project.manager.helpers.ColorHelper;
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
@@ -131,11 +131,12 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         //设置刷新布局的刷新动作监听
         SwipeRefreshLayout refreshLayout = binding.refreshLayout;
 
-        //获取主题色并将其设置为刷新箭头颜色
-        TypedValue typedValue = new TypedValue();
-        getTheme().resolveAttribute(androidx.appcompat.R.attr.colorPrimaryDark, typedValue, true);
-        int colorPrimary = typedValue.data;
-        refreshLayout.setColorSchemeColors(colorPrimary);
+        //获取颜色资源并设置下拉刷新布局的颜色
+        int colorPrimary = ColorHelper.getPrimaryColor(this);
+        int colorSecondary = ColorHelper.getSecondaryPrimaryColor(this);
+        refreshLayout.setColorSchemeColors(colorPrimary, colorSecondary);
+        int colorBackground = ColorHelper.getBackgroundColor(this);
+        refreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
 
         refreshLayout.setOnRefreshListener(() -> disposables.add(
                 Observable.fromCallable(() -> TagGroup.loadTagGroups(this))
