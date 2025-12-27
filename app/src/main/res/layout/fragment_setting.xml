@@ -57,7 +57,6 @@
             <LinearLayout
                 android:id="@+id/auto_bookkeeping_layout"
                 android:layout_width="match_parent"
-                android:elevation="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
@@ -72,9 +71,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:elevation="0dp"
-                    android:visibility="gone">
-                </LinearLayout>
+                    android:visibility="gone" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -84,8 +81,8 @@
             android:layout_height="wrap_content">
 
             <LinearLayout
-                android:layout_width="match_parent"
                 android:id="@+id/background_settings_layout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
@@ -103,8 +100,8 @@
             android:layout_height="wrap_content">
 
             <LinearLayout
-                android:layout_width="match_parent"
                 android:id="@+id/about_layout"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 

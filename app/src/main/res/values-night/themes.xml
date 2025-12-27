@@ -7,9 +7,10 @@
         <!-- Secondary brand color. -->
         <item name="colorSecondaryContainer">@color/theme_secondary_container_night</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorSecondaryContainer</item>
+        <item name="android:statusBarColor">?attr/colorSurface</item>
         <!-- Customize your theme here. -->
         <item name="colorSurface">@color/page_background_night</item>
+        <item name="colorSurfaceContainerLow">@color/card_background_night</item>
         <item name="colorOnSurfaceVariant">@color/unchecked_gray_night</item>
 
         <item name="toolbarStyle">@style/ToolBarStyle</item>

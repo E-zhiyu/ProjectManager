@@ -37,6 +37,8 @@ public class SettingSwitchView extends MaterialCardView {
         binding = ViewSettingSwitchBinding.inflate(LayoutInflater.from(context), this, true);
 
         switchBtn = new MaterialSwitch(new ContextThemeWrapper(context, R.style.SwitchBtnStyle));
+
+        //设置开关颜色
         ColorStateList thumbList = ContextCompat.getColorStateList(context, R.color.switch_thumb_color_selector);
         switchBtn.setThumbTintList(thumbList);
         binding.constraintLayout.setOnClickListener(v -> switchBtn.toggle());

@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -288,6 +289,12 @@ public class BookKeepingFragment extends Fragment {
         });
 
         SwipeRefreshLayout refreshLayout = binding.refreshLayout;   //获取下拉刷新布局
+
+        //获取主题色并将其设置为刷新箭头颜色
+        TypedValue typedValue = new TypedValue();
+        requireContext().getTheme().resolveAttribute(androidx.appcompat.R.attr.colorPrimaryDark, typedValue, true);
+        int colorPrimary = typedValue.data;
+        refreshLayout.setColorSchemeColors(colorPrimary);
 
         //创建列表视图的适配器
         refreshLayout.setRefreshing(true);

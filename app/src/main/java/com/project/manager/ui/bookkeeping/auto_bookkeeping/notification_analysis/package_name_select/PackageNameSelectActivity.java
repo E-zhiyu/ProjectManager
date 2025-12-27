@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -139,6 +140,13 @@ public class PackageNameSelectActivity extends AppCompatActivity {
             String searchViewText = searchView.getText().toString();
             searchViewModel.onSearchQueryChanged(searchViewText);
         });
+
+        //获取主题色并将其设置为刷新箭头颜色
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(androidx.appcompat.R.attr.colorPrimaryDark, typedValue, true);
+        int colorPrimary = typedValue.data;
+        appListRefreshLayout.setColorSchemeColors(colorPrimary);
+        searchRefreshLayout.setColorSchemeColors(colorPrimary);
 
         //设置图标按钮点击监听器
         ImageButton expandListBtn = binding.expandListBtn;

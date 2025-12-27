@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.View;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -84,6 +85,13 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
 
         //设置RecyclerView的适配器
         SwipeRefreshLayout refreshLayout = binding.refreshLayout;   //获取下拉刷新视图
+
+        //获取主题色并将其设置为刷新箭头颜色
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(androidx.appcompat.R.attr.colorPrimaryDark, typedValue, true);
+        int colorPrimary = typedValue.data;
+        refreshLayout.setColorSchemeColors(colorPrimary);
+
         refreshLayout.setRefreshing(true);
         List<AnalysisRule> ruleList;
         try {

@@ -151,7 +151,10 @@ public class SettingFragment extends Fragment {
 
                     ManagerAssistant app = (ManagerAssistant) requireActivity().getApplication();
                     if (isChecked) {
-                        DynamicColors.applyToActivitiesIfAvailable(app);
+                        DynamicColorsOptions options = new DynamicColorsOptions.Builder()
+                                .setThemeOverlay(R.style.Theme_ManagerAssistant_Dynamic)
+                                .build();
+                        DynamicColors.applyToActivitiesIfAvailable(app, options);
                     } else {
                         DynamicColorsOptions options = new DynamicColorsOptions.Builder()
                                 .setThemeOverlay(R.style.Theme_ManagerAssistant_Static)
