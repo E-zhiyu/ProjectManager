@@ -10,7 +10,8 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorSurface</item>
         <!-- Customize your theme here. -->
-        <item name="colorSurface">@color/page_background_night</item>
+        <item name="colorSurface">@color/color_surface_night</item>
+        <item name="colorSurfaceContainer">@color/color_surface_container_night</item>
         <item name="colorSurfaceContainerLow">@color/color_surface_container_low_night</item>
 
         <item name="toolbarStyle">@style/ToolBarStyle</item>
