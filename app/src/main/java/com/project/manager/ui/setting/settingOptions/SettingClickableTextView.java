@@ -1,4 +1,4 @@
-package com.project.manager.ui.setting;
+package com.project.manager.ui.setting.settingOptions;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.constraintlayout.widget.ConstraintSet;
 
@@ -34,10 +33,6 @@ public class SettingClickableTextView extends MaterialCardView {
         binding = ViewSettingClickableTextBinding.inflate(LayoutInflater.from(context), this, true);
     }
 
-    private void setTitle(String title) {
-        binding.titleText.setText(title);
-    }
-
     private void setTitle(@StringRes int title) {
         binding.titleText.setText(title);
     }
@@ -63,25 +58,6 @@ public class SettingClickableTextView extends MaterialCardView {
     private void setIcon(@DrawableRes int resId) {
         binding.iconView.setImageResource(resId);
         binding.iconView.setVisibility(resId == 0 ? INVISIBLE : VISIBLE);
-    }
-
-    /**
-     * 设置各个属性
-     *
-     * @param title       标题文本
-     * @param description 描述文本
-     * @param resId       图标资源ID
-     * @param listener    开关按钮状态变化监听器
-     */
-    public void setActions(
-            @NonNull String title,
-            String description,
-            @DrawableRes int resId,
-            View.OnClickListener listener) {
-        setTitle(title);
-        setDescription(description);
-        setIcon(resId);
-        binding.constraintLayout.setOnClickListener(listener);
     }
 
     /**

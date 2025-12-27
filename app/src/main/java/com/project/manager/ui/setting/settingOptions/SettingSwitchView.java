@@ -1,4 +1,4 @@
-package com.project.manager.ui.setting;
+package com.project.manager.ui.setting.settingOptions;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -7,7 +7,6 @@ import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 
 import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
@@ -44,10 +43,6 @@ public class SettingSwitchView extends MaterialCardView {
         binding.freeLayout.addView(switchBtn);
     }
 
-    private void setTitle(String title) {
-        binding.titleText.setText(title);
-    }
-
     private void setTitle(@StringRes int title) {
         binding.titleText.setText(title);
     }
@@ -73,26 +68,6 @@ public class SettingSwitchView extends MaterialCardView {
     private void setIcon(@DrawableRes int resId) {
         binding.iconView.setImageResource(resId);
         binding.iconView.setVisibility(resId == 0 ? INVISIBLE : VISIBLE);
-    }
-
-    /**
-     * 设置各个属性
-     *
-     * @param title       标题文本
-     * @param description 描述文本
-     * @param resId       图标资源ID
-     * @param listener    开关按钮状态变化监听器
-     */
-    public void setActions(
-            @NonNull String title,
-            String description,
-            @DrawableRes int resId,
-            MaterialSwitch.OnCheckedChangeListener listener) {
-        setTitle(title);
-        setDescription(description);
-        setIcon(resId);
-
-        switchBtn.setOnCheckedChangeListener(listener);
     }
 
     /**

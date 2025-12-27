@@ -10,10 +10,6 @@
     <string name="reply_title">Default reply action</string>
 
     <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails</string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="title_activity_main">@string/app_name</string>
     <string name="title_bookkeeping">记账</string>
     <string name="title_setting">设置</string>
@@ -55,6 +51,7 @@
     <string name="version_name">版本名称</string>
     <string name="setting">应用设置</string>
     <string name="theme_mode">主题模式</string>
+    <string name="dynamic_color">动态配色</string>
     <string name="data_manage">数据管理</string>
     <string name="export_data">导出数据</string>
     <string name="import_data">导入数据</string>
