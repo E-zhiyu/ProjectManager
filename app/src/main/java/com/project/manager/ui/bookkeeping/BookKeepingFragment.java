@@ -430,14 +430,11 @@ public class BookKeepingFragment extends Fragment {
                         .subscribe(
                                 refreshedAccount -> {
                                     accountRecyclerAdapter.refreshRunningAccount(refreshedAccount);
-                                    binding.refreshLayout.setRefreshing(false);
                                     account_num = refreshedAccount.size();
                                     refreshAccountNumText();
                                 },  //成功回调
-                                e -> {
-                                    binding.refreshLayout.setRefreshing(false);
-                                    ExceptionHelper.showExceptionDialog(requireContext(), e);
-                                }   //错误处理
+                                e -> ExceptionHelper.showExceptionDialog(requireContext(), e),  //错误处理
+                                () -> binding.refreshLayout.setRefreshing(false)
                         )
         );
 

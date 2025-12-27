@@ -133,14 +133,13 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
                 Observable.fromCallable(() -> TagGroup.loadTagGroups(this))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(tagGroupList -> {
-                            refreshLayout.setRefreshing(false);
-                            adapter.refreshUI(tagGroupList);
-                        }, e -> {
-                            refreshLayout.setRefreshing(false);
-                            ExceptionHelper.showExceptionDialog(this, e);
-                            Toast.makeText(this, "刷新失败", Toast.LENGTH_SHORT).show();
-                        })
+                        .subscribe(tagGroupList -> adapter.refreshUI(tagGroupList),
+                                e -> {
+                                    ExceptionHelper.showExceptionDialog(this, e);
+                                    Toast.makeText(this, "刷新失败", Toast.LENGTH_SHORT).show();
+                                },
+                                () -> refreshLayout.setRefreshing(false)
+                        )
         ));
     }
 

@@ -157,12 +157,9 @@ public class PackageNameSelectActivity extends AppCompatActivity {
                                 fullAppInfoList -> {
                                     fullAppAdapter.setAppInfoList(fullAppInfoList);
                                     searchViewModel.setFullAppInfoList(fullAppInfoList);
-                                    appListRefreshLayout.setRefreshing(false);
                                 },  //成功回调
-                                e -> {
-                                    appListRefreshLayout.setRefreshing(false);
-                                    ExceptionHelper.showExceptionDialog(this, e);
-                                }   //错误处理
+                                e -> ExceptionHelper.showExceptionDialog(this, e),  //错误处理
+                                () -> appListRefreshLayout.setRefreshing(false)
                         )
         );
     }
