@@ -15,11 +15,9 @@
     <color name="card_background">#edeffc</color>
     <color name="card_background_night">#161a25</color>
     <color name="theme_blue">#0055d6</color>
-    <color name="theme_blue_variant">#dae1fe</color>
-    <color name="theme_secondary">#ccbff7</color>
+    <color name="theme_secondary">#dae1fe</color>
     <color name="theme_blue_night">#b2c5ff</color>
-    <color name="theme_blue_variant_night">#182a64</color>
-    <color name="theme_secondary_night">#615789</color>
+    <color name="theme_secondary_night">#182a64</color>
     <color name="unchecked_gray">#737685</color>
     <color name="unchecked_gray_night">#8d909f</color>
     <color name="toolbar_background">#ebedfa</color>
