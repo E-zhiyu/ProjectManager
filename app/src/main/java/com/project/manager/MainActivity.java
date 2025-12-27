@@ -13,7 +13,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.project.manager.data.data_save.preference.KeepAlivePreference;
 import com.project.manager.databinding.ActivityMainBinding;
 import com.project.manager.helpers.ThemeModeHelper;
-import com.project.manager.data.data_save.preference.ThemeModePreference;
+import com.project.manager.data.data_save.preference.ThemePreference;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
     //初始化主题模式
     private void initThemeMode() {
-        int theme_mode = ThemeModePreference.getThemeMode(this);
+        int theme_mode = ThemePreference.getThemeMode(this);
         ThemeModeHelper.applyTheme(theme_mode);
     }
 }

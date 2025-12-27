@@ -2,7 +2,7 @@
 <resources>
     <!-- 标题栏样式 -->
     <style name="ToolBarStyle" parent="Widget.Material3.Toolbar">
-        <item name="android:background">?attr/colorSecondaryVariant</item>
+        <item name="android:backgroundTint">?attr/colorSurface</item>
         <item name="navigationIconTint">?attr/colorPrimary</item>
         <item name="contentInsetStart">10dp</item>
         <item name="titleTextAppearance">@style/TitleStyle</item>
@@ -11,13 +11,12 @@
     <!-- 标题文本样式 -->
     <style name="TitleStyle">
         <item name="android:textSize">23sp</item>
-        <item name="android:textColor">@color/black</item>
     </style>
 
     <!-- 普通页面样式 -->
     <style name="CommonPageStyle">
         <item name="android:fitsSystemWindows">true</item>
-        <item name="android:background">@color/page_background</item>
+        <item name="android:background">?attr/colorSurface</item>
     </style>
 
     <!-- 报表内容文本视图样式 -->
@@ -47,9 +46,9 @@
     <!-- 提示文本视图样式 -->
     <style name="TipTextViewStyle">
         <item name="android:paddingTop">10dp</item>
-        <item name="android:textColor">@color/unchecked_gray</item>
+        <item name="android:textColor">?attr/colorControlNormal</item>
         <item name="android:drawableStart">@drawable/baseline_error_outline_24</item>
-        <item name="drawableTint">@color/unchecked_gray</item>
+        <item name="drawableTint">?attr/colorControlNormal</item>
     </style>
 
     <!-- 下拉框文本视图样式 -->
@@ -64,7 +63,7 @@
 
     <!-- 圆角卡片容器器样式 -->
     <style name="RoundCardStyle">
-        <item name="cardBackgroundColor">?attr/colorSecondary</item>
+        <item name="cardBackgroundColor">?attr/colorSurfaceContainerLow</item>
         <item name="cardCornerRadius">50dp</item>
         <item name="android:layout_margin">10dp</item>
     </style>
@@ -77,7 +76,7 @@
 
     <!-- 带有多项内容的卡片容器 -->
     <style name="ContentCardStyle">
-        <item name="cardBackgroundColor">?attr/colorSecondary</item>
+        <item name="cardBackgroundColor">?attr/colorSurfaceContainerLow</item>
         <item name="cardCornerRadius">15dp</item>
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:layout_marginStart">10dp</item>
@@ -85,26 +84,22 @@
         <item name="android:layout_marginBottom">10dp</item>
     </style>
 
-    <!-- 直角边框的卡片样式 -->
-    <style name="RightAngleCardStyle">
+    <!-- 直角边框的卡片样式(专用于界面底部的按钮容器) -->
+    <style name="BottomRightAngleCardStyle">
         <item name="cardCornerRadius">0dp</item>
         <item name="strokeColor">@android:color/transparent</item>
-        <item name="cardBackgroundColor">?attr/colorSecondary</item>
+        <item name="cardBackgroundColor">@android:color/transparent</item>
     </style>
 
-    <!-- 点击式设置项样式 -->
-    <style name="ClickableSettingOptionStyle">
-        <item name="android:drawableEnd">@drawable/baseline_keyboard_arrow_right_24</item>
-        <item name="android:drawablePadding">5dp</item>
-        <item name="android:textSize">18sp</item>
-        <item name="android:padding">10dp</item>
+    <!-- 设置项样式 -->
+    <style name="SettingOptionStyle">
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
-        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:background">@drawable/ripple_surface_container_low</item>
     </style>
 
-    <!-- 开关设置项样式 -->
-    <style name="SwitchSettingOptionStyle" parent="Widget.Material3.CompoundButton.MaterialSwitch">
+    <!-- 开关样式 -->
+    <style name="SwitchBtnStyle" parent="Widget.Material3.CompoundButton.MaterialSwitch">
         <item name="android:drawablePadding">5dp</item>
         <item name="thumbTint">@color/switch_thumb_color_selector</item>
         <item name="android:textSize">18sp</item>
@@ -113,18 +108,13 @@
 
     <!-- 信息展示卡片样式 -->
     <style name="InfoCardStyle">
-        <item name="cardBackgroundColor">?attr/colorSecondary</item>
-    </style>
-
-    <!-- 新建流水界面卡片容器样式 -->
-    <style name="NewRunningAccountCardStyle">
-        <item name="cardBackgroundColor">@color/page_background</item>
+        <item name="cardBackgroundColor">?attr/colorSurfaceContainerLow</item>
     </style>
 
     <!-- 按钮样式 -->
     <style name="CommonBtnStyle" parent="Widget.Material3.Button">
         <item name="backgroundTint">?attr/colorPrimary</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:textSize">15sp</item>
         <item name="cornerRadius">20dp</item>
         <item name="android:layout_margin">5dp</item>
@@ -155,6 +145,12 @@
         <item name="android:background">@drawable/ripple_circle</item>
     </style>
 
+    <style name="ImageViewStyle">
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="tint">?attr/colorPrimary</item>
+        <item name="android:padding">10sp</item>
+    </style>
+
     <!-- 复选框样式 -->
     <style name="CheckBoxStyle">
         <item name="buttonTint">?attr/colorPrimary</item>
@@ -163,7 +159,7 @@
     <!-- 需要用户输入文本的文本框样式 -->
     <style name="UserInputEditTextStyle" parent="Widget.Material3.TextInputEditText.OutlinedBox">
         <item name="android:inputType">text</item>
-        <item name="android:textColorHighlight">?attr/colorPrimaryVariant</item>
+        <item name="android:textColorHighlight">?attr/colorSurfaceVariant</item>
         <item name="android:maxLength">20</item>
     </style>
 
@@ -172,41 +168,40 @@
         <item name="android:inputType">text</item>
         <item name="android:focusable">false</item>
         <item name="android:clickable">true</item>
-        <item name="android:textColorHighlight">?attr/colorPrimaryVariant</item>
+        <item name="android:textColorHighlight">?attr/colorPrimaryContainer</item>
     </style>
 
     <!-- AppBarLayout样式 -->
     <style name="AppBarLayoutStyle" parent="Widget.Material3.AppBarLayout">
-        <item name="android:backgroundTint">@color/page_background</item>
+        <item name="android:background">?attr/colorSurface</item>
     </style>
 
     <!-- SearchBar样式 -->
     <style name="SearchBarStyle" parent="Widget.Material3.SearchBar">
-        <item name="backgroundTint">?attr/colorSecondary</item>
+        <item name="backgroundTint">?attr/colorSurface</item>
     </style>
 
     <!-- SearchView样式 -->
     <style name="SearchViewStyle" parent="Widget.Material3.SearchView">
-        <item name="backgroundTint">@color/page_background</item>
+        <item name="backgroundTint">?attr/colorSurface</item>
     </style>
 
     <!-- 底部导航栏样式 -->
     <style name="NaviStyle" parent="Widget.Material3.BottomNavigationView">
         <item name="itemTextColor">@color/bottom_navigation_selector</item>
         <item name="itemIconTint">@color/bottom_navigation_selector</item>
-        <item name="backgroundTint">?attr/colorSecondary</item>
+        <item name="backgroundTint">?attr/colorSurface</item>
         <item name="itemActiveIndicatorStyle">@style/NaviActiveIndicator</item>
     </style>
 
     <!-- 底部导航栏指示器颜色 -->
     <style name="NaviActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
-        <item name="android:color">?attr/colorPrimaryVariant</item>
+        <item name="android:color">?attr/colorSecondaryContainer</item>
     </style>
 
     <!-- TabLayout样式 -->
     <style name="TabLayoutStyle" parent="android:Widget">
-        <item name="android:background">@color/page_background</item>
-        <item name="tabTextColor">@color/tab_layout_selector</item>
+        <item name="android:backgroundTint">?attr/colorSurface</item>
         <item name="tabIndicatorColor">?attr/colorPrimary</item>
     </style>
 

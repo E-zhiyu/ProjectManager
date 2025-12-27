@@ -1,10 +1,6 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- 按下状态（checked + pressed） -->
-    <item android:color="@color/page_background" android:state_checked="true" />
-
-    <!-- 默认打开状态 -->
-    <item android:color="@color/theme_blue" android:state_checked="true" />
+    <item android:color="?attr/colorOnPrimary" android:state_checked="true" />
 
     <!-- 关闭状态 -->
-    <item android:color="@color/unchecked_gray" />
+    <item android:color="?attr/colorOnSurfaceVariant" />
 </selector>

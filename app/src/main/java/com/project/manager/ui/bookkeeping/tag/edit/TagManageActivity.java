@@ -15,6 +15,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.project.manager.databinding.ActivityTagManageBinding;
+import com.project.manager.helpers.ColorHelper;
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
@@ -129,18 +130,25 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
 
         //设置刷新布局的刷新动作监听
         SwipeRefreshLayout refreshLayout = binding.refreshLayout;
+
+        //获取颜色资源并设置下拉刷新布局的颜色
+        int colorPrimary = ColorHelper.getPrimaryColor(this);
+        int colorSecondary = ColorHelper.getSecondaryPrimaryColor(this);
+        refreshLayout.setColorSchemeColors(colorPrimary, colorSecondary);
+        int colorBackground = ColorHelper.getBackgroundColor(this);
+        refreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
+
         refreshLayout.setOnRefreshListener(() -> disposables.add(
                 Observable.fromCallable(() -> TagGroup.loadTagGroups(this))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(tagGroupList -> {
-                            refreshLayout.setRefreshing(false);
-                            adapter.refreshUI(tagGroupList);
-                        }, e -> {
-                            refreshLayout.setRefreshing(false);
-                            ExceptionHelper.showExceptionDialog(this, e);
-                            Toast.makeText(this, "刷新失败", Toast.LENGTH_SHORT).show();
-                        })
+                        .subscribe(tagGroupList -> adapter.refreshUI(tagGroupList),
+                                e -> {
+                                    ExceptionHelper.showExceptionDialog(this, e);
+                                    Toast.makeText(this, "刷新失败", Toast.LENGTH_SHORT).show();
+                                },
+                                () -> refreshLayout.setRefreshing(false)
+                        )
         ));
     }
 

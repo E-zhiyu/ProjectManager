@@ -17,6 +17,7 @@
             android:layout_height="wrap_content">
 
             <LinearLayout
+                android:id="@+id/app_settings_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
@@ -26,15 +27,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/setting" />
-
-                <!-- 这里放入软件设置相关组件 -->
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/setting_theme_mode"
-                    style="@style/ClickableSettingOptionStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/baseline_dark_mode_24"
-                    android:text="@string/theme_mode" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -44,6 +36,7 @@
             android:layout_height="wrap_content">
 
             <LinearLayout
+                android:id="@+id/data_manage_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -53,30 +46,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/data_manage" />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/setting_export_running_account"
-                    style="@style/ClickableSettingOptionStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/round_export_data_24"
-                    android:text="@string/export_data" />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/setting_import_running_account"
-                    style="@style/ClickableSettingOptionStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/baseline_import_data_24"
-                    android:text="@string/import_data" />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/setting_clear_running_account"
-                    style="@style/ClickableSettingOptionStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/baseline_delete_forever_24"
-                    android:text="@string/clear_account_data" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -86,6 +55,7 @@
             android:layout_height="wrap_content">
 
             <LinearLayout
+                android:id="@+id/auto_bookkeeping_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -96,37 +66,12 @@
                     android:layout_height="wrap_content"
                     android:text="@string/auto_bookkeeping" />
 
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/notification_analysis_switch"
-                    style="@style/SwitchSettingOptionStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/baseline_notifications_24"
-                    android:text="@string/notification_analysis_mode" />
-
                 <LinearLayout
-                    android:id="@+id/notification_analysis_option_layout"
+                    android:id="@+id/rule_manage_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:visibility="gone">
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/setting_notification_analysis_rules"
-                        style="@style/ClickableSettingOptionStyle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:drawableStart="@drawable/baseline_rule_24"
-                        android:text="@string/notification_analysis_rules_manage" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/rule_reset"
-                        style="@style/ClickableSettingOptionStyle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:drawableStart="@drawable/baseline_restart_alt_24"
-                        android:text="@string/reset_rule" />
-                </LinearLayout>
+                    android:visibility="gone" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -136,6 +81,7 @@
             android:layout_height="wrap_content">
 
             <LinearLayout
+                android:id="@+id/background_settings_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -144,31 +90,7 @@
                     style="@style/LabelTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/background_process_settings" />
-
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/hide_recents_switch"
-                    style="@style/SwitchSettingOptionStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/baseline_recent_task_24"
-                    android:text="@string/exit_hide_recent_task" />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/auto_start_permission"
-                    style="@style/ClickableSettingOptionStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/baseline_autorenew_24"
-                    android:text="@string/self_starting_permission" />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/battery_optimization"
-                    style="@style/ClickableSettingOptionStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/baseline_battery_5_bar_24"
-                    android:text="@string/battery_optimization" />
+                    android:text="@string/background_setting" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -178,6 +100,7 @@
             android:layout_height="wrap_content">
 
             <LinearLayout
+                android:id="@+id/about_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
@@ -187,23 +110,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/about" />
-
-                <!-- 放入关于软件选项 -->
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/setting_about"
-                    style="@style/ClickableSettingOptionStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/baseline_info_24"
-                    android:text="@string/about_software" />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/setting_update_log"
-                    style="@style/ClickableSettingOptionStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/baseline_update_24"
-                    android:text="@string/update_log" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>

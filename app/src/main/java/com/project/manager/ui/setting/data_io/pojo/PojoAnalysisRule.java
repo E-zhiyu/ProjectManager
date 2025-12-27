@@ -1,4 +1,4 @@
-package com.project.manager.ui.setting.running_account_data.pojo;
+package com.project.manager.ui.setting.data_io.pojo;
 
 public class PojoAnalysisRule {
     private String ruleName;    //规则名称

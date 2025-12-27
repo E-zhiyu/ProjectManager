@@ -11,7 +11,17 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.5.2  \n" +
+    private static final String update_log_md = "# v1.5.3  \n" +
+            "**新增内容**  \n" +
+            "- 设置界面添加动态配色选项  \n\n" +
+            "**BUG修复**  \n" +
+            "- 修复标签选择弹窗中标签按钮无法正常滚动的BUG  \n\n" +
+            "**修改内容**  \n" +
+            "- 修改下拉刷新进度条的颜色以及背景色以获得更好的视觉体验  \n" +
+            "- 在设置界面启动通知监听服务并申请权限时能够监听用户是否授权并调整开关状态  \n" +
+            "- 关于软件界面添加蓝奏云网盘的分享连接  \n" +
+            "- 为大多数设置项添加说明文本  \n\n" +
+            "# v1.5.2  \n" +
             "**修改内容**  \n" +
             "- 限制日期选择对话框不能选择未来的日期  \n" +
             "- 将透明背景的按钮的涟漪边缘设置为圆角形  \n" +

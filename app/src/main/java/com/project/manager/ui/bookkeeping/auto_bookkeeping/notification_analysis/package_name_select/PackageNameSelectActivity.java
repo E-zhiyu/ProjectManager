@@ -22,6 +22,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.search.SearchView;
 import com.project.manager.R;
 import com.project.manager.databinding.ActivityPackageNameSelectBinding;
+import com.project.manager.helpers.ColorHelper;
 import com.project.manager.helpers.PermissionHelper;
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
@@ -140,6 +141,15 @@ public class PackageNameSelectActivity extends AppCompatActivity {
             searchViewModel.onSearchQueryChanged(searchViewText);
         });
 
+        //获取颜色资源并设置下拉刷新布局的颜色
+        int colorPrimary = ColorHelper.getPrimaryColor(this);
+        int colorSecondary = ColorHelper.getSecondaryPrimaryColor(this);
+        int colorBackground = ColorHelper.getBackgroundColor(this);
+        appListRefreshLayout.setColorSchemeColors(colorPrimary, colorSecondary);
+        searchRefreshLayout.setColorSchemeColors(colorPrimary, colorSecondary);
+        appListRefreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
+        searchRefreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
+
         //设置图标按钮点击监听器
         ImageButton expandListBtn = binding.expandListBtn;
         expandListBtn.setOnClickListener(this::showPopupMenu);
@@ -157,12 +167,9 @@ public class PackageNameSelectActivity extends AppCompatActivity {
                                 fullAppInfoList -> {
                                     fullAppAdapter.setAppInfoList(fullAppInfoList);
                                     searchViewModel.setFullAppInfoList(fullAppInfoList);
-                                    appListRefreshLayout.setRefreshing(false);
                                 },  //成功回调
-                                e -> {
-                                    appListRefreshLayout.setRefreshing(false);
-                                    ExceptionHelper.showExceptionDialog(this, e);
-                                }   //错误处理
+                                e -> ExceptionHelper.showExceptionDialog(this, e),  //错误处理
+                                () -> appListRefreshLayout.setRefreshing(false)
                         )
         );
     }

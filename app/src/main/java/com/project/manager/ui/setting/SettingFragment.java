@@ -1,14 +1,17 @@
 package com.project.manager.ui.setting;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -19,9 +22,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.android.material.color.DynamicColors;
+import com.google.android.material.color.DynamicColorsOptions;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.materialswitch.MaterialSwitch;
 import com.project.manager.LogTags;
+import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
 import com.project.manager.broadcast.BroadcastConstants;
 import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
@@ -37,12 +42,15 @@ import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis
 import com.project.manager.helpers.AboutHelper;
 import com.project.manager.helpers.ThemeModeHelper;
 import com.project.manager.helpers.UpdateLogHelper;
-import com.project.manager.ui.setting.running_account_data.data_helpers.AnalysisRuleDataHelper;
-import com.project.manager.ui.setting.running_account_data.data_helpers.DataHelperBase;
-import com.project.manager.ui.setting.running_account_data.data_helpers.RunningAccountDataHelper;
-import com.project.manager.data.data_save.preference.ThemeModePreference;
-import com.project.manager.ui.setting.running_account_data.maps.TotalAccountDataMap;
-import com.project.manager.ui.setting.running_account_data.maps.TotalRuleDataMap;
+import com.project.manager.ui.setting.data_io.MultiChoiceDialogAdapter;
+import com.project.manager.ui.setting.data_io.data_helpers.AnalysisRuleDataHelper;
+import com.project.manager.ui.setting.data_io.data_helpers.DataHelperBase;
+import com.project.manager.ui.setting.data_io.data_helpers.RunningAccountDataHelper;
+import com.project.manager.data.data_save.preference.ThemePreference;
+import com.project.manager.ui.setting.data_io.maps.TotalAccountDataMap;
+import com.project.manager.ui.setting.data_io.maps.TotalRuleDataMap;
+import com.project.manager.ui.setting.settingOptions.SettingClickableTextView;
+import com.project.manager.ui.setting.settingOptions.SettingSwitchView;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -60,15 +68,16 @@ public class SettingFragment extends Fragment {
     private FragmentSettingBinding binding;
     private ActivityResultLauncher<Intent> importDataLauncher, exportDataLauncher;  //活动启动器
     private SAFFileHelper safFileHelper;    //SAF文件帮助器
+    private BroadcastReceiver notificationPermissionListener;   //通知监听服务正常运行的广播接收器
 
     //导入和导出的数据种类枚举
-    enum EIDataType {
+    enum IODataType {
         ACCOUNT_DATA("流水记录数据", "RunningAccount.json"),
         RULE_DATA("通知解析规则数据", "AnalysisRule.json");
         private final String name;              //选项名称
         private final String default_file_name; //默认文件名称
 
-        EIDataType(String name, String default_file_name) {
+        IODataType(String name, String default_file_name) {
             this.name = name;
             this.default_file_name = default_file_name;
         }
@@ -88,7 +97,7 @@ public class SettingFragment extends Fragment {
          */
         public static List<String> getEffectiveFileNameList() {
             return Stream.of(values())
-                    .map(EIDataType::getDefault_file_name)
+                    .map(IODataType::getDefault_file_name)
                     .collect(Collectors.toList());
         }
     }
@@ -107,8 +116,206 @@ public class SettingFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+
+        //尝试注销广播接收器
+        try {
+            requireContext().unregisterReceiver(notificationPermissionListener);
+        } catch (Exception e) {
+            Log.d(LogTags.SETTING_FRAGMENT.getV(), "广播接收器注销失败：该接收器未注册");
+        }
         binding = null;
     }
+
+    /**
+     * 初始化视图
+     */
+    private void initViews() {
+        //主题模式
+        SettingClickableTextView themeModeOption = new SettingClickableTextView(requireContext());
+        themeModeOption.setActions(
+                R.string.theme_mode,
+                null,
+                R.drawable.baseline_dark_mode_24,
+                v -> showThemeModeSelectDialog());
+        binding.appSettingsLayout.addView(themeModeOption);
+
+        //动态配色
+        SettingSwitchView dynamicColorOption = new SettingSwitchView(requireContext());
+        dynamicColorOption.setChecked(ThemePreference.getDynamicColorStat(requireContext()));
+        dynamicColorOption.setActions(
+                R.string.dynamic_color,
+                null,
+                R.drawable.baseline_color_lens_24,
+                (buttonView, isChecked) -> {
+                    ThemePreference.saveDynamicColorStat(requireContext(), isChecked);
+
+                    ManagerAssistant app = (ManagerAssistant) requireActivity().getApplication();
+                    if (isChecked) {
+                        DynamicColorsOptions options = new DynamicColorsOptions.Builder()
+                                .setThemeOverlay(R.style.Theme_ManagerAssistant_Dynamic)
+                                .build();
+                        DynamicColors.applyToActivitiesIfAvailable(app, options);
+                    } else {
+                        DynamicColorsOptions options = new DynamicColorsOptions.Builder()
+                                .setThemeOverlay(R.style.Theme_ManagerAssistant_Static)
+                                .build();
+                        DynamicColors.applyToActivitiesIfAvailable(app, options);
+                    }
+                    requireActivity().recreate();
+                }
+        );
+        binding.appSettingsLayout.addView(dynamicColorOption);
+
+        //导出数据
+        SettingClickableTextView exportDataOption = new SettingClickableTextView(requireContext());
+        exportDataOption.setActions(
+                R.string.export_data,
+                "将应用数据以文件形式保存",
+                R.drawable.round_export_data_24,
+                v -> onExportDataClicked()
+        );
+        binding.dataManageLayout.addView(exportDataOption);
+
+        //导入数据
+        SettingClickableTextView importDataOption = new SettingClickableTextView(requireContext());
+        importDataOption.setActions(
+                R.string.import_data,
+                "从外部文件导入数据",
+                R.drawable.baseline_import_data_24,
+                v -> importData()
+        );
+        binding.dataManageLayout.addView(importDataOption);
+
+        //清空流水数据
+        SettingClickableTextView clearRunningAccountOption = new SettingClickableTextView(requireContext());
+        clearRunningAccountOption.setActions(
+                R.string.clear_account_data,
+                "清除流水记录、标签和标签分组数据",
+                R.drawable.baseline_delete_forever_24,
+                v -> new MaterialAlertDialogBuilder(requireContext())
+                        .setTitle("清除数据")
+                        .setMessage("此操作将清除所有流水账数据，确认继续吗？")
+                        .setPositiveButton("确认", ((dialog, which) -> {
+                            dialog.dismiss();
+                            RunningAccountDataHelper.deleteAllData(requireContext());
+                            BookKeepingStartDatePreference.saveStartDate("", requireContext()); //清空已保存的开始记账的日期
+                        }))
+                        .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
+                        .show()
+        );
+        binding.dataManageLayout.addView(clearRunningAccountOption);
+
+        //自动记账
+        SettingSwitchView notificationAnalysisSwitchOption = new SettingSwitchView(requireContext());
+        //完成通知解析开关状态初始化
+        boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(requireContext());
+        if (isNotificationAnalysisOpened && PermissionHelper.isNotificationServiceEnabled(requireContext())) {
+            binding.ruleManageLayout.setVisibility(View.VISIBLE);
+            notificationAnalysisSwitchOption.setChecked(true);
+        } else {
+            binding.ruleManageLayout.setVisibility(View.GONE);
+            notificationAnalysisSwitchOption.setChecked(false);
+
+            //考虑到无授权情况下自动关闭通知解析功能
+            AutoBookKeepingPreference.setNotificationAnalysisOpened(false, requireContext());
+        }
+        notificationAnalysisSwitchOption.setActions(
+                R.string.notification_analysis_mode,
+                "通知解析功能的开关",
+                R.drawable.baseline_notifications_24,
+                (buttonView, isChecked) -> onNotificationAnalysisSwitchChanged(notificationAnalysisSwitchOption, isChecked)
+        );
+        binding.autoBookkeepingLayout.addView(notificationAnalysisSwitchOption, 1);
+
+        //通知解析规则管理
+        SettingClickableTextView analysisRuleManageOption = new SettingClickableTextView(requireContext());
+        analysisRuleManageOption.setActions(
+                R.string.notification_analysis_rules_manage,
+                "点击进入通知解析规则管理界面",
+                R.drawable.baseline_rule_24,
+                v -> {
+                    Intent skip2NotificationRulesActivity = new Intent(requireContext(), AnalysisRuleManageActivity.class);
+                    startActivity(skip2NotificationRulesActivity);
+                }
+        );
+        binding.ruleManageLayout.addView(analysisRuleManageOption);
+
+        //规则重置
+        SettingClickableTextView resetRuleOption = new SettingClickableTextView(requireContext());
+        resetRuleOption.setActions(
+                R.string.reset_rule,
+                "将通知解析规则重置为默认规则",
+                R.drawable.baseline_restart_alt_24,
+                v -> new MaterialAlertDialogBuilder(requireContext())
+                        .setTitle("重置规则")
+                        .setMessage("此操作将重置通知解析规则为默认规则，确认继续吗？")
+                        .setPositiveButton("确认", ((dialog, which) -> {
+                            dialog.dismiss();
+                            AnalysisRuleDataHelper.resetRule(requireContext());
+                        }))
+                        .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
+                        .show()
+        );
+        binding.ruleManageLayout.addView(resetRuleOption);
+
+        //后台隐藏(最近任务隐藏)
+        SettingSwitchView hideBackgroundOption = new SettingSwitchView(requireContext());
+        hideBackgroundOption.setChecked(KeepAlivePreference.getHideRecents(requireContext()));
+        hideBackgroundOption.setActions(
+                R.string.hide_background,
+                "从主页退出后在最近任务列表隐藏",
+                R.drawable.baseline_recent_task_24,
+                (buttonView, isChecked) -> {
+                    KeepAlivePreference.setHideRecents(isChecked, requireContext());
+
+                    if (isChecked) {
+                        Toast.makeText(requireContext(), "建议额外在最近任务中锁定本应用", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+        binding.backgroundSettingsLayout.addView(hideBackgroundOption);
+
+        //自启动
+        SettingClickableTextView autoStartOption = new SettingClickableTextView(requireContext());
+        autoStartOption.setActions(
+                R.string.auto_start_permission,
+                "点击跳转自启动设置界面",
+                R.drawable.baseline_autorenew_24,
+                v -> PermissionHelper.requestAutoStartPermission(requireContext())
+        );
+        binding.backgroundSettingsLayout.addView(autoStartOption);
+
+        //电池优化
+        SettingClickableTextView batteryOptimizationOption = new SettingClickableTextView(requireContext());
+        batteryOptimizationOption.setActions(
+                R.string.battery_optimization,
+                "点击跳转电池优化设置界面",
+                R.drawable.baseline_battery_5_bar_24,
+                v -> PermissionHelper.openBatteryOptimizations(requireContext())
+        );
+        binding.backgroundSettingsLayout.addView(batteryOptimizationOption);
+
+        //关于软件
+        SettingClickableTextView aboutOption = new SettingClickableTextView(requireContext());
+        aboutOption.setActions(
+                R.string.about_software,
+                null,
+                R.drawable.baseline_info_24,
+                v -> AboutHelper.showAboutDialog(requireContext())
+        );
+        binding.aboutLayout.addView(aboutOption);
+
+        //更新日志
+        SettingClickableTextView updateLogOption = new SettingClickableTextView(requireContext());
+        updateLogOption.setActions(
+                R.string.update_log,
+                null,
+                R.drawable.baseline_update_24,
+                v -> UpdateLogHelper.showUpdateLogDialog(requireContext())
+        );
+        binding.aboutLayout.addView(updateLogOption);
+    }
+
 
     //初始化活动启动器
     private void initActivityLaunchers() {
@@ -142,11 +349,11 @@ public class SettingFragment extends Fragment {
         List<String> fileContentList = new ArrayList<>();   //用于导出数据的临时文件内容列表
 
         //根据选择的内容创建临时文件
-        if (choseItem[EIDataType.ACCOUNT_DATA.ordinal()]) {
+        if (choseItem[IODataType.ACCOUNT_DATA.ordinal()]) {
             DataHelperBase<BookKeepingDatabaseHelper, TotalAccountDataMap> dataHelper = new RunningAccountDataHelper(requireContext());
             try {
                 String json_str = dataHelper.getDataInJSON();
-                fileNameList.add(EIDataType.ACCOUNT_DATA.getDefault_file_name());
+                fileNameList.add(IODataType.ACCOUNT_DATA.getDefault_file_name());
                 fileContentList.add(json_str);
             } catch (JsonProcessingException e) {
                 ExceptionHelper.showExceptionDialog(requireContext(), e);
@@ -154,11 +361,11 @@ public class SettingFragment extends Fragment {
                 return;
             }
         }
-        if (choseItem[EIDataType.RULE_DATA.ordinal()]) {
+        if (choseItem[IODataType.RULE_DATA.ordinal()]) {
             DataHelperBase<BookKeepingDatabaseHelper, TotalRuleDataMap> dataHelper = new AnalysisRuleDataHelper(requireContext());
             try {
                 String json_str = dataHelper.getDataInJSON();
-                fileNameList.add(EIDataType.RULE_DATA.getDefault_file_name());
+                fileNameList.add(IODataType.RULE_DATA.getDefault_file_name());
                 fileContentList.add(json_str);
             } catch (JsonProcessingException e) {
                 ExceptionHelper.showExceptionDialog(requireContext(), e);
@@ -197,25 +404,25 @@ public class SettingFragment extends Fragment {
                     public void onZipUnpacked(List<File> fileList) {
                         List<File> effectiveFileList = getEffectiveFileList(fileList);
 
-                        String[] type_names = Arrays.stream(EIDataType.values())
-                                .map(EIDataType::getName)
+                        String[] type_names = Arrays.stream(IODataType.values())
+                                .map(IODataType::getName)
                                 .toArray(String[]::new);
                         boolean[] itemStats = {true, true};     //选项的选择状态
                         boolean[] isItemFound = {true, true};   //是否找到对应名称的文件
 
                         //根据解压的临时JSON文件决定应该禁用哪些选项
-                        for (EIDataType eiDataType : EIDataType.values()) {
+                        for (IODataType IODataType : IODataType.values()) {
                             boolean isFound = false;
                             for (File tempFile : fileList) {
-                                if (tempFile.getName().equals(eiDataType.getDefault_file_name())) {
+                                if (tempFile.getName().equals(IODataType.getDefault_file_name())) {
                                     isFound = true;
                                     break;
                                 }
                             }
 
                             if (!isFound) {
-                                int index = eiDataType.ordinal();
-                                String type_name = eiDataType.getName();
+                                int index = IODataType.ordinal();
+                                String type_name = IODataType.getName();
                                 String disabled_name = String.format(Locale.getDefault(), "%s(未包含)", type_name);
                                 type_names[index] = disabled_name;
                                 itemStats[index] = false;
@@ -302,7 +509,7 @@ public class SettingFragment extends Fragment {
      */
     @NonNull
     private static List<File> getEffectiveFileList(@NonNull List<File> tempJsonFileList) {
-        List<String> effectiveFileNameList = EIDataType.getEffectiveFileNameList();
+        List<String> effectiveFileNameList = IODataType.getEffectiveFileNameList();
         List<File> effectiveFileList = new ArrayList<>();   //能够正确解析内容的文件列表
 
         //根据文件名筛选有效文件
@@ -317,168 +524,111 @@ public class SettingFragment extends Fragment {
     }
 
     /**
-     * 初始化视图
+     * 处理导出数据选项点击的方法
      */
-    private void initViews() {
-        //关于软件
-        binding.settingAbout.setOnClickListener(v -> AboutHelper.showAboutDialog(requireContext()));
+    private void onExportDataClicked() {
+        //获取选项名称和状态
+        String[] type_names = Arrays.stream(IODataType.values())
+                .map(IODataType::getName)
+                .toArray(String[]::new);
+        boolean[] itemStats = {true, true};
 
-        //主题模式
-        binding.settingThemeMode.setOnClickListener(v -> showThemeModeSelectDialog());
+        //实例化自定义多选视图
+        @SuppressLint("InflateParams") View mutiChoiceDialogView = getLayoutInflater().inflate(R.layout.view_multichoice, null);
 
-        //导出数据
-        binding.settingExportRunningAccount.setOnClickListener(v -> {
-            //获取选项名称和状态
-            String[] type_names = Arrays.stream(EIDataType.values())
-                    .map(EIDataType::getName)
-                    .toArray(String[]::new);
-            boolean[] itemStats = {true, true};
+        //设置适配器
+        RecyclerView recyclerView = mutiChoiceDialogView.findViewById(R.id.item_recycler);
+        MultiChoiceDialogAdapter adapter = new MultiChoiceDialogAdapter(
+                itemStats,
+                type_names,
+                (position, isChecked) -> itemStats[position] = isChecked
+        );
+        recyclerView.setAdapter(adapter);
 
-            //实例化自定义多选视图
-            @SuppressLint("InflateParams") View mutiChoiceDialogView = getLayoutInflater().inflate(R.layout.view_multichoice, null);
+        //构建多选对话框
+        AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("选择导出的数据")
+                .setView(mutiChoiceDialogView)
+                .setPositiveButton("确定", null)
+                .setNegativeButton("取消", null)
+                .create();
 
-            //设置适配器
-            RecyclerView recyclerView = mutiChoiceDialogView.findViewById(R.id.item_recycler);
-            MultiChoiceDialogAdapter adapter = new MultiChoiceDialogAdapter(
-                    itemStats,
-                    type_names,
-                    (position, isChecked) -> itemStats[position] = isChecked
-            );
-            recyclerView.setAdapter(adapter);
-
-            //构建多选对话框
-            AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("选择导出的数据")
-                    .setView(mutiChoiceDialogView)
-                    .setPositiveButton("确定", null)
-                    .setNegativeButton("取消", null)
-                    .create();
-
-            //设置对话框的显示监听器
-            alertDialog.setOnShowListener(dialog -> {
-                Button positiveBtn = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                positiveBtn.setOnClickListener(view -> {
-                    //检测是否一个都没有选择
-                    boolean isNonItemChosen = true;
-                    for (boolean isChose : itemStats) {
-                        if (isChose) {
-                            isNonItemChosen = false;
-                            break;
-                        }
+        //设置对话框的显示监听器
+        alertDialog.setOnShowListener(dialog -> {
+            Button positiveBtn = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positiveBtn.setOnClickListener(view -> {
+                //检测是否一个都没有选择
+                boolean isNonItemChosen = true;
+                for (boolean isChose : itemStats) {
+                    if (isChose) {
+                        isNonItemChosen = false;
+                        break;
                     }
+                }
 
-                    if (!isNonItemChosen) {
-                        exportData(itemStats);
-                        dialog.dismiss();
-                    } else {
-                        Toast.makeText(requireContext(), "请选择至少一个选项", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                if (!isNonItemChosen) {
+                    exportData(itemStats);
+                    dialog.dismiss();
+                } else {
+                    Toast.makeText(requireContext(), "请选择至少一个选项", Toast.LENGTH_SHORT).show();
+                }
             });
-            alertDialog.show();
         });
+        alertDialog.show();
+    }
 
-        //导入数据
-        binding.settingImportRunningAccount.setOnClickListener(v -> importData());
+    /**
+     * 通知解析开关状态变更调用的方法
+     */
+    private void onNotificationAnalysisSwitchChanged(SettingSwitchView switchView, boolean isChecked) {
+        AutoBookKeepingPreference.setNotificationAnalysisOpened(isChecked, requireActivity());  //将打开状态写入文件
 
-        //清空流水数据
-        binding.settingClearRunningAccount.setOnClickListener(v -> new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("清除数据")
-                .setMessage("此操作将清除所有流水账数据，确认继续吗？")
-                .setPositiveButton("确认", ((dialog, which) -> {
-                    dialog.dismiss();
-                    RunningAccountDataHelper.deleteAllData(requireContext());
-                    BookKeepingStartDatePreference.saveStartDate("", requireContext()); //清空已保存的开始记账的日期
-                }))
-                .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
-                .show()
-        );
+        //实例化并注册权限授予通知
+        notificationPermissionListener = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                AnimationHelper.switchViewFoldOrExpanded(true, binding.ruleManageLayout);  //切换通知解析选项布局的可见性
+                switchView.setChecked(true);
 
-        //更新日志
-        binding.settingUpdateLog.setOnClickListener(v -> UpdateLogHelper.showUpdateLogDialog(requireContext()));
-
-        //管理通知解析规则
-        binding.settingNotificationAnalysisRules.setOnClickListener(v -> {
-            Intent skip2NotificationRulesActivity = new Intent(requireContext(), AnalysisRuleManageActivity.class);
-            startActivity(skip2NotificationRulesActivity);
-        });
-
-        //自启动
-        binding.autoStartPermission.setOnClickListener(v -> PermissionHelper.requestAutoStartPermission(requireContext()));
-
-        //电池优化
-        binding.batteryOptimization.setOnClickListener(v -> PermissionHelper.openBatteryOptimizations(requireContext()));
-
-        //规则重置
-        binding.ruleReset.setOnClickListener(v -> new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("重置规则")
-                .setMessage("此操作将重置通知解析规则为默认规则，确认继续吗？")
-                .setPositiveButton("确认", ((dialog, which) -> {
-                    dialog.dismiss();
-                    AnalysisRuleDataHelper.resetRule(requireContext());
-                }))
-                .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
-                .show()
-        );
-
-        //完成通知解析开关状态初始化
-        MaterialSwitch notification_analysis_switch = binding.notificationAnalysisSwitch;
-        LinearLayout notification_analysis_layout = binding.notificationAnalysisOptionLayout;
-        boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(requireContext());
-        if (isNotificationAnalysisOpened && PermissionHelper.isNotificationServiceEnabled(requireContext())) {
-            notification_analysis_layout.setVisibility(View.VISIBLE);
-            notification_analysis_switch.setChecked(true);
-        } else {
-            notification_analysis_layout.setVisibility(View.GONE);
-            notification_analysis_switch.setChecked(false);
-
-            //考虑到无授权情况下自动关闭通知解析功能
-            AutoBookKeepingPreference.setNotificationAnalysisOpened(false, requireContext());
-        }
-
-        //设置通知解析开关按钮的监听器
-        notification_analysis_switch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            AutoBookKeepingPreference.setNotificationAnalysisOpened(isChecked, requireActivity());  //将打开状态写入文件
-
-            //开启开关时检测是否没有权限，如果没有则提示用户授权
-            if (!PermissionHelper.isNotificationServiceEnabled(requireContext()) && isChecked) {
-                new MaterialAlertDialogBuilder(requireContext())
-                        .setTitle("权限申请说明")
-                        .setMessage("此功能需要使用“通知使用权”权限，该权限允许应用读取其他软件发送的通知内容。本应用不会也无法使用该权限获取用户隐私信息，仅用于解析通知中可能出现的流水账信息，请您放心使用。\n是否为本应用授权？")
-                        .setPositiveButton("确认", (dialog, which) -> {
-                            dialog.dismiss();
-                            PermissionHelper.requestNotificationPermission(requireContext());
-                            AnimationHelper.switchViewFoldOrExpanded(true, notification_analysis_layout);  //切换通知解析选项布局的可见性
-
-                            //发送功能开关变更广播
-                            Intent functionSwitched = new Intent(BroadcastConstants.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString());
-                            requireContext().sendBroadcast(functionSwitched);
-                        })
-                        .setNegativeButton("取消", (dialog, which) -> {
-                            notification_analysis_switch.setChecked(false);
-                            dialog.dismiss();
-                        })
-                        .show();
-            } else {
                 //发送功能开关变更广播
                 Intent functionSwitched = new Intent(BroadcastConstants.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString());
                 requireContext().sendBroadcast(functionSwitched);
-                AnimationHelper.switchViewFoldOrExpanded(isChecked, notification_analysis_layout);  //切换通知解析选项布局的可见性
+
+                try {
+                    requireContext().unregisterReceiver(this);
+                } catch (Exception e) {
+                    Log.d(LogTags.SETTING_FRAGMENT.getV(), "广播接收器注销失败：该接收器未注册");
+                }
             }
-        });
+        };
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BroadcastConstants.ACTION_NOTIFICATION_LISTENER_ENABLED.toString());
 
-        //最近任务隐藏开关的初始化
-        MaterialSwitch hide_recents_switch = binding.hideRecentsSwitch;
-        hide_recents_switch.setChecked(KeepAlivePreference.getHideRecents(requireContext()));
+        //开启开关时检测是否没有权限，如果没有则提示用户授权
+        if (!PermissionHelper.isNotificationServiceEnabled(requireContext()) && isChecked) {
+            switchView.setChecked(false);
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("权限申请说明")
+                    .setMessage("此功能需要使用“通知使用权”权限，该权限允许应用读取其他软件发送的通知内容。本应用不会也无法使用该权限获取用户隐私信息，仅用于解析通知中可能出现的流水账信息，请您放心使用。\n是否为本应用授权？")
+                    .setPositiveButton("确认", (dialog, which) -> {
+                        //注册通知接收器以接收通知监听服务是否启动
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            requireContext().registerReceiver(notificationPermissionListener, filter, Context.RECEIVER_EXPORTED);
+                        } else {
+                            requireContext().registerReceiver(notificationPermissionListener, filter);
+                        }
 
-        //设置最近任务隐藏开关的监听器
-        hide_recents_switch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            KeepAlivePreference.setHideRecents(isChecked, requireContext());
-
-            if (isChecked) {
-                Toast.makeText(requireContext(), "建议额外在最近任务中锁定本应用", Toast.LENGTH_SHORT).show();
-            }
-        });
+                        //申请通知监听权限
+                        PermissionHelper.requestNotificationPermission(requireContext());
+                    })
+                    .setNegativeButton("取消", null)
+                    .show();
+        } else {
+            //发送功能开关变更广播
+            Intent functionSwitched = new Intent(BroadcastConstants.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString());
+            requireContext().sendBroadcast(functionSwitched);
+            AnimationHelper.switchViewFoldOrExpanded(isChecked, binding.ruleManageLayout);  //切换通知解析选项布局的可见性
+        }
     }
 
     /**
@@ -486,13 +636,13 @@ public class SettingFragment extends Fragment {
      */
     private void showThemeModeSelectDialog() {
         String[] themeModeStr = {"浅色模式", "深色模式", "跟随系统"};
-        int theme_mode = ThemeModePreference.getThemeMode(requireContext());
+        int theme_mode = ThemePreference.getThemeMode(requireContext());
 
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("主题模式")
                 .setSingleChoiceItems(themeModeStr, theme_mode, ((dialog, which) -> {
                     ThemeModeHelper.applyTheme(which);
-                    ThemeModePreference.saveThemeMode(requireContext(), which);
+                    ThemePreference.saveThemeMode(requireContext(), which);
                     dialog.dismiss();
                 }))
                 .setNegativeButton("关闭", (dialog, which) -> dialog.dismiss())
@@ -573,15 +723,15 @@ public class SettingFragment extends Fragment {
     private void onImportConfirmed(@NonNull boolean[] itemStats, @NonNull List<File> effectiveFileList) {
         boolean isImportSuccessfully = false;
 
-        boolean isAccountDataChecked = itemStats[EIDataType.ACCOUNT_DATA.ordinal()];   //流水记录文件是否勾选
-        boolean isRuleDataChecked = itemStats[EIDataType.RULE_DATA.ordinal()];         //通知解析规则文件是否勾选
+        boolean isAccountDataChecked = itemStats[IODataType.ACCOUNT_DATA.ordinal()];   //流水记录文件是否勾选
+        boolean isRuleDataChecked = itemStats[IODataType.RULE_DATA.ordinal()];         //通知解析规则文件是否勾选
         for (File file : effectiveFileList) {
             String file_name = file.getName();
 
             DataHelperBase<BookKeepingDatabaseHelper, ?> dataHelperBase;
-            if (file_name.equals(EIDataType.ACCOUNT_DATA.getDefault_file_name()) && isAccountDataChecked) {
+            if (file_name.equals(IODataType.ACCOUNT_DATA.getDefault_file_name()) && isAccountDataChecked) {
                 dataHelperBase = new RunningAccountDataHelper(requireContext());
-            } else if (file_name.equals(EIDataType.RULE_DATA.getDefault_file_name()) && isRuleDataChecked) {
+            } else if (file_name.equals(IODataType.RULE_DATA.getDefault_file_name()) && isRuleDataChecked) {
                 //isAccountDataChecked：当同时导入了流水账数据时才写入tag_no属性
                 dataHelperBase = new AnalysisRuleDataHelper(requireContext(), isAccountDataChecked);
             } else {

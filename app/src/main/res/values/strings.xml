@@ -10,10 +10,6 @@
     <string name="reply_title">Default reply action</string>
 
     <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails</string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="title_activity_main">@string/app_name</string>
     <string name="title_bookkeeping">记账</string>
     <string name="title_setting">设置</string>
@@ -55,6 +51,7 @@
     <string name="version_name">版本名称</string>
     <string name="setting">应用设置</string>
     <string name="theme_mode">主题模式</string>
+    <string name="dynamic_color">动态配色</string>
     <string name="data_manage">数据管理</string>
     <string name="export_data">导出数据</string>
     <string name="import_data">导入数据</string>
@@ -80,10 +77,10 @@
     <string name="notification_content_regex">通知内容(正则)</string>
     <string name="input_introduce">输入说明</string>
     <string name="search_app">搜索应用……</string>
-    <string name="exit_hide_recent_task">退出后隐藏最近任务</string>
-    <string name="self_starting_permission">自启动权限</string>
+    <string name="hide_background">后台隐藏</string>
+    <string name="auto_start_permission">自启动权限</string>
     <string name="battery_optimization">电池优化</string>
-    <string name="background_process_settings">后台设置</string>
+    <string name="background_setting">后台设置</string>
     <string name="analysis_rule_tip">为保证能够稳定在后台监听通知，请确保您已经完成以下操作：\n1.授予自启动权限(必须授予)\n2.将电池优化设置为“无限制”\n3.在最近任务中锁定本应用\n4.打开退出应用后隐藏最近任务的开关(可选)</string>
     <string name="tag_optional">标签(可选)</string>
     <string name="btn_expands_list">展开列表选项的按钮</string>

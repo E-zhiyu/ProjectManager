@@ -118,7 +118,6 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
     private void initViews() {
         MaterialButton edit_tag_btn = binding.editTagBtn;
         MaterialButton clear_input_btn = binding.clearInputBtn;
-        binding.refreshLayout.setEnabled(false);    //禁用手动下拉刷新
 
         //设置按钮文本
         if (edit_btn_str != null) {
@@ -143,18 +142,17 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
 
     private void loadTagGroupData() {
         binding.refreshLayout.setRefreshing(true);
+        binding.refreshLayout.setVisibility(View.VISIBLE);
         disposables.add(
                 Observable.fromCallable(() -> TagGroup.loadTagGroups(requireContext()))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
-                                tagGroupList -> {
-                                    tagAdapter.setTagGroupList(tagGroupList);
+                                tagGroupList -> tagAdapter.setTagGroupList(tagGroupList),
+                                e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
+                                () -> {
                                     binding.refreshLayout.setRefreshing(false);
-                                },
-                                e -> {
-                                    binding.refreshLayout.setRefreshing(false);
-                                    ExceptionHelper.showExceptionDialog(requireContext(), e);
+                                    binding.refreshLayout.setVisibility(View.GONE);
                                 }
                         )
         );

@@ -18,6 +18,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.project.manager.R;
 import com.project.manager.data.data_save.preference.AutoBookKeepingPreference;
 import com.project.manager.databinding.ActivityAnalysisRuleManageBinding;
+import com.project.manager.helpers.ColorHelper;
 import com.project.manager.helpers.PermissionHelper;
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
@@ -84,6 +85,14 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
 
         //设置RecyclerView的适配器
         SwipeRefreshLayout refreshLayout = binding.refreshLayout;   //获取下拉刷新视图
+
+        //获取颜色资源并设置下拉刷新布局的颜色
+        int colorPrimary = ColorHelper.getPrimaryColor(this);
+        int colorSecondary = ColorHelper.getSecondaryPrimaryColor(this);
+        refreshLayout.setColorSchemeColors(colorPrimary, colorSecondary);
+        int colorBackground = ColorHelper.getBackgroundColor(this);
+        refreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
+
         refreshLayout.setRefreshing(true);
         List<AnalysisRule> ruleList;
         try {

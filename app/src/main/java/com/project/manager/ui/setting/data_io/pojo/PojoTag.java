@@ -1,4 +1,4 @@
-package com.project.manager.ui.setting.running_account_data.pojo;
+package com.project.manager.ui.setting.data_io.pojo;
 
 //标签数据POJO类
 public class PojoTag {
