@@ -3,9 +3,7 @@
     android:id="@+id/constraint_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/colorSurfaceContainerLow"
-    android:clickable="true"
-    android:focusable="true"
+    style="@style/SettingOptionStyle"
     android:paddingTop="5sp"
     android:paddingBottom="5sp">
 
