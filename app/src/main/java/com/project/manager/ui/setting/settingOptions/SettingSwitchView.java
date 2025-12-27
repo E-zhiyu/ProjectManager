@@ -1,7 +1,6 @@
 package com.project.manager.ui.setting.settingOptions;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.util.AttributeSet;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -9,7 +8,6 @@ import android.view.LayoutInflater;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
 import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.core.content.ContextCompat;
 
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.materialswitch.MaterialSwitch;
@@ -37,10 +35,6 @@ public class SettingSwitchView extends MaterialCardView {
         binding = ViewSettingSwitchBinding.inflate(LayoutInflater.from(context), this, true);
 
         switchBtn = new MaterialSwitch(new ContextThemeWrapper(context, R.style.SwitchBtnStyle));
-
-        //设置开关颜色
-        ColorStateList thumbList = ContextCompat.getColorStateList(context, R.color.switch_thumb_color_selector);
-        switchBtn.setThumbTintList(thumbList);
         binding.constraintLayout.setOnClickListener(v -> switchBtn.toggle());
         binding.freeLayout.addView(switchBtn);
     }

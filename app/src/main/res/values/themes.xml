@@ -3,6 +3,7 @@
     <style name="Theme.ManagerAssistant.Static" parent="Theme.Material3.Light.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorOnPrimary">@color/color_on_primary</item>
         <item name="colorPrimaryContainer">@color/color_primary_container</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondaryContainer">@color/color_secondary_container</item>
@@ -10,8 +11,7 @@
         <item name="android:statusBarColor">?attr/colorSurface</item>
         <!-- Customize your theme here. -->
         <item name="colorSurface">@color/page_background</item>
-        <item name="colorSurfaceContainerLow">@color/color_primary_container</item>
-        <item name="colorOnSurfaceVariant">@color/unchecked_gray</item>
+        <item name="colorSurfaceContainerLow">@color/color_surface_container_low</item>
 
         <item name="toolbarStyle">@style/ToolBarStyle</item>
         <item name="drawableTint">?attr/colorPrimary</item>
