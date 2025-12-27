@@ -12,6 +12,8 @@ import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.5.3  \n" +
+            "**BUG修复**  \n" +
+            "- 修复标签选择弹窗中标签按钮无法正常滚动的BUG  \n\n" +
             "**修改内容**  \n" +
             "- 在设置界面启动通知监听服务并申请权限时能够监听用户是否授权并调整开关状态  \n" +
             "- 关于软件界面添加蓝奏云网盘的分享连接  \n" +
