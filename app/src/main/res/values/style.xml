@@ -84,11 +84,11 @@
         <item name="android:layout_marginBottom">10dp</item>
     </style>
 
-    <!-- 直角边框的卡片样式 -->
-    <style name="RightAngleCardStyle">
+    <!-- 直角边框的卡片样式(专用于界面底部的按钮容器) -->
+    <style name="BottomRightAngleCardStyle">
         <item name="cardCornerRadius">0dp</item>
         <item name="strokeColor">@android:color/transparent</item>
-        <item name="cardBackgroundColor">?attr/colorPrimaryContainer</item>
+        <item name="cardBackgroundColor">@android:color/transparent</item>
     </style>
 
     <!-- 设置项卡片样式 -->
@@ -207,13 +207,13 @@
     <style name="NaviStyle" parent="Widget.Material3.BottomNavigationView">
         <item name="itemTextColor">@color/bottom_navigation_selector</item>
         <item name="itemIconTint">@color/bottom_navigation_selector</item>
-        <item name="backgroundTint">?attr/colorPrimaryContainer</item>
+        <item name="backgroundTint">?attr/colorSurface</item>
         <item name="itemActiveIndicatorStyle">@style/NaviActiveIndicator</item>
     </style>
 
     <!-- 底部导航栏指示器颜色 -->
     <style name="NaviActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
-        <item name="android:color">?attr/colorSecondary</item>
+        <item name="android:color">?attr/colorSecondaryContainer</item>
     </style>
 
     <!-- TabLayout样式 -->

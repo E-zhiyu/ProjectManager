@@ -53,7 +53,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="40sp"
             android:text="@string/setting"
-            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textColor="?attr/colorControlNormal"
             android:textSize="15sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/title_text" />

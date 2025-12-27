@@ -5,7 +5,7 @@
         <item name="colorPrimary">@color/theme_blue</item>
         <item name="colorPrimaryContainer">@color/card_background</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/theme_secondary</item>
+        <item name="colorSecondaryContainer">@color/theme_secondary_container</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorSecondaryContainer</item>
         <!-- Customize your theme here. -->
@@ -26,6 +26,6 @@
         <item name="colorControlActivated">?attr/colorPrimary</item>
         <item name="android:windowLightStatusBar">true</item>
 
-        <item name="android:statusBarColor">?attr/colorSecondaryVariant</item>
+        <item name="android:statusBarColor">?attr/colorSecondaryContainer</item>
     </style>
 </resources>
