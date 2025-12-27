@@ -47,6 +47,7 @@
     <style name="TipTextViewStyle">
         <item name="android:paddingTop">10dp</item>
         <item name="android:textColor">?attr/colorControlNormal</item>
+        <item name="android:drawablePadding">10sp</item>
         <item name="android:drawableStart">@drawable/baseline_error_outline_24</item>
         <item name="drawableTint">?attr/colorControlNormal</item>
     </style>
