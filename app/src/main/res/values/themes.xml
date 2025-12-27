@@ -2,15 +2,15 @@
     <!-- Base application theme. -->
     <style name="Theme.ManagerAssistant.Static" parent="Theme.Material3.Light.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/theme_blue</item>
-        <item name="colorPrimaryContainer">@color/card_background</item>
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorPrimaryContainer">@color/color_primary_container</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondaryContainer">@color/theme_secondary_container</item>
+        <item name="colorSecondaryContainer">@color/color_secondary_container</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorSurface</item>
         <!-- Customize your theme here. -->
         <item name="colorSurface">@color/page_background</item>
-        <item name="colorSurfaceContainerLow">@color/card_background</item>
+        <item name="colorSurfaceContainerLow">@color/color_primary_container</item>
         <item name="colorOnSurfaceVariant">@color/unchecked_gray</item>
 
         <item name="toolbarStyle">@style/ToolBarStyle</item>

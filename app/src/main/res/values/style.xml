@@ -169,7 +169,7 @@
         <item name="android:inputType">text</item>
         <item name="android:focusable">false</item>
         <item name="android:clickable">true</item>
-        <item name="android:textColorHighlight">?attr/colorPrimaryContainer</item>
+        <item name="android:textColorHighlight">?attr/colorControlHighlight</item>
     </style>
 
     <!-- AppBarLayout样式 -->
