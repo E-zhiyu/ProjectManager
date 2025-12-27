@@ -176,11 +176,6 @@
         <item name="android:background">?attr/colorSurface</item>
     </style>
 
-    <!-- SearchBar样式 -->
-    <style name="SearchBarStyle" parent="Widget.Material3.SearchBar">
-        <item name="backgroundTint">?attr/colorSurface</item>
-    </style>
-
     <!-- SearchView样式 -->
     <style name="SearchViewStyle" parent="Widget.Material3.SearchView">
         <item name="backgroundTint">?attr/colorSurface</item>

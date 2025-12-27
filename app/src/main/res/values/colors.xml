@@ -4,13 +4,13 @@
     <color name="color_primary">#0055d6</color>
     <color name="color_primary_container">#d8e1fe</color>
     <color name="color_on_primary">#ffffff</color>
-    <color name="color_secondary_container">#dae1fe</color>
     <color name="color_primary_night">#b2c5ff</color>
-    <color name="color_on_primary_night">#002e6a</color>
     <color name="color_primary_container_night">#004296</color>
+    <color name="color_on_primary_night">#002e6a</color>
     <color name="color_surface_container_low">#edeffc</color>
     <color name="color_surface_container_low_night">#161a25</color>
-    <color name="color_secondary_container_night">#182a64</color>
+    <color name="color_secondary_container">#e0e1ff</color>
+    <color name="color_secondary_container_night">#414465</color>
     <color name="unchecked_gray">#737685</color>
     <color name="unchecked_gray_night">#8d909f</color>
 </resources>
