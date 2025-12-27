@@ -32,6 +32,6 @@ public class ThemePreference {
 
     public static boolean getDynamicColorStat(@NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        return pref.getBoolean(KEY_DYNAMIC_COLOR, false);
+        return pref.getBoolean(KEY_DYNAMIC_COLOR, true);
     }
 }
