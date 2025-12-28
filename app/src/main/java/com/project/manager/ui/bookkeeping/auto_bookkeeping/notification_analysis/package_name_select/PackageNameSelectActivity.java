@@ -51,6 +51,24 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         binding = ActivityPackageNameSelectBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        //设置标题布局的上边距
+        binding.toolbarContainerLayout.setOnApplyWindowInsetsListener((view, insets) -> {
+            //获取状态栏高度（systemWindowInsetTop）
+            int statusBarHeight = insets.getSystemWindowInsetTop();
+            int bottomHeight = insets.getSystemWindowInsetBottom();
+
+            //为根布局设置顶部内边距
+            view.setPadding(
+                    view.getPaddingLeft(),
+                    statusBarHeight,
+                    view.getPaddingRight(),
+                    bottomHeight
+            );
+
+            //返回insets以继续传递
+            return insets;
+        });
+
         initViews();
 
         searchViewModel = new ViewModelProvider(this).get(AppInfoSearchViewModel.class);
@@ -75,7 +93,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         startObserveSearchResult();
 
         //进入该界面时尝试申请权限
-        PermissionHelper.getAppListPermission(this);
+        PermissionHelper.tryGetAppListPermission(this);
 
         //拦截返回键功能：先关闭搜索界面再返回上一级
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {

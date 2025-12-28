@@ -27,6 +27,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/setting" />
+
+                <include
+                    android:id="@+id/theme_mode_option"
+                    layout="@layout/view_setting_option" />
+
+                <include
+                    android:id="@+id/dynamic_color_option"
+                    layout="@layout/view_setting_option" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -46,6 +54,18 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/data_manage" />
+
+                <include
+                    android:id="@+id/export_data_option"
+                    layout="@layout/view_setting_option" />
+
+                <include
+                    android:id="@+id/import_data_option"
+                    layout="@layout/view_setting_option" />
+
+                <include
+                    android:id="@+id/clear_account_data_option"
+                    layout="@layout/view_setting_option" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -66,12 +86,25 @@
                     android:layout_height="wrap_content"
                     android:text="@string/auto_bookkeeping" />
 
+                <include
+                    android:id="@+id/notification_analysis_switch_option"
+                    layout="@layout/view_setting_option" />
+
                 <LinearLayout
                     android:id="@+id/rule_manage_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:visibility="gone" />
+                    android:visibility="gone">
+
+                    <include
+                        android:id="@+id/rule_manage_option"
+                        layout="@layout/view_setting_option" />
+
+                    <include
+                        android:id="@+id/reset_rule_option"
+                        layout="@layout/view_setting_option" />
+                </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -91,6 +124,18 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/background_setting" />
+
+                <include
+                    android:id="@+id/hide_background_option"
+                    layout="@layout/view_setting_option" />
+
+                <include
+                    android:id="@+id/auto_start_option"
+                    layout="@layout/view_setting_option" />
+
+                <include
+                    android:id="@+id/battery_optimization_option"
+                    layout="@layout/view_setting_option" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -110,6 +155,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/about" />
+
+                <include
+                    android:id="@+id/about_option"
+                    layout="@layout/view_setting_option" />
+
+                <include
+                    android:id="@+id/update_log_option"
+                    layout="@layout/view_setting_option" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>

@@ -1,10 +1,8 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/CommonPageStyle"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="false"
+    android:layout_height="wrap_content"
     tools:context=".ui.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select.PackageNameSelectActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -13,9 +11,11 @@
         android:layout_height="wrap_content">
 
         <LinearLayout
+            android:id="@+id/toolbar_container_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20sp">
+            android:background="@android:color/transparent"
+            app:layout_scrollFlags="scroll|enterAlways|snap">
 
             <com.google.android.material.search.SearchBar
                 android:id="@+id/search_bar"
@@ -46,6 +46,7 @@
             android:id="@+id/app_list_recycler"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingBottom="10sp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
@@ -53,7 +54,7 @@
         android:id="@+id/search_view"
         style="@style/SearchViewStyle"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:hint="@string/search_app"
         app:layout_anchor="@id/search_bar"
         app:layout_behavior="com.google.android.material.search.SearchView$Behavior">
@@ -72,6 +73,7 @@
                     android:id="@+id/search_result_recycler"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:paddingBottom="10sp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         </LinearLayout>

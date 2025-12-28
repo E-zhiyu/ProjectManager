@@ -2,16 +2,17 @@
     <!-- Base application theme. -->
     <style name="Theme.ManagerAssistant.Static" parent="Theme.Material3.Dark.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/theme_blue_night</item>
-        <item name="colorPrimaryContainer">@color/card_background_night</item>
+        <item name="colorPrimary">@color/color_primary_night</item>
+        <item name="colorOnPrimary">@color/color_on_primary_night              </item>
+        <item name="colorPrimaryContainer">@color/color_primary_container_night</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondaryContainer">@color/theme_secondary_container_night</item>
+        <item name="colorSecondaryContainer">@color/color_secondary_container_night</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorSurface</item>
         <!-- Customize your theme here. -->
-        <item name="colorSurface">@color/page_background_night</item>
-        <item name="colorSurfaceContainerLow">@color/card_background_night</item>
-        <item name="colorOnSurfaceVariant">@color/unchecked_gray_night</item>
+        <item name="colorSurface">@color/color_surface_night</item>
+        <item name="colorSurfaceContainer">@color/color_surface_container_night</item>
+        <item name="colorSurfaceContainerLow">@color/color_surface_container_low_night</item>
 
         <item name="toolbarStyle">@style/ToolBarStyle</item>
         <item name="drawableTint">?attr/colorPrimary</item>
