@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.ImageView;
 
 import androidx.annotation.DrawableRes;
@@ -13,7 +14,7 @@ import com.project.manager.R;
 import com.project.manager.databinding.ViewSettingOptionBinding;
 import com.project.manager.helpers.ColorHelper;
 
-public class SettingClickableTextView extends SettingOptionViewBase<ImageView> {
+public class SettingClickableTextView extends SettingOptionViewBase<ImageView, View.OnClickListener> {
     public SettingClickableTextView(Context context, @StringRes int title, String description, @DrawableRes int iconId) {
         super(context);
 
@@ -41,5 +42,10 @@ public class SettingClickableTextView extends SettingOptionViewBase<ImageView> {
         functionComponent.setImageTintList(ColorStateList.valueOf(ColorHelper.getPrimaryColor(context)));
         functionComponent.setPadding(10, 10, 25, 10);
         binding.freeLayout.addView(functionComponent);
+    }
+
+    @Override
+    public void setFunctionListener(OnClickListener listener) {
+        binding.constraintLayout.setOnClickListener(listener);
     }
 }

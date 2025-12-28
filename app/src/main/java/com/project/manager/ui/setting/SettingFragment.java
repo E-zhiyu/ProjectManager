@@ -137,7 +137,7 @@ public class SettingFragment extends Fragment {
                 null,
                 R.drawable.baseline_dark_mode_24
         );
-        themeModeOption.setOnClickListener(v -> showThemeModeSelectDialog());
+        themeModeOption.setFunctionListener(v -> showThemeModeSelectDialog());
         binding.appSettingsLayout.addView(themeModeOption);
 
         //动态配色
@@ -148,7 +148,7 @@ public class SettingFragment extends Fragment {
                 R.drawable.baseline_color_lens_24
         );
         dynamicColorOption.setChecked(ThemePreference.getDynamicColorStat(requireContext()));
-        dynamicColorOption.getFunctionComponent().setOnCheckedChangeListener(
+        dynamicColorOption.setFunctionListener(
                 (buttonView, isChecked) -> {
                     ThemePreference.saveDynamicColorStat(requireContext(), isChecked);
 
@@ -176,7 +176,7 @@ public class SettingFragment extends Fragment {
                 "将应用数据以文件形式保存",
                 R.drawable.round_export_data_24
         );
-        exportDataOption.setOnClickListener(v -> onExportDataClicked());
+        exportDataOption.setFunctionListener(v -> onExportDataClicked());
         binding.dataManageLayout.addView(exportDataOption);
 
         //导入数据
@@ -186,7 +186,7 @@ public class SettingFragment extends Fragment {
                 "从外部文件导入数据",
                 R.drawable.baseline_import_data_24
         );
-        importDataOption.setOnClickListener(v -> importData());
+        importDataOption.setFunctionListener(v -> importData());
         binding.dataManageLayout.addView(importDataOption);
 
         //清空流水数据
@@ -196,7 +196,7 @@ public class SettingFragment extends Fragment {
                 "清除流水记录、标签和标签分组数据",
                 R.drawable.baseline_delete_forever_24
         );
-        clearRunningAccountOption.setOnClickListener(
+        clearRunningAccountOption.setFunctionListener(
                 v -> new MaterialAlertDialogBuilder(requireContext())
                         .setTitle("清除数据")
                         .setMessage("此操作将清除所有流水账数据，确认继续吗？")
@@ -229,7 +229,7 @@ public class SettingFragment extends Fragment {
             //考虑到无授权情况下自动关闭通知解析功能
             AutoBookKeepingPreference.setNotificationAnalysisOpened(false, requireContext());
         }
-        notificationAnalysisSwitchOption.getFunctionComponent().setOnCheckedChangeListener(
+        notificationAnalysisSwitchOption.setFunctionListener(
                 (buttonView, isChecked) -> onNotificationAnalysisSwitchChanged(notificationAnalysisSwitchOption, isChecked)
         );
         binding.autoBookkeepingLayout.addView(notificationAnalysisSwitchOption, 1);
@@ -241,7 +241,7 @@ public class SettingFragment extends Fragment {
                 "点击进入通知解析规则管理界面",
                 R.drawable.baseline_rule_24
         );
-        analysisRuleManageOption.setOnClickListener(
+        analysisRuleManageOption.setFunctionListener(
                 v -> {
                     Intent skip2NotificationRulesActivity = new Intent(requireContext(), AnalysisRuleManageActivity.class);
                     startActivity(skip2NotificationRulesActivity);
@@ -256,7 +256,7 @@ public class SettingFragment extends Fragment {
                 "将通知解析规则重置为默认规则",
                 R.drawable.baseline_restart_alt_24
         );
-        resetRuleOption.setOnClickListener(
+        resetRuleOption.setFunctionListener(
                 v -> new MaterialAlertDialogBuilder(requireContext())
                         .setTitle("重置规则")
                         .setMessage("此操作将重置通知解析规则为默认规则，确认继续吗？")
@@ -277,7 +277,7 @@ public class SettingFragment extends Fragment {
                 R.drawable.baseline_recent_task_24
         );
         hideBackgroundOption.setChecked(KeepAlivePreference.getHideRecents(requireContext()));
-        hideBackgroundOption.getFunctionComponent().setOnCheckedChangeListener(
+        hideBackgroundOption.setFunctionListener(
                 (buttonView, isChecked) -> {
                     KeepAlivePreference.setHideRecents(isChecked, requireContext());
 
@@ -295,7 +295,7 @@ public class SettingFragment extends Fragment {
                 "点击跳转自启动设置界面",
                 R.drawable.baseline_autorenew_24
         );
-        autoStartOption.setOnClickListener(
+        autoStartOption.setFunctionListener(
                 v -> PermissionHelper.requestAutoStartPermission(requireContext())
         );
         binding.backgroundSettingsLayout.addView(autoStartOption);
@@ -307,7 +307,7 @@ public class SettingFragment extends Fragment {
                 "点击跳转电池优化设置界面",
                 R.drawable.baseline_battery_5_bar_24
         );
-        batteryOptimizationOption.setOnClickListener(
+        batteryOptimizationOption.setFunctionListener(
                 v -> PermissionHelper.openBatteryOptimizations(requireContext())
         );
         binding.backgroundSettingsLayout.addView(batteryOptimizationOption);
@@ -319,7 +319,7 @@ public class SettingFragment extends Fragment {
                 null,
                 R.drawable.baseline_info_24
         );
-        aboutOption.setOnClickListener(
+        aboutOption.setFunctionListener(
                 v -> AboutHelper.showAboutDialog(requireContext())
         );
         binding.aboutLayout.addView(aboutOption);
@@ -331,7 +331,7 @@ public class SettingFragment extends Fragment {
                 null,
                 R.drawable.baseline_update_24
         );
-        updateLogOption.setOnClickListener(
+        updateLogOption.setFunctionListener(
                 v -> UpdateLogHelper.showUpdateLogDialog(requireContext())
         );
         binding.aboutLayout.addView(updateLogOption);

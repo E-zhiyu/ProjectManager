@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
+import android.widget.CompoundButton;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
@@ -12,7 +13,7 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 import com.project.manager.R;
 import com.project.manager.databinding.ViewSettingOptionBinding;
 
-public class SettingSwitchView extends SettingOptionViewBase<MaterialSwitch> {
+public class SettingSwitchView extends SettingOptionViewBase<MaterialSwitch, CompoundButton.OnCheckedChangeListener> {
     public SettingSwitchView(Context context, @StringRes int title, String description, @DrawableRes int iconId) {
         super(context);
 
@@ -38,6 +39,11 @@ public class SettingSwitchView extends SettingOptionViewBase<MaterialSwitch> {
         functionComponent = new MaterialSwitch(new ContextThemeWrapper(context, R.style.SwitchBtnStyle));
         binding.constraintLayout.setOnClickListener(v -> functionComponent.toggle());
         binding.freeLayout.addView(functionComponent);
+    }
+
+    @Override
+    public void setFunctionListener(CompoundButton.OnCheckedChangeListener listener) {
+        functionComponent.setOnCheckedChangeListener(listener);
     }
 
     /**

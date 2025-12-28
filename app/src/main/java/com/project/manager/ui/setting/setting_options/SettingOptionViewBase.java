@@ -16,8 +16,9 @@ import com.project.manager.databinding.ViewSettingOptionBinding;
  * 设置项基类
  *
  * @param <C> 右侧布局中添加的组件类型
+ * @param <L> 功能监听器类型
  */
-abstract public class SettingOptionViewBase<C> extends MaterialCardView {
+abstract public class SettingOptionViewBase<C, L> extends MaterialCardView {
     protected ViewSettingOptionBinding binding;     //绑定的XML视图引用
     protected C functionComponent;                  //功能组件
 
@@ -61,6 +62,11 @@ abstract public class SettingOptionViewBase<C> extends MaterialCardView {
         binding.iconView.setVisibility(resId == 0 ? INVISIBLE : VISIBLE);
     }
 
+    @Override
+    public void setOnClickListener(@Nullable OnClickListener l) {
+        binding.constraintLayout.setOnClickListener(l);
+    }
+
     /**
      * 初始化视图的方法
      *
@@ -68,17 +74,5 @@ abstract public class SettingOptionViewBase<C> extends MaterialCardView {
      */
     protected abstract void initView(Context context);
 
-    /**
-     * 获取功能组件
-     *
-     * @return 功能组件实例
-     */
-    public C getFunctionComponent() {
-        return functionComponent;
-    }
-
-    @Override
-    public void setOnClickListener(@Nullable OnClickListener l) {
-        binding.constraintLayout.setOnClickListener(l);
-    }
+    abstract public void setFunctionListener(L listener);
 }
