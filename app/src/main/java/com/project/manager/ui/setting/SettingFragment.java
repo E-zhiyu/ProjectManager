@@ -49,8 +49,8 @@ import com.project.manager.ui.setting.data_io.data_helpers.RunningAccountDataHel
 import com.project.manager.data.data_save.preference.ThemePreference;
 import com.project.manager.ui.setting.data_io.maps.TotalAccountDataMap;
 import com.project.manager.ui.setting.data_io.maps.TotalRuleDataMap;
-import com.project.manager.ui.setting.settingOptions.SettingClickableTextView;
-import com.project.manager.ui.setting.settingOptions.SettingSwitchView;
+import com.project.manager.ui.setting.setting_options.SettingClickableTextView;
+import com.project.manager.ui.setting.setting_options.SettingSwitchView;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -131,21 +131,24 @@ public class SettingFragment extends Fragment {
      */
     private void initViews() {
         //主题模式
-        SettingClickableTextView themeModeOption = new SettingClickableTextView(requireContext());
-        themeModeOption.setActions(
+        SettingClickableTextView themeModeOption = new SettingClickableTextView(
+                requireContext(),
                 R.string.theme_mode,
                 null,
-                R.drawable.baseline_dark_mode_24,
-                v -> showThemeModeSelectDialog());
+                R.drawable.baseline_dark_mode_24
+        );
+        themeModeOption.setOnClickListener(v -> showThemeModeSelectDialog());
         binding.appSettingsLayout.addView(themeModeOption);
 
         //动态配色
-        SettingSwitchView dynamicColorOption = new SettingSwitchView(requireContext());
-        dynamicColorOption.setChecked(ThemePreference.getDynamicColorStat(requireContext()));
-        dynamicColorOption.setActions(
+        SettingSwitchView dynamicColorOption = new SettingSwitchView(
+                requireContext(),
                 R.string.dynamic_color,
                 null,
-                R.drawable.baseline_color_lens_24,
+                R.drawable.baseline_color_lens_24
+        );
+        dynamicColorOption.setChecked(ThemePreference.getDynamicColorStat(requireContext()));
+        dynamicColorOption.getFunctionComponent().setOnCheckedChangeListener(
                 (buttonView, isChecked) -> {
                     ThemePreference.saveDynamicColorStat(requireContext(), isChecked);
 
@@ -167,31 +170,33 @@ public class SettingFragment extends Fragment {
         binding.appSettingsLayout.addView(dynamicColorOption);
 
         //导出数据
-        SettingClickableTextView exportDataOption = new SettingClickableTextView(requireContext());
-        exportDataOption.setActions(
+        SettingClickableTextView exportDataOption = new SettingClickableTextView(
+                requireContext(),
                 R.string.export_data,
                 "将应用数据以文件形式保存",
-                R.drawable.round_export_data_24,
-                v -> onExportDataClicked()
+                R.drawable.round_export_data_24
         );
+        exportDataOption.setOnClickListener(v -> onExportDataClicked());
         binding.dataManageLayout.addView(exportDataOption);
 
         //导入数据
-        SettingClickableTextView importDataOption = new SettingClickableTextView(requireContext());
-        importDataOption.setActions(
+        SettingClickableTextView importDataOption = new SettingClickableTextView(
+                requireContext(),
                 R.string.import_data,
                 "从外部文件导入数据",
-                R.drawable.baseline_import_data_24,
-                v -> importData()
+                R.drawable.baseline_import_data_24
         );
+        importDataOption.setOnClickListener(v -> importData());
         binding.dataManageLayout.addView(importDataOption);
 
         //清空流水数据
-        SettingClickableTextView clearRunningAccountOption = new SettingClickableTextView(requireContext());
-        clearRunningAccountOption.setActions(
+        SettingClickableTextView clearRunningAccountOption = new SettingClickableTextView(
+                requireContext(),
                 R.string.clear_account_data,
                 "清除流水记录、标签和标签分组数据",
-                R.drawable.baseline_delete_forever_24,
+                R.drawable.baseline_delete_forever_24
+        );
+        clearRunningAccountOption.setOnClickListener(
                 v -> new MaterialAlertDialogBuilder(requireContext())
                         .setTitle("清除数据")
                         .setMessage("此操作将清除所有流水账数据，确认继续吗？")
@@ -206,7 +211,12 @@ public class SettingFragment extends Fragment {
         binding.dataManageLayout.addView(clearRunningAccountOption);
 
         //自动记账
-        SettingSwitchView notificationAnalysisSwitchOption = new SettingSwitchView(requireContext());
+        SettingSwitchView notificationAnalysisSwitchOption = new SettingSwitchView(
+                requireContext(),
+                R.string.notification_analysis_mode,
+                "通知解析功能的开关",
+                R.drawable.baseline_notifications_24
+        );
         //完成通知解析开关状态初始化
         boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(requireContext());
         if (isNotificationAnalysisOpened && PermissionHelper.isNotificationServiceEnabled(requireContext())) {
@@ -219,20 +229,19 @@ public class SettingFragment extends Fragment {
             //考虑到无授权情况下自动关闭通知解析功能
             AutoBookKeepingPreference.setNotificationAnalysisOpened(false, requireContext());
         }
-        notificationAnalysisSwitchOption.setActions(
-                R.string.notification_analysis_mode,
-                "通知解析功能的开关",
-                R.drawable.baseline_notifications_24,
+        notificationAnalysisSwitchOption.getFunctionComponent().setOnCheckedChangeListener(
                 (buttonView, isChecked) -> onNotificationAnalysisSwitchChanged(notificationAnalysisSwitchOption, isChecked)
         );
         binding.autoBookkeepingLayout.addView(notificationAnalysisSwitchOption, 1);
 
         //通知解析规则管理
-        SettingClickableTextView analysisRuleManageOption = new SettingClickableTextView(requireContext());
-        analysisRuleManageOption.setActions(
+        SettingClickableTextView analysisRuleManageOption = new SettingClickableTextView(
+                requireContext(),
                 R.string.notification_analysis_rules_manage,
                 "点击进入通知解析规则管理界面",
-                R.drawable.baseline_rule_24,
+                R.drawable.baseline_rule_24
+        );
+        analysisRuleManageOption.setOnClickListener(
                 v -> {
                     Intent skip2NotificationRulesActivity = new Intent(requireContext(), AnalysisRuleManageActivity.class);
                     startActivity(skip2NotificationRulesActivity);
@@ -241,11 +250,13 @@ public class SettingFragment extends Fragment {
         binding.ruleManageLayout.addView(analysisRuleManageOption);
 
         //规则重置
-        SettingClickableTextView resetRuleOption = new SettingClickableTextView(requireContext());
-        resetRuleOption.setActions(
+        SettingClickableTextView resetRuleOption = new SettingClickableTextView(
+                requireContext(),
                 R.string.reset_rule,
                 "将通知解析规则重置为默认规则",
-                R.drawable.baseline_restart_alt_24,
+                R.drawable.baseline_restart_alt_24
+        );
+        resetRuleOption.setOnClickListener(
                 v -> new MaterialAlertDialogBuilder(requireContext())
                         .setTitle("重置规则")
                         .setMessage("此操作将重置通知解析规则为默认规则，确认继续吗？")
@@ -259,12 +270,14 @@ public class SettingFragment extends Fragment {
         binding.ruleManageLayout.addView(resetRuleOption);
 
         //后台隐藏(最近任务隐藏)
-        SettingSwitchView hideBackgroundOption = new SettingSwitchView(requireContext());
-        hideBackgroundOption.setChecked(KeepAlivePreference.getHideRecents(requireContext()));
-        hideBackgroundOption.setActions(
+        SettingSwitchView hideBackgroundOption = new SettingSwitchView(
+                requireContext(),
                 R.string.hide_background,
                 "从主页退出后在最近任务列表隐藏",
-                R.drawable.baseline_recent_task_24,
+                R.drawable.baseline_recent_task_24
+        );
+        hideBackgroundOption.setChecked(KeepAlivePreference.getHideRecents(requireContext()));
+        hideBackgroundOption.getFunctionComponent().setOnCheckedChangeListener(
                 (buttonView, isChecked) -> {
                     KeepAlivePreference.setHideRecents(isChecked, requireContext());
 
@@ -276,41 +289,49 @@ public class SettingFragment extends Fragment {
         binding.backgroundSettingsLayout.addView(hideBackgroundOption);
 
         //自启动
-        SettingClickableTextView autoStartOption = new SettingClickableTextView(requireContext());
-        autoStartOption.setActions(
+        SettingClickableTextView autoStartOption = new SettingClickableTextView(
+                requireContext(),
                 R.string.auto_start_permission,
                 "点击跳转自启动设置界面",
-                R.drawable.baseline_autorenew_24,
+                R.drawable.baseline_autorenew_24
+        );
+        autoStartOption.setOnClickListener(
                 v -> PermissionHelper.requestAutoStartPermission(requireContext())
         );
         binding.backgroundSettingsLayout.addView(autoStartOption);
 
         //电池优化
-        SettingClickableTextView batteryOptimizationOption = new SettingClickableTextView(requireContext());
-        batteryOptimizationOption.setActions(
+        SettingClickableTextView batteryOptimizationOption = new SettingClickableTextView(
+                requireContext(),
                 R.string.battery_optimization,
                 "点击跳转电池优化设置界面",
-                R.drawable.baseline_battery_5_bar_24,
+                R.drawable.baseline_battery_5_bar_24
+        );
+        batteryOptimizationOption.setOnClickListener(
                 v -> PermissionHelper.openBatteryOptimizations(requireContext())
         );
         binding.backgroundSettingsLayout.addView(batteryOptimizationOption);
 
         //关于软件
-        SettingClickableTextView aboutOption = new SettingClickableTextView(requireContext());
-        aboutOption.setActions(
+        SettingClickableTextView aboutOption = new SettingClickableTextView(
+                requireContext(),
                 R.string.about_software,
                 null,
-                R.drawable.baseline_info_24,
+                R.drawable.baseline_info_24
+        );
+        aboutOption.setOnClickListener(
                 v -> AboutHelper.showAboutDialog(requireContext())
         );
         binding.aboutLayout.addView(aboutOption);
 
         //更新日志
-        SettingClickableTextView updateLogOption = new SettingClickableTextView(requireContext());
-        updateLogOption.setActions(
+        SettingClickableTextView updateLogOption = new SettingClickableTextView(
+                requireContext(),
                 R.string.update_log,
                 null,
-                R.drawable.baseline_update_24,
+                R.drawable.baseline_update_24
+        );
+        updateLogOption.setOnClickListener(
                 v -> UpdateLogHelper.showUpdateLogDialog(requireContext())
         );
         binding.aboutLayout.addView(updateLogOption);
