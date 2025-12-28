@@ -28,7 +28,7 @@ public class PermissionHelper {
      *
      * @param activity 申请权限的Activity，申请结果通过onRequestPermissionsResult()方法获取
      */
-    public static void getAppListPermission(@NonNull Activity activity) {
+    public static void tryGetAppListPermission(@NonNull Activity activity) {
         try {
             if (ContextCompat.checkSelfPermission(activity, "com.android.permission.GET_INSTALLED_APPS") == PackageManager.PERMISSION_GRANTED) {
                 return;

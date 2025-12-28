@@ -183,7 +183,7 @@
 
     <!-- SearchView样式 -->
     <style name="SearchViewStyle" parent="Widget.Material3.SearchView">
-        <item name="backgroundTint">?attr/colorSurface</item>
+        <item name="backgroundTint">?attr/colorSurfaceContainer</item>
     </style>
 
     <!-- 底部导航栏样式 -->

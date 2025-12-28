@@ -11,7 +11,11 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.5.3  \n" +
+    private static final String update_log_md = "# v1.5.4  \n" +
+            "**修改内容**  \n" +
+            "- 细微调整部分组件的颜色  \n" +
+            "- 包名选择界面的搜索框在上滑时会自动隐藏  \n\n" +
+            "# v1.5.3  \n" +
             "**新增内容**  \n" +
             "- 设置界面添加动态配色选项  \n\n" +
             "**BUG修复**  \n" +
