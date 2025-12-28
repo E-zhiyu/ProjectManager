@@ -5,9 +5,7 @@ import android.view.View;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
-import androidx.constraintlayout.widget.ConstraintSet;
 
-import com.project.manager.R;
 import com.project.manager.databinding.ViewSettingOptionBinding;
 
 /**
@@ -28,17 +26,6 @@ abstract public class SettingOptionViewBase<C, L> {
         binding.descriptionText.setText(description);
         if (description == null || description.isEmpty()) {
             binding.descriptionText.setVisibility(View.GONE);
-
-            //令标题文本居中
-            ConstraintSet constraintSet = new ConstraintSet();
-            constraintSet.clone(binding.constraintLayout);
-            constraintSet.connect(
-                    R.id.title_text,
-                    ConstraintSet.BOTTOM,
-                    R.id.constraint_layout,
-                    ConstraintSet.BOTTOM
-            );
-            constraintSet.applyTo(binding.constraintLayout);
         }
     }
 
