@@ -1,14 +1,12 @@
-package com.project.manager.ui.setting.setting_options;
+package com.project.manager.ui.setting.setting_option_views;
 
 import android.content.Context;
-import android.util.AttributeSet;
+import android.view.View;
 
 import androidx.annotation.DrawableRes;
-import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.constraintlayout.widget.ConstraintSet;
 
-import com.google.android.material.card.MaterialCardView;
 import com.project.manager.R;
 import com.project.manager.databinding.ViewSettingOptionBinding;
 
@@ -18,22 +16,9 @@ import com.project.manager.databinding.ViewSettingOptionBinding;
  * @param <C> 右侧布局中添加的组件类型
  * @param <L> 功能监听器类型
  */
-abstract public class SettingOptionViewBase<C, L> extends MaterialCardView {
+abstract public class SettingOptionViewBase<C, L> {
     protected ViewSettingOptionBinding binding;     //绑定的XML视图引用
     protected C functionComponent;                  //功能组件
-
-    public SettingOptionViewBase(Context context) {
-        this(context, null);
-    }
-
-    public SettingOptionViewBase(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-    public SettingOptionViewBase(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        initView(context);
-    }
 
     protected void setTitle(@StringRes int title) {
         binding.titleText.setText(title);
@@ -42,7 +27,7 @@ abstract public class SettingOptionViewBase<C, L> extends MaterialCardView {
     protected void setDescription(String description) {
         binding.descriptionText.setText(description);
         if (description == null || description.isEmpty()) {
-            binding.descriptionText.setVisibility(GONE);
+            binding.descriptionText.setVisibility(View.GONE);
 
             //令标题文本居中
             ConstraintSet constraintSet = new ConstraintSet();
@@ -59,18 +44,11 @@ abstract public class SettingOptionViewBase<C, L> extends MaterialCardView {
 
     protected void setIcon(@DrawableRes int resId) {
         binding.iconView.setImageResource(resId);
-        binding.iconView.setVisibility(resId == 0 ? INVISIBLE : VISIBLE);
-    }
-
-    @Override
-    public void setOnClickListener(@Nullable OnClickListener l) {
-        binding.constraintLayout.setOnClickListener(l);
+        binding.iconView.setVisibility(resId == 0 ? View.INVISIBLE : View.VISIBLE);
     }
 
     /**
      * 初始化视图的方法
-     *
-     * @param context 上下文
      */
     protected abstract void initView(Context context);
 

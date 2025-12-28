@@ -49,8 +49,8 @@ import com.project.manager.ui.setting.data_io.data_helpers.RunningAccountDataHel
 import com.project.manager.data.data_save.preference.ThemePreference;
 import com.project.manager.ui.setting.data_io.maps.TotalAccountDataMap;
 import com.project.manager.ui.setting.data_io.maps.TotalRuleDataMap;
-import com.project.manager.ui.setting.setting_options.SettingClickableTextView;
-import com.project.manager.ui.setting.setting_options.SettingSwitchView;
+import com.project.manager.ui.setting.setting_option_views.SettingClickableTextView;
+import com.project.manager.ui.setting.setting_option_views.SettingSwitchView;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -130,19 +130,31 @@ public class SettingFragment extends Fragment {
      * 初始化视图
      */
     private void initViews() {
+        initAppSettings();
+        initDataManageSettings();
+        initAutoBookkeepingSettings();
+        initBackgroundSettings();
+        initAboutSettings();
+    }
+
+    /**
+     * 初始化应用设置部分
+     */
+    private void initAppSettings() {
         //主题模式
         SettingClickableTextView themeModeOption = new SettingClickableTextView(
                 requireContext(),
+                binding.themeModeOption,
                 R.string.theme_mode,
                 null,
                 R.drawable.baseline_dark_mode_24
         );
         themeModeOption.setFunctionListener(v -> showThemeModeSelectDialog());
-        binding.appSettingsLayout.addView(themeModeOption);
 
         //动态配色
         SettingSwitchView dynamicColorOption = new SettingSwitchView(
                 requireContext(),
+                binding.dynamicColorOption,
                 R.string.dynamic_color,
                 null,
                 R.drawable.baseline_color_lens_24
@@ -167,31 +179,36 @@ public class SettingFragment extends Fragment {
                     requireActivity().recreate();
                 }
         );
-        binding.appSettingsLayout.addView(dynamicColorOption);
+    }
 
+    /**
+     * 初始化数据管理条目
+     */
+    private void initDataManageSettings() {
         //导出数据
         SettingClickableTextView exportDataOption = new SettingClickableTextView(
                 requireContext(),
+                binding.exportDataOption,
                 R.string.export_data,
                 "将应用数据以文件形式保存",
                 R.drawable.round_export_data_24
         );
         exportDataOption.setFunctionListener(v -> onExportDataClicked());
-        binding.dataManageLayout.addView(exportDataOption);
 
         //导入数据
         SettingClickableTextView importDataOption = new SettingClickableTextView(
                 requireContext(),
+                binding.importDataOption,
                 R.string.import_data,
                 "从外部文件导入数据",
                 R.drawable.baseline_import_data_24
         );
         importDataOption.setFunctionListener(v -> importData());
-        binding.dataManageLayout.addView(importDataOption);
 
         //清空流水数据
         SettingClickableTextView clearRunningAccountOption = new SettingClickableTextView(
                 requireContext(),
+                binding.clearAccountDataOption,
                 R.string.clear_account_data,
                 "清除流水记录、标签和标签分组数据",
                 R.drawable.baseline_delete_forever_24
@@ -208,11 +225,16 @@ public class SettingFragment extends Fragment {
                         .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
                         .show()
         );
-        binding.dataManageLayout.addView(clearRunningAccountOption);
+    }
 
+    /**
+     * 初始化自动记账设置项
+     */
+    private void initAutoBookkeepingSettings() {
         //自动记账
         SettingSwitchView notificationAnalysisSwitchOption = new SettingSwitchView(
                 requireContext(),
+                binding.notificationAnalysisSwitchOption,
                 R.string.notification_analysis_mode,
                 "通知解析功能的开关",
                 R.drawable.baseline_notifications_24
@@ -232,26 +254,26 @@ public class SettingFragment extends Fragment {
         notificationAnalysisSwitchOption.setFunctionListener(
                 (buttonView, isChecked) -> onNotificationAnalysisSwitchChanged(notificationAnalysisSwitchOption, isChecked)
         );
-        binding.autoBookkeepingLayout.addView(notificationAnalysisSwitchOption, 1);
 
         //通知解析规则管理
-        SettingClickableTextView analysisRuleManageOption = new SettingClickableTextView(
+        SettingClickableTextView ruleManageOption = new SettingClickableTextView(
                 requireContext(),
+                binding.ruleManageOption,
                 R.string.notification_analysis_rules_manage,
                 "点击进入通知解析规则管理界面",
                 R.drawable.baseline_rule_24
         );
-        analysisRuleManageOption.setFunctionListener(
+        ruleManageOption.setFunctionListener(
                 v -> {
                     Intent skip2NotificationRulesActivity = new Intent(requireContext(), AnalysisRuleManageActivity.class);
                     startActivity(skip2NotificationRulesActivity);
                 }
         );
-        binding.ruleManageLayout.addView(analysisRuleManageOption);
 
         //规则重置
         SettingClickableTextView resetRuleOption = new SettingClickableTextView(
                 requireContext(),
+                binding.resetRuleOption,
                 R.string.reset_rule,
                 "将通知解析规则重置为默认规则",
                 R.drawable.baseline_restart_alt_24
@@ -267,11 +289,16 @@ public class SettingFragment extends Fragment {
                         .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
                         .show()
         );
-        binding.ruleManageLayout.addView(resetRuleOption);
+    }
 
+    /**
+     * 初始化后台设置选项
+     */
+    private void initBackgroundSettings() {
         //后台隐藏(最近任务隐藏)
         SettingSwitchView hideBackgroundOption = new SettingSwitchView(
                 requireContext(),
+                binding.hideBackgroundOption,
                 R.string.hide_background,
                 "从主页退出后在最近任务列表隐藏",
                 R.drawable.baseline_recent_task_24
@@ -286,11 +313,11 @@ public class SettingFragment extends Fragment {
                     }
                 }
         );
-        binding.backgroundSettingsLayout.addView(hideBackgroundOption);
 
         //自启动
         SettingClickableTextView autoStartOption = new SettingClickableTextView(
                 requireContext(),
+                binding.autoStartOption,
                 R.string.auto_start_permission,
                 "点击跳转自启动设置界面",
                 R.drawable.baseline_autorenew_24
@@ -298,11 +325,11 @@ public class SettingFragment extends Fragment {
         autoStartOption.setFunctionListener(
                 v -> PermissionHelper.requestAutoStartPermission(requireContext())
         );
-        binding.backgroundSettingsLayout.addView(autoStartOption);
 
         //电池优化
         SettingClickableTextView batteryOptimizationOption = new SettingClickableTextView(
                 requireContext(),
+                binding.batteryOptimizationOption,
                 R.string.battery_optimization,
                 "点击跳转电池优化设置界面",
                 R.drawable.baseline_battery_5_bar_24
@@ -310,11 +337,16 @@ public class SettingFragment extends Fragment {
         batteryOptimizationOption.setFunctionListener(
                 v -> PermissionHelper.openBatteryOptimizations(requireContext())
         );
-        binding.backgroundSettingsLayout.addView(batteryOptimizationOption);
+    }
 
+    /**
+     * 初始化关于设置项
+     */
+    private void initAboutSettings() {
         //关于软件
         SettingClickableTextView aboutOption = new SettingClickableTextView(
                 requireContext(),
+                binding.aboutOption,
                 R.string.about_software,
                 null,
                 R.drawable.baseline_info_24
@@ -322,11 +354,11 @@ public class SettingFragment extends Fragment {
         aboutOption.setFunctionListener(
                 v -> AboutHelper.showAboutDialog(requireContext())
         );
-        binding.aboutLayout.addView(aboutOption);
 
         //更新日志
         SettingClickableTextView updateLogOption = new SettingClickableTextView(
                 requireContext(),
+                binding.updateLogOption,
                 R.string.update_log,
                 null,
                 R.drawable.baseline_update_24
@@ -334,9 +366,7 @@ public class SettingFragment extends Fragment {
         updateLogOption.setFunctionListener(
                 v -> UpdateLogHelper.showUpdateLogDialog(requireContext())
         );
-        binding.aboutLayout.addView(updateLogOption);
     }
-
 
     //初始化活动启动器
     private void initActivityLaunchers() {

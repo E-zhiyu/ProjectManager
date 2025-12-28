@@ -1,9 +1,7 @@
-package com.project.manager.ui.setting.setting_options;
+package com.project.manager.ui.setting.setting_option_views;
 
 import android.content.Context;
-import android.util.AttributeSet;
 import android.view.ContextThemeWrapper;
-import android.view.LayoutInflater;
 import android.widget.CompoundButton;
 
 import androidx.annotation.DrawableRes;
@@ -14,28 +12,16 @@ import com.project.manager.R;
 import com.project.manager.databinding.ViewSettingOptionBinding;
 
 public class SettingSwitchView extends SettingOptionViewBase<MaterialSwitch, CompoundButton.OnCheckedChangeListener> {
-    public SettingSwitchView(Context context, @StringRes int title, String description, @DrawableRes int iconId) {
-        super(context);
-
+    public SettingSwitchView(Context context, ViewSettingOptionBinding binding, @StringRes int title, String description, @DrawableRes int iconId) {
+        this.binding = binding;
         initView(context);
-
         setTitle(title);
         setDescription(description);
         setIcon(iconId);
     }
 
-    public SettingSwitchView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public SettingSwitchView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
-
     @Override
     protected void initView(Context context) {
-        binding = ViewSettingOptionBinding.inflate(LayoutInflater.from(context), this, true);
-
         functionComponent = new MaterialSwitch(new ContextThemeWrapper(context, R.style.SwitchBtnStyle));
         binding.constraintLayout.setOnClickListener(v -> functionComponent.toggle());
         binding.freeLayout.addView(functionComponent);

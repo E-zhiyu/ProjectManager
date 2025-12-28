@@ -1,9 +1,7 @@
-package com.project.manager.ui.setting.setting_options;
+package com.project.manager.ui.setting.setting_option_views;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -15,28 +13,16 @@ import com.project.manager.databinding.ViewSettingOptionBinding;
 import com.project.manager.helpers.ColorHelper;
 
 public class SettingClickableTextView extends SettingOptionViewBase<ImageView, View.OnClickListener> {
-    public SettingClickableTextView(Context context, @StringRes int title, String description, @DrawableRes int iconId) {
-        super(context);
-
+    public SettingClickableTextView(Context context, ViewSettingOptionBinding binding, @StringRes int title, String description, @DrawableRes int iconId) {
+        this.binding = binding;
         initView(context);
-
         setTitle(title);
         setDescription(description);
         setIcon(iconId);
     }
 
-    public SettingClickableTextView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public SettingClickableTextView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
-
     @Override
     protected void initView(Context context) {
-        binding = ViewSettingOptionBinding.inflate(LayoutInflater.from(context), this, true);
-
         functionComponent = new ImageView(context);
         functionComponent.setImageResource(R.drawable.baseline_keyboard_arrow_right_24);
         functionComponent.setImageTintList(ColorStateList.valueOf(ColorHelper.getPrimaryColor(context)));
@@ -45,7 +31,7 @@ public class SettingClickableTextView extends SettingOptionViewBase<ImageView, V
     }
 
     @Override
-    public void setFunctionListener(OnClickListener listener) {
+    public void setFunctionListener(View.OnClickListener listener) {
         binding.constraintLayout.setOnClickListener(listener);
     }
 }

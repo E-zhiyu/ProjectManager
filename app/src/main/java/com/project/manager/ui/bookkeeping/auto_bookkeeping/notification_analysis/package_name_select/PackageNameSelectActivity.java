@@ -52,7 +52,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         //设置标题布局的上边距
-        binding.rootLayout.setOnApplyWindowInsetsListener((view, insets) -> {
+        binding.toolbarContainerLayout.setOnApplyWindowInsetsListener((view, insets) -> {
             //获取状态栏高度（systemWindowInsetTop）
             int statusBarHeight = insets.getSystemWindowInsetTop();
             int bottomHeight = insets.getSystemWindowInsetBottom();
