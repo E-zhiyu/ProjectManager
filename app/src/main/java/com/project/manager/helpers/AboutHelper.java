@@ -39,6 +39,19 @@ public class AboutHelper {
     }
 
     /**
+     * 获取当前版本代码
+     *
+     * @param context 上下文
+     * @return 版本代码整数值
+     * @throws PackageManager.NameNotFoundException 包名未找到引发的异常
+     */
+    public static int getVersionCode(@NonNull Context context) throws PackageManager.NameNotFoundException {
+        PackageInfo packageInfo = context.getPackageManager()
+                .getPackageInfo(context.getPackageName(), 0);
+        return packageInfo.versionCode;
+    }
+
+    /**
      * 获取应用名称
      *
      * @param context 上下文

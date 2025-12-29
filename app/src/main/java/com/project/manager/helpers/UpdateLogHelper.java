@@ -11,7 +11,10 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.5.4  \n" +
+    private static final String update_log_md = "# v1.5.5  \n" +
+            "**新增内容**  \n" +
+            "- 新增软件更新检测功能  \n\n" +
+            "# v1.5.4  \n" +
             "**修改内容**  \n" +
             "- 减少加载设置界面的卡顿  \n" +
             "- 添加支付宝支付到默认通知解析规则  \n" +

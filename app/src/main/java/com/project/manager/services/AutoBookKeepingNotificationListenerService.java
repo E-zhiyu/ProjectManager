@@ -98,9 +98,9 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         String text = sbn.getNotification().extras.getString("android.text");
         if (text == null) return;
 
-        Log.i(LogTags.NOTIFICATION_SERVICE.getV(), String.format("通知发送者包名：%s", packageName));
-        Log.i(LogTags.NOTIFICATION_SERVICE.getV(), String.format("通知标题：%s", title));
-        Log.i(LogTags.NOTIFICATION_SERVICE.getV(), String.format("通知内容：%s", text));
+        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), String.format("通知发送者包名：%s", packageName));
+        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), String.format("通知标题：%s", title));
+        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), String.format("通知内容：%s", text));
 
         // 处理通知内容
         for (AnalysisRule rule : ruleList) {

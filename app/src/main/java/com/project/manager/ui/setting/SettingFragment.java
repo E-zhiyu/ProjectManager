@@ -38,6 +38,7 @@ import com.project.manager.data.data_save.preference.AutoBookKeepingPreference;
 import com.project.manager.data.data_save.preference.BookKeepingStartDatePreference;
 import com.project.manager.helpers.AnimationHelper;
 import com.project.manager.helpers.SAFFileHelper;
+import com.project.manager.helpers.UpdateHelper;
 import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
 import com.project.manager.helpers.AboutHelper;
 import com.project.manager.helpers.ThemeModeHelper;
@@ -364,7 +365,7 @@ public class SettingFragment extends Fragment {
                 R.drawable.baseline_update_24
         );
         updateCheckOption.setFunctionListener(
-                v -> Toast.makeText(requireContext(), "此功能正在开发中", Toast.LENGTH_SHORT).show()
+                v -> UpdateHelper.checkUpdate(requireContext())
         );
 
         //更新日志
