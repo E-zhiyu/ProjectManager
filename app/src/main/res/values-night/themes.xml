@@ -3,7 +3,7 @@
     <style name="Theme.ManagerAssistant.Static" parent="Theme.Material3.Dark.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/color_primary_night</item>
-        <item name="colorOnPrimary">@color/color_on_primary_night              </item>
+        <item name="colorOnPrimary">@color/color_on_primary_night</item>
         <item name="colorPrimaryContainer">@color/color_primary_container_night</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondaryContainer">@color/color_secondary_container_night</item>
@@ -28,6 +28,6 @@
         <item name="colorControlActivated">?attr/colorPrimary</item>
         <item name="android:windowLightStatusBar">false</item>
 
-        <item name="android:statusBarColor">?attr/colorSecondaryContainer</item>
+        <item name="android:statusBarColor">?attr/colorSurface</item>
     </style>
 </resources>
