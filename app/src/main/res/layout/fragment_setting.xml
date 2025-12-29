@@ -163,6 +163,10 @@
                 <include
                     android:id="@+id/update_log_option"
                     layout="@layout/view_setting_option" />
+
+                <include
+                    android:id="@+id/update_check_option"
+                    layout="@layout/view_setting_option" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>

@@ -355,13 +355,25 @@ public class SettingFragment extends Fragment {
                 v -> AboutHelper.showAboutDialog(requireContext())
         );
 
+        //更新检测
+        SettingClickableTextView updateCheckOption = new SettingClickableTextView(
+                requireContext(),
+                binding.updateCheckOption,
+                R.string.update_check,
+                "点击检测版本更新",
+                R.drawable.baseline_update_24
+        );
+        updateCheckOption.setFunctionListener(
+                v -> Toast.makeText(requireContext(), "此功能正在开发中", Toast.LENGTH_SHORT).show()
+        );
+
         //更新日志
         SettingClickableTextView updateLogOption = new SettingClickableTextView(
                 requireContext(),
                 binding.updateLogOption,
                 R.string.update_log,
                 null,
-                R.drawable.baseline_update_24
+                R.drawable.baseline_insert_drive_file_24
         );
         updateLogOption.setFunctionListener(
                 v -> UpdateLogHelper.showUpdateLogDialog(requireContext())
