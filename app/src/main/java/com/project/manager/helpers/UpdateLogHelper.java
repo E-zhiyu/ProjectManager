@@ -143,6 +143,11 @@ public class UpdateLogHelper {
             "# v1.0.0  \n" +
             "第一个版本发布";
 
+    /**
+     * 显示更新日志对话框
+     *
+     * @param context 上下文
+     */
     public static void showUpdateLogDialog(Context context) {
         View update_dialog_view = LayoutInflater.from(context)
                 .inflate(R.layout.view_md_text, null);
