@@ -164,7 +164,7 @@ public class UpdateHelper {
      * @param versionName 版本名称
      */
     private static void downloadLatestFile(@NonNull Context context, String downloadUrl, String versionName) {
-        String fileName = String.format("ManagerAssistant_v%s", versionName);
+        String fileName = String.format("ManagerAssistant_v%s.apk", versionName);
 
         //请求下载
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadUrl));
