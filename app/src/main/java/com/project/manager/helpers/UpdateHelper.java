@@ -50,10 +50,10 @@ public class UpdateHelper {
     /**
      * 检查更新
      *
-     * @param context 上下文
+     * @param context     上下文
+     * @param isHaveToast 是否需要弹出提示
      */
-    public static void checkUpdate(Context context) {
-        Toast.makeText(context, "正在检查更新……", Toast.LENGTH_SHORT).show();
+    public static void checkUpdate(Context context, boolean isHaveToast) {
         Disposable disposable = Observable.fromCallable(() -> {
                     URL versionInfoUrl = new URL(versionInfoUrL);
                     return getVersionInfo(versionInfoUrl);
@@ -63,11 +63,21 @@ public class UpdateHelper {
                 .subscribe(version_info_json -> analyseVersionInfo(context, version_info_json),
                         e -> {
                             if (e instanceof ProtocolException) {
-                                Toast.makeText(context, "未检测到新版本", Toast.LENGTH_SHORT).show();
+                                if (isHaveToast) {
+                                    Toast.makeText(context, "无法从远程服务器获取版本信息", Toast.LENGTH_SHORT).show();
+                                }
                             } else if (e instanceof SocketTimeoutException) {
-                                Toast.makeText(context, "无法获取最新版本：连接超时", Toast.LENGTH_SHORT).show();
+                                if (isHaveToast) {
+                                    Toast.makeText(context, "无法获取最新版本：连接超时", Toast.LENGTH_SHORT).show();
+                                }
                             } else if (e instanceof ConnectException) {
-                                Toast.makeText(context, "请检查网络连接", Toast.LENGTH_SHORT).show();
+                                if (isHaveToast) {
+                                    Toast.makeText(context, "请检查网络连接", Toast.LENGTH_SHORT).show();
+                                }
+                            } else if (e instanceof RuntimeException) {
+                                if (isHaveToast) {
+                                    Toast.makeText(context, "当前已是最新版本", Toast.LENGTH_SHORT).show();
+                                }
                             } else {
                                 ExceptionHelper.showExceptionDialog(context, e);
                             }
@@ -116,7 +126,7 @@ public class UpdateHelper {
 
             dialogBuilder.show();
         } else {
-            Toast.makeText(context, "当前已是最新版本", Toast.LENGTH_SHORT).show();
+            throw new RuntimeException("当前已是最新版本"); //抛出异常是为了在subscribe语句中处理Toast提示
         }
     }
 

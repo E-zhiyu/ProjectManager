@@ -11,7 +11,10 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.5.5  \n" +
+    private static final String update_log_md = "# v1.5.6  \n" +
+            "**新增内容**  \n" +
+            "- 应用启动时会自动检测更新  \n\n" +
+            "# v1.5.5  \n" +
             "**新增内容**  \n" +
             "- 新增软件更新检测功能  \n\n" +
             "# v1.5.4  \n" +

@@ -11,9 +11,11 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.project.manager.data.data_save.preference.KeepAlivePreference;
+import com.project.manager.data.data_save.preference.VersionPreference;
 import com.project.manager.databinding.ActivityMainBinding;
 import com.project.manager.helpers.ThemeModeHelper;
 import com.project.manager.data.data_save.preference.ThemePreference;
+import com.project.manager.helpers.UpdateHelper;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
@@ -39,6 +41,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        //启动时更新检测
+        int start_version_check_num = VersionPreference.getStartVersionCheckNum(this);
+        int recycle_num = VersionPreference.VERSION_CHECK_RECYCLE_NUM;
+        if (start_version_check_num % recycle_num == 0) {
+            UpdateHelper.checkUpdate(this, false);
+        }
+        VersionPreference.setStartVersionCheckNum(this, (start_version_check_num + 1) % recycle_num);
     }
 
     @Override

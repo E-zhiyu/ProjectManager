@@ -365,7 +365,10 @@ public class SettingFragment extends Fragment {
                 R.drawable.baseline_update_24
         );
         updateCheckOption.setFunctionListener(
-                v -> UpdateHelper.checkUpdate(requireContext())
+                v -> {
+                    Toast.makeText(requireContext(), "正在检查更新……", Toast.LENGTH_SHORT).show();
+                    UpdateHelper.checkUpdate(requireContext(), true);
+                }
         );
 
         //更新日志
