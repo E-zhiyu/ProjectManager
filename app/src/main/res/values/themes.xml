@@ -28,6 +28,6 @@
         <item name="colorControlActivated">?attr/colorPrimary</item>
         <item name="android:windowLightStatusBar">true</item>
 
-        <item name="android:statusBarColor">?attr/colorSecondaryContainer</item>
+        <item name="android:statusBarColor">?attr/colorSurface</item>
     </style>
 </resources>

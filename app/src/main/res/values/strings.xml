@@ -58,6 +58,7 @@
     <string name="clear_account_data">清空流水数据</string>
     <string name="about">关于</string>
     <string name="about_software">关于软件</string>
+    <string name="update_check">检测更新</string>
     <string name="update_log">更新日志</string>
     <string name="tag_merge">合并标签</string>
     <string name="group_merge">合并分组</string>

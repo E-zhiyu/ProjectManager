@@ -11,7 +11,10 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.5.4  \n" +
+    private static final String update_log_md = "# v1.5.5  \n" +
+            "**新增内容**  \n" +
+            "- 新增软件更新检测功能  \n\n" +
+            "# v1.5.4  \n" +
             "**修改内容**  \n" +
             "- 减少加载设置界面的卡顿  \n" +
             "- 添加支付宝支付到默认通知解析规则  \n" +
@@ -143,6 +146,11 @@ public class UpdateLogHelper {
             "# v1.0.0  \n" +
             "第一个版本发布";
 
+    /**
+     * 显示更新日志对话框
+     *
+     * @param context 上下文
+     */
     public static void showUpdateLogDialog(Context context) {
         View update_dialog_view = LayoutInflater.from(context)
                 .inflate(R.layout.view_md_text, null);

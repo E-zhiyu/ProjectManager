@@ -38,6 +38,7 @@ import com.project.manager.data.data_save.preference.AutoBookKeepingPreference;
 import com.project.manager.data.data_save.preference.BookKeepingStartDatePreference;
 import com.project.manager.helpers.AnimationHelper;
 import com.project.manager.helpers.SAFFileHelper;
+import com.project.manager.helpers.UpdateHelper;
 import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
 import com.project.manager.helpers.AboutHelper;
 import com.project.manager.helpers.ThemeModeHelper;
@@ -355,13 +356,25 @@ public class SettingFragment extends Fragment {
                 v -> AboutHelper.showAboutDialog(requireContext())
         );
 
+        //更新检测
+        SettingClickableTextView updateCheckOption = new SettingClickableTextView(
+                requireContext(),
+                binding.updateCheckOption,
+                R.string.update_check,
+                "点击检测版本更新",
+                R.drawable.baseline_update_24
+        );
+        updateCheckOption.setFunctionListener(
+                v -> UpdateHelper.checkUpdate(requireContext())
+        );
+
         //更新日志
         SettingClickableTextView updateLogOption = new SettingClickableTextView(
                 requireContext(),
                 binding.updateLogOption,
                 R.string.update_log,
                 null,
-                R.drawable.baseline_update_24
+                R.drawable.baseline_insert_drive_file_24
         );
         updateLogOption.setFunctionListener(
                 v -> UpdateLogHelper.showUpdateLogDialog(requireContext())

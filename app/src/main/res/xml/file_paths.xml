@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- 允许访问 Download 目录 -->
+    <external-path name="download" path="Download/" />
+</paths>
