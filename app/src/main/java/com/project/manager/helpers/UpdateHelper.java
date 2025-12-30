@@ -34,6 +34,7 @@ import java.net.ConnectException;
 import java.net.ProtocolException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -70,7 +71,7 @@ public class UpdateHelper {
                                 if (isHaveToast) {
                                     Toast.makeText(context, "无法获取最新版本：连接超时", Toast.LENGTH_SHORT).show();
                                 }
-                            } else if (e instanceof ConnectException) {
+                            } else if (e instanceof ConnectException || e instanceof UnknownHostException) {
                                 if (isHaveToast) {
                                     Toast.makeText(context, "请检查网络连接", Toast.LENGTH_SHORT).show();
                                 }
