@@ -85,52 +85,6 @@ public class UpdateHelper {
     }
 
     /**
-     * 解析版本信息文本
-     *
-     * @param context           上下文
-     * @param version_info_json 从服务端获取的最新版本信息
-     * @throws PackageManager.NameNotFoundException 无法获取版本代码时引发的异常
-     */
-    private static void analyseVersionInfo(Context context, String version_info_json) throws PackageManager.NameNotFoundException, JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        VersionInfo versionInfo = mapper.readValue(version_info_json, VersionInfo.class);
-
-        int latestVersionCode = versionInfo.getVersionCode();                   //新版本的版本代码
-        int currentVersionCode = AboutHelper.getVersionCode(context);           //当前版本代码
-        int skipVersionCode = VersionPreference.getSkipVersionCode(context);    //跳过的版本代码
-        if (latestVersionCode > currentVersionCode && latestVersionCode > skipVersionCode) {
-            boolean isMandatory = versionInfo.isMandatory();
-            String downloadUrl = versionInfo.getDownloadUrl();
-            String updateLog = versionInfo.getUpdateLog();
-            String versionName = versionInfo.getVersionName();
-
-            View markDownDialog = LayoutInflater.from(context)
-                    .inflate(R.layout.view_md_text, null);
-            MaterialTextView textView = markDownDialog.findViewById(R.id.md_textview_in_dialog);
-
-            //使用Markown渲染Markdown文本
-            Markwon markwon = Markwon.create(context);
-            markwon.setMarkdown(textView, updateLog);
-
-            //显示发现新版本对话框
-            MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(context)
-                    .setTitle("发现新版本")
-                    .setView(markDownDialog)
-                    .setPositiveButton(
-                            "更新",
-                            (dialog, which) -> downloadLatestFile(context, downloadUrl, versionName)
-                    );
-            if (!isMandatory) {
-                dialogBuilder.setNegativeButton("跳过此版本", (dialog, which) -> skipNextVersion(context, latestVersionCode));
-            }
-
-            dialogBuilder.show();
-        } else {
-            throw new RuntimeException("当前已是最新版本"); //抛出异常是为了在subscribe语句中处理Toast提示
-        }
-    }
-
-    /**
      * 获取版本信息
      *
      * @param versionInfoUrl 版本信息文件的链接
@@ -157,6 +111,84 @@ public class UpdateHelper {
     }
 
     /**
+     * 解析版本信息文本
+     *
+     * @param context           上下文
+     * @param version_info_json 从服务端获取的最新版本信息
+     * @throws PackageManager.NameNotFoundException 无法获取版本代码时引发的异常
+     */
+    private static void analyseVersionInfo(Context context, String version_info_json) throws PackageManager.NameNotFoundException, JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        VersionInfo versionInfo = mapper.readValue(version_info_json, VersionInfo.class);
+
+        int latestVersionCode = versionInfo.getVersionCode();                   //新版本的版本代码
+        int currentVersionCode = AboutHelper.getVersionCode(context);           //当前版本代码
+        int skipVersionCode = VersionPreference.getSkipVersionCode(context);    //跳过的版本代码
+        if (latestVersionCode > currentVersionCode && latestVersionCode > skipVersionCode) {
+            boolean isMandatory = versionInfo.isMandatory();
+            String downloadUrl = versionInfo.getDownloadUrl();
+            String updateLog = versionInfo.getUpdateLog();
+            String versionName = versionInfo.getVersionName();
+
+            //保存强制更新数据
+            VersionPreference.setFindMandatoryUpdate(context, isMandatory);
+            if (isMandatory) {
+                VersionPreference.setMandatoryVersionName(context, versionName);
+                VersionPreference.setMandatoryDownloadUrl(context, downloadUrl);
+                VersionPreference.setMandatoryUpdateLog(context, updateLog);
+            }
+
+            //显示版本更新对话框
+            showUpdateDialog(context, downloadUrl, updateLog, versionName, latestVersionCode, isMandatory);
+        } else {
+            throw new RuntimeException("当前已是最新版本"); //抛出异常是为了在subscribe语句中处理Toast提示
+        }
+    }
+
+    /**
+     * 显示更新对话框
+     *
+     * @param context           上下文
+     * @param downloadUrl       新版安装包下载链接
+     * @param updateLog         更新日志
+     * @param versionName       版本名称
+     * @param latestVersionCode 更新版本的版本代码
+     * @param isMandatory       是否强制更新
+     */
+    private static void showUpdateDialog(
+            Context context,
+            String downloadUrl,
+            String updateLog,
+            String versionName,
+            int latestVersionCode,
+            boolean isMandatory) {
+        View markDownDialog = LayoutInflater.from(context)
+                .inflate(R.layout.view_md_text, null);
+        MaterialTextView textView = markDownDialog.findViewById(R.id.md_textview_in_dialog);
+
+        //使用Markown渲染Markdown文本
+        Markwon markwon = Markwon.create(context);
+        markwon.setMarkdown(textView, updateLog);
+
+        //显示发现新版本对话框
+        MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(context)
+                .setTitle("发现新版本")
+                .setView(markDownDialog)
+                .setPositiveButton(
+                        "更新",
+                        (dialog, which) -> downloadLatestFile(context, downloadUrl, versionName)
+                );
+        if (!isMandatory) {
+            dialogBuilder.setNegativeButton("跳过此版本", (dialog, which) -> skipNextVersion(context, latestVersionCode));
+        } else {
+            dialogBuilder.setNegativeButton("退出", (dialog, which) -> dialog.cancel());
+            dialogBuilder.setOnCancelListener(dialog -> android.os.Process.killProcess(android.os.Process.myPid()));
+        }
+
+        dialogBuilder.show();
+    }
+
+    /**
      * 下载新版安装包
      *
      * @param context     上下文
@@ -169,7 +201,7 @@ public class UpdateHelper {
         //请求下载
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadUrl));
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
-        request.setTitle("经理助手更新");
+        request.setTitle("经理助手");
         request.setDescription("正在下载安装包...");
         request.setVisibleInDownloadsUi(true);
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
@@ -243,6 +275,9 @@ public class UpdateHelper {
      * @param fileUri 安装包Uri
      */
     private static void installLatestApk(@NonNull Context context, String fileUri) {
+        //将强制更新标识改为false
+        VersionPreference.setFindMandatoryUpdate(context, false);
+
         File apkFile = new File(Objects.requireNonNull(Uri.parse(fileUri).getPath()));
 
         Uri apkUri = FileProvider.getUriForFile(
@@ -264,6 +299,38 @@ public class UpdateHelper {
      */
     private static void skipNextVersion(Context context, int versionCode) {
         VersionPreference.setSkipVersionCode(context, versionCode);
+    }
+
+    /**
+     * 使用本地保存的强制更新数据显示强制更新对话框
+     *
+     * @param context 上下文
+     */
+    public static void showMandatoryUpdateDialog(Context context) {
+        String MandatoryVersionName = VersionPreference.getMandatoryVersionName(context);
+        String MandatoryUpdateLog = VersionPreference.getMandatoryUpdateLog(context);
+        String MandatoryDownloadUrl = VersionPreference.getMandatoryDownloadUrl(context);
+
+        View markDownDialog = LayoutInflater.from(context)
+                .inflate(R.layout.view_md_text, null);
+        MaterialTextView textView = markDownDialog.findViewById(R.id.md_textview_in_dialog);
+
+        //使用Markown渲染Markdown文本
+        Markwon markwon = Markwon.create(context);
+        markwon.setMarkdown(textView, MandatoryUpdateLog);
+
+        //显示发现新版本对话框
+        MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(context)
+                .setTitle("发现新版本")
+                .setView(markDownDialog)
+                .setPositiveButton(
+                        "更新",
+                        (dialog, which) -> downloadLatestFile(context, MandatoryDownloadUrl, MandatoryVersionName)
+                );
+        dialogBuilder.setNegativeButton("退出", (dialog, which) -> dialog.cancel());
+        dialogBuilder.setOnCancelListener(dialog -> android.os.Process.killProcess(android.os.Process.myPid()));
+
+        dialogBuilder.show();
     }
 }
 

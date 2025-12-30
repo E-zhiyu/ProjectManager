@@ -45,10 +45,15 @@ public class MainActivity extends AppCompatActivity {
         //启动时更新检测
         int start_version_check_num = VersionPreference.getStartVersionCheckNum(this);
         int recycle_num = VersionPreference.VERSION_CHECK_RECYCLE_NUM;
-        if (start_version_check_num % recycle_num == 0) {
-            UpdateHelper.checkUpdate(this, false);
+        boolean isMandatoryUpdateFound = VersionPreference.getFindMandatoryUpdate(this);    //是否获取到强制更新
+        if (!isMandatoryUpdateFound) {
+            if (start_version_check_num % recycle_num == 0) {
+                UpdateHelper.checkUpdate(this, false);
+            }
+            VersionPreference.setStartVersionCheckNum(this, (start_version_check_num + 1) % recycle_num);
+        } else {
+            UpdateHelper.showMandatoryUpdateDialog(this);
         }
-        VersionPreference.setStartVersionCheckNum(this, (start_version_check_num + 1) % recycle_num);
     }
 
     @Override
