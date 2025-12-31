@@ -597,7 +597,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
 
         monthAccountInfoTypeMenu.setOnMenuItemClickListener(item -> {
             boolean itemClicked = false;    //是否点击了选项
-            MonthAccountInfoType old_type = monthAccountInfoType;
+            MonthAccountInfoType old_type = monthAccountInfoType;   //用于比较两次选择是否相同
             if (item.getItemId() == R.id.action_balance) {
                 monthAccountInfoType = MonthAccountInfoType.BALANCE;
                 ((MaterialTextView) view).setText(R.string.balance);

@@ -18,6 +18,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -244,7 +245,13 @@ public class SettingFragment extends Fragment {
         autoBackupHelper.setSwitchOptionView(autoBackupSwitch); //设置帮助器的开关视图，以便控制其状态
         String backupDir = AutoBackupPreference.getBackupDirectory(requireContext());
         boolean switchStat = AutoBackupPreference.getSwitchStat(requireContext());
-        autoBackupSwitch.setChecked(switchStat && backupDir != null);
+        if (backupDir != null && switchStat) {
+            autoBackupSwitch.setChecked(true);
+            binding.autoBackupLayout.setVisibility(View.VISIBLE);
+        } else {
+            autoBackupSwitch.setChecked(false);
+            binding.autoBackupLayout.setVisibility(View.GONE);
+        }
         autoBackupSwitch.setFunctionListener(
                 (buttonView, isChecked) -> {
                     if (backupDir == null && isChecked) {   //未设置备份目录则先提示设置
@@ -277,6 +284,32 @@ public class SettingFragment extends Fragment {
         int frequency_index = AutoBackupPreference.getBackupFrequency(requireContext());
         String frequencyName = AutoBackupHelper.BackupFrequency.values()[frequency_index].getName();
         backupFrequencyOption.setSpinnerText(frequencyName);
+        backupFrequencyOption.setFunctionListener(v -> {
+            PopupMenu frequencyMenu = new PopupMenu(requireContext(), backupFrequencyOption.getFunctionComponent());
+            frequencyMenu.getMenuInflater().inflate(R.menu.popup_menu_backup_frequency, frequencyMenu.getMenu());
+
+            frequencyMenu.setOnMenuItemClickListener(item -> {
+                boolean isItemClicked = false;
+
+                if (item.getItemId() == R.id.every_day) {
+                    isItemClicked = true;
+                    AutoBackupPreference.setBackupFrequency(requireContext(), 0);
+                    backupFrequencyOption.setSpinnerText(requireContext().getString(R.string.every_day));
+                } else if (item.getItemId() == R.id.every_week) {
+                    isItemClicked = true;
+                    AutoBackupPreference.setBackupFrequency(requireContext(), 1);
+                    backupFrequencyOption.setSpinnerText(requireContext().getString(R.string.every_week));
+                } else if (item.getItemId() == R.id.every_month) {
+                    isItemClicked = true;
+                    AutoBackupPreference.setBackupFrequency(requireContext(), 2);
+                    backupFrequencyOption.setSpinnerText(requireContext().getString(R.string.every_month));
+                }
+
+                return isItemClicked;
+            });
+
+            frequencyMenu.show();
+        });
 
         //备份目录
         SettingClickableTextView backupDirectoryOption = new SettingClickableTextView(

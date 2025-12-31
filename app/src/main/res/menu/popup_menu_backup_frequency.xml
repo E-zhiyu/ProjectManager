@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/every_day"
+        android:title="@string/every_day" />
+    <item
+        android:id="@+id/every_week"
+        android:title="@string/every_week" />
+    <item
+        android:id="@+id/every_month"
+        android:title="@string/every_month" />
+</menu>

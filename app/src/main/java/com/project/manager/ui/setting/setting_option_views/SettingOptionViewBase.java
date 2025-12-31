@@ -51,6 +51,10 @@ abstract public class SettingOptionViewBase<C, L> {
         binding.iconView.setVisibility(resId == 0 ? View.INVISIBLE : View.VISIBLE);
     }
 
+    public C getFunctionComponent() {
+        return functionComponent;
+    }
+
     /**
      * 初始化视图的方法
      */
