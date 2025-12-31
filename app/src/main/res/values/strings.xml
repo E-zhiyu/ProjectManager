@@ -56,6 +56,9 @@
     <string name="export_data">导出数据</string>
     <string name="import_data">导入数据</string>
     <string name="clear_account_data">清空流水数据</string>
+    <string name="auto_backup">自动备份</string>
+    <string name="backup_frequency">备份频率</string>
+    <string name="backup_directory">备份目录</string>
     <string name="about">关于</string>
     <string name="about_software">关于软件</string>
     <string name="update_check">检测更新</string>

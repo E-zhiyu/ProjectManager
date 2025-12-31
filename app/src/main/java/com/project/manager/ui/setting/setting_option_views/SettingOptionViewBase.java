@@ -18,6 +18,23 @@ abstract public class SettingOptionViewBase<C, L> {
     protected ViewSettingOptionBinding binding;     //绑定的XML视图引用
     protected C functionComponent;                  //功能组件
 
+    /**
+     * 设置项构造方法
+     *
+     * @param context     上下文
+     * @param binding     对应于XML布局中的databinding
+     * @param title       标题
+     * @param description 描述（可选）
+     * @param iconId      左侧图标资源ID
+     */
+    public SettingOptionViewBase(Context context, ViewSettingOptionBinding binding, @StringRes int title, String description, @DrawableRes int iconId) {
+        this.binding = binding;
+        initView(context);
+        setTitle(title);
+        setDescription(description);
+        setIcon(iconId);
+    }
+
     protected void setTitle(@StringRes int title) {
         binding.titleText.setText(title);
     }

@@ -13,7 +13,7 @@ public class AutoBookKeepingPreference {
     private static final String KEY_NOTIFICATION_ANALYSIS_OPENED = "notification_analysis_opened";
     private static final String KEY_HINT_AUTO_START = "hint_auto_start";    //是否提示打开自启动权限
 
-    public static void setNotificationAnalysisOpened(boolean isOpened, @NonNull Context context) {
+    public static void setSwitchStat(boolean isOpened, @NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         pref.edit().putBoolean(KEY_NOTIFICATION_ANALYSIS_OPENED, isOpened).apply();
     }

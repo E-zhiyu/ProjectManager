@@ -30,14 +30,16 @@ import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
 import com.project.manager.broadcast.BroadcastConstants;
 import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
+import com.project.manager.data.data_save.preference.AutoBackupPreference;
 import com.project.manager.data.data_save.preference.KeepAlivePreference;
 import com.project.manager.databinding.FragmentSettingBinding;
+import com.project.manager.helpers.AutoBackupHelper;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.helpers.PermissionHelper;
 import com.project.manager.data.data_save.preference.AutoBookKeepingPreference;
 import com.project.manager.data.data_save.preference.BookKeepingStartDatePreference;
 import com.project.manager.helpers.AnimationHelper;
-import com.project.manager.helpers.SAFFileHelper;
+import com.project.manager.helpers.SAFFileIOHelper;
 import com.project.manager.helpers.UpdateHelper;
 import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
 import com.project.manager.helpers.AboutHelper;
@@ -51,6 +53,7 @@ import com.project.manager.data.data_save.preference.ThemePreference;
 import com.project.manager.ui.setting.data_io.maps.TotalAccountDataMap;
 import com.project.manager.ui.setting.data_io.maps.TotalRuleDataMap;
 import com.project.manager.ui.setting.setting_option_views.SettingClickableTextView;
+import com.project.manager.ui.setting.setting_option_views.SettingSpinnerView;
 import com.project.manager.ui.setting.setting_option_views.SettingSwitchView;
 
 import java.io.BufferedReader;
@@ -68,7 +71,9 @@ import java.util.stream.Stream;
 public class SettingFragment extends Fragment {
     private FragmentSettingBinding binding;
     private ActivityResultLauncher<Intent> importDataLauncher, exportDataLauncher;  //活动启动器
-    private SAFFileHelper safFileHelper;    //SAF文件帮助器
+    private ActivityResultLauncher<Intent> backupDirectorySetLauncher;              //自动备份文件夹选择的启动器
+    private SAFFileIOHelper safFileIOHelper;    //SAF文件帮助器
+    private AutoBackupHelper autoBackupHelper;  //自动备份帮助器
     private BroadcastReceiver notificationPermissionListener;   //通知监听服务正常运行的广播接收器
 
     //导入和导出的数据种类枚举
@@ -106,10 +111,11 @@ public class SettingFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentSettingBinding.inflate(inflater, container, false);
 
+        safFileIOHelper = new SAFFileIOHelper(requireContext());
+        autoBackupHelper = new AutoBackupHelper(requireContext());
+
         initViews();
         initActivityLaunchers();
-
-        safFileHelper = new SAFFileHelper(requireContext());
 
         return binding.getRoot();
     }
@@ -226,6 +232,60 @@ public class SettingFragment extends Fragment {
                         .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
                         .show()
         );
+
+        //自动备份选项
+        SettingSwitchView autoBackupSwitch = new SettingSwitchView(
+                requireContext(),
+                binding.autoBackupOption,
+                R.string.auto_backup,
+                "自动备份功能开关",
+                R.drawable.baseline_settings_backup_restore_24
+        );
+        autoBackupHelper.setSwitchOptionView(autoBackupSwitch); //设置帮助器的开关视图，以便控制其状态
+        String backupDir = AutoBackupPreference.getBackupDirectory(requireContext());
+        boolean switchStat = AutoBackupPreference.getSwitchStat(requireContext());
+        autoBackupSwitch.setChecked(switchStat && backupDir != null);
+        autoBackupSwitch.setFunctionListener(
+                (buttonView, isChecked) -> {
+                    if (backupDir == null && isChecked) {   //未设置备份目录则先提示设置
+                        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
+                                .setTitle("功能启用提示")
+                                .setMessage("该功能需要先设置备份文件存储目录，请点击“确定”按钮设置存储目录")
+                                .setNegativeButton("取消", (dialog, which) -> dialog.cancel())
+                                .setPositiveButton("确定",
+                                        (dialog, which) -> autoBackupHelper.selectBackupDirectory(
+                                                backupDirectorySetLauncher
+                                        )
+                                );
+
+                        builder.setOnCancelListener(dialog -> buttonView.setChecked(false));
+                        builder.show();
+                    }
+                    AnimationHelper.switchViewFoldOrExpanded(isChecked, binding.autoBackupLayout);
+                    AutoBackupPreference.setSwitchStat(requireContext(), isChecked);
+                }
+        );
+
+        //备份频率
+        SettingSpinnerView backupFrequencyOption = new SettingSpinnerView(
+                requireContext(),
+                binding.backupFrequencyOption,
+                R.string.backup_frequency,
+                "自动备份的时间间隔",
+                R.drawable.baseline_timer_24
+        );
+
+        //备份目录
+        SettingClickableTextView backupDirectoryOption = new SettingClickableTextView(
+                requireContext(),
+                binding.backupDirectoryOption,
+                R.string.backup_directory,
+                "备份文件存储的位置",
+                R.drawable.baseline_folder_zip_24
+        );
+        backupDirectoryOption.setFunctionListener(
+                v -> autoBackupHelper.selectBackupDirectory(backupDirectorySetLauncher)
+        );
     }
 
     /**
@@ -250,7 +310,7 @@ public class SettingFragment extends Fragment {
             notificationAnalysisSwitchOption.setChecked(false);
 
             //考虑到无授权情况下自动关闭通知解析功能
-            AutoBookKeepingPreference.setNotificationAnalysisOpened(false, requireContext());
+            AutoBookKeepingPreference.setSwitchStat(false, requireContext());
         }
         notificationAnalysisSwitchOption.setFunctionListener(
                 (buttonView, isChecked) -> onNotificationAnalysisSwitchChanged(notificationAnalysisSwitchOption, isChecked)
@@ -384,7 +444,9 @@ public class SettingFragment extends Fragment {
         );
     }
 
-    //初始化活动启动器
+    /**
+     * 初始化活动启动器
+     */
     private void initActivityLaunchers() {
         exportDataLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -392,7 +454,7 @@ public class SettingFragment extends Fragment {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    safFileHelper.handleActivityResult(resultCode, data, true);
+                    safFileIOHelper.handleActivityResult(resultCode, data, true);
                 }
         );
 
@@ -402,7 +464,17 @@ public class SettingFragment extends Fragment {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    safFileHelper.handleActivityResult(resultCode, data, false);
+                    safFileIOHelper.handleActivityResult(resultCode, data, false);
+                }
+        );
+
+        backupDirectorySetLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    int resultCode = result.getResultCode();
+                    Intent data = result.getData();
+
+                    autoBackupHelper.handleActivityResult(resultCode, data);
                 }
         );
     }
@@ -442,8 +514,8 @@ public class SettingFragment extends Fragment {
         }
 
         //将文件打包至压缩包内
-        safFileHelper.packFileInZip(
-                new SAFFileHelper.WriteCallback() {
+        safFileIOHelper.packFileInZip(
+                new SAFFileIOHelper.WriteCallback() {
                     @Override
                     public void onFileWrote() {
                         Toast.makeText(requireContext(), "导出成功", Toast.LENGTH_SHORT).show();
@@ -465,8 +537,8 @@ public class SettingFragment extends Fragment {
      */
     private void importData() {
         Log.i(LogTags.SETTING_FRAGMENT.getV(), "开始导入数据……");
-        safFileHelper.openFileBySAF(
-                new SAFFileHelper.ReadCallback() {
+        safFileIOHelper.openFileBySAF(
+                new SAFFileIOHelper.ReadCallback() {
                     @Override
                     public void onZipUnpacked(List<File> fileList) {
                         List<File> effectiveFileList = getEffectiveFileList(fileList);
@@ -555,7 +627,7 @@ public class SettingFragment extends Fragment {
                         }
 
                         //清除临时文件
-                        safFileHelper.clearTempFile();
+                        safFileIOHelper.clearTempFile();
                     }
 
 
@@ -648,7 +720,7 @@ public class SettingFragment extends Fragment {
      * 通知解析开关状态变更调用的方法
      */
     private void onNotificationAnalysisSwitchChanged(SettingSwitchView switchView, boolean isChecked) {
-        AutoBookKeepingPreference.setNotificationAnalysisOpened(isChecked, requireActivity());  //将打开状态写入文件
+        AutoBookKeepingPreference.setSwitchStat(isChecked, requireContext());   //将打开状态写入文件
 
         //实例化并注册权限授予通知
         notificationPermissionListener = new BroadcastReceiver() {
@@ -776,7 +848,7 @@ public class SettingFragment extends Fragment {
         //设置对话框隐藏监听
         alertDialog.setOnDismissListener(dialog -> {
             Log.i(LogTags.SETTING_FRAGMENT.getV(), "对话框关闭");
-            safFileHelper.clearTempFile();
+            safFileIOHelper.clearTempFile();
         });
         alertDialog.show();
     }
