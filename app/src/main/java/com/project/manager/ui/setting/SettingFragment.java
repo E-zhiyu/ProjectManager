@@ -274,6 +274,9 @@ public class SettingFragment extends Fragment {
                 "自动备份的时间间隔",
                 R.drawable.baseline_timer_24
         );
+        int frequency_index = AutoBackupPreference.getBackupFrequency(requireContext());
+        String frequencyName = AutoBackupHelper.BackupFrequency.values()[frequency_index].getName();
+        backupFrequencyOption.setSpinnerText(frequencyName);
 
         //备份目录
         SettingClickableTextView backupDirectoryOption = new SettingClickableTextView(

@@ -16,7 +16,7 @@ public class AutoBackupHelper {
     private final Context context;              //上下文
     private SettingSwitchView switchOptionView; //设置界面的开关选项
 
-    enum BackupFrequency {
+    public enum BackupFrequency {
         DAY("每天"),       //每天
         WEEK("每星期"),    //每个星期
         MONTH("每个月");   //每月
@@ -78,7 +78,8 @@ public class AutoBackupHelper {
                     Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             );
         } else {
-            if (switchOptionView != null) {
+            String backupDir = AutoBackupPreference.getBackupDirectory(context);
+            if (switchOptionView != null && backupDir == null) {
                 switchOptionView.setChecked(false);
             }
         }
