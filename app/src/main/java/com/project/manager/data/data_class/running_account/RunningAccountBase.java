@@ -10,7 +10,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 
 import com.project.manager.data.data_save.database.BookKeepingColumns;
-import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
+import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
@@ -64,7 +64,7 @@ public abstract class RunningAccountBase {
      * @throws SQLiteException 读取失败引发的数据库异常
      */
     public static String getEarliestAccountDate(Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
 
         String[] columns = {BookKeepingColumns.DATETIME.toString()};
@@ -101,7 +101,7 @@ public abstract class RunningAccountBase {
      * @throws SQLiteException 写入数据库可能引发的异常
      */
     public static long saveNewAccount(@NonNull Bundle dataBundle, Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         String type = dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue());
@@ -145,7 +145,7 @@ public abstract class RunningAccountBase {
      * @throws SQLiteException 写入数据库可能引发的异常
      */
     public static void modifyAccount(@NonNull Bundle dataBundle, Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //解析数据
@@ -202,7 +202,7 @@ public abstract class RunningAccountBase {
      * @throws SQLiteException 写入数据库时可能引发的异常
      */
     public static void deleteAccount(long rno, @NonNull RunningAccountType type, Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         String selection = BookKeepingColumns.RNO + "=?";

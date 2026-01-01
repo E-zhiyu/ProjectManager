@@ -21,12 +21,24 @@ public class AutoBackupPreference {
         return pref.getBoolean(KEY_SWITCH_STAT, false);
     }
 
-    public static void setBackupDirectory(@NonNull Context context, String directory) {
+    /**
+     * 设置备份目录Uri
+     *
+     * @param context   上下文
+     * @param directory Uri字符串
+     */
+    public static void setBackupDirectoryUri(@NonNull Context context, String directory) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         pref.edit().putString(KEY_BACKUP_DIRECTORY, directory).apply();
     }
 
-    public static String getBackupDirectory(@NonNull Context context) {
+    /**
+     * 获取备份目录Uri字符串
+     *
+     * @param context 上下文
+     * @return 可以转换为Uri的字符串
+     */
+    public static String getBackupDirectoryUri(@NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return pref.getString(KEY_BACKUP_DIRECTORY, null);
     }

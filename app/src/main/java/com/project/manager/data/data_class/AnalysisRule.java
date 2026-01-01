@@ -10,7 +10,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 
 import com.project.manager.data.data_save.database.BookKeepingColumns;
-import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
+import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
@@ -68,7 +68,7 @@ public class AnalysisRule {
      */
     @NonNull
     public static List<AnalysisRule> loadAnalysisRule(Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
         List<AnalysisRule> ruleList = new ArrayList<>();
 
@@ -100,7 +100,7 @@ public class AnalysisRule {
     }
 
     public static long saveNewRule(@NonNull Bundle newRuleData, Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //解析规则数据
@@ -126,7 +126,7 @@ public class AnalysisRule {
     }
 
     public static void modifyRule(@NonNull Bundle ruleData, Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //解析规则数据
@@ -154,7 +154,7 @@ public class AnalysisRule {
     }
 
     public static void deleteRule(long rule_no, Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         String where = BookKeepingColumns.RULE_NO + "=?";

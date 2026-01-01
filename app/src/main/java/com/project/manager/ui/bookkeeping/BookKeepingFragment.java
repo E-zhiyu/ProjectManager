@@ -28,7 +28,7 @@ import com.project.manager.data.data_class.running_account.IncomeRunningAccount;
 import com.project.manager.data.data_class.running_account.RunningAccountBase;
 import com.project.manager.data.data_class.running_account.TransferRunningAccount;
 import com.project.manager.data.data_save.database.BookKeepingColumns;
-import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
+import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.databinding.FragmentBookkeepingBinding;
 import com.project.manager.helpers.ColorHelper;
@@ -52,7 +52,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class BookKeepingFragment extends Fragment {
     private AccountRecyclerAdapter accountRecyclerAdapter;                  //流水列表适配器
     private RecyclerView runningAccountRecyclerView;                        //流水列表视图
-    private BookKeepingDatabaseHelper running_account_db_helper;            //流水数据库帮助器
+    private BookKeepingDbHelper running_account_db_helper;            //流水数据库帮助器
     private ActivityResultLauncher<Intent> runningAccountAddLauncher, modifyRunningAccountLauncher;  //子活动启动器
     private int account_num;                                                //流水记录数量
     private FragmentBookkeepingBinding binding;                             //绑定的XML视图
@@ -65,7 +65,7 @@ public class BookKeepingFragment extends Fragment {
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
 
         //实例化数据库帮助器
-        running_account_db_helper = new BookKeepingDatabaseHelper(requireContext());
+        running_account_db_helper = new BookKeepingDbHelper(requireContext());
 
         initActivityLauncher();
         initViews();

@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteStatement;
 import androidx.annotation.NonNull;
 
 import com.project.manager.data.data_save.database.BookKeepingColumns;
-import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
+import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
 
 import org.jetbrains.annotations.Contract;
@@ -47,7 +47,7 @@ public class Tag {
      * @throws SQLiteException 数据库读取失败产生的异常
      */
     public static int nameTransToTno(String name, Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
 
         String[] columns = {BookKeepingColumns.TAG_NO.toString()};
@@ -85,7 +85,7 @@ public class Tag {
      * @throws SQLiteException 无法修改数据库时引发的异常
      */
     public static String tagNoTransToName(long tag_no, Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
 
         String[] columns = {BookKeepingColumns.TAG_NAME.toString()};
@@ -126,7 +126,7 @@ public class Tag {
     public static long saveNewTag(String tag_name, long group_no, Context context) throws SQLiteException {
         long tag_no;    //标签编号
 
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         ContentValues tag_values = new ContentValues();
@@ -152,7 +152,7 @@ public class Tag {
         String whereStr = BookKeepingColumns.TAG_NO + "=?";
         String[] whereStrArgs = {String.valueOf(tag_no)};
 
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         db.update(
@@ -181,7 +181,7 @@ public class Tag {
         String whereStr = BookKeepingColumns.TAG_NO + "=?";
         String[] whereStrArgs = {String.valueOf(tag_no)};
 
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         db.update(
@@ -202,7 +202,7 @@ public class Tag {
      * @throws SQLiteException 无法修改数据库时引发的异常
      */
     public static void deleteTag(long tag_no, Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         ContentValues non_tag_values = new ContentValues();
@@ -244,7 +244,7 @@ public class Tag {
      * @throws SQLiteException 无法修改数据库时引发的异常
      */
     public static void deleteTag(@NonNull List<Tag> tagList, Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         long[] tag_no_list = new long[tagList.size()];
@@ -306,7 +306,7 @@ public class Tag {
      * @throws SQLiteException 写入数据库可能引发的异常
      */
     public static void mergeTag(long merged_tag_no, long merge_target_tag_no, Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //更改对应流水记录的标签
@@ -333,7 +333,7 @@ public class Tag {
     @NonNull
     @Contract("_, _ -> new")
     public static Tag getTagOfRunningAccount(long rno, Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //查询标签编号
@@ -394,7 +394,7 @@ public class Tag {
     @NonNull
     @Contract("_, _ -> new")
     public static Tag getTagOfAnalysisRule(long rule_no, Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //查询标签编号

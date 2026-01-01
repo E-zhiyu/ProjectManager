@@ -46,7 +46,7 @@ public class AutoBackupHelper {
      */
     public void selectBackupDirectory(ActivityResultLauncher<Intent> launcher) {
         //获取之前设置的备份目录
-        String backupDirUri = AutoBackupPreference.getBackupDirectory(context);
+        String backupDirUri = AutoBackupPreference.getBackupDirectoryUri(context);
 
         //启动SAF
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
@@ -70,7 +70,7 @@ public class AutoBackupHelper {
 
             //保存URI以便后续使用
             String uriStr = backupDirUri.toString();
-            AutoBackupPreference.setBackupDirectory(context, uriStr);
+            AutoBackupPreference.setBackupDirectoryUri(context, uriStr);
 
             //请求持久化权限
             context.getContentResolver().takePersistableUriPermission(
@@ -78,7 +78,7 @@ public class AutoBackupHelper {
                     Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             );
         } else {
-            String backupDir = AutoBackupPreference.getBackupDirectory(context);
+            String backupDir = AutoBackupPreference.getBackupDirectoryUri(context);
             if (switchOptionView != null && backupDir == null) {
                 switchOptionView.setChecked(false);
             }

@@ -30,7 +30,7 @@ import com.project.manager.LogTags;
 import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
 import com.project.manager.broadcast.BroadcastConstants;
-import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
+import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.preference.AutoBackupPreference;
 import com.project.manager.data.data_save.preference.KeepAlivePreference;
 import com.project.manager.databinding.FragmentSettingBinding;
@@ -40,7 +40,7 @@ import com.project.manager.helpers.PermissionHelper;
 import com.project.manager.data.data_save.preference.AutoBookKeepingPreference;
 import com.project.manager.data.data_save.preference.BookKeepingStartDatePreference;
 import com.project.manager.helpers.AnimationHelper;
-import com.project.manager.helpers.SAFFileIOHelper;
+import com.project.manager.helpers.FileIOHelper;
 import com.project.manager.helpers.UpdateHelper;
 import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
 import com.project.manager.helpers.AboutHelper;
@@ -51,8 +51,6 @@ import com.project.manager.ui.setting.data_io.data_helpers.AnalysisRuleDataHelpe
 import com.project.manager.ui.setting.data_io.data_helpers.DataHelperBase;
 import com.project.manager.ui.setting.data_io.data_helpers.RunningAccountDataHelper;
 import com.project.manager.data.data_save.preference.ThemePreference;
-import com.project.manager.ui.setting.data_io.maps.TotalAccountDataMap;
-import com.project.manager.ui.setting.data_io.maps.TotalRuleDataMap;
 import com.project.manager.ui.setting.setting_option_views.SettingClickableTextView;
 import com.project.manager.ui.setting.setting_option_views.SettingSpinnerView;
 import com.project.manager.ui.setting.setting_option_views.SettingSwitchView;
@@ -65,6 +63,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -73,28 +72,45 @@ public class SettingFragment extends Fragment {
     private FragmentSettingBinding binding;
     private ActivityResultLauncher<Intent> importDataLauncher, exportDataLauncher;  //活动启动器
     private ActivityResultLauncher<Intent> backupDirectorySetLauncher;              //自动备份文件夹选择的启动器
-    private SAFFileIOHelper safFileIOHelper;    //SAF文件帮助器
+    private FileIOHelper fileIOHelper;    //SAF文件帮助器
     private AutoBackupHelper autoBackupHelper;  //自动备份帮助器
     private BroadcastReceiver notificationPermissionListener;   //通知监听服务正常运行的广播接收器
 
     //导入和导出的数据种类枚举
-    enum IODataType {
-        ACCOUNT_DATA("流水记录数据", "RunningAccount.json"),
-        RULE_DATA("通知解析规则数据", "AnalysisRule.json");
+    public enum IODataType {
+        ACCOUNT_DATA(
+                "流水记录数据",
+                "RunningAccount.json",
+                RunningAccountDataHelper::new
+        ),
+        RULE_DATA(
+                "通知解析规则数据",
+                "AnalysisRule.json",
+                AnalysisRuleDataHelper::new
+        );
         private final String name;              //选项名称
-        private final String default_file_name; //默认文件名称
+        private final String defaultFileName;   //默认文件名称
+        private final Function<Context, DataHelperBase<BookKeepingDbHelper, ?>> helperFactory;  //数据帮助器的构造方法
 
-        IODataType(String name, String default_file_name) {
+        IODataType(
+                String name,
+                String defaultFileName,
+                Function<Context, DataHelperBase<BookKeepingDbHelper, ?>> helperFactory) {
             this.name = name;
-            this.default_file_name = default_file_name;
+            this.defaultFileName = defaultFileName;
+            this.helperFactory = helperFactory;
         }
 
         public String getName() {
             return name;
         }
 
-        public String getDefault_file_name() {
-            return default_file_name;
+        public String getDefaultFileName() {
+            return defaultFileName;
+        }
+
+        public DataHelperBase<BookKeepingDbHelper, ?> getDataHelper(Context context) {
+            return helperFactory.apply(context);
         }
 
         /**
@@ -104,7 +120,7 @@ public class SettingFragment extends Fragment {
          */
         public static List<String> getEffectiveFileNameList() {
             return Stream.of(values())
-                    .map(IODataType::getDefault_file_name)
+                    .map(IODataType::getDefaultFileName)
                     .collect(Collectors.toList());
         }
     }
@@ -112,7 +128,7 @@ public class SettingFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentSettingBinding.inflate(inflater, container, false);
 
-        safFileIOHelper = new SAFFileIOHelper(requireContext());
+        fileIOHelper = new FileIOHelper(requireContext());
         autoBackupHelper = new AutoBackupHelper(requireContext());
 
         initViews();
@@ -243,7 +259,7 @@ public class SettingFragment extends Fragment {
                 R.drawable.baseline_settings_backup_restore_24
         );
         autoBackupHelper.setSwitchOptionView(autoBackupSwitch); //设置帮助器的开关视图，以便控制其状态
-        String backupDir = AutoBackupPreference.getBackupDirectory(requireContext());
+        String backupDir = AutoBackupPreference.getBackupDirectoryUri(requireContext());
         boolean switchStat = AutoBackupPreference.getSwitchStat(requireContext());
         if (backupDir != null && switchStat) {
             autoBackupSwitch.setChecked(true);
@@ -490,7 +506,7 @@ public class SettingFragment extends Fragment {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    safFileIOHelper.handleActivityResult(resultCode, data, true);
+                    fileIOHelper.handleActivityResult(resultCode, data, true);
                 }
         );
 
@@ -500,7 +516,7 @@ public class SettingFragment extends Fragment {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    safFileIOHelper.handleActivityResult(resultCode, data, false);
+                    fileIOHelper.handleActivityResult(resultCode, data, false);
                 }
         );
 
@@ -524,24 +540,16 @@ public class SettingFragment extends Fragment {
         List<String> fileContentList = new ArrayList<>();   //用于导出数据的临时文件内容列表
 
         //根据选择的内容创建临时文件
-        if (choseItem[IODataType.ACCOUNT_DATA.ordinal()]) {
-            DataHelperBase<BookKeepingDatabaseHelper, TotalAccountDataMap> dataHelper = new RunningAccountDataHelper(requireContext());
+        for (IODataType dataType : IODataType.values()) {
+            if (!choseItem[dataType.ordinal()]) continue;
+
+            DataHelperBase<BookKeepingDbHelper, ?> dataHelper = dataType.getDataHelper(requireContext());
             try {
-                String json_str = dataHelper.getDataInJSON();
-                fileNameList.add(IODataType.ACCOUNT_DATA.getDefault_file_name());
-                fileContentList.add(json_str);
-            } catch (JsonProcessingException e) {
-                ExceptionHelper.showExceptionDialog(requireContext(), e);
-                Toast.makeText(requireContext(), "JSON序列化时出错", Toast.LENGTH_SHORT).show();
-                return;
-            }
-        }
-        if (choseItem[IODataType.RULE_DATA.ordinal()]) {
-            DataHelperBase<BookKeepingDatabaseHelper, TotalRuleDataMap> dataHelper = new AnalysisRuleDataHelper(requireContext());
-            try {
-                String json_str = dataHelper.getDataInJSON();
-                fileNameList.add(IODataType.RULE_DATA.getDefault_file_name());
-                fileContentList.add(json_str);
+                String fileName = dataType.getDefaultFileName();
+                String fileContent = dataHelper.getDataInJSON();
+
+                fileNameList.add(fileName);
+                fileContentList.add(fileContent);
             } catch (JsonProcessingException e) {
                 ExceptionHelper.showExceptionDialog(requireContext(), e);
                 Toast.makeText(requireContext(), "JSON序列化时出错", Toast.LENGTH_SHORT).show();
@@ -550,8 +558,8 @@ public class SettingFragment extends Fragment {
         }
 
         //将文件打包至压缩包内
-        safFileIOHelper.packFileInZip(
-                new SAFFileIOHelper.WriteCallback() {
+        fileIOHelper.packFileInZip(
+                new FileIOHelper.WriteCallback() {
                     @Override
                     public void onFileWrote() {
                         Toast.makeText(requireContext(), "导出成功", Toast.LENGTH_SHORT).show();
@@ -573,8 +581,8 @@ public class SettingFragment extends Fragment {
      */
     private void importData() {
         Log.i(LogTags.SETTING_FRAGMENT.getV(), "开始导入数据……");
-        safFileIOHelper.openFileBySAF(
-                new SAFFileIOHelper.ReadCallback() {
+        fileIOHelper.openFileBySAF(
+                new FileIOHelper.ReadCallback() {
                     @Override
                     public void onZipUnpacked(List<File> fileList) {
                         List<File> effectiveFileList = getEffectiveFileList(fileList);
@@ -589,7 +597,7 @@ public class SettingFragment extends Fragment {
                         for (IODataType IODataType : IODataType.values()) {
                             boolean isFound = false;
                             for (File tempFile : fileList) {
-                                if (tempFile.getName().equals(IODataType.getDefault_file_name())) {
+                                if (tempFile.getName().equals(IODataType.getDefaultFileName())) {
                                     isFound = true;
                                     break;
                                 }
@@ -663,7 +671,7 @@ public class SettingFragment extends Fragment {
                         }
 
                         //清除临时文件
-                        safFileIOHelper.clearTempFile();
+                        fileIOHelper.clearTempFile();
                     }
 
 
@@ -884,7 +892,7 @@ public class SettingFragment extends Fragment {
         //设置对话框隐藏监听
         alertDialog.setOnDismissListener(dialog -> {
             Log.i(LogTags.SETTING_FRAGMENT.getV(), "对话框关闭");
-            safFileIOHelper.clearTempFile();
+            fileIOHelper.clearTempFile();
         });
         alertDialog.show();
     }
@@ -892,41 +900,47 @@ public class SettingFragment extends Fragment {
     /**
      * 数据导入确认后触发的方法
      *
-     * @param itemStats         多选对话框的选择状况
+     * @param itemChooseStats   多选对话框的选择状况
      * @param effectiveFileList 能够解析内容的有效文件列表
      */
-    private void onImportConfirmed(@NonNull boolean[] itemStats, @NonNull List<File> effectiveFileList) {
+    private void onImportConfirmed(@NonNull boolean[] itemChooseStats, @NonNull List<File> effectiveFileList) {
         boolean isImportSuccessfully = false;
 
-        boolean isAccountDataChecked = itemStats[IODataType.ACCOUNT_DATA.ordinal()];   //流水记录文件是否勾选
-        boolean isRuleDataChecked = itemStats[IODataType.RULE_DATA.ordinal()];         //通知解析规则文件是否勾选
-        for (File file : effectiveFileList) {
-            String file_name = file.getName();
+        boolean isAccountDataChecked = itemChooseStats[IODataType.ACCOUNT_DATA.ordinal()];   //流水记录文件是否勾选
+        boolean isRuleDataChecked = itemChooseStats[IODataType.RULE_DATA.ordinal()];         //通知解析规则文件是否勾选
 
-            DataHelperBase<BookKeepingDatabaseHelper, ?> dataHelperBase;
-            if (file_name.equals(IODataType.ACCOUNT_DATA.getDefault_file_name()) && isAccountDataChecked) {
-                dataHelperBase = new RunningAccountDataHelper(requireContext());
-            } else if (file_name.equals(IODataType.RULE_DATA.getDefault_file_name()) && isRuleDataChecked) {
-                //isAccountDataChecked：当同时导入了流水账数据时才写入tag_no属性
-                dataHelperBase = new AnalysisRuleDataHelper(requireContext(), isAccountDataChecked);
+        for (IODataType dataType : IODataType.values()) {
+            if (!itemChooseStats[dataType.ordinal()]) continue;
+
+            String targetFileName = dataType.getDefaultFileName();
+
+            //获取数据帮助器
+            DataHelperBase<BookKeepingDbHelper, ?> dataHelper;
+            if (dataType == IODataType.RULE_DATA && isRuleDataChecked && isAccountDataChecked) {
+                //当流水数据和规则数据都选中时，获取能够写入标签数据的数据帮助器
+                dataHelper = new AnalysisRuleDataHelper(requireContext(), true);
             } else {
-                continue;
+                dataHelper = dataType.getDataHelper(requireContext());
             }
 
-            //将数据保存至数据库
-            Log.i(LogTags.SETTING_FRAGMENT.getV(), String.format(Locale.getDefault(), "正在尝试读取临时文件%s", file_name));
-            StringBuilder content = new StringBuilder();
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    content.append(line).append("\n");
+            for (File file : effectiveFileList) {
+                if (targetFileName.equals(file.getName())) {
+                    //将数据保存至数据库
+                    Log.i(LogTags.SETTING_FRAGMENT.getV(), String.format(Locale.getDefault(), "正在尝试读取临时文件%s", targetFileName));
+                    StringBuilder content = new StringBuilder();
+                    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            content.append(line).append("\n");
+                        }
+                        isImportSuccessfully = dataHelper.saveJsonDataToDb(content.toString()) || isImportSuccessfully;
+                    } catch (IOException e) {
+                        ExceptionHelper.showExceptionDialog(requireContext(), e);
+                        Toast.makeText(requireContext(), "临时文件读取失败，请重试", Toast.LENGTH_SHORT).show();
+                        Log.e(LogTags.SETTING_FRAGMENT.getV(), "临时文件读取失败");
+                        return;
+                    }
                 }
-                isImportSuccessfully = dataHelperBase.saveJsonDataToDb(content.toString()) || isImportSuccessfully;
-            } catch (IOException e) {
-                ExceptionHelper.showExceptionDialog(requireContext(), e);
-                Toast.makeText(requireContext(), "临时文件读取失败，请重试", Toast.LENGTH_SHORT).show();
-                Log.e(LogTags.SETTING_FRAGMENT.getV(), "临时文件读取失败");
-                return;
             }
         }
 

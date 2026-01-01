@@ -52,4 +52,5 @@ dependencies {
     implementation libs.rxjava
     implementation libs.swiperefreshlayout
     implementation libs.documentfile
+    implementation libs.work.runtime
 }

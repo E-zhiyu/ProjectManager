@@ -10,7 +10,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.project.manager.data.data_save.database.BookKeepingColumns;
-import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
+import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.ui.setting.data_io.pojo.PojoAnalysisRule;
 import com.project.manager.ui.setting.data_io.maps.TotalRuleDataMap;
@@ -18,7 +18,7 @@ import com.project.manager.ui.setting.data_io.maps.TotalRuleDataMap;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AnalysisRuleDataHelper extends DataHelperBase<BookKeepingDatabaseHelper, TotalRuleDataMap> {
+public class AnalysisRuleDataHelper extends DataHelperBase<BookKeepingDbHelper, TotalRuleDataMap> {
     private final boolean isTagNoShouldWrite;
 
     /**
@@ -43,8 +43,8 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookKeepingDatabaseHe
     }
 
     @Override
-    protected BookKeepingDatabaseHelper createHelper() {
-        return new BookKeepingDatabaseHelper(context);
+    protected BookKeepingDbHelper createHelper() {
+        return new BookKeepingDbHelper(context);
     }
 
     @Override
@@ -137,13 +137,13 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookKeepingDatabaseHe
     public static void resetRule(Context context) {
         String tip_str = "数据清除失败：未知原因";
         try {
-            BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+            BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
             SQLiteDatabase db = db_helper.openWriteLink();
 
             db.delete(BookKeepingTables.ANALYSIS_RULE.toString(), null, null);
 
             //恢复默认规则
-            BookKeepingDatabaseHelper.addDefaultRule(db);
+            BookKeepingDbHelper.addDefaultRule(db);
 
             db.close();
             tip_str = "规则重置成功";

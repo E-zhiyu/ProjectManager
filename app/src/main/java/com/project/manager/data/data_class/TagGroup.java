@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteException;
 import androidx.annotation.NonNull;
 
 import com.project.manager.data.data_save.database.BookKeepingColumns;
-import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
+import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.ui.setting.data_io.pojo.PojoTagGroup;
 
@@ -76,7 +76,7 @@ public class TagGroup {
      * @throws SQLiteException 读取失败产生的数据库异常
      */
     public static long nameTransToGno(String group_name, Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
 
         String[] columns = {BookKeepingColumns.GROUP_NO.toString()};
@@ -114,7 +114,7 @@ public class TagGroup {
      * @throws SQLiteException 写入失败产生的数据库异常
      */
     public static long saveNewGroup(String group_name, Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         ContentValues group_values = new ContentValues();
@@ -134,7 +134,7 @@ public class TagGroup {
      */
     @NonNull
     public static List<TagGroup> loadTagGroups(Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
         List<TagGroup> tagGroupList = new ArrayList<>();    //标签组实例列表
 
@@ -193,7 +193,7 @@ public class TagGroup {
      */
     @NonNull
     public static List<PojoTagGroup> loadPojoTagGroups(Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
         List<PojoTagGroup> tagGroupList = new ArrayList<>();
 
@@ -230,7 +230,7 @@ public class TagGroup {
      * @throws SQLiteException 数据库修改失败引发的异常
      */
     public static void modifyGroupName(long group_no, String group_name, Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //修改分组名称
@@ -251,7 +251,7 @@ public class TagGroup {
      * @throws SQLiteException 数据库修改失败引发的异常
      */
     public static void deleteGroup(long group_no, Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         String where = BookKeepingColumns.GROUP_NO + "=?";
@@ -270,7 +270,7 @@ public class TagGroup {
      * @throws SQLiteException 写入数据可能引发的数据库异常
      */
     public static void mergeGroup(long merged_group_no, long merge_target_no, Context context) throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //更改对应标签的分组编号
