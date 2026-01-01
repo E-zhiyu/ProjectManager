@@ -11,10 +11,12 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.5.6  \n" +
+    private static final String update_log_md = "# v1.6.0  \n" +
             "**新增内容**  \n" +
+            "- 增加自动备份功能  \n" +
             "- 应用启动时会自动检测更新  \n\n" +
             "**BUG修复**  \n" +
+            "- 修复字体比较大时设置项的文字会与开关按钮重叠的BUG  \n" +
             "- 修复无网络环境下检测更新会弹出错误对话框的BUG  \n\n" +
             "# v1.5.5  \n" +
             "**新增内容**  \n" +
