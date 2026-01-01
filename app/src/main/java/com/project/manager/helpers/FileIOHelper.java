@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -130,9 +129,11 @@ public class FileIOHelper {
             createTempJsonFile(file_name, file_content);
         }
 
-        String autoBackupDirPath = AutoBackupPreference.getBackupDirectoryUri(context);
-        File autoBackupDir = new File(Objects.requireNonNull(Uri.parse(autoBackupDirPath).getPath()));
-        createZipFile(autoBackupDir);
+        String autoBackupDirUriStr = AutoBackupPreference.getBackupDirectoryUri(context);
+        if (autoBackupDirUriStr != null) {
+            Uri backupDirUri = Uri.parse(autoBackupDirUriStr);
+            createZipFile(backupDirUri);
+        }
         clearTempFile();
     }
 
@@ -142,7 +143,7 @@ public class FileIOHelper {
      * @param parentDir 存放zip文件的目录
      */
     private void createZipFile(File parentDir) {
-        Log.d(LogTags.SAF_FILE_HELPER.getV(), "正在创建zip文件……");
+        Log.d(LogTags.FILE_IO_HELPER.getV(), "正在创建zip文件……");
 
         //获取当前日期和时间并生成默认文件名
         Calendar calendar = Calendar.getInstance();
@@ -177,13 +178,71 @@ public class FileIOHelper {
                 }
             }
 
-            Log.d(LogTags.SAF_FILE_HELPER.getV(), "zip文件创建成功");
+            Log.d(LogTags.FILE_IO_HELPER.getV(), "zip文件创建成功");
         } catch (IOException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             if (writeCallback != null) {
                 writeCallback.onError("无法创建zip文件");
             }
-            Log.e(LogTags.SAF_FILE_HELPER.getV(), "无法创建zip文件");
+            Log.e(LogTags.FILE_IO_HELPER.getV(), "无法创建zip文件");
+        }
+    }
+
+    /**
+     * 创建zip压缩包并将临时数据文件放入压缩包内(DocumentFile API方法)
+     *
+     * @param parentDirUri 存放zip文件的目录Uri
+     */
+    private void createZipFile(Uri parentDirUri) {
+        Log.d(LogTags.FILE_IO_HELPER.getV(), "正在创建zip文件……");
+
+        //获取当前日期和时间并生成默认文件名
+        Calendar calendar = Calendar.getInstance();
+        String now_date = String.format(
+                Locale.getDefault(),
+                "%04d%02d%02d(%02d%02d%02d)",
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH),
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                calendar.get(Calendar.SECOND)
+        );
+        String backUpFileName = String.format(Locale.getDefault(), "ManagerAssistantData_%s.zip", now_date);
+
+        DocumentFile parentDir = DocumentFile.fromTreeUri(context, parentDirUri);
+        DocumentFile backupFile;
+        if (parentDir != null) {
+            backupFile = parentDir.createFile("application/zip", backUpFileName);
+
+            if (backupFile != null) {
+                try (OutputStream fos = context.getContentResolver().openOutputStream(backupFile.getUri())) {
+                    ZipOutputStream zos = new ZipOutputStream(fos);
+
+                    for (File tempFile : tempJsonFileList) {
+                        try (FileInputStream fis = new FileInputStream(tempFile)) {
+                            ZipEntry zipEntry = new ZipEntry(tempFile.getName());
+                            zos.putNextEntry(zipEntry);
+
+                            byte[] buffer = new byte[1024];
+                            int length;
+                            while ((length = fis.read(buffer)) > 0) {
+                                zos.write(buffer, 0, length);
+                            }
+                            zos.closeEntry();
+                        }
+                    }
+
+                    Log.d(LogTags.FILE_IO_HELPER.getV(), "自动备份文件创建成功");
+                } catch (IOException e) {
+                    ExceptionHelper.showExceptionDialog(context, e);
+                    Log.e(LogTags.FILE_IO_HELPER.getV(), "无法创建自动备份文件");
+                }
+            } else {
+                Log.e(LogTags.FILE_IO_HELPER.getV(), "无法创建自动备份文件");
+            }
+        } else {
+            Log.e(LogTags.FILE_IO_HELPER.getV(), "无法获取自动备份目录");
         }
     }
 
@@ -194,7 +253,7 @@ public class FileIOHelper {
      * @param sourceFile 临时zip文件对象
      */
     private void saveFileUsingSAF(@NonNull ActivityResultLauncher<Intent> launcher, @NonNull File sourceFile) {
-        Log.d(LogTags.SAF_FILE_HELPER.getV(), "正在通过SAF指定zip备份文件存放位置……");
+        Log.d(LogTags.FILE_IO_HELPER.getV(), "正在通过SAF指定zip备份文件存放位置……");
 
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -202,7 +261,7 @@ public class FileIOHelper {
         intent.putExtra(Intent.EXTRA_TITLE, sourceFile.getName());
         launcher.launch(intent);
 
-        Log.d(LogTags.SAF_FILE_HELPER.getV(), "SAF启动成功");
+        Log.d(LogTags.FILE_IO_HELPER.getV(), "SAF启动成功");
     }
 
     /**
@@ -211,7 +270,7 @@ public class FileIOHelper {
      * @param uri 用户通过SAF生成的uri
      */
     private void copyTempZipToUri(Uri uri) {
-        Log.d(LogTags.SAF_FILE_HELPER.getV(), "开始复制临时zip文件到指定位置");
+        Log.d(LogTags.FILE_IO_HELPER.getV(), "开始复制临时zip文件到指定位置");
 
         ContentResolver resolver = context.getContentResolver();
         ParcelFileDescriptor pfd = null;
@@ -240,7 +299,7 @@ public class FileIOHelper {
             if (writeCallback != null) {
                 writeCallback.onError("复制临时zip文件失败");
             }
-            Log.e(LogTags.SAF_FILE_HELPER.getV(), "复制临时zip文件失败");
+            Log.e(LogTags.FILE_IO_HELPER.getV(), "复制临时zip文件失败");
         } finally {
             //关闭所有流并删除临时文件
             try {
@@ -252,7 +311,7 @@ public class FileIOHelper {
                 if (writeCallback != null) {
                     writeCallback.onError("无法正确关闭流");
                 }
-                Log.e(LogTags.SAF_FILE_HELPER.getV(), "无法正确关闭流");
+                Log.e(LogTags.FILE_IO_HELPER.getV(), "无法正确关闭流");
             }
         }
     }
@@ -273,9 +332,9 @@ public class FileIOHelper {
                 if (uri != null) {
                     copyTempZipToUri(uri);
                 }
-                Log.i(LogTags.SAF_FILE_HELPER.getV(), "用户确认选择并进行下一步");
+                Log.i(LogTags.FILE_IO_HELPER.getV(), "用户确认选择并进行下一步");
             } else {
-                Log.i(LogTags.SAF_FILE_HELPER.getV(), "用户取消选择并关闭SAF");
+                Log.i(LogTags.FILE_IO_HELPER.getV(), "用户取消选择并关闭SAF");
             }
             clearTempFile();
         }
@@ -287,7 +346,7 @@ public class FileIOHelper {
                 if (uri != null && type != null) {
                     //判断文件类型
                     if (type.equals("application/zip")) {
-                        Log.i(LogTags.SAF_FILE_HELPER.getV(), "用户选择zip备份文件");
+                        Log.i(LogTags.FILE_IO_HELPER.getV(), "用户选择zip备份文件");
 
                         //判断文件大小（字节）
                         long fileSize = getFileSizeFromUri(uri);
@@ -295,14 +354,14 @@ public class FileIOHelper {
                             if (readCallback != null) {
                                 readCallback.onError("文件大于50MB");
                             }
-                            Log.e(LogTags.SAF_FILE_HELPER.getV(), "文件大小超出限制");
+                            Log.e(LogTags.FILE_IO_HELPER.getV(), "文件大小超出限制");
                         } else if (fileSize <= 0) {
                             if (readCallback != null) {
                                 readCallback.onError("无法读取文件内容");
                             }
-                            Log.e(LogTags.SAF_FILE_HELPER.getV(), "无法读取文件内容");
+                            Log.e(LogTags.FILE_IO_HELPER.getV(), "无法读取文件内容");
                         } else {
-                            Log.i(LogTags.SAF_FILE_HELPER.getV(), "zip备份文件大小合法");
+                            Log.i(LogTags.FILE_IO_HELPER.getV(), "zip备份文件大小合法");
                             copyUriToTempZip(uri);
                         }
                     } else if (type.equals("application/json")) {
@@ -310,18 +369,18 @@ public class FileIOHelper {
                         if (readCallback != null) {
                             readCallback.onOneJsonFileRead(oneJsonFile);
                         }
-                        Log.i(LogTags.SAF_FILE_HELPER.getV(), "用户选择JSON文件");
+                        Log.i(LogTags.FILE_IO_HELPER.getV(), "用户选择JSON文件");
                     } else {
-                        Log.e(LogTags.SAF_FILE_HELPER.getV(), "用户选择了未知种类的文件");
+                        Log.e(LogTags.FILE_IO_HELPER.getV(), "用户选择了未知种类的文件");
                         if (readCallback != null) {
                             readCallback.onError("请选择zip或json文件");
                         }
                     }
                 } else {
-                    Log.e(LogTags.SAF_FILE_HELPER.getV(), "无法获取文件信息");
+                    Log.e(LogTags.FILE_IO_HELPER.getV(), "无法获取文件信息");
                 }
             } else {
-                Log.i(LogTags.SAF_FILE_HELPER.getV(), "用户取消选择并关闭SAF");
+                Log.i(LogTags.FILE_IO_HELPER.getV(), "用户取消选择并关闭SAF");
             }
         }
     }
@@ -334,7 +393,7 @@ public class FileIOHelper {
      */
     public void openFileBySAF(ReadCallback callback,
                               ActivityResultLauncher<Intent> launcher) {
-        Log.d(LogTags.SAF_FILE_HELPER.getV(), "正在使用SAF选择zip备份文件……");
+        Log.d(LogTags.FILE_IO_HELPER.getV(), "正在使用SAF选择zip备份文件……");
         this.readCallback = callback;
 
         try {
@@ -344,13 +403,13 @@ public class FileIOHelper {
             String[] fileTypes = {"application/json", "application/zip"};
             intent.putExtra(Intent.EXTRA_MIME_TYPES, fileTypes);    //限制只能打开JSON和zip文件
             launcher.launch(intent);
-            Log.d(LogTags.SAF_FILE_HELPER.getV(), "SAF启动成功");
+            Log.d(LogTags.FILE_IO_HELPER.getV(), "SAF启动成功");
         } catch (Exception e) {
             ExceptionHelper.showExceptionDialog(context, e);
             if (readCallback != null) {
                 readCallback.onError("SAF出错");
             }
-            Log.e(LogTags.SAF_FILE_HELPER.getV(), "SAF出错");
+            Log.e(LogTags.FILE_IO_HELPER.getV(), "SAF出错");
         }
     }
 
@@ -360,7 +419,7 @@ public class FileIOHelper {
      * @param uri 用户通过SAF选择的uri
      */
     private void copyUriToTempZip(Uri uri) {
-        Log.d(LogTags.SAF_FILE_HELPER.getV(), "开始复制目标zip备份文件到临时目录……");
+        Log.d(LogTags.FILE_IO_HELPER.getV(), "开始复制目标zip备份文件到临时目录……");
 
         //生成临时zip文件对象
         tempZipFile = new File(tempDir, "backup_temp.zip");
@@ -398,7 +457,7 @@ public class FileIOHelper {
             if (readCallback != null) {
                 readCallback.onError("复制zip文件时出错");
             }
-            Log.e(LogTags.SAF_FILE_HELPER.getV(), "zip文件复制失败");
+            Log.e(LogTags.FILE_IO_HELPER.getV(), "zip文件复制失败");
 
             //复制失败时清理可能残留的临时文件
             clearTempFile();
@@ -412,7 +471,7 @@ public class FileIOHelper {
                 if (readCallback != null) {
                     readCallback.onError("无法正确关闭流");
                 }
-                Log.e(LogTags.SAF_FILE_HELPER.getV(), "无法正确关闭流");
+                Log.e(LogTags.FILE_IO_HELPER.getV(), "无法正确关闭流");
             }
         }
     }
@@ -423,7 +482,7 @@ public class FileIOHelper {
     private void unpackZipFile() {
         try (FileInputStream fis = new FileInputStream(tempZipFile);
              ZipInputStream zis = new ZipInputStream(fis)) {
-            Log.d(LogTags.SAF_FILE_HELPER.getV(), "开始解压zip备份文件……");
+            Log.d(LogTags.FILE_IO_HELPER.getV(), "开始解压zip备份文件……");
 
             ZipEntry entry;
             byte[] buffer = new byte[8192]; // 8KB缓冲区
@@ -447,7 +506,7 @@ public class FileIOHelper {
 
             //读取解压得到的文件内容
             if (!tempJsonFileList.isEmpty()) {
-                Log.d(LogTags.SAF_FILE_HELPER.getV(), "zip备份文件解压完成");
+                Log.d(LogTags.FILE_IO_HELPER.getV(), "zip备份文件解压完成");
                 if (readCallback != null) {
                     readCallback.onZipUnpacked(tempJsonFileList);
                 }
@@ -455,14 +514,14 @@ public class FileIOHelper {
                 if (readCallback != null) {
                     readCallback.onError("zip文件为空");
                 }
-                Log.w(LogTags.SAF_FILE_HELPER.getV(), "zip备份文件为空");
+                Log.w(LogTags.FILE_IO_HELPER.getV(), "zip备份文件为空");
             }
         } catch (IOException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             if (readCallback != null) {
                 readCallback.onError("zip文件解压失败");
             }
-            Log.e(LogTags.SAF_FILE_HELPER.getV(), "zip备份文件解压失败");
+            Log.e(LogTags.FILE_IO_HELPER.getV(), "zip备份文件解压失败");
             clearTempFile();
         }
     }
@@ -495,7 +554,7 @@ public class FileIOHelper {
      */
     private void writeContentToTempFile(@NonNull File targetFile, String content) {
         Log.d(
-                LogTags.SAF_FILE_HELPER.getV(),
+                LogTags.FILE_IO_HELPER.getV(),
                 String.format(Locale.getDefault(), "正在将内容写入文件%s……", targetFile.getName())
         );
         try (FileOutputStream fos = new FileOutputStream(targetFile)) {
@@ -503,13 +562,13 @@ public class FileIOHelper {
 
             writer.write(content);
             writer.flush();
-            Log.d(LogTags.SAF_FILE_HELPER.getV(), "文件内容写入完毕");
+            Log.d(LogTags.FILE_IO_HELPER.getV(), "文件内容写入完毕");
         } catch (IOException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             if (writeCallback != null) {
                 writeCallback.onError("临时文件写入失败");
             }
-            Log.e(LogTags.SAF_FILE_HELPER.getV(), "临时文件写入失败");
+            Log.e(LogTags.FILE_IO_HELPER.getV(), "临时文件写入失败");
         }
     }
 
@@ -550,7 +609,7 @@ public class FileIOHelper {
             if (readCallback != null) {
                 readCallback.onError("JSON文件读取失败");
             }
-            Log.e(LogTags.SAF_FILE_HELPER.getV(), "JSON文件读取失败");
+            Log.e(LogTags.FILE_IO_HELPER.getV(), "JSON文件读取失败");
             return null;
         }
     }
@@ -559,7 +618,7 @@ public class FileIOHelper {
      * 清除临时文件
      */
     public void clearTempFile() {
-        Log.d(LogTags.SAF_FILE_HELPER.getV(), "开始清除临时文件……");
+        Log.d(LogTags.FILE_IO_HELPER.getV(), "开始清除临时文件……");
         boolean isFileDeleteFailed = false;
 
         for (File tempFile : tempJsonFileList) {
@@ -576,9 +635,9 @@ public class FileIOHelper {
 
         if (isFileDeleteFailed) {
             Toast.makeText(context, "警告：临时文件删除失败", Toast.LENGTH_SHORT).show();
-            Log.w(LogTags.SAF_FILE_HELPER.getV(), "临时文件清除失败");
+            Log.w(LogTags.FILE_IO_HELPER.getV(), "临时文件清除失败");
         } else {
-            Log.d(LogTags.SAF_FILE_HELPER.getV(), "临时文件清除完毕");
+            Log.d(LogTags.FILE_IO_HELPER.getV(), "临时文件清除完毕");
         }
     }
 

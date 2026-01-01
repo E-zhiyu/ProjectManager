@@ -43,7 +43,7 @@ public class BackupWorker extends Worker {
                 fileContentList.add(fileContent);
             } catch (JsonProcessingException e) {
                 Log.e(LogTags.BACKUP_WORKER.getV(), "JSON序列化出错");
-                throw new RuntimeException();
+                return Result.failure();
             }
         }
 

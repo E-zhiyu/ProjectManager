@@ -54,6 +54,7 @@ import com.project.manager.data.data_save.preference.ThemePreference;
 import com.project.manager.ui.setting.setting_option_views.SettingClickableTextView;
 import com.project.manager.ui.setting.setting_option_views.SettingSpinnerView;
 import com.project.manager.ui.setting.setting_option_views.SettingSwitchView;
+import com.project.manager.workers.BackupScheduler;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -250,7 +251,7 @@ public class SettingFragment extends Fragment {
                         .show()
         );
 
-        //自动备份选项
+        //自动备份开关
         SettingSwitchView autoBackupSwitch = new SettingSwitchView(
                 requireContext(),
                 binding.autoBackupOption,
@@ -281,8 +282,17 @@ public class SettingFragment extends Fragment {
                                         )
                                 );
 
-                        builder.setOnCancelListener(dialog -> buttonView.setChecked(false));
+                        builder.setOnCancelListener(dialog -> {
+                            buttonView.setChecked(false);
+                            BackupScheduler.cancelPeriodicBackup(requireContext());
+                        });
                         builder.show();
+                    } else if (isChecked) {
+                        int frequency_index = AutoBackupPreference.getBackupFrequency(requireContext());
+                        long intervalMillis = AutoBackupHelper.BackupFrequency.values()[frequency_index].getIntervalMillis();
+                        BackupScheduler.schedulePeriodicBackup(requireContext(), intervalMillis);
+                    } else {
+                        BackupScheduler.cancelPeriodicBackup(requireContext());
                     }
                     AnimationHelper.switchViewFoldOrExpanded(isChecked, binding.autoBackupLayout);
                     AutoBackupPreference.setSwitchStat(requireContext(), isChecked);
@@ -307,18 +317,26 @@ public class SettingFragment extends Fragment {
             frequencyMenu.setOnMenuItemClickListener(item -> {
                 boolean isItemClicked = false;
 
+                int old_index = AutoBackupPreference.getBackupFrequency(requireContext());  //获取之前的频率代码防止重复更新工作
+                int item_index = -1;
                 if (item.getItemId() == R.id.every_day) {
                     isItemClicked = true;
-                    AutoBackupPreference.setBackupFrequency(requireContext(), 0);
+                    item_index = 0;
                     backupFrequencyOption.setSpinnerText(requireContext().getString(R.string.every_day));
                 } else if (item.getItemId() == R.id.every_week) {
                     isItemClicked = true;
-                    AutoBackupPreference.setBackupFrequency(requireContext(), 1);
+                    item_index = 1;
                     backupFrequencyOption.setSpinnerText(requireContext().getString(R.string.every_week));
                 } else if (item.getItemId() == R.id.every_month) {
                     isItemClicked = true;
-                    AutoBackupPreference.setBackupFrequency(requireContext(), 2);
+                    item_index = 2;
                     backupFrequencyOption.setSpinnerText(requireContext().getString(R.string.every_month));
+                }
+
+                if (isItemClicked && old_index != item_index) {
+                    AutoBackupPreference.setBackupFrequency(requireContext(), item_index);
+                    long intervalMillis = AutoBackupHelper.BackupFrequency.values()[item_index].getIntervalMillis();
+                    BackupScheduler.schedulePeriodicBackup(requireContext(), intervalMillis);   //更新工作内容
                 }
 
                 return isItemClicked;

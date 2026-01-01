@@ -5,29 +5,37 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.DocumentsContract;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 
 import com.project.manager.data.data_save.preference.AutoBackupPreference;
 import com.project.manager.ui.setting.setting_option_views.SettingSwitchView;
+import com.project.manager.workers.BackupScheduler;
 
 public class AutoBackupHelper {
     private final Context context;              //上下文
     private SettingSwitchView switchOptionView; //设置界面的开关选项
 
     public enum BackupFrequency {
-        DAY("每天"),       //每天
-        WEEK("每星期"),    //每个星期
-        MONTH("每个月");   //每月
-        private final String name;
+        DAY("每天", 24L * 60 * 60 * 1000),              //每天
+        WEEK("每星期", 24L * 60 * 60 * 1000 * 7),       //每个星期
+        MONTH("每个月", 24L * 60 * 60 * 1000 * 7 * 30); //每月
+        private final String name;          //选项名称
+        private final long intervalMillis;  //备份间隔时间(毫秒)
 
-        BackupFrequency(String name) {
+        BackupFrequency(String name, long intervalMillis) {
             this.name = name;
+            this.intervalMillis = intervalMillis;
         }
 
         public String getName() {
             return name;
+        }
+
+        public long getIntervalMillis() {
+            return intervalMillis;
         }
     }
 
@@ -64,6 +72,8 @@ public class AutoBackupHelper {
      */
     public void handleActivityResult(int resultCode, @Nullable Intent data) {
         if (resultCode == Activity.RESULT_OK && data != null) {
+            Toast.makeText(context, "成功设置备份存储目录", Toast.LENGTH_SHORT).show();
+
             //获取用户选择的目录URI
             Uri backupDirUri = data.getData();
             if (backupDirUri == null) return;
@@ -77,6 +87,11 @@ public class AutoBackupHelper {
                     backupDirUri,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             );
+
+            //开始自动备份工作
+            int frequency_index = AutoBackupPreference.getBackupFrequency(context);
+            long intervalMillis = AutoBackupHelper.BackupFrequency.values()[frequency_index].getIntervalMillis();
+            BackupScheduler.schedulePeriodicBackup(context, intervalMillis);
         } else {
             String backupDir = AutoBackupPreference.getBackupDirectoryUri(context);
             if (switchOptionView != null && backupDir == null) {
