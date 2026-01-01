@@ -7,15 +7,13 @@ import androidx.annotation.NonNull;
 
 import com.project.manager.helpers.ThemeModeHelper;
 
-/**
- * 应用主题的Preference
- */
-public class ThemePreference {
+public class AppSettingsPreference {
     private static final String PREF_NAME = "ThemePreference";
     private static final String KEY_THEME_MODE = "theme_mode";
     private static final String KEY_DYNAMIC_COLOR = "dynamic_color";
+    private static final String KEY_FIRST_SCREEN = "first_screen";
 
-    public static void saveThemeMode(@NonNull Context context, int themeMode) {
+    public static void setThemeMode(@NonNull Context context, int themeMode) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         pref.edit().putInt(KEY_THEME_MODE, themeMode).apply();
     }
@@ -25,7 +23,7 @@ public class ThemePreference {
         return pref.getInt(KEY_THEME_MODE, ThemeModeHelper.FOLLOW_SYSTEM);
     }
 
-    public static void saveDynamicColorStat(@NonNull Context context, boolean isOpened) {
+    public static void setDynamicColorStat(@NonNull Context context, boolean isOpened) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         pref.edit().putBoolean(KEY_DYNAMIC_COLOR, isOpened).apply();
     }
@@ -33,5 +31,15 @@ public class ThemePreference {
     public static boolean getDynamicColorStat(@NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return pref.getBoolean(KEY_DYNAMIC_COLOR, true);
+    }
+
+    public static void setFirstScreen(@NonNull Context context, int screen_code) {
+        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        pref.edit().putInt(KEY_FIRST_SCREEN, screen_code).apply();
+    }
+
+    public static int getFirstScreen(@NonNull Context context) {
+        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return pref.getInt(KEY_FIRST_SCREEN, 0);
     }
 }

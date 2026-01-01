@@ -35,6 +35,10 @@
                 <include
                     android:id="@+id/dynamic_color_option"
                     layout="@layout/view_setting_option" />
+
+                <include
+                    android:id="@+id/first_screen_option"
+                    layout="@layout/view_setting_option" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

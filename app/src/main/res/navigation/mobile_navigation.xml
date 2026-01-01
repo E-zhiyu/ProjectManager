@@ -16,7 +16,7 @@
         android:label="@string/home_page"
         tools:layout="@layout/fragment_home" />
     <fragment
-        android:id="@+id/navigation_mine"
+        android:id="@+id/navigation_settings"
         android:name="com.project.manager.ui.setting.SettingFragment"
         android:label="@string/title_setting"
         tools:layout="@layout/fragment_setting" />

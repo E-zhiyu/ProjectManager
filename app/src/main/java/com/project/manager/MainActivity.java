@@ -14,7 +14,7 @@ import com.project.manager.data.data_save.preference.KeepAlivePreference;
 import com.project.manager.data.data_save.preference.VersionPreference;
 import com.project.manager.databinding.ActivityMainBinding;
 import com.project.manager.helpers.ThemeModeHelper;
-import com.project.manager.data.data_save.preference.ThemePreference;
+import com.project.manager.data.data_save.preference.AppSettingsPreference;
 import com.project.manager.helpers.UpdateHelper;
 
 public class MainActivity extends AppCompatActivity {
@@ -68,17 +68,24 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_bookkeeping, R.id.navigation_home, R.id.navigation_mine)
+                R.id.navigation_bookkeeping, R.id.navigation_home, R.id.navigation_settings)
                 .build();
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.bottomNavi, navController);
+
+        int first_screen_code = AppSettingsPreference.getFirstScreen(this);
+        int[] navItemIds = {
+                R.id.navigation_home,
+                R.id.navigation_bookkeeping
+        };
+        binding.bottomNavi.setSelectedItemId(navItemIds[first_screen_code]);
     }
 
     //初始化主题模式
     private void initThemeMode() {
-        int theme_mode = ThemePreference.getThemeMode(this);
+        int theme_mode = AppSettingsPreference.getThemeMode(this);
         ThemeModeHelper.applyTheme(theme_mode);
     }
 }

@@ -50,7 +50,7 @@ import com.project.manager.ui.setting.data_io.MultiChoiceDialogAdapter;
 import com.project.manager.ui.setting.data_io.data_helpers.AnalysisRuleDataHelper;
 import com.project.manager.ui.setting.data_io.data_helpers.DataHelperBase;
 import com.project.manager.ui.setting.data_io.data_helpers.RunningAccountDataHelper;
-import com.project.manager.data.data_save.preference.ThemePreference;
+import com.project.manager.data.data_save.preference.AppSettingsPreference;
 import com.project.manager.ui.setting.setting_option_views.SettingClickableTextView;
 import com.project.manager.ui.setting.setting_option_views.SettingSpinnerView;
 import com.project.manager.ui.setting.setting_option_views.SettingSwitchView;
@@ -184,10 +184,10 @@ public class SettingFragment extends Fragment {
                 null,
                 R.drawable.baseline_color_lens_24
         );
-        dynamicColorOption.setChecked(ThemePreference.getDynamicColorStat(requireContext()));
+        dynamicColorOption.setChecked(AppSettingsPreference.getDynamicColorStat(requireContext()));
         dynamicColorOption.setFunctionListener(
                 (buttonView, isChecked) -> {
-                    ThemePreference.saveDynamicColorStat(requireContext(), isChecked);
+                    AppSettingsPreference.setDynamicColorStat(requireContext(), isChecked);
 
                     ManagerAssistant app = (ManagerAssistant) requireActivity().getApplication();
                     if (isChecked) {
@@ -204,6 +204,48 @@ public class SettingFragment extends Fragment {
                     requireActivity().recreate();
                 }
         );
+
+        //首页选项
+        SettingSpinnerView firstScreenOption = new SettingSpinnerView(
+                requireContext(),
+                binding.firstScreenOption,
+                R.string.first_screen,
+                "选择启动时加载的页面",
+                R.drawable.baseline_add_to_home_screen_24
+        );
+        String[] firstScreenTitles = {
+                requireContext().getString(R.string.home_page),
+                requireContext().getString(R.string.title_bookkeeping)
+        };
+        int screen_code = AppSettingsPreference.getFirstScreen(requireContext());
+        firstScreenOption.setSpinnerText(firstScreenTitles[screen_code]);
+        firstScreenOption.setFunctionListener(v -> {
+            PopupMenu firstScreenMenu = new PopupMenu(requireContext(), firstScreenOption.getFunctionComponent());
+            firstScreenMenu.getMenuInflater().inflate(R.menu.popup_menu_first_screen, firstScreenMenu.getMenu());
+
+            firstScreenMenu.setOnMenuItemClickListener(item -> {
+                boolean isItemClicked = false;
+
+                int item_index = -1;
+                int old_screen_code = AppSettingsPreference.getFirstScreen(requireContext());
+                if (item.getItemId() == R.id.home) {
+                    item_index = 0;
+                    isItemClicked = true;
+                } else if (item.getItemId() == R.id.bookkeeping) {
+                    item_index = 1;
+                    isItemClicked = true;
+                }
+
+                if (isItemClicked && item_index != old_screen_code) {
+                    AppSettingsPreference.setFirstScreen(requireContext(), item_index);
+                    firstScreenOption.setSpinnerText(firstScreenTitles[item_index]);
+                }
+
+                return isItemClicked;
+            });
+
+            firstScreenMenu.show();
+        });
     }
 
     /**
@@ -841,13 +883,13 @@ public class SettingFragment extends Fragment {
      */
     private void showThemeModeSelectDialog() {
         String[] themeModeStr = {"浅色模式", "深色模式", "跟随系统"};
-        int theme_mode = ThemePreference.getThemeMode(requireContext());
+        int theme_mode = AppSettingsPreference.getThemeMode(requireContext());
 
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("主题模式")
                 .setSingleChoiceItems(themeModeStr, theme_mode, ((dialog, which) -> {
                     ThemeModeHelper.applyTheme(which);
-                    ThemePreference.saveThemeMode(requireContext(), which);
+                    AppSettingsPreference.setThemeMode(requireContext(), which);
                     dialog.dismiss();
                 }))
                 .setNegativeButton("关闭", (dialog, which) -> dialog.dismiss())
