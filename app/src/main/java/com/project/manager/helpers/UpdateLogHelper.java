@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.6.0  \n" +
             "**新增内容**  \n" +
+            "- 通知解析规则正则表达式输入框新增金额捕获组插入按钮  \n" +
             "- 添加启动页设置选项  \n" +
             "- 增加自动备份功能  \n" +
             "- 应用启动时会自动检测更新  \n\n" +

@@ -3,6 +3,7 @@ package com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysi
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
@@ -43,19 +44,19 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
     private int viewHolderPosition;                                 //规则ViewHolder下标
     private long rule_no;                                           //规则编号
     private long tag_no = 0;                                        //标签编号
-    private TextInputEditText rule_name_input;                      //规则名称输入框
-    private TextInputLayout rule_name_layout;                       //规则名称输入框布局管理器
-    private TextInputEditText type_input;                           //种类输入框
-    private TextInputEditText tag_input;                            //标签名称输入框
-    private TextInputEditText package_name_input;                   //包名输入框
-    private TextInputLayout package_name_layout;                    //包名输入框布局管理器
-    private TextInputEditText notification_title_input;             //通知标题输入框
-    private TextInputLayout notification_title_layout;              //通知标题输入框布局管理器
-    private TextInputEditText notification_content_input;           //通知内容输入框
-    private TextInputLayout notification_content_layout;            //通知内容输入框布局管理器
+    private TextInputEditText ruleNameInput;                        //规则名称输入框
+    private TextInputLayout ruleNameLayout;                         //规则名称输入框布局管理器
+    private TextInputEditText typeInput;                            //种类输入框
+    private TextInputEditText tagInput;                             //标签名称输入框
+    private TextInputEditText packageNameInput;                     //包名输入框
+    private TextInputLayout packageNameLayout;                      //包名输入框布局管理器
+    private TextInputEditText titleInput;                           //通知标题输入框
+    private TextInputLayout titleLayout;                            //通知标题输入框布局管理器
+    private TextInputEditText contentInput;                         //通知内容输入框
+    private TextInputLayout contentLayout;                          //通知内容输入框布局管理器
     private RunningAccountType type = RunningAccountType.EXPENSE;   //流水种类
     private AccountTagViewModel tagViewModel;                       //用于更新标签名称的ViewModel
-    private TagSelectBottomSheet tag_sheet;                         //标签选择弹出菜单
+    private TagSelectBottomSheet tagSheet;                          //标签选择弹出菜单
     private ActivityResultLauncher<Intent> packageNameSelectLauncher;   //包名选择启动器
     private ActivityRuleAddModifyBinding binding;                   //绑定的XML视图引用
 
@@ -97,7 +98,7 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
                         for (RunningAccountType selected_type : RunningAccountType.values()) {
                             if (index == which) {
                                 type = selected_type;
-                                type_input.setText(type.getTitle());
+                                typeInput.setText(type.getTitle());
                                 break;
                             }
                             index++;
@@ -110,8 +111,8 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
             Intent skip2PackageNameSelect = new Intent(this, PackageNameSelectActivity.class);
             packageNameSelectLauncher.launch(skip2PackageNameSelect);
         } else if (v.getId() == R.id.tag_name_input) {
-            tag_sheet = new TagSelectBottomSheet(this::onTagBtnClicked, this::startObserveTag);
-            tag_sheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
+            tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, this::startObserveTag);
+            tagSheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
         } else if (v.getId() == R.id.finish_btn) {
             String err = verifyInput();
             if (err == null) {
@@ -148,30 +149,30 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
     public void onFocusChange(View v, boolean hasFocus) {
         if (!hasFocus) {
             String err = null;
-            if (v == rule_name_input && String.valueOf(rule_name_input.getText()).isEmpty()) {
+            if (v == ruleNameInput && String.valueOf(ruleNameInput.getText()).isEmpty()) {
                 err = "规则名称不能为空";
-                rule_name_layout.setErrorEnabled(true);
-                rule_name_layout.setError(err);
-            } else if (v == package_name_input && String.valueOf(package_name_input.getText()).isEmpty()) {
+                ruleNameLayout.setErrorEnabled(true);
+                ruleNameLayout.setError(err);
+            } else if (v == packageNameInput && String.valueOf(packageNameInput.getText()).isEmpty()) {
                 err = "包名不能为空";
-                package_name_layout.setErrorEnabled(true);
-                package_name_layout.setError(err);
-            } else if (v == notification_title_input && String.valueOf(notification_title_input.getText()).isEmpty()) {
+                packageNameLayout.setErrorEnabled(true);
+                packageNameLayout.setError(err);
+            } else if (v == titleInput && String.valueOf(titleInput.getText()).isEmpty()) {
                 err = "通知标题不能为空";
-                notification_title_layout.setErrorEnabled(true);
-                notification_title_layout.setError(err);
-            } else if (v == notification_content_input && String.valueOf(notification_content_input.getText()).isEmpty()) {
+                titleLayout.setErrorEnabled(true);
+                titleLayout.setError(err);
+            } else if (v == contentInput && String.valueOf(contentInput.getText()).isEmpty()) {
                 err = "通知内容不能为空";
-                notification_content_layout.setErrorEnabled(true);
-                notification_content_layout.setError(err);
-            } else if (v == notification_content_input) {
+                contentLayout.setErrorEnabled(true);
+                contentLayout.setError(err);
+            } else if (v == contentInput) {
                 try {
-                    String content_pattern = String.valueOf(notification_content_input.getText());
+                    String content_pattern = String.valueOf(contentInput.getText());
                     Pattern.compile(content_pattern);
                 } catch (PatternSyntaxException e) {
                     err = "通知内容正则表达式存在语法错误";
-                    notification_content_layout.setErrorEnabled(true);
-                    notification_content_layout.setError(err);
+                    contentLayout.setErrorEnabled(true);
+                    contentLayout.setError(err);
                 }
             }
 
@@ -179,18 +180,18 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
                 Toast.makeText(this, err, Toast.LENGTH_SHORT).show();
             }
         } else {
-            if (v == rule_name_input) {
-                rule_name_layout.setErrorEnabled(false);
-                rule_name_layout.setError(null);
-            } else if (v == package_name_input) {
-                package_name_layout.setErrorEnabled(false);
-                package_name_layout.setError(null);
-            } else if (v == notification_title_input) {
-                notification_title_layout.setErrorEnabled(false);
-                notification_title_layout.setError(null);
-            } else if (v == notification_content_input) {
-                notification_content_layout.setErrorEnabled(false);
-                notification_content_layout.setError(null);
+            if (v == ruleNameInput) {
+                ruleNameLayout.setErrorEnabled(false);
+                ruleNameLayout.setError(null);
+            } else if (v == packageNameInput) {
+                packageNameLayout.setErrorEnabled(false);
+                packageNameLayout.setError(null);
+            } else if (v == titleInput) {
+                titleLayout.setErrorEnabled(false);
+                titleLayout.setError(null);
+            } else if (v == contentInput) {
+                contentLayout.setErrorEnabled(false);
+                contentLayout.setError(null);
             }
         }
     }
@@ -201,33 +202,48 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
         toolbar.setNavigationOnClickListener(v -> finish());
 
         //获取输入框引用
-        rule_name_input = binding.ruleNameInput;
-        type_input = binding.typeInput;
-        tag_input = binding.tagNameInput;
-        package_name_input = binding.packageNameInput;
-        notification_title_input = binding.notificationTitleInput;
-        notification_content_input = binding.notificationContentInput;
+        ruleNameInput = binding.ruleNameInput;
+        typeInput = binding.typeInput;
+        tagInput = binding.tagNameInput;
+        packageNameInput = binding.packageNameInput;
+        titleInput = binding.notificationTitleInput;
+        contentInput = binding.notificationContentInput;
 
         //获取输入框布局管理器引用
-        rule_name_layout = binding.ruleNameLayout;
-        package_name_layout = binding.packageNameLayout;
-        notification_title_layout = binding.notificationTitleLayout;
-        notification_content_layout = binding.notificationContentLayout;
+        ruleNameLayout = binding.ruleNameLayout;
+        packageNameLayout = binding.packageNameLayout;
+        titleLayout = binding.notificationTitleLayout;
+        contentLayout = binding.notificationContentLayout;
 
         //设置点击监听器以及文本内容
-        type_input.setText(RunningAccountType.EXPENSE.getTitle());
-        type_input.setOnClickListener(this);
-        tag_input.setOnClickListener(this);
-        package_name_input.setOnClickListener(this);
+        typeInput.setText(RunningAccountType.EXPENSE.getTitle());
+        typeInput.setOnClickListener(this);
+        tagInput.setOnClickListener(this);
+        packageNameInput.setOnClickListener(this);
         binding.inputInstructionBtn.setOnClickListener(this);
         binding.finishBtn.setOnClickListener(this);
         binding.cancelBtn.setOnClickListener(this);
 
         //设置焦点变更监听器
-        rule_name_input.setOnFocusChangeListener(this);
-        package_name_input.setOnFocusChangeListener(this);
-        notification_title_input.setOnFocusChangeListener(this);
-        notification_content_input.setOnFocusChangeListener(this);
+        ruleNameInput.setOnFocusChangeListener(this);
+        packageNameInput.setOnFocusChangeListener(this);
+        titleInput.setOnFocusChangeListener(this);
+        contentInput.setOnFocusChangeListener(this);
+
+        //设置正则表达式输入框右侧按钮功能
+        contentLayout.setEndIconOnClickListener(v -> {
+            int cursorPosition = contentInput.getSelectionStart();
+            Editable editable = contentInput.getText();
+            String textToInsert = "(\\d+\\.?\\d{0,2})";
+
+            //在光标位置插入文本
+            if (editable != null) {
+                editable.insert(cursorPosition, textToInsert);
+
+                //移动光标到插入文本之后
+                contentInput.setSelection(cursorPosition + textToInsert.length());
+            }
+        });
     }
 
     //接收编辑模式下的初始化数据
@@ -253,12 +269,12 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
             String notification_title = initData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());      //通知标题
             String notification_content = initData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());  //通知内容
 
-            rule_name_input.setText(rule_name);
-            type_input.setText(type.getTitle());
-            tag_input.setText(rule_tag.getName());
-            package_name_input.setText(package_name);
-            notification_title_input.setText(notification_title);
-            notification_content_input.setText(notification_content);
+            ruleNameInput.setText(rule_name);
+            typeInput.setText(type.getTitle());
+            tagInput.setText(rule_tag.getName());
+            packageNameInput.setText(package_name);
+            titleInput.setText(notification_title);
+            contentInput.setText(notification_content);
         }
     }
 
@@ -284,16 +300,16 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
     //处理包名选择方法
     private void onPackageNameSelected(@NonNull Intent data) {
         String package_name = data.getStringExtra(KeyValueStrings.PACKAGE_NAME.getValue());
-        package_name_input.setText(package_name);
-        package_name_layout.setError(null);
-        package_name_layout.setErrorEnabled(false);
+        packageNameInput.setText(package_name);
+        packageNameLayout.setError(null);
+        packageNameLayout.setErrorEnabled(false);
     }
 
     //处理标签按钮点击事件
     public void onTagBtnClicked(long tag_no, String tag_name) {
         this.tag_no = tag_no;
-        tag_input.setText(tag_name);
-        tag_sheet.dismiss();
+        tagInput.setText(tag_name);
+        tagSheet.dismiss();
     }
 
     //观察标签数据变化
@@ -308,15 +324,15 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
                     if (tag_no == this.tag_no) {    //只有找到匹配的标签编号才修改
                         switch (modifyID) {
                             case MODIFY:
-                                tag_input.setText(tag_name);
+                                tagInput.setText(tag_name);
                                 break;
                             case DELETE:
                                 this.tag_no = 0;
-                                tag_input.setText("");
+                                tagInput.setText("");
                                 break;
                             case MERGE:
                                 this.tag_no = Tag.nameTransToTno(tag_name, this);
-                                tag_input.setText(tag_name);
+                                tagInput.setText(tag_name);
                                 break;
                         }
                     }
@@ -335,24 +351,24 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
         String err = null;
         TextInputLayout errLayout = null;
 
-        if (String.valueOf(rule_name_input.getText()).isEmpty()) {
-            errLayout = rule_name_layout;
+        if (String.valueOf(ruleNameInput.getText()).isEmpty()) {
+            errLayout = ruleNameLayout;
             err = "规则名称不能为空";
-        } else if (String.valueOf(package_name_input.getText()).isEmpty()) {
-            errLayout = package_name_layout;
+        } else if (String.valueOf(packageNameInput.getText()).isEmpty()) {
+            errLayout = packageNameLayout;
             err = "包名不能为空";
-        } else if (String.valueOf(notification_title_input.getText()).isEmpty()) {
-            errLayout = notification_title_layout;
+        } else if (String.valueOf(titleInput.getText()).isEmpty()) {
+            errLayout = titleLayout;
             err = "通知标题不能为空";
-        } else if (String.valueOf(notification_content_input.getText()).isEmpty()) {
-            errLayout = notification_content_layout;
+        } else if (String.valueOf(contentInput.getText()).isEmpty()) {
+            errLayout = contentLayout;
             err = "通知内容不能为空";
         } else {
             try {
-                String content_pattern = String.valueOf(notification_content_input.getText());
+                String content_pattern = String.valueOf(contentInput.getText());
                 Pattern.compile(content_pattern);
             } catch (PatternSyntaxException e) {
-                errLayout = notification_content_layout;
+                errLayout = contentLayout;
                 err = "通知内容正则表达式存在语法错误";
             }
         }
@@ -374,10 +390,10 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
     private Bundle getInputData() {
         Bundle dataBundle = new Bundle();
 
-        String rule_name = String.valueOf(rule_name_input.getText());
-        String package_name = String.valueOf(package_name_input.getText());
-        String notification_title = String.valueOf(notification_title_input.getText());
-        String notification_content = String.valueOf(notification_content_input.getText());
+        String rule_name = String.valueOf(ruleNameInput.getText());
+        String package_name = String.valueOf(packageNameInput.getText());
+        String notification_title = String.valueOf(titleInput.getText());
+        String notification_content = String.valueOf(contentInput.getText());
 
         dataBundle.putString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue(), rule_name);
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());
