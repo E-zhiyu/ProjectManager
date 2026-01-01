@@ -319,23 +319,27 @@ public class SettingFragment extends Fragment {
 
                 int old_index = AutoBackupPreference.getBackupFrequency(requireContext());  //获取之前的频率代码防止重复更新工作
                 int item_index = -1;
-                if (item.getItemId() == R.id.every_day) {
+                if (item.getItemId() == R.id.every_15_min) {
                     isItemClicked = true;
                     item_index = 0;
-                    backupFrequencyOption.setSpinnerText(requireContext().getString(R.string.every_day));
-                } else if (item.getItemId() == R.id.every_week) {
+                } else if (item.getItemId() == R.id.every_day) {
                     isItemClicked = true;
                     item_index = 1;
-                    backupFrequencyOption.setSpinnerText(requireContext().getString(R.string.every_week));
-                } else if (item.getItemId() == R.id.every_month) {
+                } else if (item.getItemId() == R.id.every_week) {
                     isItemClicked = true;
                     item_index = 2;
-                    backupFrequencyOption.setSpinnerText(requireContext().getString(R.string.every_month));
+                } else if (item.getItemId() == R.id.every_month) {
+                    isItemClicked = true;
+                    item_index = 3;
                 }
 
                 if (isItemClicked && old_index != item_index) {
+                    AutoBackupHelper.BackupFrequency frequency = AutoBackupHelper.BackupFrequency.values()[item_index];
+                    String title = frequency.getName();
+                    backupFrequencyOption.setSpinnerText(title);
+
                     AutoBackupPreference.setBackupFrequency(requireContext(), item_index);
-                    long intervalMillis = AutoBackupHelper.BackupFrequency.values()[item_index].getIntervalMillis();
+                    long intervalMillis = frequency.getIntervalMillis();
                     BackupScheduler.schedulePeriodicBackup(requireContext(), intervalMillis);   //更新工作内容
                 }
 

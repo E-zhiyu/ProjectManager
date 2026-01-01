@@ -19,9 +19,11 @@ public class AutoBackupHelper {
     private SettingSwitchView switchOptionView; //设置界面的开关选项
 
     public enum BackupFrequency {
-        DAY("每天", 24L * 60 * 60 * 1000),              //每天
-        WEEK("每星期", 24L * 60 * 60 * 1000 * 7),       //每个星期
-        MONTH("每个月", 24L * 60 * 60 * 1000 * 7 * 30); //每月
+        MIN_15("每15分钟", 1000 * 60 * 15),                //每15分钟
+        DAY("每天", 24L * 60 * 60 * 1000),                //每天
+        WEEK("每星期", 24L * 60 * 60 * 1000 * 7),          //每个星期
+        MONTH("每个月", 24L * 60 * 60 * 1000 * 7 * 30);    //每月
+
         private final String name;          //选项名称
         private final long intervalMillis;  //备份间隔时间(毫秒)
 

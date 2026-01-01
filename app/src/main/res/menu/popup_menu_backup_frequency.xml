@@ -1,5 +1,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/every_15_min"
+        android:title="@string/every_15_min" />
+    <item
         android:id="@+id/every_day"
         android:title="@string/every_day" />
     <item

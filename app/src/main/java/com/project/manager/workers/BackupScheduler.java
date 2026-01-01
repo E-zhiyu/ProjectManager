@@ -21,6 +21,8 @@ public class BackupScheduler {
      * @param intervalMillis 备份间隔（毫秒）
      */
     public static void schedulePeriodicBackup(Context context, long intervalMillis) {
+        //TODO:解决无法创建自动备份任务的BUG
+
         //创建约束条件
         Constraints constraints = new Constraints.Builder()
                 .setRequiresBatteryNotLow(true) //电量不低于临界值
