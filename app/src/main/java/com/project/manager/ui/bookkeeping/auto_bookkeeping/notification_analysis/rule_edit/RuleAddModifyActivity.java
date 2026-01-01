@@ -366,7 +366,13 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
         } else {
             try {
                 String content_pattern = String.valueOf(contentInput.getText());
-                Pattern.compile(content_pattern);
+                Pattern pattern = Pattern.compile(content_pattern);
+                int group_num = pattern.matcher("").groupCount();
+
+                if (group_num < 1) {
+                    errLayout = contentLayout;
+                    err = "必须设置一个金额捕获组";
+                }
             } catch (PatternSyntaxException e) {
                 errLayout = contentLayout;
                 err = "通知内容正则表达式存在语法错误";
