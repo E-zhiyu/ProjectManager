@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.running_account_edit.modify;
+package com.project.manager.ui.bookkeeping.running_account_edit;
 
 import android.content.Intent;
 import android.os.Bundle;

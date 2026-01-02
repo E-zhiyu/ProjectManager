@@ -18,6 +18,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,15 +30,17 @@ import com.project.manager.LogTags;
 import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
 import com.project.manager.broadcast.BroadcastConstants;
-import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
+import com.project.manager.data.data_save.database.BookKeepingDbHelper;
+import com.project.manager.data.data_save.preference.AutoBackupPreference;
 import com.project.manager.data.data_save.preference.KeepAlivePreference;
 import com.project.manager.databinding.FragmentSettingBinding;
+import com.project.manager.helpers.AutoBackupHelper;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.helpers.PermissionHelper;
 import com.project.manager.data.data_save.preference.AutoBookKeepingPreference;
 import com.project.manager.data.data_save.preference.BookKeepingStartDatePreference;
 import com.project.manager.helpers.AnimationHelper;
-import com.project.manager.helpers.SAFFileHelper;
+import com.project.manager.helpers.FileIOHelper;
 import com.project.manager.helpers.UpdateHelper;
 import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
 import com.project.manager.helpers.AboutHelper;
@@ -47,11 +50,11 @@ import com.project.manager.ui.setting.data_io.MultiChoiceDialogAdapter;
 import com.project.manager.ui.setting.data_io.data_helpers.AnalysisRuleDataHelper;
 import com.project.manager.ui.setting.data_io.data_helpers.DataHelperBase;
 import com.project.manager.ui.setting.data_io.data_helpers.RunningAccountDataHelper;
-import com.project.manager.data.data_save.preference.ThemePreference;
-import com.project.manager.ui.setting.data_io.maps.TotalAccountDataMap;
-import com.project.manager.ui.setting.data_io.maps.TotalRuleDataMap;
+import com.project.manager.data.data_save.preference.AppSettingsPreference;
 import com.project.manager.ui.setting.setting_option_views.SettingClickableTextView;
+import com.project.manager.ui.setting.setting_option_views.SettingSpinnerView;
 import com.project.manager.ui.setting.setting_option_views.SettingSwitchView;
+import com.project.manager.workers.BackupScheduler;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -61,6 +64,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -68,27 +72,46 @@ import java.util.stream.Stream;
 public class SettingFragment extends Fragment {
     private FragmentSettingBinding binding;
     private ActivityResultLauncher<Intent> importDataLauncher, exportDataLauncher;  //活动启动器
-    private SAFFileHelper safFileHelper;    //SAF文件帮助器
+    private ActivityResultLauncher<Intent> backupDirectorySetLauncher;              //自动备份文件夹选择的启动器
+    private FileIOHelper fileIOHelper;    //SAF文件帮助器
+    private AutoBackupHelper autoBackupHelper;  //自动备份帮助器
     private BroadcastReceiver notificationPermissionListener;   //通知监听服务正常运行的广播接收器
 
     //导入和导出的数据种类枚举
-    enum IODataType {
-        ACCOUNT_DATA("流水记录数据", "RunningAccount.json"),
-        RULE_DATA("通知解析规则数据", "AnalysisRule.json");
+    public enum IODataType {
+        ACCOUNT_DATA(
+                "流水记录数据",
+                "RunningAccount.json",
+                RunningAccountDataHelper::new
+        ),
+        RULE_DATA(
+                "通知解析规则数据",
+                "AnalysisRule.json",
+                AnalysisRuleDataHelper::new
+        );
         private final String name;              //选项名称
-        private final String default_file_name; //默认文件名称
+        private final String defaultFileName;   //默认文件名称
+        private final Function<Context, DataHelperBase<BookKeepingDbHelper, ?>> helperFactory;  //数据帮助器的构造方法
 
-        IODataType(String name, String default_file_name) {
+        IODataType(
+                String name,
+                String defaultFileName,
+                Function<Context, DataHelperBase<BookKeepingDbHelper, ?>> helperFactory) {
             this.name = name;
-            this.default_file_name = default_file_name;
+            this.defaultFileName = defaultFileName;
+            this.helperFactory = helperFactory;
         }
 
         public String getName() {
             return name;
         }
 
-        public String getDefault_file_name() {
-            return default_file_name;
+        public String getDefaultFileName() {
+            return defaultFileName;
+        }
+
+        public DataHelperBase<BookKeepingDbHelper, ?> getDataHelper(Context context) {
+            return helperFactory.apply(context);
         }
 
         /**
@@ -98,7 +121,7 @@ public class SettingFragment extends Fragment {
          */
         public static List<String> getEffectiveFileNameList() {
             return Stream.of(values())
-                    .map(IODataType::getDefault_file_name)
+                    .map(IODataType::getDefaultFileName)
                     .collect(Collectors.toList());
         }
     }
@@ -106,10 +129,11 @@ public class SettingFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentSettingBinding.inflate(inflater, container, false);
 
+        fileIOHelper = new FileIOHelper(requireContext());
+        autoBackupHelper = new AutoBackupHelper(requireContext());
+
         initViews();
         initActivityLaunchers();
-
-        safFileHelper = new SAFFileHelper(requireContext());
 
         return binding.getRoot();
     }
@@ -157,13 +181,13 @@ public class SettingFragment extends Fragment {
                 requireContext(),
                 binding.dynamicColorOption,
                 R.string.dynamic_color,
-                null,
+                "将壁纸颜色作为APP主题色",
                 R.drawable.baseline_color_lens_24
         );
-        dynamicColorOption.setChecked(ThemePreference.getDynamicColorStat(requireContext()));
+        dynamicColorOption.setChecked(AppSettingsPreference.getDynamicColorStat(requireContext()));
         dynamicColorOption.setFunctionListener(
                 (buttonView, isChecked) -> {
-                    ThemePreference.saveDynamicColorStat(requireContext(), isChecked);
+                    AppSettingsPreference.setDynamicColorStat(requireContext(), isChecked);
 
                     ManagerAssistant app = (ManagerAssistant) requireActivity().getApplication();
                     if (isChecked) {
@@ -180,6 +204,48 @@ public class SettingFragment extends Fragment {
                     requireActivity().recreate();
                 }
         );
+
+        //首页选项
+        SettingSpinnerView firstScreenOption = new SettingSpinnerView(
+                requireContext(),
+                binding.firstScreenOption,
+                R.string.first_screen,
+                "选择启动的第一屏",
+                R.drawable.baseline_add_to_home_screen_24
+        );
+        String[] firstScreenTitles = {
+                requireContext().getString(R.string.title_bookkeeping),
+                requireContext().getString(R.string.title_home)
+        };
+        int screen_code = AppSettingsPreference.getFirstScreen(requireContext());
+        firstScreenOption.setSpinnerText(firstScreenTitles[screen_code]);
+        firstScreenOption.setFunctionListener(v -> {
+            PopupMenu firstScreenMenu = new PopupMenu(requireContext(), firstScreenOption.getFunctionComponent());
+            firstScreenMenu.getMenuInflater().inflate(R.menu.popup_menu_first_screen, firstScreenMenu.getMenu());
+
+            firstScreenMenu.setOnMenuItemClickListener(item -> {
+                boolean isItemClicked = false;
+
+                int item_index = -1;
+                int old_screen_code = AppSettingsPreference.getFirstScreen(requireContext());
+                if (item.getItemId() == R.id.bookkeeping) {
+                    item_index = 0;
+                    isItemClicked = true;
+                } else if (item.getItemId() == R.id.home) {
+                    item_index = 1;
+                    isItemClicked = true;
+                }
+
+                if (isItemClicked && item_index != old_screen_code) {
+                    AppSettingsPreference.setFirstScreen(requireContext(), item_index);
+                    firstScreenOption.setSpinnerText(firstScreenTitles[item_index]);
+                }
+
+                return isItemClicked;
+            });
+
+            firstScreenMenu.show();
+        });
     }
 
     /**
@@ -211,13 +277,13 @@ public class SettingFragment extends Fragment {
                 requireContext(),
                 binding.clearAccountDataOption,
                 R.string.clear_account_data,
-                "清除流水记录、标签和标签分组数据",
+                "清除流水相关数据",
                 R.drawable.baseline_delete_forever_24
         );
         clearRunningAccountOption.setFunctionListener(
                 v -> new MaterialAlertDialogBuilder(requireContext())
                         .setTitle("清除数据")
-                        .setMessage("此操作将清除所有流水账数据，确认继续吗？")
+                        .setMessage("此操作将清除所有流水记录、标签和标签分组数据，确认继续吗？")
                         .setPositiveButton("确认", ((dialog, which) -> {
                             dialog.dismiss();
                             RunningAccountDataHelper.deleteAllData(requireContext());
@@ -225,6 +291,119 @@ public class SettingFragment extends Fragment {
                         }))
                         .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
                         .show()
+        );
+
+        //自动备份开关
+        SettingSwitchView autoBackupSwitch = new SettingSwitchView(
+                requireContext(),
+                binding.autoBackupOption,
+                R.string.auto_backup,
+                "自动备份功能开关",
+                R.drawable.baseline_settings_backup_restore_24
+        );
+        autoBackupHelper.setSwitchOptionView(autoBackupSwitch); //设置帮助器的开关视图，以便控制其状态
+        String backupDir = AutoBackupPreference.getBackupDirectoryUri(requireContext());
+        boolean switchStat = AutoBackupPreference.getSwitchStat(requireContext());
+        if (backupDir != null && switchStat) {
+            autoBackupSwitch.setChecked(true);
+            binding.autoBackupLayout.setVisibility(View.VISIBLE);
+        } else {
+            autoBackupSwitch.setChecked(false);
+            binding.autoBackupLayout.setVisibility(View.GONE);
+        }
+        autoBackupSwitch.setFunctionListener(
+                (buttonView, isChecked) -> {
+                    if (backupDir == null && isChecked) {   //未设置备份目录则先提示设置
+                        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
+                                .setTitle("功能启用提示")
+                                .setMessage("该功能需要先设置备份文件存储目录，请点击“确定”按钮设置存储目录")
+                                .setNegativeButton("取消", (dialog, which) -> dialog.cancel())
+                                .setPositiveButton("确定",
+                                        (dialog, which) -> autoBackupHelper.selectBackupDirectory(
+                                                backupDirectorySetLauncher
+                                        )
+                                );
+
+                        builder.setOnCancelListener(dialog -> {
+                            buttonView.setChecked(false);
+                            BackupScheduler.cancelPeriodicBackup(requireContext());
+                        });
+                        builder.show();
+                    } else if (isChecked) {
+                        int frequency_index = AutoBackupPreference.getBackupFrequency(requireContext());
+                        long intervalMillis = AutoBackupHelper.BackupFrequency.values()[frequency_index].getIntervalMillis();
+                        BackupScheduler.schedulePeriodicBackup(requireContext(), intervalMillis);
+                    } else {
+                        BackupScheduler.cancelPeriodicBackup(requireContext());
+                    }
+                    AnimationHelper.switchViewFoldOrExpanded(isChecked, binding.autoBackupLayout);
+                    AutoBackupPreference.setSwitchStat(requireContext(), isChecked);
+                }
+        );
+
+        //备份频率
+        SettingSpinnerView backupFrequencyOption = new SettingSpinnerView(
+                requireContext(),
+                binding.backupFrequencyOption,
+                R.string.backup_frequency,
+                "自动备份的时间间隔",
+                R.drawable.baseline_timer_24
+        );
+        int frequency_index = AutoBackupPreference.getBackupFrequency(requireContext());
+        String frequencyName = AutoBackupHelper.BackupFrequency.values()[frequency_index].getName();
+        backupFrequencyOption.setSpinnerText(frequencyName);
+        backupFrequencyOption.setFunctionListener(v -> {
+            PopupMenu frequencyMenu = new PopupMenu(requireContext(), backupFrequencyOption.getFunctionComponent());
+            frequencyMenu.getMenuInflater().inflate(R.menu.popup_menu_backup_frequency, frequencyMenu.getMenu());
+
+            frequencyMenu.setOnMenuItemClickListener(item -> {
+                boolean isItemClicked = false;
+
+                int old_index = AutoBackupPreference.getBackupFrequency(requireContext());  //获取之前的频率代码防止重复更新工作
+                int item_index = -1;
+                if (item.getItemId() == R.id.every_15_min) {
+                    isItemClicked = true;
+                    item_index = 0;
+                } else if (item.getItemId() == R.id.every_day) {
+                    isItemClicked = true;
+                    item_index = 1;
+                } else if (item.getItemId() == R.id.every_week) {
+                    isItemClicked = true;
+                    item_index = 2;
+                } else if (item.getItemId() == R.id.every_month) {
+                    isItemClicked = true;
+                    item_index = 3;
+                }
+
+                if (isItemClicked && old_index != item_index) {
+                    AutoBackupHelper.BackupFrequency frequency = AutoBackupHelper.BackupFrequency.values()[item_index];
+                    String title = frequency.getName();
+                    backupFrequencyOption.setSpinnerText(title);
+
+                    AutoBackupPreference.setBackupFrequency(requireContext(), item_index);
+                    long intervalMillis = frequency.getIntervalMillis();
+                    BackupScheduler.schedulePeriodicBackup(requireContext(), intervalMillis);   //更新工作内容
+
+                    //立即备份一次
+                    BackupScheduler.executeBackupNow(requireContext());
+                }
+
+                return isItemClicked;
+            });
+
+            frequencyMenu.show();
+        });
+
+        //备份目录
+        SettingClickableTextView backupDirectoryOption = new SettingClickableTextView(
+                requireContext(),
+                binding.backupDirectoryOption,
+                R.string.backup_directory,
+                "备份文件存储的位置",
+                R.drawable.baseline_folder_zip_24
+        );
+        backupDirectoryOption.setFunctionListener(
+                v -> autoBackupHelper.selectBackupDirectory(backupDirectorySetLauncher)
         );
     }
 
@@ -250,7 +429,7 @@ public class SettingFragment extends Fragment {
             notificationAnalysisSwitchOption.setChecked(false);
 
             //考虑到无授权情况下自动关闭通知解析功能
-            AutoBookKeepingPreference.setNotificationAnalysisOpened(false, requireContext());
+            AutoBookKeepingPreference.setSwitchStat(false, requireContext());
         }
         notificationAnalysisSwitchOption.setFunctionListener(
                 (buttonView, isChecked) -> onNotificationAnalysisSwitchChanged(notificationAnalysisSwitchOption, isChecked)
@@ -301,7 +480,7 @@ public class SettingFragment extends Fragment {
                 requireContext(),
                 binding.hideBackgroundOption,
                 R.string.hide_background,
-                "从主页退出后在最近任务列表隐藏",
+                "在最近任务列表隐藏",
                 R.drawable.baseline_recent_task_24
         );
         hideBackgroundOption.setChecked(KeepAlivePreference.getHideRecents(requireContext()));
@@ -365,7 +544,10 @@ public class SettingFragment extends Fragment {
                 R.drawable.baseline_update_24
         );
         updateCheckOption.setFunctionListener(
-                v -> UpdateHelper.checkUpdate(requireContext())
+                v -> {
+                    Toast.makeText(requireContext(), "正在检查更新……", Toast.LENGTH_SHORT).show();
+                    UpdateHelper.checkUpdate(requireContext(), true);
+                }
         );
 
         //更新日志
@@ -381,7 +563,9 @@ public class SettingFragment extends Fragment {
         );
     }
 
-    //初始化活动启动器
+    /**
+     * 初始化活动启动器
+     */
     private void initActivityLaunchers() {
         exportDataLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -389,7 +573,7 @@ public class SettingFragment extends Fragment {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    safFileHelper.handleActivityResult(resultCode, data, true);
+                    fileIOHelper.handleActivityResult(resultCode, data, true);
                 }
         );
 
@@ -399,7 +583,17 @@ public class SettingFragment extends Fragment {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    safFileHelper.handleActivityResult(resultCode, data, false);
+                    fileIOHelper.handleActivityResult(resultCode, data, false);
+                }
+        );
+
+        backupDirectorySetLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    int resultCode = result.getResultCode();
+                    Intent data = result.getData();
+
+                    autoBackupHelper.handleActivityResult(resultCode, data);
                 }
         );
     }
@@ -413,24 +607,16 @@ public class SettingFragment extends Fragment {
         List<String> fileContentList = new ArrayList<>();   //用于导出数据的临时文件内容列表
 
         //根据选择的内容创建临时文件
-        if (choseItem[IODataType.ACCOUNT_DATA.ordinal()]) {
-            DataHelperBase<BookKeepingDatabaseHelper, TotalAccountDataMap> dataHelper = new RunningAccountDataHelper(requireContext());
+        for (IODataType dataType : IODataType.values()) {
+            if (!choseItem[dataType.ordinal()]) continue;
+
+            DataHelperBase<BookKeepingDbHelper, ?> dataHelper = dataType.getDataHelper(requireContext());
             try {
-                String json_str = dataHelper.getDataInJSON();
-                fileNameList.add(IODataType.ACCOUNT_DATA.getDefault_file_name());
-                fileContentList.add(json_str);
-            } catch (JsonProcessingException e) {
-                ExceptionHelper.showExceptionDialog(requireContext(), e);
-                Toast.makeText(requireContext(), "JSON序列化时出错", Toast.LENGTH_SHORT).show();
-                return;
-            }
-        }
-        if (choseItem[IODataType.RULE_DATA.ordinal()]) {
-            DataHelperBase<BookKeepingDatabaseHelper, TotalRuleDataMap> dataHelper = new AnalysisRuleDataHelper(requireContext());
-            try {
-                String json_str = dataHelper.getDataInJSON();
-                fileNameList.add(IODataType.RULE_DATA.getDefault_file_name());
-                fileContentList.add(json_str);
+                String fileName = dataType.getDefaultFileName();
+                String fileContent = dataHelper.getDataInJSON();
+
+                fileNameList.add(fileName);
+                fileContentList.add(fileContent);
             } catch (JsonProcessingException e) {
                 ExceptionHelper.showExceptionDialog(requireContext(), e);
                 Toast.makeText(requireContext(), "JSON序列化时出错", Toast.LENGTH_SHORT).show();
@@ -439,8 +625,8 @@ public class SettingFragment extends Fragment {
         }
 
         //将文件打包至压缩包内
-        safFileHelper.packFileInZip(
-                new SAFFileHelper.WriteCallback() {
+        fileIOHelper.packFileInZip(
+                new FileIOHelper.WriteCallback() {
                     @Override
                     public void onFileWrote() {
                         Toast.makeText(requireContext(), "导出成功", Toast.LENGTH_SHORT).show();
@@ -462,8 +648,8 @@ public class SettingFragment extends Fragment {
      */
     private void importData() {
         Log.i(LogTags.SETTING_FRAGMENT.getV(), "开始导入数据……");
-        safFileHelper.openFileBySAF(
-                new SAFFileHelper.ReadCallback() {
+        fileIOHelper.openFileBySAF(
+                new FileIOHelper.ReadCallback() {
                     @Override
                     public void onZipUnpacked(List<File> fileList) {
                         List<File> effectiveFileList = getEffectiveFileList(fileList);
@@ -478,7 +664,7 @@ public class SettingFragment extends Fragment {
                         for (IODataType IODataType : IODataType.values()) {
                             boolean isFound = false;
                             for (File tempFile : fileList) {
-                                if (tempFile.getName().equals(IODataType.getDefault_file_name())) {
+                                if (tempFile.getName().equals(IODataType.getDefaultFileName())) {
                                     isFound = true;
                                     break;
                                 }
@@ -552,7 +738,7 @@ public class SettingFragment extends Fragment {
                         }
 
                         //清除临时文件
-                        safFileHelper.clearTempFile();
+                        fileIOHelper.clearTempFile();
                     }
 
 
@@ -645,7 +831,7 @@ public class SettingFragment extends Fragment {
      * 通知解析开关状态变更调用的方法
      */
     private void onNotificationAnalysisSwitchChanged(SettingSwitchView switchView, boolean isChecked) {
-        AutoBookKeepingPreference.setNotificationAnalysisOpened(isChecked, requireActivity());  //将打开状态写入文件
+        AutoBookKeepingPreference.setSwitchStat(isChecked, requireContext());   //将打开状态写入文件
 
         //实例化并注册权限授予通知
         notificationPermissionListener = new BroadcastReceiver() {
@@ -700,16 +886,16 @@ public class SettingFragment extends Fragment {
      */
     private void showThemeModeSelectDialog() {
         String[] themeModeStr = {"浅色模式", "深色模式", "跟随系统"};
-        int theme_mode = ThemePreference.getThemeMode(requireContext());
+        int theme_mode = AppSettingsPreference.getThemeMode(requireContext());
 
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("主题模式")
                 .setSingleChoiceItems(themeModeStr, theme_mode, ((dialog, which) -> {
+                    AppSettingsPreference.setThemeMode(requireContext(), which);
                     ThemeModeHelper.applyTheme(which);
-                    ThemePreference.saveThemeMode(requireContext(), which);
                     dialog.dismiss();
                 }))
-                .setNegativeButton("关闭", (dialog, which) -> dialog.dismiss())
+                .setNegativeButton("关闭", null)
                 .show();
     }
 
@@ -773,7 +959,7 @@ public class SettingFragment extends Fragment {
         //设置对话框隐藏监听
         alertDialog.setOnDismissListener(dialog -> {
             Log.i(LogTags.SETTING_FRAGMENT.getV(), "对话框关闭");
-            safFileHelper.clearTempFile();
+            fileIOHelper.clearTempFile();
         });
         alertDialog.show();
     }
@@ -781,41 +967,47 @@ public class SettingFragment extends Fragment {
     /**
      * 数据导入确认后触发的方法
      *
-     * @param itemStats         多选对话框的选择状况
+     * @param itemChooseStats   多选对话框的选择状况
      * @param effectiveFileList 能够解析内容的有效文件列表
      */
-    private void onImportConfirmed(@NonNull boolean[] itemStats, @NonNull List<File> effectiveFileList) {
+    private void onImportConfirmed(@NonNull boolean[] itemChooseStats, @NonNull List<File> effectiveFileList) {
         boolean isImportSuccessfully = false;
 
-        boolean isAccountDataChecked = itemStats[IODataType.ACCOUNT_DATA.ordinal()];   //流水记录文件是否勾选
-        boolean isRuleDataChecked = itemStats[IODataType.RULE_DATA.ordinal()];         //通知解析规则文件是否勾选
-        for (File file : effectiveFileList) {
-            String file_name = file.getName();
+        boolean isAccountDataChecked = itemChooseStats[IODataType.ACCOUNT_DATA.ordinal()];   //流水记录文件是否勾选
+        boolean isRuleDataChecked = itemChooseStats[IODataType.RULE_DATA.ordinal()];         //通知解析规则文件是否勾选
 
-            DataHelperBase<BookKeepingDatabaseHelper, ?> dataHelperBase;
-            if (file_name.equals(IODataType.ACCOUNT_DATA.getDefault_file_name()) && isAccountDataChecked) {
-                dataHelperBase = new RunningAccountDataHelper(requireContext());
-            } else if (file_name.equals(IODataType.RULE_DATA.getDefault_file_name()) && isRuleDataChecked) {
-                //isAccountDataChecked：当同时导入了流水账数据时才写入tag_no属性
-                dataHelperBase = new AnalysisRuleDataHelper(requireContext(), isAccountDataChecked);
+        for (IODataType dataType : IODataType.values()) {
+            if (!itemChooseStats[dataType.ordinal()]) continue;
+
+            String targetFileName = dataType.getDefaultFileName();
+
+            //获取数据帮助器
+            DataHelperBase<BookKeepingDbHelper, ?> dataHelper;
+            if (dataType == IODataType.RULE_DATA && isRuleDataChecked && isAccountDataChecked) {
+                //当流水数据和规则数据都选中时，获取能够写入标签数据的数据帮助器
+                dataHelper = new AnalysisRuleDataHelper(requireContext(), true);
             } else {
-                continue;
+                dataHelper = dataType.getDataHelper(requireContext());
             }
 
-            //将数据保存至数据库
-            Log.i(LogTags.SETTING_FRAGMENT.getV(), String.format(Locale.getDefault(), "正在尝试读取临时文件%s", file_name));
-            StringBuilder content = new StringBuilder();
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    content.append(line).append("\n");
+            for (File file : effectiveFileList) {
+                if (targetFileName.equals(file.getName())) {
+                    //将数据保存至数据库
+                    Log.i(LogTags.SETTING_FRAGMENT.getV(), String.format(Locale.getDefault(), "正在尝试读取临时文件%s", targetFileName));
+                    StringBuilder content = new StringBuilder();
+                    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            content.append(line).append("\n");
+                        }
+                        isImportSuccessfully = dataHelper.saveJsonDataToDb(content.toString()) || isImportSuccessfully;
+                    } catch (IOException e) {
+                        ExceptionHelper.showExceptionDialog(requireContext(), e);
+                        Toast.makeText(requireContext(), "临时文件读取失败，请重试", Toast.LENGTH_SHORT).show();
+                        Log.e(LogTags.SETTING_FRAGMENT.getV(), "临时文件读取失败");
+                        return;
+                    }
                 }
-                isImportSuccessfully = dataHelperBase.saveJsonDataToDb(content.toString()) || isImportSuccessfully;
-            } catch (IOException e) {
-                ExceptionHelper.showExceptionDialog(requireContext(), e);
-                Toast.makeText(requireContext(), "临时文件读取失败，请重试", Toast.LENGTH_SHORT).show();
-                Log.e(LogTags.SETTING_FRAGMENT.getV(), "临时文件读取失败");
-                return;
             }
         }
 

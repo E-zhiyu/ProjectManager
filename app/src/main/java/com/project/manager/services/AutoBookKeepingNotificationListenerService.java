@@ -12,6 +12,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.project.manager.LogTags;
 import com.project.manager.broadcast.NotificationAnalysisBroadcastReceiver;
@@ -112,13 +113,13 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
             try {
                 Pattern pattern = Pattern.compile(rule_content);    //编译为正则表达式
                 matcher = pattern.matcher(text);
-            } catch (PatternSyntaxException e) {
+            } catch (PatternSyntaxException e) {                    //处理无法编译为Matcher的情况
                 Log.e(LogTags.NOTIFICATION_SERVICE.getV(), "正则表达式编译出错");
                 Toast.makeText(
                         getBaseContext(),
                         String.format(
                                 Locale.getDefault(),
-                                "规则%s的正则表达式编译出错，请检查",
+                                "规则“%s”的正则表达式编译出错",
                                 rule.getRuleName()),
                         Toast.LENGTH_SHORT
                 ).show();
@@ -132,7 +133,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                     long rule_no = rule.getRuleNo();
                     long tag_no = Tag.getTagOfAnalysisRule(rule_no, getBaseContext()).getTno();
 
-                    dataBundle = saveNewAccount(matcher, rule.getType(), tag_no, rule.getRuleName());
+                    dataBundle = getNewAccountData(matcher, rule.getType(), tag_no, rule.getRuleName());
                     Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据保存成功");
                 } catch (SQLiteException e) {
                     Log.e(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据保存失败或标签编号读取失败");
@@ -145,9 +146,11 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                 }
 
                 //发送流水账记录增加的广播
-                Intent accountAdded = new Intent(BroadcastConstants.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
-                accountAdded.putExtras(dataBundle);
-                getBaseContext().sendBroadcast(accountAdded);
+                if (dataBundle != null) {
+                    Intent accountAdded = new Intent(BroadcastConstants.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
+                    accountAdded.putExtras(dataBundle);
+                    getBaseContext().sendBroadcast(accountAdded);
+                }
 
                 break;  //匹配到规则则结束循环
             }
@@ -180,7 +183,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
     }
 
     /**
-     * 解析并保存得到的流水记录
+     * 获得流水记录数据
      *
      * @param matcher  正则表达式的匹配对象
      * @param type     解析规则中的流水种类
@@ -189,10 +192,25 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
      * @return 解析通知内容后生成的流水数据包
      * @throws SQLiteException 流水数据保存失败引发的异常
      */
-    @NonNull
-    private Bundle saveNewAccount(@NonNull Matcher matcher, @NonNull RunningAccountType type, long tag_no, String ruleName) throws SQLiteException {
+    @Nullable
+    private Bundle getNewAccountData(@NonNull Matcher matcher, @NonNull RunningAccountType type, long tag_no, String ruleName) throws SQLiteException {
         //获取匹配到的金额数据
-        double amount = Double.parseDouble(Objects.requireNonNull(matcher.group(1)));
+        double amount;
+        try {
+            amount = Double.parseDouble(Objects.requireNonNull(matcher.group(1)));
+        } catch (IndexOutOfBoundsException e) { //处理没有捕获组的情况
+            Context context = getBaseContext();
+            Toast.makeText(
+                    context,
+                    String.format(
+                            Locale.getDefault(),
+                            "规则“%s”没有金额捕获组",
+                            ruleName
+                    ),
+                    Toast.LENGTH_SHORT
+            ).show();
+            return null;
+        }
 
         //获取当前的时间
         long currentTimeMillis = System.currentTimeMillis();

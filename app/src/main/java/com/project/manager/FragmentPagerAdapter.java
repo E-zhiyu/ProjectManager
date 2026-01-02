@@ -1,19 +1,17 @@
-package com.project.manager.ui.bookkeeping.running_account_edit.new_running_account;
+package com.project.manager;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountFragmentBase;
-
 import java.util.List;
 
-public class RunningAccountAddFragmentAdapter extends FragmentStateAdapter {
-    private final List<RunningAccountFragmentBase> fragmentList;  //碎片列表
+public class FragmentPagerAdapter extends FragmentStateAdapter {
+    private final List<Fragment> fragmentList;  //碎片列表
 
     //适配器构造方法
-    public RunningAccountAddFragmentAdapter(@NonNull FragmentActivity fragmentActivity, List<RunningAccountFragmentBase> fragmentList) {
+    public FragmentPagerAdapter(@NonNull FragmentActivity fragmentActivity, List<Fragment> fragmentList) {
         super(fragmentActivity);
         this.fragmentList = fragmentList;
     }
@@ -35,7 +33,7 @@ public class RunningAccountAddFragmentAdapter extends FragmentStateAdapter {
      * @param position 需要获取的Fragment的下标
      * @return 对应下标的Fragment
      */
-    public RunningAccountFragmentBase getFragment(int position) {
+    public Fragment getFragment(int position) {
         return fragmentList.get(position);
     }
 }

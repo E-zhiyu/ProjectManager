@@ -11,7 +11,20 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.5.5  \n" +
+    private static final String update_log_md = "# v1.6.0  \n" +
+            "**新增内容**  \n" +
+            "- 通知解析规则正则表达式输入框新增金额捕获组插入按钮  \n" +
+            "- 添加启动页设置选项  \n" +
+            "- 增加自动备份功能  \n" +
+            "- 应用启动时会自动检测更新  \n\n" +
+            "**BUG修复**  \n" +
+            "- 修复当APP主题模式与系统主题模式不一致时可能导致的系统底部导航栏背景色过于突兀的BUG  \n" +
+            "- 修复当没有捕获组的通知解析规则匹配成功后导致程序崩溃的BUG  \n" +
+            "- 修复无网络环境下检测更新会弹出错误对话框的BUG  \n\n" +
+            "**修改内容**  \n" +
+            "- 通知解析规则输入时会判断正则表达式捕获组数量是否为0  \n" +
+            "- 优化流水记录金额是否为0的检测，防止无法输入小于1的值  \n\n" +
+            "# v1.5.5  \n" +
             "**新增内容**  \n" +
             "- 新增软件更新检测功能  \n\n" +
             "# v1.5.4  \n" +

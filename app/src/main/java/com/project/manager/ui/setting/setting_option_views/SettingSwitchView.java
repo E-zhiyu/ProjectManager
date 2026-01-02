@@ -12,12 +12,17 @@ import com.project.manager.R;
 import com.project.manager.databinding.ViewSettingOptionBinding;
 
 public class SettingSwitchView extends SettingOptionViewBase<MaterialSwitch, CompoundButton.OnCheckedChangeListener> {
+    /**
+     * 开关式设置项构造方法
+     *
+     * @param context     上下文
+     * @param binding     对应于XML文件中的databinding
+     * @param title       标题
+     * @param description 描述（可选）
+     * @param iconId      左侧图标资源
+     */
     public SettingSwitchView(Context context, ViewSettingOptionBinding binding, @StringRes int title, String description, @DrawableRes int iconId) {
-        this.binding = binding;
-        initView(context);
-        setTitle(title);
-        setDescription(description);
-        setIcon(iconId);
+        super(context, binding, title, description, iconId);
     }
 
     @Override

@@ -10,7 +10,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.project.manager.data.data_save.database.BookKeepingColumns;
-import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
+import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.ui.setting.data_io.pojo.PojoBasicRunningAccount;
 import com.project.manager.ui.setting.data_io.pojo.PojoTag;
@@ -21,14 +21,14 @@ import com.project.manager.ui.setting.data_io.pojo.PojoTransferRunningAccount;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDatabaseHelper, TotalAccountDataMap> {
+public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper, TotalAccountDataMap> {
     public RunningAccountDataHelper(Context context) {
         super(context);
     }
 
     @Override
-    protected BookKeepingDatabaseHelper createHelper() {
-        return new BookKeepingDatabaseHelper(context);
+    protected BookKeepingDbHelper createHelper() {
+        return new BookKeepingDbHelper(context);
     }
 
     @Override
@@ -277,7 +277,7 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDatabase
         //如果没有默认分组，则添加一个默认分组记录
         if (!isDefaultGroupInImportedData) {
             ContentValues default_group_values = new ContentValues();
-            default_group_values.put(BookKeepingColumns.GROUP_NAME.toString(), BookKeepingDatabaseHelper.defaultGroupName);
+            default_group_values.put(BookKeepingColumns.GROUP_NAME.toString(), BookKeepingDbHelper.defaultGroupName);
             default_group_values.put(BookKeepingColumns.GROUP_NO.toString(), 0);
             db.insert(BookKeepingTables.TAG_GROUP.toString(), null, default_group_values);
         }
@@ -310,7 +310,7 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDatabase
      */
     public static void deleteAllData(Context context) {
         String tip_str = "数据清除失败，原因未知";
-        try (BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(context)) {
+        try (BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context)) {
             SQLiteDatabase db = db_helper.openWriteLink();
 
             db.delete(BookKeepingTables.TRANSFER.toString(), null, null);

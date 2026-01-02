@@ -14,13 +14,13 @@ import androidx.annotation.Nullable;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 
-public class BookKeepingDatabaseHelper extends SQLiteOpenHelper {
+public class BookKeepingDbHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "running_account.db";   //数据库名称
     private static final int DATABASE_VERSION = 4;                      //数据库版本
     private final Context context;                                      //上下文
     public static final String defaultGroupName = "默认分组";           //默认分组名称
 
-    public BookKeepingDatabaseHelper(@Nullable Context context) {
+    public BookKeepingDbHelper(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.context = context;
     }

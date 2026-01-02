@@ -20,6 +20,14 @@
     <!-- 请求网络权限 -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- 请求外部存储读取权限(针对旧版安卓) -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
     <application
         android:name=".ManagerAssistant"
         android:allowBackup="true"
@@ -52,10 +60,10 @@
             android:name=".ui.bookkeeping.report.ReportActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.running_account_edit.modify.RunningAccountModifyActivity"
+            android:name=".ui.bookkeeping.running_account_edit.RunningAccountModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.running_account_edit.new_running_account.RunningAccountAddActivity"
+            android:name=".ui.bookkeeping.running_account_edit.RunningAccountAddActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

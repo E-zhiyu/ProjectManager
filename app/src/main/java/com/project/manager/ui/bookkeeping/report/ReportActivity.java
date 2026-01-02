@@ -25,7 +25,7 @@ import com.project.manager.R;
 import com.project.manager.data.data_class.AccountSourceInfo;
 import com.project.manager.data.data_class.MonthAccountInfo;
 import com.project.manager.data.data_save.database.BookKeepingColumns;
-import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
+import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.databinding.ActivityReportBinding;
 import com.project.manager.helpers.ExceptionHelper;
@@ -130,7 +130,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
      */
     private List<ReportRunningAccountData> loadReportData(@NonNull DateRangeType dateRangeType) throws SQLiteException {
         List<ReportRunningAccountData> dataList = new ArrayList<>();
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(this);
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(this);
         SQLiteDatabase db = db_helper.openReadLink();
 
         String[] columns = new String[]{
@@ -597,7 +597,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
 
         monthAccountInfoTypeMenu.setOnMenuItemClickListener(item -> {
             boolean itemClicked = false;    //是否点击了选项
-            MonthAccountInfoType old_type = monthAccountInfoType;
+            MonthAccountInfoType old_type = monthAccountInfoType;   //用于比较两次选择是否相同
             if (item.getItemId() == R.id.action_balance) {
                 monthAccountInfoType = MonthAccountInfoType.BALANCE;
                 ((MaterialTextView) view).setText(R.string.balance);

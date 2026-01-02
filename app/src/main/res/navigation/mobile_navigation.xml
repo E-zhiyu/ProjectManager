@@ -13,10 +13,10 @@
     <fragment
         android:id="@+id/navigation_home"
         android:name="com.project.manager.ui.home.HomeFragment"
-        android:label="@string/home_page"
+        android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
     <fragment
-        android:id="@+id/navigation_mine"
+        android:id="@+id/navigation_settings"
         android:name="com.project.manager.ui.setting.SettingFragment"
         android:label="@string/title_setting"
         tools:layout="@layout/fragment_setting" />

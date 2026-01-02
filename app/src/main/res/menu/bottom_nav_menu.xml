@@ -7,9 +7,9 @@
     <item
         android:id="@+id/navigation_home"
         android:icon="@drawable/baseline_home_24"
-        android:title="@string/home_page" />
+        android:title="@string/title_home" />
     <item
-        android:id="@+id/navigation_mine"
+        android:id="@+id/navigation_settings"
         android:icon="@drawable/baseline_settings_24"
         android:title="@string/title_setting" />
 </menu>

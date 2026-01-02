@@ -193,12 +193,13 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         String error = null;
 
         //判断是否输入金额
-        if (String.valueOf(amount_input.getText()).isEmpty()) {
+        String amountStr = String.valueOf(amount_input.getText());
+        if (amountStr.isEmpty()) {
             error = "金额不能为空";
             amount_layout.setErrorEnabled(true);
             amount_layout.setError(error);
-        } else if (String.valueOf(amount_input.getText()).startsWith("0")) {
-            error = "金额不能以0开头";
+        } else if (Double.parseDouble(amountStr) == 0) {
+            error = "金额不能为0";
             amount_layout.setErrorEnabled(true);
             amount_layout.setError(error);
         }

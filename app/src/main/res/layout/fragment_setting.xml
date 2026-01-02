@@ -35,6 +35,10 @@
                 <include
                     android:id="@+id/dynamic_color_option"
                     layout="@layout/view_setting_option" />
+
+                <include
+                    android:id="@+id/first_screen_option"
+                    layout="@layout/view_setting_option" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -66,6 +70,26 @@
                 <include
                     android:id="@+id/clear_account_data_option"
                     layout="@layout/view_setting_option" />
+
+                <include
+                    android:id="@+id/auto_backup_option"
+                    layout="@layout/view_setting_option" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/auto_backup_layout"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <include
+                        android:id="@+id/backup_frequency_option"
+                        layout="@layout/view_setting_option" />
+
+                    <include
+                        android:id="@+id/backup_directory_option"
+                        layout="@layout/view_setting_option" />
+                </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

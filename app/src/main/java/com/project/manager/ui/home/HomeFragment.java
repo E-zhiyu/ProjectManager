@@ -16,7 +16,7 @@ import androidx.annotation.Nullable;
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.data.data_class.running_account.RunningAccountBase;
 import com.project.manager.data.data_save.database.BookKeepingColumns;
-import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
+import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.data.data_save.preference.BookKeepingStartDatePreference;
 import com.project.manager.databinding.FragmentHomeBinding;
@@ -113,7 +113,7 @@ public class HomeFragment extends Fragment {
      * 加载今日相关的流水数据
      */
     private void getTodayBalanceInfo() throws SQLiteException {
-        BookKeepingDatabaseHelper db_helper = new BookKeepingDatabaseHelper(requireContext());
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(requireContext());
         SQLiteDatabase db = db_helper.openReadLink();
 
         //获取当前日期

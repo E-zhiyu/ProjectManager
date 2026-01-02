@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.ManagerAssistant.Static" parent="Theme.Material3.Light.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorOnPrimary">@color/color_on_primary</item>
+        <item name="colorPrimaryContainer">@color/color_primary_container</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondaryContainer">@color/color_secondary_container</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">?attr/colorSurface</item>
+        <!-- Customize your theme here. -->
+        <item name="colorSurface">@color/color_surface</item>
+        <item name="colorSurfaceContainer">@color/color_surface_container</item>
+        <item name="colorSurfaceContainerLow">@color/color_surface_container_low</item>
+
+        <item name="toolbarStyle">@style/ToolBarStyle</item>
+        <item name="drawableTint">?attr/colorPrimary</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+
+    <!-- 动态配色主题 -->
+    <style name="Theme.ManagerAssistant.Dynamic" parent="Theme.Material3.DynamicColors.Light.NoActionBar">
+        <!-- 自定义颜色和样式 -->
+        <item name="toolbarStyle">@style/ToolBarStyle</item>
+        <item name="drawableTint">?attr/colorPrimary</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+
+        <item name="android:statusBarColor">?attr/colorSurface</item>
+    </style>
+</resources>

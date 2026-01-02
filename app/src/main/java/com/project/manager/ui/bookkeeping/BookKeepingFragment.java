@@ -28,14 +28,14 @@ import com.project.manager.data.data_class.running_account.IncomeRunningAccount;
 import com.project.manager.data.data_class.running_account.RunningAccountBase;
 import com.project.manager.data.data_class.running_account.TransferRunningAccount;
 import com.project.manager.data.data_save.database.BookKeepingColumns;
-import com.project.manager.data.data_save.database.BookKeepingDatabaseHelper;
+import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.databinding.FragmentBookkeepingBinding;
 import com.project.manager.helpers.ColorHelper;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.running_account_edit.AccountRecyclerAdapter;
-import com.project.manager.ui.bookkeeping.running_account_edit.modify.RunningAccountModifyActivity;
-import com.project.manager.ui.bookkeeping.running_account_edit.new_running_account.RunningAccountAddActivity;
+import com.project.manager.ui.bookkeeping.running_account_edit.RunningAccountModifyActivity;
+import com.project.manager.ui.bookkeeping.running_account_edit.RunningAccountAddActivity;
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
@@ -52,7 +52,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class BookKeepingFragment extends Fragment {
     private AccountRecyclerAdapter accountRecyclerAdapter;                  //流水列表适配器
     private RecyclerView runningAccountRecyclerView;                        //流水列表视图
-    private BookKeepingDatabaseHelper running_account_db_helper;            //流水数据库帮助器
+    private BookKeepingDbHelper running_account_db_helper;            //流水数据库帮助器
     private ActivityResultLauncher<Intent> runningAccountAddLauncher, modifyRunningAccountLauncher;  //子活动启动器
     private int account_num;                                                //流水记录数量
     private FragmentBookkeepingBinding binding;                             //绑定的XML视图
@@ -65,7 +65,7 @@ public class BookKeepingFragment extends Fragment {
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
 
         //实例化数据库帮助器
-        running_account_db_helper = new BookKeepingDatabaseHelper(requireContext());
+        running_account_db_helper = new BookKeepingDbHelper(requireContext());
 
         initActivityLauncher();
         initViews();
@@ -86,6 +86,15 @@ public class BookKeepingFragment extends Fragment {
         if (accountUpdatedReceiver != null) {
             requireContext().unregisterReceiver(accountUpdatedReceiver);
         }
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        //每次Fragment变为可见时刷新数据
+        refreshUI();
     }
 
     /**
@@ -311,14 +320,7 @@ public class BookKeepingFragment extends Fragment {
         accountNumText.setText(String.format(Locale.getDefault(), "显示数量：%d", account_num));
 
         //设置下拉刷新布局的监听器
-        refreshLayout.setOnRefreshListener(() -> {
-            List<RunningAccountBase> refreshedAccount = loadRunningAccountData(filter_tag_no);
-            accountRecyclerAdapter.refreshRunningAccount(refreshedAccount);
-            refreshLayout.setRefreshing(false);
-
-            account_num = refreshedAccount.size();
-            refreshAccountNumText();
-        });
+        refreshLayout.setOnRefreshListener(this::refreshUI);
     }
 
     //初始化广播接收器
@@ -431,6 +433,19 @@ public class BookKeepingFragment extends Fragment {
             binding.filterText.setText(tag_name);
         }
 
+        refreshUI();
+
+        if (tagSelectBottomSheet != null) {
+            tagSelectBottomSheet.dismiss();
+            tagSelectBottomSheet = null;
+        }
+    }
+
+    /**
+     * 刷新UI方法
+     */
+    private void refreshUI() {
+        binding.refreshLayout.setRefreshing(true);
         disposables.add(
                 Observable.fromCallable(() -> loadRunningAccountData(filter_tag_no))
                         .subscribeOn(Schedulers.io())               //在IO线程执行查询
@@ -442,13 +457,8 @@ public class BookKeepingFragment extends Fragment {
                                     refreshAccountNumText();
                                 },  //成功回调
                                 e -> ExceptionHelper.showExceptionDialog(requireContext(), e),  //错误处理
-                                () -> binding.refreshLayout.setRefreshing(false)
+                                () -> binding.refreshLayout.setRefreshing(false)    //onComplete子句
                         )
         );
-
-        if (tagSelectBottomSheet != null) {
-            tagSelectBottomSheet.dismiss();
-            tagSelectBottomSheet = null;
-        }
     }
 }
