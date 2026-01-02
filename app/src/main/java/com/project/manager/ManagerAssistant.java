@@ -1,6 +1,10 @@
 package com.project.manager;
 
 import android.app.Application;
+import android.util.Log;
+
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.DynamicColorsOptions;
@@ -9,6 +13,8 @@ import com.project.manager.data.data_save.preference.AppSettingsPreference;
 import com.project.manager.helpers.AutoBackupHelper;
 import com.project.manager.ui.view_model.tag_modify.AccountTagViewModel;
 import com.project.manager.workers.BackupScheduler;
+
+import java.util.concurrent.ExecutionException;
 
 public class ManagerAssistant extends Application {
     AccountTagViewModel accountTagViewModel;            //同步标签数据的ViewModel
@@ -33,6 +39,17 @@ public class ManagerAssistant extends Application {
             int frequency_index = AutoBackupPreference.getBackupFrequency(this);
             long intervalMillis = AutoBackupHelper.BackupFrequency.values()[frequency_index].getIntervalMillis();
             BackupScheduler.schedulePeriodicBackup(this, intervalMillis);
+
+            //打印任务状态日志
+            WorkInfo info;
+            try {
+                info = WorkManager.getInstance(this).
+                        getWorkInfosForUniqueWork(BackupScheduler.BACKUP_WORK_NAME).
+                        get().get(0);
+            } catch (ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            Log.d(LogTags.WORK_STATS.getV(), "State: " + info.getState());
         }
     }
 

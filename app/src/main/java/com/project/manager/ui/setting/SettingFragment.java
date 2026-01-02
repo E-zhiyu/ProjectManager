@@ -383,6 +383,9 @@ public class SettingFragment extends Fragment {
                     AutoBackupPreference.setBackupFrequency(requireContext(), item_index);
                     long intervalMillis = frequency.getIntervalMillis();
                     BackupScheduler.schedulePeriodicBackup(requireContext(), intervalMillis);   //更新工作内容
+
+                    //立即备份一次
+                    BackupScheduler.executeBackupNow(requireContext());
                 }
 
                 return isItemClicked;

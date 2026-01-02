@@ -91,12 +91,15 @@ public class AutoBackupHelper {
                     Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             );
 
-            //开始自动备份工作
+            //创建自动备份定时任务
             if (oldDirUriStr == null) {
                 int frequency_index = AutoBackupPreference.getBackupFrequency(context);
                 long intervalMillis = AutoBackupHelper.BackupFrequency.values()[frequency_index].getIntervalMillis();
                 BackupScheduler.schedulePeriodicBackup(context, intervalMillis);
             }
+
+            //立即备份一次
+            BackupScheduler.executeBackupNow(context);
         } else {
             String backupDir = AutoBackupPreference.getBackupDirectoryUri(context);
             if (switchOptionView != null && backupDir == null) {

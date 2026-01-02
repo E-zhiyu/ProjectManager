@@ -1,18 +1,23 @@
 package com.project.manager.workers;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
+import com.project.manager.LogTags;
+
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class BackupScheduler {
     //唯一工作ID，用于识别和取消工作
-    private static final String BACKUP_WORK_NAME = "auto_backup_work";
+    public static final String BACKUP_WORK_NAME = "auto_backup_work";
 
     /**
      * 安排定期备份任务
@@ -21,8 +26,6 @@ public class BackupScheduler {
      * @param intervalMillis 备份间隔（毫秒）
      */
     public static void schedulePeriodicBackup(Context context, long intervalMillis) {
-        //TODO:解决无法创建自动备份任务的BUG
-
         //创建约束条件
         Constraints constraints = new Constraints.Builder()
                 .setRequiresBatteryNotLow(true) //电量不低于临界值
@@ -42,6 +45,15 @@ public class BackupScheduler {
                 BACKUP_WORK_NAME,
                 ExistingPeriodicWorkPolicy.UPDATE,  //如果工作已存在就更新
                 backupWorkRequest);
+
+        //打印日志
+        WorkInfo info;
+        try {
+            info = workManager.getWorkInfosForUniqueWork(BACKUP_WORK_NAME).get().get(0);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        Log.d(LogTags.WORK_STATS.getV(), "State: " + info.getState());
     }
 
     /**
