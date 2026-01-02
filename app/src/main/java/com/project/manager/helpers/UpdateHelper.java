@@ -46,7 +46,7 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class UpdateHelper {
-    private static final String versionInfoUrL = "https://gitlab.digitalit.com.cn/E_zhiyu/ManagerAssistant-web/-/raw/main/version_info.json";
+    private static final String versionInfoUrL = "https://gitee.com/e-zhiyu/manager-assistant-web/raw/main/version_info.json";
 
     /**
      * 检查更新
