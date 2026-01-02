@@ -277,13 +277,13 @@ public class SettingFragment extends Fragment {
                 requireContext(),
                 binding.clearAccountDataOption,
                 R.string.clear_account_data,
-                "清除流水记录、标签和标签分组数据",
+                "清除流水相关数据",
                 R.drawable.baseline_delete_forever_24
         );
         clearRunningAccountOption.setFunctionListener(
                 v -> new MaterialAlertDialogBuilder(requireContext())
                         .setTitle("清除数据")
-                        .setMessage("此操作将清除所有流水账数据，确认继续吗？")
+                        .setMessage("此操作将清除所有流水记录、标签和标签分组数据，确认继续吗？")
                         .setPositiveButton("确认", ((dialog, which) -> {
                             dialog.dismiss();
                             RunningAccountDataHelper.deleteAllData(requireContext());
@@ -477,7 +477,7 @@ public class SettingFragment extends Fragment {
                 requireContext(),
                 binding.hideBackgroundOption,
                 R.string.hide_background,
-                "从主页退出后在最近任务列表隐藏",
+                "在最近任务列表隐藏",
                 R.drawable.baseline_recent_task_24
         );
         hideBackgroundOption.setChecked(KeepAlivePreference.getHideRecents(requireContext()));
