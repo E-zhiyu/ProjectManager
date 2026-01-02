@@ -13,7 +13,7 @@
     <fragment
         android:id="@+id/navigation_home"
         android:name="com.project.manager.ui.home.HomeFragment"
-        android:label="@string/home_page"
+        android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
     <fragment
         android:id="@+id/navigation_settings"

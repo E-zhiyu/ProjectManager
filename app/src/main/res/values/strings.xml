@@ -51,7 +51,7 @@
     <string name="version_name">版本名称</string>
     <string name="setting">应用设置</string>
     <string name="theme_mode">主题模式</string>
-    <string name="dynamic_color">动态配色</string>
+    <string name="dynamic_color">动态色彩</string>
     <string name="data_manage">数据管理</string>
     <string name="export_data">导出数据</string>
     <string name="import_data">导入数据</string>
@@ -92,7 +92,7 @@
     <string name="reset_rule">重置规则</string>
     <string name="import_rule">导入规则</string>
     <string name="export_rule">导出规则</string>
-    <string name="home_page">主页</string>
+    <string name="title_home">主页</string>
     <string name="welcome_string">欢迎使用经理助手</string>
     <string name="today_balance">今日结余</string>
     <string name="check_more_data">查看更多统计数据</string>

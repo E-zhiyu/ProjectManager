@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.project.manager.data.data_save.preference.KeepAlivePreference;
 import com.project.manager.data.data_save.preference.VersionPreference;
@@ -70,8 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initViews() {
         //替换自带工具栏
-        MaterialToolbar toolbar = binding.toolbar;
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.toolbar);
 
         List<Fragment> fragmentList = new ArrayList<>();
         fragmentList.add(new BookKeepingFragment());
@@ -82,18 +80,26 @@ public class MainActivity extends AppCompatActivity {
         //设置APP启动第一屏
         int first_screen_code = AppSettingsPreference.getFirstScreen(this);
         viewPager2.setCurrentItem(first_screen_code, false);
+        int[] titleIds = {
+                R.string.title_bookkeeping,
+                R.string.title_home
+        };
+        binding.toolbar.setTitle(titleIds[first_screen_code]);
 
         //设置底部导航栏点击监听
         binding.bottomNavi.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.navigation_bookkeeping) {
                 viewPager2.setCurrentItem(0, true);
+                binding.toolbar.setTitle(R.string.title_bookkeeping);
                 return true;
             } else if (id == R.id.navigation_home) {
                 viewPager2.setCurrentItem(1, true);
+                binding.toolbar.setTitle(R.string.title_home);
                 return true;
             } else if (id == R.id.navigation_settings) {
                 viewPager2.setCurrentItem(2, true);
+                binding.toolbar.setTitle(R.string.title_setting);
                 return true;
             }
             return false;

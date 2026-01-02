@@ -181,7 +181,7 @@ public class SettingFragment extends Fragment {
                 requireContext(),
                 binding.dynamicColorOption,
                 R.string.dynamic_color,
-                null,
+                "将壁纸颜色作为APP主题色",
                 R.drawable.baseline_color_lens_24
         );
         dynamicColorOption.setChecked(AppSettingsPreference.getDynamicColorStat(requireContext()));
@@ -215,7 +215,7 @@ public class SettingFragment extends Fragment {
         );
         String[] firstScreenTitles = {
                 requireContext().getString(R.string.title_bookkeeping),
-                requireContext().getString(R.string.home_page)
+                requireContext().getString(R.string.title_home)
         };
         int screen_code = AppSettingsPreference.getFirstScreen(requireContext());
         firstScreenOption.setSpinnerText(firstScreenTitles[screen_code]);

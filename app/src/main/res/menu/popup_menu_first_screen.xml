@@ -4,5 +4,5 @@
         android:title="@string/title_bookkeeping" />
     <item
         android:id="@+id/home"
-        android:title="@string/home_page" />
+        android:title="@string/title_home" />
 </menu>
