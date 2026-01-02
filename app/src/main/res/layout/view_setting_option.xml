@@ -4,8 +4,8 @@
     style="@style/SettingOptionStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="5dp"
-    android:paddingBottom="5dp">
+    android:paddingTop="5sp"
+    android:paddingBottom="5sp">
 
     <LinearLayout
         android:id="@+id/free_layout"
@@ -28,13 +28,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="44dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/free_layout"
-        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -43,6 +42,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:layout_marginStart="40sp"
             android:text="@string/title_setting"
             android:textSize="18sp" />
 
@@ -50,6 +50,7 @@
             android:id="@+id/description_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="40sp"
             android:text="@string/setting"
             android:textColor="?attr/colorControlNormal"
             android:textSize="15sp" />
