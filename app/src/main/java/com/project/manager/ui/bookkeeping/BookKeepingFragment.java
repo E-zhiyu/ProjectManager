@@ -88,6 +88,15 @@ public class BookKeepingFragment extends Fragment {
         }
     }
 
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        //每次Fragment变为可见时刷新数据
+        refreshUI();
+    }
+
     /**
      * 处理流水视图点击事件的方法
      *
@@ -311,14 +320,7 @@ public class BookKeepingFragment extends Fragment {
         accountNumText.setText(String.format(Locale.getDefault(), "显示数量：%d", account_num));
 
         //设置下拉刷新布局的监听器
-        refreshLayout.setOnRefreshListener(() -> {
-            List<RunningAccountBase> refreshedAccount = loadRunningAccountData(filter_tag_no);
-            accountRecyclerAdapter.refreshRunningAccount(refreshedAccount);
-            refreshLayout.setRefreshing(false);
-
-            account_num = refreshedAccount.size();
-            refreshAccountNumText();
-        });
+        refreshLayout.setOnRefreshListener(this::refreshUI);
     }
 
     //初始化广播接收器
@@ -431,6 +433,19 @@ public class BookKeepingFragment extends Fragment {
             binding.filterText.setText(tag_name);
         }
 
+        refreshUI();
+
+        if (tagSelectBottomSheet != null) {
+            tagSelectBottomSheet.dismiss();
+            tagSelectBottomSheet = null;
+        }
+    }
+
+    /**
+     * 刷新UI方法
+     */
+    private void refreshUI() {
+        binding.refreshLayout.setRefreshing(true);
         disposables.add(
                 Observable.fromCallable(() -> loadRunningAccountData(filter_tag_no))
                         .subscribeOn(Schedulers.io())               //在IO线程执行查询
@@ -442,13 +457,8 @@ public class BookKeepingFragment extends Fragment {
                                     refreshAccountNumText();
                                 },  //成功回调
                                 e -> ExceptionHelper.showExceptionDialog(requireContext(), e),  //错误处理
-                                () -> binding.refreshLayout.setRefreshing(false)
+                                () -> binding.refreshLayout.setRefreshing(false)    //onComplete子句
                         )
         );
-
-        if (tagSelectBottomSheet != null) {
-            tagSelectBottomSheet.dismiss();
-            tagSelectBottomSheet = null;
-        }
     }
 }
