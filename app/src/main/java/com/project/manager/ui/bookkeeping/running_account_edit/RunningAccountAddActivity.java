@@ -1,15 +1,17 @@
-package com.project.manager.ui.bookkeeping.running_account_edit.new_running_account;
+package com.project.manager.ui.bookkeeping.running_account_edit;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.project.manager.FragmentPagerAdapter;
 import com.project.manager.databinding.ActivityRunningAccountAddBinding;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.ExpenseFragment;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.IncomeFragment;
@@ -60,33 +62,33 @@ public class RunningAccountAddActivity extends AppCompatActivity {
         binding.cancelBtn.setOnClickListener(v -> finish());
 
         //创建碎片列表
-        List<RunningAccountFragmentBase> fragmentList = new ArrayList<>();
+        List<Fragment> fragmentList = new ArrayList<>();
         fragmentList.add(new ExpenseFragment());
         fragmentList.add(new IncomeFragment());
         fragmentList.add(new TransferFragment());
 
         //初始化ViewPager并设置ViewPager适配器
-        ViewPager2 runningAccountFragmentPager = binding.runningAccountAddPager;  //翻页视图
-        RunningAccountAddFragmentAdapter viewPagerAdapter = new RunningAccountAddFragmentAdapter(this, fragmentList);
-        runningAccountFragmentPager.setAdapter(viewPagerAdapter);
+        ViewPager2 viewPager2 = binding.viewPager2;  //翻页视图
+        FragmentPagerAdapter viewPagerAdapter = new FragmentPagerAdapter(this, fragmentList);
+        viewPager2.setAdapter(viewPagerAdapter);
 
         //绑定ViewPager和TabLayout
         TabLayout tabLayout = binding.runningAccountAddTabLayout;
         new TabLayoutMediator(
                 tabLayout,
-                runningAccountFragmentPager,
-                (tab, position) -> tab.setText(fragmentList.get(position).getName())
+                viewPager2,
+                (tab, position) -> tab.setText(((RunningAccountFragmentBase) fragmentList.get(position)).getName())
         ).attach();
 
         //定义翻页回调以刷新活动的fragment实例
-        runningAccountFragmentPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+        viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                current_fragment = viewPagerAdapter.getFragment(position);
+                current_fragment = (RunningAccountFragmentBase) (viewPagerAdapter.getFragment(position));
             }
         });
-        runningAccountFragmentPager.setOffscreenPageLimit(1);
+        viewPager2.setOffscreenPageLimit(1);    //设置保留邻近Fragment
     }
 
     /**

@@ -5,7 +5,7 @@
     style="@style/CommonPageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.bookkeeping.running_account_edit.new_running_account.RunningAccountAddActivity">
+    tools:context=".ui.bookkeeping.running_account_edit.RunningAccountAddActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -24,7 +24,7 @@
         app:tabMode="scrollable" />
 
     <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/running_account_add_pager"
+        android:id="@+id/view_pager_2"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/btn_card_view"

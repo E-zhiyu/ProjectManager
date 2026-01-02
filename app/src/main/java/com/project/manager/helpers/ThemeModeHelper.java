@@ -3,7 +3,7 @@ package com.project.manager.helpers;
 import androidx.appcompat.app.AppCompatDelegate;
 
 public class ThemeModeHelper {
-    // 可选的App主题模式
+    //可选的App主题模式
     public static final int LIGHT_MODE = 0;
     public static final int DARK_MODE = 1;
     public static final int FOLLOW_SYSTEM = 2;

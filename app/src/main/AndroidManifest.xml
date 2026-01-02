@@ -60,10 +60,10 @@
             android:name=".ui.bookkeeping.report.ReportActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.running_account_edit.modify.RunningAccountModifyActivity"
+            android:name=".ui.bookkeeping.running_account_edit.RunningAccountModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.running_account_edit.new_running_account.RunningAccountAddActivity"
+            android:name=".ui.bookkeeping.running_account_edit.RunningAccountAddActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

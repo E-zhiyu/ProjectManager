@@ -1,8 +1,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/home"
-        android:title="@string/home_page" />
-    <item
         android:id="@+id/bookkeeping"
         android:title="@string/title_bookkeeping" />
+    <item
+        android:id="@+id/home"
+        android:title="@string/home_page" />
 </menu>

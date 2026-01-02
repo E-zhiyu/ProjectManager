@@ -210,12 +210,12 @@ public class SettingFragment extends Fragment {
                 requireContext(),
                 binding.firstScreenOption,
                 R.string.first_screen,
-                "选择启动时加载的页面",
+                "选择启动的第一屏",
                 R.drawable.baseline_add_to_home_screen_24
         );
         String[] firstScreenTitles = {
-                requireContext().getString(R.string.home_page),
-                requireContext().getString(R.string.title_bookkeeping)
+                requireContext().getString(R.string.title_bookkeeping),
+                requireContext().getString(R.string.home_page)
         };
         int screen_code = AppSettingsPreference.getFirstScreen(requireContext());
         firstScreenOption.setSpinnerText(firstScreenTitles[screen_code]);
@@ -228,10 +228,10 @@ public class SettingFragment extends Fragment {
 
                 int item_index = -1;
                 int old_screen_code = AppSettingsPreference.getFirstScreen(requireContext());
-                if (item.getItemId() == R.id.home) {
+                if (item.getItemId() == R.id.bookkeeping) {
                     item_index = 0;
                     isItemClicked = true;
-                } else if (item.getItemId() == R.id.bookkeeping) {
+                } else if (item.getItemId() == R.id.home) {
                     item_index = 1;
                     isItemClicked = true;
                 }
@@ -888,11 +888,11 @@ public class SettingFragment extends Fragment {
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("主题模式")
                 .setSingleChoiceItems(themeModeStr, theme_mode, ((dialog, which) -> {
-                    ThemeModeHelper.applyTheme(which);
                     AppSettingsPreference.setThemeMode(requireContext(), which);
+                    ThemeModeHelper.applyTheme(which);
                     dialog.dismiss();
                 }))
-                .setNegativeButton("关闭", (dialog, which) -> dialog.dismiss())
+                .setNegativeButton("关闭", null)
                 .show();
     }
 
