@@ -28,7 +28,7 @@ public class ManagerAssistant extends Application {
             DynamicColors.applyToActivitiesIfAvailable(this, options);
         }
 
-        //安排自动备份工作
+        //安排自动备份任务
         if (AutoBackupPreference.getSwitchStat(this)) {
             int frequency_index = AutoBackupPreference.getBackupFrequency(this);
             long intervalMillis = AutoBackupHelper.BackupFrequency.values()[frequency_index].getIntervalMillis();

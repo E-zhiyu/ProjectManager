@@ -81,6 +81,7 @@ public class AutoBackupHelper {
             if (backupDirUri == null) return;
 
             //保存URI以便后续使用
+            String oldDirUriStr = AutoBackupPreference.getBackupDirectoryUri(context);
             String uriStr = backupDirUri.toString();
             AutoBackupPreference.setBackupDirectoryUri(context, uriStr);
 
@@ -91,9 +92,11 @@ public class AutoBackupHelper {
             );
 
             //开始自动备份工作
-            int frequency_index = AutoBackupPreference.getBackupFrequency(context);
-            long intervalMillis = AutoBackupHelper.BackupFrequency.values()[frequency_index].getIntervalMillis();
-            BackupScheduler.schedulePeriodicBackup(context, intervalMillis);
+            if (oldDirUriStr == null) {
+                int frequency_index = AutoBackupPreference.getBackupFrequency(context);
+                long intervalMillis = AutoBackupHelper.BackupFrequency.values()[frequency_index].getIntervalMillis();
+                BackupScheduler.schedulePeriodicBackup(context, intervalMillis);
+            }
         } else {
             String backupDir = AutoBackupPreference.getBackupDirectoryUri(context);
             if (switchOptionView != null && backupDir == null) {
