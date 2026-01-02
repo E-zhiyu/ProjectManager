@@ -112,6 +112,8 @@ public class MainActivity extends AppCompatActivity {
         FragmentPagerAdapter viewPagerAdapter = new FragmentPagerAdapter(this, fragmentList);
         viewPager2.setAdapter(viewPagerAdapter);
 
+        viewPager2.setUserInputEnabled(false);  //禁用滚动切换界面防止误触
+
         //ViewPager 页面切换监听
         viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
