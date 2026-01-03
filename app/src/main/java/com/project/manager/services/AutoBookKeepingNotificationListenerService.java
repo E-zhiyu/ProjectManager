@@ -189,7 +189,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
      * @param type     解析规则中的流水种类
      * @param tag_no   解析规则对应的标签编号
      * @param ruleName 解析规则的名称
-     * @return 解析通知内容后生成的流水数据包
+     * @return 解析通知内容后生成的流水数据包(正则表达式解析失败返回null)
      * @throws SQLiteException 流水数据保存失败引发的异常
      */
     @Nullable
@@ -205,6 +205,18 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                     String.format(
                             Locale.getDefault(),
                             "规则“%s”没有金额捕获组",
+                            ruleName
+                    ),
+                    Toast.LENGTH_SHORT
+            ).show();
+            return null;
+        } catch (NumberFormatException e) {
+            Context context = getBaseContext();
+            Toast.makeText(
+                    context,
+                    String.format(
+                            Locale.getDefault(),
+                            "规则“%s”的捕获组无法正确捕获金额数据",
                             ruleName
                     ),
                     Toast.LENGTH_SHORT
