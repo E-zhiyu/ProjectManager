@@ -19,18 +19,19 @@
         <item name="drawableTint">?attr/colorPrimary</item>
         <item name="colorControlActivated">?attr/colorPrimary</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
         <item name="android:windowLightNavigationBar">true</item>
     </style>
 
-    <!-- 动态配色主题 -->
     <style name="Theme.ManagerAssistant.Dynamic" parent="Theme.Material3.DynamicColors.Light.NoActionBar">
         <!-- 自定义颜色和样式 -->
         <item name="toolbarStyle">@style/ToolBarStyle</item>
         <item name="drawableTint">?attr/colorPrimary</item>
         <item name="colorControlActivated">?attr/colorPrimary</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowLightNavigationBar">true</item>
 
         <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
+        <item name="android:windowLightNavigationBar">true</item>
     </style>
 </resources>

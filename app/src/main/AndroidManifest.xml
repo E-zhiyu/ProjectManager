@@ -1,26 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- 申请读取所有应用的权限 -->
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="PackageVisibilityPolicy,QueryAllPackagesPermission" />
-    <uses-permission android:name="com.android.permission.GET_INSTALLED_APPS" />
 
     <!-- 申请通知监听服务权限 -->
+    <uses-permission android:name="com.android.permission.GET_INSTALLED_APPS" />
+
+    <!-- 申请应用安装权限 -->
     <uses-permission
         android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
         tools:ignore="ProtectedPermissions" />
 
-    <!-- 申请应用安装权限 -->
+    <!-- 请求网络权限 -->
     <uses-permission
         android:name="android.permission.REQUEST_INSTALL_PACKAGES"
         tools:ignore="RequestInstallPackagesPolicy" />
 
-    <!-- 请求网络权限 -->
-    <uses-permission android:name="android.permission.INTERNET" />
-
     <!-- 请求外部存储读取权限(针对旧版安卓) -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
@@ -96,4 +96,5 @@
             </intent-filter>
         </service>
     </application>
+
 </manifest>
