@@ -163,9 +163,9 @@ public class UpdateHelper {
             String versionName,
             int latestVersionCode,
             boolean isMandatory) {
-        View markDownDialog = LayoutInflater.from(context)
-                .inflate(R.layout.view_md_text, null);
-        MaterialTextView textView = markDownDialog.findViewById(R.id.md_textview_in_dialog);
+        View markdownDialog = LayoutInflater.from(context)
+                .inflate(R.layout.view_markdown_text, null);
+        MaterialTextView textView = markdownDialog.findViewById(R.id.md_textview_in_dialog);
 
         //使用Markown渲染Markdown文本
         Markwon markwon = Markwon.create(context);
@@ -174,7 +174,7 @@ public class UpdateHelper {
         //显示发现新版本对话框
         MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(context)
                 .setTitle("发现新版本")
-                .setView(markDownDialog)
+                .setView(markdownDialog)
                 .setPositiveButton(
                         "更新",
                         (dialog, which) -> downloadLatestFile(context, downloadUrl, versionName)
@@ -197,6 +197,9 @@ public class UpdateHelper {
      * @param versionName 版本名称
      */
     private static void downloadLatestFile(@NonNull Context context, String downloadUrl, String versionName) {
+        Toast.makeText(context,"正在下载安装包，请勿关闭本APP",Toast.LENGTH_SHORT).show();
+
+        //生成文件名
         String fileName = String.format("ManagerAssistant_v%s.apk", versionName);
 
         //请求下载
@@ -313,7 +316,7 @@ public class UpdateHelper {
         String MandatoryDownloadUrl = VersionPreference.getMandatoryDownloadUrl(context);
 
         View markDownDialog = LayoutInflater.from(context)
-                .inflate(R.layout.view_md_text, null);
+                .inflate(R.layout.view_markdown_text, null);
         MaterialTextView textView = markDownDialog.findViewById(R.id.md_textview_in_dialog);
 
         //使用Markown渲染Markdown文本

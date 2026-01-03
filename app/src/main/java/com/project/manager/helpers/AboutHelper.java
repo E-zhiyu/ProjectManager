@@ -19,6 +19,7 @@ import io.noties.markwon.Markwon;
 public class AboutHelper {
     private static final String about_md = "这是一款极简记账工具，秉持“简洁无广、隐私保护”的核心理念，为用户提供清爽、安全的记账体验  \n\n" +
             "### 下载链接：  \n" +
+            "- **[Gitee发行版](https://gitee.com/e-zhiyu/manager-assistant-web/releases)**(推荐)  \n" +
             "- **[小飞机网盘](https://share.feijipan.com/s/kTVc2PiI)**(免登录)  \n" +
             "- **[123云盘](https://www.123865.com/s/C5xcVv-kRYT3)**(需要登录)  \n\n" +
             "### 联系作者：  \n" +
@@ -85,7 +86,7 @@ public class AboutHelper {
 
         //获取自定义弹窗视图
         View about_dialog = LayoutInflater.from(context)
-                .inflate(R.layout.view_md_text, null);
+                .inflate(R.layout.view_markdown_text, null);
         MaterialTextView about_text = about_dialog.findViewById(R.id.md_textview_in_dialog);
 
         //使用Markown渲染Markdown文本

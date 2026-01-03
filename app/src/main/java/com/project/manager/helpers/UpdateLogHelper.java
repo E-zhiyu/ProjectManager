@@ -11,7 +11,13 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.6.0  \n" +
+    private static final String update_log_md = "# v1.6.1  \n" +
+            "**BUG修复**  \n" +
+            "- 修复当切换至主页时UI不会动态刷新的BUG  \n\n" +
+            "**修改内容**  \n" +
+            "- 添加Gitee发行版链接到关于软件对话框  \n" +
+            "- 添加更新时安装包开始下载的提示  \n\n" +
+            "# v1.6.0  \n" +
             "**新增内容**  \n" +
             "- 通知解析规则正则表达式输入框新增金额捕获组插入按钮  \n" +
             "- 添加启动页设置选项  \n" +
@@ -166,7 +172,7 @@ public class UpdateLogHelper {
      */
     public static void showUpdateLogDialog(Context context) {
         View update_dialog_view = LayoutInflater.from(context)
-                .inflate(R.layout.view_md_text, null);
+                .inflate(R.layout.view_markdown_text, null);
         MaterialTextView text_view = update_dialog_view.findViewById(R.id.md_textview_in_dialog);
 
         //使用Markown渲染Markdown文本

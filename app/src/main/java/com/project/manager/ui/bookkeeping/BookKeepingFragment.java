@@ -75,6 +75,14 @@ public class BookKeepingFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        //每次Fragment变为可见时刷新数据
+        refreshUI();
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
@@ -86,15 +94,6 @@ public class BookKeepingFragment extends Fragment {
         if (accountUpdatedReceiver != null) {
             requireContext().unregisterReceiver(accountUpdatedReceiver);
         }
-    }
-
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        //每次Fragment变为可见时刷新数据
-        refreshUI();
     }
 
     /**

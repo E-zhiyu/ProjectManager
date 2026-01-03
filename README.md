@@ -39,7 +39,7 @@
 
 ## 权限说明
 
-***本应用不含任何网络服务，因此不会也无法获取用户隐私或推送广告，请您放心使用***
+***本应用不含任何除应用更新之外的网络服务，因此不会也无法获取用户隐私或推送广告，请您放心使用***
 
 - 应用列表权限：用于扫描应用列表，供用户快捷输入包名
 - 自启动权限：用于在启动时自动运行通知监听服务（国产系统授予此权限才能监听通知）
@@ -47,4 +47,6 @@
 ## 软件下载
 
 - Github仓库:https://github.com/E-zhiyu/ManagerAssitant/releases
+- Gitee仓库:https://gitee.com/e-zhiyu/manager-assistant-web/releases
 - 123云盘:https://www.123865.com/s/C5xcVv-kRYT3
+- 小飞机网盘:https://share.feijipan.com/s/kTVc2PiI
