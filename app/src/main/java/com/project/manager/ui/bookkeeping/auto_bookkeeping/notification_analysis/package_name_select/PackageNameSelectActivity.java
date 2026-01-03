@@ -51,21 +51,33 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         binding = ActivityPackageNameSelectBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        //设置标题布局的上边距
+        //边距设置
         binding.toolbarContainerLayout.setOnApplyWindowInsetsListener((view, insets) -> {
-            //获取状态栏高度（systemWindowInsetTop）
+            //获取状态栏高度
             int statusBarHeight = insets.getSystemWindowInsetTop();
-            int bottomHeight = insets.getSystemWindowInsetBottom();
 
-            //为根布局设置顶部内边距
+            //为根布局设置上边距
             view.setPadding(
                     view.getPaddingLeft(),
                     statusBarHeight,
                     view.getPaddingRight(),
-                    bottomHeight
+                    view.getPaddingBottom()
             );
 
-            //返回insets以继续传递
+            return insets;
+        });
+        binding.rootLayout.setOnApplyWindowInsetsListener((v, insets) -> {
+            //获取系统底部导航栏高度
+            int actionBarHeight = insets.getSystemWindowInsetBottom();
+
+            //设置根布局的下边距
+            v.setPadding(
+                    v.getPaddingLeft(),
+                    v.getPaddingTop(),
+                    v.getPaddingRight(),
+                    actionBarHeight
+            );
+
             return insets;
         });
 
