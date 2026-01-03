@@ -50,6 +50,6 @@ public class AutoBackupPreference {
 
     public static int getBackupFrequency(@NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        return pref.getInt(KEY_BACKUP_FREQUENCY, 1);
+        return pref.getInt(KEY_BACKUP_FREQUENCY, 2);
     }
 }
