@@ -85,7 +85,7 @@ public class AboutHelper {
 
         //获取自定义弹窗视图
         View about_dialog = LayoutInflater.from(context)
-                .inflate(R.layout.view_md_text, null);
+                .inflate(R.layout.view_markdown_text, null);
         MaterialTextView about_text = about_dialog.findViewById(R.id.md_textview_in_dialog);
 
         //使用Markown渲染Markdown文本
