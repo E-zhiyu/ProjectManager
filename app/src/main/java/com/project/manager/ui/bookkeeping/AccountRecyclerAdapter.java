@@ -1,4 +1,4 @@
-package com.project.manager.ui.bookkeeping.running_account_edit;
+package com.project.manager.ui.bookkeeping;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -19,7 +19,6 @@ import com.project.manager.data.data_class.running_account.IncomeRunningAccount;
 import com.project.manager.data.data_class.running_account.RunningAccountBase;
 import com.project.manager.data.data_class.running_account.TransferRunningAccount;
 import com.project.manager.helpers.ExceptionHelper;
-import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 
 import java.util.List;
@@ -101,9 +100,10 @@ public class AccountRecyclerAdapter extends RecyclerView.Adapter<AccountRecycler
     /**
      * 添加新流水视图
      *
-     * @param dataBundle 新建流水的数据包
+     * @param dataBundle    新建流水的数据包
+     * @param filter_tag_no 过滤器的标签编号
      */
-    public void addNewRunningAccount(@NonNull Bundle dataBundle) {
+    public void addNewRunningAccount(@NonNull Bundle dataBundle, long filter_tag_no) {
         //将流水保存至数据库
         long rno;
         try {
@@ -115,35 +115,43 @@ public class AccountRecyclerAdapter extends RecyclerView.Adapter<AccountRecycler
         }
 
         //获取基本流水数据
-        RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-        String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
-        if (remark == null) remark = "";
-        boolean isDefaultRemark = dataBundle.getBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue());
-        double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
-        String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
+        long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
+        if (tag_no == filter_tag_no || filter_tag_no == 0) {
+            RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
+            String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
+            if (remark == null) remark = "";
+            boolean isDefaultRemark = dataBundle.getBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue());
+            double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
+            String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
 
-        //获取特殊数据并实例化流水类
-        RunningAccountBase newRunningAccount;
-        if (type == RunningAccountType.EXPENSE) {
-            newRunningAccount = new ExpenseRunningAccount(remark, date_time, amount, isDefaultRemark);
-        } else if (type == RunningAccountType.INCOME) {
-            newRunningAccount = new IncomeRunningAccount(remark, date_time, amount, isDefaultRemark);
-        } else if (type == RunningAccountType.TRANSFER) {
-            String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
-            String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
-            newRunningAccount = new TransferRunningAccount(remark, date_time, amount, isDefaultRemark, exportAccount, importAccount);
-        } else {
-            NullPointerException e = new NullPointerException("流水类型获取失败");
-            ExceptionHelper.showExceptionDialog(context, e);
-            return;
+            //获取特殊数据并实例化流水类
+            RunningAccountBase newRunningAccount;
+            if (type == RunningAccountType.EXPENSE) {
+                newRunningAccount = new ExpenseRunningAccount(remark, date_time, amount, isDefaultRemark);
+            } else if (type == RunningAccountType.INCOME) {
+                newRunningAccount = new IncomeRunningAccount(remark, date_time, amount, isDefaultRemark);
+            } else if (type == RunningAccountType.TRANSFER) {
+                String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
+                String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
+                newRunningAccount = new TransferRunningAccount(remark, date_time, amount, isDefaultRemark, exportAccount, importAccount);
+            } else {
+                NullPointerException e = new NullPointerException("流水类型获取失败");
+                ExceptionHelper.showExceptionDialog(context, e);
+                return;
+            }
+
+            newRunningAccount.setRno(rno);  //保存流水编号
+
+            this.accountList.add(0, newRunningAccount);
+            notifyItemInserted(0);
         }
-
-        newRunningAccount.setRno(rno);  //保存流水编号
-
-        this.accountList.add(0, newRunningAccount);
-        notifyItemInserted(0);
     }
 
+    /**
+     * 在界面中添加新流水记录视图但是不保存到数据库(用于自动记账防止重复保存)
+     *
+     * @param dataBundle 新流水记录数据包
+     */
     public void addNewRunningAccountNoSave(@NonNull Bundle dataBundle) {
         //解析数据
         long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());

@@ -288,6 +288,9 @@ public class SettingFragment extends Fragment {
                             dialog.dismiss();
                             RunningAccountDataHelper.deleteAllData(requireContext());
                             BookKeepingStartDatePreference.saveStartDate("", requireContext()); //清空已保存的开始记账的日期
+
+                            //通过SharedPreference提醒流水界面刷新数据
+                            AppSettingsPreference.setAccountDataChanged(requireContext(), true);
                         }))
                         .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
                         .show()
@@ -1018,5 +1021,8 @@ public class SettingFragment extends Fragment {
             Log.w(LogTags.SETTING_FRAGMENT.getV(), "该文件的数据导入失败");
             Toast.makeText(requireContext(), "数据导入失败：无法解析文件内容", Toast.LENGTH_SHORT).show();
         }
+
+        //通过SharedPreference提醒流水界面刷新数据
+        AppSettingsPreference.setAccountDataChanged(requireContext(), true);
     }
 }

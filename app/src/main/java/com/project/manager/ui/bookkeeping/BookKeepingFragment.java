@@ -30,10 +30,10 @@ import com.project.manager.data.data_class.running_account.TransferRunningAccoun
 import com.project.manager.data.data_save.database.BookKeepingColumns;
 import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
+import com.project.manager.data.data_save.preference.AppSettingsPreference;
 import com.project.manager.databinding.FragmentBookkeepingBinding;
 import com.project.manager.helpers.ColorHelper;
 import com.project.manager.helpers.ExceptionHelper;
-import com.project.manager.ui.bookkeeping.running_account_edit.AccountRecyclerAdapter;
 import com.project.manager.ui.bookkeeping.running_account_edit.RunningAccountModifyActivity;
 import com.project.manager.ui.bookkeeping.running_account_edit.RunningAccountAddActivity;
 import com.project.manager.ui.RequestResultCode;
@@ -78,8 +78,19 @@ public class BookKeepingFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        //每次Fragment变为可见时刷新数据
-        refreshUI();
+        //每次Fragment变为可见时判断数据是否变化，若变化则刷新数据
+        boolean isDataChanged = AppSettingsPreference.getAccountDataChanged(requireContext());
+        if (isDataChanged) {
+            //清空过滤标签编号防止指向不存在的标签
+            filter_tag_no = 0;
+            binding.filterText.setText("全部");
+
+            //刷新UI
+            refreshUI();
+
+            //将标识归位
+            AppSettingsPreference.setAccountDataChanged(requireContext(), false);
+        }
     }
 
     @Override
@@ -248,7 +259,7 @@ public class BookKeepingFragment extends Fragment {
 
                     if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
                         if (data != null) {
-                            onNewAccountAdded(data);
+                            onNewAccountAddedReceived(data);
                         } else {
                             NullPointerException e = new NullPointerException("无法获取新增流水的数据");
                             ExceptionHelper.showExceptionDialog(requireContext(), e);
@@ -324,7 +335,7 @@ public class BookKeepingFragment extends Fragment {
 
     //初始化广播接收器
     private void setUpBroadcastReceiver() {
-        accountUpdatedReceiver = new RunningAccountUpdatedBroadcastReceiver(this::onNewAccountAdded);
+        accountUpdatedReceiver = new RunningAccountUpdatedBroadcastReceiver(this::onNewAccountAddedReceived);
         IntentFilter filter = new IntentFilter();
         filter.addAction(BroadcastConstants.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -339,8 +350,9 @@ public class BookKeepingFragment extends Fragment {
      *
      * @param dataBundle 新增流水记录的数据
      */
-    private void onNewAccountAdded(Bundle dataBundle) {
-        if (dataBundle != null) {
+    private void onNewAccountAddedReceived(@NonNull Bundle dataBundle) {
+        long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
+        if (tag_no == this.filter_tag_no || this.filter_tag_no == 0) {
             accountRecyclerAdapter.addNewRunningAccountNoSave(dataBundle);
             runningAccountRecyclerView.scrollToPosition(0);
             Toast.makeText(requireContext(), "成功添加一条流水记录（自动记账）", Toast.LENGTH_SHORT).show();
@@ -355,7 +367,7 @@ public class BookKeepingFragment extends Fragment {
      *
      * @param resultIntent 包含流水数据的意图对象
      */
-    private void onNewAccountAdded(@NonNull Intent resultIntent) {
+    private void onNewAccountAddedReceived(@NonNull Intent resultIntent) {
         Bundle dataBundle = resultIntent.getExtras();
         if (dataBundle == null) {
             NullPointerException e = new NullPointerException("无法获取新建的流水数据");
@@ -363,8 +375,8 @@ public class BookKeepingFragment extends Fragment {
             return;
         }
 
-        accountRecyclerAdapter.addNewRunningAccount(dataBundle);  //将新建的流水视图添加至列表视图适配器
-        runningAccountRecyclerView.scrollToPosition(0);                  //滚动到顶部（因为添加的新记录在顶部）
+        accountRecyclerAdapter.addNewRunningAccount(dataBundle, filter_tag_no); //将新建的流水视图添加至列表视图适配器
+        runningAccountRecyclerView.scrollToPosition(0);                         //滚动到顶部（因为添加的新记录在顶部）
         Toast.makeText(requireContext(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
 
         //更新记录数量

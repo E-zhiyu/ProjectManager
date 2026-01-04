@@ -17,7 +17,7 @@ import com.project.manager.workers.BackupScheduler;
 import java.util.concurrent.ExecutionException;
 
 public class ManagerAssistant extends Application {
-    AccountTagViewModel accountTagViewModel;            //同步标签数据的ViewModel
+    private AccountTagViewModel accountTagViewModel;            //同步标签数据的ViewModel
 
     @Override
     public void onCreate() {

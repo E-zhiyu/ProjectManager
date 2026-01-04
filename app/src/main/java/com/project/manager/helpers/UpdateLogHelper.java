@@ -11,7 +11,10 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.6.2  \n" +
+    private static final String update_log_md = "# v1.6.3  \n" +
+            "**BUG修复**  \n" +
+            "- 优化流水列表数据的刷新方法，防止重复刷新UI，并修复新增或删除无动画的BUG  \n\n" +
+            "# v1.6.2  \n" +
             "**BUG修复**  \n" +
             "- 修复通知解析规则无法将捕获的文本转换为金额数据时崩溃的BUG  \n\n" +
             "**修改内容**  \n" +
