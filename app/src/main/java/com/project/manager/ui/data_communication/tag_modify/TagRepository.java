@@ -1,4 +1,4 @@
-package com.project.manager.ui.view_model.tag_modify;
+package com.project.manager.ui.data_communication.tag_modify;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

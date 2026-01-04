@@ -39,7 +39,7 @@ import com.project.manager.ui.bookkeeping.running_account_edit.RunningAccountAdd
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
-import com.project.manager.ui.view_model.account_recycler.AccountRecyclerViewModel;
+import com.project.manager.ui.data_communication.account_recycler.AccountRecyclerViewModel;
 
 import java.util.ArrayList;
 import java.util.List;

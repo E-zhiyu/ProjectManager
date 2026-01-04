@@ -1,4 +1,4 @@
-package com.project.manager.ui.view_model.account_recycler;
+package com.project.manager.ui.data_communication.account_recycler;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

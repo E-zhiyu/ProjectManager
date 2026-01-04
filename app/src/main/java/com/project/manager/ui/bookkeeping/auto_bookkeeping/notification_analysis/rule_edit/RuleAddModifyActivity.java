@@ -29,9 +29,9 @@ import com.project.manager.ui.bookkeeping.auto_bookkeeping.notification_analysis
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.data.data_class.Tag;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
-import com.project.manager.ui.view_model.tag_modify.AccountTagModifyID;
-import com.project.manager.ui.view_model.tag_modify.TagRepository;
-import com.project.manager.ui.view_model.tag_modify.TagWithModifyID;
+import com.project.manager.ui.data_communication.tag_modify.AccountTagModifyID;
+import com.project.manager.ui.data_communication.tag_modify.TagRepository;
+import com.project.manager.ui.data_communication.tag_modify.TagWithModifyID;
 
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;

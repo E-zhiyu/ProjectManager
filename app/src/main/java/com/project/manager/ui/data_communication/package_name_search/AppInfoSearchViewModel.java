@@ -1,4 +1,4 @@
-package com.project.manager.ui.view_model.package_name_search;
+package com.project.manager.ui.data_communication.package_name_search;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

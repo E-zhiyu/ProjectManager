@@ -21,16 +21,22 @@ import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.data.data_class.AnalysisRule;
-import com.project.manager.ui.view_model.tag_modify.TagRepository;
+import com.project.manager.ui.data_communication.tag_modify.TagRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public class AnalysisRuleManageActivity extends AppCompatActivity implements View.OnClickListener {
     private ActivityResultLauncher<Intent> ruleAddLauncher;     //添加规则界面的启动器
     private ActivityResultLauncher<Intent> ruleModifyLauncher;  //修改规则的启动器
-    private AnalysisRuleAdapter rule_adapter;                   //规则列表适配器
+    private AnalysisRuleAdapter ruleAdapter;                   //规则列表适配器
     private ActivityAnalysisRuleManageBinding binding;          //XML视图绑定引用
+    private final CompositeDisposable disposables = new CompositeDisposable();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +77,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
     protected void onDestroy() {
         super.onDestroy();
         binding = null;
+        disposables.dispose();
     }
 
     @Override
@@ -104,9 +111,9 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
             ruleList = new ArrayList<>();
             ExceptionHelper.showExceptionDialog(this, e);
         }
-        rule_adapter = new AnalysisRuleAdapter(ruleList, this::onRuleClicked, this);
+        ruleAdapter = new AnalysisRuleAdapter(ruleList, this::onRuleClicked, this);
         binding.refreshLayout.setRefreshing(false);
-        binding.ruleRecycler.setAdapter(rule_adapter);
+        binding.ruleRecycler.setAdapter(ruleAdapter);
 
         //设置下拉刷新布局的刷新监听器
         binding.refreshLayout.setOnRefreshListener(this::refreshUI);
@@ -181,7 +188,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
             return;
         }
 
-        rule_adapter.addRule(dataBundle);
+        ruleAdapter.addRule(dataBundle);
     }
 
     private void onAnalysisRuleModified(@NonNull Intent resuleIntent, int resultCode) {
@@ -193,22 +200,24 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
         }
 
         if (resultCode == Activity.RESULT_OK) {
-            rule_adapter.modifyRule(dataBundle);
+            ruleAdapter.modifyRule(dataBundle);
         } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
             int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
-            rule_adapter.deleteRule(position);
+            ruleAdapter.deleteRule(position);
         }
     }
 
     private void refreshUI() {
-        List<AnalysisRule> refreshedList;
-        try {
-            refreshedList = AnalysisRule.loadAnalysisRule(this);
-        } catch (SQLiteException e) {
-            refreshedList = new ArrayList<>();
-            ExceptionHelper.showExceptionDialog(this, e);
-        }
-        rule_adapter.onListRefreshed(refreshedList);
-        binding.refreshLayout.setRefreshing(false);
+        binding.refreshLayout.setRefreshing(true);
+        disposables.add(
+                Observable.fromCallable(() -> AnalysisRule.loadAnalysisRule(this))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                ruleList -> ruleAdapter.onListRefreshed(ruleList),
+                                e -> ExceptionHelper.showExceptionDialog(this, e),
+                                () -> binding.refreshLayout.setRefreshing(false)
+                        )
+        );
     }
 }

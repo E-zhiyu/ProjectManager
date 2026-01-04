@@ -28,7 +28,7 @@ import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.helpers.PackageNameHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
-import com.project.manager.ui.view_model.package_name_search.AppInfoSearchViewModel;
+import com.project.manager.ui.data_communication.package_name_search.AppInfoSearchViewModel;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;

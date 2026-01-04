@@ -22,11 +22,11 @@ import com.project.manager.R;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.TagString;
-import com.project.manager.ui.view_model.tag_modify.AccountTagModifyID;
-import com.project.manager.ui.view_model.tag_modify.TagRepository;
+import com.project.manager.ui.data_communication.tag_modify.AccountTagModifyID;
+import com.project.manager.ui.data_communication.tag_modify.TagRepository;
 import com.project.manager.data.data_class.Tag;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
-import com.project.manager.ui.view_model.tag_modify.TagWithModifyID;
+import com.project.manager.ui.data_communication.tag_modify.TagWithModifyID;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

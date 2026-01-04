@@ -20,11 +20,11 @@ import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.helpers.AnimationHelper;
-import com.project.manager.ui.view_model.tag_modify.AccountTagModifyID;
-import com.project.manager.ui.view_model.tag_modify.TagRepository;
+import com.project.manager.ui.data_communication.tag_modify.AccountTagModifyID;
+import com.project.manager.ui.data_communication.tag_modify.TagRepository;
 import com.project.manager.data.data_class.Tag;
 import com.project.manager.data.data_class.TagGroup;
-import com.project.manager.ui.view_model.tag_modify.TagWithModifyID;
+import com.project.manager.ui.data_communication.tag_modify.TagWithModifyID;
 
 import java.util.ArrayList;
 import java.util.List;

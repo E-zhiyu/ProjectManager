@@ -55,7 +55,7 @@ import com.project.manager.data.data_save.preference.AppSettingsPreference;
 import com.project.manager.ui.setting.setting_option_views.SettingClickableTextView;
 import com.project.manager.ui.setting.setting_option_views.SettingSpinnerView;
 import com.project.manager.ui.setting.setting_option_views.SettingSwitchView;
-import com.project.manager.ui.view_model.account_recycler.AccountRecyclerViewModel;
+import com.project.manager.ui.data_communication.account_recycler.AccountRecyclerViewModel;
 import com.project.manager.workers.BackupScheduler;
 
 import java.io.BufferedReader;

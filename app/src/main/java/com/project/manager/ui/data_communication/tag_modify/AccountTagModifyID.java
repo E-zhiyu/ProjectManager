@@ -1,4 +1,4 @@
-package com.project.manager.ui.view_model.tag_modify;
+package com.project.manager.ui.data_communication.tag_modify;
 
 //修改标签时的标识
 public enum AccountTagModifyID {
