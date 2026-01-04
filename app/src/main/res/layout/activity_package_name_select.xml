@@ -47,7 +47,7 @@
             android:id="@+id/app_list_recycler"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="10sp"
+            android:paddingBottom="10dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

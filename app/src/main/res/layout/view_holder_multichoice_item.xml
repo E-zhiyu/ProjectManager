@@ -5,10 +5,11 @@
     android:drawableStart="?android:attr/listChoiceIndicatorMultiple"
     android:gravity="center_vertical"
     android:paddingTop="10dp"
-    android:paddingStart="25sp"
-    android:paddingEnd="25sp"
-    android:paddingBottom="10sp"
+    android:paddingStart="25dp"
+    android:paddingEnd="25dp"
+    android:paddingBottom="10dp"
     android:textSize="17sp"
+    android:text="@string/data_manage"
     xmlns:android="http://schemas.android.com/apk/res/android" >
 
 </androidx.appcompat.widget.AppCompatCheckedTextView>
