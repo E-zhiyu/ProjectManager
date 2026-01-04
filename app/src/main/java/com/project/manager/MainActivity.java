@@ -15,9 +15,9 @@ import com.project.manager.databinding.ActivityMainBinding;
 import com.project.manager.helpers.ThemeModeHelper;
 import com.project.manager.data.data_save.preference.AppSettingsPreference;
 import com.project.manager.helpers.UpdateHelper;
-import com.project.manager.ui.bookkeeping.BookKeepingFragment;
-import com.project.manager.ui.home.HomeFragment;
-import com.project.manager.ui.setting.SettingFragment;
+import com.project.manager.ui.pages.bookkeeping.BookKeepingFragment;
+import com.project.manager.ui.pages.home.HomeFragment;
+import com.project.manager.ui.pages.setting.SettingFragment;
 
 import java.util.ArrayList;
 import java.util.List;

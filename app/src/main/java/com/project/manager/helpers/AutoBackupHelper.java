@@ -11,7 +11,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 
 import com.project.manager.data.data_save.preference.AutoBackupPreference;
-import com.project.manager.ui.setting.setting_option_views.SettingSwitchView;
+import com.project.manager.ui.pages.setting.setting_option_views.SettingSwitchView;
 import com.project.manager.workers.BackupScheduler;
 
 public class AutoBackupHelper {

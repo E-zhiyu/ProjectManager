@@ -11,8 +11,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.project.manager.LogTags;
 import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.helpers.FileIOHelper;
-import com.project.manager.ui.setting.SettingFragment;
-import com.project.manager.ui.setting.data_io.data_helpers.DataHelperBase;
+import com.project.manager.ui.pages.setting.SettingFragment;
+import com.project.manager.ui.pages.setting.data_io.data_helpers.DataHelperBase;
 
 import java.util.ArrayList;
 import java.util.List;
