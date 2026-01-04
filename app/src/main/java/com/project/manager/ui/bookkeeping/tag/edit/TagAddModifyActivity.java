@@ -20,7 +20,7 @@ import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.TagString;
 import com.project.manager.data.data_class.Tag;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
-import com.project.manager.ui.data_communication.tag_modify.AccountTagModifyID;
+import com.project.manager.ui.data_communication.tag_modify.TagUpdateReason;
 import com.project.manager.ui.data_communication.tag_modify.TagRepository;
 
 import java.util.ArrayList;
@@ -102,7 +102,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
 
                 if (isModifyMode) {
                     TagRepository repository = TagRepository.getInstance();
-                    repository.updateTag(tag_name, tag_no, AccountTagModifyID.MODIFY);    //更新ViewModel中的标签数据
+                    repository.updateTag(tag_name, tag_no, TagUpdateReason.RENAME);    //更新ViewModel中的标签数据
                 }
 
                 result2TagManage.putExtras(dataBundle);
@@ -117,7 +117,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
                     .setMessage("此操作将清空所有相应流水记录和通知解析规则的标签数据，确认继续吗？")
                     .setPositiveButton("确定", ((dialog, which) -> {
                         TagRepository repository = TagRepository.getInstance();
-                        repository.updateTag("", tag_no, AccountTagModifyID.DELETE);    //更新ViewModel中的标签数据
+                        repository.updateTag("", tag_no, TagUpdateReason.DELETE);    //更新ViewModel中的标签数据
 
                         result2TagManage.putExtras(dataBundle);
                         setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2TagManage);
@@ -198,7 +198,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
     private void onTagBtnClicked(long tag_no, String tag_name) {
         //通知流水输入界面更新名称
         TagRepository repository = TagRepository.getInstance();
-        repository.updateTag(tag_name, this.tag_no, AccountTagModifyID.MERGE);    //传递合并到的标签的名称和原来标签的编号
+        repository.updateTag(tag_name, this.tag_no, TagUpdateReason.MERGE);    //传递合并到的标签的名称和原来标签的编号
 
         tag_sheet.dismiss();
 

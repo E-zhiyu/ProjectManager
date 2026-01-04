@@ -20,11 +20,10 @@ import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.helpers.AnimationHelper;
-import com.project.manager.ui.data_communication.tag_modify.AccountTagModifyID;
+import com.project.manager.ui.data_communication.tag_modify.TagUpdateReason;
 import com.project.manager.ui.data_communication.tag_modify.TagRepository;
 import com.project.manager.data.data_class.Tag;
 import com.project.manager.data.data_class.TagGroup;
-import com.project.manager.ui.data_communication.tag_modify.TagWithModifyID;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -379,15 +378,8 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             Toast.makeText(context, "标签分组已删除", Toast.LENGTH_SHORT).show();
 
             //通知带有标签的输入界面更新UI
-            List<TagWithModifyID> tagWithModifyIDList = new ArrayList<>();
-            for (Tag tag : tagsToBeDeleted) {
-                String tag_name = tag.getName();
-                long tag_no = tag.getTno();
-                TagWithModifyID oneTagWithModifyID = new TagWithModifyID(tag_name, tag_no, AccountTagModifyID.DELETE);
-                tagWithModifyIDList.add(oneTagWithModifyID);
-            }
             TagRepository repository = TagRepository.getInstance();
-            repository.updateTag(tagWithModifyIDList);
+            repository.updateTag(tagsToBeDeleted, TagUpdateReason.DELETE);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             return;

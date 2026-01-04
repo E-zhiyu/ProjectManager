@@ -22,11 +22,10 @@ import com.project.manager.R;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.TagString;
-import com.project.manager.ui.data_communication.tag_modify.AccountTagModifyID;
+import com.project.manager.ui.data_communication.tag_modify.TagUpdateReason;
 import com.project.manager.ui.data_communication.tag_modify.TagRepository;
 import com.project.manager.data.data_class.Tag;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
-import com.project.manager.ui.data_communication.tag_modify.TagWithModifyID;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -158,15 +157,15 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
     private void startObserveTag() {
         TagRepository repository = TagRepository.getInstance();
         repository.getChangedTagList().observe(getViewLifecycleOwner(), tagList -> {
-            if (tagList != null) {  //判断是否为调用resetTagValue()方法后传入的null值
-                for (TagWithModifyID tag : tagList) {
-                    String tag_name = tag.getTag_name();
-                    long tag_no = tag.getTag_no();
-                    AccountTagModifyID modifyID = tag.getModifyID();
+            if (tagList != null) {
+                TagUpdateReason updateReason = repository.getUpdateReason();
+                for (Tag tag : tagList) {
+                    String tag_name = tag.getName();
+                    long tag_no = tag.getTno();
 
                     if (tag_no == this.tag_no) {    //只有找到匹配的标签编号才修改
-                        switch (modifyID) {
-                            case MODIFY:
+                        switch (updateReason) {
+                            case RENAME:
                                 tag_input.setText(tag_name);
                                 break;
                             case DELETE:
