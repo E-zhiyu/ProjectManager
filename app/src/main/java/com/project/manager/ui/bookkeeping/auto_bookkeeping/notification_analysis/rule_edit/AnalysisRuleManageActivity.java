@@ -10,10 +10,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.project.manager.R;
 import com.project.manager.data.data_save.preference.AutoBookKeepingPreference;
@@ -24,6 +21,7 @@ import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.data.data_class.AnalysisRule;
+import com.project.manager.ui.view_model.tag_modify.TagRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +57,14 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
                     }))
                     .show();
         }
+
+        //监听标签变化并刷新UI
+        TagRepository repository = TagRepository.getInstance();
+        repository.getChangedTagList().observe(this, tagList -> {
+            if (tagList != null) {
+                refreshUI();
+            }
+        });
     }
 
     @Override
@@ -78,22 +84,19 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
 
     private void initViews() {
         //设置标题栏的图标点击监听器
-        MaterialToolbar toolbar = binding.toolbar;
-        toolbar.setNavigationOnClickListener(v -> finish());
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
 
         binding.ruleAddBtn.setOnClickListener(this);
-
-        //设置RecyclerView的适配器
-        SwipeRefreshLayout refreshLayout = binding.refreshLayout;   //获取下拉刷新视图
 
         //获取颜色资源并设置下拉刷新布局的颜色
         int colorPrimary = ColorHelper.getPrimaryColor(this);
         int colorSecondary = ColorHelper.getSecondaryPrimaryColor(this);
-        refreshLayout.setColorSchemeColors(colorPrimary, colorSecondary);
+        binding.refreshLayout.setColorSchemeColors(colorPrimary, colorSecondary);
         int colorBackground = ColorHelper.getBackgroundColor(this);
-        refreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
+        binding.refreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
 
-        refreshLayout.setRefreshing(true);
+        //加载规则列表
+        binding.refreshLayout.setRefreshing(true);
         List<AnalysisRule> ruleList;
         try {
             ruleList = AnalysisRule.loadAnalysisRule(this);
@@ -102,22 +105,11 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
             ExceptionHelper.showExceptionDialog(this, e);
         }
         rule_adapter = new AnalysisRuleAdapter(ruleList, this::onRuleClicked, this);
-        RecyclerView rule_recycler = binding.ruleRecycler;          //规则列表视图
-        refreshLayout.setRefreshing(false);
-        rule_recycler.setAdapter(rule_adapter);
+        binding.refreshLayout.setRefreshing(false);
+        binding.ruleRecycler.setAdapter(rule_adapter);
 
         //设置下拉刷新布局的刷新监听器
-        refreshLayout.setOnRefreshListener(() -> {
-            List<AnalysisRule> refreshedList;
-            try {
-                refreshedList = AnalysisRule.loadAnalysisRule(this);
-            } catch (SQLiteException e) {
-                refreshedList = new ArrayList<>();
-                ExceptionHelper.showExceptionDialog(this, e);
-            }
-            rule_adapter.onListRefreshed(refreshedList);
-            refreshLayout.setRefreshing(false);
-        });
+        binding.refreshLayout.setOnRefreshListener(this::refreshUI);
     }
 
     private void initLaunchers() {
@@ -206,5 +198,17 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
             int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
             rule_adapter.deleteRule(position);
         }
+    }
+
+    private void refreshUI() {
+        List<AnalysisRule> refreshedList;
+        try {
+            refreshedList = AnalysisRule.loadAnalysisRule(this);
+        } catch (SQLiteException e) {
+            refreshedList = new ArrayList<>();
+            ExceptionHelper.showExceptionDialog(this, e);
+        }
+        rule_adapter.onListRefreshed(refreshedList);
+        binding.refreshLayout.setRefreshing(false);
     }
 }
