@@ -12,7 +12,6 @@ public class AppSettingsPreference {
     private static final String KEY_THEME_MODE = "theme_mode";
     private static final String KEY_DYNAMIC_COLOR = "dynamic_color";
     private static final String KEY_FIRST_SCREEN = "first_screen";
-    private static final String KEY_ACCOUNT_DATA_CHANGED = "account_data_changed";  //是否在非BookKeepingFragment子界面中修改流水数据
 
     public static void setThemeMode(@NonNull Context context, int themeMode) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -42,15 +41,5 @@ public class AppSettingsPreference {
     public static int getFirstScreen(@NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return pref.getInt(KEY_FIRST_SCREEN, 0);
-    }
-
-    public static void setAccountDataChanged(@NonNull Context context, boolean isChanged) {
-        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        pref.edit().putBoolean(KEY_ACCOUNT_DATA_CHANGED, isChanged).apply();
-    }
-
-    public static boolean getAccountDataChanged(@NonNull Context context) {
-        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        return pref.getBoolean(KEY_ACCOUNT_DATA_CHANGED, false);
     }
 }

@@ -16,6 +16,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -30,7 +31,6 @@ import com.project.manager.data.data_class.running_account.TransferRunningAccoun
 import com.project.manager.data.data_save.database.BookKeepingColumns;
 import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
-import com.project.manager.data.data_save.preference.AppSettingsPreference;
 import com.project.manager.databinding.FragmentBookkeepingBinding;
 import com.project.manager.helpers.ColorHelper;
 import com.project.manager.helpers.ExceptionHelper;
@@ -39,6 +39,7 @@ import com.project.manager.ui.bookkeeping.running_account_edit.RunningAccountAdd
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
+import com.project.manager.ui.view_model.account_recycler.AccountRecyclerViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,26 +72,14 @@ public class BookKeepingFragment extends Fragment {
         initViews();
         setUpBroadcastReceiver();
 
+        AccountRecyclerViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountRecyclerViewModel.class);
+        viewModel.getDataUpdateTrigger().observe(getViewLifecycleOwner(), trigger -> {
+            if (trigger != null && trigger) {
+                refreshUI();
+            }
+        });
+
         return binding.getRoot();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        //每次Fragment变为可见时判断数据是否变化，若变化则刷新数据
-        boolean isDataChanged = AppSettingsPreference.getAccountDataChanged(requireContext());
-        if (isDataChanged) {
-            //清空过滤标签编号防止指向不存在的标签
-            filter_tag_no = 0;
-            binding.filterText.setText("全部");
-
-            //刷新UI
-            refreshUI();
-
-            //将标识归位
-            AppSettingsPreference.setAccountDataChanged(requireContext(), false);
-        }
     }
 
     @Override

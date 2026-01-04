@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -54,6 +55,7 @@ import com.project.manager.data.data_save.preference.AppSettingsPreference;
 import com.project.manager.ui.setting.setting_option_views.SettingClickableTextView;
 import com.project.manager.ui.setting.setting_option_views.SettingSpinnerView;
 import com.project.manager.ui.setting.setting_option_views.SettingSwitchView;
+import com.project.manager.ui.view_model.account_recycler.AccountRecyclerViewModel;
 import com.project.manager.workers.BackupScheduler;
 
 import java.io.BufferedReader;
@@ -289,8 +291,9 @@ public class SettingFragment extends Fragment {
                             RunningAccountDataHelper.deleteAllData(requireContext());
                             BookKeepingStartDatePreference.saveStartDate("", requireContext()); //清空已保存的开始记账的日期
 
-                            //通过SharedPreference提醒流水界面刷新数据
-                            AppSettingsPreference.setAccountDataChanged(requireContext(), true);
+                            //通过ViewModel提醒流水界面刷新数据
+                            AccountRecyclerViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountRecyclerViewModel.class);
+                            viewModel.triggerDataUpdate();
                         }))
                         .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
                         .show()
@@ -1022,7 +1025,8 @@ public class SettingFragment extends Fragment {
             Toast.makeText(requireContext(), "数据导入失败：无法解析文件内容", Toast.LENGTH_SHORT).show();
         }
 
-        //通过SharedPreference提醒流水界面刷新数据
-        AppSettingsPreference.setAccountDataChanged(requireContext(), true);
+        //通过ViewModel提醒流水界面刷新数据
+        AccountRecyclerViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountRecyclerViewModel.class);
+        viewModel.triggerDataUpdate();
     }
 }
