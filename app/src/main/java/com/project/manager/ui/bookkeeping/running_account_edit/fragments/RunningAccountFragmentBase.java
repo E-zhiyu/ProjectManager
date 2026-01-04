@@ -18,13 +18,12 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
-import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.bookkeeping.TagString;
 import com.project.manager.ui.view_model.tag_modify.AccountTagModifyID;
-import com.project.manager.ui.view_model.tag_modify.AccountTagViewModel;
+import com.project.manager.ui.view_model.tag_modify.TagRepository;
 import com.project.manager.data.data_class.Tag;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
 import com.project.manager.ui.view_model.tag_modify.TagWithModifyID;
@@ -43,7 +42,6 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
     protected TextInputLayout amount_layout, tag_layout;    //金额和标签文本框布局管理器
     protected TextInputEditText amount_input, tag_input;    //金额和标签文本输入框
     private long tag_no = 0;                                //用户选择的标签编号（默认无标签则为0）
-    private AccountTagViewModel tagViewModel;               //用于更新标签名称的ViewModel
     private TagSelectBottomSheet tag_sheet;                 //底部弹出窗口
     private long lastFocusChangeTime = 0;                   //上次触发onFocusChange()方法的时间
 
@@ -52,14 +50,12 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         contentView = inflater.inflate(getLayoutResId(), container, false);
         initViews();
 
-        //获取Application中的ViewModel
-        ManagerAssistant app = (ManagerAssistant) requireActivity().getApplication();
-        tagViewModel = app.getAccountTagViewModel();
-
         //判断是否传递了外部数据，如果传递了则将数据填入对应控件
         if (initData != null) {
             initViewsWhenModifying(initData);
         }
+
+        startObserveTag();
 
         return contentView;
     }
@@ -160,7 +156,8 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
 
     //观察标签数据变化
     private void startObserveTag() {
-        tagViewModel.getTagData().observe(getViewLifecycleOwner(), tagList -> {
+        TagRepository repository = TagRepository.getInstance();
+        repository.getChangedTagList().observe(getViewLifecycleOwner(), tagList -> {
             if (tagList != null) {  //判断是否为调用resetTagValue()方法后传入的null值
                 for (TagWithModifyID tag : tagList) {
                     String tag_name = tag.getTag_name();
@@ -183,7 +180,6 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
                         }
                     }
                 }
-                tagViewModel.resetTagValue();
             }
         });
     }
@@ -355,7 +351,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
 
     //显示选择标签的底部弹出视图
     private void showTagSelectSheet() {
-        tag_sheet = new TagSelectBottomSheet(this::onTagBtnClicked, this::startObserveTag);
+        tag_sheet = new TagSelectBottomSheet(this::onTagBtnClicked);
         tag_sheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
     }
 }

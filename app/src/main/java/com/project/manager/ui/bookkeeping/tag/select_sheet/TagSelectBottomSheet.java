@@ -33,22 +33,14 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
     private SheetTagGroupRecyclerAdapter tagAdapter;    //标签按钮布局适配器
 
-    public interface TagDataObserver {
-        void startObserveTag();
-    }
-
     /**
      * 标签选择菜单构造方法
      *
      * @param listener 标签按钮点击监听器
-     * @param observer 标签数据更改观察者，用于观察标签是否修改/删除
      */
-    public TagSelectBottomSheet(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener, TagDataObserver observer) {
+    public TagSelectBottomSheet(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener) {
         this.tagBtnClickedListener = listener;
         //标签数据观察者（观察标签是否更改或者删除）
-        if (observer != null) {
-            observer.startObserveTag();
-        }
     }
 
     /**

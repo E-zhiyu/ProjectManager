@@ -17,12 +17,11 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textview.MaterialTextView;
-import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.helpers.AnimationHelper;
 import com.project.manager.ui.view_model.tag_modify.AccountTagModifyID;
-import com.project.manager.ui.view_model.tag_modify.AccountTagViewModel;
+import com.project.manager.ui.view_model.tag_modify.TagRepository;
 import com.project.manager.data.data_class.Tag;
 import com.project.manager.data.data_class.TagGroup;
 import com.project.manager.ui.view_model.tag_modify.TagWithModifyID;
@@ -379,10 +378,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
             Toast.makeText(context, "标签分组已删除", Toast.LENGTH_SHORT).show();
 
-            //获取ViewModel通知流水账数据输入界面更新UI
-            ManagerAssistant app = (ManagerAssistant) ((TagManageActivity) context).getApplication();
-            AccountTagViewModel viewModel = app.getAccountTagViewModel();
-
+            //通知带有标签的输入界面更新UI
             List<TagWithModifyID> tagWithModifyIDList = new ArrayList<>();
             for (Tag tag : tagsToBeDeleted) {
                 String tag_name = tag.getName();
@@ -390,7 +386,8 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
                 TagWithModifyID oneTagWithModifyID = new TagWithModifyID(tag_name, tag_no, AccountTagModifyID.DELETE);
                 tagWithModifyIDList.add(oneTagWithModifyID);
             }
-            viewModel.updateTag(tagWithModifyIDList);
+            TagRepository repository = TagRepository.getInstance();
+            repository.updateTag(tagWithModifyIDList);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             return;

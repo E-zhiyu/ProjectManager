@@ -19,7 +19,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textview.MaterialTextView;
-import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
 import com.project.manager.databinding.ActivityRuleAddModifyBinding;
 import com.project.manager.ui.RequestResultCode;
@@ -31,7 +30,7 @@ import com.project.manager.ui.bookkeeping.running_account_edit.fragments.Running
 import com.project.manager.data.data_class.Tag;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
 import com.project.manager.ui.view_model.tag_modify.AccountTagModifyID;
-import com.project.manager.ui.view_model.tag_modify.AccountTagViewModel;
+import com.project.manager.ui.view_model.tag_modify.TagRepository;
 import com.project.manager.ui.view_model.tag_modify.TagWithModifyID;
 
 import java.util.regex.Pattern;
@@ -55,7 +54,6 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
     private TextInputEditText contentInput;                         //通知内容输入框
     private TextInputLayout contentLayout;                          //通知内容输入框布局管理器
     private RunningAccountType type = RunningAccountType.EXPENSE;   //流水种类
-    private AccountTagViewModel tagViewModel;                       //用于更新标签名称的ViewModel
     private TagSelectBottomSheet tagSheet;                          //标签选择弹出菜单
     private ActivityResultLauncher<Intent> packageNameSelectLauncher;   //包名选择启动器
     private ActivityRuleAddModifyBinding binding;                   //绑定的XML视图引用
@@ -71,9 +69,7 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
         receiveInitData();
         initLaunchers();
 
-        //获取更新Tag名称的ViewModel
-        ManagerAssistant app = (ManagerAssistant) getApplication();
-        tagViewModel = app.getAccountTagViewModel();
+        startObserveTag();
     }
 
     @Override
@@ -111,7 +107,7 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
             Intent skip2PackageNameSelect = new Intent(this, PackageNameSelectActivity.class);
             packageNameSelectLauncher.launch(skip2PackageNameSelect);
         } else if (v.getId() == R.id.tag_name_input) {
-            tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, this::startObserveTag);
+            tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked);
             tagSheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
         } else if (v.getId() == R.id.finish_btn) {
             String err = verifyInput();
@@ -314,7 +310,8 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
 
     //观察标签数据变化
     private void startObserveTag() {
-        tagViewModel.getTagData().observe(this, tagList -> {
+        TagRepository repository = TagRepository.getInstance();
+        repository.getChangedTagList().observe(this, tagList -> {
             if (tagList != null) {  //判断是否为调用resetTagValue()方法后传入的null值
                 for (TagWithModifyID tag : tagList) {
                     String tag_name = tag.getTag_name();
@@ -337,7 +334,6 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
                         }
                     }
                 }
-                tagViewModel.resetTagValue();
             }
         });
     }

@@ -13,7 +13,6 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
 import com.project.manager.databinding.ActivityTagAddModifyBinding;
 import com.project.manager.ui.RequestResultCode;
@@ -22,14 +21,13 @@ import com.project.manager.ui.bookkeeping.TagString;
 import com.project.manager.data.data_class.Tag;
 import com.project.manager.ui.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
 import com.project.manager.ui.view_model.tag_modify.AccountTagModifyID;
-import com.project.manager.ui.view_model.tag_modify.AccountTagViewModel;
+import com.project.manager.ui.view_model.tag_modify.TagRepository;
 
 import java.util.ArrayList;
 
 public class TagAddModifyActivity extends AppCompatActivity implements View.OnFocusChangeListener, View.OnClickListener {
     private TextInputLayout tag_name_layout, tag_group_layout;  //标签名称和标签分组输入框布局管理器
     private TextInputEditText tag_name_input, tag_group_input;  //标签名称和标签分组输入框
-    private AccountTagViewModel tagViewModel;                   //标签数据更新用的ViewModel
     private boolean isModifyMode = false;                       //是否为标签编辑模式
     private int selected_group_index = -1;                      //选择的分组的索引
     private long tag_no = 0, group_no = 0;                      //标签和标签分组编号
@@ -47,10 +45,6 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
         tag_group_input = binding.tagGroupInput;
         tag_name_layout = binding.tagNameLayout;
         tag_group_layout = binding.tagGroupLayout;
-
-        //获取Application中的ViewModel
-        ManagerAssistant app = (ManagerAssistant) getApplication();
-        tagViewModel = app.getAccountTagViewModel();
 
         initViews();
         receiveInitData();
@@ -107,7 +101,8 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
                 dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), group_name); //分组名称
 
                 if (isModifyMode) {
-                    tagViewModel.updateTag(tag_name, tag_no, AccountTagModifyID.MODIFY);    //更新ViewModel中的标签数据
+                    TagRepository repository = TagRepository.getInstance();
+                    repository.updateTag(tag_name, tag_no, AccountTagModifyID.MODIFY);    //更新ViewModel中的标签数据
                 }
 
                 result2TagManage.putExtras(dataBundle);
@@ -121,7 +116,8 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
                     .setTitle("删除标签")
                     .setMessage("此操作将清空所有相应流水记录和通知解析规则的标签数据，确认继续吗？")
                     .setPositiveButton("确定", ((dialog, which) -> {
-                        tagViewModel.updateTag("", tag_no, AccountTagModifyID.DELETE);    //更新ViewModel中的标签数据
+                        TagRepository repository = TagRepository.getInstance();
+                        repository.updateTag("", tag_no, AccountTagModifyID.DELETE);    //更新ViewModel中的标签数据
 
                         result2TagManage.putExtras(dataBundle);
                         setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2TagManage);
@@ -201,9 +197,8 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
     //标签按钮点击处理方法
     private void onTagBtnClicked(long tag_no, String tag_name) {
         //通知流水输入界面更新名称
-        ManagerAssistant app = (ManagerAssistant) getApplication();
-        AccountTagViewModel viewModel = app.getAccountTagViewModel();
-        viewModel.updateTag(tag_name, this.tag_no, AccountTagModifyID.MERGE);    //传递合并到的标签的名称和原来标签的编号
+        TagRepository repository = TagRepository.getInstance();
+        repository.updateTag(tag_name, this.tag_no, AccountTagModifyID.MERGE);    //传递合并到的标签的名称和原来标签的编号
 
         tag_sheet.dismiss();
 
