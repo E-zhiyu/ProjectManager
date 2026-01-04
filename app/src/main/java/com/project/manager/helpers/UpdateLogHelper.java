@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.6.3  \n" +
             "**BUG修复**  \n" +
+            "- 修复在规则管理子界面中修改标签后规则列表的标签仍然不会改变的BUG  \n" +
             "- 优化流水列表数据的刷新方法，防止重复刷新UI，并修复新增或删除无动画的BUG  \n\n" +
             "# v1.6.2  \n" +
             "**BUG修复**  \n" +
