@@ -19,10 +19,10 @@ import com.project.manager.broadcast.NotificationAnalysisBroadcastReceiver;
 import com.project.manager.broadcast.BroadcastConstants;
 import com.project.manager.data.data_save.preference.AutoBookKeepingPreference;
 import com.project.manager.helpers.ExceptionHelper;
-import com.project.manager.ui.bookkeeping.KeyValueStrings;
+import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
 import com.project.manager.data.data_class.AnalysisRule;
 import com.project.manager.data.data_class.running_account.RunningAccountBase;
-import com.project.manager.ui.bookkeeping.running_account_edit.fragments.RunningAccountType;
+import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.data.data_class.Tag;
 
 import java.text.SimpleDateFormat;

@@ -11,20 +11,14 @@ import com.google.android.material.color.DynamicColorsOptions;
 import com.project.manager.data.data_save.preference.AutoBackupPreference;
 import com.project.manager.data.data_save.preference.AppSettingsPreference;
 import com.project.manager.helpers.AutoBackupHelper;
-import com.project.manager.ui.view_model.tag_modify.AccountTagViewModel;
 import com.project.manager.workers.BackupScheduler;
 
 import java.util.concurrent.ExecutionException;
 
 public class ManagerAssistant extends Application {
-    AccountTagViewModel accountTagViewModel;            //同步标签数据的ViewModel
-
     @Override
     public void onCreate() {
         super.onCreate();
-
-        //Application初始化时创建ViewModel
-        accountTagViewModel = new AccountTagViewModel(this);
 
         //初始化动态配色
         if (AppSettingsPreference.getDynamicColorStat(this)) {
@@ -51,9 +45,5 @@ public class ManagerAssistant extends Application {
             }
             Log.d(LogTags.WORK_STATS.getV(), "State: " + info.getState());
         }
-    }
-
-    public AccountTagViewModel getAccountTagViewModel() {
-        return accountTagViewModel;
     }
 }

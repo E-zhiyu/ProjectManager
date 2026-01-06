@@ -11,7 +11,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 
 import com.project.manager.data.data_save.preference.AutoBackupPreference;
-import com.project.manager.ui.setting.setting_option_views.SettingSwitchView;
+import com.project.manager.ui.pages.setting.setting_option_views.SettingSwitchView;
 import com.project.manager.workers.BackupScheduler;
 
 public class AutoBackupHelper {
@@ -91,15 +91,12 @@ public class AutoBackupHelper {
                     Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             );
 
-            //创建自动备份定时任务
+            //第一次设置备份目录时创建自动备份定时任务
             if (oldDirUriStr == null) {
                 int frequency_index = AutoBackupPreference.getBackupFrequency(context);
                 long intervalMillis = AutoBackupHelper.BackupFrequency.values()[frequency_index].getIntervalMillis();
                 BackupScheduler.schedulePeriodicBackup(context, intervalMillis);
             }
-
-            //立即备份一次
-            BackupScheduler.executeBackupNow(context);
         } else {
             String backupDir = AutoBackupPreference.getBackupDirectoryUri(context);
             if (switchOptionView != null && backupDir == null) {

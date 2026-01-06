@@ -39,31 +39,31 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ManagerAssistant.Static">
         <activity
-            android:name=".ui.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select.PackageNameSelectActivity"
+            android:name=".ui.pages.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select.PackageNameSelectActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.RuleAddModifyActivity"
+            android:name=".ui.pages.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.RuleAddModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity"
+            android:name=".ui.pages.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.tag.edit.GroupModifyActivity"
+            android:name=".ui.pages.bookkeeping.tag.edit.GroupModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.tag.edit.TagManageActivity"
+            android:name=".ui.pages.bookkeeping.tag.edit.TagManageActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.tag.edit.TagAddModifyActivity"
+            android:name=".ui.pages.bookkeeping.tag.edit.TagAddModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.report.ReportActivity"
+            android:name=".ui.pages.bookkeeping.report.ReportActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.running_account_edit.RunningAccountModifyActivity"
+            android:name=".ui.pages.bookkeeping.running_account_edit.RunningAccountModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.bookkeeping.running_account_edit.RunningAccountAddActivity"
+            android:name=".ui.pages.bookkeeping.running_account_edit.RunningAccountAddActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

@@ -5,7 +5,7 @@
     style="@style/CommonPageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.bookkeeping.running_account_edit.RunningAccountAddActivity">
+    tools:context=".ui.pages.bookkeeping.running_account_edit.RunningAccountAddActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"

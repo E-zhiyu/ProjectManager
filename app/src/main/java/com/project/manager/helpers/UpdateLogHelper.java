@@ -11,7 +11,21 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.6.2  \n" +
+    private static final String update_log_md = "# v1.6.4  \n" +
+            "**BUG修复**  \n" +
+            "- 修复导入流水记录数据不会重置记账累计天数的BUG  \n\n" +
+            "**修改内容**  \n" +
+            "- 修改部分设置项的描述  \n" +
+            "- 更改自动备份存储目录不再会自动触发一次备份  \n" +
+            "- 修改下拉式文本框右侧图标  \n" +
+            "- 调整标签添加和修改界面的合并按钮的高度以及图标  \n" +
+            "- 删除报表统计界面顶部卡片的“流水统计”文本  \n" +
+            "- 删除默认支付宝支付规则中的“您”，防止无法匹配支付宝的通知(已存在的规则不会改变)  \n\n" +
+            "# v1.6.3  \n" +
+            "**BUG修复**  \n" +
+            "- 修复在规则管理子界面中修改标签后规则列表的标签仍然不会改变的BUG  \n" +
+            "- 优化流水列表数据的刷新方法，防止重复刷新UI，并修复新增或删除无动画的BUG  \n\n" +
+            "# v1.6.2  \n" +
             "**BUG修复**  \n" +
             "- 修复通知解析规则无法将捕获的文本转换为金额数据时崩溃的BUG  \n\n" +
             "**修改内容**  \n" +

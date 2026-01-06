@@ -4,7 +4,7 @@
     style="@style/CommonPageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.bookkeeping.tag.edit.GroupModifyActivity">
+    tools:context=".ui.pages.bookkeeping.tag.edit.GroupModifyActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:text="@string/group_merge"
-            app:icon="@drawable/baseline_merge_24"
+            app:icon="@drawable/baseline_call_merge_24"
             app:iconGravity="textStart" />
     </com.google.android.material.appbar.MaterialToolbar>
 
