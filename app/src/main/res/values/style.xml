@@ -59,7 +59,7 @@
         <item name="android:clickable">true</item>
         <item name="android:background">?attr/selectableItemBackground</item>
         <item name="android:focusable">true</item>
-        <item name="android:drawableEnd">@drawable/baseline_arrow_drop_down_24</item>
+        <item name="android:drawableEnd">@drawable/baseline_unfold_more_24</item>
     </style>
 
     <!-- 圆角卡片容器器样式 -->

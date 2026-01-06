@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.6.4  \n" +
             "**修改内容**  \n" +
+            "- 修改下拉式文本框右侧图标  \n" +
             "- 调整标签添加和修改界面的合并按钮的高度以及图标  \n" +
             "- 删除报表统计界面顶部卡片的“流水统计”文本  \n" +
             "- 删除默认支付宝支付规则中的“您”，防止无法匹配支付宝的通知(已存在的规则不会改变)  \n\n" +
