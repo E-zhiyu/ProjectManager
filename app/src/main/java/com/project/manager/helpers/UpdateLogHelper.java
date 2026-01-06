@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.6.4  \n" +
             "**修改内容**  \n" +
+            "- 删除报表统计界面顶部卡片的“流水统计”文本  \n" +
             "- 删除默认支付宝支付规则中的“您”，防止无法匹配支付宝的通知(已存在的规则不会改变)  \n\n" +
             "# v1.6.3  \n" +
             "**BUG修复**  \n" +
