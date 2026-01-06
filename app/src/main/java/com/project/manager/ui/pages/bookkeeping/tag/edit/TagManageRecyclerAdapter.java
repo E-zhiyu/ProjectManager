@@ -29,9 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecyclerAdapter.TagEditViewHolder> {
-    List<TagGroup> tagGroupList;                        //标签组列表
-    Context context;                                    //上下文
-    OnTextViewClickedListener textClickedListener;    //标签文本点击事件监听器
+    private List<TagGroup> tagGroupList;                            //标签组列表
+    private final Context context;                                  //上下文
+    private final OnTextViewClickedListener textClickedListener;    //标签文本点击事件监听器
 
     public interface OnTextViewClickedListener {
         /**
@@ -113,36 +113,36 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             long tag_no = oneTag.getTno();
 
             //设置文本属性
-            MaterialTextView tag_text_view = new MaterialTextView(context);
-            tag_text_view.setLayoutParams(new ViewGroup.LayoutParams(
+            MaterialTextView tagTextView = new MaterialTextView(context);
+            tagTextView.setLayoutParams(new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
             ));
-            tag_text_view.setPadding(50, 20, 25, 20);
-            tag_text_view.setTextAppearance(R.style.CommonTextAppearance);
+            tagTextView.setPadding(50, 20, 25, 20);
+            tagTextView.setTextAppearance(R.style.CommonTextAppearance);
 
             //添加点击的波纹效果
             try (TypedArray typedArray = context.obtainStyledAttributes(
                     new int[]{android.R.attr.selectableItemBackground})) {
                 int backgroundResource = typedArray.getResourceId(0, 0);
-                tag_text_view.setBackgroundResource(backgroundResource);
+                tagTextView.setBackgroundResource(backgroundResource);
             }
-            tag_text_view.setFocusable(true);
-            tag_text_view.setClickable(true);
+            tagTextView.setFocusable(true);
+            tagTextView.setClickable(true);
 
             //添加右侧箭头图标
             Drawable right_arrow = AppCompatResources.getDrawable(context, R.drawable.baseline_keyboard_arrow_right_24);
-            tag_text_view.setCompoundDrawablesRelativeWithIntrinsicBounds(
+            tagTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(
                     null, null, right_arrow, null
             );
 
             //设置标签文本点击监听器
-            tag_text_view.setOnClickListener(v ->
+            tagTextView.setOnClickListener(v ->
                     textClickedListener.onTagTextViewClicked(tag_no, tag_name, group_no, group_name)
             );
 
-            tag_text_view.setText(tag_name);
-            holder.sub_view_layout.addView(tag_text_view);
+            tagTextView.setText(tag_name);
+            holder.sub_view_layout.addView(tagTextView);
         }
     }
 
