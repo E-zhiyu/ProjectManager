@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:text="@string/group_merge"
-            app:icon="@drawable/baseline_merge_24"
+            app:icon="@drawable/baseline_call_merge_24"
             app:iconGravity="textStart" />
     </com.google.android.material.appbar.MaterialToolbar>
 

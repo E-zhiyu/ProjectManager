@@ -21,11 +21,11 @@
             android:id="@+id/merge_btn"
             style="@style/TransparentBtnStyle"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:text="@string/tag_merge"
             android:visibility="gone"
-            app:icon="@drawable/baseline_merge_24"
+            app:icon="@drawable/baseline_call_merge_24"
             app:iconGravity="textStart" />
     </com.google.android.material.appbar.MaterialToolbar>
 
