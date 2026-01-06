@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import com.project.manager.data.data_save.database.BookKeepingColumns;
 import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
+import com.project.manager.data.data_save.preference.BookKeepingStartDatePreference;
 import com.project.manager.ui.pages.setting.data_io.pojo.PojoBasicRunningAccount;
 import com.project.manager.ui.pages.setting.data_io.pojo.PojoTag;
 import com.project.manager.ui.pages.setting.data_io.pojo.PojoTagGroup;
@@ -48,6 +49,8 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
         setTagData(pojoTagList);
         setBasicData(pojoBasicRunningAccountList);
         setTransferData(pojoTransferRunningAccountList);
+
+        BookKeepingStartDatePreference.saveStartDate("", context);  //清空已保存的开始记账的日期
     }
 
     //获取所有流水账基本数据（对应基本流水记录表）

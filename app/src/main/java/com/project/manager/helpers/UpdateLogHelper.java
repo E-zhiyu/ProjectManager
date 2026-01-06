@@ -12,6 +12,8 @@ import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.6.4  \n" +
+            "**BUG修复**  \n" +
+            "- 修复导入流水记录数据不会重置记账累计天数的BUG  \n\n" +
             "**修改内容**  \n" +
             "- 修改部分设置项的描述  \n" +
             "- 更改自动备份存储目录不再会自动触发一次备份  \n" +
