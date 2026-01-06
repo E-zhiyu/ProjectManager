@@ -13,6 +13,8 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.6.4  \n" +
             "**修改内容**  \n" +
+            "- 修改部分设置项的描述  \n" +
+            "- 更改自动备份存储目录不再会自动触发一次备份  \n" +
             "- 修改下拉式文本框右侧图标  \n" +
             "- 调整标签添加和修改界面的合并按钮的高度以及图标  \n" +
             "- 删除报表统计界面顶部卡片的“流水统计”文本  \n" +

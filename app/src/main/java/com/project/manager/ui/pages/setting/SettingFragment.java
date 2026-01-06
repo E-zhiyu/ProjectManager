@@ -211,7 +211,7 @@ public class SettingFragment extends Fragment {
         SettingSpinnerView firstScreenOption = new SettingSpinnerView(
                 requireContext(),
                 binding.firstScreenOption,
-                R.string.first_screen,
+                R.string.select_first_screen,
                 "选择启动的第一屏",
                 R.drawable.baseline_add_to_home_screen_24
         );
@@ -304,7 +304,7 @@ public class SettingFragment extends Fragment {
                 requireContext(),
                 binding.autoBackupOption,
                 R.string.auto_backup,
-                "自动备份功能开关",
+                null,
                 R.drawable.baseline_settings_backup_restore_24
         );
         autoBackupHelper.setSwitchOptionView(autoBackupSwitch); //设置帮助器的开关视图，以便控制其状态
@@ -422,7 +422,7 @@ public class SettingFragment extends Fragment {
                 requireContext(),
                 binding.notificationAnalysisSwitchOption,
                 R.string.notification_analysis_mode,
-                "通知解析功能的开关",
+                "解析通知实现自动记账",
                 R.drawable.baseline_notifications_24
         );
         //完成通知解析开关状态初始化
@@ -446,7 +446,7 @@ public class SettingFragment extends Fragment {
                 requireContext(),
                 binding.ruleManageOption,
                 R.string.notification_analysis_rules_manage,
-                "点击进入通知解析规则管理界面",
+                "点击进入规则管理界面",
                 R.drawable.baseline_rule_24
         );
         ruleManageOption.setFunctionListener(
@@ -461,18 +461,18 @@ public class SettingFragment extends Fragment {
                 requireContext(),
                 binding.resetRuleOption,
                 R.string.reset_rule,
-                "将通知解析规则重置为默认规则",
+                "将现有规则重置为默认状态",
                 R.drawable.baseline_restart_alt_24
         );
         resetRuleOption.setFunctionListener(
                 v -> new MaterialAlertDialogBuilder(requireContext())
                         .setTitle("重置规则")
-                        .setMessage("此操作将重置通知解析规则为默认规则，确认继续吗？")
-                        .setPositiveButton("确认", ((dialog, which) -> {
+                        .setMessage("此操作将删除现有的规则并替换为默认规则，确认继续吗？")
+                        .setPositiveButton("确认", (dialog, which) -> {
                             dialog.dismiss();
                             AnalysisRuleDataHelper.resetRule(requireContext());
-                        }))
-                        .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
+                        })
+                        .setNegativeButton("取消", null)
                         .show()
         );
     }
@@ -495,7 +495,7 @@ public class SettingFragment extends Fragment {
                     KeepAlivePreference.setHideRecents(isChecked, requireContext());
 
                     if (isChecked) {
-                        Toast.makeText(requireContext(), "建议额外在最近任务中锁定本应用", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), "请在最近任务中锁定本应用以达到更好的效果", Toast.LENGTH_SHORT).show();
                     }
                 }
         );
@@ -541,21 +541,6 @@ public class SettingFragment extends Fragment {
                 v -> AboutHelper.showAboutDialog(requireContext())
         );
 
-        //更新检测
-        SettingClickableTextView updateCheckOption = new SettingClickableTextView(
-                requireContext(),
-                binding.updateCheckOption,
-                R.string.update_check,
-                "点击检测版本更新",
-                R.drawable.baseline_update_24
-        );
-        updateCheckOption.setFunctionListener(
-                v -> {
-                    Toast.makeText(requireContext(), "正在检查更新……", Toast.LENGTH_SHORT).show();
-                    UpdateHelper.checkUpdate(requireContext(), true);
-                }
-        );
-
         //更新日志
         SettingClickableTextView updateLogOption = new SettingClickableTextView(
                 requireContext(),
@@ -566,6 +551,21 @@ public class SettingFragment extends Fragment {
         );
         updateLogOption.setFunctionListener(
                 v -> UpdateLogHelper.showUpdateLogDialog(requireContext())
+        );
+
+        //更新检测
+        SettingClickableTextView updateCheckOption = new SettingClickableTextView(
+                requireContext(),
+                binding.updateCheckOption,
+                R.string.update_check,
+                null,
+                R.drawable.baseline_update_24
+        );
+        updateCheckOption.setFunctionListener(
+                v -> {
+                    Toast.makeText(requireContext(), "正在检查更新……", Toast.LENGTH_SHORT).show();
+                    UpdateHelper.checkUpdate(requireContext(), true);
+                }
         );
     }
 
