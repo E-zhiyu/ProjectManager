@@ -1,5 +1,8 @@
 [versions]
 agp = "8.13.0"
+cameraCore = "1.5.2"
+cameraCamera2 = "1.5.2"
+cameraLifecycle = "1.5.2"
 core = "4.6.2"
 documentfile = "1.1.0"
 googleMaterial = "1.13.0"
@@ -24,6 +27,10 @@ viewpager2 = "1.0.0"
 workRuntime = "2.11.0"
 
 [libraries]
+camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraLifecycle" }
+camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
+camera-core = { module = "androidx.camera:camera-core", version.ref = "cameraCore" }
+camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraCore" }
 core = { module = "io.noties.markwon:core", version.ref = "core" }
 documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
 gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
