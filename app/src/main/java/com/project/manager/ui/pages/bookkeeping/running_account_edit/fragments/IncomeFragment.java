@@ -8,9 +8,12 @@ import com.project.manager.R;
 
 public class IncomeFragment extends RunningAccountFragmentBase {
     public IncomeFragment() {
-        this.name = RunningAccountType.INCOME.getTitle();   //为碎片命名
-        this.default_remark = "一条收入记录";                 //设置默认备注
         this.type = RunningAccountType.INCOME;
+    }
+
+    @Override
+    protected void setDefaultRemark() {
+        this.defaultRemark = "一条收入记录";
     }
 
     @Override

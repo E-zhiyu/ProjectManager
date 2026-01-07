@@ -16,9 +16,13 @@ public class TransferFragment extends RunningAccountFragmentBase {
     private long lastFocusChangeTime = 0;                   //上次触发onFocusChange()方法的时间
 
     public TransferFragment() {
-        this.name = RunningAccountType.TRANSFER.getTitle(); //为碎片命名
-        this.default_remark = "一条转账记录";                 //设置默认备注
+        super();
         this.type = RunningAccountType.TRANSFER;
+    }
+
+    @Override
+    protected void setDefaultRemark() {
+        this.defaultRemark = "一条转账记录";
     }
 
     @Override

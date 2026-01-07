@@ -1,7 +1,11 @@
 package com.project.manager.ui.camera;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
@@ -11,25 +15,30 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
-import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.project.manager.LogTags;
 import com.project.manager.R;
 import com.project.manager.databinding.ActivityCameraBinding;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.helpers.IconHelper;
 import com.project.manager.helpers.PermissionHelper;
+import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -40,7 +49,6 @@ public class CameraActivity extends AppCompatActivity {
     private ExecutorService cameraExecutor; //相机执行器
     private CameraSelector cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA;    //相机选择器（默认主摄）
     private ImageCapture imageCapture;      //图像捕捉器
-    private PreviewView previewView;        //取景框
     private final String[] permissions = {  //权限
             Manifest.permission.CAMERA
     };
@@ -89,7 +97,7 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        cameraExecutor.shutdown();
+        cameraExecutor.shutdown();  //界面销毁后关闭相机
     }
 
     /**
@@ -103,7 +111,8 @@ public class CameraActivity extends AppCompatActivity {
 
         cameraExecutor = Executors.newSingleThreadExecutor();
 
-        previewView = binding.cameraPreview;
+        //拍照点击监听
+        binding.captureBtn.setOnClickListener(v -> takePhoto());
     }
 
     /**
@@ -162,7 +171,7 @@ public class CameraActivity extends AppCompatActivity {
     private void bindCameraUseCases(ProcessCameraProvider cameraProvider) {
         // 预览用例
         Preview preview = new Preview.Builder().build();
-        preview.setSurfaceProvider(previewView.getSurfaceProvider());
+        preview.setSurfaceProvider(binding.cameraPreview.getSurfaceProvider());
 
         // 图像捕获用例
         imageCapture = new ImageCapture.Builder()
@@ -179,7 +188,7 @@ public class CameraActivity extends AppCompatActivity {
             cameraProvider.unbindAll();
 
             // 绑定用例到生命周期
-            Camera camera = cameraProvider.bindToLifecycle(
+            cameraProvider.bindToLifecycle(
                     this,
                     cameraSelector,
                     preview,
@@ -188,5 +197,74 @@ public class CameraActivity extends AppCompatActivity {
         } catch (Exception e) {
             ExceptionHelper.showExceptionDialog(this, e);
         }
+    }
+
+    /**
+     * 拍照方法
+     */
+    private void takePhoto() {
+        if (imageCapture == null) {
+            Log.e(LogTags.CAMERA_ACTIVITY.getV(), "imageCapture未初始化");
+            return;
+        }
+
+        //创建照片文件
+        File tempDir = getOutputDirectory();
+        if (tempDir == null) {
+            Log.e(LogTags.CAMERA_ACTIVITY.getV(), "无法获取临时照片保存目录");
+            Toast.makeText(this, "拍照失败：无法获取照片保存目录", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        File photoFile = new File(
+                tempDir,
+                new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.getDefault())
+                        .format(System.currentTimeMillis()) + ".jpg"
+        );
+
+        //创建输出选项
+        ImageCapture.OutputFileOptions outputOptions =
+                new ImageCapture.OutputFileOptions.Builder(photoFile).build();
+
+        //拍照
+        imageCapture.takePicture(
+                outputOptions,
+                ContextCompat.getMainExecutor(this),
+                new ImageCapture.OnImageSavedCallback() {
+                    @Override
+                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
+                        Uri savedUri = Uri.fromFile(photoFile);
+
+                        //将照片Uri返回至父界面
+                        Intent result2AccountFragment = new Intent();
+                        result2AccountFragment.putExtra(KeyValueStrings.FILE_URI.getValue(), savedUri.toString());
+                        setResult(Activity.RESULT_OK, result2AccountFragment);
+                        finish();
+                    }
+
+                    @Override
+                    public void onError(@NonNull ImageCaptureException exception) {
+                        ExceptionHelper.showExceptionDialog(CameraActivity.this, exception);
+                    }
+                }
+        );
+    }
+
+    /**
+     * 获取照片输出目录
+     *
+     * @return 临时照片保存目录
+     */
+    @Nullable
+    private File getOutputDirectory() {
+        File dir = new File(getExternalFilesDir(null), "picture_temp");
+        if (!dir.exists()) {
+            if (dir.mkdirs()) {
+                return dir;
+            }
+        } else {
+            return dir;
+        }
+
+        return null;
     }
 }

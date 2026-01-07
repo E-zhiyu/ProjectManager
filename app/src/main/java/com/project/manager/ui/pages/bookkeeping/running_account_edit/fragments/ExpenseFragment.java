@@ -8,9 +8,12 @@ import com.project.manager.R;
 
 public class ExpenseFragment extends RunningAccountFragmentBase {
     public ExpenseFragment() {
-        this.name = RunningAccountType.EXPENSE.getTitle();  //为碎片命名
-        this.default_remark = "一条支出记录";                 //设置默认备注
         this.type = RunningAccountType.EXPENSE;
+    }
+
+    @Override
+    protected void setDefaultRemark() {
+        this.defaultRemark = "一条支出记录";
     }
 
     @Override

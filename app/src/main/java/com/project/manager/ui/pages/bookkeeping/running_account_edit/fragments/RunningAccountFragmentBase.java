@@ -1,14 +1,18 @@
 package com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteException;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
@@ -38,19 +42,23 @@ import java.util.Date;
 public abstract class RunningAccountFragmentBase extends Fragment implements View.OnClickListener, View.OnFocusChangeListener {
     protected Bundle initData = null;                       //初始化控件内容的数据（用于编辑流水记录时）
     protected View contentView;                             //绑定的XML界面
-    protected String name;                                  //碎片名称
-    protected String default_remark = "Default Remark";     //默认备注
+    protected String defaultRemark;                         //默认备注
     protected RunningAccountType type;                      //流水类型
     protected TextInputLayout amount_layout, tag_layout;    //金额和标签文本框布局管理器
     protected TextInputEditText amount_input, tag_input;    //金额和标签文本输入框
     private long tag_no = 0;                                //用户选择的标签编号（默认无标签则为0）
     private TagSelectBottomSheet tag_sheet;                 //底部弹出窗口
-    private long lastFocusChangeTime = 0;                   //上次触发onFocusChange()方法的时间
+    private ActivityResultLauncher<Intent> cameraLauncher;  //拍照Activity启动器
+
+    public RunningAccountFragmentBase() {
+        setDefaultRemark();
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         contentView = inflater.inflate(getLayoutResId(), container, false);
         initViews();
+        initLaunchers();
 
         //判断是否传递了外部数据，如果传递了则将数据填入对应控件
         if (initData != null) {
@@ -62,14 +70,25 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         return contentView;
     }
 
-    public String getName() {
-        return name;
-    }
 
     //修改流水时接收初始化数据
     public void receiveInitData(Bundle initData) {
         this.initData = initData;
     }
+
+    /**
+     * 获取碎片名称供TabLayout使用
+     *
+     * @return 碎片名称
+     */
+    public String getName() {
+        return type.getTitle();
+    }
+
+    /**
+     * 子类设置默认备注的方法
+     */
+    protected abstract void setDefaultRemark();
 
     protected abstract int getLayoutResId();
 
@@ -88,12 +107,6 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
 
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastFocusChangeTime < 200) { //200ms内忽略重复事件
-            return;
-        }
-        lastFocusChangeTime = currentTime;
-
         if (!hasFocus) {
             String edittext_str, error;         //文本框内容和错误提示
             TextInputLayout text_edit_layout;   //被验证的文本框对应的布局管理器
@@ -159,7 +172,27 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
 
         //添加图片的按钮
         MaterialButton pictureAddBtn = contentView.findViewById(R.id.picture_add);
-        pictureAddBtn.setOnClickListener(v -> startActivity(new Intent(requireActivity(), CameraActivity.class)));
+        pictureAddBtn.setOnClickListener(v -> {
+            Intent skip2CameraActivity = new Intent(requireActivity(), CameraActivity.class);
+            cameraLauncher.launch(skip2CameraActivity);
+        });
+    }
+
+    /**
+     * 初始化启动器
+     */
+    private void initLaunchers() {
+        cameraLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    Intent data = result.getData();
+                    int resultCode = result.getResultCode();
+
+                    if (resultCode == Activity.RESULT_OK && data != null) {
+                        onPictureUriReceived(data);
+                    }
+                }
+        );
     }
 
     //观察标签数据变化
@@ -192,7 +225,11 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         });
     }
 
-    //验证输入内容
+    /**
+     * 验证输入内容
+     *
+     * @return 错误提示(无错误为null)
+     */
     public String verifyInputData() {
         String error = null;
 
@@ -258,7 +295,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         boolean isDefaultRemark;                                                            //是否使用默认备注
         if (remark.isEmpty()) {
             isDefaultRemark = true;
-            remark = default_remark;
+            remark = defaultRemark;
         } else {
             isDefaultRemark = false;
         }
@@ -361,6 +398,19 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
     private void showTagSelectSheet() {
         tag_sheet = new TagSelectBottomSheet(this::onTagBtnClicked);
         tag_sheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
+    }
+
+    /**
+     * 处理拍照后
+     *
+     * @param intent 包含图片Uri的Intent
+     */
+    private void onPictureUriReceived(@NonNull Intent intent) {
+        //TODO:完成图片URI处理逻辑
+        String uriStr = intent.getStringExtra(KeyValueStrings.FILE_URI.getValue());
+        if (uriStr == null) return;
+
+        Uri pictureUri = Uri.parse(uriStr);
     }
 }
 
