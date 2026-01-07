@@ -44,9 +44,9 @@ public class IconHelper {
      * @param context 上下文
      * @return 目标dp对应的像素数量
      */
-    private static int dpToPx(@NonNull Context context) {
+    public static int dpToPx(@NonNull Context context, int dp) {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        return Math.round(IconHelper.TARGET_ICON_SIZE * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+        return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 
     /**
@@ -58,7 +58,7 @@ public class IconHelper {
      */
     @NonNull
     public static Bitmap getRoundedCornerIcon(Context context, @NonNull Drawable drawable) {
-        int targetSize = dpToPx(context);
+        int targetSize = dpToPx(context, TARGET_ICON_SIZE);
 
         //将Drawable转换为Bitmap
         Bitmap originalBitmap = drawableToBitmap(drawable, targetSize, targetSize);

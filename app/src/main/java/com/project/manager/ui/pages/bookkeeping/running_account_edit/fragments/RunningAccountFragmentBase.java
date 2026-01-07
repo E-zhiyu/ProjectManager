@@ -1,6 +1,7 @@
 package com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -20,6 +22,7 @@ import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 import com.project.manager.R;
 import com.project.manager.helpers.ExceptionHelper;
+import com.project.manager.ui.camera.CameraActivity;
 import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.pages.bookkeeping.TagString;
 import com.project.manager.ui.data_communication.tag_modify.TagUpdateReason;
@@ -130,7 +133,9 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         tag_sheet.dismiss();
     }
 
-    //初始化碎片布局
+    /**
+     * 初始化视图
+     */
     protected void initViews() {
         TextInputEditText dt_input = contentView.findViewById(R.id.datetime_input);
         amount_layout = contentView.findViewById(R.id.amount_layout);
@@ -151,6 +156,10 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE));
         dt_input.setText(dt_string);
+
+        //添加图片的按钮
+        MaterialButton pictureAddBtn = contentView.findViewById(R.id.picture_add);
+        pictureAddBtn.setOnClickListener(v -> startActivity(new Intent(requireActivity(), CameraActivity.class)));
     }
 
     //观察标签数据变化

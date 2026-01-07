@@ -15,4 +15,5 @@
     <color name="color_surface_container_low_night">#161a25</color>
     <color name="unchecked_gray">#737685</color>
     <color name="unchecked_gray_night">#8d909f</color>
+    <color name="black_alpha">#88000000</color>
 </resources>

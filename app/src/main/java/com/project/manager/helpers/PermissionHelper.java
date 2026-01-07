@@ -181,19 +181,4 @@ public class PermissionHelper {
     public static boolean isPermissionsGranted(Context context, String permission) {
         return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED;
     }
-
-    /**
-     * 动态申请Manifest中的权限
-     *
-     * @param activity    监听权限授予情况的活动
-     * @param permissions 权限
-     * @param requestCode 申请代码
-     */
-    public static void requestManifestPermission(Activity activity, String[] permissions, int requestCode) {
-        ActivityCompat.requestPermissions(
-                activity,
-                permissions,
-                requestCode
-        );
-    }
 }

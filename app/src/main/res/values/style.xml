@@ -117,7 +117,10 @@
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:textSize">15sp</item>
         <item name="cornerRadius">20dp</item>
-        <item name="android:layout_margin">5dp</item>
+        <item name="layout_goneMarginStart">5dp</item>
+        <item name="layout_goneMarginEnd">5dp</item>
+        <item name="layout_goneMarginTop">5dp</item>
+        <item name="layout_goneMarginBottom">5dp</item>
         <item name="android:padding">10dp</item>
     </style>
 

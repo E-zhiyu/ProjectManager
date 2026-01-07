@@ -4,31 +4,21 @@
     <!-- 申请读取所有应用的权限 -->
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
-        tools:ignore="PackageVisibilityPolicy,QueryAllPackagesPermission" />
-
-    <!-- 申请通知监听服务权限 -->
-    <uses-permission android:name="com.android.permission.GET_INSTALLED_APPS" />
-
-    <!-- 申请应用安装权限 -->
+        tools:ignore="PackageVisibilityPolicy,QueryAllPackagesPermission" /> <!-- 申请通知监听服务权限 -->
+    <uses-permission android:name="com.android.permission.GET_INSTALLED_APPS" /> <!-- 申请应用安装权限 -->
     <uses-permission
         android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
-        tools:ignore="ProtectedPermissions" />
-
-    <!-- 请求网络权限 -->
+        tools:ignore="ProtectedPermissions" /> <!-- 请求网络权限 -->
     <uses-permission
         android:name="android.permission.REQUEST_INSTALL_PACKAGES"
-        tools:ignore="RequestInstallPackagesPolicy" />
-
-    <!-- 请求外部存储读取权限(针对旧版安卓) -->
+        tools:ignore="RequestInstallPackagesPolicy" /> <!-- 请求外部存储读取权限(针对旧版安卓) -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" />
-
-    <!-- 申请相机权限 -->
+        android:maxSdkVersion="28" /> <!-- 申请相机权限 -->
     <uses-permission android:name="android.permission.CAMERA" />
 
     <uses-feature android:name="android.hardware.camera.any" />
@@ -46,6 +36,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ManagerAssistant.Static">
+        <activity
+            android:name=".ui.camera.CameraActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.pages.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select.PackageNameSelectActivity"
             android:exported="false" />
