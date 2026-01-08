@@ -58,4 +58,5 @@ dependencies {
     implementation libs.camera.lifecycle
     implementation libs.camera.view
     implementation libs.glide
+    implementation libs.photoview
 }
