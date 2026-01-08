@@ -113,7 +113,6 @@ public class RunningAccountAddActivity extends AppCompatActivity {
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(this, e);
             Toast.makeText(this, "添加流水记录时出错", Toast.LENGTH_SHORT).show();
-            dataBundle.putLong(KeyValueStrings.RNO.getValue(), 0);
         }
 
         result2BookKeeping.putExtras(dataBundle);

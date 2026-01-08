@@ -329,10 +329,10 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         Bundle dataBundle = new Bundle();
 
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());     //种类
-        TextInputEditText dateTimeTextView = contentView.findViewById(R.id.datetime_input);     //日期和时间
+        TextInputEditText dateTimeTextView = contentView.findViewById(R.id.datetime_input); //日期和时间
         String date_time = String.valueOf(dateTimeTextView.getText());
         dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), date_time);
-        TextInputEditText remarkEditText = contentView.findViewById(R.id.remark_input);         //备注
+        TextInputEditText remarkEditText = contentView.findViewById(R.id.remark_input);     //备注
         String remark = String.valueOf(remarkEditText.getText());
         boolean isDefaultRemark;                                                            //是否使用默认备注
         if (remark.isEmpty()) {

@@ -113,7 +113,7 @@ public class AccountRecyclerAdapter extends RecyclerView.Adapter<AccountRecycler
             boolean isDefaultRemark = dataBundle.getBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue());
             double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
             String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
-            long rno = dataBundle.getLong(KeyValueStrings.RNO.getValue());
+            long rno = dataBundle.getLong(KeyValueStrings.RNO.getValue(), 0);
             if (rno == 0) return;   //如果为0则说明数据库保存失败，直接结束该方法
 
             //获取特殊数据并实例化流水类
@@ -183,15 +183,6 @@ public class AccountRecyclerAdapter extends RecyclerView.Adapter<AccountRecycler
      * @param dataBundle 修改后的流水数据
      */
     public void modifyRunningAccount(@NonNull Bundle dataBundle) {
-        //将数据保存至数据库
-        try {
-            RunningAccountBase.modifyAccount(dataBundle, context);
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            Toast.makeText(context, "修改流水数据失败", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         //解析数据
         long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
         RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
