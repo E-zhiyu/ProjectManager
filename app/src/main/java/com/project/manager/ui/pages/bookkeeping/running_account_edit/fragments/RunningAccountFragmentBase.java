@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
+import com.project.manager.LogTags;
 import com.project.manager.R;
 import com.project.manager.data.data_class.Picture;
 import com.project.manager.helpers.ExceptionHelper;
@@ -38,6 +40,7 @@ import com.project.manager.data.data_class.Tag;
 import com.project.manager.ui.pages.bookkeeping.tag.select_sheet.GridSpacingItemDecoration;
 import com.project.manager.ui.pages.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -84,6 +87,29 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         startObserveTag();
 
         return contentView;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        //删除临时图片目录文件
+        File tempPictureDir = new File(requireContext().getExternalFilesDir(null), "picture_temp");
+        if (tempPictureDir.exists()) {
+            File[] files = tempPictureDir.listFiles();
+            if (files != null) {
+                boolean isAllTempFileDeleted = true;
+                for (File tempPicture : files) {
+                    if (!tempPicture.delete()) {
+                        isAllTempFileDeleted =false;
+                    }
+                }
+
+                if (!isAllTempFileDeleted) {
+                    Log.w(LogTags.ACCOUNT_FRAGMENT.getV(), "临时图片删除失败");
+                }
+            }
+        }
     }
 
 
@@ -286,12 +312,12 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
             Toast.makeText(requireContext(), "无法加载该流水记录的标签信息", Toast.LENGTH_SHORT).show();
         }
 
-        amount_input.setText(String.valueOf(amount));                               //金额
+        amount_input.setText(String.valueOf(amount));                                   //金额
         TextInputEditText remark_input = contentView.findViewById(R.id.remark_input);   //备注
         remark_input.setText(isDefaultRemark ? "" : remark);
         TextInputEditText date_input = contentView.findViewById(R.id.datetime_input);   //日期
         date_input.setText(date_time);
-        tag_input.setText(tag_name);                                                //标签名称
+        tag_input.setText(tag_name);                                                    //标签名称
     }
 
     /**
@@ -422,7 +448,6 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
      * @param intent 包含图片Uri的Intent
      */
     private void onPictureUriReceived(@NonNull Intent intent) {
-        //TODO:完成图片URI处理逻辑
         String uriStr = intent.getStringExtra(KeyValueStrings.FILE_URI.getValue());
         if (uriStr == null) return;
 

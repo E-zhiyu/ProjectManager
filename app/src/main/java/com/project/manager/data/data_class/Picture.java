@@ -22,7 +22,7 @@ import java.util.List;
 public class Picture {
     private final Uri pictureUri;   //图片文件Uri
     private final long rno;         //所属标签编号
-    private long pno;               //图片编号
+    private long pno = 0;           //图片编号（默认为0，只有当确认保存时才写入数据库并分配编号）
 
     public Picture(Uri pictureUri, long rno) {
         this.pictureUri = pictureUri;

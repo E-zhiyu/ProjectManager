@@ -1,7 +1,6 @@
 package com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -14,7 +13,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.project.manager.R;
 import com.project.manager.data.data_class.Picture;
-import com.project.manager.helpers.ExceptionHelper;
 
 import java.util.List;
 
@@ -25,7 +23,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
             .centerCrop()
             .placeholder(R.drawable.baseline_photo_24)      //占位图
             .error(R.drawable.baseline_error_outline_24)    //错误图
-            .diskCacheStrategy(DiskCacheStrategy.ALL)       //缓存策略
+            .diskCacheStrategy(DiskCacheStrategy.NONE)      //缓存策略(不缓存)
             .override(300, 300);               //图片尺寸
 
     public static class PictureViewHolder extends RecyclerView.ViewHolder {
@@ -87,17 +85,12 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         return pictureList.size();
     }
 
+    /**
+     * 将新相片添加至界面中
+     *
+     * @param picture 新相片数据实例
+     */
     public void addPicture(Picture picture) {
-        //保存至数据库
-        try {
-            long pno = Picture.addPicture(context, picture);
-            picture.setPno(pno);
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            return;
-        }
-
-        //刷新UI
         pictureList.add(picture);
         notifyItemInserted(pictureList.size() - 1);
     }
