@@ -342,7 +342,7 @@ public class BookKeepingFragment extends Fragment {
     private void onNewAccountAddedReceived(@NonNull Bundle dataBundle) {
         long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
         if (tag_no == this.filter_tag_no || this.filter_tag_no == 0) {
-            accountRecyclerAdapter.addNewRunningAccountNoSave(dataBundle);
+            accountRecyclerAdapter.addNewRunningAccountByNotification(dataBundle);
             runningAccountRecyclerView.scrollToPosition(0);
             Toast.makeText(requireContext(), "成功添加一条流水记录（自动记账）", Toast.LENGTH_SHORT).show();
 

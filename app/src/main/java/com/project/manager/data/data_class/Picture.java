@@ -13,6 +13,7 @@ import com.project.manager.data.data_save.database.BookKeepingColumns;
 import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,24 +90,24 @@ public class Picture {
     /**
      * 添加一张图片到数据库
      *
-     * @param context    上下文
-     * @param newPicture 新图片数据类
-     * @return 分配到的图片编号
+     * @param context      上下文
+     * @param pictureFileList 新图片文件数组
+     * @param rno          图片所属流水记录的编号
      * @throws SQLiteException 数据库写入失败引发的异常
      */
-    public static long addPicture(Context context, @NonNull Picture newPicture) throws SQLiteException {
+    public static void addPicture(Context context, @NonNull List<File> pictureFileList, long rno) throws SQLiteException {
         BookKeepingDbHelper dbHelper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openWriteLink();
 
-        String uriStr = newPicture.getPictureUri().toString();
-        long rno = newPicture.getRno();
+        for (File picture : pictureFileList) {
+            String uriStr = picture.toURI().toString();
 
-        ContentValues pictureValues = new ContentValues();
-        pictureValues.put(BookKeepingColumns.PICTURE_URI.toString(), uriStr);
-        pictureValues.put(BookKeepingColumns.RNO.toString(), rno);
-        long pno = db.insert(BookKeepingTables.PICTURE.toString(), null, pictureValues);
+            ContentValues pictureValues = new ContentValues();
+            pictureValues.put(BookKeepingColumns.PICTURE_URI.toString(), uriStr);
+            pictureValues.put(BookKeepingColumns.RNO.toString(), rno);
+            db.insert(BookKeepingTables.PICTURE.toString(), null, pictureValues);
+        }
 
         db.close();
-        return pno;
     }
 }

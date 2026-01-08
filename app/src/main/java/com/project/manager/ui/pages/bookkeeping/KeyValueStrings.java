@@ -2,6 +2,7 @@ package com.project.manager.ui.pages.bookkeeping;
 
 //用作关键字的字符串枚举
 public enum KeyValueStrings {
+    RNO("rno"),                                             //流水编号
     ACCOUNT_TYPE("account_type"),                           //流水种类
     ACCOUNT_REMARK("account_remark"),                       //流水备注
     ACCOUNT_IS_DEFAULT_REMARK("account_isDefaultRemark"),   //是否使用默认备注

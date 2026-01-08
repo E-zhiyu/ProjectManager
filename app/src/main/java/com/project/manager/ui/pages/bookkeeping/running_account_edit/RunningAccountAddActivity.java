@@ -1,6 +1,7 @@
 package com.project.manager.ui.pages.bookkeeping.running_account_edit;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -12,13 +13,18 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.project.manager.FragmentPagerAdapter;
+import com.project.manager.data.data_class.Picture;
+import com.project.manager.data.data_class.running_account.RunningAccountBase;
 import com.project.manager.databinding.ActivityRunningAccountAddBinding;
+import com.project.manager.helpers.ExceptionHelper;
+import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.ExpenseFragment;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.IncomeFragment;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountFragmentBase;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.TransferFragment;
 import com.project.manager.ui.RequestResultCode;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,8 +104,67 @@ public class RunningAccountAddActivity extends AppCompatActivity {
         Intent result2BookKeeping = new Intent();
         Bundle dataBundle = current_fragment.getInputData();    //获取输入的信息并打包
 
+        //将流水保存至数据库
+        long rno;
+        try {
+            rno = RunningAccountBase.saveNewAccount(dataBundle, this);
+            dataBundle.putLong(KeyValueStrings.RNO.getValue(), rno);
+            moveTempPictures(rno);
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(this, e);
+            Toast.makeText(this, "添加流水记录时出错", Toast.LENGTH_SHORT).show();
+            dataBundle.putLong(KeyValueStrings.RNO.getValue(), 0);
+        }
+
         result2BookKeeping.putExtras(dataBundle);
         setResult(RequestResultCode.RESULT_OK.ordinal(), result2BookKeeping);
         finish();
+    }
+
+    /**
+     * 将临时图片移动至永久目录
+     *
+     * @param rno 图片对应的流水编号
+     */
+    private void moveTempPictures(long rno) {
+        //确保永久目录存在
+        File tempPictureDir = new File(this.getExternalFilesDir(null), "picture_temp");
+        File permanentPictureDir = new File(this.getExternalFilesDir(null), "pictures");
+        boolean isPermanentDirUsable = true;
+        if (!permanentPictureDir.exists()) {
+            if (!permanentPictureDir.mkdirs()) {
+                Toast.makeText(this, "无法创建永久图片目录", Toast.LENGTH_SHORT).show();
+                isPermanentDirUsable = false;
+            }
+        }
+
+        //移动文件
+        List<File> filesOnMovedList = new ArrayList<>();    //成功移动的文件列表
+        if (tempPictureDir.exists() && isPermanentDirUsable) {
+            File[] files = tempPictureDir.listFiles();
+            if (files != null) {
+                boolean isAllFileMoved = true;
+                for (File pictureFile : files) {
+                    File permanentPicture = new File(permanentPictureDir, pictureFile.getName());
+                    if (!pictureFile.renameTo(permanentPicture)) {
+                        isAllFileMoved = false;
+                    } else {
+                        filesOnMovedList.add(permanentPicture);
+                    }
+                }
+
+                if (!isAllFileMoved) {
+                    Toast.makeText(this, "临时图片移动失败", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+
+        //将移动后的文件路径保存至数据库
+        try {
+            Picture.addPicture(this, filesOnMovedList, rno);
+        } catch (SQLiteException e) {
+            Toast.makeText(this, "将图片保存至数据库失败", Toast.LENGTH_SHORT).show();
+            ExceptionHelper.showExceptionDialog(this, e);
+        }
     }
 }
