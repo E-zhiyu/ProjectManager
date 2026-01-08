@@ -16,7 +16,7 @@ import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.R
 
 public class BookKeepingDbHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "running_account.db";   //数据库名称
-    private static final int DATABASE_VERSION = 4;                      //数据库版本
+    private static final int DATABASE_VERSION = 5;                      //数据库版本
     private final Context context;                                      //上下文
     public static final String defaultGroupName = "默认分组";           //默认分组名称
 
@@ -49,9 +49,9 @@ public class BookKeepingDbHelper extends SQLiteOpenHelper {
 
         try {
             //创建标签分组表
-            err = "标签分组数据库异常";
+            err = "标签分组表失败";
             create = "CREATE TABLE IF NOT EXISTS " + BookKeepingTables.TAG_GROUP + "(" +
-                    BookKeepingColumns.GROUP_NO + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                    BookKeepingColumns.GROUP_NO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                     BookKeepingColumns.GROUP_NAME + " VARCHAR(20) NOT NULL UNIQUE" +
                     ")";
             db.execSQL(create);
@@ -62,9 +62,9 @@ public class BookKeepingDbHelper extends SQLiteOpenHelper {
             db.insert(BookKeepingTables.TAG_GROUP.toString(), null, default_group_values);
 
             //创建标签表
-            err = "标签数据库创建异常";
+            err = "标签表创建失败";
             create = "CREATE TABLE IF NOT EXISTS " + BookKeepingTables.TAG + "(" +
-                    BookKeepingColumns.TAG_NO + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                    BookKeepingColumns.TAG_NO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                     BookKeepingColumns.TAG_NAME + " VARCHAR(20) NOT NULL UNIQUE," +
                     BookKeepingColumns.GROUP_NO + " INTEGER NOT NULL," +
 
@@ -77,9 +77,9 @@ public class BookKeepingDbHelper extends SQLiteOpenHelper {
             db.execSQL(create);
 
             //创建流水基本数据表
-            err = "流水账基本数据库创建异常";
+            err = "流水基本数据表创建失败";
             create = "CREATE TABLE IF NOT EXISTS " + BookKeepingTables.BASIC + "(" +
-                    BookKeepingColumns.RNO + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                    BookKeepingColumns.RNO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                     BookKeepingColumns.AMOUNT + " DECIMAL(20,2) NOT NULL," +
                     BookKeepingColumns.TYPE + " VARCHAR(15) NOT NULL," +
                     BookKeepingColumns.REMARK + " VARCHAR(20)," +
@@ -95,7 +95,7 @@ public class BookKeepingDbHelper extends SQLiteOpenHelper {
             db.execSQL(create);
 
             //创建转账独占数据表
-            err = "转账流水账数据库创建异常";
+            err = "转账流水表创建失败";
             create = "CREATE TABLE IF NOT EXISTS " + BookKeepingTables.TRANSFER + "(" +
                     BookKeepingColumns.RNO + " INTEGER PRIMARY KEY NOT NULL," +
                     BookKeepingColumns.EXPORT + " VARCHAR(20) NOT NULL," +
@@ -110,10 +110,10 @@ public class BookKeepingDbHelper extends SQLiteOpenHelper {
             db.execSQL(create);
 
             //创建通知解析规则表
-            err = "通知解析规则表创建错误";
+            err = "通知解析规则表创建失败";
             create = "CREATE TABLE IF NOT EXISTS " + BookKeepingTables.ANALYSIS_RULE + "(" +
                     BookKeepingColumns.RULE_NAME + " VARCHAR(20) NOT NULL," +
-                    BookKeepingColumns.RULE_NO + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                    BookKeepingColumns.RULE_NO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                     BookKeepingColumns.TYPE + " VARCHAR(20) NOT NULL," +
                     BookKeepingColumns.TAG_NO + " INTEGER DEFAULT 0," +
                     BookKeepingColumns.PACKAGE_NAME + " VARCHAR(50) NOT NULL," +
@@ -128,6 +128,20 @@ public class BookKeepingDbHelper extends SQLiteOpenHelper {
             db.execSQL(create);
 
             addDefaultRule(db);
+
+            //创建流水图片基本表
+            err = "流水图片表创建失败";
+            create = "CREATE TABLE IF NOT EXISTS " + BookKeepingTables.PICTURE + "(" +
+                    BookKeepingColumns.RNO + " INTEGER NOT NULL," +
+                    BookKeepingColumns.PNO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    BookKeepingColumns.PICTURE_URI + " VARCHAR(100) NOT NULL," +
+
+                    "CONSTRAINT " + BookKeepingConstraints.FK_RNO +
+                    " FOREIGN KEY (" + BookKeepingColumns.RNO + ")" +
+                    " REFERENCES " + BookKeepingTables.BASIC + "(" + BookKeepingColumns.RNO + ")" +
+                    " ON DELETE CASCADE" +
+                    ")";
+            db.execSQL(create);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             Toast.makeText(context, err, Toast.LENGTH_SHORT).show();
@@ -140,18 +154,18 @@ public class BookKeepingDbHelper extends SQLiteOpenHelper {
             if (oldVersion == 1) up1To2(db);
             else if (oldVersion == 2) up2To3(db);
             else if (oldVersion == 3) up3To4(db);
+            else if (oldVersion == 4) up4To5(db);
 
             oldVersion++;
         }
     }
 
-    //数据库版本升级(1->2)，变化如下：
     //basic表Tag_no列添加默认值0
     //basic表Tag_no外键约束删除动作改为SET DEFAULT
     private void up1To2(@NonNull SQLiteDatabase db) {
         //创建新的临时表
         String sql = "CREATE TABLE IF NOT EXISTS new_basic_data(" +
-                "Rno INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                "Rno INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "Amount DECIMAL(20,2) NOT NULL," +
                 "Type VARCHAR(15) NOT NULL," +
                 "Remark VARCHAR(20)," +
@@ -178,7 +192,6 @@ public class BookKeepingDbHelper extends SQLiteOpenHelper {
         db.execSQL(sql);
     }
 
-    //数据库版本：2->3
     //tag_group表添加一条group_no=0,group_name=defaultGroupName的记录
     private void up2To3(@NonNull SQLiteDatabase db) {
         ContentValues default_group_values = new ContentValues();
@@ -187,14 +200,13 @@ public class BookKeepingDbHelper extends SQLiteOpenHelper {
         db.insert("tag_group_data", null, default_group_values);
     }
 
-    //数据库版本：3->4
     //添加通知解析规则表以及默认规则
     private void up3To4(@NonNull SQLiteDatabase db) {
         String err = "通知解析规则表创建错误";
         try {
             String create = "CREATE TABLE IF NOT EXISTS analysis_rule_data(" +
                     "Rule_name VARCHAR(20) NOT NULL," +
-                    "Rule_no INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                    "Rule_no INTEGER PRIMARY KEY AUTOINCREMENT," +
                     "Type VARCHAR(20) NOT NULL," +
                     "TagNo INTEGER DEFAULT 0," +
                     "Package_name VARCHAR(50) NOT NULL," +
@@ -209,6 +221,27 @@ public class BookKeepingDbHelper extends SQLiteOpenHelper {
             db.execSQL(create);
 
             addDefaultRule(db);
+        } catch (SQLException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+            Toast.makeText(context, err, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    //添加图片表
+    private void up4To5(@NonNull SQLiteDatabase db) {
+        String err = "流水图片表创建失败";
+        try {
+            String create = "CREATE TABLE IF NOT EXISTS " + BookKeepingTables.PICTURE + "(" +
+                    BookKeepingColumns.RNO + " INTEGER NOT NULL," +
+                    BookKeepingColumns.PNO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    BookKeepingColumns.PICTURE_URI + " VARCHAR(100) NOT NULL," +
+
+                    "CONSTRAINT " + BookKeepingConstraints.FK_RNO +
+                    " FOREIGN KEY (" + BookKeepingColumns.RNO + ")" +
+                    " REFERENCES " + BookKeepingTables.BASIC + "(" + BookKeepingColumns.RNO + ")" +
+                    " ON DELETE CASCADE" +
+                    ")";
+            db.execSQL(create);
         } catch (SQLException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             Toast.makeText(context, err, Toast.LENGTH_SHORT).show();

@@ -15,6 +15,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.CalendarConstraints;
@@ -25,6 +27,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 import com.project.manager.R;
+import com.project.manager.data.data_class.Picture;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.camera.CameraActivity;
 import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
@@ -32,12 +35,15 @@ import com.project.manager.ui.pages.bookkeeping.TagString;
 import com.project.manager.ui.data_communication.tag_modify.TagUpdateReason;
 import com.project.manager.ui.data_communication.tag_modify.TagRepository;
 import com.project.manager.data.data_class.Tag;
+import com.project.manager.ui.pages.bookkeeping.tag.select_sheet.GridSpacingItemDecoration;
 import com.project.manager.ui.pages.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public abstract class RunningAccountFragmentBase extends Fragment implements View.OnClickListener, View.OnFocusChangeListener {
     protected Bundle initData = null;                       //初始化控件内容的数据（用于编辑流水记录时）
@@ -47,8 +53,10 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
     protected TextInputLayout amount_layout, tag_layout;    //金额和标签文本框布局管理器
     protected TextInputEditText amount_input, tag_input;    //金额和标签文本输入框
     private long tag_no = 0;                                //用户选择的标签编号（默认无标签则为0）
+    private long rno = 0;                                   //流水编号
     private TagSelectBottomSheet tag_sheet;                 //底部弹出窗口
     private ActivityResultLauncher<Intent> cameraLauncher;  //拍照Activity启动器
+    private PictureAdapter pictureAdapter;                  //图片RecyclerView的适配器
 
     public RunningAccountFragmentBase() {
         setDefaultRemark();
@@ -64,6 +72,14 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         if (initData != null) {
             initViewsWhenModifying(initData);
         }
+
+        //传递完初始化数据后设置RecyclerVIew的适配器
+        int spanCount = 3;
+        RecyclerView pictureRecycler = contentView.findViewById(R.id.picture_recycler);
+        pictureRecycler.setLayoutManager(new GridLayoutManager(requireContext(), spanCount));
+        int spacing = 16; // 单位：像素
+        pictureRecycler.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing, true));
+        setupRecyclerAdapter(pictureRecycler);
 
         startObserveTag();
 
@@ -258,7 +274,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
         boolean isDefaultRemark = dataBundle.getBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue());
         String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
-        long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
+        rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
 
         String tag_name = "";
         try {
@@ -411,6 +427,27 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         if (uriStr == null) return;
 
         Uri pictureUri = Uri.parse(uriStr);
+        Picture newPicture = new Picture(pictureUri, rno);
+        pictureAdapter.addPicture(newPicture);
+    }
+
+    private void setupRecyclerAdapter(RecyclerView recyclerView) {
+        //加载图片资源
+        List<Picture> pictureList;
+        if (rno == 0) {
+            pictureList = new ArrayList<>();
+        } else {
+            try {
+                pictureList = Picture.loadPicturesByRno(requireContext(), rno);
+            } catch (SQLiteException e) {
+                Toast.makeText(requireContext(), "无法加载图片资源", Toast.LENGTH_SHORT).show();
+                ExceptionHelper.showExceptionDialog(requireContext(), e);
+                pictureList = new ArrayList<>();
+            }
+        }
+
+        pictureAdapter = new PictureAdapter(requireContext(), pictureList);
+        recyclerView.setAdapter(pictureAdapter);
     }
 }
 

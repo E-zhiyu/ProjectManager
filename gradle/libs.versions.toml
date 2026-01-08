@@ -5,6 +5,7 @@ cameraCamera2 = "1.5.2"
 cameraLifecycle = "1.5.2"
 core = "4.6.2"
 documentfile = "1.1.0"
+glide = "5.0.5"
 googleMaterial = "1.13.0"
 gradle = "8.13.0"
 jacksonDatabind = "2.20.1"
@@ -33,6 +34,7 @@ camera-core = { module = "androidx.camera:camera-core", version.ref = "cameraCor
 camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraCore" }
 core = { module = "io.noties.markwon:core", version.ref = "core" }
 documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jacksonDatabind" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
