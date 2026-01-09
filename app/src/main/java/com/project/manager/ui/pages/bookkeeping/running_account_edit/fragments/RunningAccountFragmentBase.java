@@ -216,7 +216,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         pictureDeleteBtn = contentView.findViewById(R.id.picture_delete_btn);
         pictureDeleteBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("删除图片")
-                .setMessage("是否删除选中的图片？")
+                .setMessage("是否删除选中的图片？此操作会立刻执行并且无法撤回！")
                 .setPositiveButton(
                         "确定",
                         (dialog, which) -> pictureAdapter.deleteSelectedPicture()
