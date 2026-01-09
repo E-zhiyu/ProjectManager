@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
@@ -20,6 +21,7 @@ import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.ExpenseFragment;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.IncomeFragment;
+import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.PictureAdapter;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountFragmentBase;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.TransferFragment;
 import com.project.manager.ui.RequestResultCode;
@@ -29,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RunningAccountAddActivity extends AppCompatActivity {
-    private RunningAccountFragmentBase current_fragment;    //翻页视图显示的Fragment
+    private RunningAccountFragmentBase currentFragment; //翻页视图显示的Fragment
     private ActivityRunningAccountAddBinding binding;
 
     @Override
@@ -40,6 +42,19 @@ public class RunningAccountAddActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         initViews();
+
+        //设置返回监听器
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                PictureAdapter pictureAdapter = currentFragment.getPictureAdapter();
+                if (pictureAdapter.isDeleteMode()) {
+                    pictureAdapter.switchDeleteMode(false);
+                } else {
+                    finish();
+                }
+            }
+        });
     }
 
     @Override
@@ -56,7 +71,7 @@ public class RunningAccountAddActivity extends AppCompatActivity {
 
         //为完成按钮绑定单击监听器
         binding.finishBtn.setOnClickListener(v -> {
-            String error = current_fragment.verifyInputData();
+            String error = currentFragment.verifyInputData();
 
             //判断是否获取到警告消息（null:无警告，验证通过）
             if (error != null) {
@@ -91,7 +106,7 @@ public class RunningAccountAddActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                current_fragment = (RunningAccountFragmentBase) (viewPagerAdapter.getFragment(position));
+                currentFragment = (RunningAccountFragmentBase) (viewPagerAdapter.getFragment(position));
             }
         });
         viewPager2.setOffscreenPageLimit(1);    //设置保留邻近Fragment
@@ -102,7 +117,7 @@ public class RunningAccountAddActivity extends AppCompatActivity {
      */
     private void onFinishBtnClicked() {
         Intent result2BookKeeping = new Intent();
-        Bundle dataBundle = current_fragment.getInputData();    //获取输入的信息并打包
+        Bundle dataBundle = currentFragment.getInputData();    //获取输入的信息并打包
 
         //将流水保存至数据库
         long rno;

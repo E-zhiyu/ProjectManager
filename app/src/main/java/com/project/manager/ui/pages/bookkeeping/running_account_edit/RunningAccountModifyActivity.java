@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
@@ -19,6 +20,7 @@ import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.ExpenseFragment;
+import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.PictureAdapter;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountFragmentBase;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.IncomeFragment;
@@ -75,6 +77,19 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
             transaction.commit();
             runningAccountFragment.receiveInitData(dataBundle);   //将原本的数据传递给碎片实例
         }
+
+        //设置返回监听器
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                PictureAdapter pictureAdapter = runningAccountFragment.getPictureAdapter();
+                if (pictureAdapter.isDeleteMode()) {
+                    pictureAdapter.switchDeleteMode(false);
+                } else {
+                    finish();
+                }
+            }
+        });
     }
 
     @Override

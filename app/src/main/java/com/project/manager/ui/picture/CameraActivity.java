@@ -1,4 +1,4 @@
-package com.project.manager.ui.camera;
+package com.project.manager.ui.picture;
 
 import android.Manifest;
 import android.app.Activity;

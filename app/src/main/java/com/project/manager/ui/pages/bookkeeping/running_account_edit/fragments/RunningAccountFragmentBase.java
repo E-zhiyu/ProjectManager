@@ -31,7 +31,7 @@ import com.project.manager.LogTags;
 import com.project.manager.R;
 import com.project.manager.data.data_class.Picture;
 import com.project.manager.helpers.ExceptionHelper;
-import com.project.manager.ui.camera.CameraActivity;
+import com.project.manager.ui.picture.CameraActivity;
 import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.pages.bookkeeping.TagString;
 import com.project.manager.ui.data_communication.tag_modify.TagUpdateReason;
@@ -63,6 +63,14 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
 
     public RunningAccountFragmentBase() {
         setDefaultRemark();
+    }
+
+    /**
+     * 获取图片适配器
+     * @return 图片适配器
+     */
+    public PictureAdapter getPictureAdapter() {
+        return pictureAdapter;
     }
 
     @Override
