@@ -118,11 +118,6 @@ public class TransferFragment extends RunningAccountFragmentBase {
     }
 
     @Override
-    public void onClick(@NonNull View v) {
-        super.onClick(v);
-    }
-
-    @Override
     public String verifyInputData() {
         String error = super.verifyInputData();
 

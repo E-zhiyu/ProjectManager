@@ -90,9 +90,9 @@ public class Picture {
     /**
      * 添加一张图片到数据库
      *
-     * @param context      上下文
+     * @param context         上下文
      * @param pictureFileList 新图片文件数组
-     * @param rno          图片所属流水记录的编号
+     * @param rno             图片所属流水记录的编号
      * @throws SQLiteException 数据库写入失败引发的异常
      */
     public static void addPicture(Context context, @NonNull List<File> pictureFileList, long rno) throws SQLiteException {
@@ -107,6 +107,24 @@ public class Picture {
             pictureValues.put(BookKeepingColumns.RNO.toString(), rno);
             db.insert(BookKeepingTables.PICTURE.toString(), null, pictureValues);
         }
+
+        db.close();
+    }
+
+    /**
+     * 删除图片
+     *
+     * @param context 上下文
+     * @param pno     待删除图片的编号
+     * @throws SQLiteException 删除失败引发的异常
+     */
+    public static void deletePicture(Context context, long pno) throws SQLiteException {
+        BookKeepingDbHelper dbHelper = new BookKeepingDbHelper(context);
+        SQLiteDatabase db = dbHelper.openWriteLink();
+
+        String where = BookKeepingColumns.PNO + "=?";
+        String[] whereArgs = {String.valueOf(pno)};
+        db.delete(BookKeepingTables.PICTURE.toString(), where, whereArgs);
 
         db.close();
     }

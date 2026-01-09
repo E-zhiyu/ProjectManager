@@ -1,9 +1,5 @@
 package com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments;
 
-import android.view.View;
-
-import androidx.annotation.NonNull;
-
 import com.project.manager.R;
 
 public class IncomeFragment extends RunningAccountFragmentBase {
@@ -24,11 +20,6 @@ public class IncomeFragment extends RunningAccountFragmentBase {
     @Override
     protected void initViews() {
         super.initViews();
-    }
-
-    @Override
-    public void onClick(@NonNull View v) {
-        super.onClick(v);
     }
 
     @Override

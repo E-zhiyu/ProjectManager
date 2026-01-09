@@ -39,11 +39,12 @@ public class FullScreenImageActivity extends AppCompatActivity {
         photoView = binding.photoView;
 
         //获取传递的图片URI
-        String imageUriString = getIntent().getStringExtra(KeyValueStrings.FILE_URI.getValue());
+        String[] imageUriStrings = getIntent().getStringArrayExtra(KeyValueStrings.FILE_URI.getValue());
+        int startPosition = getIntent().getIntExtra(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), 0);
 
         //加载图片
-        if (imageUriString != null) {
-            Uri imageUri = Uri.parse(imageUriString);
+        if (imageUriStrings != null) {
+            Uri imageUri = Uri.parse(imageUriStrings[startPosition]);
             loadImage(imageUri);
         } else {
             Toast.makeText(this, "图片加载失败", Toast.LENGTH_SHORT).show();

@@ -22,21 +22,33 @@ import com.project.manager.data.data_class.Picture;
 import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.picture.FullScreenImageActivity;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureViewHolder> {
-    private final Context context;                  //上下文
-    private final List<Picture> pictureList;        //数据源列表
-    private final List<Boolean> pictureSelectList;  //记录图片选择状态的列表
-    private boolean isDeleteMode = false;           //标记是否为删除图片模式
+    private final Context context;                      //上下文
+    private final List<Picture> pictureList;            //数据源列表
+    private final List<Boolean> pictureSelectList;      //记录图片选择状态的列表
+    private boolean isDeleteMode = false;               //标记是否为删除图片模式
     private final RequestOptions glideOptions = new RequestOptions()
             .centerCrop()
             .placeholder(R.drawable.baseline_photo_24)      //占位图
             .error(R.drawable.baseline_error_outline_24)    //错误图
             .diskCacheStrategy(DiskCacheStrategy.NONE)      //缓存策略(不缓存)
             .override(300, 300);               //图片尺寸
+    private final DeleteModeSwitchListener listener;    //删除模式切换监听器
+
+    public interface DeleteModeSwitchListener {
+        /**
+         * 图片删除模式切换的回调
+         *
+         * @param isDeleteMode 切换后是否为图片删除模式
+         */
+        void onDeleteModeSwitched(boolean isDeleteMode);
+    }
 
     public static class PictureViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;                //图像容器视图
@@ -69,10 +81,11 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
      * @param context     上下文
      * @param pictureList 图片列表
      */
-    public PictureAdapter(Context context, @NonNull List<Picture> pictureList) {
+    public PictureAdapter(Context context, @NonNull List<Picture> pictureList, DeleteModeSwitchListener listener) {
         this.context = context;
         this.pictureList = pictureList;
         pictureSelectList = new ArrayList<>(Collections.nCopies(pictureList.size(), false));    //默认未选择
+        this.listener = listener;
     }
 
     /**
@@ -105,15 +118,13 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
             } else {
                 holder.checkedTextView.setVisibility(View.GONE);
             }
-            boolean isChecked = pictureSelectList.get(holder.getBindingAdapterPosition());
+            boolean isChecked = pictureSelectList.get(position);
             holder.checkedTextView.setChecked(isChecked);
 
             //视图点击监听器
             holder.imageView.setOnClickListener(v -> {
                 if (!isDeleteMode) {
-                    Intent skip2ImageActivity = new Intent(context, FullScreenImageActivity.class);
-                    skip2ImageActivity.putExtra(KeyValueStrings.FILE_URI.getValue(), pictureUri.toString());
-                    context.startActivity(skip2ImageActivity);
+                    openPictureCheckActivity(holder.getBindingAdapterPosition());
                 } else {
                     holder.checkedTextView.setVisibility(View.VISIBLE);
                     holder.checkedTextView.toggle();
@@ -129,7 +140,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
                     pictureSelectList.set(holder.getBindingAdapterPosition(), true);
                     switchDeleteMode(true);
 
-                    Toast.makeText(context, "返回以退出图片删除模式", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "返回即可退出图片删除模式", Toast.LENGTH_SHORT).show();
                     return true;
                 } else {
                     return false;
@@ -151,7 +162,26 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     @SuppressLint("NotifyDataSetChanged")
     public void switchDeleteMode(boolean isDeleteMode) {
         this.isDeleteMode = isDeleteMode;
+        listener.onDeleteModeSwitched(isDeleteMode);
         notifyDataSetChanged();
+    }
+
+    /**
+     * 打开图片查看Activity
+     *
+     * @param position 点击的图片的下标
+     */
+    private void openPictureCheckActivity(int position) {
+        //获取所有图片的Uri
+        String[] pictureUris = pictureList.stream()
+                .map(Picture::getPictureUri)
+                .map(Uri::toString)
+                .toArray(String[]::new);
+
+        Intent skip2ImageActivity = new Intent(context, FullScreenImageActivity.class);
+        skip2ImageActivity.putExtra(KeyValueStrings.FILE_URI.getValue(), pictureUris);
+        skip2ImageActivity.putExtra(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), position);
+        context.startActivity(skip2ImageActivity);
     }
 
     /**
@@ -160,7 +190,41 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
      * @param picture 新相片数据实例
      */
     public void addPicture(Picture picture) {
+        pictureSelectList.add(false);
         pictureList.add(picture);
         notifyItemInserted(pictureList.size() - 1);
+    }
+
+    /**
+     * 删除被选中的图片
+     */
+    public void deleteSelectedPicture() {
+        //从尾部开始删除，避免影响下标值
+        for (int index = pictureSelectList.size() - 1; index >= 0; index--) {
+            boolean isSelected = pictureSelectList.get(index);
+            if (isSelected) {
+                Picture picture = pictureList.get(index);
+                Uri pictureUri = picture.getPictureUri();
+                long pno = picture.getPno();
+
+                //删除文件
+                File pictureFile = new File(Objects.requireNonNull(pictureUri.getPath()));
+                if (pictureFile.exists() && pictureFile.delete()) {
+                    pictureList.remove(index);
+                    pictureSelectList.remove(index);
+                    notifyItemRemoved(index);
+                }
+
+                //删除数据库内容（如果该图片本来就在数据库中）
+                if (pno != 0) {
+                    Picture.deletePicture(context, pno);
+                }
+            }
+        }
+
+        Toast.makeText(context, "图片已删除", Toast.LENGTH_SHORT).show();
+
+        //关闭图片删除模式
+        switchDeleteMode(false);
     }
 }

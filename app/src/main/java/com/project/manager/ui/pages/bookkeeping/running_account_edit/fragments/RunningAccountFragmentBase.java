@@ -23,6 +23,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
@@ -48,7 +49,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public abstract class RunningAccountFragmentBase extends Fragment implements View.OnClickListener, View.OnFocusChangeListener {
+public abstract class RunningAccountFragmentBase extends Fragment implements View.OnFocusChangeListener {
     protected Bundle initData = null;                       //初始化控件内容的数据（用于编辑流水记录时）
     protected View contentView;                             //绑定的XML界面
     protected String defaultRemark;                         //默认备注
@@ -60,6 +61,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
     private TagSelectBottomSheet tag_sheet;                 //底部弹出窗口
     private ActivityResultLauncher<Intent> cameraLauncher;  //拍照Activity启动器
     private PictureAdapter pictureAdapter;                  //图片RecyclerView的适配器
+    private MaterialButton pictureDeleteBtn;                //删除选中的图片的按钮
 
     public RunningAccountFragmentBase() {
         setDefaultRemark();
@@ -67,6 +69,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
 
     /**
      * 获取图片适配器
+     *
      * @return 图片适配器
      */
     public PictureAdapter getPictureAdapter() {
@@ -109,7 +112,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
                 boolean isAllTempFileDeleted = true;
                 for (File tempPicture : files) {
                     if (!tempPicture.delete()) {
-                        isAllTempFileDeleted =false;
+                        isAllTempFileDeleted = false;
                     }
                 }
 
@@ -147,15 +150,6 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
     }
 
     @Override
-    public void onClick(@NonNull View v) {
-        if (v.getId() == R.id.datetime_input) {
-            showMaterialDateTimePicker();
-        } else if (v.getId() == R.id.running_account_tag_input) {
-            showTagSelectSheet();
-        }
-    }
-
-    @Override
     public void onFocusChange(View v, boolean hasFocus) {
         if (!hasFocus) {
             String edittext_str, error;         //文本框内容和错误提示
@@ -187,15 +181,6 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         }
     }
 
-    public void onTagBtnClicked(long tag_no, String tag_name) {
-        this.tag_no = tag_no;   //更新全局变量中的标签编号
-
-        tag_input.setText(tag_name);
-        tag_layout.setErrorEnabled(false);  //去除错误提示
-        tag_layout.setError(null);
-        tag_sheet.dismiss();
-    }
-
     /**
      * 初始化视图
      */
@@ -207,8 +192,8 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         tag_input = contentView.findViewById(R.id.running_account_tag_input);
 
         amount_input.setOnFocusChangeListener(this);
-        dt_input.setOnClickListener(this);
-        tag_input.setOnClickListener(this);
+        dt_input.setOnClickListener(v -> showMaterialDateTimePicker());
+        tag_input.setOnClickListener(v -> showTagSelectSheet());
 
         //初始化日期内容
         Calendar calendar = Calendar.getInstance();
@@ -226,6 +211,27 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
             Intent skip2CameraActivity = new Intent(requireActivity(), CameraActivity.class);
             cameraLauncher.launch(skip2CameraActivity);
         });
+
+        //删除图片按钮
+        pictureDeleteBtn = contentView.findViewById(R.id.picture_delete_btn);
+        pictureDeleteBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("删除图片")
+                .setMessage("是否删除选中的图片？")
+                .setPositiveButton(
+                        "确定",
+                        (dialog, which) -> pictureAdapter.deleteSelectedPicture()
+                )
+                .setNegativeButton("取消", null)
+                .show());
+    }
+
+    public void onTagBtnClicked(long tag_no, String tag_name) {
+        this.tag_no = tag_no;   //更新全局变量中的标签编号
+
+        tag_input.setText(tag_name);
+        tag_layout.setErrorEnabled(false);  //去除错误提示
+        tag_layout.setError(null);
+        tag_sheet.dismiss();
     }
 
     /**
@@ -464,6 +470,11 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         pictureAdapter.addPicture(newPicture);
     }
 
+    /**
+     * 设置RecyclerView的适配器
+     *
+     * @param recyclerView 需要设置适配器的RecyclerView
+     */
     private void setupRecyclerAdapter(RecyclerView recyclerView) {
         //加载图片资源
         List<Picture> pictureList;
@@ -479,7 +490,13 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
             }
         }
 
-        pictureAdapter = new PictureAdapter(requireContext(), pictureList);
+        pictureAdapter = new PictureAdapter(requireContext(), pictureList, isDeleteMode -> {
+            if (isDeleteMode) {
+                pictureDeleteBtn.setVisibility(View.VISIBLE);
+            } else {
+                pictureDeleteBtn.setVisibility(View.GONE);
+            }
+        });
         recyclerView.setAdapter(pictureAdapter);
     }
 }
