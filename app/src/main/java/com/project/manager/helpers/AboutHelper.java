@@ -57,16 +57,21 @@ public class AboutHelper {
      *
      * @param context 上下文
      * @return 应用名称
-     * @throws PackageManager.NameNotFoundException 包名未找到引发的异常
      */
     @NonNull
-    public static String getAppName(@NonNull Context context) throws PackageManager.NameNotFoundException {
+    public static String getAppName(@NonNull Context context) {
         PackageManager packageManager = context.getPackageManager();
-        ApplicationInfo applicationInfo = packageManager.getApplicationInfo(
-                context.getPackageName(),
-                PackageManager.GET_META_DATA
-        );
-        return packageManager.getApplicationLabel(applicationInfo).toString();
+        ApplicationInfo applicationInfo;
+        try {
+            applicationInfo = packageManager.getApplicationInfo(
+                    context.getPackageName(),
+                    PackageManager.GET_META_DATA
+            );
+            return packageManager.getApplicationLabel(applicationInfo).toString();
+        } catch (PackageManager.NameNotFoundException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+            return "ManagerAssistant";
+        }
     }
 
     /**

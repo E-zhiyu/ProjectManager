@@ -1,5 +1,6 @@
 package com.project.manager.ui.picture;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -8,7 +9,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.project.manager.databinding.ActivityFullScreenImageBinding;
+import com.project.manager.helpers.PictureHelper;
 import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
+
+import java.util.Locale;
 
 public class FullScreenImageActivity extends AppCompatActivity {
     ActivityFullScreenImageBinding binding;             //绑定的XML视图
@@ -48,8 +52,24 @@ public class FullScreenImageActivity extends AppCompatActivity {
      * 保存图片到系统相册
      */
     private void savePicture() {
-        //TODO:保存图片到相册的逻辑,同时添加保存到本地按钮
-        Toast.makeText(this, "保存图片功能", Toast.LENGTH_SHORT).show();
+        int current_picture_index = binding.viewPager2.getCurrentItem();
+        Uri currentUri = Uri.parse(pictureUriStrings[current_picture_index]);
+        PictureHelper.saveToGallery(
+                this,
+                currentUri,
+                new PictureHelper.OnSaveListener() {
+                    @Override
+                    public void onSaveSuccess(Uri savedUri, String fileName) {
+                        Toast.makeText(FullScreenImageActivity.this, "图片已保存至系统相册", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onSaveFailed(String error) {
+                        String info = String.format(Locale.getDefault(), "图片保存失败：%s", error);
+                        Toast.makeText(FullScreenImageActivity.this, info, Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
     }
 
     /**
