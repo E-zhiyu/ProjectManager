@@ -83,7 +83,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
             @Override
             public void handleOnBackPressed() {
                 PictureAdapter pictureAdapter = runningAccountFragment.getPictureAdapter();
-                if (pictureAdapter.isDeleteMode()) {
+                if (pictureAdapter != null && pictureAdapter.isDeleteMode()) {
                     pictureAdapter.switchDeleteMode(false);
                 } else {
                     finish();

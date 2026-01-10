@@ -148,6 +148,13 @@
         <item name="android:background">@drawable/ripple_circle</item>
     </style>
 
+    <!-- 灰色半透明背景图标按钮样式 -->
+    <style name="TranslucentGrayImageButtonStyle" parent="Widget.AppCompat.ImageButton">
+        <item name="tint">@android:color/white</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:background">@drawable/background_translucent_round</item>
+    </style>
+
     <style name="ImageViewStyle">
         <item name="backgroundTint">@android:color/transparent</item>
         <item name="tint">?attr/colorPrimary</item>

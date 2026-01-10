@@ -260,7 +260,7 @@ public class SettingFragment extends Fragment {
                 binding.exportDataOption,
                 R.string.export_data,
                 "将应用数据以文件形式保存",
-                R.drawable.round_export_data_24
+                R.drawable.round_file_uploade_24
         );
         exportDataOption.setFunctionListener(v -> onExportDataClicked());
 
@@ -270,7 +270,7 @@ public class SettingFragment extends Fragment {
                 binding.importDataOption,
                 R.string.import_data,
                 "从外部文件导入数据",
-                R.drawable.baseline_import_data_24
+                R.drawable.baseline_file_download_24
         );
         importDataOption.setFunctionListener(v -> importData());
 

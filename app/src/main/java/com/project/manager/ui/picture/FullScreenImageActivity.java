@@ -39,12 +39,15 @@ public class FullScreenImageActivity extends AppCompatActivity {
 
         int start_index = getIntent().getIntExtra(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), 0);
         binding.viewPager2.setCurrentItem(start_index, false);
+
+        binding.savePictureBtn.setOnClickListener(v -> savePicture());
+        binding.sharePictureBtn.setOnClickListener(v -> sharePicture());
     }
 
     /**
      * 保存图片到系统相册
      */
-    private void saveImage() {
+    private void savePicture() {
         //TODO:保存图片到相册的逻辑,同时添加保存到本地按钮
         Toast.makeText(this, "保存图片功能", Toast.LENGTH_SHORT).show();
     }
@@ -52,7 +55,7 @@ public class FullScreenImageActivity extends AppCompatActivity {
     /**
      * 分享图片
      */
-    private void shareImage() {
+    private void sharePicture() {
         //TODO:分享图片的逻辑，同时添加分享按钮
         Toast.makeText(this, "分享图片功能", Toast.LENGTH_SHORT).show();
     }
