@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +35,7 @@ import com.project.manager.LogTags;
 import com.project.manager.R;
 import com.project.manager.data.data_class.Picture;
 import com.project.manager.helpers.ExceptionHelper;
+import com.project.manager.ui.others.ProgressDialogManager;
 import com.project.manager.ui.picture.AddPictureOptionBottomSheet;
 import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.pages.bookkeeping.TagString;
@@ -55,6 +58,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public abstract class RunningAccountFragmentBase extends Fragment implements View.OnFocusChangeListener {
     protected Bundle initData = null;                       //初始化控件内容的数据（用于编辑流水记录时）
     protected View contentView;                             //绑定的XML界面
@@ -69,6 +77,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
     private ActivityResultLauncher<String> albumLauncher;   //相册图片选择启动器
     private PictureAdapter pictureAdapter;                  //图片RecyclerView的适配器
     private MaterialButton pictureDeleteBtn;                //删除选中的图片的按钮
+    private final CompositeDisposable disposables = new CompositeDisposable();  //多线程任务列表
 
     public RunningAccountFragmentBase() {
         setDefaultRemark();
@@ -110,6 +119,8 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        disposables.dispose();
 
         //删除临时图片目录文件
         File tempPictureDir = new File(requireContext().getExternalFilesDir(null), "picture_temp");
@@ -529,8 +540,6 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
      * @param uriList 包含选择图片的Uri的列表
      */
     private void onAlbumPictureUrisReceived(@NonNull List<Uri> uriList) {
-        //TODO:将复制放到IO线程上执行
-
         //创建临时文件夹
         File tempDir = new File(requireContext().getExternalFilesDir(null), "picture_temp");
         if (!tempDir.exists()) {
@@ -540,21 +549,72 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
             }
         }
 
-        List<File> copiedFIleList = new ArrayList<>();
-        for (int i = 0; i < uriList.size(); i++) {
-            Uri pictureUri = uriList.get(i);
+        ProgressDialogManager processDialog = new ProgressDialogManager();
+        processDialog.show(requireContext(), () -> {
+            //用户点击取消
+            disposables.clear();
+            Toast.makeText(requireContext(), "已取消添加图片", Toast.LENGTH_SHORT).show();
+        });
 
-            File copiedFile = copySinglePicture(pictureUri, i, tempDir);
-            if (copiedFile != null && copiedFile.exists()) {
-                copiedFIleList.add(copiedFile);
-            }
-        }
+        //首先设置不确定模式
+        processDialog.setIndeterminate(true);
 
-        List<Picture> pictureList = copiedFIleList.stream()
-                .map(Uri::fromFile)
-                .map(uri -> new Picture(uri, rno))
-                .collect(Collectors.toList());
-        pictureAdapter.addPicture(pictureList);
+        //在IO线程完成文件复制并在主线程刷新UI
+        disposables.add(
+                Observable.fromCallable(() -> {
+                            List<File> copiedFIleList = new ArrayList<>();
+                            boolean switchedOffIndeterminate = false;   //标记是否切换到确定模式
+                            for (int i = 0; i < uriList.size(); i++) {
+                                Uri pictureUri = uriList.get(i);
+
+                                //复制单个图片
+                                File copiedFile = copySinglePicture(pictureUri, i, tempDir);
+                                if (copiedFile != null && copiedFile.exists()) {
+                                    copiedFIleList.add(copiedFile);
+
+                                    //更新进度
+                                    final int current = i + 1;
+                                    final String fileName = copiedFile.getName();
+
+                                    //在主线程更新UI
+                                    new Handler(Looper.getMainLooper()).post(() ->
+                                            processDialog.updateProgress(current, uriList.size(), fileName)
+                                    );
+
+                                    //如果是第一张图片，切换到确定模式
+                                    if (!switchedOffIndeterminate) {
+                                        switchedOffIndeterminate = true;
+                                        new Handler(Looper.getMainLooper()).post(() ->
+                                                processDialog.setIndeterminate(false)
+                                        );
+                                    }
+                                }
+                            }
+
+                            //返回复制成功的图片列表
+                            return copiedFIleList.stream()
+                                    .map(Uri::fromFile)
+                                    .map(uri -> new Picture(uri, rno))
+                                    .collect(Collectors.toList());
+                        })
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.io())
+                        .subscribe(
+                                pictureList -> {
+                                    Toast.makeText(
+                                            requireContext(),
+                                            String.format(
+                                                    Locale.getDefault(),
+                                                    "已添加%d张图片",
+                                                    pictureList.size()
+                                            ), Toast.LENGTH_SHORT
+                                    ).show();
+                                    pictureAdapter.addPicture(pictureList);
+                                },
+                                e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
+                                processDialog::dismiss
+                        )
+        );
     }
 
     /**
