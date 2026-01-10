@@ -61,7 +61,7 @@
             android:name=".ui.pages.bookkeeping.tag.edit.TagAddModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.bookkeeping.report.ReportActivity"
+            android:name=".ui.pages.home.report.ReportActivity"
             android:exported="false" />
         <activity
             android:name=".ui.pages.bookkeeping.running_account_edit.RunningAccountModifyActivity"
