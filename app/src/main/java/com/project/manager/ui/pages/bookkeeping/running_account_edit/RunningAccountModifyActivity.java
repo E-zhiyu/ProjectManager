@@ -82,10 +82,14 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                PictureAdapter pictureAdapter = runningAccountFragment.getPictureAdapter();
-                if (pictureAdapter != null && pictureAdapter.isDeleteMode()) {
-                    pictureAdapter.switchDeleteMode(false);
-                } else {
+                try {
+                    PictureAdapter pictureAdapter = runningAccountFragment.getPictureAdapter();
+                    if (pictureAdapter.isDeleteMode()) {
+                        pictureAdapter.switchDeleteMode(false);
+                    } else {
+                        finish();
+                    }
+                } catch (NumberFormatException e) {
                     finish();
                 }
             }
