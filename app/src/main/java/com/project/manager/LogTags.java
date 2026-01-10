@@ -8,7 +8,8 @@ public enum LogTags {
     BACKUP_WORKER("自动备份Worker"),
     WORK_STATS("任务状态"),
     CAMERA_ACTIVITY("相机界面"),
-    ACCOUNT_FRAGMENT("流水记录输入界面");
+    ACCOUNT_FRAGMENT("流水记录输入界面"),
+    PICTURE_ADAPTER("图片展示适配器");
     private final String v;
 
     LogTags(String v) {

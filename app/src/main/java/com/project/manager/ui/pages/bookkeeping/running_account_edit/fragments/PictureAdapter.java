@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.project.manager.LogTags;
 import com.project.manager.R;
 import com.project.manager.data.data_class.Picture;
 import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
@@ -26,6 +28,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureViewHolder> {
@@ -162,6 +165,12 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     @SuppressLint("NotifyDataSetChanged")
     public void switchDeleteMode(boolean isDeleteMode) {
         this.isDeleteMode = isDeleteMode;
+
+        //如果不是删除模式则取消选择所有图片
+        if (!isDeleteMode) {
+            Collections.fill(pictureSelectList, false);
+        }
+
         listener.onDeleteModeSwitched(isDeleteMode);
         notifyDataSetChanged();
     }
@@ -172,16 +181,57 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
      * @param position 点击的图片的下标
      */
     private void openPictureCheckActivity(int position) {
-        //获取所有图片的Uri
-        String[] pictureUris = pictureList.stream()
-                .map(Picture::getPictureUri)
-                .map(Uri::toString)
-                .toArray(String[]::new);
+        //判断文件是否存在
+        Uri pictureUri = pictureList.get(position).getPictureUri();
+        File pictureFile = new File(Objects.requireNonNull(pictureUri.getPath()));
+        if (pictureFile.exists()) {
+            //获取所有图片的Uri(仅当图片存在时)
+            String[] pictureUris = pictureList.stream()
+                    .map(Picture::getPictureUri)
+                    .filter(this::isPictureExists)
+                    .map(Uri::toString)
+                    .toArray(String[]::new);
 
-        Intent skip2ImageActivity = new Intent(context, FullScreenImageActivity.class);
-        skip2ImageActivity.putExtra(KeyValueStrings.FILE_URI.getValue(), pictureUris);
-        skip2ImageActivity.putExtra(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), position);
-        context.startActivity(skip2ImageActivity);
+            Intent skip2ImageActivity = new Intent(context, FullScreenImageActivity.class);
+            skip2ImageActivity.putExtra(KeyValueStrings.FILE_URI.getValue(), pictureUris);
+            skip2ImageActivity.putExtra(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), getLegalStartPosition(position));
+            context.startActivity(skip2ImageActivity);
+        }
+    }
+
+    /**
+     * 判断图片是否存在
+     *
+     * @param uri 图片Uri
+     * @return 图片是否存在
+     */
+    private boolean isPictureExists(@NonNull Uri uri) {
+        File pictureFile = new File(Objects.requireNonNull(uri.getPath()));
+        return pictureFile.exists();
+    }
+
+    /**
+     * 获取合法的起始图片下标
+     *
+     * @param origin_position 原起始下标
+     * @return 除去无效图片后的起始下标
+     */
+    private int getLegalStartPosition(int origin_position) {
+        int lost_picture_num = 0;   //在原起始下标之前丢失的图片的数量
+        int index = 0;
+        for (Picture picture : pictureList) {
+            if (index >= origin_position) break;
+
+            Uri uri = picture.getPictureUri();
+            File pictureFile = new File(Objects.requireNonNull(uri.getPath()));
+            if (!pictureFile.exists()) {
+                lost_picture_num++;
+            }
+
+            index++;
+        }
+
+        return origin_position - lost_picture_num;
     }
 
     /**
@@ -209,16 +259,22 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
 
                 //删除文件
                 File pictureFile = new File(Objects.requireNonNull(pictureUri.getPath()));
-                if (pictureFile.exists() && pictureFile.delete()) {
-                    pictureList.remove(index);
-                    pictureSelectList.remove(index);
-                    notifyItemRemoved(index);
+                if (!pictureFile.exists() || !pictureFile.delete()) {
+                    Log.w(LogTags.PICTURE_ADAPTER.getV(), String.format(
+                            Locale.getDefault(),
+                            "“%s”不存在或删除失败",
+                            pictureFile.getName()
+                    ));
                 }
 
                 //删除数据库内容（如果该图片本来就在数据库中）
                 if (pno != 0) {
                     Picture.deletePicture(context, pno);
                 }
+
+                pictureList.remove(index);
+                pictureSelectList.remove(index);
+                notifyItemRemoved(index);
             }
         }
 
