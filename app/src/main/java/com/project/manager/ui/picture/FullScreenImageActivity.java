@@ -12,7 +12,9 @@ import com.project.manager.databinding.ActivityFullScreenImageBinding;
 import com.project.manager.helpers.PictureHelper;
 import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
 
+import java.io.File;
 import java.util.Locale;
+import java.util.Objects;
 
 public class FullScreenImageActivity extends AppCompatActivity {
     ActivityFullScreenImageBinding binding;             //绑定的XML视图
@@ -76,7 +78,20 @@ public class FullScreenImageActivity extends AppCompatActivity {
      * 分享图片
      */
     private void sharePicture() {
-        //TODO:分享图片的逻辑，同时添加分享按钮
-        Toast.makeText(this, "分享图片功能", Toast.LENGTH_SHORT).show();
+        int current_picture_index = binding.viewPager2.getCurrentItem();
+        Uri currentUri = Uri.parse(pictureUriStrings[current_picture_index]);
+        File pictureFile = new File(Objects.requireNonNull(currentUri.getPath()));
+        PictureHelper.shareImageFromAppDir(this, pictureFile, new PictureHelper.OnShareListener() {
+            @Override
+            public void onShareSuccess() {
+                Toast.makeText(FullScreenImageActivity.this, "正在分享图片……", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onShareFailed(String err) {
+                String info = String.format(Locale.getDefault(), "分享失败：%s", err);
+                Toast.makeText(FullScreenImageActivity.this, info, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
