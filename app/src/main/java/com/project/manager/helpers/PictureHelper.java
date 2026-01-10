@@ -29,29 +29,29 @@ public class PictureHelper {
      * 分享单张图片
      *
      * @param context   上下文
-     * @param imageFile 待分享的图片文件
+     * @param pictureFile 待分享的图片文件
      */
-    public static void shareImageFromAppDir(Context context, File imageFile, OnShareListener listener) {
+    public static void shareImageFromAppDir(Context context, File pictureFile, OnShareListener listener) {
         try {
-            if (!imageFile.exists()) {
+            if (!pictureFile.exists()) {
                 listener.onShareFailed("图片文件不存在");
                 return;
             }
 
             //获取可分享的Uri
-            Uri imageUri = getShareableUri(context, imageFile);
+            Uri pictureUri = getShareableUri(context, pictureFile);
 
             //创建分享Intent
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("image/*");
-            shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "分享图片");
+            shareIntent.putExtra(Intent.EXTRA_STREAM, pictureUri);
+            shareIntent.putExtra(Intent.EXTRA_TEXT, pictureFile.getName());
 
             //授予临时权限
             shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
             //启动分享
-            Intent chooserIntent = Intent.createChooser(shareIntent, "分享图片");
+            Intent chooserIntent = Intent.createChooser(shareIntent, pictureFile.getName());
             if (chooserIntent.resolveActivity(context.getPackageManager()) != null) {
                 context.startActivity(chooserIntent);
                 listener.onShareSuccess();

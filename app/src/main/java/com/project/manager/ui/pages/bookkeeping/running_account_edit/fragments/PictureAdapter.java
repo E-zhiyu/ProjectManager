@@ -38,7 +38,6 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     private boolean isDeleteMode = false;               //标记是否为删除图片模式
     private final RequestOptions glideOptions = new RequestOptions()
             .centerCrop()
-            .placeholder(R.drawable.baseline_photo_24)      //占位图
             .error(R.drawable.baseline_error_outline_24)    //错误图
             .diskCacheStrategy(DiskCacheStrategy.NONE)      //缓存策略(不缓存)
             .override(300, 300);               //图片尺寸
