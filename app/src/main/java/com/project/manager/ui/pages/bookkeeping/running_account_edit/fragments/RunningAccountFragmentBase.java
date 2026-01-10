@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,12 +43,17 @@ import com.project.manager.ui.pages.bookkeeping.tag.select_sheet.GridSpacingItem
 import com.project.manager.ui.pages.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 public abstract class RunningAccountFragmentBase extends Fragment implements View.OnFocusChangeListener {
     protected Bundle initData = null;                       //初始化控件内容的数据（用于编辑流水记录时）
@@ -60,6 +66,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
     private long rno = 0;                                   //流水编号
     private TagSelectBottomSheet tag_sheet;                 //底部弹出窗口
     private ActivityResultLauncher<Intent> cameraLauncher;  //拍照Activity启动器
+    private ActivityResultLauncher<String> albumLauncher;   //相册图片选择启动器
     private PictureAdapter pictureAdapter;                  //图片RecyclerView的适配器
     private MaterialButton pictureDeleteBtn;                //删除选中的图片的按钮
 
@@ -207,7 +214,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
 
         //添加图片的按钮
         MaterialButton pictureAddBtn = contentView.findViewById(R.id.picture_add);
-        pictureAddBtn.setOnClickListener(v -> addPicture());
+        pictureAddBtn.setOnClickListener(v -> showAddPictureBottomSheet());
 
         //删除图片按钮
         pictureDeleteBtn = contentView.findViewById(R.id.picture_delete_btn);
@@ -242,9 +249,14 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
                     int resultCode = result.getResultCode();
 
                     if (resultCode == Activity.RESULT_OK && data != null) {
-                        onPictureUriReceived(data);
+                        onCameraPictureUriReceived(data);
                     }
                 }
+        );
+
+        albumLauncher = registerForActivityResult(
+                new ActivityResultContracts.GetMultipleContents(),
+                this::onAlbumPictureUrisReceived
         );
     }
 
@@ -447,24 +459,12 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         });
     }
 
-    //显示选择标签的底部弹出视图
+    /**
+     * 标签文本框点击回调
+     */
     private void showTagSelectSheet() {
         tag_sheet = new TagSelectBottomSheet(this::onTagBtnClicked);
         tag_sheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
-    }
-
-    /**
-     * 处理拍照后
-     *
-     * @param intent 包含图片Uri的Intent
-     */
-    private void onPictureUriReceived(@NonNull Intent intent) {
-        String uriStr = intent.getStringExtra(KeyValueStrings.FILE_URI.getValue());
-        if (uriStr == null) return;
-
-        Uri pictureUri = Uri.parse(uriStr);
-        Picture newPicture = new Picture(pictureUri, rno);
-        pictureAdapter.addPicture(newPicture);
     }
 
     /**
@@ -497,9 +497,101 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         recyclerView.setAdapter(pictureAdapter);
     }
 
-    private void addPicture() {
-        AddPictureOptionBottomSheet sheet = new AddPictureOptionBottomSheet(requireContext(), cameraLauncher);
+    /**
+     * 添加图片按钮点击回调
+     */
+    private void showAddPictureBottomSheet() {
+        AddPictureOptionBottomSheet sheet = new AddPictureOptionBottomSheet(
+                requireContext(),
+                cameraLauncher,
+                albumLauncher
+        );
         sheet.show(getParentFragmentManager(), TagString.PICTURE_ADD_SHEET.getValue());
+    }
+
+    /**
+     * 处理拍照后
+     *
+     * @param intent 包含图片Uri的Intent
+     */
+    private void onCameraPictureUriReceived(@NonNull Intent intent) {
+        String uriStr = intent.getStringExtra(KeyValueStrings.FILE_URI.getValue());
+        if (uriStr == null) return;
+
+        Uri pictureUri = Uri.parse(uriStr);
+        Picture newPicture = new Picture(pictureUri, rno);
+        pictureAdapter.addPicture(newPicture);
+    }
+
+    /**
+     * 处理相册选择图片的Uri
+     *
+     * @param uriList 包含选择图片的Uri的列表
+     */
+    private void onAlbumPictureUrisReceived(@NonNull List<Uri> uriList) {
+        //TODO:将复制放到IO线程上执行
+
+        //创建临时文件夹
+        File tempDir = new File(requireContext().getExternalFilesDir(null), "picture_temp");
+        if (!tempDir.exists()) {
+            if (!tempDir.mkdirs()) {
+                Toast.makeText(requireContext(), "图片添加失败：无法创建临时目录", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
+        List<File> copiedFIleList = new ArrayList<>();
+        for (int i = 0; i < uriList.size(); i++) {
+            Uri pictureUri = uriList.get(i);
+
+            File copiedFile = copySinglePicture(pictureUri, i, tempDir);
+            if (copiedFile != null && copiedFile.exists()) {
+                copiedFIleList.add(copiedFile);
+            }
+        }
+
+        List<Picture> pictureList = copiedFIleList.stream()
+                .map(Uri::fromFile)
+                .map(uri -> new Picture(uri, rno))
+                .collect(Collectors.toList());
+        pictureAdapter.addPicture(pictureList);
+    }
+
+    /**
+     * 复制单个图片
+     *
+     * @param imageUri  图片Uri
+     * @param index     图片的下标(外部调用的循环中的下标)
+     * @param targetDir 目标目录
+     * @return 复制完成的文件
+     */
+    @Nullable
+    private File copySinglePicture(Uri imageUri, int index, File targetDir) {
+        try (InputStream inputStream = requireContext().getContentResolver().openInputStream(imageUri)) {
+            if (inputStream == null) return null;
+
+            // 生成唯一的文件名
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.getDefault())
+                    .format(new Date());
+            String fileName = String.format(Locale.getDefault(), "album_%s_%d.jpg", timeStamp, index);
+
+            // 创建目标文件
+            File destinationFile = new File(targetDir, fileName);
+
+            // 复制文件
+            try (FileOutputStream outputStream = new FileOutputStream(destinationFile)) {
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+            }
+
+            return destinationFile;
+        } catch (Exception e) {
+            ExceptionHelper.showExceptionDialog(requireContext(), e);
+            return null;
+        }
     }
 }
 

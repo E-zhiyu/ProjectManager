@@ -41,7 +41,7 @@ import com.project.manager.helpers.PermissionHelper;
 import com.project.manager.data.data_save.preference.AutoBookKeepingPreference;
 import com.project.manager.data.data_save.preference.BookKeepingStartDatePreference;
 import com.project.manager.helpers.AnimationHelper;
-import com.project.manager.helpers.FileIOHelper;
+import com.project.manager.helpers.IOHelper;
 import com.project.manager.helpers.UpdateHelper;
 import com.project.manager.ui.pages.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
 import com.project.manager.helpers.AboutHelper;
@@ -75,7 +75,7 @@ public class SettingFragment extends Fragment {
     private FragmentSettingBinding binding;
     private ActivityResultLauncher<Intent> importDataLauncher, exportDataLauncher;  //活动启动器
     private ActivityResultLauncher<Intent> backupDirectorySetLauncher;              //自动备份文件夹选择的启动器
-    private FileIOHelper fileIOHelper;    //SAF文件帮助器
+    private IOHelper IOHelper;    //SAF文件帮助器
     private AutoBackupHelper autoBackupHelper;  //自动备份帮助器
     private BroadcastReceiver notificationPermissionListener;   //通知监听服务正常运行的广播接收器
 
@@ -131,7 +131,7 @@ public class SettingFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentSettingBinding.inflate(inflater, container, false);
 
-        fileIOHelper = new FileIOHelper(requireContext());
+        IOHelper = new IOHelper(requireContext());
         autoBackupHelper = new AutoBackupHelper(requireContext());
 
         initViews();
@@ -579,7 +579,7 @@ public class SettingFragment extends Fragment {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    fileIOHelper.handleActivityResult(resultCode, data, true);
+                    IOHelper.handleActivityResult(resultCode, data, true);
                 }
         );
 
@@ -589,7 +589,7 @@ public class SettingFragment extends Fragment {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    fileIOHelper.handleActivityResult(resultCode, data, false);
+                    IOHelper.handleActivityResult(resultCode, data, false);
                 }
         );
 
@@ -631,8 +631,8 @@ public class SettingFragment extends Fragment {
         }
 
         //将文件打包至压缩包内
-        fileIOHelper.packFileInZip(
-                new FileIOHelper.WriteCallback() {
+        IOHelper.packFileInZip(
+                new IOHelper.WriteCallback() {
                     @Override
                     public void onFileWrote() {
                         Toast.makeText(requireContext(), "导出成功", Toast.LENGTH_SHORT).show();
@@ -654,8 +654,8 @@ public class SettingFragment extends Fragment {
      */
     private void importData() {
         Log.i(LogTags.SETTING_FRAGMENT.getV(), "开始导入数据……");
-        fileIOHelper.openFileBySAF(
-                new FileIOHelper.ReadCallback() {
+        IOHelper.openFileBySAF(
+                new IOHelper.ReadCallback() {
                     @Override
                     public void onZipUnpacked(List<File> fileList) {
                         List<File> effectiveFileList = getEffectiveFileList(fileList);
@@ -744,7 +744,7 @@ public class SettingFragment extends Fragment {
                         }
 
                         //清除临时文件
-                        fileIOHelper.clearTempFile();
+                        IOHelper.clearTempFile();
                     }
 
 
@@ -965,7 +965,7 @@ public class SettingFragment extends Fragment {
         //设置对话框隐藏监听
         alertDialog.setOnDismissListener(dialog -> {
             Log.i(LogTags.SETTING_FRAGMENT.getV(), "对话框关闭");
-            fileIOHelper.clearTempFile();
+            IOHelper.clearTempFile();
         });
         alertDialog.show();
     }

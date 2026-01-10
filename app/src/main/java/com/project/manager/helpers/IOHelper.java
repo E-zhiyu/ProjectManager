@@ -38,7 +38,7 @@ import java.util.zip.ZipOutputStream;
 /**
  * 通过SAF处理文件写入和读取的帮助器
  */
-public class FileIOHelper {
+public class IOHelper {
     private final Context context;                                  //上下文
     private ReadCallback readCallback;                              //文件读取回调
     private WriteCallback writeCallback;                            //文件写入回调
@@ -81,7 +81,7 @@ public class FileIOHelper {
      *
      * @param context 上下文
      */
-    public FileIOHelper(@NonNull Context context) {
+    public IOHelper(@NonNull Context context) {
         this.context = context;
         tempDir = new File(context.getExternalFilesDir(null), "temp");
     }

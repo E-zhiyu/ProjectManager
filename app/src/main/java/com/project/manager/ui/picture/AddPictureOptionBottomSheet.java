@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
@@ -18,10 +17,15 @@ import com.project.manager.databinding.BottomSheetPictureAddOptionBinding;
 public class AddPictureOptionBottomSheet extends BottomSheetDialogFragment {
     private final Context context;                                //上下文
     private final ActivityResultLauncher<Intent> cameraLauncher;  //启动相机界面的启动器
+    private final ActivityResultLauncher<String> albumLauncher;   //相册图片选择器启动器
 
-    public AddPictureOptionBottomSheet(Context context, ActivityResultLauncher<Intent> cameraLauncher) {
+    public AddPictureOptionBottomSheet(
+            Context context,
+            ActivityResultLauncher<Intent> cameraLauncher,
+            ActivityResultLauncher<String> albumLauncher) {
         this.context = context;
         this.cameraLauncher = cameraLauncher;
+        this.albumLauncher = albumLauncher;
     }
 
     @Nullable
@@ -36,7 +40,10 @@ public class AddPictureOptionBottomSheet extends BottomSheetDialogFragment {
             dismiss();
         });
 
-        binding.addViaAlbum.setOnClickListener(v -> Toast.makeText(context, "此功能正在开发", Toast.LENGTH_SHORT).show());
+        binding.addViaAlbum.setOnClickListener(v -> {
+            albumLauncher.launch("image/*");
+            dismiss();
+        });
 
         return binding.getRoot();
     }
