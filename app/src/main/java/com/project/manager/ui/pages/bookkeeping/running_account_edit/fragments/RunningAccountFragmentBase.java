@@ -32,7 +32,7 @@ import com.project.manager.LogTags;
 import com.project.manager.R;
 import com.project.manager.data.data_class.Picture;
 import com.project.manager.helpers.ExceptionHelper;
-import com.project.manager.ui.picture.CameraActivity;
+import com.project.manager.ui.picture.AddPictureOptionBottomSheet;
 import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.pages.bookkeeping.TagString;
 import com.project.manager.ui.data_communication.tag_modify.TagUpdateReason;
@@ -207,10 +207,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
 
         //添加图片的按钮
         MaterialButton pictureAddBtn = contentView.findViewById(R.id.picture_add);
-        pictureAddBtn.setOnClickListener(v -> {
-            Intent skip2CameraActivity = new Intent(requireActivity(), CameraActivity.class);
-            cameraLauncher.launch(skip2CameraActivity);
-        });
+        pictureAddBtn.setOnClickListener(v -> addPicture());
 
         //删除图片按钮
         pictureDeleteBtn = contentView.findViewById(R.id.picture_delete_btn);
@@ -498,6 +495,11 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
             }
         });
         recyclerView.setAdapter(pictureAdapter);
+    }
+
+    private void addPicture() {
+        AddPictureOptionBottomSheet sheet = new AddPictureOptionBottomSheet(requireContext(), cameraLauncher);
+        sheet.show(getParentFragmentManager(), TagString.PICTURE_ADD_SHEET.getValue());
     }
 }
 

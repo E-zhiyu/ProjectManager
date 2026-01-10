@@ -111,4 +111,6 @@
     <string name="delete_picture">删除图片</string>
     <string name="save_picture_btn">保存图片按钮</string>
     <string name="share_picture_btn">分享图片按钮</string>
+    <string name="add_picture_via_camera">使用相机拍照</string>
+    <string name="add_picture_via_album">从相册中添加</string>
 </resources>
