@@ -29,7 +29,6 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.project.manager.LogTags;
-import com.project.manager.R;
 import com.project.manager.databinding.ActivityCameraBinding;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.helpers.IconHelper;
@@ -82,8 +81,9 @@ public class CameraActivity extends AppCompatActivity {
             return insets;
         });
 
-        //将底部导航栏设置为黑色
-        getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.black_alpha));
+        //设置底部导航栏和状态栏的颜色
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, android.R.color.transparent));
+        getWindow().setNavigationBarColor(ContextCompat.getColor(this, android.R.color.black));
 
         initViews();
 

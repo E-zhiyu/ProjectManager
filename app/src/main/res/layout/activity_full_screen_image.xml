@@ -4,10 +4,8 @@
     android:layout_height="match_parent"
     android:background="@android:color/black">
 
-    <!-- 使用PhotoView支持缩放、平移 -->
-    <com.github.chrisbanes.photoview.PhotoView
-        android:id="@+id/photo_view"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager_2"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitCenter" />
+        android:layout_height="match_parent" />
 </FrameLayout>
