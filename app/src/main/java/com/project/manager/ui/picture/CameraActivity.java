@@ -232,6 +232,7 @@ public class CameraActivity extends AppCompatActivity {
                 new ImageCapture.OnImageSavedCallback() {
                     @Override
                     public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
+                        Toast.makeText(CameraActivity.this, "拍照成功", Toast.LENGTH_SHORT).show();
                         Uri savedUri = Uri.fromFile(photoFile);
 
                         //将照片Uri返回至父界面

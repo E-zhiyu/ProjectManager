@@ -164,14 +164,15 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     @SuppressLint("NotifyDataSetChanged")
     public void switchDeleteMode(boolean isDeleteMode) {
         this.isDeleteMode = isDeleteMode;
+        listener.onDeleteModeSwitched(isDeleteMode);
 
-        //如果不是删除模式则取消选择所有图片
         if (!isDeleteMode) {
             Collections.fill(pictureSelectList, false);
         }
 
-        listener.onDeleteModeSwitched(isDeleteMode);
-        notifyDataSetChanged();
+        for (int index = 0; index < pictureList.size(); index++) {
+            notifyItemChanged(index);
+        }
     }
 
     /**
@@ -249,6 +250,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
      */
     public void deleteSelectedPicture() {
         //从尾部开始删除，避免影响下标值
+        int delete_num = 0;
         for (int index = pictureSelectList.size() - 1; index >= 0; index--) {
             boolean isSelected = pictureSelectList.get(index);
             if (isSelected) {
@@ -274,10 +276,15 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
                 pictureList.remove(index);
                 pictureSelectList.remove(index);
                 notifyItemRemoved(index);
+                delete_num++;
             }
         }
 
-        Toast.makeText(context, "图片已删除", Toast.LENGTH_SHORT).show();
+        if (delete_num > 0) {
+            Toast.makeText(context, String.format(Locale.getDefault(), "已删除%d张图片", delete_num), Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(context, "没有图片被删除", Toast.LENGTH_SHORT).show();
+        }
 
         //关闭图片删除模式
         switchDeleteMode(false);
