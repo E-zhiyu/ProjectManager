@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
@@ -39,22 +38,12 @@ import java.util.zip.ZipOutputStream;
 public class IOHelper {
     private final Context context;                                  //上下文
     private ImportCallback importCallback;                          //文件读取回调
-    private ExportCallback exportCallback;                          //文件写入回调
     private final List<File> tempJsonFileList = new ArrayList<>();  //临时JSON文件列表
     private File tempPictureZip;                                    //临时图片压缩包
     private final File tempDir;                                     //临时文件目录
     private File tempZipFile;                                       //临时zip压缩文件
     private boolean isPictureNeed;                                  //是否需要打包图片文件（用于SAF回调使用）
     private Uri importZipUri;                                       //用户通过SAF导入数据的zip文件的Uri
-
-    /**
-     * 文件写入回调接口
-     */
-    public interface ExportCallback {
-        void onFileWrote();
-
-        void onError(String errMessage);
-    }
 
     /**
      * 文件读取回调接口
@@ -93,19 +82,16 @@ public class IOHelper {
     /**
      * 将APP数据打包至zip文件中(手动方法)
      *
-     * @param exportCallback  文件写入回调
      * @param launcher        启动SAF的意图启动器
      * @param fileNameList    文件名列表
      * @param fileContentList 与文件名列表对应的文件内容列表
      * @param isPictureNeed   是否需要将图片文件打包
      */
     public void packDataInZip(
-            ExportCallback exportCallback,
             ActivityResultLauncher<Intent> launcher,
             @NonNull List<String> fileNameList,
             List<String> fileContentList,
             boolean isPictureNeed) {
-        this.exportCallback = exportCallback;
         this.isPictureNeed = isPictureNeed;
 
         //创建列表中的临时文件
@@ -147,15 +133,18 @@ public class IOHelper {
      * 将图片目录下的所有图片打包为zip文件
      */
     private void packPicturesInZip() {
-        File pictureDir = new File(context.getExternalFilesDir(null), "pictures");
+        Log.d(LogTags.IO_HELPER.getV(), "正在打包图片文件");
+
         //如果图片目录不存在则不打包
+        File pictureDir = new File(context.getExternalFilesDir(null), "pictures");
         if (!pictureDir.exists()) {
+            Log.w(LogTags.IO_HELPER.getV(), "图片文件夹不存在");
             return;
         }
 
         //将图片文件写入压缩包
         File[] pictures = pictureDir.listFiles();
-        if (pictures == null) {
+        if (pictures == null || pictures.length == 0) {
             Log.w(LogTags.IO_HELPER.getV(), "图片目录中没有图片");
             return;
         }
@@ -234,11 +223,8 @@ public class IOHelper {
 
             Log.d(LogTags.IO_HELPER.getV(), "zip文件创建成功");
         } catch (IOException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            if (exportCallback != null) {
-                exportCallback.onError("无法创建zip文件");
-            }
             Log.e(LogTags.IO_HELPER.getV(), "无法创建zip文件");
+            throw new RuntimeException("无法创建zip文件");
         }
     }
 
@@ -360,16 +346,9 @@ public class IOHelper {
                     finalFos.write(buffer, 0, length);
                 }
             }
-
-            if (exportCallback != null) {
-                exportCallback.onFileWrote();    //触发写入成功回调
-            }
         } catch (IOException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            if (exportCallback != null) {
-                exportCallback.onError("复制临时zip文件失败");
-            }
             Log.e(LogTags.IO_HELPER.getV(), "复制临时zip文件失败");
+            throw new RuntimeException("复制临时zip文件失败");
         } finally {
             //关闭所有流并删除临时文件
             try {
@@ -377,11 +356,7 @@ public class IOHelper {
                 if (finalFos != null) finalFos.close();
                 if (pfd != null) pfd.close();
             } catch (IOException e) {
-                ExceptionHelper.showExceptionDialog(context, e);
-                if (exportCallback != null) {
-                    exportCallback.onError("无法正确关闭流");
-                }
-                Log.e(LogTags.IO_HELPER.getV(), "无法正确关闭流");
+                Log.w(LogTags.IO_HELPER.getV(), "无法正确关闭流");
             }
         }
     }
@@ -407,6 +382,7 @@ public class IOHelper {
             } else {
                 Log.i(LogTags.IO_HELPER.getV(), "用户取消选择并关闭SAF");
             }
+
             clearTempFile();
         }
         //处理导入数据的结果
@@ -671,18 +647,32 @@ public class IOHelper {
      * 将图片压缩包解压至图片目录
      */
     public void unpackPictureZip() {
-        if (tempPictureZip == null || !tempPictureZip.exists()) {
-            Log.w(LogTags.IO_HELPER.getV(), "图片压缩包不存在");
+        Log.d(LogTags.IO_HELPER.getV(), "正在解压图片文件");
+
+        File pictureDir = new File(context.getExternalFilesDir(null), "pictures");
+        File[] oldPictureFiles = pictureDir.listFiles();
+
+        //尝试创建图片目录
+        if (!pictureDir.exists() && !pictureDir.mkdirs()) {
+            Log.e(LogTags.IO_HELPER.getV(), "无法创建图片目录");
             return;
         }
 
-        File pictureDir = new File(context.getExternalFilesDir(null), "pictures");
-        if (!pictureDir.delete()) { //尝试删除旧图片文件夹
-            Log.w(LogTags.IO_HELPER.getV(), "无法删除旧图片文件夹");
+        //遍历删除旧图片
+        if (oldPictureFiles != null) {
+            for (File oldPicture : oldPictureFiles) {
+                if (!oldPicture.delete()) {
+                    Log.w(LogTags.IO_HELPER.getV(), String.format(
+                            Locale.getDefault(),
+                            "旧图片“%s”删除失败",
+                            oldPicture.getName()
+                    ));
+                }
+            }
         }
 
-        if (!pictureDir.exists() && !pictureDir.mkdirs()) {
-            Log.e(LogTags.IO_HELPER.getV(), "无法创建图片目录");
+        if (tempPictureZip == null || !tempPictureZip.exists()) {
+            Log.w(LogTags.IO_HELPER.getV(), "图片压缩包不存在");
             return;
         }
 
@@ -751,9 +741,6 @@ public class IOHelper {
             Log.d(LogTags.IO_HELPER.getV(), "文件内容写入完毕");
         } catch (IOException e) {
             ExceptionHelper.showExceptionDialog(context, e);
-            if (exportCallback != null) {
-                exportCallback.onError("临时文件写入失败");
-            }
             Log.e(LogTags.IO_HELPER.getV(), "临时文件写入失败");
         }
     }
@@ -783,7 +770,6 @@ public class IOHelper {
         tempPictureZip = null;
 
         if (isFileDeleteFailed) {
-            Toast.makeText(context, "警告：临时文件删除失败", Toast.LENGTH_SHORT).show();
             Log.w(LogTags.IO_HELPER.getV(), "临时文件清除失败");
         } else {
             Log.d(LogTags.IO_HELPER.getV(), "临时文件清除完毕");

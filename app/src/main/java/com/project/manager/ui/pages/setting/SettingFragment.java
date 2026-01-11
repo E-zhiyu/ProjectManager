@@ -575,7 +575,25 @@ public class SettingFragment extends Fragment {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    IOHelper.handleActivityResult(resultCode, data, true);
+                    ProgressDialogManager dialogManager = new ProgressDialogManager(requireContext(), "导出数据", "正在导出数据……");
+                    dialogManager.show(() -> {
+                        disposables.clear();
+                        Toast.makeText(requireContext(), "已取消数据导出", Toast.LENGTH_SHORT).show();
+                    });
+
+                    disposables.add(
+                            Observable.fromCallable(() -> {
+                                        IOHelper.handleActivityResult(resultCode, data, true);
+                                        return true;
+                                    })
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(b -> Toast.makeText(requireContext(), "数据导出成功", Toast.LENGTH_SHORT).show(),
+                                            e -> {
+                                            },
+                                            dialogManager::dismiss
+                                    )
+                    );
                 }
         );
 
@@ -629,17 +647,6 @@ public class SettingFragment extends Fragment {
         //将文件打包至压缩包内
         boolean isAccountDataChosen = choseItem[IODataType.ACCOUNT_DATA.ordinal()];
         IOHelper.packDataInZip(
-                new IOHelper.ExportCallback() {
-                    @Override
-                    public void onFileWrote() {
-                        Toast.makeText(requireContext(), "导出成功", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onError(String errMessage) {
-                        Toast.makeText(requireContext(), "导出失败：" + errMessage, Toast.LENGTH_SHORT).show();
-                    }
-                },
                 exportDataLauncher,
                 fileNameList,
                 fileContentList,
