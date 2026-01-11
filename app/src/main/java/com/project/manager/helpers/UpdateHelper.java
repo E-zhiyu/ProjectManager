@@ -183,6 +183,7 @@ public class UpdateHelper {
             dialogBuilder.setNegativeButton("跳过此版本", (dialog, which) -> skipNextVersion(context, latestVersionCode));
         } else {
             dialogBuilder.setNegativeButton("退出", (dialog, which) -> dialog.cancel());
+            dialogBuilder.setCancelable(false);     //强制更新不能取消
             dialogBuilder.setOnCancelListener(dialog -> android.os.Process.killProcess(android.os.Process.myPid()));
         }
 
@@ -327,6 +328,7 @@ public class UpdateHelper {
         MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(context)
                 .setTitle("发现新版本")
                 .setView(markDownDialog)
+                .setCancelable(false)   //强制更新不可取消
                 .setPositiveButton(
                         "更新",
                         (dialog, which) -> downloadLatestFile(context, MandatoryDownloadUrl, MandatoryVersionName)
