@@ -4,10 +4,8 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import android.provider.OpenableColumns;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -43,6 +41,7 @@ public class IOHelper {
     private ReadCallback readCallback;                              //文件读取回调
     private WriteCallback writeCallback;                            //文件写入回调
     private final List<File> tempJsonFileList = new ArrayList<>();  //临时JSON文件列表
+    private File tempPictureZip;                                    //临时图片压缩包
     private final File tempDir;                                     //临时文件目录
     private File tempZipFile;                                       //临时zip压缩文件
 
@@ -87,6 +86,57 @@ public class IOHelper {
     }
 
     /**
+     * 将图片目录下的所有图片打包为zip文件
+     *
+     * @throws RuntimeException 无法创建临时文件目录时引发的异常
+     */
+    public void packPicturesInZip() throws RuntimeException {
+        File pictureDir = new File(context.getExternalFilesDir(null), "pictures");
+        //如果图片目录不存在则不打包
+        if (!pictureDir.exists()) {
+            return;
+        }
+
+        //尝试创建临时文件目录
+        if (!tempDir.exists() && !tempDir.mkdirs()) {
+            Log.e(LogTags.IO_HELPER.getV(), "无法创建临时文件目录");
+            RuntimeException e = new RuntimeException("无法创建临时文件目录");
+            clearTempFile();
+            throw e;
+        }
+
+        //将图片文件写入压缩包
+        File[] pictures = pictureDir.listFiles();
+        if (pictures == null) {
+            Log.w(LogTags.IO_HELPER.getV(), "图片目录中没有图片");
+            return;
+        }
+        File pictureZip = new File(tempDir, "pictures.zip"); //创建图片压缩包文件
+        try (FileOutputStream fos = new FileOutputStream(pictureZip);
+             ZipOutputStream zos = new ZipOutputStream(fos)) {
+            for (File pictureFile : pictures) {
+                try (FileInputStream fis = new FileInputStream(pictureFile)) {
+                    ZipEntry zipEntry = new ZipEntry(pictureFile.getName());
+                    zos.putNextEntry(zipEntry);
+
+                    byte[] buffer = new byte[2048];
+                    int length;
+                    while ((length = fis.read(buffer)) > 0) {
+                        zos.write(buffer, 0, length);
+                    }
+                    zos.closeEntry();
+                }
+            }
+
+            //保存图片压缩包的引用
+            tempPictureZip = pictureZip;
+        } catch (IOException e) {
+            Log.e(LogTags.IO_HELPER.getV(), "无法打包图片文件");
+            throw new RuntimeException("无法打包图片文件");
+        }
+    }
+
+    /**
      * 将APP数据打包至zip文件中(手动方法)
      *
      * @param writeCallback   文件写入回调
@@ -94,7 +144,7 @@ public class IOHelper {
      * @param fileNameList    文件名列表
      * @param fileContentList 与文件名列表对应的文件内容列表
      */
-    public void packFileInZip(
+    public void packJsonFileInZip(
             WriteCallback writeCallback,
             ActivityResultLauncher<Intent> launcher,
             @NonNull List<String> fileNameList,
@@ -120,7 +170,7 @@ public class IOHelper {
      * @param fileNameList    文件名列表
      * @param fileContentList 文件内容列表
      */
-    public void packFileInZip(@NonNull List<String> fileNameList, List<String> fileContentList) {
+    public void packJsonFileInZip(@NonNull List<String> fileNameList, List<String> fileContentList) {
         //创建列表中的临时JSON文件
         for (int index = 0; index < fileNameList.size(); index++) {
             String file_name = fileNameList.get(index);
@@ -143,7 +193,7 @@ public class IOHelper {
      * @param parentDir 存放zip文件的目录
      */
     private void createZipFile(File parentDir) {
-        Log.d(LogTags.FILE_IO_HELPER.getV(), "正在创建zip文件……");
+        Log.d(LogTags.IO_HELPER.getV(), "正在创建zip文件……");
 
         //获取当前日期和时间并生成默认文件名
         Calendar calendar = Calendar.getInstance();
@@ -178,13 +228,28 @@ public class IOHelper {
                 }
             }
 
-            Log.d(LogTags.FILE_IO_HELPER.getV(), "zip文件创建成功");
+            //将图片压缩包也写入文件
+            if (tempPictureZip!=null&&tempPictureZip.exists()) {
+                try(FileInputStream fis = new FileInputStream(tempPictureZip)) {
+                    ZipEntry zipEntry = new ZipEntry(tempPictureZip.getName());
+                    zos.putNextEntry(zipEntry);
+
+                    byte[] buffer = new byte[4096];
+                    int length;
+                    while ((length = fis.read(buffer)) > 0) {
+                        zos.write(buffer, 0, length);
+                    }
+                    zos.closeEntry();
+                }
+            }
+
+            Log.d(LogTags.IO_HELPER.getV(), "zip文件创建成功");
         } catch (IOException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             if (writeCallback != null) {
                 writeCallback.onError("无法创建zip文件");
             }
-            Log.e(LogTags.FILE_IO_HELPER.getV(), "无法创建zip文件");
+            Log.e(LogTags.IO_HELPER.getV(), "无法创建zip文件");
         }
     }
 
@@ -194,7 +259,7 @@ public class IOHelper {
      * @param parentDirUri 存放zip文件的目录Uri
      */
     private void createZipFile(Uri parentDirUri) {
-        Log.d(LogTags.FILE_IO_HELPER.getV(), "正在创建zip文件……");
+        Log.d(LogTags.IO_HELPER.getV(), "正在创建zip文件……");
 
         //获取当前日期和时间并生成默认文件名
         Calendar calendar = Calendar.getInstance();
@@ -233,16 +298,16 @@ public class IOHelper {
                         }
                     }
 
-                    Log.d(LogTags.FILE_IO_HELPER.getV(), "自动备份文件创建成功");
+                    Log.d(LogTags.IO_HELPER.getV(), "自动备份文件创建成功");
                 } catch (IOException e) {
                     ExceptionHelper.showExceptionDialog(context, e);
-                    Log.e(LogTags.FILE_IO_HELPER.getV(), "无法创建自动备份文件");
+                    Log.e(LogTags.IO_HELPER.getV(), "无法创建自动备份文件");
                 }
             } else {
-                Log.e(LogTags.FILE_IO_HELPER.getV(), "无法创建自动备份文件");
+                Log.e(LogTags.IO_HELPER.getV(), "无法创建自动备份文件");
             }
         } else {
-            Log.e(LogTags.FILE_IO_HELPER.getV(), "无法获取自动备份目录");
+            Log.e(LogTags.IO_HELPER.getV(), "无法获取自动备份目录");
         }
     }
 
@@ -253,7 +318,7 @@ public class IOHelper {
      * @param sourceFile 临时zip文件对象
      */
     private void saveFileUsingSAF(@NonNull ActivityResultLauncher<Intent> launcher, @NonNull File sourceFile) {
-        Log.d(LogTags.FILE_IO_HELPER.getV(), "正在通过SAF指定zip备份文件存放位置……");
+        Log.d(LogTags.IO_HELPER.getV(), "正在通过SAF指定zip备份文件存放位置……");
 
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -261,7 +326,7 @@ public class IOHelper {
         intent.putExtra(Intent.EXTRA_TITLE, sourceFile.getName());
         launcher.launch(intent);
 
-        Log.d(LogTags.FILE_IO_HELPER.getV(), "SAF启动成功");
+        Log.d(LogTags.IO_HELPER.getV(), "SAF启动成功");
     }
 
     /**
@@ -270,7 +335,7 @@ public class IOHelper {
      * @param uri 用户通过SAF生成的uri
      */
     private void copyTempZipToUri(Uri uri) {
-        Log.d(LogTags.FILE_IO_HELPER.getV(), "开始复制临时zip文件到指定位置");
+        Log.d(LogTags.IO_HELPER.getV(), "开始复制临时zip文件到指定位置");
 
         ContentResolver resolver = context.getContentResolver();
         ParcelFileDescriptor pfd = null;
@@ -299,7 +364,7 @@ public class IOHelper {
             if (writeCallback != null) {
                 writeCallback.onError("复制临时zip文件失败");
             }
-            Log.e(LogTags.FILE_IO_HELPER.getV(), "复制临时zip文件失败");
+            Log.e(LogTags.IO_HELPER.getV(), "复制临时zip文件失败");
         } finally {
             //关闭所有流并删除临时文件
             try {
@@ -311,7 +376,7 @@ public class IOHelper {
                 if (writeCallback != null) {
                     writeCallback.onError("无法正确关闭流");
                 }
-                Log.e(LogTags.FILE_IO_HELPER.getV(), "无法正确关闭流");
+                Log.e(LogTags.IO_HELPER.getV(), "无法正确关闭流");
             }
         }
     }
@@ -332,9 +397,9 @@ public class IOHelper {
                 if (uri != null) {
                     copyTempZipToUri(uri);
                 }
-                Log.i(LogTags.FILE_IO_HELPER.getV(), "用户确认选择并进行下一步");
+                Log.i(LogTags.IO_HELPER.getV(), "用户确认选择并进行下一步");
             } else {
-                Log.i(LogTags.FILE_IO_HELPER.getV(), "用户取消选择并关闭SAF");
+                Log.i(LogTags.IO_HELPER.getV(), "用户取消选择并关闭SAF");
             }
             clearTempFile();
         }
@@ -346,41 +411,25 @@ public class IOHelper {
                 if (uri != null && type != null) {
                     //判断文件类型
                     if (type.equals("application/zip")) {
-                        Log.i(LogTags.FILE_IO_HELPER.getV(), "用户选择zip备份文件");
-
-                        //判断文件大小（字节）
-                        long fileSize = getFileSizeFromUri(uri);
-                        if (fileSize > 1024 * 1024 * 50) {
-                            if (readCallback != null) {
-                                readCallback.onError("文件大于50MB");
-                            }
-                            Log.e(LogTags.FILE_IO_HELPER.getV(), "文件大小超出限制");
-                        } else if (fileSize <= 0) {
-                            if (readCallback != null) {
-                                readCallback.onError("无法读取文件内容");
-                            }
-                            Log.e(LogTags.FILE_IO_HELPER.getV(), "无法读取文件内容");
-                        } else {
-                            Log.i(LogTags.FILE_IO_HELPER.getV(), "zip备份文件大小合法");
-                            copyUriToTempZip(uri);
-                        }
+                        Log.i(LogTags.IO_HELPER.getV(), "用户选择zip备份文件");
+                        copyUriToTempZip(uri);
                     } else if (type.equals("application/json")) {
                         File oneJsonFile = getFileFromDocumentUri(uri);
                         if (readCallback != null) {
                             readCallback.onOneJsonFileRead(oneJsonFile);
                         }
-                        Log.i(LogTags.FILE_IO_HELPER.getV(), "用户选择JSON文件");
+                        Log.i(LogTags.IO_HELPER.getV(), "用户选择JSON文件");
                     } else {
-                        Log.e(LogTags.FILE_IO_HELPER.getV(), "用户选择了未知种类的文件");
+                        Log.e(LogTags.IO_HELPER.getV(), "用户选择了未知种类的文件");
                         if (readCallback != null) {
                             readCallback.onError("请选择zip或json文件");
                         }
                     }
                 } else {
-                    Log.e(LogTags.FILE_IO_HELPER.getV(), "无法获取文件信息");
+                    Log.e(LogTags.IO_HELPER.getV(), "无法获取文件信息");
                 }
             } else {
-                Log.i(LogTags.FILE_IO_HELPER.getV(), "用户取消选择并关闭SAF");
+                Log.i(LogTags.IO_HELPER.getV(), "用户取消选择并关闭SAF");
             }
         }
     }
@@ -391,9 +440,9 @@ public class IOHelper {
      * @param callback 处理打开文件的回调
      * @param launcher SAF启动器
      */
-    public void openFileBySAF(ReadCallback callback,
-                              ActivityResultLauncher<Intent> launcher) {
-        Log.d(LogTags.FILE_IO_HELPER.getV(), "正在使用SAF选择zip备份文件……");
+    public void openFileViaSAF(ReadCallback callback,
+                               ActivityResultLauncher<Intent> launcher) {
+        Log.d(LogTags.IO_HELPER.getV(), "正在使用SAF选择zip备份文件……");
         this.readCallback = callback;
 
         try {
@@ -403,13 +452,13 @@ public class IOHelper {
             String[] fileTypes = {"application/json", "application/zip"};
             intent.putExtra(Intent.EXTRA_MIME_TYPES, fileTypes);    //限制只能打开JSON和zip文件
             launcher.launch(intent);
-            Log.d(LogTags.FILE_IO_HELPER.getV(), "SAF启动成功");
+            Log.d(LogTags.IO_HELPER.getV(), "SAF启动成功");
         } catch (Exception e) {
             ExceptionHelper.showExceptionDialog(context, e);
             if (readCallback != null) {
                 readCallback.onError("SAF出错");
             }
-            Log.e(LogTags.FILE_IO_HELPER.getV(), "SAF出错");
+            Log.e(LogTags.IO_HELPER.getV(), "SAF出错");
         }
     }
 
@@ -419,7 +468,7 @@ public class IOHelper {
      * @param uri 用户通过SAF选择的uri
      */
     private void copyUriToTempZip(Uri uri) {
-        Log.d(LogTags.FILE_IO_HELPER.getV(), "开始复制目标zip备份文件到临时目录……");
+        Log.d(LogTags.IO_HELPER.getV(), "开始复制目标zip备份文件到临时目录……");
 
         //生成临时zip文件对象
         tempZipFile = new File(tempDir, "backup_temp.zip");
@@ -443,7 +492,7 @@ public class IOHelper {
             inputStream = new FileInputStream(pfd.getFileDescriptor());
             outputStream = new FileOutputStream(tempZipFile);
 
-            // 使用缓冲流提高复制效率
+            //使用缓冲流提高复制效率
             byte[] buffer = new byte[8192];
             int length;
             while ((length = inputStream.read(buffer)) > 0) {
@@ -457,7 +506,7 @@ public class IOHelper {
             if (readCallback != null) {
                 readCallback.onError("复制zip文件时出错");
             }
-            Log.e(LogTags.FILE_IO_HELPER.getV(), "zip文件复制失败");
+            Log.e(LogTags.IO_HELPER.getV(), "zip文件复制失败");
 
             //复制失败时清理可能残留的临时文件
             clearTempFile();
@@ -471,7 +520,7 @@ public class IOHelper {
                 if (readCallback != null) {
                     readCallback.onError("无法正确关闭流");
                 }
-                Log.e(LogTags.FILE_IO_HELPER.getV(), "无法正确关闭流");
+                Log.e(LogTags.IO_HELPER.getV(), "无法正确关闭流");
             }
         }
     }
@@ -482,18 +531,22 @@ public class IOHelper {
     private void unpackZipFile() {
         try (FileInputStream fis = new FileInputStream(tempZipFile);
              ZipInputStream zis = new ZipInputStream(fis)) {
-            Log.d(LogTags.FILE_IO_HELPER.getV(), "开始解压zip备份文件……");
+            Log.d(LogTags.IO_HELPER.getV(), "开始解压zip备份文件……");
 
             ZipEntry entry;
             byte[] buffer = new byte[8192]; // 8KB缓冲区
 
             while ((entry = zis.getNextEntry()) != null) {
                 File entryFile = new File(tempDir, entry.getName());
-                tempJsonFileList.add(entryFile);
+                if (entry.getName().endsWith("json")) {
+                    tempJsonFileList.add(entryFile);
+                } else if (entry.getName().equals("pictures.zip")) {
+                    tempPictureZip = entryFile;
+                }
 
                 if (entryFile.isDirectory()) continue;  //不处理目录类
 
-                // 写入文件内容
+                //写入文件内容
                 try (FileOutputStream fos = new FileOutputStream(entryFile)) {
                     int length;
                     while ((length = zis.read(buffer)) > 0) {
@@ -506,7 +559,7 @@ public class IOHelper {
 
             //读取解压得到的文件内容
             if (!tempJsonFileList.isEmpty()) {
-                Log.d(LogTags.FILE_IO_HELPER.getV(), "zip备份文件解压完成");
+                Log.d(LogTags.IO_HELPER.getV(), "zip备份文件解压完成");
                 if (readCallback != null) {
                     readCallback.onZipUnpacked(tempJsonFileList);
                 }
@@ -514,14 +567,14 @@ public class IOHelper {
                 if (readCallback != null) {
                     readCallback.onError("zip文件为空");
                 }
-                Log.w(LogTags.FILE_IO_HELPER.getV(), "zip备份文件为空");
+                Log.w(LogTags.IO_HELPER.getV(), "zip备份文件为空");
             }
         } catch (IOException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             if (readCallback != null) {
                 readCallback.onError("zip文件解压失败");
             }
-            Log.e(LogTags.FILE_IO_HELPER.getV(), "zip备份文件解压失败");
+            Log.e(LogTags.IO_HELPER.getV(), "zip备份文件解压失败");
             clearTempFile();
         }
     }
@@ -554,7 +607,7 @@ public class IOHelper {
      */
     private void writeContentToTempFile(@NonNull File targetFile, String content) {
         Log.d(
-                LogTags.FILE_IO_HELPER.getV(),
+                LogTags.IO_HELPER.getV(),
                 String.format(Locale.getDefault(), "正在将内容写入文件%s……", targetFile.getName())
         );
         try (FileOutputStream fos = new FileOutputStream(targetFile)) {
@@ -562,13 +615,13 @@ public class IOHelper {
 
             writer.write(content);
             writer.flush();
-            Log.d(LogTags.FILE_IO_HELPER.getV(), "文件内容写入完毕");
+            Log.d(LogTags.IO_HELPER.getV(), "文件内容写入完毕");
         } catch (IOException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             if (writeCallback != null) {
                 writeCallback.onError("临时文件写入失败");
             }
-            Log.e(LogTags.FILE_IO_HELPER.getV(), "临时文件写入失败");
+            Log.e(LogTags.IO_HELPER.getV(), "临时文件写入失败");
         }
     }
 
@@ -609,8 +662,49 @@ public class IOHelper {
             if (readCallback != null) {
                 readCallback.onError("JSON文件读取失败");
             }
-            Log.e(LogTags.FILE_IO_HELPER.getV(), "JSON文件读取失败");
+            Log.e(LogTags.IO_HELPER.getV(), "JSON文件读取失败");
             return null;
+        }
+    }
+
+    /**
+     * 将图片压缩包解压至图片目录
+     */
+    public void unpackPictureZip() {
+        if (tempPictureZip == null || !tempPictureZip.exists()) {
+            Log.w(LogTags.IO_HELPER.getV(), "图片压缩包不存在");
+            return;
+        }
+
+        File pictureDir = new File(context.getExternalFilesDir(null), "pictures");
+        if (!pictureDir.exists() && !pictureDir.mkdirs()) {
+            Log.e(LogTags.IO_HELPER.getV(), "无法创建图片目录");
+            return;
+        }
+
+        try (FileInputStream fis = new FileInputStream(tempPictureZip);
+             ZipInputStream zis = new ZipInputStream(fis)) {
+            Log.d(LogTags.IO_HELPER.getV(), "开始解压图片压缩包");
+
+            ZipEntry entry;
+            byte[] buffer = new byte[8192]; //创建8K的缓冲区
+
+            while ((entry = zis.getNextEntry()) != null) {
+                File entryFile = new File(pictureDir, entry.getName());
+
+                //写入文件内容
+                try (FileOutputStream fos = new FileOutputStream(entryFile)) {
+                    int length;
+                    while ((length = zis.read(buffer)) > 0) {
+                        fos.write(buffer, 0, length);
+                    }
+                }
+
+                zis.closeEntry(); //关闭当前条目
+            }
+        } catch (IOException e) {
+            Log.e(LogTags.IO_HELPER.getV(), "图片压缩包解压失败");
+            ExceptionHelper.showExceptionDialog(context, e);
         }
     }
 
@@ -618,7 +712,7 @@ public class IOHelper {
      * 清除临时文件
      */
     public void clearTempFile() {
-        Log.d(LogTags.FILE_IO_HELPER.getV(), "开始清除临时文件……");
+        Log.d(LogTags.IO_HELPER.getV(), "开始清除临时文件……");
         boolean isFileDeleteFailed = false;
 
         for (File tempFile : tempJsonFileList) {
@@ -633,11 +727,16 @@ public class IOHelper {
         }
         tempZipFile = null;
 
+        if (tempPictureZip != null && !tempPictureZip.delete()) {
+            isFileDeleteFailed = true;
+        }
+        tempPictureZip = null;
+
         if (isFileDeleteFailed) {
             Toast.makeText(context, "警告：临时文件删除失败", Toast.LENGTH_SHORT).show();
-            Log.w(LogTags.FILE_IO_HELPER.getV(), "临时文件清除失败");
+            Log.w(LogTags.IO_HELPER.getV(), "临时文件清除失败");
         } else {
-            Log.d(LogTags.FILE_IO_HELPER.getV(), "临时文件清除完毕");
+            Log.d(LogTags.IO_HELPER.getV(), "临时文件清除完毕");
         }
     }
 
@@ -650,36 +749,5 @@ public class IOHelper {
     private String getMimeType(Uri uri) {
         ContentResolver contentResolver = context.getContentResolver();
         return contentResolver.getType(uri); // 返回 MIME 类型，如 "image/jpeg"
-    }
-
-    /**
-     * 通过SAF的Uri获取文件大小（字节）
-     *
-     * @param uri SAF返回的 Uri
-     * @return 文件大小（字节），失败返回 -1
-     */
-    public long getFileSizeFromUri(Uri uri) {
-        ContentResolver contentResolver = context.getContentResolver();
-        try (Cursor cursor = contentResolver.query(
-                uri,
-                new String[]{OpenableColumns.SIZE}, // 只查询大小
-                null,
-                null,
-                null
-        )) {
-            // 查询文件的元数据（只需 SIZE 和 DISPLAY_NAME）
-            // 只查询大小
-
-            if (cursor != null && cursor.moveToFirst()) {
-                // 获取 SIZE 列的索引
-                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
-                if (sizeIndex != -1) {
-                    return cursor.getLong(sizeIndex); // 返回文件大小（字节）
-                }
-            }
-        } catch (Exception e) {
-            Log.e("FileUtils", "查询文件大小失败: " + e.getMessage());
-        }
-        return -1; // 失败返回 -1
     }
 }

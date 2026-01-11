@@ -73,7 +73,7 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookKeepingDbHelper, 
     @NonNull
     private List<PojoAnalysisRule> getRuleData() {
         List<PojoAnalysisRule> ruleList = new ArrayList<>();
-        SQLiteDatabase db = db_helper.openReadLink();
+        SQLiteDatabase db = dbHelper.openReadLink();
 
         Cursor rule_cursor = db.query(
                 BookKeepingTables.ANALYSIS_RULE.toString(),
@@ -104,7 +104,7 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookKeepingDbHelper, 
     }
 
     private void setRuleData(@NonNull List<PojoAnalysisRule> ruleList) {
-        SQLiteDatabase db = db_helper.openWriteLink();
+        SQLiteDatabase db = dbHelper.openWriteLink();
 
         //清空之前表的内容
         db.delete(BookKeepingTables.ANALYSIS_RULE.toString(), null, null);

@@ -612,6 +612,16 @@ public class SettingFragment extends Fragment {
         List<String> fileNameList = new ArrayList<>();      //用于导出数据的临时文件名列表
         List<String> fileContentList = new ArrayList<>();   //用于导出数据的临时文件内容列表
 
+        boolean isAccountDataChosen = choseItem[IODataType.ACCOUNT_DATA.ordinal()];
+        if (isAccountDataChosen) {
+            try {
+                IOHelper.packPicturesInZip();
+            } catch (RuntimeException e) {
+                ExceptionHelper.showExceptionDialog(requireContext(), e);
+                return;
+            }
+        }
+
         //根据选择的内容创建临时文件
         for (IODataType dataType : IODataType.values()) {
             if (!choseItem[dataType.ordinal()]) continue;
@@ -631,7 +641,7 @@ public class SettingFragment extends Fragment {
         }
 
         //将文件打包至压缩包内
-        IOHelper.packFileInZip(
+        IOHelper.packJsonFileInZip(
                 new IOHelper.WriteCallback() {
                     @Override
                     public void onFileWrote() {
@@ -654,7 +664,7 @@ public class SettingFragment extends Fragment {
      */
     private void importData() {
         Log.i(LogTags.SETTING_FRAGMENT.getV(), "开始导入数据……");
-        IOHelper.openFileBySAF(
+        IOHelper.openFileViaSAF(
                 new IOHelper.ReadCallback() {
                     @Override
                     public void onZipUnpacked(List<File> fileList) {
@@ -976,12 +986,20 @@ public class SettingFragment extends Fragment {
      * @param itemChooseStats   多选对话框的选择状况
      * @param effectiveFileList 能够解析内容的有效文件列表
      */
-    private void onImportConfirmed(@NonNull boolean[] itemChooseStats, @NonNull List<File> effectiveFileList) {
+    private void onImportConfirmed(
+            @NonNull boolean[] itemChooseStats,
+            @NonNull List<File> effectiveFileList) {
         boolean isImportSuccessfully = false;
 
         boolean isAccountDataChecked = itemChooseStats[IODataType.ACCOUNT_DATA.ordinal()];   //流水记录文件是否勾选
         boolean isRuleDataChecked = itemChooseStats[IODataType.RULE_DATA.ordinal()];         //通知解析规则文件是否勾选
 
+        //将图片解压至图片目录中
+        if (isAccountDataChecked) {
+            IOHelper.unpackPictureZip();
+        }
+
+        //将JSON数据写入数据库
         for (IODataType dataType : IODataType.values()) {
             if (!itemChooseStats[dataType.ordinal()]) continue;
 

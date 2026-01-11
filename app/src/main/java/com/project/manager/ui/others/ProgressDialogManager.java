@@ -32,16 +32,19 @@ public class ProgressDialogManager {
         tvCurrentFile = view.findViewById(R.id.title_text);
 
         //创建 Material Dialog
-        dialog = new MaterialAlertDialogBuilder(context)
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context)
                 .setTitle("复制图片")
                 .setView(view)
                 .setCancelable(false)
-                .setNegativeButton("取消", (d, which) -> {
-                    if (cancelListener != null) {
-                        cancelListener.onCancel();
-                    }
-                })
-                .create();
+                .setNegativeButton("取消", (d, which) -> d.cancel());
+
+        builder.setOnCancelListener(d -> {
+            if (cancelListener != null) {
+                cancelListener.onCancel();
+            }
+        });
+
+        dialog = builder.create();
         dialog.show();
     }
 

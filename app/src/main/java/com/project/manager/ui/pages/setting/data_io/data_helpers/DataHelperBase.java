@@ -14,12 +14,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 abstract public class DataHelperBase<H extends SQLiteOpenHelper, M> {
     protected Context context;          //上下文
-    protected H db_helper;              //数据库帮助器
+    protected H dbHelper;              //数据库帮助器
     protected Class<M> mapClass;        //数据字典类型
 
     public DataHelperBase(Context context) {
         this.context = context;
-        db_helper = createHelper();
+        dbHelper = createHelper();
         mapClass = getMapClass();
     }
 
