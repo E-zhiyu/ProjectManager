@@ -665,8 +665,10 @@ public class SettingFragment extends Fragment {
                         String[] type_names = Arrays.stream(IODataType.values())
                                 .map(IODataType::getName)
                                 .toArray(String[]::new);
-                        boolean[] itemStats = {true, true};     //选项的选择状态
-                        boolean[] isItemFound = {true, true};   //是否找到对应名称的文件
+                        boolean[] itemStats = new boolean[type_names.length];     //选项的选择状态
+                        boolean[] isItemFound = new boolean[type_names.length];   //是否找到对应名称的文件
+                        Arrays.fill(itemStats, true);
+                        Arrays.fill(isItemFound, true);
 
                         //根据解压的临时JSON文件决定应该禁用哪些选项
                         for (IODataType IODataType : IODataType.values()) {
