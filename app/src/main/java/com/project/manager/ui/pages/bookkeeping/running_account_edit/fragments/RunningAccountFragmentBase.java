@@ -572,15 +572,6 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
                                 if (copiedFile != null && copiedFile.exists()) {
                                     copiedFIleList.add(copiedFile);
 
-                                    //更新进度
-                                    final int current = i + 1;
-                                    final String fileName = copiedFile.getName();
-
-                                    //在主线程更新UI
-                                    new Handler(Looper.getMainLooper()).post(() ->
-                                            processDialog.updateProgress(current, uriList.size(), fileName)
-                                    );
-
                                     //如果是第一张图片，切换到确定模式
                                     if (!switchedOffIndeterminate) {
                                         switchedOffIndeterminate = true;
@@ -588,6 +579,13 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
                                                 processDialog.setIndeterminate(false)
                                         );
                                     }
+
+                                    //更新进度
+                                    final int current = i + 1;
+                                    final String fileName = copiedFile.getName();
+                                    new Handler(Looper.getMainLooper()).post(() ->
+                                            processDialog.updateProgress(current, uriList.size(), fileName)
+                                    );
                                 }
                             }
 
