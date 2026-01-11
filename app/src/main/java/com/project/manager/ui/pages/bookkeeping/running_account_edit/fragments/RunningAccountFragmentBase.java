@@ -549,15 +549,12 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
             }
         }
 
-        ProgressDialogManager processDialog = new ProgressDialogManager();
-        processDialog.show(requireContext(), () -> {
+        ProgressDialogManager processDialog = new ProgressDialogManager(requireContext(), "复制图片", "正在复制图片……");
+        processDialog.show(() -> {
             //用户点击取消
             disposables.clear();
             Toast.makeText(requireContext(), "已取消添加图片", Toast.LENGTH_SHORT).show();
         });
-
-        //首先设置不确定模式
-        processDialog.setIndeterminate(true);
 
         //在IO线程完成文件复制并在主线程刷新UI
         disposables.add(

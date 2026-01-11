@@ -114,5 +114,5 @@
     <string name="add_picture_via_camera">使用相机拍照</string>
     <string name="add_picture_via_album">从相册中添加</string>
     <string name="progress_0">0/0 (0%)</string>
-    <string name="progressing">正在处理………</string>
+    <string name="progressing">正在处理……</string>
 </resources>

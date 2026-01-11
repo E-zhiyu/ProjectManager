@@ -43,6 +43,7 @@ import com.project.manager.data.data_save.preference.BookKeepingStartDatePrefere
 import com.project.manager.helpers.AnimationHelper;
 import com.project.manager.helpers.IOHelper;
 import com.project.manager.helpers.UpdateHelper;
+import com.project.manager.ui.others.ProgressDialogManager;
 import com.project.manager.ui.pages.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
 import com.project.manager.helpers.AboutHelper;
 import com.project.manager.helpers.ThemeModeHelper;
@@ -67,17 +68,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 
 public class SettingFragment extends Fragment {
-    private FragmentSettingBinding binding;
+    private FragmentSettingBinding binding;                                         //绑定的XML视图
     private ActivityResultLauncher<Intent> importDataLauncher, exportDataLauncher;  //活动启动器
     private ActivityResultLauncher<Intent> backupDirectorySetLauncher;              //自动备份文件夹选择的启动器
-    private IOHelper IOHelper;    //SAF文件帮助器
-    private AutoBackupHelper autoBackupHelper;  //自动备份帮助器
-    private BroadcastReceiver notificationPermissionListener;   //通知监听服务正常运行的广播接收器
+    private IOHelper IOHelper;                                                      //SAF文件帮助器
+    private AutoBackupHelper autoBackupHelper;                                      //自动备份帮助器
+    private BroadcastReceiver notificationPermissionListener;                       //通知监听服务正常运行的广播接收器
+    private final CompositeDisposable disposables = new CompositeDisposable();      //多线程任务列表
 
     //导入和导出的数据种类枚举
     public enum IODataType {
@@ -115,17 +120,6 @@ public class SettingFragment extends Fragment {
         public DataHelperBase<BookKeepingDbHelper, ?> getDataHelper(Context context) {
             return helperFactory.apply(context);
         }
-
-        /**
-         * 获取有效文件名列表
-         *
-         * @return 有效文件的文件名列表
-         */
-        public static List<String> getEffectiveFileNameList() {
-            return Stream.of(values())
-                    .map(IODataType::getDefaultFileName)
-                    .collect(Collectors.toList());
-        }
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -151,6 +145,8 @@ public class SettingFragment extends Fragment {
             Log.d(LogTags.SETTING_FRAGMENT.getV(), "广播接收器注销失败：该接收器未注册");
         }
         binding = null;
+
+        disposables.dispose();
     }
 
     /**
@@ -633,7 +629,7 @@ public class SettingFragment extends Fragment {
         //将文件打包至压缩包内
         boolean isAccountDataChosen = choseItem[IODataType.ACCOUNT_DATA.ordinal()];
         IOHelper.packDataInZip(
-                new IOHelper.WriteCallback() {
+                new IOHelper.ExportCallback() {
                     @Override
                     public void onFileWrote() {
                         Toast.makeText(requireContext(), "导出成功", Toast.LENGTH_SHORT).show();
@@ -657,54 +653,47 @@ public class SettingFragment extends Fragment {
     private void importData() {
         Log.i(LogTags.SETTING_FRAGMENT.getV(), "开始导入数据……");
         IOHelper.openFileViaSAF(
-                new IOHelper.ReadCallback() {
+                new IOHelper.ImportCallback() {
                     @Override
-                    public void onZipUnpacked(List<File> fileList) {
-                        List<File> effectiveFileList = getEffectiveFileList(fileList);
-
-                        String[] type_names = Arrays.stream(IODataType.values())
+                    public void onZipScanned(List<String> entryNameList) {
+                        String[] dataTypeNames = Arrays.stream(IODataType.values())
                                 .map(IODataType::getName)
                                 .toArray(String[]::new);
-                        boolean[] itemStats = new boolean[type_names.length];     //选项的选择状态
-                        boolean[] isItemFound = new boolean[type_names.length];   //是否找到对应名称的文件
-                        Arrays.fill(itemStats, true);
+                        boolean[] choiceStats = new boolean[dataTypeNames.length];     //选项的选择状态
+                        boolean[] isItemFound = new boolean[dataTypeNames.length];   //是否找到对应名称的文件
+                        Arrays.fill(choiceStats, true);
                         Arrays.fill(isItemFound, true);
 
-                        //根据解压的临时JSON文件决定应该禁用哪些选项
+                        //根据扫描结果禁用缺失的选项
+                        boolean isAllDisabled = true;   //标记是否所有选项都被禁用
                         for (IODataType IODataType : IODataType.values()) {
                             boolean isFound = false;
-                            for (File tempFile : fileList) {
-                                if (tempFile.getName().equals(IODataType.getDefaultFileName())) {
+                            for (String entryName : entryNameList) {
+                                if (entryName.equals(IODataType.getDefaultFileName())) {
                                     isFound = true;
+                                    isAllDisabled = false;
                                     break;
                                 }
                             }
 
                             if (!isFound) {
                                 int index = IODataType.ordinal();
-                                String type_name = IODataType.getName();
-                                String disabled_name = String.format(Locale.getDefault(), "%s(未包含)", type_name);
-                                type_names[index] = disabled_name;
-                                itemStats[index] = false;
+                                String dataTypeName = IODataType.getName();
+                                String disabledName = String.format(Locale.getDefault(), "%s(未包含)", dataTypeName);
+                                dataTypeNames[index] = disabledName;
+                                choiceStats[index] = false;
                                 isItemFound[index] = false;
                             }
                         }
 
                         //判断是否所有选项都被禁用
-                        boolean isAllFalse = true;
-                        for (boolean isFound : isItemFound) {
-                            if (isFound) {
-                                isAllFalse = false;
-                                break;
-                            }
-                        }
-                        if (isAllFalse) {
+                        if (isAllDisabled) {
                             Toast.makeText(requireContext(), "请选择正确的备份文件", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
                         //显示导入数据选择对话框
-                        showImportItemChoiceDialog(itemStats, isItemFound, type_names, effectiveFileList);
+                        showImportItemChoiceDialog(choiceStats, isItemFound, dataTypeNames);
                     }
 
                     @Override
@@ -759,28 +748,6 @@ public class SettingFragment extends Fragment {
                 },
                 importDataLauncher
         );
-    }
-
-    /**
-     * 从临时JSON文件列表中过滤有效的文件
-     *
-     * @param tempJsonFileList 临时JSON文件列表
-     * @return 包含有效文件的列表
-     */
-    @NonNull
-    private static List<File> getEffectiveFileList(@NonNull List<File> tempJsonFileList) {
-        List<String> effectiveFileNameList = IODataType.getEffectiveFileNameList();
-        List<File> effectiveFileList = new ArrayList<>();   //能够正确解析内容的文件列表
-
-        //根据文件名筛选有效文件
-        for (File tempJsonFile : tempJsonFileList) {
-            //通过文件名称筛选文件
-            String file_name = tempJsonFile.getName();
-            if (!effectiveFileNameList.contains(file_name)) continue;
-
-            effectiveFileList.add(tempJsonFile);
-        }
-        return effectiveFileList;
     }
 
     /**
@@ -912,16 +879,14 @@ public class SettingFragment extends Fragment {
     /**
      * 显示导入数据选择对话框
      *
-     * @param itemStats         可选项的初始状态
-     * @param isItemEnabled     可选项是否启用
-     * @param choiceItems       选项名称数组
-     * @param effectiveFileList 能够解析的JSON文件列表
+     * @param choiceStats   可选项的初始状态
+     * @param isItemEnabled 可选项是否启用
+     * @param choiceItems   选项名称数组
      */
     private void showImportItemChoiceDialog(
-            boolean[] itemStats,
+            boolean[] choiceStats,
             boolean[] isItemEnabled,
-            String[] choiceItems,
-            List<File> effectiveFileList) {
+            String[] choiceItems) {
         //实例化自定义对话框视图
         @SuppressLint("InflateParams") View mutiChoiceDialogView = getLayoutInflater().inflate(R.layout.view_multichoice, null);
 
@@ -929,9 +894,9 @@ public class SettingFragment extends Fragment {
         RecyclerView recyclerView = mutiChoiceDialogView.findViewById(R.id.item_recycler);
         MultiChoiceDialogAdapter adapter = new MultiChoiceDialogAdapter(
                 isItemEnabled,
-                itemStats,
+                choiceStats,
                 choiceItems,
-                (position, isChecked) -> itemStats[position] = isChecked
+                (position, isChecked) -> choiceStats[position] = isChecked
         );
         recyclerView.setAdapter(adapter);
 
@@ -949,7 +914,7 @@ public class SettingFragment extends Fragment {
             positiveBtn.setOnClickListener(v -> {
                 //检测是否一个都没有选择
                 boolean isNonItemChosen = true;
-                for (boolean isChose : itemStats) {
+                for (boolean isChose : choiceStats) {
                     if (isChose) {
                         isNonItemChosen = false;
                         break;
@@ -958,8 +923,53 @@ public class SettingFragment extends Fragment {
 
                 if (!isNonItemChosen) {
                     Log.i(LogTags.SETTING_FRAGMENT.getV(), "用户选择需要导入的数据并确认进行下一步");
-                    onImportConfirmed(itemStats, effectiveFileList);
                     dialog.dismiss();   //仅当满足要求时才关闭
+
+                    //显示进度条对话框
+                    ProgressDialogManager dialogManager = new ProgressDialogManager(requireContext(), "导入数据", "正在导入数据……");
+                    dialogManager.show(() -> {
+                        Toast.makeText(requireContext(), "已取消数据导入", Toast.LENGTH_SHORT).show();
+                        disposables.clear();
+
+                        //清空流水记录和开始记账日期
+                        RunningAccountDataHelper.deleteAllData(requireContext());
+                        BookKeepingStartDatePreference.saveStartDate("", requireContext()); //清空已保存的开始记账的日期
+
+                        //重置通知解析数据
+                        AnalysisRuleDataHelper.resetRule(requireContext());
+
+                        //通过ViewModel提醒流水界面刷新数据
+                        AccountRecyclerViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountRecyclerViewModel.class);
+                        viewModel.triggerDataUpdate();
+                    });
+
+                    disposables.add(
+                            Observable.fromCallable(() -> writeDataIntoDb(choiceStats))
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribeOn(Schedulers.io())
+                                    .subscribe(isSuccessful -> {
+                                        if (isSuccessful) {
+                                            Toast.makeText(requireContext(), "数据导入成功", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }, e -> {
+                                        Toast.makeText(requireContext(), "数据导入失败", Toast.LENGTH_SHORT).show();
+                                        ExceptionHelper.showExceptionDialog(requireContext(), e);
+
+                                        //清空流水记录和开始记账日期
+                                        RunningAccountDataHelper.deleteAllData(requireContext());
+                                        BookKeepingStartDatePreference.saveStartDate("", requireContext()); //清空已保存的开始记账的日期
+
+                                        //重置通知解析数据
+                                        AnalysisRuleDataHelper.resetRule(requireContext());
+                                    }, () -> {
+                                        dialogManager.dismiss();
+                                        IOHelper.clearTempFile();
+
+                                        //通过ViewModel提醒流水界面刷新数据
+                                        AccountRecyclerViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountRecyclerViewModel.class);
+                                        viewModel.triggerDataUpdate();
+                                    })
+                    );
                 } else {
                     Toast.makeText(requireContext(), "请选择至少一个选项", Toast.LENGTH_SHORT).show();
                 }
@@ -967,28 +977,29 @@ public class SettingFragment extends Fragment {
         });
 
         //设置对话框隐藏监听
-        alertDialog.setOnDismissListener(dialog -> {
-            Log.i(LogTags.SETTING_FRAGMENT.getV(), "对话框关闭");
-            IOHelper.clearTempFile();
-        });
+        alertDialog.setOnDismissListener(dialog -> Log.i(LogTags.SETTING_FRAGMENT.getV(), "对话框关闭"));
         alertDialog.show();
     }
 
     /**
-     * 数据导入确认后触发的方法
+     * 将选中的备份文件中的数据写入数据库
      *
-     * @param itemChooseStats   多选对话框的选择状况
-     * @param effectiveFileList 能够解析内容的有效文件列表
+     * @param itemChooseStats 多选对话框的选择状况
+     * @return 数据是否成功写入
      */
-    private void onImportConfirmed(
-            @NonNull boolean[] itemChooseStats,
-            @NonNull List<File> effectiveFileList) {
+    private boolean writeDataIntoDb(@NonNull boolean[] itemChooseStats) throws NumberFormatException, IOException {
         boolean isImportSuccessfully = false;
-
         boolean isAccountDataChecked = itemChooseStats[IODataType.ACCOUNT_DATA.ordinal()];   //流水记录文件是否勾选
         boolean isRuleDataChecked = itemChooseStats[IODataType.RULE_DATA.ordinal()];         //通知解析规则文件是否勾选
 
-        //将图片解压至图片目录中
+        //获取解压得到的临时JSON文件
+        List<File> tempJsonFileList = IOHelper.copyZipToTempAndUnpack();
+        if (tempJsonFileList == null) {
+            Log.e(LogTags.SETTING_FRAGMENT.getV(), "无法获取解压得到的临时JSON文件");
+            throw new NullPointerException("无法获取解压得到的临时JSON文件");
+        }
+
+        //如果选择了流水记录数据，则将图片解压至图片目录中
         if (isAccountDataChecked) {
             IOHelper.unpackPictureZip();
         }
@@ -1008,7 +1019,7 @@ public class SettingFragment extends Fragment {
                 dataHelper = dataType.getDataHelper(requireContext());
             }
 
-            for (File file : effectiveFileList) {
+            for (File file : tempJsonFileList) {
                 if (targetFileName.equals(file.getName())) {
                     //将数据保存至数据库
                     Log.i(LogTags.SETTING_FRAGMENT.getV(), String.format(Locale.getDefault(), "正在尝试读取临时文件%s", targetFileName));
@@ -1019,26 +1030,17 @@ public class SettingFragment extends Fragment {
                             content.append(line).append("\n");
                         }
                         isImportSuccessfully = dataHelper.saveJsonDataToDb(content.toString()) || isImportSuccessfully;
-                    } catch (IOException e) {
-                        ExceptionHelper.showExceptionDialog(requireContext(), e);
-                        Toast.makeText(requireContext(), "临时文件读取失败，请重试", Toast.LENGTH_SHORT).show();
-                        Log.e(LogTags.SETTING_FRAGMENT.getV(), "临时文件读取失败");
-                        return;
                     }
                 }
             }
         }
 
         if (isImportSuccessfully) {
-            Log.i(LogTags.SETTING_FRAGMENT.getV(), "该文件的数据已成功导入");
-            Toast.makeText(requireContext(), "数据导入成功", Toast.LENGTH_SHORT).show();
+            Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据已成功导入");
+            return true;
         } else {
-            Log.w(LogTags.SETTING_FRAGMENT.getV(), "该文件的数据导入失败");
-            Toast.makeText(requireContext(), "数据导入失败：无法解析文件内容", Toast.LENGTH_SHORT).show();
+            Log.w(LogTags.SETTING_FRAGMENT.getV(), "无法解析文件内容");
+            throw new RuntimeException("无法解析文件内容");
         }
-
-        //通过ViewModel提醒流水界面刷新数据
-        AccountRecyclerViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountRecyclerViewModel.class);
-        viewModel.triggerDataUpdate();
     }
 }
