@@ -49,12 +49,7 @@ public class BackupWorker extends Worker {
 
         //打包为zip文件
         IOHelper IOHelper = new IOHelper(context);
-        try {
-            IOHelper.packPicturesInZip();
-        } catch (RuntimeException e) {
-            Log.w(LogTags.BACKUP_WORKER.getV(), "无法打包图片文件");
-        }
-        IOHelper.packJsonFileInZip(fileNameList, fileContentList);
+        IOHelper.packDataInZip(fileNameList, fileContentList);
 
         return Result.success();
     }

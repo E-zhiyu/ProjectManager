@@ -612,16 +612,6 @@ public class SettingFragment extends Fragment {
         List<String> fileNameList = new ArrayList<>();      //用于导出数据的临时文件名列表
         List<String> fileContentList = new ArrayList<>();   //用于导出数据的临时文件内容列表
 
-        boolean isAccountDataChosen = choseItem[IODataType.ACCOUNT_DATA.ordinal()];
-        if (isAccountDataChosen) {
-            try {
-                IOHelper.packPicturesInZip();
-            } catch (RuntimeException e) {
-                ExceptionHelper.showExceptionDialog(requireContext(), e);
-                return;
-            }
-        }
-
         //根据选择的内容创建临时文件
         for (IODataType dataType : IODataType.values()) {
             if (!choseItem[dataType.ordinal()]) continue;
@@ -641,7 +631,8 @@ public class SettingFragment extends Fragment {
         }
 
         //将文件打包至压缩包内
-        IOHelper.packJsonFileInZip(
+        boolean isAccountDataChosen = choseItem[IODataType.ACCOUNT_DATA.ordinal()];
+        IOHelper.packDataInZip(
                 new IOHelper.WriteCallback() {
                     @Override
                     public void onFileWrote() {
@@ -655,7 +646,8 @@ public class SettingFragment extends Fragment {
                 },
                 exportDataLauncher,
                 fileNameList,
-                fileContentList
+                fileContentList,
+                isAccountDataChosen
         );
     }
 

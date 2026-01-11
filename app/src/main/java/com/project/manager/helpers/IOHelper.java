@@ -44,6 +44,7 @@ public class IOHelper {
     private File tempPictureZip;                                    //临时图片压缩包
     private final File tempDir;                                     //临时文件目录
     private File tempZipFile;                                       //临时zip压缩文件
+    private boolean isPictureNeed;                                  //是否需要打包图片文件（用于SAF回调使用）
 
     /**
      * 文件写入回调接口
@@ -83,26 +84,72 @@ public class IOHelper {
     public IOHelper(@NonNull Context context) {
         this.context = context;
         tempDir = new File(context.getExternalFilesDir(null), "temp");
+        if (!tempDir.exists() && !tempDir.mkdirs()) {
+            Log.e(LogTags.IO_HELPER.getV(), "无法创建临时文件目录");
+        }
+    }
+
+    /**
+     * 将APP数据打包至zip文件中(手动方法)
+     *
+     * @param writeCallback   文件写入回调
+     * @param launcher        启动SAF的意图启动器
+     * @param fileNameList    文件名列表
+     * @param fileContentList 与文件名列表对应的文件内容列表
+     * @param isPictureNeed   是否需要将图片文件打包
+     */
+    public void packDataInZip(
+            WriteCallback writeCallback,
+            ActivityResultLauncher<Intent> launcher,
+            @NonNull List<String> fileNameList,
+            List<String> fileContentList,
+            boolean isPictureNeed) {
+        this.writeCallback = writeCallback;
+        this.isPictureNeed = isPictureNeed;
+
+        //创建列表中的临时文件
+        for (int index = 0; index < fileNameList.size(); index++) {
+            String file_name = fileNameList.get(index);
+            String file_content = fileContentList.get(index);
+
+            createTempJsonFile(file_name, file_content);
+        }
+
+        //启动SAF提示用户选择保存位置
+        saveFileUsingSAF(launcher); //手动模式需要选择文件存放位置
+    }
+
+    /**
+     * 将APP数据打包至zip文件中(自动方法)
+     *
+     * @param fileNameList    文件名列表
+     * @param fileContentList 文件内容列表
+     */
+    public void packDataInZip(@NonNull List<String> fileNameList, List<String> fileContentList) {
+        //创建列表中的临时JSON文件
+        for (int index = 0; index < fileNameList.size(); index++) {
+            String file_name = fileNameList.get(index);
+            String file_content = fileContentList.get(index);
+
+            createTempJsonFile(file_name, file_content);
+        }
+
+        String autoBackupDirUriStr = AutoBackupPreference.getBackupDirectoryUri(context);
+        if (autoBackupDirUriStr != null) {
+            Uri backupDirUri = Uri.parse(autoBackupDirUriStr);
+            createZipFile(backupDirUri);
+        }
+        clearTempFile();
     }
 
     /**
      * 将图片目录下的所有图片打包为zip文件
-     *
-     * @throws RuntimeException 无法创建临时文件目录时引发的异常
      */
-    public void packPicturesInZip() throws RuntimeException {
+    private void packPicturesInZip() {
         File pictureDir = new File(context.getExternalFilesDir(null), "pictures");
         //如果图片目录不存在则不打包
         if (!pictureDir.exists()) {
             return;
-        }
-
-        //尝试创建临时文件目录
-        if (!tempDir.exists() && !tempDir.mkdirs()) {
-            Log.e(LogTags.IO_HELPER.getV(), "无法创建临时文件目录");
-            RuntimeException e = new RuntimeException("无法创建临时文件目录");
-            clearTempFile();
-            throw e;
         }
 
         //将图片文件写入压缩包
@@ -137,80 +184,21 @@ public class IOHelper {
     }
 
     /**
-     * 将APP数据打包至zip文件中(手动方法)
-     *
-     * @param writeCallback   文件写入回调
-     * @param launcher        启动SAF的意图启动器
-     * @param fileNameList    文件名列表
-     * @param fileContentList 与文件名列表对应的文件内容列表
-     */
-    public void packJsonFileInZip(
-            WriteCallback writeCallback,
-            ActivityResultLauncher<Intent> launcher,
-            @NonNull List<String> fileNameList,
-            List<String> fileContentList) {
-        this.writeCallback = writeCallback;
-
-        //创建列表中的临时文件
-        for (int index = 0; index < fileNameList.size(); index++) {
-            String file_name = fileNameList.get(index);
-            String file_content = fileContentList.get(index);
-
-            createTempJsonFile(file_name, file_content);
-        }
-
-        //生成zip文件并写入内容
-        createZipFile(tempDir);
-        saveFileUsingSAF(launcher, tempZipFile);    //手动模式需要选择文件存放位置
-    }
-
-    /**
-     * 将APP数据打包至zip文件中(自动方法)
-     *
-     * @param fileNameList    文件名列表
-     * @param fileContentList 文件内容列表
-     */
-    public void packJsonFileInZip(@NonNull List<String> fileNameList, List<String> fileContentList) {
-        //创建列表中的临时JSON文件
-        for (int index = 0; index < fileNameList.size(); index++) {
-            String file_name = fileNameList.get(index);
-            String file_content = fileContentList.get(index);
-
-            createTempJsonFile(file_name, file_content);
-        }
-
-        String autoBackupDirUriStr = AutoBackupPreference.getBackupDirectoryUri(context);
-        if (autoBackupDirUriStr != null) {
-            Uri backupDirUri = Uri.parse(autoBackupDirUriStr);
-            createZipFile(backupDirUri);
-        }
-        clearTempFile();
-    }
-
-    /**
      * 创建zip压缩包并将临时数据文件放入压缩包内
      *
-     * @param parentDir 存放zip文件的目录
+     * @param parentDir     存放zip文件的目录
+     * @param isPictureNeed 是否需要打包图片文件
      */
-    private void createZipFile(File parentDir) {
+    private void createZipFile(File parentDir, boolean isPictureNeed) {
         Log.d(LogTags.IO_HELPER.getV(), "正在创建zip文件……");
 
-        //获取当前日期和时间并生成默认文件名
-        Calendar calendar = Calendar.getInstance();
-        String now_date = String.format(
-                Locale.getDefault(),
-                "%04d%02d%02d(%02d%02d%02d)",
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH),
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE),
-                calendar.get(Calendar.SECOND)
-        );
-        String zip_file_name = String.format(Locale.getDefault(), "ManagerAssistantData_%s.zip", now_date);
+        //判断是否需要打包图片
+        if (isPictureNeed) {
+            packPicturesInZip();
+        }
 
         //创建并写入zip文件
-        tempZipFile = new File(parentDir, zip_file_name);
+        tempZipFile = new File(parentDir, "temp_backup_file");
         try (FileOutputStream fos = new FileOutputStream(tempZipFile)) {
             ZipOutputStream zos = new ZipOutputStream(fos);
 
@@ -229,8 +217,8 @@ public class IOHelper {
             }
 
             //将图片压缩包也写入文件
-            if (tempPictureZip!=null&&tempPictureZip.exists()) {
-                try(FileInputStream fis = new FileInputStream(tempPictureZip)) {
+            if (tempPictureZip != null && tempPictureZip.exists()) {
+                try (FileInputStream fis = new FileInputStream(tempPictureZip)) {
                     ZipEntry zipEntry = new ZipEntry(tempPictureZip.getName());
                     zos.putNextEntry(zipEntry);
 
@@ -254,12 +242,15 @@ public class IOHelper {
     }
 
     /**
-     * 创建zip压缩包并将临时数据文件放入压缩包内(DocumentFile API方法)
+     * 创建zip压缩包并将临时数据文件放入压缩包内(DocumentFile API方法)(自动备份专用)
      *
      * @param parentDirUri 存放zip文件的目录Uri
      */
     private void createZipFile(Uri parentDirUri) {
         Log.d(LogTags.IO_HELPER.getV(), "正在创建zip文件……");
+
+        //打包图片文件
+        packPicturesInZip();
 
         //获取当前日期和时间并生成默认文件名
         Calendar calendar = Calendar.getInstance();
@@ -315,15 +306,28 @@ public class IOHelper {
      * 使用SAF保存zip文件
      *
      * @param launcher   用于启动SAF的意图启动器
-     * @param sourceFile 临时zip文件对象
      */
-    private void saveFileUsingSAF(@NonNull ActivityResultLauncher<Intent> launcher, @NonNull File sourceFile) {
+    private void saveFileUsingSAF(@NonNull ActivityResultLauncher<Intent> launcher) {
         Log.d(LogTags.IO_HELPER.getV(), "正在通过SAF指定zip备份文件存放位置……");
+
+        //获取当前日期和时间并生成默认文件名
+        Calendar calendar = Calendar.getInstance();
+        String now_date = String.format(
+                Locale.getDefault(),
+                "%04d%02d%02d(%02d%02d%02d)",
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH),
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                calendar.get(Calendar.SECOND)
+        );
+        String targetFileName = String.format(Locale.getDefault(), "ManagerAssistantData_%s.zip", now_date);
 
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("application/zip");
-        intent.putExtra(Intent.EXTRA_TITLE, sourceFile.getName());
+        intent.putExtra(Intent.EXTRA_TITLE, targetFileName);
         launcher.launch(intent);
 
         Log.d(LogTags.IO_HELPER.getV(), "SAF启动成功");
@@ -395,6 +399,7 @@ public class IOHelper {
                 Uri uri = data.getData();
 
                 if (uri != null) {
+                    createZipFile(tempDir, isPictureNeed);
                     copyTempZipToUri(uri);
                 }
                 Log.i(LogTags.IO_HELPER.getV(), "用户确认选择并进行下一步");
