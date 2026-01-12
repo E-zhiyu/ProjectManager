@@ -25,6 +25,7 @@ import com.project.manager.ui.pages.setting.data_io.pojo.PojoTransferRunningAcco
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper, TotalAccountDataMap> {
     public RunningAccountDataHelper(Context context) {
@@ -389,12 +390,15 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
             db.delete(BookKeepingTables.TAG_GROUP.toString(), BookKeepingColumns.GROUP_NO + "!=0", null);
             db.delete(BookKeepingTables.PICTURE.toString(), null, null);
 
-            //删除图片目录
+            //删除旧图片
             File pictureDir = new File(context.getExternalFilesDir(null), "pictures");
-            if (pictureDir.delete()) {
-                Log.d(LogTags.ACCOUNT_DATA_HELPER.getV(), "图片目录成功删除");
-            } else {
-                Log.w(LogTags.ACCOUNT_DATA_HELPER.getV(), "图片目录删除失败");
+            File[] oldPictureFiles = pictureDir.listFiles();
+            if (oldPictureFiles != null) {
+                for (File oldPicture:oldPictureFiles) {
+                    if (!oldPicture.delete()) {
+                        Log.w(LogTags.ACCOUNT_DATA_HELPER.getV(), String.format(Locale.getDefault(),"“%s”删除失败",oldPicture.getName()));
+                    }
+                }
             }
 
             //删除通知解析规则的标签数据
