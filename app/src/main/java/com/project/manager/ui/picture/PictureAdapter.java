@@ -1,4 +1,4 @@
-package com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments;
+package com.project.manager.ui.picture;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -22,7 +22,6 @@ import com.project.manager.LogTags;
 import com.project.manager.R;
 import com.project.manager.data.data_class.Picture;
 import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
-import com.project.manager.ui.picture.FullScreenImageActivity;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -256,8 +255,10 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         this.pictureList.addAll(pictureList);
         pictureSelectList.addAll(new ArrayList<>(Collections.nCopies(pictureList.size(), false)));
 
-        if (step >= 1) {
+        if (step > 1) {
             notifyItemRangeInserted(start, start + step - 1);
+        } else if (step == 1) {
+            notifyItemInserted(start);
         }
     }
 
