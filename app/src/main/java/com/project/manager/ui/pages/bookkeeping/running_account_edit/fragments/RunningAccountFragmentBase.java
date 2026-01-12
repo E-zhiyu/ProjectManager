@@ -35,7 +35,7 @@ import com.project.manager.LogTags;
 import com.project.manager.R;
 import com.project.manager.data.data_class.Picture;
 import com.project.manager.helpers.ExceptionHelper;
-import com.project.manager.ui.others.ProgressDialogManager;
+import com.project.manager.ui.others.dialogs.ProgressDialog;
 import com.project.manager.ui.picture.AddPictureOptionBottomSheet;
 import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.pages.bookkeeping.TagString;
@@ -549,12 +549,15 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
             }
         }
 
-        ProgressDialogManager processDialog = new ProgressDialogManager(requireContext(), "复制图片", "正在复制图片……");
-        processDialog.show(() -> {
-            //用户点击取消
-            disposables.clear();
-            Toast.makeText(requireContext(), "已取消添加图片", Toast.LENGTH_SHORT).show();
-        });
+        ProgressDialog processDialog = new ProgressDialog(requireContext(), "复制图片", "正在复制图片……");
+        processDialog.show(
+                null,
+                () -> {
+                    //用户点击取消
+                    disposables.clear();
+                    Toast.makeText(requireContext(), "已取消添加图片", Toast.LENGTH_SHORT).show();
+                },
+                false);
 
         //在IO线程完成文件复制并在主线程刷新UI
         disposables.add(

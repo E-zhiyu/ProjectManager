@@ -43,7 +43,7 @@ import com.project.manager.data.data_save.preference.BookKeepingStartDatePrefere
 import com.project.manager.helpers.AnimationHelper;
 import com.project.manager.helpers.IOHelper;
 import com.project.manager.helpers.UpdateHelper;
-import com.project.manager.ui.others.ProgressDialogManager;
+import com.project.manager.ui.others.dialogs.ProgressDialog;
 import com.project.manager.ui.pages.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
 import com.project.manager.helpers.AboutHelper;
 import com.project.manager.helpers.ThemeModeHelper;
@@ -575,11 +575,14 @@ public class SettingFragment extends Fragment {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    ProgressDialogManager dialogManager = new ProgressDialogManager(requireContext(), "导出数据", "正在导出数据……");
-                    dialogManager.show(() -> {
-                        disposables.clear();
-                        Toast.makeText(requireContext(), "已取消数据导出", Toast.LENGTH_SHORT).show();
-                    });
+                    ProgressDialog dialogManager = new ProgressDialog(requireContext(), "导出数据", "正在导出数据……");
+                    dialogManager.show(
+                            null,
+                            () -> {
+                                disposables.clear();
+                                Toast.makeText(requireContext(), "已取消数据导出", Toast.LENGTH_SHORT).show();
+                            },
+                            false);
 
                     disposables.add(
                             Observable.fromCallable(() -> {
@@ -933,22 +936,25 @@ public class SettingFragment extends Fragment {
                     dialog.dismiss();   //仅当满足要求时才关闭
 
                     //显示进度条对话框
-                    ProgressDialogManager dialogManager = new ProgressDialogManager(requireContext(), "导入数据", "正在导入数据……");
-                    dialogManager.show(() -> {
-                        Toast.makeText(requireContext(), "已取消数据导入", Toast.LENGTH_SHORT).show();
-                        disposables.clear();
+                    ProgressDialog dialogManager = new ProgressDialog(requireContext(), "导入数据", "正在导入数据……");
+                    dialogManager.show(
+                            null,
+                            () -> {
+                                Toast.makeText(requireContext(), "已取消数据导入", Toast.LENGTH_SHORT).show();
+                                disposables.clear();
 
-                        //清空流水记录和开始记账日期
-                        RunningAccountDataHelper.deleteAllData(requireContext());
-                        BookKeepingStartDatePreference.saveStartDate("", requireContext()); //清空已保存的开始记账的日期
+                                //清空流水记录和开始记账日期
+                                RunningAccountDataHelper.deleteAllData(requireContext());
+                                BookKeepingStartDatePreference.saveStartDate("", requireContext()); //清空已保存的开始记账的日期
 
-                        //重置通知解析数据
-                        AnalysisRuleDataHelper.resetRule(requireContext());
+                                //重置通知解析数据
+                                AnalysisRuleDataHelper.resetRule(requireContext());
 
-                        //通过ViewModel提醒流水界面刷新数据
-                        AccountRecyclerViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountRecyclerViewModel.class);
-                        viewModel.triggerDataUpdate();
-                    });
+                                //通过ViewModel提醒流水界面刷新数据
+                                AccountRecyclerViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountRecyclerViewModel.class);
+                                viewModel.triggerDataUpdate();
+                            },
+                            false);
 
                     disposables.add(
                             Observable.fromCallable(() -> writeDataIntoDb(choiceStats))
