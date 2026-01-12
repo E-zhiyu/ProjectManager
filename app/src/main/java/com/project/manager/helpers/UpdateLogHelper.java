@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.7.1  \n" +
             "**BUG修复**  \n" +
+            "- 修复在高分辨率下显示的图片过小的BUG  \n" +
             "- 修复当流水记录中没有图片时从相册导入一张图片会无法显示的BUG  \n\n" +
             "# v1.7.0  \n" +
             "**新增内容**  \n" +
