@@ -34,6 +34,18 @@
         <item name="android:textSize">20sp</item>
     </style>
 
+    <!-- 可点击的文本框样式 -->
+    <style name="ClickableTextViewStyle">
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:paddingTop">15dp</item>
+        <item name="android:paddingBottom">15dp</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:drawablePadding">15dp</item>
+        <item name="android:paddingStart">20dp</item>
+    </style>
+
     <!-- 缩小版标签文本样式 -->
     <style name="SmallLabelTextViewStyle">
         <item name="android:paddingStart">10dp</item>
@@ -117,7 +129,10 @@
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:textSize">15sp</item>
         <item name="cornerRadius">20dp</item>
-        <item name="android:layout_margin">5dp</item>
+        <item name="layout_goneMarginStart">5dp</item>
+        <item name="layout_goneMarginEnd">5dp</item>
+        <item name="layout_goneMarginTop">5dp</item>
+        <item name="layout_goneMarginBottom">5dp</item>
         <item name="android:padding">10dp</item>
     </style>
 
@@ -143,6 +158,13 @@
         <item name="tint">?attr/colorPrimary</item>
         <item name="android:padding">10dp</item>
         <item name="android:background">@drawable/ripple_circle</item>
+    </style>
+
+    <!-- 灰色半透明背景图标按钮样式 -->
+    <style name="TranslucentGrayImageButtonStyle" parent="Widget.AppCompat.ImageButton">
+        <item name="tint">@android:color/white</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:background">@drawable/background_translucent_round</item>
     </style>
 
     <style name="ImageViewStyle">

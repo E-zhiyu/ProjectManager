@@ -11,7 +11,14 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.6.4  \n" +
+    private static final String update_log_md = "# v1.7.0  \n" +
+            "**新增内容**  \n" +
+            "- 新增流水记录图片功能，允许添加多张图片到某条流水记录中，支持使用相机拍照或从相册中添加  \n" +
+            "- 新增查看图片功能，可以点击流水输入界面的图片以全屏查看，并且支持保存到系统相册和分享功能  \n\n" +
+            "**修改内容**  \n" +
+            "- 修改报表界面显示金额占比的进度条样式  \n" +
+            "- 将数据导入导出逻辑放置在IO线程以减少卡顿，同时添加进度条对话框  \n\n" +
+            "# v1.6.4  \n" +
             "**BUG修复**  \n" +
             "- 修复导入流水记录数据不会重置记账累计天数的BUG  \n\n" +
             "**修改内容**  \n" +

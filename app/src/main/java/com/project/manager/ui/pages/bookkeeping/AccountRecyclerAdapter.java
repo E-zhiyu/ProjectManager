@@ -104,16 +104,6 @@ public class AccountRecyclerAdapter extends RecyclerView.Adapter<AccountRecycler
      * @param filter_tag_no 过滤器的标签编号
      */
     public void addNewRunningAccount(@NonNull Bundle dataBundle, long filter_tag_no) {
-        //将流水保存至数据库
-        long rno;
-        try {
-            rno = RunningAccountBase.saveNewAccount(dataBundle, context);
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            Toast.makeText(context, "添加流水记录时出错", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         //获取基本流水数据
         long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
         if (tag_no == filter_tag_no || filter_tag_no == 0) {
@@ -123,6 +113,8 @@ public class AccountRecyclerAdapter extends RecyclerView.Adapter<AccountRecycler
             boolean isDefaultRemark = dataBundle.getBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue());
             double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
             String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
+            long rno = dataBundle.getLong(KeyValueStrings.RNO.getValue(), 0);
+            if (rno == 0) return;   //如果为0则说明数据库保存失败，直接结束该方法
 
             //获取特殊数据并实例化流水类
             RunningAccountBase newRunningAccount;
@@ -152,7 +144,7 @@ public class AccountRecyclerAdapter extends RecyclerView.Adapter<AccountRecycler
      *
      * @param dataBundle 新流水记录数据包
      */
-    public void addNewRunningAccountNoSave(@NonNull Bundle dataBundle) {
+    public void addNewRunningAccountByNotification(@NonNull Bundle dataBundle) {
         //解析数据
         long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
         RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
@@ -191,15 +183,6 @@ public class AccountRecyclerAdapter extends RecyclerView.Adapter<AccountRecycler
      * @param dataBundle 修改后的流水数据
      */
     public void modifyRunningAccount(@NonNull Bundle dataBundle) {
-        //将数据保存至数据库
-        try {
-            RunningAccountBase.modifyAccount(dataBundle, context);
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            Toast.makeText(context, "修改流水数据失败", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         //解析数据
         long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
         RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));

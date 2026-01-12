@@ -15,4 +15,6 @@
     <color name="color_surface_container_low_night">#161a25</color>
     <color name="unchecked_gray">#737685</color>
     <color name="unchecked_gray_night">#8d909f</color>
+    <color name="black_translucent">#88000000</color>
+    <color name="gray_translucent">#88737685</color>
 </resources>

@@ -183,6 +183,7 @@ public class UpdateHelper {
             dialogBuilder.setNegativeButton("跳过此版本", (dialog, which) -> skipNextVersion(context, latestVersionCode));
         } else {
             dialogBuilder.setNegativeButton("退出", (dialog, which) -> dialog.cancel());
+            dialogBuilder.setCancelable(false);     //强制更新不能取消
             dialogBuilder.setOnCancelListener(dialog -> android.os.Process.killProcess(android.os.Process.myPid()));
         }
 
@@ -197,7 +198,7 @@ public class UpdateHelper {
      * @param versionName 版本名称
      */
     private static void downloadLatestFile(@NonNull Context context, String downloadUrl, String versionName) {
-        Toast.makeText(context,"正在下载安装包，请勿关闭本APP",Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "正在下载安装包，请勿关闭本APP", Toast.LENGTH_SHORT).show();
 
         //生成文件名
         String fileName = String.format("ManagerAssistant_v%s.apk", versionName);
@@ -205,10 +206,10 @@ public class UpdateHelper {
         //请求下载
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadUrl));
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
-        request.setTitle("经理助手");
-        request.setDescription("正在下载安装包...");
+        request.setTitle(AboutHelper.getAppName(context));
+        request.setDescription("正在下载安装包……");
         request.setVisibleInDownloadsUi(true);
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);  //设置通知永远可见
 
         //设置下载路径
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
@@ -327,6 +328,7 @@ public class UpdateHelper {
         MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(context)
                 .setTitle("发现新版本")
                 .setView(markDownDialog)
+                .setCancelable(false)   //强制更新不可取消
                 .setPositiveButton(
                         "更新",
                         (dialog, which) -> downloadLatestFile(context, MandatoryDownloadUrl, MandatoryVersionName)

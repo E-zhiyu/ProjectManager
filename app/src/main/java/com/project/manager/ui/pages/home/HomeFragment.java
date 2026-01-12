@@ -21,7 +21,7 @@ import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.data.data_save.preference.BookKeepingStartDatePreference;
 import com.project.manager.databinding.FragmentHomeBinding;
 import com.project.manager.helpers.ExceptionHelper;
-import com.project.manager.ui.pages.bookkeeping.report.ReportActivity;
+import com.project.manager.ui.pages.home.report.ReportActivity;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountType;
 
 import java.time.LocalDate;

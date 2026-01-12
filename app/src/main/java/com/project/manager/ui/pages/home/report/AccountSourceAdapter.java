@@ -1,14 +1,14 @@
-package com.project.manager.ui.pages.bookkeeping.report;
+package com.project.manager.ui.pages.home.report;
 
 import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
 import com.project.manager.data.data_class.AccountSourceInfo;
@@ -19,18 +19,18 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
     private final List<AccountSourceInfo> sourceCardList;  //来源卡片列表
 
     public static class AccountProportionViewHolder extends RecyclerView.ViewHolder {
-        MaterialTextView source_name_text;  //标签名称文本
-        MaterialTextView proportion_text;   //金额占比文本
-        MaterialTextView amount_text;       //金额文本
-        ProgressBar proportion_bar;         //占比进度条
+        MaterialTextView sourceNameText;        //标签名称文本
+        MaterialTextView proportionText;        //金额占比文本
+        MaterialTextView amountText;            //金额文本
+        LinearProgressIndicator proportionBar;  //占比进度条
 
         public AccountProportionViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            source_name_text = itemView.findViewById(R.id.source_name_text);
-            proportion_text = itemView.findViewById(R.id.percentage_text);
-            amount_text = itemView.findViewById(R.id.amount_text);
-            proportion_bar = itemView.findViewById(R.id.percentage_bar);
+            sourceNameText = itemView.findViewById(R.id.source_name_text);
+            proportionText = itemView.findViewById(R.id.percentage_text);
+            amountText = itemView.findViewById(R.id.amount_text);
+            proportionBar = itemView.findViewById(R.id.percentage_bar);
         }
     }
 
@@ -59,10 +59,10 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
         int percentage = oneSourceInfo.getPercentage();
         double amount = oneSourceInfo.getAmount();
 
-        holder.source_name_text.setText(source_name);               //来源名称
-        holder.amount_text.setText(String.format("%.2f", amount));  //金额
+        holder.sourceNameText.setText(source_name);               //来源名称
+        holder.amountText.setText(String.format("%.2f", amount));  //金额
         String percentage_str = String.format("%d%%", percentage);
-        holder.proportion_text.setText(percentage_str);             //百分比文本
-        holder.proportion_bar.setProgress(percentage);              //百分比进度条
+        holder.proportionText.setText(percentage_str);             //百分比文本
+        holder.proportionBar.setProgress(percentage);              //百分比进度条
     }
 }

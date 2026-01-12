@@ -28,13 +28,13 @@ public class SheetTagGroupRecyclerAdapter extends RecyclerView.Adapter<SheetTagG
     }
 
     public static class TagSelectHolder extends RecyclerView.ViewHolder {
-        RecyclerView tag_btn_layout;                    //标签按钮布局
+        RecyclerView tagBtnRecycler;                    //标签按钮布局
         MaterialTextView tag_group_name_view;           //标签分组名称
 
         public TagSelectHolder(@NonNull View itemView) {
             super(itemView);
 
-            tag_btn_layout = itemView.findViewById(R.id.tag_btn_recycler_view);
+            tagBtnRecycler = itemView.findViewById(R.id.tag_btn_recycler_view);
             tag_group_name_view = itemView.findViewById(R.id.tag_group_name_view);
         }
     }
@@ -74,20 +74,20 @@ public class SheetTagGroupRecyclerAdapter extends RecyclerView.Adapter<SheetTagG
         //根据当前的标签列表是否为空设置视图内容
         if (tags.isEmpty()) {
             holder.tag_group_name_view.setVisibility(View.GONE);
-            holder.tag_btn_layout.setVisibility(View.GONE);
+            holder.tagBtnRecycler.setVisibility(View.GONE);
         } else {
             holder.tag_group_name_view.setText(group_name);
             SheetTagBtnRecyclerAdapter btn_layout_adapter = new SheetTagBtnRecyclerAdapter(tags, context, tagBtnClickedListener);
-            holder.tag_btn_layout.setAdapter(btn_layout_adapter);
+            holder.tagBtnRecycler.setAdapter(btn_layout_adapter);
 
             //设置布局器
             int spanCount = 3;
             GridLayoutManager layoutManager = new GridLayoutManager(context, spanCount);
-            holder.tag_btn_layout.setLayoutManager(layoutManager);
+            holder.tagBtnRecycler.setLayoutManager(layoutManager);
 
             //设置按钮间隔
             int spacing = 16; // 单位：像素
-            holder.tag_btn_layout.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing, true));
+            holder.tagBtnRecycler.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing, true));
         }
     }
 

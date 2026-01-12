@@ -7,7 +7,8 @@ public enum BookKeepingTables {
     TRANSFER("transfer_data"),
     TAG("tag_data"),
     TAG_GROUP("tag_group_data"),
-    ANALYSIS_RULE("analysis_rule_data");
+    ANALYSIS_RULE("analysis_rule_data"),
+    PICTURE("picture");
 
     private final String value;
 

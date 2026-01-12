@@ -5,22 +5,27 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabaseLockedException;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.project.manager.LogTags;
 import com.project.manager.data.data_save.database.BookKeepingColumns;
 import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.data.data_save.preference.BookKeepingStartDatePreference;
 import com.project.manager.ui.pages.setting.data_io.pojo.PojoBasicRunningAccount;
+import com.project.manager.ui.pages.setting.data_io.pojo.PojoPicture;
 import com.project.manager.ui.pages.setting.data_io.pojo.PojoTag;
 import com.project.manager.ui.pages.setting.data_io.pojo.PojoTagGroup;
 import com.project.manager.ui.pages.setting.data_io.maps.TotalAccountDataMap;
 import com.project.manager.ui.pages.setting.data_io.pojo.PojoTransferRunningAccount;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper, TotalAccountDataMap> {
     public RunningAccountDataHelper(Context context) {
@@ -43,12 +48,14 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
         List<PojoTag> pojoTagList = map.getTag_data();
         List<PojoBasicRunningAccount> pojoBasicRunningAccountList = map.getBasic_data();
         List<PojoTransferRunningAccount> pojoTransferRunningAccountList = map.getTransfer_data();
+        List<PojoPicture> pojoPictureList = map.getPicture_data();
 
         //将对应的数据写入数据库
         setTagGroupData(pojoTagGroupList);
         setTagData(pojoTagList);
         setBasicData(pojoBasicRunningAccountList);
         setTransferData(pojoTransferRunningAccountList);
+        setPictureData(pojoPictureList == null ? new ArrayList<>() : pojoPictureList);
 
         BookKeepingStartDatePreference.saveStartDate("", context);  //清空已保存的开始记账的日期
     }
@@ -57,7 +64,7 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
     @NonNull
     private List<PojoBasicRunningAccount> getBasicData() {
         List<PojoBasicRunningAccount> pojoBasicRunningAccountList = new ArrayList<>();
-        SQLiteDatabase db = db_helper.openReadLink();
+        SQLiteDatabase db = dbHelper.openReadLink();
 
         Cursor basic_cursor = db.query(
                 BookKeepingTables.BASIC.toString(),
@@ -95,7 +102,7 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
 
     //将流水账基本数据写入数据库
     private void setBasicData(@NonNull List<PojoBasicRunningAccount> runningAccountDataList) {
-        SQLiteDatabase db = db_helper.openWriteLink();
+        SQLiteDatabase db = dbHelper.openWriteLink();
 
         //删除之前表的内容
         db.delete(BookKeepingTables.BASIC.toString(), null, null);
@@ -126,7 +133,7 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
     @NonNull
     private List<PojoTransferRunningAccount> getTransferData() {
         List<PojoTransferRunningAccount> pojoTransferRunningAccountList = new ArrayList<>();
-        SQLiteDatabase db = db_helper.openReadLink();
+        SQLiteDatabase db = dbHelper.openReadLink();
 
         Cursor transfer_cursor = db.query(
                 BookKeepingTables.TRANSFER.toString(),
@@ -153,7 +160,7 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
     }
 
     private void setTransferData(@NonNull List<PojoTransferRunningAccount> pojoTransferRunningAccountList) {
-        SQLiteDatabase db = db_helper.openWriteLink();
+        SQLiteDatabase db = dbHelper.openWriteLink();
 
         //删除之前表的内容
         db.delete(BookKeepingTables.TRANSFER.toString(), null, null);
@@ -178,7 +185,7 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
     @NonNull
     private List<PojoTag> getTagData() {
         List<PojoTag> pojoTagList = new ArrayList<>();
-        SQLiteDatabase db = db_helper.openReadLink();
+        SQLiteDatabase db = dbHelper.openReadLink();
 
         Cursor tag_cursor = db.query(
                 BookKeepingTables.TAG.toString(),
@@ -206,7 +213,7 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
 
     //将标签数据写入数据库
     private void setTagData(@NonNull List<PojoTag> pojoTagList) {
-        SQLiteDatabase db = db_helper.openWriteLink();
+        SQLiteDatabase db = dbHelper.openWriteLink();
 
         //删除之前表的内容
         db.delete(BookKeepingTables.TAG.toString(), null, null);
@@ -231,7 +238,7 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
     @NonNull
     private List<PojoTagGroup> getTagGroupData() {
         List<PojoTagGroup> pojoTagGroupList = new ArrayList<>();
-        SQLiteDatabase db = db_helper.openReadLink();
+        SQLiteDatabase db = dbHelper.openReadLink();
 
         Cursor tag_group_cursor = db.query(
                 BookKeepingTables.TAG_GROUP.toString(),
@@ -258,7 +265,7 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
 
     //将标签分组数据写入数据库
     private void setTagGroupData(@NonNull List<PojoTagGroup> pojoTagGroupList) {
-        SQLiteDatabase db = db_helper.openWriteLink();
+        SQLiteDatabase db = dbHelper.openWriteLink();
 
         //删除之前表的内容
         db.delete(BookKeepingTables.TAG_GROUP.toString(), null, null);
@@ -288,6 +295,65 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
         db.close();
     }
 
+    /**
+     * 从数据库读取图片数据
+     *
+     * @return 包含图片Pojo数据的列表
+     */
+    @NonNull
+    private List<PojoPicture> getPictureData() {
+        SQLiteDatabase db = dbHelper.openReadLink();
+        List<PojoPicture> pictureList = new ArrayList<>();
+
+        Cursor pictureCursor = db.query(
+                BookKeepingTables.PICTURE.toString(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        while (pictureCursor.moveToNext()) {
+            long pno = pictureCursor.getLong(pictureCursor.getColumnIndexOrThrow(BookKeepingColumns.PNO.toString()));
+            long rno = pictureCursor.getLong(pictureCursor.getColumnIndexOrThrow(BookKeepingColumns.RNO.toString()));
+            String uri = pictureCursor.getString(pictureCursor.getColumnIndexOrThrow(BookKeepingColumns.PICTURE_URI.toString()));
+
+            PojoPicture picture = new PojoPicture(pno, rno, uri);
+            pictureList.add(picture);
+        }
+
+        pictureCursor.close();
+        db.close();
+        return pictureList;
+    }
+
+    /**
+     * 将图片数据写入数据库
+     *
+     * @param pictureList 图片数据列表
+     */
+    private void setPictureData(@NonNull List<PojoPicture> pictureList) {
+        SQLiteDatabase db = dbHelper.openWriteLink();
+
+        db.delete(BookKeepingTables.PICTURE.toString(), null, null);
+
+        for (PojoPicture picture : pictureList) {
+            long pno = picture.getPno();
+            long rno = picture.getRno();
+            String uri = picture.getUri();
+
+            ContentValues pictureValues = new ContentValues();
+            pictureValues.put(BookKeepingColumns.PNO.toString(), pno);
+            pictureValues.put(BookKeepingColumns.RNO.toString(), rno);
+            pictureValues.put(BookKeepingColumns.PICTURE_URI.toString(), uri);
+            db.insert(BookKeepingTables.PICTURE.toString(), null, pictureValues);
+        }
+
+        db.close();
+    }
+
     @Override
     public TotalAccountDataMap getAllDataInMap() {
         //读取所有数据
@@ -295,6 +361,7 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
         List<PojoTransferRunningAccount> pojoTransferRunningAccountList = getTransferData();
         List<PojoTag> pojoTagList = getTagData();
         List<PojoTagGroup> pojoTagGroupList = getTagGroupData();
+        List<PojoPicture> pojoPictureList = getPictureData();
 
         //将所有数据合并至一个字典
         TotalAccountDataMap totalAccountDataMap = new TotalAccountDataMap();
@@ -302,6 +369,7 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
         totalAccountDataMap.setTransfer_data(pojoTransferRunningAccountList);
         totalAccountDataMap.setTag_data(pojoTagList);
         totalAccountDataMap.setTag_group_data(pojoTagGroupList);
+        totalAccountDataMap.setPicture_data(pojoPictureList);
 
         return totalAccountDataMap;
     }
@@ -311,7 +379,7 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
      *
      * @param context 用于打开数据库的上下文
      */
-    public static void deleteAllData(Context context) {
+    public static void deleteAllData(@NonNull Context context) {
         String tip_str = "数据清除失败，原因未知";
         try (BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context)) {
             SQLiteDatabase db = db_helper.openWriteLink();
@@ -320,6 +388,18 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
             db.delete(BookKeepingTables.BASIC.toString(), null, null);
             db.delete(BookKeepingTables.TAG.toString(), null, null);
             db.delete(BookKeepingTables.TAG_GROUP.toString(), BookKeepingColumns.GROUP_NO + "!=0", null);
+            db.delete(BookKeepingTables.PICTURE.toString(), null, null);
+
+            //删除旧图片
+            File pictureDir = new File(context.getExternalFilesDir(null), "pictures");
+            File[] oldPictureFiles = pictureDir.listFiles();
+            if (oldPictureFiles != null) {
+                for (File oldPicture:oldPictureFiles) {
+                    if (!oldPicture.delete()) {
+                        Log.w(LogTags.ACCOUNT_DATA_HELPER.getV(), String.format(Locale.getDefault(),"“%s”删除失败",oldPicture.getName()));
+                    }
+                }
+            }
 
             //删除通知解析规则的标签数据
             ContentValues rule_tag_value = new ContentValues();

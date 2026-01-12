@@ -1,20 +1,21 @@
-package com.project.manager.ui.pages.setting.data_io;
+package com.project.manager.ui.others.dialogs;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatCheckedTextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.project.manager.R;
 
 public class MultiChoiceDialogAdapter extends RecyclerView.Adapter<MultiChoiceDialogAdapter.CheckedTextViewHolder> {
-    private final String[] choiceItems;         //多选选项
+    private final String[] itemNames;         //多选选项
     private final boolean[] itemStats;          //选项初始状态
     private final boolean[] itemEnabled;        //选项是否被禁用
-    private final onCheckedListener listener;   //选择行为监听器
+    private final OnCheckedListener listener;   //选择行为监听器
 
     public static class CheckedTextViewHolder extends RecyclerView.ViewHolder {
         AppCompatCheckedTextView checkedTextView;
@@ -25,7 +26,7 @@ public class MultiChoiceDialogAdapter extends RecyclerView.Adapter<MultiChoiceDi
         }
     }
 
-    public interface onCheckedListener {
+    public interface OnCheckedListener {
         /**
          * 复选框状态变化回调
          *
@@ -38,29 +39,15 @@ public class MultiChoiceDialogAdapter extends RecyclerView.Adapter<MultiChoiceDi
     /**
      * 不设置是否启用可选项的构造方法
      *
+     * @param itemEnabled 选项是否启用(为null则不禁用任何选项)
      * @param itemStats   选项初始状态
-     * @param choiceItems 选项名称
+     * @param itemNames   选项名称
      * @param listener    选项点击监听器
      */
-    public MultiChoiceDialogAdapter(boolean[] itemStats, String[] choiceItems, onCheckedListener listener) {
-        this.itemEnabled = null;
-        this.itemStats = itemStats;
-        this.choiceItems = choiceItems;
-        this.listener = listener;
-    }
-
-    /**
-     * 不设置是否启用可选项的构造方法
-     *
-     * @param itemStats   选项初始状态
-     * @param itemEnabled 选项是否启用
-     * @param choiceItems 选项名称
-     * @param listener    选项点击监听器
-     */
-    public MultiChoiceDialogAdapter(boolean[] itemEnabled, boolean[] itemStats, String[] choiceItems, onCheckedListener listener) {
+    public MultiChoiceDialogAdapter(@Nullable boolean[] itemEnabled, boolean[] itemStats, String[] itemNames, OnCheckedListener listener) {
         this.itemEnabled = itemEnabled;
         this.itemStats = itemStats;
-        this.choiceItems = choiceItems;
+        this.itemNames = itemNames;
         this.listener = listener;
     }
 
@@ -80,7 +67,7 @@ public class MultiChoiceDialogAdapter extends RecyclerView.Adapter<MultiChoiceDi
         }
         boolean stat = itemStats[position];
 
-        holder.checkedTextView.setText(choiceItems[position]);
+        holder.checkedTextView.setText(itemNames[position]);
         if (!isEnabled) {
             holder.checkedTextView.setEnabled(false);
             holder.checkedTextView.setChecked(false);
@@ -100,6 +87,6 @@ public class MultiChoiceDialogAdapter extends RecyclerView.Adapter<MultiChoiceDi
 
     @Override
     public int getItemCount() {
-        return choiceItems.length;
+        return itemNames.length;
     }
 }

@@ -104,4 +104,15 @@
     <string name="every_month">每个月</string>
     <string name="every_15_min">每15分钟</string>
     <string name="select_first_screen">首页选择</string>
+    <string name="add_picture">添加图片</string>
+    <string name="click_to_take_picture">点击拍照</string>
+    <string name="capture_toolbar_tip">您可以拍下任何有关的图片，\n以便日后快速了解该流水记录的详细内容</string>
+    <string name="container_of_account_picture">流水记录图片显示容器</string>
+    <string name="delete_picture">删除图片</string>
+    <string name="save_picture_btn">保存图片按钮</string>
+    <string name="share_picture_btn">分享图片按钮</string>
+    <string name="add_picture_via_camera">使用相机拍照</string>
+    <string name="add_picture_via_album">从相册中添加</string>
+    <string name="progress_0">0/0 (0%)</string>
+    <string name="progressing">正在处理……</string>
 </resources>

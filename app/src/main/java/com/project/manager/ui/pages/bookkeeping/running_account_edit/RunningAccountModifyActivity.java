@@ -1,9 +1,11 @@
 package com.project.manager.ui.pages.bookkeeping.running_account_edit;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
@@ -11,15 +13,22 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.project.manager.R;
+import com.project.manager.data.data_class.Picture;
+import com.project.manager.data.data_class.running_account.RunningAccountBase;
 import com.project.manager.databinding.ActivityRunningAccountModifyBinding;
 import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.ExpenseFragment;
+import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.PictureAdapter;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountFragmentBase;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.IncomeFragment;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.TransferFragment;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RunningAccountModifyActivity extends AppCompatActivity {
     private RunningAccountType type = null;                         //流水种类
@@ -68,6 +77,23 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
             transaction.commit();
             runningAccountFragment.receiveInitData(dataBundle);   //将原本的数据传递给碎片实例
         }
+
+        //设置返回监听器
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                try {
+                    PictureAdapter pictureAdapter = runningAccountFragment.getPictureAdapter();
+                    if (pictureAdapter.isDeleteMode()) {
+                        pictureAdapter.switchDeleteMode(false);
+                    } else {
+                        finish();
+                    }
+                } catch (NumberFormatException e) {
+                    finish();
+                }
+            }
+        });
     }
 
     @Override
@@ -95,6 +121,19 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
             } else {
                 Bundle dataBundle = getInputData();
                 result2BookKeeping.putExtras(dataBundle);
+
+                //将数据保存至数据库
+                try {
+                    RunningAccountBase.modifyAccount(dataBundle, this);
+                } catch (SQLiteException e) {
+                    ExceptionHelper.showExceptionDialog(this, e);
+                    Toast.makeText(this, "修改流水数据失败", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                //移动临时图片文件夹中的图片
+                moveTempPictures(rno);
+
                 setResult(RequestResultCode.RESULT_OK.ordinal(), result2BookKeeping);
                 finish();
             }
@@ -130,5 +169,52 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
         dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);                     //流水编号
 
         return dataBundle;
+    }
+
+    /**
+     * 将临时图片移动至永久目录
+     *
+     * @param rno 图片对应的流水编号
+     */
+    private void moveTempPictures(long rno) {
+        //确保永久目录存在
+        File tempPictureDir = new File(this.getExternalFilesDir(null), "picture_temp");
+        File permanentPictureDir = new File(this.getExternalFilesDir(null), "pictures");
+        boolean isPermanentDirUsable = true;
+        if (!permanentPictureDir.exists()) {
+            if (!permanentPictureDir.mkdirs()) {
+                Toast.makeText(this, "无法创建永久图片目录", Toast.LENGTH_SHORT).show();
+                isPermanentDirUsable = false;
+            }
+        }
+
+        //移动文件
+        List<File> filesOnMovedList = new ArrayList<>();    //成功移动的文件列表
+        if (tempPictureDir.exists() && isPermanentDirUsable) {
+            File[] files = tempPictureDir.listFiles();
+            if (files != null) {
+                boolean isAllFileMoved = true;
+                for (File pictureFile : files) {
+                    File permanentPicture = new File(permanentPictureDir, pictureFile.getName());
+                    if (!pictureFile.renameTo(permanentPicture)) {
+                        isAllFileMoved = false;
+                    } else {
+                        filesOnMovedList.add(permanentPicture);
+                    }
+                }
+
+                if (!isAllFileMoved) {
+                    Toast.makeText(this, "临时图片移动失败", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+
+        //将移动后的文件路径保存至数据库
+        try {
+            Picture.addPicture(this, filesOnMovedList, rno);
+        } catch (SQLiteException e) {
+            Toast.makeText(this, "将图片保存至数据库失败", Toast.LENGTH_SHORT).show();
+            ExceptionHelper.showExceptionDialog(this, e);
+        }
     }
 }

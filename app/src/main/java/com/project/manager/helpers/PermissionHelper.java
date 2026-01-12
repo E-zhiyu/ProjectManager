@@ -170,4 +170,15 @@ public class PermissionHelper {
             Toast.makeText(context, "电池优化策略已为“无限制”，无需更改", Toast.LENGTH_SHORT).show();
         }
     }
+
+    /**
+     * 检查Manifest中的权限是否被授予
+     *
+     * @param context    上下文
+     * @param permission Manifest中的权限
+     * @return 该权限是否被授予
+     */
+    public static boolean isPermissionsGranted(Context context, String permission) {
+        return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED;
+    }
 }

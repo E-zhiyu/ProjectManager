@@ -10,7 +10,7 @@ import androidx.work.WorkerParameters;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.project.manager.LogTags;
 import com.project.manager.data.data_save.database.BookKeepingDbHelper;
-import com.project.manager.helpers.FileIOHelper;
+import com.project.manager.helpers.DataIOHelper;
 import com.project.manager.ui.pages.setting.SettingFragment;
 import com.project.manager.ui.pages.setting.data_io.data_helpers.DataHelperBase;
 
@@ -48,8 +48,8 @@ public class BackupWorker extends Worker {
         }
 
         //打包为zip文件
-        FileIOHelper fileIOHelper = new FileIOHelper(context);
-        fileIOHelper.packFileInZip(fileNameList, fileContentList);
+        DataIOHelper DataIOHelper = new DataIOHelper(context);
+        DataIOHelper.packDataInZip(fileNameList, fileContentList);
 
         return Result.success();
     }

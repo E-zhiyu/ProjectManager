@@ -14,11 +14,13 @@ public enum BookKeepingColumns {
     TAG_NO("TagNo"),            //标签编号
     GROUP_NAME("GroupName"),    //标签分组名称
     GROUP_NO("GroupNO"),        //标签分组编号
-    RULE_NO("Rule_no"),
-    RULE_NAME("Rule_name"),
-    PACKAGE_NAME("Package_name"),
-    NOTIFICATION_TITLE("Notification_title"),
-    NOTIFICATION_CONTENT("Notification_content");
+    RULE_NO("Rule_no"),         //规则编号
+    RULE_NAME("Rule_name"),     //规则名称
+    PACKAGE_NAME("Package_name"),   //应用包名
+    NOTIFICATION_TITLE("Notification_title"),   //通知标题
+    NOTIFICATION_CONTENT("Notification_content"),   //通知内容（正则表达式）
+    PICTURE_URI("picture_uri"), //图片文件Uri
+    PNO("pno");                 //图片编号
     private final String value;
 
     BookKeepingColumns(String value) {

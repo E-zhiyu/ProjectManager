@@ -1,4 +1,4 @@
-package com.project.manager.ui.pages.bookkeeping.report;
+package com.project.manager.ui.pages.home.report;
 
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountType;
 

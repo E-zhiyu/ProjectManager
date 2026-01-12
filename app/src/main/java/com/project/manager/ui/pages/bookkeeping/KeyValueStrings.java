@@ -2,14 +2,14 @@ package com.project.manager.ui.pages.bookkeeping;
 
 //用作关键字的字符串枚举
 public enum KeyValueStrings {
-    ACCOUNT_NAME("account_name"),                           //流水名称
+    RNO("rno"),                                             //流水编号
     ACCOUNT_TYPE("account_type"),                           //流水种类
     ACCOUNT_REMARK("account_remark"),                       //流水备注
     ACCOUNT_IS_DEFAULT_REMARK("account_isDefaultRemark"),   //是否使用默认备注
     ACCOUNT_DATETIME("account_datetime"),                   //流水日期和时间
     ACCOUNT_AMOUNT("account_amount"),                       //流水金额
     ACCOUNT_NO("account_no"),                               //流水编号
-    VIEW_HOLDER_POSITION("account_view_position"),         //流水视图在列表中的索引值
+    VIEW_HOLDER_POSITION("account_view_position"),          //流水视图在列表中的索引值
     ACCOUNT_EXPORT("account_export"),                       //流水转出账户
     ACCOUNT_IMPORT("account_import"),                       //流水转入账户
     IS_MODIFY_MODE("is_modify_mode"),                       //是否为修改模式
@@ -23,7 +23,8 @@ public enum KeyValueStrings {
     ANALYSIS_RULE_NO("analysis_rule_no"),                   //通知解析规则编号
     PACKAGE_NAME("package_name"),                           //包名
     NOTIFICATION_TITLE("notification_title"),               //通知标题
-    NOTIFICATION_CONTENT("notification_content");           //通知内容
+    NOTIFICATION_CONTENT("notification_content"),           //通知内容
+    FILE_URI("file_uri");                                   //文件Uri
 
     final String value;
 

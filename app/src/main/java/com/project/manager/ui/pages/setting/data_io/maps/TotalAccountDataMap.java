@@ -1,6 +1,7 @@
 package com.project.manager.ui.pages.setting.data_io.maps;
 
 import com.project.manager.ui.pages.setting.data_io.pojo.PojoBasicRunningAccount;
+import com.project.manager.ui.pages.setting.data_io.pojo.PojoPicture;
 import com.project.manager.ui.pages.setting.data_io.pojo.PojoTag;
 import com.project.manager.ui.pages.setting.data_io.pojo.PojoTagGroup;
 import com.project.manager.ui.pages.setting.data_io.pojo.PojoTransferRunningAccount;
@@ -9,10 +10,11 @@ import java.util.List;
 
 //数据最外层Map结构（该POJO类被序列化后成为最外层的JSON字典）
 public class TotalAccountDataMap {
-    private List<PojoBasicRunningAccount> basic_data;
-    private List<PojoTransferRunningAccount> transfer_data;
-    private List<PojoTag> tag_data;
-    private List<PojoTagGroup> tag_group_data;
+    private List<PojoBasicRunningAccount> basic_data;           //基本流水数据
+    private List<PojoTransferRunningAccount> transfer_data;     //转账特有的数据
+    private List<PojoTag> tag_data;                             //标签数据
+    private List<PojoTagGroup> tag_group_data;                  //标签分组数据
+    private List<PojoPicture> picture_data;                     //图片数据
 
     public List<PojoBasicRunningAccount> getBasic_data() {
         return basic_data;
@@ -44,6 +46,14 @@ public class TotalAccountDataMap {
 
     public void setTag_group_data(List<PojoTagGroup> tag_group_data) {
         this.tag_group_data = tag_group_data;
+    }
+
+    public List<PojoPicture> getPicture_data() {
+        return picture_data;
+    }
+
+    public void setPicture_data(List<PojoPicture> picture_data) {
+        this.picture_data = picture_data;
     }
 
     public TotalAccountDataMap() {

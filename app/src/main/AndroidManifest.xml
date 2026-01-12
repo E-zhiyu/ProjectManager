@@ -1,25 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <!-- 申请读取所有应用的权限 -->
+
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="PackageVisibilityPolicy,QueryAllPackagesPermission" />
-
-    <!-- 申请通知监听服务权限 -->
     <uses-permission android:name="com.android.permission.GET_INSTALLED_APPS" />
-
-    <!-- 申请应用安装权限 -->
     <uses-permission
         android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
         tools:ignore="ProtectedPermissions" />
-
-    <!-- 请求网络权限 -->
     <uses-permission
         android:name="android.permission.REQUEST_INSTALL_PACKAGES"
         tools:ignore="RequestInstallPackagesPolicy" />
-
-    <!-- 请求外部存储读取权限(针对旧版安卓) -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -27,6 +19,12 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature android:name="android.hardware.camera.any" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <application
         android:name=".ManagerAssistant"
@@ -38,6 +36,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ManagerAssistant.Static">
+        <activity
+            android:name=".ui.picture.FullScreenImageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.picture.CameraActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.pages.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select.PackageNameSelectActivity"
             android:exported="false" />
@@ -57,7 +61,7 @@
             android:name=".ui.pages.bookkeeping.tag.edit.TagAddModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.bookkeeping.report.ReportActivity"
+            android:name=".ui.pages.home.report.ReportActivity"
             android:exported="false" />
         <activity
             android:name=".ui.pages.bookkeeping.running_account_edit.RunningAccountModifyActivity"
