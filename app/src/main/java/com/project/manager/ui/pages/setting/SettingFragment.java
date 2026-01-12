@@ -1,6 +1,5 @@
 package com.project.manager.ui.pages.setting;
 
-import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -21,7 +20,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.android.material.color.DynamicColors;
@@ -41,14 +39,14 @@ import com.project.manager.helpers.PermissionHelper;
 import com.project.manager.data.data_save.preference.AutoBookKeepingPreference;
 import com.project.manager.data.data_save.preference.BookKeepingStartDatePreference;
 import com.project.manager.helpers.AnimationHelper;
-import com.project.manager.helpers.IOHelper;
+import com.project.manager.helpers.DataIOHelper;
 import com.project.manager.helpers.UpdateHelper;
+import com.project.manager.ui.others.dialogs.MultiChoiceDialog;
 import com.project.manager.ui.others.dialogs.ProgressDialog;
 import com.project.manager.ui.pages.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
 import com.project.manager.helpers.AboutHelper;
 import com.project.manager.helpers.ThemeModeHelper;
 import com.project.manager.helpers.UpdateLogHelper;
-import com.project.manager.ui.pages.setting.data_io.MultiChoiceDialogAdapter;
 import com.project.manager.ui.pages.setting.data_io.data_helpers.AnalysisRuleDataHelper;
 import com.project.manager.ui.pages.setting.data_io.data_helpers.DataHelperBase;
 import com.project.manager.ui.pages.setting.data_io.data_helpers.RunningAccountDataHelper;
@@ -79,7 +77,7 @@ public class SettingFragment extends Fragment {
     private FragmentSettingBinding binding;                                         //绑定的XML视图
     private ActivityResultLauncher<Intent> importDataLauncher, exportDataLauncher;  //活动启动器
     private ActivityResultLauncher<Intent> backupDirectorySetLauncher;              //自动备份文件夹选择的启动器
-    private IOHelper IOHelper;                                                      //SAF文件帮助器
+    private DataIOHelper DataIOHelper;                                                      //SAF文件帮助器
     private AutoBackupHelper autoBackupHelper;                                      //自动备份帮助器
     private BroadcastReceiver notificationPermissionListener;                       //通知监听服务正常运行的广播接收器
     private final CompositeDisposable disposables = new CompositeDisposable();      //多线程任务列表
@@ -125,7 +123,7 @@ public class SettingFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentSettingBinding.inflate(inflater, container, false);
 
-        IOHelper = new IOHelper(requireContext());
+        DataIOHelper = new DataIOHelper(requireContext());
         autoBackupHelper = new AutoBackupHelper(requireContext());
 
         initViews();
@@ -575,18 +573,19 @@ public class SettingFragment extends Fragment {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    ProgressDialog dialogManager = new ProgressDialog(requireContext(), "导出数据", "正在导出数据……");
-                    dialogManager.show(
+                    ProgressDialog progressDialog = new ProgressDialog(requireContext(), "导出数据", "正在导出数据……");
+                    progressDialog.buildDialog(
                             null,
                             () -> {
                                 disposables.clear();
                                 Toast.makeText(requireContext(), "已取消数据导出", Toast.LENGTH_SHORT).show();
                             },
                             false);
+                    progressDialog.show();
 
                     disposables.add(
                             Observable.fromCallable(() -> {
-                                        IOHelper.handleActivityResult(resultCode, data, true);
+                                        DataIOHelper.handleActivityResult(resultCode, data, true);
                                         return true;
                                     })
                                     .subscribeOn(Schedulers.io())
@@ -594,7 +593,7 @@ public class SettingFragment extends Fragment {
                                     .subscribe(b -> Toast.makeText(requireContext(), "数据导出成功", Toast.LENGTH_SHORT).show(),
                                             e -> {
                                             },
-                                            dialogManager::dismiss
+                                            progressDialog::dismiss
                                     )
                     );
                 }
@@ -606,7 +605,7 @@ public class SettingFragment extends Fragment {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    IOHelper.handleActivityResult(resultCode, data, false);
+                    DataIOHelper.handleActivityResult(resultCode, data, false);
                 }
         );
 
@@ -649,7 +648,7 @@ public class SettingFragment extends Fragment {
 
         //将文件打包至压缩包内
         boolean isAccountDataChosen = choseItem[IODataType.ACCOUNT_DATA.ordinal()];
-        IOHelper.packDataInZip(
+        DataIOHelper.packDataInZip(
                 exportDataLauncher,
                 fileNameList,
                 fileContentList,
@@ -662,8 +661,8 @@ public class SettingFragment extends Fragment {
      */
     private void importData() {
         Log.i(LogTags.SETTING_FRAGMENT.getV(), "开始导入数据……");
-        IOHelper.openFileViaSAF(
-                new IOHelper.ImportCallback() {
+        DataIOHelper.openFileViaSAF(
+                new DataIOHelper.ImportCallback() {
                     @Override
                     public void onZipScanned(List<String> entryNameList) {
                         String[] dataTypeNames = Arrays.stream(IODataType.values())
@@ -747,7 +746,7 @@ public class SettingFragment extends Fragment {
                         }
 
                         //清除临时文件
-                        IOHelper.clearTempFile();
+                        DataIOHelper.clearTempFile();
                     }
 
 
@@ -765,53 +764,53 @@ public class SettingFragment extends Fragment {
      */
     private void onExportDataClicked() {
         //获取选项名称和状态
-        String[] type_names = Arrays.stream(IODataType.values())
+        String[] itemNames = Arrays.stream(IODataType.values())
                 .map(IODataType::getName)
                 .toArray(String[]::new);
-        boolean[] itemStats = {true, true};
+        boolean[] choiceStats = new boolean[itemNames.length];
+        Arrays.fill(choiceStats, true);
 
-        //实例化自定义多选视图
-        @SuppressLint("InflateParams") View mutiChoiceDialogView = getLayoutInflater().inflate(R.layout.view_multichoice, null);
-
-        //设置适配器
-        RecyclerView recyclerView = mutiChoiceDialogView.findViewById(R.id.item_recycler);
-        MultiChoiceDialogAdapter adapter = new MultiChoiceDialogAdapter(
-                itemStats,
-                type_names,
-                (position, isChecked) -> itemStats[position] = isChecked
+        //显示多选对话框
+        MultiChoiceDialog multiChoiceDialog = new MultiChoiceDialog(
+                requireContext(),
+                "导出数据",
+                choiceStats,
+                itemNames,
+                (position, isChecked) -> choiceStats[position] = isChecked
         );
-        recyclerView.setAdapter(adapter);
 
-        //构建多选对话框
-        AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("选择导出的数据")
-                .setView(mutiChoiceDialogView)
-                .setPositiveButton("确定", null)
-                .setNegativeButton("取消", null)
-                .create();
-
-        //设置对话框的显示监听器
-        alertDialog.setOnShowListener(dialog -> {
-            Button positiveBtn = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            positiveBtn.setOnClickListener(view -> {
-                //检测是否一个都没有选择
-                boolean isNonItemChosen = true;
-                for (boolean isChose : itemStats) {
-                    if (isChose) {
-                        isNonItemChosen = false;
-                        break;
-                    }
-                }
-
-                if (!isNonItemChosen) {
-                    exportData(itemStats);
-                    dialog.dismiss();
-                } else {
-                    Toast.makeText(requireContext(), "请选择至少一个选项", Toast.LENGTH_SHORT).show();
-                }
-            });
+        //设置显示监听器后无需再次设置按钮点击回调
+        multiChoiceDialog.buildDialog(() -> {
+        }, () -> {
         });
-        alertDialog.show();
+
+        //设置对话框显示监听
+        AlertDialog alertDialog = multiChoiceDialog.getDialog();
+        alertDialog.setOnShowListener(
+                dialogInterface -> {
+                    Button positiveBtn = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    positiveBtn.setOnClickListener(view -> {
+                        //检测是否一个都没有选择
+                        boolean isNonItemChosen = true;
+                        for (boolean isChose : choiceStats) {
+                            if (isChose) {
+                                isNonItemChosen = false;
+                                break;
+                            }
+                        }
+
+                        if (!isNonItemChosen) {
+                            exportData(choiceStats);
+                            multiChoiceDialog.dismiss();
+                        } else {
+                            Toast.makeText(requireContext(), "请选择至少一个选项", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+        );
+
+        //显示对话框
+        multiChoiceDialog.show();
     }
 
     /**
@@ -897,28 +896,20 @@ public class SettingFragment extends Fragment {
             boolean[] choiceStats,
             boolean[] isItemEnabled,
             String[] choiceItems) {
-        //实例化自定义对话框视图
-        @SuppressLint("InflateParams") View mutiChoiceDialogView = getLayoutInflater().inflate(R.layout.view_multichoice, null);
-
-        //设置适配器
-        RecyclerView recyclerView = mutiChoiceDialogView.findViewById(R.id.item_recycler);
-        MultiChoiceDialogAdapter adapter = new MultiChoiceDialogAdapter(
+        MultiChoiceDialog multiChoiceDialog = new MultiChoiceDialog(
+                requireContext(),
+                "导入数据",
                 isItemEnabled,
                 choiceStats,
                 choiceItems,
                 (position, isChecked) -> choiceStats[position] = isChecked
         );
-        recyclerView.setAdapter(adapter);
-
-        //构建对话框实例
-        AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("选择需要导入的数据")
-                .setView(mutiChoiceDialogView)
-                .setNegativeButton("取消", null)
-                .setPositiveButton("确定", null)
-                .create();
+        multiChoiceDialog.buildDialog(() -> {
+        }, () -> {
+        });
 
         //设置对话框的显示监听器
+        AlertDialog alertDialog = multiChoiceDialog.getDialog();
         alertDialog.setOnShowListener(dialog -> {
             Button positiveBtn = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             positiveBtn.setOnClickListener(v -> {
@@ -936,8 +927,8 @@ public class SettingFragment extends Fragment {
                     dialog.dismiss();   //仅当满足要求时才关闭
 
                     //显示进度条对话框
-                    ProgressDialog dialogManager = new ProgressDialog(requireContext(), "导入数据", "正在导入数据……");
-                    dialogManager.show(
+                    ProgressDialog progressDialog = new ProgressDialog(requireContext(), "导入数据", "正在导入数据……");
+                    progressDialog.buildDialog(
                             null,
                             () -> {
                                 Toast.makeText(requireContext(), "已取消数据导入", Toast.LENGTH_SHORT).show();
@@ -955,6 +946,7 @@ public class SettingFragment extends Fragment {
                                 viewModel.triggerDataUpdate();
                             },
                             false);
+                    progressDialog.show();
 
                     disposables.add(
                             Observable.fromCallable(() -> writeDataIntoDb(choiceStats))
@@ -975,8 +967,8 @@ public class SettingFragment extends Fragment {
                                         //重置通知解析数据
                                         AnalysisRuleDataHelper.resetRule(requireContext());
                                     }, () -> {
-                                        dialogManager.dismiss();
-                                        IOHelper.clearTempFile();
+                                        progressDialog.dismiss();
+                                        DataIOHelper.clearTempFile();
 
                                         //通过ViewModel提醒流水界面刷新数据
                                         AccountRecyclerViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountRecyclerViewModel.class);
@@ -990,8 +982,7 @@ public class SettingFragment extends Fragment {
         });
 
         //设置对话框隐藏监听
-        alertDialog.setOnDismissListener(dialog -> Log.i(LogTags.SETTING_FRAGMENT.getV(), "对话框关闭"));
-        alertDialog.show();
+        multiChoiceDialog.show();
     }
 
     /**
@@ -1006,7 +997,7 @@ public class SettingFragment extends Fragment {
         boolean isRuleDataChecked = itemChooseStats[IODataType.RULE_DATA.ordinal()];         //通知解析规则文件是否勾选
 
         //获取解压得到的临时JSON文件
-        List<File> tempJsonFileList = IOHelper.copyZipToTempAndUnpack();
+        List<File> tempJsonFileList = DataIOHelper.copyZipToTempAndUnpack();
         if (tempJsonFileList == null) {
             Log.e(LogTags.SETTING_FRAGMENT.getV(), "无法获取解压得到的临时JSON文件");
             throw new NullPointerException("无法获取解压得到的临时JSON文件");
@@ -1014,7 +1005,7 @@ public class SettingFragment extends Fragment {
 
         //如果选择了流水记录数据，则将图片解压至图片目录中
         if (isAccountDataChecked) {
-            IOHelper.unpackPictureZip();
+            DataIOHelper.unpackPictureZip();
         }
 
         //将JSON数据写入数据库

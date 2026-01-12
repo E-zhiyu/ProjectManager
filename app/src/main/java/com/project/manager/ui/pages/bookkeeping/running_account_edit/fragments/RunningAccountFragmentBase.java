@@ -550,7 +550,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         }
 
         ProgressDialog processDialog = new ProgressDialog(requireContext(), "复制图片", "正在复制图片……");
-        processDialog.show(
+        processDialog.buildDialog(
                 null,
                 () -> {
                     //用户点击取消
@@ -558,6 +558,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
                     Toast.makeText(requireContext(), "已取消添加图片", Toast.LENGTH_SHORT).show();
                 },
                 false);
+        processDialog.show();
 
         //在IO线程完成文件复制并在主线程刷新UI
         disposables.add(

@@ -34,13 +34,13 @@ abstract public class CustomDialogBase {
     abstract protected View getView();
 
     /**
-     * 显示对话框
+     * 构建对话框
      *
      * @param confirmListener 确认回调(为null则不显示确认按钮)
      * @param cancelListener  取消回调(为null则不显示取消按钮)
      * @param isCancelable    是否可以点击对话框外部以取消
      */
-    public void show(@Nullable OnConfirmListener confirmListener, @Nullable OnCancelListener cancelListener, boolean isCancelable) {
+    public void buildDialog(@Nullable OnConfirmListener confirmListener, @Nullable OnCancelListener cancelListener, boolean isCancelable) {
         View dialogView = getView();
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context)
@@ -55,6 +55,46 @@ abstract public class CustomDialogBase {
             builder.setNegativeButton("取消", (dialog1, which) -> cancelListener.onCancel());
         }
 
-        dialog = builder.show();
+        dialog = builder.create();
+    }
+
+    /**
+     * 显示对话框
+     */
+    public void show() {
+        dialog.show();
+    }
+
+    /**
+     * 构建对话框(可点击对话框以外的地方取消)
+     *
+     * @param confirmListener 确认回调(为null则不显示确认按钮)
+     * @param cancelListener  取消回调(为null则不显示取消按钮)
+     */
+    public void buildDialog(@Nullable OnConfirmListener confirmListener, @Nullable OnCancelListener cancelListener) {
+        buildDialog(confirmListener, cancelListener, true);
+    }
+
+    /**
+     * 关闭对话框
+     */
+    public void dismiss() {
+        if (dialog != null && dialog.isShowing()) {
+            dialog.dismiss();
+        }
+    }
+
+    /**
+     * 获取对话框实例
+     *
+     * @return 对话框实例
+     * @throws RuntimeException 对话框未构建时调用引发的异常
+     */
+    public AlertDialog getDialog() throws RuntimeException {
+        if (dialog != null) {
+            return dialog;
+        } else {
+            throw new RuntimeException("对话框还未被构建就尝试使用");
+        }
     }
 }

@@ -35,7 +35,7 @@ import java.util.zip.ZipOutputStream;
 /**
  * 通过SAF处理文件写入和读取的帮助器
  */
-public class IOHelper {
+public class DataIOHelper {
     private final Context context;                                  //上下文
     private ImportCallback importCallback;                          //文件读取回调
     private final List<File> tempJsonFileList = new ArrayList<>();  //临时JSON文件列表
@@ -71,7 +71,7 @@ public class IOHelper {
      *
      * @param context 上下文
      */
-    public IOHelper(@NonNull Context context) {
+    public DataIOHelper(@NonNull Context context) {
         this.context = context;
         tempDir = new File(context.getExternalFilesDir(null), "temp");
         if (!tempDir.exists() && !tempDir.mkdirs()) {

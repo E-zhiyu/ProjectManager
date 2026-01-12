@@ -5,6 +5,9 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
@@ -17,9 +20,15 @@ public class ProgressDialog extends CustomDialogBase {
     private MaterialTextView subTitleText;              //底部副标题文本
     private final String originSubTitle;                //对话框底部副标题
 
-    public ProgressDialog(Context context, String title, String originSubTitle) {
-        super(context, title);
-        this.originSubTitle = originSubTitle;
+    /**
+     * 进度条对话框构造方法
+     * @param context 上下文
+     * @param dialogTitle 对话框标题
+     * @param originSubTitle 初始进度条底部副标题(为null则使用XML布局的默认副标题)
+     */
+    public ProgressDialog(Context context, String dialogTitle, @Nullable String originSubTitle) {
+        super(context, dialogTitle);
+        this.originSubTitle = originSubTitle == null ? ContextCompat.getString(context, R.string.progressing) : originSubTitle;
     }
 
     @Override
@@ -75,15 +84,6 @@ public class ProgressDialog extends CustomDialogBase {
             } else {
                 progressText.setVisibility(View.VISIBLE);
             }
-        }
-    }
-
-    /**
-     * 关闭对话框
-     */
-    public void dismiss() {
-        if (dialog != null && dialog.isShowing()) {
-            dialog.dismiss();
         }
     }
 }
