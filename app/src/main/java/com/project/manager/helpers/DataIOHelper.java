@@ -212,7 +212,7 @@ public class DataIOHelper {
                     ZipEntry zipEntry = new ZipEntry(tempPictureZip.getName());
                     zos.putNextEntry(zipEntry);
 
-                    byte[] buffer = new byte[4096];
+                    byte[] buffer = new byte[8192];
                     int length;
                     while ((length = fis.read(buffer)) > 0) {
                         zos.write(buffer, 0, length);
@@ -268,6 +268,21 @@ public class DataIOHelper {
                             zos.putNextEntry(zipEntry);
 
                             byte[] buffer = new byte[1024];
+                            int length;
+                            while ((length = fis.read(buffer)) > 0) {
+                                zos.write(buffer, 0, length);
+                            }
+                            zos.closeEntry();
+                        }
+                    }
+
+                    //将图片压缩包也写入文件
+                    if (tempPictureZip != null && tempPictureZip.exists()) {
+                        try (FileInputStream fis = new FileInputStream(tempPictureZip)) {
+                            ZipEntry zipEntry = new ZipEntry(tempPictureZip.getName());
+                            zos.putNextEntry(zipEntry);
+
+                            byte[] buffer = new byte[8192];
                             int length;
                             while ((length = fis.read(buffer)) > 0) {
                                 zos.write(buffer, 0, length);
