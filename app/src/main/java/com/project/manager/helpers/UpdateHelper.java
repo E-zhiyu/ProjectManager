@@ -25,6 +25,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.R;
 import com.project.manager.data.data_save.preference.VersionPreference;
+import com.project.manager.workers.BackupScheduler;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -199,6 +200,9 @@ public class UpdateHelper {
      */
     private static void downloadLatestFile(@NonNull Context context, String downloadUrl, String versionName) {
         Toast.makeText(context, "正在下载安装包，请勿关闭本APP", Toast.LENGTH_SHORT).show();
+
+        //下载安装包时就自动备份一次，防止数据丢失(备份文件存放至ExternalCache中)
+        BackupScheduler.executeBackupNow(context);
 
         //生成文件名
         String fileName = String.format("ManagerAssistant_v%s.apk", versionName);

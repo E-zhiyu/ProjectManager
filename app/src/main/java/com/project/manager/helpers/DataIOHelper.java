@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
@@ -125,6 +126,17 @@ public class DataIOHelper {
         if (autoBackupDirUriStr != null) {
             Uri backupDirUri = Uri.parse(autoBackupDirUriStr);
             createZipFile(backupDirUri);
+        } else {
+            String versionName;
+            try {
+                versionName = AboutHelper.getVersionName(context);
+            } catch (PackageManager.NameNotFoundException e) {
+                Log.w(LogTags.IO_HELPER.getV(), "无法获取版本名称");
+                versionName = "UnknowVersion";
+            }
+            String backupFileName = String.format(Locale.getDefault(), "%s_backup.zip", versionName);
+            createZipFile(tempDir, true); //没有设置备份目录就备份，则存放在ExternalCache目录中
+            moveTempZipToCache(backupFileName);
         }
         clearTempFile();
     }
@@ -301,6 +313,28 @@ public class DataIOHelper {
             }
         } else {
             Log.e(LogTags.IO_HELPER.getV(), "无法获取自动备份目录");
+        }
+    }
+
+    /**
+     * 将临时zip文件移动至外部缓存(用于更新软件前保存备份数据)
+     *
+     * @param targetFileName 移动后的文件名(带后缀)
+     */
+    private void moveTempZipToCache(String targetFileName) {
+        File cacheDir = new File(context.getExternalCacheDir(), "update_backup");
+        if (!cacheDir.exists() && !cacheDir.mkdirs()) {
+            Log.e(LogTags.IO_HELPER.getV(), "无法创建缓存文件夹");
+            return;
+        }
+
+        File targetFile = new File(cacheDir, targetFileName);
+        if (tempZipFile != null && tempZipFile.exists()) {
+            if (!tempZipFile.renameTo(targetFile)) {
+                Log.e(LogTags.IO_HELPER.getV(), "无法将临时zip文件移动至缓存");
+            }
+        } else {
+            Log.e(LogTags.IO_HELPER.getV(), "临时zip文件不存在");
         }
     }
 
