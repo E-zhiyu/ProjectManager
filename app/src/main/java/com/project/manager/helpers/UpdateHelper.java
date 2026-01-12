@@ -198,7 +198,7 @@ public class UpdateHelper {
      * @param versionName 版本名称
      */
     private static void downloadLatestFile(@NonNull Context context, String downloadUrl, String versionName) {
-        Toast.makeText(context,"正在下载安装包，请勿关闭本APP",Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "正在下载安装包，请勿关闭本APP", Toast.LENGTH_SHORT).show();
 
         //生成文件名
         String fileName = String.format("ManagerAssistant_v%s.apk", versionName);
@@ -206,10 +206,10 @@ public class UpdateHelper {
         //请求下载
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadUrl));
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
-        request.setTitle("经理助手");
-        request.setDescription("正在下载安装包...");
+        request.setTitle(AboutHelper.getAppName(context));
+        request.setDescription("正在下载安装包……");
         request.setVisibleInDownloadsUi(true);
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);  //设置通知永远可见
 
         //设置下载路径
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
