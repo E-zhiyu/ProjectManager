@@ -225,12 +225,11 @@ public class AccountRecyclerAdapter extends RecyclerView.Adapter<AccountRecycler
 
         //获取待删除的流水数据
         RunningAccountBase runningAccount = accountList.get(position);
-        RunningAccountType type = runningAccount.getType();
         long rno = runningAccount.getRno();
 
         //从数据库中删除
         try {
-            RunningAccountBase.deleteAccount(rno, type, context);
+            RunningAccountBase.deleteAccount(rno, context);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             Toast.makeText(context, "流水记录删除失败", Toast.LENGTH_SHORT).show();

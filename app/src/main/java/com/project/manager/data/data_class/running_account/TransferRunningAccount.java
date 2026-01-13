@@ -1,8 +1,15 @@
 package com.project.manager.data.data_class.running_account;
 
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
+
 import androidx.annotation.NonNull;
 
-import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountType; /**
+import com.project.manager.data.data_save.database.BookKeepingColumns;
+import com.project.manager.data.data_save.database.BookKeepingTables;
+import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountType;
+
+/**
  * 转账流水类
  */
 public class TransferRunningAccount extends RunningAccountBase {
@@ -59,5 +66,18 @@ public class TransferRunningAccount extends RunningAccountBase {
         this.isDefaultRemark = isDefaultRemark;
         this.exportAccount = exportAccount;
         this.importAccount = importAccount;
+    }
+
+    /**
+     * 清空转账流水记录特有的数据
+     *
+     * @param rno 流水记录编号
+     * @param db  需要修改的数据库
+     * @throws SQLiteException 数据库修改失败引发的异常
+     */
+    public static void deleteTransferAccount(long rno, @NonNull SQLiteDatabase db) throws SQLiteException {
+        String where = BookKeepingColumns.RNO + "=?";
+        String[] whereArgs = {String.valueOf(rno)};
+        db.delete(BookKeepingTables.TRANSFER.toString(), where, whereArgs);
     }
 }

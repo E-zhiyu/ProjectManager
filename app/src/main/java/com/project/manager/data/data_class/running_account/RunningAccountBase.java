@@ -198,15 +198,15 @@ public abstract class RunningAccountBase {
      * 删除流水记录
      *
      * @param rno     待删除的流水编号
-     * @param type    流水种类
      * @param context 上下文
      * @throws SQLiteException 写入数据库时可能引发的异常
      */
-    public static void deleteAccount(long rno, @NonNull RunningAccountType type, Context context) throws SQLiteException {
+    public static void deleteAccount(long rno, Context context) throws SQLiteException {
         BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
-        Picture.deletePicture(rno, db); //先删除图片
+        Picture.deletePicture(rno, db); //删除图片
+        TransferRunningAccount.deleteTransferAccount(rno, db);  //删除转账数据(如果是转账类型)
 
         String selection = BookKeepingColumns.RNO + "=?";
         String[] selectionArgs = {String.valueOf(rno)};
@@ -216,15 +216,28 @@ public abstract class RunningAccountBase {
                 selectionArgs
         );
 
-        if (type == RunningAccountType.TRANSFER) {
-            db.delete(
-                    BookKeepingTables.TRANSFER.toString(),
-                    selection,
-                    selectionArgs
-            );
-        }
-
         db.close();
+    }
+
+    /**
+     * 清除标签
+     *
+     * @param tag_no 需要清除标签的流水记录对应的标签编号
+     * @param db     需要修改的数据库
+     * @throws SQLiteException 数据库修改失败引发的异常
+     */
+    public static void setDefaultTagNo(long tag_no, @NonNull SQLiteDatabase db) throws SQLiteException {
+        String where = BookKeepingColumns.TAG_NO + "=?";
+        String[] whereArgs = {String.valueOf(tag_no)};
+
+        ContentValues accountValues = new ContentValues();
+        accountValues.put(BookKeepingColumns.TAG_NO.toString(), 0);
+        db.update(
+                BookKeepingTables.BASIC.toString(),
+                accountValues,
+                where,
+                whereArgs
+        );
     }
 }
 

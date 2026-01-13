@@ -163,4 +163,25 @@ public class AnalysisRule {
 
         db.close();
     }
+
+    /**
+     * 清除标签
+     *
+     * @param tag_no 需要清除标签的流水记录对应的标签编号
+     * @param db     需要修改的数据库
+     * @throws SQLiteException 数据库修改失败引发的异常
+     */
+    public static void setDefaultTagNo(long tag_no, @NonNull SQLiteDatabase db) throws SQLiteException {
+        String where = BookKeepingColumns.TAG_NO + "=?";
+        String[] whereArgs = {String.valueOf(tag_no)};
+
+        ContentValues ruleValues = new ContentValues();
+        ruleValues.put(BookKeepingColumns.TAG_NO.toString(), 0);
+        db.update(
+                BookKeepingTables.ANALYSIS_RULE.toString(),
+                ruleValues,
+                where,
+                whereArgs
+        );
+    }
 }
