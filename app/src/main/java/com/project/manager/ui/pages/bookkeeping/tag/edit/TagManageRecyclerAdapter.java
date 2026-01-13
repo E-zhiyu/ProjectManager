@@ -372,7 +372,6 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
         //从数据库中删除标签和分组
         try {
-            Tag.deleteTag(tagsToBeDeleted, context);    //删除标签
             TagGroup.deleteGroup(group_no, context);    //删除分组
 
             Toast.makeText(context, "标签分组已删除", Toast.LENGTH_SHORT).show();
