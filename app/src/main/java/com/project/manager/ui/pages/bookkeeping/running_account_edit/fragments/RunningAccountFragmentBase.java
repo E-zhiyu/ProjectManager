@@ -601,6 +601,10 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
                         .subscribeOn(Schedulers.io())
                         .subscribe(
                                 pictureList -> {
+                                    if (pictureList.isEmpty()) {
+                                        return;
+                                    }
+
                                     Toast.makeText(
                                             requireContext(),
                                             String.format(
