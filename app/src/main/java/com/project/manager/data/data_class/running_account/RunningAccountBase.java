@@ -9,6 +9,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
+import com.project.manager.data.data_class.Picture;
 import com.project.manager.data.data_save.database.BookKeepingColumns;
 import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
@@ -204,6 +205,8 @@ public abstract class RunningAccountBase {
     public static void deleteAccount(long rno, @NonNull RunningAccountType type, Context context) throws SQLiteException {
         BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
+
+        Picture.deletePicture(rno, db); //先删除图片
 
         String selection = BookKeepingColumns.RNO + "=?";
         String[] selectionArgs = {String.valueOf(rno)};
