@@ -5,17 +5,15 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteStatement;
 
 import androidx.annotation.NonNull;
 
+import com.project.manager.data.data_class.running_account.RunningAccountBase;
 import com.project.manager.data.data_save.database.BookKeepingColumns;
 import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
 
 import org.jetbrains.annotations.Contract;
-
-import java.util.List;
 
 public class Tag {
     private String name;    //名称
@@ -210,21 +208,8 @@ public class Tag {
         String whereStr = BookKeepingColumns.TAG_NO + "=?";
         String[] whereStrArgs = {String.valueOf(tag_no)};
 
-        //先将流水基本数据表的标签清除（修改为0）
-        db.update(
-                BookKeepingTables.BASIC.toString(),
-                non_tag_values,
-                whereStr,
-                whereStrArgs
-        );
-
-        //将规则表的标签清除
-        db.update(
-                BookKeepingTables.ANALYSIS_RULE.toString(),
-                non_tag_values,
-                whereStr,
-                whereStrArgs
-        );
+        RunningAccountBase.setDefaultTagNo(tag_no, db); //清除流水记录里面的标签编号
+        AnalysisRule.setDefaultTagNo(tag_no, db);       //清除通知解析规则中的标签编号
 
         //再删除对应标签
         db.delete(
@@ -237,64 +222,38 @@ public class Tag {
     }
 
     /**
-     * 批量删除标签
+     * 通过分组编号删除标签
      *
-     * @param tagList 待删除的标签列表
-     * @param context 上下文
+     * @param group_no 标签对应的分组编号
+     * @param db       需要修改的数据库
      * @throws SQLiteException 无法修改数据库时引发的异常
      */
-    public static void deleteTag(@NonNull List<Tag> tagList, Context context) throws SQLiteException {
-        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
-        SQLiteDatabase db = db_helper.openWriteLink();
+    public static void deleteTag(long group_no, @NonNull SQLiteDatabase db) throws SQLiteException {
+        //查询标签编号
+        String[] columns = {BookKeepingColumns.TAG_NO.toString()};
+        String selection = BookKeepingColumns.GROUP_NO+"=?";
+        String[] selectionArgs = {String.valueOf(group_no)};
+        Cursor tagCursor = db.query(
+                BookKeepingTables.TAG.toString(),
+                columns,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
 
-        long[] tag_no_list = new long[tagList.size()];
-        int index = 0;
-        for (Tag tag : tagList) {
-            tag_no_list[index] = tag.getTno();
-            index++;
+        //清空引用了标签编号的数据
+        while (tagCursor.moveToNext()) {
+            long tag_no = tagCursor.getLong(tagCursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));
+            RunningAccountBase.setDefaultTagNo(tag_no, db); //清除流水记录里面的标签编号
+            AnalysisRule.setDefaultTagNo(tag_no, db);       //清除通知解析规则中的标签编号
         }
+        tagCursor.close();
 
-        //创建待填充的字符串
-        StringBuilder placeholders = new StringBuilder();
-        for (int i = 0; i < tagList.size(); i++) {
-            placeholders.append(i == 0 ? "?" : ",?");
-        }
-
-        //清除流水表的标签
-        String sql;
-        SQLiteStatement stmt;
-        sql = "UPDATE " + BookKeepingTables.BASIC +
-                " SET " + BookKeepingColumns.TAG_NO + " =0" +
-                " WHERE " + BookKeepingColumns.TAG_NO + " IN (" + placeholders + ")";
-        stmt = db.compileStatement(sql);
-        index = 1;
-        for (long tagNo : tag_no_list) {
-            stmt.bindLong(index++, tagNo);
-        }
-        stmt.execute();
-
-        //清除规则表的标签记录
-        sql = "UPDATE " + BookKeepingTables.ANALYSIS_RULE +
-                " SET " + BookKeepingColumns.TAG_NO + " =0" +
-                " WHERE " + BookKeepingColumns.TAG_NO + " IN (" + placeholders + ")";
-        stmt = db.compileStatement(sql);
-        index = 1;
-        for (long tagNo : tag_no_list) {
-            stmt.bindLong(index++, tagNo);
-        }
-        stmt.execute();
-
-        //删除标签表的记录
-        sql = "DELETE FROM " + BookKeepingTables.TAG +
-                " WHERE " + BookKeepingColumns.TAG_NO + " IN (" + placeholders + ")";
-        stmt = db.compileStatement(sql);
-        index = 1;
-        for (long tagNo : tag_no_list) {
-            stmt.bindLong(index++, tagNo);
-        }
-        stmt.execute();
-
-        db.close();
+        String where = BookKeepingColumns.GROUP_NO + "=?";
+        String[] whereArgs = {String.valueOf(group_no)};
+        db.delete(BookKeepingTables.TAG.toString(), where, whereArgs);
     }
 
     /**

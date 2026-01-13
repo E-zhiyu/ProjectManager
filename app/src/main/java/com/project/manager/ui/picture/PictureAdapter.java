@@ -1,9 +1,11 @@
-package com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments;
+package com.project.manager.ui.picture;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +24,6 @@ import com.project.manager.LogTags;
 import com.project.manager.R;
 import com.project.manager.data.data_class.Picture;
 import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
-import com.project.manager.ui.picture.FullScreenImageActivity;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,11 +37,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     private final List<Picture> pictureList;            //数据源列表
     private final List<Boolean> pictureSelectList;      //记录图片选择状态的列表
     private boolean isDeleteMode = false;               //标记是否为删除图片模式
-    private final RequestOptions glideOptions = new RequestOptions()
-            .centerCrop()
-            .error(R.drawable.baseline_error_outline_24)    //错误图
-            .diskCacheStrategy(DiskCacheStrategy.NONE)      //缓存策略(不缓存)
-            .override(300, 300);               //图片尺寸
+    private final RequestOptions glideOptions;
     private final DeleteModeSwitchListener listener;    //删除模式切换监听器
 
     public interface DeleteModeSwitchListener {
@@ -88,6 +85,14 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         this.pictureList = pictureList;
         pictureSelectList = new ArrayList<>(Collections.nCopies(pictureList.size(), false));    //默认未选择
         this.listener = listener;
+
+        int screen_width = getScreenWidth(context);
+        int picture_size = screen_width * 5 / 18;               //图片宽高占屏幕宽度的5/18
+        glideOptions = new RequestOptions()
+                .centerCrop()
+                .error(R.drawable.baseline_error_outline_24)    //错误图
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC) //缓存策略
+                .override(picture_size, picture_size);          //图片尺寸
     }
 
     /**
@@ -234,6 +239,12 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         return origin_position - lost_picture_num;
     }
 
+    private int getScreenWidth(Context context) {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        return displayMetrics.widthPixels;
+    }
+
     /**
      * 将单个图片添加至界面中
      *
@@ -256,8 +267,10 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         this.pictureList.addAll(pictureList);
         pictureSelectList.addAll(new ArrayList<>(Collections.nCopies(pictureList.size(), false)));
 
-        if (step >= 1) {
+        if (step > 1) {
             notifyItemRangeInserted(start, start + step - 1);
+        } else if (step == 1) {
+            notifyItemInserted(start);
         }
     }
 

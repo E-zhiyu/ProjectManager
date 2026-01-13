@@ -44,6 +44,7 @@ import com.project.manager.ui.data_communication.tag_modify.TagRepository;
 import com.project.manager.data.data_class.Tag;
 import com.project.manager.ui.pages.bookkeeping.tag.select_sheet.GridSpacingItemDecoration;
 import com.project.manager.ui.pages.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
+import com.project.manager.ui.picture.PictureAdapter;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -600,6 +601,10 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
                         .subscribeOn(Schedulers.io())
                         .subscribe(
                                 pictureList -> {
+                                    if (pictureList.isEmpty()) {
+                                        return;
+                                    }
+
                                     Toast.makeText(
                                             requireContext(),
                                             String.format(

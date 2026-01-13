@@ -254,6 +254,8 @@ public class TagGroup {
         BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
+        Tag.deleteTag(group_no, db);    //删除分组内的标签
+
         String where = BookKeepingColumns.GROUP_NO + "=?";
         String[] whereArgs = {String.valueOf(group_no)};
         db.delete(BookKeepingTables.TAG_GROUP.toString(), where, whereArgs);

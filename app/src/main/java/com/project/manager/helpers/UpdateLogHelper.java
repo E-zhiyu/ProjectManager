@@ -11,7 +11,16 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.7.0  \n" +
+    private static final String update_log_md = "# v1.7.1  \n" +
+            "**BUG修复**  \n" +
+            "- 修复删除流水记录后无法删除对应的图片文件的BUG  \n" +
+            "- 修复自动备份无法打包图片的BUG  \n" +
+            "- 修复在高分辨率下显示的图片过小的BUG  \n" +
+            "- 修复当流水记录中没有图片时从相册导入一张图片会无法显示的BUG  \n\n" +
+            "**修改内容**  \n" +
+            "- 从相册中添加图片时若取消添加不会再显示“已添加0张图片”的提示  \n" +
+            "- 升级版本之前会尝试生成备份文件并存放至缓存中，以防升级后数据丢失  \n\n" +
+            "# v1.7.0  \n" +
             "**新增内容**  \n" +
             "- 新增流水记录图片功能，允许添加多张图片到某条流水记录中，支持使用相机拍照或从相册中添加  \n" +
             "- 新增查看图片功能，可以点击流水输入界面的图片以全屏查看，并且支持保存到系统相册和分享功能  \n\n" +

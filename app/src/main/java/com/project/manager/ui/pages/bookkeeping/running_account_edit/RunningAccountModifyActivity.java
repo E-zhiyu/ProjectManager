@@ -20,7 +20,7 @@ import com.project.manager.ui.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.ExpenseFragment;
-import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.PictureAdapter;
+import com.project.manager.ui.picture.PictureAdapter;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountFragmentBase;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.IncomeFragment;
