@@ -1,6 +1,7 @@
 package com.project.manager;
 
 import android.app.Application;
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.work.WorkInfo;
@@ -10,9 +11,13 @@ import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.DynamicColorsOptions;
 import com.project.manager.data.data_save.preference.AutoBackupPreference;
 import com.project.manager.data.data_save.preference.AppSettingsPreference;
+import com.project.manager.data.data_save.preference.VersionPreference;
 import com.project.manager.helpers.AutoBackupHelper;
 import com.project.manager.workers.BackupScheduler;
 
+import java.io.File;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class ManagerAssistant extends Application {
@@ -44,6 +49,17 @@ public class ManagerAssistant extends Application {
                 throw new RuntimeException(e);
             }
             Log.d(LogTags.WORK_STATS.getV(), "State: " + info.getState());
+        }
+
+        //启动时检测是否有需要删除的按转包
+        String apkUri = VersionPreference.getApkUri(this);
+        if (!apkUri.isEmpty()) {
+            File apkFile = new File(Objects.requireNonNull(Uri.parse(apkUri).getPath()));
+            if (apkFile.exists() && apkFile.delete()) {
+                Log.d(LogTags.APPLICATION.getV(), String.format(Locale.getDefault(), "成功删除“%s”", apkFile.getName()));
+            } else {
+                Log.w(LogTags.APPLICATION.getV(), String.format(Locale.getDefault(), "“%s”删除失败", apkFile.getName()));
+            }
         }
     }
 }

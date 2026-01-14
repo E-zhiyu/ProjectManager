@@ -246,13 +246,14 @@ public class UpdateHelper {
                                 columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI);
                                 if (columnIndex == -1)
                                     throw new RuntimeException("无法获取安装包URI");
-                                String fileUri = cursor.getString(columnIndex);
+                                String fileUriStr = cursor.getString(columnIndex);
+                                VersionPreference.setApkUri(context, fileUriStr);
 
                                 //显示弹窗提醒用户安装
                                 new MaterialAlertDialogBuilder(context)
                                         .setTitle("安装更新")
                                         .setMessage("安装包已下载完毕，是否立刻更新？")
-                                        .setPositiveButton("立刻更新", (dialog, which) -> installLatestApk(context, fileUri))
+                                        .setPositiveButton("立刻更新", (dialog, which) -> installLatestApk(context, fileUriStr))
                                         .setNegativeButton("取消", null)
                                         .show();
                             } else {

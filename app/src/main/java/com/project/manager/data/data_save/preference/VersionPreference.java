@@ -14,6 +14,7 @@ public class VersionPreference {
     private static final String KEY_MANDATORY_VERSION_NAME = "m_version_name";          //强制更新版本名称
     private static final String KEY_MANDATORY_UPDATE_LOG = "m_update_log";              //强制更新版本的更新日志
     private static final String KEY_MANDATORY_DOWNLOAD_URL = "m_download_url";          //强制更新版本的下载链接
+    private static final String KEY_APK_URI = "apk_uri";                                //安装包Uri
 
     /**
      * 设置跳过的版本代码
@@ -145,5 +146,27 @@ public class VersionPreference {
     public static String getMandatoryDownloadUrl(@NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return pref.getString(KEY_MANDATORY_DOWNLOAD_URL, "");
+    }
+
+    /**
+     * 设置安装包Uri
+     *
+     * @param context 上下文
+     * @param uriStr  安装包Uri字符串
+     */
+    public static void setApkUri(@NonNull Context context, String uriStr) {
+        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        pref.edit().putString(KEY_APK_URI, uriStr).apply();
+    }
+
+    /**
+     * 获取安装包Uri
+     *
+     * @param context 上下文
+     * @return 安装包Uri字符串
+     */
+    public static String getApkUri(@NonNull Context context) {
+        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return pref.getString(KEY_APK_URI, "");
     }
 }

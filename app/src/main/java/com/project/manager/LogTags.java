@@ -11,7 +11,8 @@ public enum LogTags {
     ACCOUNT_FRAGMENT("流水记录输入界面"),
     PICTURE_ADAPTER("图片展示适配器"),
     ACCOUNT_DATA_HELPER("流水记录数据帮助器"),
-    DB("数据库");
+    DB("数据库"),
+    APPLICATION("APP应用类");
     private final String v;
 
     LogTags(String v) {
