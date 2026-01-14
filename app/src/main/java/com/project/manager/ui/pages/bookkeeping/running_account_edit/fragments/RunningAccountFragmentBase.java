@@ -31,14 +31,15 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
-import com.project.manager.LogTags;
+import com.project.manager.enums.DirectoryPaths;
+import com.project.manager.enums.LogTags;
 import com.project.manager.R;
 import com.project.manager.data.data_class.Picture;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.others.dialogs.ProgressDialog;
 import com.project.manager.ui.picture.AddPictureOptionBottomSheet;
-import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
-import com.project.manager.ui.pages.bookkeeping.TagString;
+import com.project.manager.enums.KeyValueStrings;
+import com.project.manager.enums.TagString;
 import com.project.manager.ui.data_communication.tag_modify.TagUpdateReason;
 import com.project.manager.ui.data_communication.tag_modify.TagRepository;
 import com.project.manager.data.data_class.Tag;
@@ -124,8 +125,8 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         disposables.dispose();
 
         //删除临时图片目录文件
-        File tempPictureDir = new File(requireContext().getExternalFilesDir(null), "picture_temp");
-        if (tempPictureDir.exists()) {
+        File tempPictureDir = DirectoryPaths.PICTURE_TEMP.getDir(requireContext());
+        if (tempPictureDir != null) {
             File[] files = tempPictureDir.listFiles();
             if (files != null) {
                 boolean isAllTempFileDeleted = true;
@@ -542,12 +543,11 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
      */
     private void onAlbumPictureUrisReceived(@NonNull List<Uri> uriList) {
         //创建临时文件夹
-        File tempDir = new File(requireContext().getExternalFilesDir(null), "picture_temp");
-        if (!tempDir.exists()) {
-            if (!tempDir.mkdirs()) {
-                Toast.makeText(requireContext(), "图片添加失败：无法创建临时目录", Toast.LENGTH_SHORT).show();
-                return;
-            }
+        File tempPictureDir = DirectoryPaths.PICTURE_TEMP.getDir(requireContext());
+        if (tempPictureDir == null) {
+            Toast.makeText(requireContext(), "图片添加失败：无法创建临时目录", Toast.LENGTH_SHORT).show();
+            Log.e(LogTags.ACCOUNT_FRAGMENT.getV(), "图片添加失败：无法创建临时目录");
+            return;
         }
 
         ProgressDialog processDialog = new ProgressDialog(requireContext(), "复制图片", "正在复制图片……");
@@ -570,7 +570,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
                                 Uri pictureUri = uriList.get(i);
 
                                 //复制单个图片
-                                File copiedFile = copySinglePicture(pictureUri, i, tempDir);
+                                File copiedFile = copySinglePicture(pictureUri, i, tempPictureDir);
                                 if (copiedFile != null && copiedFile.exists()) {
                                     copiedFIleList.add(copiedFile);
 

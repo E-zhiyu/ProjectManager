@@ -1,4 +1,4 @@
-package com.project.manager;
+package com.project.manager.enums;
 
 public enum LogTags {
     NOTIFICATION_SERVICE("通知监听服务"),

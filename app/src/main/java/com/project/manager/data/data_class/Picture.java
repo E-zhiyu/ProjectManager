@@ -10,7 +10,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.project.manager.LogTags;
+import com.project.manager.enums.LogTags;
 import com.project.manager.data.data_save.database.BookKeepingColumns;
 import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;

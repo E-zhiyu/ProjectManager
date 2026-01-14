@@ -19,7 +19,7 @@ import java.util.List;
 
 public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapter.MonthAccountViewHolder> {
     private final List<MonthAccountInfo> monthAccountInfoList;  //每月流水数据列表
-    private MonthAccountInfoType monthAccountInfoType;          //显示的每月流水数据的种类
+    private ReportActivity.MonthAccountInfoType monthAccountInfoType;          //显示的每月流水数据的种类
     private final Context context;                              //上下文
 
     public static class MonthAccountViewHolder extends RecyclerView.ViewHolder {
@@ -38,7 +38,7 @@ public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapte
         }
     }
 
-    public MonthAccountAdapter(List<MonthAccountInfo> monthAccountInfoList, MonthAccountInfoType monthAccountInfoType, Context context) {
+    public MonthAccountAdapter(List<MonthAccountInfo> monthAccountInfoList, ReportActivity.MonthAccountInfoType monthAccountInfoType, Context context) {
         this.monthAccountInfoList = monthAccountInfoList;
         this.monthAccountInfoType = monthAccountInfoType;
         this.context = context;
@@ -93,7 +93,7 @@ public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapte
      * @param type 新类型
      */
     @SuppressLint("NotifyDataSetChanged")
-    public void onMonthAccountInfoTypeChanged(MonthAccountInfoType type) {
+    public void onMonthAccountInfoTypeChanged(ReportActivity.MonthAccountInfoType type) {
         this.monthAccountInfoType = type;
         notifyDataSetChanged();
     }

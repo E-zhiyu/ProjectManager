@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.project.manager.R;
-import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
+import com.project.manager.enums.KeyValueStrings;
 
 public class TransferFragment extends RunningAccountFragmentBase {
     private TextInputLayout export_layout, import_layout;   //转出和转入账户的文本框布局管理器

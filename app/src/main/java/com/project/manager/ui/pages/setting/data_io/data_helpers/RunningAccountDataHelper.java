@@ -10,7 +10,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.project.manager.LogTags;
+import com.project.manager.enums.DirectoryPaths;
+import com.project.manager.enums.LogTags;
 import com.project.manager.data.data_save.database.BookKeepingColumns;
 import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
@@ -391,12 +392,14 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
             db.delete(BookKeepingTables.PICTURE.toString(), null, null);
 
             //删除旧图片
-            File pictureDir = new File(context.getExternalFilesDir(null), "pictures");
-            File[] oldPictureFiles = pictureDir.listFiles();
-            if (oldPictureFiles != null) {
-                for (File oldPicture:oldPictureFiles) {
-                    if (!oldPicture.delete()) {
-                        Log.w(LogTags.ACCOUNT_DATA_HELPER.getV(), String.format(Locale.getDefault(),"“%s”删除失败",oldPicture.getName()));
+            File pictureDir = DirectoryPaths.PICTURE.getDir(context);
+            if (pictureDir != null) {
+                File[] oldPictureFiles = pictureDir.listFiles();
+                if (oldPictureFiles != null) {
+                    for (File oldPicture : oldPictureFiles) {
+                        if (!oldPicture.delete()) {
+                            Log.w(LogTags.ACCOUNT_DATA_HELPER.getV(), String.format(Locale.getDefault(), "“%s”删除失败", oldPicture.getName()));
+                        }
                     }
                 }
             }

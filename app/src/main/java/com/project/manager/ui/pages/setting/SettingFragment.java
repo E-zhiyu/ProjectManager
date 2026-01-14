@@ -25,7 +25,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.DynamicColorsOptions;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.project.manager.LogTags;
+import com.project.manager.enums.LogTags;
 import com.project.manager.ManagerAssistant;
 import com.project.manager.R;
 import com.project.manager.broadcast.BroadcastConstants;

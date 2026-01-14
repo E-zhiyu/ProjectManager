@@ -21,6 +21,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.textview.MaterialTextView;
+import com.project.manager.enums.KeyValueStrings;
+import com.project.manager.enums.TagString;
 import com.project.manager.broadcast.BroadcastConstants;
 import com.project.manager.broadcast.RunningAccountUpdatedBroadcastReceiver;
 import com.project.manager.data.data_class.Tag;
@@ -36,7 +38,7 @@ import com.project.manager.helpers.ColorHelper;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.RunningAccountModifyActivity;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.RunningAccountAddActivity;
-import com.project.manager.ui.RequestResultCode;
+import com.project.manager.enums.RequestResultCode;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.ui.pages.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
 import com.project.manager.ui.data_communication.account_recycler.AccountRecyclerViewModel;

@@ -29,7 +29,7 @@ import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.databinding.ActivityReportBinding;
 import com.project.manager.helpers.ExceptionHelper;
-import com.project.manager.ui.pages.bookkeeping.TagString;
+import com.project.manager.enums.TagString;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountType;
 import com.project.manager.data.data_class.Tag;
 
@@ -55,6 +55,16 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     private MonthAccountAdapter month_account_adapter;                                      //月流水信息适配器
     private double year_expense = 0, year_income = 0;                                       //年支出和年收入
     private ActivityReportBinding binding;                                                  //XML界面绑定引用
+
+    //月流水信息种类
+    public enum MonthAccountInfoType {
+        EXPENSE, INCOME, BALANCE
+    }
+
+    //日期范围
+    enum DateRangeType {
+        TODAY, THIS_MONTH, RECENT_3_MONTH, THIS_YEAR
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

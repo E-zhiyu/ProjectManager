@@ -10,7 +10,7 @@ import androidx.core.content.ContextCompat;
 
 import com.project.manager.databinding.ActivityFullScreenImageBinding;
 import com.project.manager.helpers.PictureHelper;
-import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
+import com.project.manager.enums.KeyValueStrings;
 
 import java.io.File;
 import java.util.Locale;

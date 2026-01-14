@@ -14,7 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 
-import com.project.manager.LogTags;
+import com.project.manager.enums.DirectoryPaths;
+import com.project.manager.enums.LogTags;
 import com.project.manager.data.data_save.preference.AutoBackupPreference;
 
 import java.io.BufferedWriter;
@@ -41,7 +42,7 @@ public class DataIOHelper {
     private ImportCallback importCallback;                          //文件读取回调
     private final List<File> tempJsonFileList = new ArrayList<>();  //临时JSON文件列表
     private File tempPictureZip;                                    //临时图片压缩包
-    private final File tempDir;                                     //临时文件目录
+    private final File dataTempDir;                                     //临时文件目录
     private File tempZipFile;                                       //临时zip压缩文件
     private boolean isPictureNeed;                                  //是否需要打包图片文件（用于SAF回调使用）
     private Uri importZipUri;                                       //用户通过SAF导入数据的zip文件的Uri
@@ -74,8 +75,8 @@ public class DataIOHelper {
      */
     public DataIOHelper(@NonNull Context context) {
         this.context = context;
-        tempDir = new File(context.getExternalFilesDir(null), "temp");
-        if (!tempDir.exists() && !tempDir.mkdirs()) {
+        dataTempDir = DirectoryPaths.DATA_TEMP.getDir(context);
+        if (dataTempDir == null) {
             Log.e(LogTags.IO_HELPER.getV(), "无法创建临时文件目录");
         }
     }
@@ -135,7 +136,7 @@ public class DataIOHelper {
                 versionName = "UnknowVersion";
             }
             String backupFileName = String.format(Locale.getDefault(), "%s_backup.zip", versionName);
-            createZipFile(tempDir, true); //没有设置备份目录就备份，则存放在ExternalCache目录中
+            createZipFile(dataTempDir, true); //没有设置备份目录就备份，则存放在ExternalCache目录中
             moveTempZipToCache(backupFileName);
         }
         clearTempFile();
@@ -148,8 +149,8 @@ public class DataIOHelper {
         Log.d(LogTags.IO_HELPER.getV(), "正在打包图片文件");
 
         //如果图片目录不存在则不打包
-        File pictureDir = new File(context.getExternalFilesDir(null), "pictures");
-        if (!pictureDir.exists()) {
+        File pictureDir = DirectoryPaths.PICTURE.getDir(context);
+        if (pictureDir == null) {
             Log.w(LogTags.IO_HELPER.getV(), "图片文件夹不存在");
             return;
         }
@@ -160,7 +161,7 @@ public class DataIOHelper {
             Log.w(LogTags.IO_HELPER.getV(), "图片目录中没有图片");
             return;
         }
-        File pictureZip = new File(tempDir, "pictures.zip"); //创建图片压缩包文件
+        File pictureZip = new File(dataTempDir, "pictures.zip"); //创建图片压缩包文件
         try (FileOutputStream fos = new FileOutputStream(pictureZip);
              ZipOutputStream zos = new ZipOutputStream(fos)) {
             for (File pictureFile : pictures) {
@@ -322,8 +323,8 @@ public class DataIOHelper {
      * @param targetFileName 移动后的文件名(带后缀)
      */
     private void moveTempZipToCache(String targetFileName) {
-        File cacheDir = new File(context.getExternalCacheDir(), "update_backup");
-        if (!cacheDir.exists() && !cacheDir.mkdirs()) {
+        File cacheDir = DirectoryPaths.UPDATE_BACKUP.getDir(context);
+        if (cacheDir == null) {
             Log.e(LogTags.IO_HELPER.getV(), "无法创建缓存文件夹");
             return;
         }
@@ -424,7 +425,7 @@ public class DataIOHelper {
                 Uri uri = data.getData();
 
                 if (uri != null) {
-                    createZipFile(tempDir, isPictureNeed);
+                    createZipFile(dataTempDir, isPictureNeed);
                     copyTempZipToUri(uri);
                 }
                 Log.i(LogTags.IO_HELPER.getV(), "用户确认选择并进行下一步");
@@ -506,9 +507,9 @@ public class DataIOHelper {
         try {
             //获取DocumentFile对象
             DocumentFile documentFile = DocumentFile.fromSingleUri(context, uri);
-            if (documentFile.canRead()) {
+            if (documentFile != null && documentFile.canRead()) {
                 //复制文件到Android/data下的临时目录
-                File tempFile = new File(tempDir, "temp_json");
+                File tempFile = new File(dataTempDir, "temp_json");
                 try (InputStream in = context.getContentResolver().openInputStream(uri);
                      OutputStream out = new FileOutputStream(tempFile)) {
                     byte[] buffer = new byte[1024];
@@ -581,8 +582,8 @@ public class DataIOHelper {
         Log.d(LogTags.IO_HELPER.getV(), "开始复制目标zip备份文件到临时目录……");
 
         //生成临时zip文件对象
-        tempZipFile = new File(tempDir, "backup_temp.zip");
-        if (!tempDir.exists() && !tempDir.mkdirs()) {
+        tempZipFile = new File(dataTempDir, "backup_temp.zip");
+        if (!dataTempDir.exists() && !dataTempDir.mkdirs()) {
             RuntimeException e = new RuntimeException("临时文件目录创建失败");
             ExceptionHelper.showExceptionDialog(context, e);
             if (importCallback != null) {
@@ -650,7 +651,7 @@ public class DataIOHelper {
             byte[] buffer = new byte[8192]; // 8KB缓冲区
 
             while ((entry = zis.getNextEntry()) != null) {
-                File entryFile = new File(tempDir, entry.getName());
+                File entryFile = new File(dataTempDir, entry.getName());
 
                 if (entryFile.isDirectory()) continue;  //不处理目录类
 
@@ -698,16 +699,14 @@ public class DataIOHelper {
     public void unpackPictureZip() {
         Log.d(LogTags.IO_HELPER.getV(), "正在解压图片文件");
 
-        File pictureDir = new File(context.getExternalFilesDir(null), "pictures");
-        File[] oldPictureFiles = pictureDir.listFiles();
-
-        //尝试创建图片目录
-        if (!pictureDir.exists() && !pictureDir.mkdirs()) {
-            Log.e(LogTags.IO_HELPER.getV(), "无法创建图片目录");
+        File pictureDir = DirectoryPaths.PICTURE.getDir(context);
+        if (pictureDir == null) {
+            Log.e(LogTags.IO_HELPER.getV(), "无法创建永久图片目录");
             return;
         }
 
         //遍历删除旧图片
+        File[] oldPictureFiles = pictureDir.listFiles();
         if (oldPictureFiles != null) {
             for (File oldPicture : oldPictureFiles) {
                 if (!oldPicture.delete()) {
@@ -759,14 +758,14 @@ public class DataIOHelper {
      */
     private void createTempJsonFile(String file_name, String content) {
         //创建临时目录
-        if (!tempDir.exists() && !tempDir.mkdirs()) {
+        if (!dataTempDir.exists() && !dataTempDir.mkdirs()) {
             RuntimeException e = new RuntimeException("无法创建临时文件目录");
             ExceptionHelper.showExceptionDialog(context, e);
             clearTempFile();
             return;
         }
 
-        File tempJsonFile = new File(tempDir, file_name);
+        File tempJsonFile = new File(dataTempDir, file_name);
         tempJsonFileList.add(tempJsonFile);
         writeContentToTempFile(tempJsonFile, content);
     }

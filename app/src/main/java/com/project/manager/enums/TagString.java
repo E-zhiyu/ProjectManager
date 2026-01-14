@@ -1,4 +1,4 @@
-package com.project.manager.ui.pages.bookkeeping;
+package com.project.manager.enums;
 
 //用作视图Tag的枚举类
 public enum TagString {
