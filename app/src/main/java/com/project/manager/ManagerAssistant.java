@@ -3,6 +3,7 @@ package com.project.manager;
 import android.app.Application;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
@@ -12,6 +13,7 @@ import com.google.android.material.color.DynamicColorsOptions;
 import com.project.manager.data.data_save.preference.AutoBackupPreference;
 import com.project.manager.data.data_save.preference.AppSettingsPreference;
 import com.project.manager.data.data_save.preference.VersionPreference;
+import com.project.manager.enums.LogTags;
 import com.project.manager.helpers.AutoBackupHelper;
 import com.project.manager.workers.BackupScheduler;
 
@@ -57,6 +59,7 @@ public class ManagerAssistant extends Application {
             File apkFile = new File(Objects.requireNonNull(Uri.parse(apkUri).getPath()));
             if (apkFile.exists() && apkFile.delete()) {
                 Log.d(LogTags.APPLICATION.getV(), String.format(Locale.getDefault(), "成功删除“%s”", apkFile.getName()));
+                Toast.makeText(this, "已自动删除安装包", Toast.LENGTH_SHORT).show();
             } else {
                 Log.w(LogTags.APPLICATION.getV(), String.format(Locale.getDefault(), "“%s”删除失败", apkFile.getName()));
             }
