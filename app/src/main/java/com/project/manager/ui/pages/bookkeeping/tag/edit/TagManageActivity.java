@@ -16,9 +16,9 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.project.manager.databinding.ActivityTagManageBinding;
 import com.project.manager.helpers.ColorHelper;
-import com.project.manager.ui.RequestResultCode;
+import com.project.manager.enums.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
-import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
+import com.project.manager.enums.KeyValueStrings;
 import com.project.manager.data.data_class.Tag;
 import com.project.manager.data.data_class.TagGroup;
 

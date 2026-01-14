@@ -15,6 +15,9 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -24,10 +27,10 @@ import com.project.manager.R;
 import com.project.manager.databinding.ActivityPackageNameSelectBinding;
 import com.project.manager.helpers.ColorHelper;
 import com.project.manager.helpers.PermissionHelper;
-import com.project.manager.ui.RequestResultCode;
+import com.project.manager.enums.RequestResultCode;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.helpers.PackageNameHelper;
-import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
+import com.project.manager.enums.KeyValueStrings;
 import com.project.manager.ui.data_communication.package_name_search.AppInfoSearchViewModel;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -52,31 +55,11 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         //边距设置
-        binding.toolbarContainerLayout.setOnApplyWindowInsetsListener((view, insets) -> {
-            //获取状态栏高度
-            int statusBarHeight = insets.getSystemWindowInsetTop();
+        ViewCompat.setOnApplyWindowInsetsListener(binding.rootLayout, (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, v.getTop(), systemBars.right, systemBars.bottom);
 
-            //为根布局设置上边距
-            view.setPadding(
-                    view.getPaddingLeft(),
-                    statusBarHeight,
-                    view.getPaddingRight(),
-                    view.getPaddingBottom()
-            );
-
-            return insets;
-        });
-        binding.rootLayout.setOnApplyWindowInsetsListener((v, insets) -> {
-            //获取系统底部导航栏高度
-            int actionBarHeight = insets.getSystemWindowInsetBottom();
-
-            //设置根布局的下边距
-            v.setPadding(
-                    v.getPaddingLeft(),
-                    v.getPaddingTop(),
-                    v.getPaddingRight(),
-                    actionBarHeight
-            );
+            binding.toolbarContainerLayout.setPadding(systemBars.left, systemBars.top, systemBars.right, binding.toolbarContainerLayout.getBottom());
 
             return insets;
         });

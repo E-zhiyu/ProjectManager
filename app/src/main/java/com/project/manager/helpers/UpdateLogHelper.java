@@ -11,7 +11,11 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.7.1  \n" +
+    private static final String update_log_md = "# v1.7.2  \n" +
+            "**修改内容**  \n" +
+            "- 将临时文件目录更换为缓存目录，以便用户能够便捷地清除未成功删除的临时文件  \n" +
+            "- 软件更新后会自动删除安装包  \n\n" +
+            "# v1.7.1  \n" +
             "**BUG修复**  \n" +
             "- 修复删除流水记录后无法删除对应的图片文件的BUG  \n" +
             "- 修复自动备份无法打包图片的BUG  \n" +

@@ -1,4 +1,4 @@
-package com.project.manager.ui.pages.bookkeeping;
+package com.project.manager.enums;
 
 //用作关键字的字符串枚举
 public enum KeyValueStrings {

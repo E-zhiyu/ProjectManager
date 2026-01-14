@@ -15,7 +15,6 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
@@ -28,12 +27,13 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import com.project.manager.LogTags;
+import com.project.manager.enums.DirectoryPaths;
+import com.project.manager.enums.LogTags;
 import com.project.manager.databinding.ActivityCameraBinding;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.helpers.IconHelper;
 import com.project.manager.helpers.PermissionHelper;
-import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
+import com.project.manager.enums.KeyValueStrings;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -209,7 +209,7 @@ public class CameraActivity extends AppCompatActivity {
         }
 
         //创建照片文件
-        File tempDir = getOutputDirectory();
+        File tempDir = DirectoryPaths.PICTURE_TEMP.getDir(this);
         if (tempDir == null) {
             Log.e(LogTags.CAMERA_ACTIVITY.getV(), "无法获取临时照片保存目录");
             Toast.makeText(this, "拍照失败：无法获取照片保存目录", Toast.LENGTH_SHORT).show();
@@ -248,24 +248,5 @@ public class CameraActivity extends AppCompatActivity {
                     }
                 }
         );
-    }
-
-    /**
-     * 获取照片输出目录
-     *
-     * @return 临时照片保存目录
-     */
-    @Nullable
-    private File getOutputDirectory() {
-        File dir = new File(getExternalFilesDir(null), "picture_temp");
-        if (!dir.exists()) {
-            if (dir.mkdirs()) {
-                return dir;
-            }
-        } else {
-            return dir;
-        }
-
-        return null;
     }
 }

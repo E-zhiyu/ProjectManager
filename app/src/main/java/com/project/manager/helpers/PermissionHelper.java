@@ -17,7 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.project.manager.ui.RequestResultCode;
+import com.project.manager.enums.RequestResultCode;
 
 /**
  * 与应用权限有关的帮助器

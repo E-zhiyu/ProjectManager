@@ -17,14 +17,15 @@ import com.project.manager.FragmentPagerAdapter;
 import com.project.manager.data.data_class.Picture;
 import com.project.manager.data.data_class.running_account.RunningAccountBase;
 import com.project.manager.databinding.ActivityRunningAccountAddBinding;
+import com.project.manager.enums.DirectoryPaths;
 import com.project.manager.helpers.ExceptionHelper;
-import com.project.manager.ui.pages.bookkeeping.KeyValueStrings;
+import com.project.manager.enums.KeyValueStrings;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.ExpenseFragment;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.IncomeFragment;
 import com.project.manager.ui.picture.PictureAdapter;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountFragmentBase;
 import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.TransferFragment;
-import com.project.manager.ui.RequestResultCode;
+import com.project.manager.enums.RequestResultCode;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -145,20 +146,13 @@ public class RunningAccountAddActivity extends AppCompatActivity {
      * @param rno 图片对应的流水编号
      */
     private void moveTempPictures(long rno) {
-        //确保永久目录存在
-        File tempPictureDir = new File(this.getExternalFilesDir(null), "picture_temp");
-        File permanentPictureDir = new File(this.getExternalFilesDir(null), "pictures");
-        boolean isPermanentDirUsable = true;
-        if (!permanentPictureDir.exists()) {
-            if (!permanentPictureDir.mkdirs()) {
-                Toast.makeText(this, "无法创建永久图片目录", Toast.LENGTH_SHORT).show();
-                isPermanentDirUsable = false;
-            }
-        }
+        //获取文件目录
+        File tempPictureDir = DirectoryPaths.PICTURE_TEMP.getDir(this);
+        File permanentPictureDir = DirectoryPaths.PICTURE.getDir(this);
 
         //移动文件
         List<File> filesOnMovedList = new ArrayList<>();    //成功移动的文件列表
-        if (tempPictureDir.exists() && isPermanentDirUsable) {
+        if (tempPictureDir != null && permanentPictureDir != null) {
             File[] files = tempPictureDir.listFiles();
             if (files != null) {
                 boolean isAllFileMoved = true;

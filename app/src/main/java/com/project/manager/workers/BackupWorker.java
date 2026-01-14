@@ -8,7 +8,7 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.project.manager.LogTags;
+import com.project.manager.enums.LogTags;
 import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.helpers.DataIOHelper;
 import com.project.manager.ui.pages.setting.SettingFragment;
