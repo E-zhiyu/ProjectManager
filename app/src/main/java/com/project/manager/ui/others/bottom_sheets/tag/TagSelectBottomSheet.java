@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
-import com.project.manager.R;
 import com.project.manager.databinding.BottomSheetTagSelectBinding;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.data.data_class.TagGroup;
@@ -23,13 +22,13 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class TagSelectBottomSheet extends BottomSheetDialogFragment implements View.OnClickListener {
+public class TagSelectBottomSheet extends BottomSheetDialogFragment {
     private BottomSheetTagSelectBinding binding;    //绑定的XML视图
     private long excepted_tag_no = 0;               //被排除的标签编号（不会显示）
     private boolean isTagExcepted = false;          //是否存在被排除的标签
     private final SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener tagBtnClickedListener; //标签按钮点击事件的监听器
-    private String edit_btn_str = "标签管理";       //左侧编辑按钮文本
-    private String clear_btn_str = "清除输入";      //右侧清除按钮文本
+    private String editBtnStr = "标签管理";         //左侧编辑按钮文本
+    private String clearBtnStr = "清除输入";        //右侧清除按钮文本
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
     private SheetTagGroupRecyclerAdapter tagAdapter;    //标签按钮布局适配器
 
@@ -46,14 +45,14 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
     /**
      * 标签选择菜单构造方法
      *
-     * @param listener      标签按钮点击监听器
-     * @param edit_btn_str  标签编辑按钮的文本（设置为null则隐藏按钮）
-     * @param clear_btn_str 清除输入按钮的文本（设置为null则隐藏按钮）
+     * @param listener    标签按钮点击监听器
+     * @param editBtnStr  标签编辑按钮的文本（设置为null则隐藏按钮）
+     * @param clearBtnStr 清除输入按钮的文本（设置为null则隐藏按钮）
      */
-    public TagSelectBottomSheet(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener, String edit_btn_str, String clear_btn_str) {
+    public TagSelectBottomSheet(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener, String editBtnStr, String clearBtnStr) {
         this.tagBtnClickedListener = listener;
-        this.edit_btn_str = edit_btn_str;
-        this.clear_btn_str = clear_btn_str;
+        this.editBtnStr = editBtnStr;
+        this.clearBtnStr = clearBtnStr;
     }
 
     /**
@@ -95,40 +94,33 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment implements V
         disposables.dispose();
     }
 
-    @Override
-    public void onClick(@NonNull View v) {
-        if (v.getId() == R.id.edit_tag_btn) {
-            Intent skip2TagEdit = new Intent(requireContext(), TagManageActivity.class);
-            startActivity(skip2TagEdit);
-            dismiss();
-        } else if (v.getId() == R.id.clear_input_btn) {
-            tagBtnClickedListener.onTagBtnClicked(0, "");
-        }
-    }
-
     //初始化视图
     private void initViews() {
-        MaterialButton edit_tag_btn = binding.editTagBtn;
-        MaterialButton clear_input_btn = binding.clearInputBtn;
+        MaterialButton editTagBtn = binding.editTagBtn;
+        MaterialButton clearInputBtn = binding.clearInputBtn;
 
         //设置按钮文本
-        if (edit_btn_str != null) {
-            edit_tag_btn.setText(edit_btn_str);
+        if (editBtnStr != null) {
+            editTagBtn.setText(editBtnStr);
         } else {
-            edit_tag_btn.setVisibility(View.GONE);
+            editTagBtn.setVisibility(View.GONE);
         }
-        if (clear_btn_str != null) {
-            clear_input_btn.setText(clear_btn_str);
+        if (clearBtnStr != null) {
+            clearInputBtn.setText(clearBtnStr);
         } else {
-            clear_input_btn.setVisibility(View.GONE);
+            clearInputBtn.setVisibility(View.GONE);
         }
 
         if (!isTagExcepted) {
-            edit_tag_btn.setOnClickListener(this);
-            clear_input_btn.setOnClickListener(this);
+            editTagBtn.setOnClickListener(v -> {
+                Intent skip2TagEdit = new Intent(requireContext(), TagManageActivity.class);
+                startActivity(skip2TagEdit);
+                dismiss();
+            });
+            clearInputBtn.setOnClickListener(v -> tagBtnClickedListener.onTagBtnClicked(0, ""));
         } else {
-            edit_tag_btn.setVisibility(View.GONE);
-            clear_input_btn.setVisibility(View.GONE);
+            editTagBtn.setVisibility(View.GONE);
+            clearInputBtn.setVisibility(View.GONE);
         }
     }
 

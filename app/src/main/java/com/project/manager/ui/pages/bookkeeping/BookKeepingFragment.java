@@ -55,7 +55,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class BookKeepingFragment extends Fragment {
     private AccountRecyclerAdapter accountRecyclerAdapter;                  //流水列表适配器
     private RecyclerView runningAccountRecyclerView;                        //流水列表视图
-    private BookKeepingDbHelper running_account_db_helper;            //流水数据库帮助器
+    private BookKeepingDbHelper dbHelper;                                   //流水数据库帮助器
     private ActivityResultLauncher<Intent> runningAccountAddLauncher, modifyRunningAccountLauncher;  //子活动启动器
     private int account_num;                                                //流水记录数量
     private FragmentBookkeepingBinding binding;                             //绑定的XML视图
@@ -68,7 +68,7 @@ public class BookKeepingFragment extends Fragment {
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
 
         //实例化数据库帮助器
-        running_account_db_helper = new BookKeepingDbHelper(requireContext());
+        dbHelper = new BookKeepingDbHelper(requireContext());
 
         initActivityLauncher();
         initViews();
@@ -143,7 +143,7 @@ public class BookKeepingFragment extends Fragment {
      */
     @NonNull
     private List<RunningAccountBase> loadRunningAccountData(long tag_no) {
-        SQLiteDatabase db = running_account_db_helper.openReadLink();  //获取读连接
+        SQLiteDatabase db = dbHelper.openReadLink();  //获取读连接
 
         //判断该标签是否存在
         String tag_name = Tag.tagNoTransToName(tag_no, requireContext());
@@ -294,7 +294,11 @@ public class BookKeepingFragment extends Fragment {
 
         //绑定过滤器文本的点击监听器
         binding.filterText.setOnClickListener(v -> {
-            tagSelectBottomSheet = new TagSelectBottomSheet(this::onTagBtnClicked, null, "清除过滤");
+            tagSelectBottomSheet = new TagSelectBottomSheet(
+                    this::onTagBtnClicked,
+                    null,
+                    "清除过滤"
+            );
             tagSelectBottomSheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
         });
 
@@ -427,7 +431,6 @@ public class BookKeepingFragment extends Fragment {
      */
     private void onTagBtnClicked(long tag_no, String tag_name) {
         filter_tag_no = tag_no;
-        binding.refreshLayout.setRefreshing(true);
 
         if (tag_no == 0) {
             binding.filterText.setText("全部");
@@ -436,11 +439,6 @@ public class BookKeepingFragment extends Fragment {
         }
 
         refreshUI();
-
-        if (tagSelectBottomSheet != null) {
-            tagSelectBottomSheet.dismiss();
-            tagSelectBottomSheet = null;
-        }
     }
 
     /**
