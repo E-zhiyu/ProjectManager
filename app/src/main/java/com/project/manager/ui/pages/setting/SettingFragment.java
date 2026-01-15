@@ -43,7 +43,7 @@ import com.project.manager.helpers.DataIOHelper;
 import com.project.manager.helpers.UpdateHelper;
 import com.project.manager.ui.others.dialogs.MultiChoiceDialog;
 import com.project.manager.ui.others.dialogs.ProgressDialog;
-import com.project.manager.ui.pages.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
+import com.project.manager.ui.pages.bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
 import com.project.manager.helpers.AboutHelper;
 import com.project.manager.helpers.ThemeModeHelper;
 import com.project.manager.helpers.UpdateLogHelper;

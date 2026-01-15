@@ -4,7 +4,7 @@
     style="@style/CommonPageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.pages.bookkeeping.tag.edit.GroupModifyActivity">
+    tools:context=".ui.pages.bookkeeping.tag.GroupModifyActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"

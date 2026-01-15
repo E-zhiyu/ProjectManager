@@ -22,7 +22,7 @@ import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.enums.KeyValueStrings;
 import com.project.manager.data.data_class.AnalysisRule;
 import com.project.manager.data.data_class.running_account.RunningAccountBase;
-import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountType;
+import com.project.manager.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.project.manager.data.data_class.Tag;
 
 import java.text.SimpleDateFormat;

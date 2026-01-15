@@ -14,7 +14,7 @@ import com.project.manager.data.data_save.database.BookKeepingColumns;
 import com.project.manager.data.data_save.database.BookKeepingDbHelper;
 import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.enums.KeyValueStrings;
-import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountType;
+import com.project.manager.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
 public abstract class RunningAccountBase {
     protected String name;              //名称

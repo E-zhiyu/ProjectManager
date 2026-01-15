@@ -20,7 +20,7 @@ import com.project.manager.data.data_class.running_account.IncomeRunningAccount;
 import com.project.manager.data.data_class.running_account.RunningAccountBase;
 import com.project.manager.data.data_class.running_account.TransferRunningAccount;
 import com.project.manager.helpers.ExceptionHelper;
-import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountType;
+import com.project.manager.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
 import java.util.List;
 

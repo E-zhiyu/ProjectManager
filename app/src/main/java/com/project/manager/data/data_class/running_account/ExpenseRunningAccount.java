@@ -2,7 +2,7 @@ package com.project.manager.data.data_class.running_account;
 
 import androidx.annotation.NonNull;
 
-import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountType; /**
+import com.project.manager.ui.pages.bookkeeping.running_account.fragments.RunningAccountType; /**
  * 支出流水类
  */
 public class ExpenseRunningAccount extends RunningAccountBase {

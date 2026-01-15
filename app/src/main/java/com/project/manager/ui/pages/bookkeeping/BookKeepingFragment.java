@@ -36,11 +36,11 @@ import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.databinding.FragmentBookkeepingBinding;
 import com.project.manager.helpers.ColorHelper;
 import com.project.manager.helpers.ExceptionHelper;
-import com.project.manager.ui.pages.bookkeeping.running_account_edit.RunningAccountModifyActivity;
-import com.project.manager.ui.pages.bookkeeping.running_account_edit.RunningAccountAddActivity;
+import com.project.manager.ui.pages.bookkeeping.running_account.RunningAccountModifyActivity;
+import com.project.manager.ui.pages.bookkeeping.running_account.RunningAccountAddActivity;
 import com.project.manager.enums.RequestResultCode;
-import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountType;
-import com.project.manager.ui.pages.bookkeeping.tag.select_sheet.TagSelectBottomSheet;
+import com.project.manager.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
+import com.project.manager.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
 import com.project.manager.ui.data_communication.account_recycler.AccountRecyclerViewModel;
 
 import java.util.ArrayList;
