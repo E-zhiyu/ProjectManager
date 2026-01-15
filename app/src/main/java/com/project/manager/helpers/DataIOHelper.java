@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
@@ -497,6 +499,41 @@ public class DataIOHelper {
     }
 
     /**
+     * 扫描zip文件并获取其中所有文件的文件名
+     *
+     * @param uri 通过SAF选中的zip文件的Uri
+     */
+    private void scanZipFile(Uri uri) {
+        Log.d(LogTags.IO_HELPER.getV(), "正在扫描zip文件");
+        ContentResolver resolver = context.getContentResolver();
+
+        try (InputStream is = resolver.openInputStream(uri)) {
+            if (is == null) throw new IOException("无法打开输入流");
+
+            try (ZipInputStream zis = new ZipInputStream(is)) {
+                ZipEntry entry;
+                List<String> entryNameList = new ArrayList<>();
+                while ((entry = zis.getNextEntry()) != null) {
+                    entryNameList.add(entry.getName());
+                    zis.closeEntry();
+                }
+
+                //通过回调传送给设置界面处理逻辑
+                if (importCallback != null) {
+                    //在主线程更新UI
+                    new Handler(Looper.getMainLooper()).post(() -> importCallback.onZipScanned(entryNameList));
+                } else {
+                    Log.e(LogTags.IO_HELPER.getV(), "数据导入回调为空");
+                }
+            }
+        } catch (IOException e) {
+            Log.e(LogTags.IO_HELPER.getV(), "zip文件扫描失败");
+            importCallback.onError("zip文件扫描失败");
+            ExceptionHelper.showExceptionDialog(context, e);
+        }
+    }
+
+    /**
      * 将来自SAF的uri转换为File对象
      *
      * @param uri 来自SAF的uri
@@ -535,40 +572,6 @@ public class DataIOHelper {
             }
             Log.e(LogTags.IO_HELPER.getV(), "JSON文件读取失败");
             return null;
-        }
-    }
-
-    /**
-     * 扫描zip文件并获取其中所有文件的文件名
-     *
-     * @param uri 通过SAF选中的zip文件的Uri
-     */
-    private void scanZipFile(Uri uri) {
-        Log.d(LogTags.IO_HELPER.getV(), "正在扫描zip文件");
-        ContentResolver resolver = context.getContentResolver();
-
-        try (InputStream is = resolver.openInputStream(uri)) {
-            if (is == null) throw new IOException("无法打开输入流");
-
-            try (ZipInputStream zis = new ZipInputStream(is)) {
-                ZipEntry entry;
-                List<String> entryNameList = new ArrayList<>();
-                while ((entry = zis.getNextEntry()) != null) {
-                    entryNameList.add(entry.getName());
-                    zis.closeEntry();
-                }
-
-                //通过回调传送给设置界面处理逻辑
-                if (importCallback != null) {
-                    importCallback.onZipScanned(entryNameList);
-                } else {
-                    Log.e(LogTags.IO_HELPER.getV(), "数据导入回调为空");
-                }
-            }
-        } catch (IOException e) {
-            Log.e(LogTags.IO_HELPER.getV(), "zip文件扫描失败");
-            importCallback.onError("zip文件扫描失败");
-            ExceptionHelper.showExceptionDialog(context, e);
         }
     }
 

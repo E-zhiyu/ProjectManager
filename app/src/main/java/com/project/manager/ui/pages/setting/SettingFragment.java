@@ -591,8 +591,7 @@ public class SettingFragment extends Fragment {
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(b -> Toast.makeText(requireContext(), "数据导出成功", Toast.LENGTH_SHORT).show(),
-                                            e -> {
-                                            },
+                                            e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
                                             progressDialog::dismiss
                                     )
                     );
@@ -605,7 +604,29 @@ public class SettingFragment extends Fragment {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    DataIOHelper.handleActivityResult(resultCode, data, false);
+                    ProgressDialog progressDialog = new ProgressDialog(requireContext(), "导入数据", "正在扫描备份文件……");
+                    progressDialog.buildDialog(
+                            null,
+                            () -> {
+                                disposables.clear();
+                                Toast.makeText(requireContext(), "已取消数据导入", Toast.LENGTH_SHORT).show();
+                            },
+                            false);
+                    progressDialog.show();
+
+                    disposables.add(
+                            Observable.fromCallable(() -> {
+                                        DataIOHelper.handleActivityResult(resultCode, data, false);
+                                        return true;
+                                    })
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(b -> Toast.makeText(requireContext(), "扫描完成", Toast.LENGTH_SHORT).show(),
+                                            e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
+                                            progressDialog::dismiss
+                                    )
+                    );
+
                 }
         );
 
