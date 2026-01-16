@@ -37,4 +37,8 @@ public enum DirectoryPaths {
             return targetDir;
         }
     }
+
+    public String getChildDirName() {
+        return childDirName;
+    }
 }
