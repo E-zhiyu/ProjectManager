@@ -438,6 +438,10 @@ public class BookKeepingFragment extends Fragment {
             binding.filterText.setText(tag_name);
         }
 
+        if (tagSelectBottomSheet != null) {
+            tagSelectBottomSheet.dismiss();
+        }
+
         refreshUI();
     }
 

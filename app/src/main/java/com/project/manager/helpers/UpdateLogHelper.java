@@ -11,7 +11,10 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.7.3  \n" +
+    private static final String update_log_md = "# v1.7.4  \n" +
+            "**BUG修复**  \n" +
+            "- 修复记账界面标签过滤弹窗无法自动关闭的BUG  \n\n" +
+            "# v1.7.3  \n" +
             "**BUG修复**  \n" +
             "- 修复包名选择界面折叠搜索框后会导致搜索框与第一个可选项间距变大的BUG  \n\n" +
             "**修改内容**  \n" +
