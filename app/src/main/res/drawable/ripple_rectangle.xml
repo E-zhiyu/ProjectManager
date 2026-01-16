@@ -4,14 +4,13 @@
     <!-- 背景设为透明 -->
     <item android:id="@android:id/background">
         <shape android:shape="rectangle">
-            <solid android:color="?attr/colorSurfaceContainerLow" />
+            <solid android:color="@android:color/transparent" />
         </shape>
     </item>
 
-    <!-- 可选：添加内容（如果不需要可以省略） -->
     <item android:id="@android:id/mask">
         <shape android:shape="rectangle">
-            <solid android:color="?attr/colorSurfaceContainerLow" /> <!-- 掩码颜色 -->
+            <solid android:color="@color/card_background_color" /> <!-- 掩码颜色 -->
         </shape>
     </item>
 </ripple>
