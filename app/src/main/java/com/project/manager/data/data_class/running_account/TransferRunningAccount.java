@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 
 import com.project.manager.data.data_save.database.BookKeepingColumns;
 import com.project.manager.data.data_save.database.BookKeepingTables;
-import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountType;
+import com.project.manager.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
 /**
  * 转账流水类

@@ -1,6 +1,6 @@
 package com.project.manager.ui.pages.home.report;
 
-import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountType;
+import com.project.manager.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
 //提供报表信息的流水数据类型
 public class ReportRunningAccountData {

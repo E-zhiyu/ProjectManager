@@ -4,7 +4,7 @@
     android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".ui.pages.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select.PackageNameSelectActivity">
+    tools:context=".ui.pages.bookkeeping.notification_analysis.package_name_select.PackageNameSelectActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         style="@style/AppBarLayoutStyle"

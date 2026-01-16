@@ -37,37 +37,37 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ManagerAssistant.Static">
         <activity
-            android:name=".ui.picture.FullScreenImageActivity"
+            android:name=".ui.pages.picture.FullScreenImageActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.picture.CameraActivity"
+            android:name=".ui.pages.picture.CameraActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.bookkeeping.auto_bookkeeping.notification_analysis.package_name_select.PackageNameSelectActivity"
+            android:name=".ui.pages.bookkeeping.notification_analysis.package_name_select.PackageNameSelectActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.RuleAddModifyActivity"
+            android:name=".ui.pages.bookkeeping.notification_analysis.rule_edit.RuleAddModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity"
+            android:name=".ui.pages.bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.bookkeeping.tag.edit.GroupModifyActivity"
+            android:name=".ui.pages.bookkeeping.tag.GroupModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.bookkeeping.tag.edit.TagManageActivity"
+            android:name=".ui.pages.bookkeeping.tag.TagManageActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.bookkeeping.tag.edit.TagAddModifyActivity"
+            android:name=".ui.pages.bookkeeping.tag.TagAddModifyActivity"
             android:exported="false" />
         <activity
             android:name=".ui.pages.home.report.ReportActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.bookkeeping.running_account_edit.RunningAccountModifyActivity"
+            android:name=".ui.pages.bookkeeping.running_account.RunningAccountModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.bookkeeping.running_account_edit.RunningAccountAddActivity"
+            android:name=".ui.pages.bookkeeping.running_account.RunningAccountAddActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

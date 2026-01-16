@@ -76,8 +76,9 @@
 
     <!-- 圆角卡片容器器样式 -->
     <style name="RoundCardStyle">
-        <item name="cardBackgroundColor">?attr/colorSurfaceContainerLow</item>
+        <item name="cardBackgroundColor">@color/card_background_color</item>
         <item name="cardCornerRadius">50dp</item>
+        <item name="strokeColor">@android:color/transparent</item>
         <item name="android:layout_margin">10dp</item>
     </style>
 
@@ -89,8 +90,9 @@
 
     <!-- 带有多项内容的卡片容器 -->
     <style name="ContentCardStyle">
-        <item name="cardBackgroundColor">?attr/colorSurfaceContainerLow</item>
+        <item name="cardBackgroundColor">@color/card_background_color</item>
         <item name="cardCornerRadius">15dp</item>
+        <item name="strokeColor">@android:color/transparent</item>
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:layout_marginStart">10dp</item>
         <item name="android:layout_marginEnd">10dp</item>
@@ -108,7 +110,7 @@
     <style name="SettingOptionStyle">
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
-        <item name="android:background">@drawable/ripple_surface_container_low</item>
+        <item name="android:background">@drawable/ripple_rectangle</item>
     </style>
 
     <!-- 开关样式 -->
@@ -120,7 +122,8 @@
 
     <!-- 信息展示卡片样式 -->
     <style name="InfoCardStyle">
-        <item name="cardBackgroundColor">?attr/colorSurfaceContainerLow</item>
+        <item name="cardBackgroundColor">@color/card_background_color</item>
+        <item name="strokeColor">@android:color/transparent</item>
     </style>
 
     <!-- 按钮样式 -->

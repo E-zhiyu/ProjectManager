@@ -11,7 +11,14 @@ import com.project.manager.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.7.2  \n" +
+    private static final String update_log_md = "# v1.7.3  \n" +
+            "**BUG修复**  \n" +
+            "- 修复包名选择界面折叠搜索框后会导致搜索框与第一个可选项间距变大的BUG  \n\n" +
+            "**修改内容**  \n" +
+            "- 修改卡片容器背景颜色，删除卡片容器的边框  \n" +
+            "- 优化备份文件合法性校验逻辑，极大缩短选择错误且较大zip文件时的校验时间  \n" +
+            "- 导入数据时将在IO线程扫描备份文件，避免因文件过大导致的长时间卡顿  \n\n" +
+            "# v1.7.2  \n" +
             "**修改内容**  \n" +
             "- 将临时文件目录更换为缓存目录，以便用户能够便捷地清除未成功删除的临时文件  \n" +
             "- 软件更新后会自动删除安装包  \n\n" +

@@ -43,7 +43,7 @@ import com.project.manager.helpers.DataIOHelper;
 import com.project.manager.helpers.UpdateHelper;
 import com.project.manager.ui.others.dialogs.MultiChoiceDialog;
 import com.project.manager.ui.others.dialogs.ProgressDialog;
-import com.project.manager.ui.pages.bookkeeping.auto_bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
+import com.project.manager.ui.pages.bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
 import com.project.manager.helpers.AboutHelper;
 import com.project.manager.helpers.ThemeModeHelper;
 import com.project.manager.helpers.UpdateLogHelper;
@@ -77,7 +77,7 @@ public class SettingFragment extends Fragment {
     private FragmentSettingBinding binding;                                         //绑定的XML视图
     private ActivityResultLauncher<Intent> importDataLauncher, exportDataLauncher;  //活动启动器
     private ActivityResultLauncher<Intent> backupDirectorySetLauncher;              //自动备份文件夹选择的启动器
-    private DataIOHelper DataIOHelper;                                                      //SAF文件帮助器
+    private DataIOHelper dataIOHelper;                                                      //SAF文件帮助器
     private AutoBackupHelper autoBackupHelper;                                      //自动备份帮助器
     private BroadcastReceiver notificationPermissionListener;                       //通知监听服务正常运行的广播接收器
     private final CompositeDisposable disposables = new CompositeDisposable();      //多线程任务列表
@@ -123,7 +123,7 @@ public class SettingFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentSettingBinding.inflate(inflater, container, false);
 
-        DataIOHelper = new DataIOHelper(requireContext());
+        dataIOHelper = new DataIOHelper(requireContext());
         autoBackupHelper = new AutoBackupHelper(requireContext());
 
         initViews();
@@ -585,14 +585,13 @@ public class SettingFragment extends Fragment {
 
                     disposables.add(
                             Observable.fromCallable(() -> {
-                                        DataIOHelper.handleActivityResult(resultCode, data, true);
+                                        dataIOHelper.handleActivityResult(resultCode, data, true);
                                         return true;
                                     })
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(b -> Toast.makeText(requireContext(), "数据导出成功", Toast.LENGTH_SHORT).show(),
-                                            e -> {
-                                            },
+                                            e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
                                             progressDialog::dismiss
                                     )
                     );
@@ -605,7 +604,30 @@ public class SettingFragment extends Fragment {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    DataIOHelper.handleActivityResult(resultCode, data, false);
+                    ProgressDialog progressDialog = new ProgressDialog(requireContext(), "导入数据", "正在扫描备份文件……");
+                    progressDialog.buildDialog(
+                            null,
+                            () -> {
+                                disposables.clear();
+                                Toast.makeText(requireContext(), "已取消数据导入", Toast.LENGTH_SHORT).show();
+                            },
+                            false);
+                    progressDialog.show();
+
+                    disposables.add(
+                            Observable.fromCallable(() -> {
+                                        dataIOHelper.handleActivityResult(resultCode, data, false);
+                                        return true;
+                                    })
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(b -> {
+                                            },
+                                            e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
+                                            progressDialog::dismiss
+                                    )
+                    );
+
                 }
         );
 
@@ -648,7 +670,7 @@ public class SettingFragment extends Fragment {
 
         //将文件打包至压缩包内
         boolean isAccountDataChosen = choseItem[IODataType.ACCOUNT_DATA.ordinal()];
-        DataIOHelper.packDataInZip(
+        dataIOHelper.packDataInZip(
                 exportDataLauncher,
                 fileNameList,
                 fileContentList,
@@ -661,7 +683,7 @@ public class SettingFragment extends Fragment {
      */
     private void importData() {
         Log.i(LogTags.SETTING_FRAGMENT.getV(), "开始导入数据……");
-        DataIOHelper.openFileViaSAF(
+        dataIOHelper.openFileViaSAF(
                 new DataIOHelper.ImportCallback() {
                     @Override
                     public void onZipScanned(List<String> entryNameList) {
@@ -746,7 +768,7 @@ public class SettingFragment extends Fragment {
                         }
 
                         //清除临时文件
-                        DataIOHelper.clearTempFile();
+                        dataIOHelper.clearTempFile();
                     }
 
 
@@ -968,7 +990,7 @@ public class SettingFragment extends Fragment {
                                         AnalysisRuleDataHelper.resetRule(requireContext());
                                     }, () -> {
                                         progressDialog.dismiss();
-                                        DataIOHelper.clearTempFile();
+                                        dataIOHelper.clearTempFile();
 
                                         //通过ViewModel提醒流水界面刷新数据
                                         AccountRecyclerViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountRecyclerViewModel.class);
@@ -997,7 +1019,7 @@ public class SettingFragment extends Fragment {
         boolean isRuleDataChecked = itemChooseStats[IODataType.RULE_DATA.ordinal()];         //通知解析规则文件是否勾选
 
         //获取解压得到的临时JSON文件
-        List<File> tempJsonFileList = DataIOHelper.copyZipToTempAndUnpack();
+        List<File> tempJsonFileList = dataIOHelper.copyZipToTempAndUnpack();
         if (tempJsonFileList == null) {
             Log.e(LogTags.SETTING_FRAGMENT.getV(), "无法获取解压得到的临时JSON文件");
             throw new NullPointerException("无法获取解压得到的临时JSON文件");
@@ -1005,7 +1027,7 @@ public class SettingFragment extends Fragment {
 
         //如果选择了流水记录数据，则将图片解压至图片目录中
         if (isAccountDataChecked) {
-            DataIOHelper.unpackPictureZip();
+            dataIOHelper.unpackPictureZip();
         }
 
         //将JSON数据写入数据库

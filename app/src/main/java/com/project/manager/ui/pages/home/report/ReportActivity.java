@@ -30,7 +30,7 @@ import com.project.manager.data.data_save.database.BookKeepingTables;
 import com.project.manager.databinding.ActivityReportBinding;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.enums.TagString;
-import com.project.manager.ui.pages.bookkeeping.running_account_edit.fragments.RunningAccountType;
+import com.project.manager.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.project.manager.data.data_class.Tag;
 
 import org.jetbrains.annotations.Contract;
