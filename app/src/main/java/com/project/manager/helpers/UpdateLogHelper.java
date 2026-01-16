@@ -12,6 +12,8 @@ import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.7.3  \n" +
+            "**BUG修复**  \n" +
+            "- 修复包名选择界面折叠搜索框后会导致搜索框与第一个可选项间距变大的BUG  \n\n" +
             "**修改内容**  \n" +
             "- 导入数据时将在IO线程扫描备份文件，避免因文件过大导致的长时间卡顿  \n\n" +
             "# v1.7.2  \n" +

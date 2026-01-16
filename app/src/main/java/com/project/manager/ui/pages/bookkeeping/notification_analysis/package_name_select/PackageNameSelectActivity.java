@@ -15,9 +15,6 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -55,11 +52,31 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         //边距设置
-        ViewCompat.setOnApplyWindowInsetsListener(binding.rootLayout, (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, v.getTop(), systemBars.right, systemBars.bottom);
+        binding.toolbarContainerLayout.setOnApplyWindowInsetsListener((view, insets) -> {
+            //获取状态栏高度
+            int statusBarHeight = insets.getSystemWindowInsetTop();
 
-            binding.toolbarContainerLayout.setPadding(systemBars.left, systemBars.top, systemBars.right, binding.toolbarContainerLayout.getBottom());
+            //为根布局设置上边距
+            view.setPadding(
+                    view.getPaddingLeft(),
+                    statusBarHeight,
+                    view.getPaddingRight(),
+                    view.getPaddingBottom()
+            );
+
+            return insets;
+        });
+        binding.rootLayout.setOnApplyWindowInsetsListener((v, insets) -> {
+            //获取系统底部导航栏高度
+            int actionBarHeight = insets.getSystemWindowInsetBottom();
+
+            //设置根布局的下边距
+            v.setPadding(
+                    v.getPaddingLeft(),
+                    v.getPaddingTop(),
+                    v.getPaddingRight(),
+                    actionBarHeight
+            );
 
             return insets;
         });
