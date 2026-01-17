@@ -144,6 +144,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
                     .setMessage("此流水记录将会被永久删除，确认继续吗？")
                     .setPositiveButton("确认", (dialog, which) -> {
                         Bundle dataBundle = new Bundle();
+                        dataBundle.putLong(KeyValueStrings.RNO.getValue(), rno);
                         result2BookKeeping.putExtras(dataBundle);
                         setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2BookKeeping);
                         finish();

@@ -326,7 +326,6 @@ public class BookKeepingFragment extends Fragment {
      * 初始化流水视图适配器
      */
     private void setupAccountAdapter() {
-        //TODO:使用GroupAdapter实现粘性头部
         //设置适配器
         accountAdapter = new AccountRecyclerAdapter(this::onRunningAccountViewClick, requireContext());
         binding.runningAccountRecyclerView.setAdapter(accountAdapter);
@@ -418,8 +417,8 @@ public class BookKeepingFragment extends Fragment {
             return;
         }
 
-        int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), -1);
-        accountAdapter.deleteRunningAccount(position);
+        long rno = dataBundle.getLong(KeyValueStrings.RNO.getValue(), -1);
+        accountAdapter.deleteRunningAccount(rno);
         Toast.makeText(requireContext(), "流水记录已删除", Toast.LENGTH_SHORT).show();
 
         //更新流水记录数量文本

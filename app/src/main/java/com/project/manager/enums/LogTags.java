@@ -1,18 +1,19 @@
 package com.project.manager.enums;
 
 public enum LogTags {
-    NOTIFICATION_SERVICE("通知监听服务"),
-    RULE_UPDATE_RECEIVER("规则更新广播接收器"),
-    IO_HELPER("文件输入输出帮助器"),
-    SETTING_FRAGMENT("设置界面"),
-    BACKUP_WORKER("自动备份Worker"),
-    WORK_STATS("任务状态"),
-    CAMERA_ACTIVITY("相机界面"),
-    ACCOUNT_FRAGMENT("流水记录输入界面"),
-    PICTURE_ADAPTER("图片展示适配器"),
-    ACCOUNT_DATA_HELPER("流水记录数据帮助器"),
-    DB("数据库"),
-    APPLICATION("APP应用类");
+    NOTIFICATION_SERVICE("NotificationService"),
+    RULE_UPDATE_RECEIVER("RuleUpdateReceiver"),
+    DATA_IO_HELPER("DataIOHelper"),
+    SETTING_FRAGMENT("SettingFragment"),
+    BACKUP_WORKER("BackupWorker"),
+    WORK_STATS("WorkStats"),
+    CAMERA_ACTIVITY("CameraActivity"),
+    ACCOUNT_FRAGMENT("AccountFragment"),
+    PICTURE_ADAPTER("PictureAdapter"),
+    ACCOUNT_DATA_HELPER("AccountDataHelper"),
+    DB("Database"),
+    APPLICATION("Application"),
+    ACCOUNT_ADAPTER("AccountRecyclerAdapter");
     private final String v;
 
     LogTags(String v) {

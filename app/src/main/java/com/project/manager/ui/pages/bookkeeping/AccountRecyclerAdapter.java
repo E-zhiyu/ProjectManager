@@ -3,6 +3,7 @@ package com.project.manager.ui.pages.bookkeeping;
 import android.content.Context;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,7 @@ import com.project.manager.data.data_class.running_account.ExpenseRunningAccount
 import com.project.manager.data.data_class.running_account.IncomeRunningAccount;
 import com.project.manager.data.data_class.running_account.RunningAccountBase;
 import com.project.manager.data.data_class.running_account.TransferRunningAccount;
+import com.project.manager.enums.LogTags;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.xwray.groupie.GroupAdapter;
@@ -22,7 +24,6 @@ import com.xwray.groupie.Item;
 import com.xwray.groupie.Section;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -31,8 +32,7 @@ public class AccountRecyclerAdapter extends GroupAdapter<GroupieViewHolder> {
     private final List<RunningAccountBase> accountList;         //数据源
     private final Context context;                              //上下文
     private final OnRunningAccountViewClickListener listener;   //单击接口
-    private final HashMap<String, Section> sectionHashMap;     //分组哈希表
-
+    private final HashMap<String, Section> sectionHashMap;      //分组哈希表
 
     /**
      * 流水记录点击接口
@@ -276,26 +276,65 @@ public class AccountRecyclerAdapter extends GroupAdapter<GroupieViewHolder> {
     /**
      * 删除指定下标的流水记录
      *
-     * @param position 待删除的流水记录的下标
+     * @param rno_to_delete 待删除的流水记录的编号
      */
-    public void deleteRunningAccount(int position) {
-        if (position == -1) return;
-
-        //获取待删除的流水数据
-        RunningAccountBase runningAccount = accountList.get(position);
-        long rno = runningAccount.getRno();
+    public void deleteRunningAccount(long rno_to_delete) {
+        if (rno_to_delete == -1) {
+            Log.e(LogTags.ACCOUNT_ADAPTER.getV(), "未获取到合法的流水编号，无法删除流水记录");
+            return;
+        } else {
+            Log.i(LogTags.ACCOUNT_ADAPTER.getV(), String.format(Locale.getDefault(), "待删除流水编号：%d", rno_to_delete));
+        }
 
         //从数据库中删除
         try {
-            RunningAccountBase.deleteAccount(rno, context);
+            RunningAccountBase.deleteAccount(rno_to_delete, context);
+            Log.i(LogTags.ACCOUNT_ADAPTER.getV(), "数据库中删除成功");
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
+            Log.e(LogTags.ACCOUNT_ADAPTER.getV(), "数据库中删除失败");
             Toast.makeText(context, "流水记录删除失败", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        //刷新UI
-        accountList.remove(position);
+        //删除列表中的流水记录
+        String date = "";
+        for (int index = 0; index < accountList.size(); index++) {
+            RunningAccountBase runningAccount = accountList.get(index);
+            if (rno_to_delete == runningAccount.getRno()) {
+                Log.i(LogTags.ACCOUNT_ADAPTER.getV(), "成功在List中找到需要删除的数据类");
+                date = runningAccount.getDatetime().substring(0, 10);
+                accountList.remove(index);
+                break;
+            }
+        }
+
+        //删除Section中的流水条目
+        if (date.isEmpty()) {
+            Log.w(LogTags.ACCOUNT_ADAPTER.getV(), "未在List中找到需要删除的数据类");
+            return;
+        }
+        Section section = sectionHashMap.get(date);
+        if (section != null) {
+            int item_num = section.getItemCount();
+
+            //判断是否没有ContentItem(HeaderItem会占用一个数量，因此判断是否大于2)
+            if (item_num > 2) {
+                List<ContentItem> contentItemList = new ArrayList<>();
+                for (int index = 0; index < section.getItemCount(); index++) {
+                    Item<?> item = section.getItem(index);
+                    if (item instanceof ContentItem && ((ContentItem) item).getRno() != rno_to_delete) {
+                        contentItemList.add((ContentItem) item);
+                    }
+                }
+                section.update(contentItemList);
+            } else {
+                //当没有任何一个ContentItem时删除该Section
+                Log.d(LogTags.ACCOUNT_ADAPTER.getV(), "Section为空，删除整个Section");
+                sectionHashMap.remove(date);    //删除哈希表中的Section
+                remove(section);                //从适配器中移除
+            }
+        }
     }
 
     /**
@@ -304,11 +343,13 @@ public class AccountRecyclerAdapter extends GroupAdapter<GroupieViewHolder> {
      * @param refreshedList 刷新后的流水账数据列表
      */
     public void refreshRunningAccount(List<RunningAccountBase> refreshedList) {
+        //清空整个视图
         sectionHashMap.clear();
         accountList.clear();
         accountList.addAll(refreshedList);
         this.clear();
 
+        //依次添加视图
         for (RunningAccountBase runningAccount : accountList) {
             String datetime = runningAccount.getDatetime();
             String date = datetime.substring(0, 10);
