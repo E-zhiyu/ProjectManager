@@ -17,8 +17,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.textview.MaterialTextView;
 import com.project.manager.enums.KeyValueStrings;
@@ -53,8 +51,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class BookKeepingFragment extends Fragment {
-    private AccountRecyclerAdapter accountRecyclerAdapter;                  //流水列表适配器
-    private RecyclerView runningAccountRecyclerView;                        //流水列表视图
+    private AccountRecyclerAdapter accountAdapter;                  //流水列表适配器
     private BookKeepingDbHelper dbHelper;                                   //流水数据库帮助器
     private ActivityResultLauncher<Intent> runningAccountAddLauncher, modifyRunningAccountLauncher;  //子活动启动器
     private int account_num;                                                //流水记录数量
@@ -72,7 +69,7 @@ public class BookKeepingFragment extends Fragment {
 
         initActivityLauncher();
         initViews();
-        setUpBroadcastReceiver();
+        setupBroadcastReceiver();
 
         AccountRecyclerViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountRecyclerViewModel.class);
         viewModel.getDataUpdateTrigger().observe(getViewLifecycleOwner(), trigger -> {
@@ -101,36 +98,31 @@ public class BookKeepingFragment extends Fragment {
     /**
      * 处理流水视图点击事件的方法
      *
-     * @param position           点击的视图下标
-     * @param runningAccountBase 点击的流水数据实例
+     * @param runningAccount 点击的流水数据实例
      */
-    public void onRunningAccountViewClick(int position, RunningAccountBase runningAccountBase) {
-        RunningAccountBase runningAccountView = accountRecyclerAdapter.getItem(position);
-
+    public void onRunningAccountViewClick(@NonNull RunningAccountBase runningAccount) {
         Intent skip2RunningAccountModify = new Intent(requireContext(), RunningAccountModifyActivity.class);
         Bundle dataBundle = new Bundle();
 
         //获取基本数据
-        RunningAccountType type = runningAccountView.getType();         //类型
+        RunningAccountType type = runningAccount.getType();         //类型
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());
-        double amount = runningAccountView.getAmount();                 //金额
+        double amount = runningAccount.getAmount();                 //金额
         dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
-        String remark = runningAccountView.getRemark();                 //备注
+        String remark = runningAccount.getRemark();                 //备注
         dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
-        boolean isDefaultRemark = runningAccountView.isDefaultRemark(); //是否使用默认备注
+        boolean isDefaultRemark = runningAccount.isDefaultRemark(); //是否使用默认备注
         dataBundle.putBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue(), isDefaultRemark);
-        String date_time = runningAccountView.getDate_time();           //日期
+        String date_time = runningAccount.getDatetime();           //日期
         dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), date_time);
-        long rno = runningAccountView.getRno();                         //流水编号
+        long rno = runningAccount.getRno();                         //流水编号
         dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
-
-        dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), position);  //将待修改的流水实例下标放入包裹
 
         //获取特殊数据
         if (type == RunningAccountType.TRANSFER) {
-            String exportAccount = ((TransferRunningAccount) runningAccountView).getExportAccount();  //转出账户
+            String exportAccount = ((TransferRunningAccount) runningAccount).getExportAccount();  //转出账户
             dataBundle.putString(KeyValueStrings.ACCOUNT_EXPORT.getValue(), exportAccount);
-            String importAccount = ((TransferRunningAccount) runningAccountView).getImportAccount();  //转入账户
+            String importAccount = ((TransferRunningAccount) runningAccount).getImportAccount();  //转入账户
             dataBundle.putString(KeyValueStrings.ACCOUNT_IMPORT.getValue(), importAccount);
         }
 
@@ -302,34 +294,24 @@ public class BookKeepingFragment extends Fragment {
             tagSelectBottomSheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
         });
 
-        SwipeRefreshLayout refreshLayout = binding.refreshLayout;   //获取下拉刷新布局
-
         //获取颜色资源并设置下拉刷新布局的颜色
         int colorPrimary = ColorHelper.getPrimaryColor(requireContext());
         int colorSecondary = ColorHelper.getSecondaryPrimaryColor(requireContext());
-        refreshLayout.setColorSchemeColors(colorPrimary, colorSecondary);
+        binding.refreshLayout.setColorSchemeColors(colorPrimary, colorSecondary);
         int colorBackground = ColorHelper.getBackgroundColor(requireContext());
-        refreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
+        binding.refreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
 
         //创建列表视图的适配器
-        refreshLayout.setRefreshing(true);
-        List<RunningAccountBase> runningAccountList = loadRunningAccountData(filter_tag_no);    //读取流水数据
-        accountRecyclerAdapter = new AccountRecyclerAdapter(runningAccountList, this::onRunningAccountViewClick, requireContext());
-        runningAccountRecyclerView = binding.runningAccountRecyclerView;
-        runningAccountRecyclerView.setAdapter(accountRecyclerAdapter);
-        refreshLayout.setRefreshing(false);
-
-        //初始化流水记录数量文本
-        account_num = runningAccountList.size();
-        MaterialTextView accountNumText = binding.accountNumText;
-        accountNumText.setText(String.format(Locale.getDefault(), "显示数量：%d", account_num));
+        setupAccountAdapter();
 
         //设置下拉刷新布局的监听器
-        refreshLayout.setOnRefreshListener(this::refreshUI);
+        binding.refreshLayout.setOnRefreshListener(this::refreshUI);
     }
 
-    //初始化广播接收器
-    private void setUpBroadcastReceiver() {
+    /**
+     * 初始化广播接收器
+     */
+    private void setupBroadcastReceiver() {
         accountUpdatedReceiver = new RunningAccountUpdatedBroadcastReceiver(this::onNewAccountAddedReceived);
         IntentFilter filter = new IntentFilter();
         filter.addAction(BroadcastConstants.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
@@ -341,6 +323,34 @@ public class BookKeepingFragment extends Fragment {
     }
 
     /**
+     * 初始化流水视图适配器
+     */
+    private void setupAccountAdapter() {
+        //TODO:使用GroupAdapter实现粘性头部
+        //设置适配器
+        accountAdapter = new AccountRecyclerAdapter(this::onRunningAccountViewClick, requireContext());
+        binding.runningAccountRecyclerView.setAdapter(accountAdapter);
+
+        //加载流水记录
+        binding.refreshLayout.setRefreshing(true);
+        disposables.add(
+                Observable.fromCallable(() -> loadRunningAccountData(filter_tag_no))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(runningAccountList -> {
+                                    accountAdapter.refreshRunningAccount(runningAccountList);
+
+                                    //初始化流水记录数量文本
+                                    account_num = runningAccountList.size();
+                                    binding.accountNumText.setText(String.format(Locale.getDefault(), "显示数量：%d", account_num));
+                                },
+                                e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
+                                () -> binding.refreshLayout.setRefreshing(false)
+                        )
+        );
+    }
+
+    /**
      * 通过监听广播增加的流水账记录
      *
      * @param dataBundle 新增流水记录的数据
@@ -348,8 +358,8 @@ public class BookKeepingFragment extends Fragment {
     private void onNewAccountAddedReceived(@NonNull Bundle dataBundle) {
         long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
         if (tag_no == this.filter_tag_no || this.filter_tag_no == 0) {
-            accountRecyclerAdapter.addNewRunningAccountByNotification(dataBundle);
-            runningAccountRecyclerView.scrollToPosition(0);
+            accountAdapter.addNewRunningAccountByNotification(dataBundle);
+            binding.runningAccountRecyclerView.scrollToPosition(0);
             Toast.makeText(requireContext(), "成功添加一条流水记录（自动记账）", Toast.LENGTH_SHORT).show();
 
             account_num++;
@@ -370,8 +380,8 @@ public class BookKeepingFragment extends Fragment {
             return;
         }
 
-        accountRecyclerAdapter.addNewRunningAccount(dataBundle, filter_tag_no); //将新建的流水视图添加至列表视图适配器
-        runningAccountRecyclerView.scrollToPosition(0);                         //滚动到顶部（因为添加的新记录在顶部）
+        accountAdapter.addNewRunningAccount(dataBundle, filter_tag_no); //将新建的流水视图添加至列表视图适配器
+        binding.runningAccountRecyclerView.scrollToPosition(0);                 //滚动到顶部（因为添加的新记录在顶部）
         Toast.makeText(requireContext(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
 
         //更新记录数量
@@ -392,7 +402,7 @@ public class BookKeepingFragment extends Fragment {
             return;
         }
 
-        accountRecyclerAdapter.modifyRunningAccount(dataBundle);
+        accountAdapter.modifyRunningAccount(dataBundle);
         Toast.makeText(requireContext(), "成功修改流水记录", Toast.LENGTH_SHORT).show();
     }
 
@@ -409,7 +419,7 @@ public class BookKeepingFragment extends Fragment {
         }
 
         int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), -1);
-        accountRecyclerAdapter.deleteRunningAccount(position);
+        accountAdapter.deleteRunningAccount(position);
         Toast.makeText(requireContext(), "流水记录已删除", Toast.LENGTH_SHORT).show();
 
         //更新流水记录数量文本
@@ -456,7 +466,7 @@ public class BookKeepingFragment extends Fragment {
                         .observeOn(AndroidSchedulers.mainThread())  //切换到主线程更新 UI
                         .subscribe(
                                 refreshedAccount -> {
-                                    accountRecyclerAdapter.refreshRunningAccount(refreshedAccount);
+                                    accountAdapter.refreshRunningAccount(refreshedAccount);
                                     account_num = refreshedAccount.size();
                                     refreshAccountNumText();
                                 },  //成功回调

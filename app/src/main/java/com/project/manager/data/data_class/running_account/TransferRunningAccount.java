@@ -39,7 +39,7 @@ public class TransferRunningAccount extends RunningAccountBase {
         this.type = RunningAccountType.TRANSFER;
         this.name = "转账";
         this.remark = remark.isEmpty() ? default_remark : remark;
-        this.date_time = date_time;
+        this.datetime = date_time;
         this.amount = amount;
         this.isDefaultRemark = isDefaultRemark;
         this.exportAccount = exportAccount;
@@ -61,7 +61,7 @@ public class TransferRunningAccount extends RunningAccountBase {
         this.type = RunningAccountType.TRANSFER;
         this.name = "转账";
         this.remark = remark.isEmpty() ? default_remark : remark;
-        this.date_time = date_time;
+        this.datetime = date_time;
         this.amount = amount;
         this.isDefaultRemark = isDefaultRemark;
         this.exportAccount = exportAccount;

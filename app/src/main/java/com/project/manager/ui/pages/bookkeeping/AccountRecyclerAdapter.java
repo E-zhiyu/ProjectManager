@@ -1,101 +1,112 @@
 package com.project.manager.ui.pages.bookkeeping;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textview.MaterialTextView;
-import com.project.manager.enums.KeyValueStrings;
 import com.project.manager.R;
+import com.project.manager.enums.KeyValueStrings;
 import com.project.manager.data.data_class.running_account.ExpenseRunningAccount;
 import com.project.manager.data.data_class.running_account.IncomeRunningAccount;
 import com.project.manager.data.data_class.running_account.RunningAccountBase;
 import com.project.manager.data.data_class.running_account.TransferRunningAccount;
 import com.project.manager.helpers.ExceptionHelper;
 import com.project.manager.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
+import com.xwray.groupie.GroupAdapter;
+import com.xwray.groupie.GroupieViewHolder;
+import com.xwray.groupie.Item;
+import com.xwray.groupie.Section;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
-public class AccountRecyclerAdapter extends RecyclerView.Adapter<AccountRecyclerAdapter.AccountViewHolder> {
-    private List<RunningAccountBase> accountList;               //数据源
+public class AccountRecyclerAdapter extends GroupAdapter<GroupieViewHolder> {
+    private final List<RunningAccountBase> accountList;         //数据源
     private final Context context;                              //上下文
-    private final OnRunningAccountViewClickListener listener;   //单击接口对象
+    private final OnRunningAccountViewClickListener listener;   //单击接口
+    private final HashMap<String, Section> sectionHashMap;     //分组哈希表
 
-    public static class AccountViewHolder extends RecyclerView.ViewHolder {
-        MaterialTextView amount_text, remark_text, name_datetime_text;
 
-        public AccountViewHolder(@NonNull View itemView) {
-            super(itemView);
-            amount_text = itemView.findViewById(R.id.amount_text);
-            remark_text = itemView.findViewById(R.id.remark_textview);
-            name_datetime_text = itemView.findViewById(R.id.name_datetime_textview);
+    /**
+     * 流水记录点击接口
+     */
+    public interface OnRunningAccountViewClickListener {
+        void onRunningAccountClick(RunningAccountBase runningAccountBase);
+    }
+
+    static class HeaderItem extends Item<GroupieViewHolder> {
+        private final String date;
+
+        public HeaderItem(String date) {
+            this.date = date;
+        }
+
+        @Override
+        public void bind(@NonNull GroupieViewHolder viewHolder, int i) {
+            MaterialTextView titleText = viewHolder.itemView.findViewById(R.id.header_title);
+            titleText.setText(date);
+        }
+
+        @Override
+        public int getLayout() {
+            return R.layout.item_date_header;
         }
     }
 
-    //定义流水视图点击事件接口
-    public interface OnRunningAccountViewClickListener {
-        void onRunningAccountViewClick(int position, RunningAccountBase runningAccountBase);
+    public class ContentItem extends Item<GroupieViewHolder> {
+        private final RunningAccountBase runningAccount;
+
+        public ContentItem(@NonNull RunningAccountBase runningAccount) {
+            this.runningAccount = runningAccount;
+        }
+
+        @Override
+        public void bind(@NonNull GroupieViewHolder groupieViewHolder, int i) {
+            MaterialTextView amountText = groupieViewHolder.itemView.findViewById(R.id.amount_text);
+            MaterialTextView remarkText = groupieViewHolder.itemView.findViewById(R.id.remark_text);
+            MaterialTextView typeDatetimeText = groupieViewHolder.itemView.findViewById(R.id.type_datetime_textview);
+
+            String type = runningAccount.getType().getTitle();
+            String datetime = runningAccount.getDatetime();
+            String type_datetime = String.format(Locale.getDefault(), "%s·%s", type, datetime);
+            String remark = runningAccount.getRemark();
+            double amount = runningAccount.getAmount();
+
+            amountText.setText(String.format(Locale.getDefault(), "%.2f", amount));
+            remarkText.setText(remark);
+            typeDatetimeText.setText(type_datetime);
+
+            groupieViewHolder.itemView.setOnClickListener(v -> listener.onRunningAccountClick(runningAccount));
+        }
+
+        @Override
+        public int getLayout() {
+            return R.layout.item_running_account;
+        }
+
+        public long getRno() {
+            return runningAccount.getRno();
+        }
     }
 
     /**
      * 构造方法
      *
-     * @param accountList 流水数据类型列表
+     * @param listener 流水记录点击监听
+     * @param context  上下文
      */
-    public AccountRecyclerAdapter(List<RunningAccountBase> accountList, OnRunningAccountViewClickListener listener, Context context) {
-        this.accountList = accountList;
+    public AccountRecyclerAdapter(OnRunningAccountViewClickListener listener, Context context) {
+        this.accountList = new ArrayList<>();
         this.listener = listener;
         this.context = context;
-    }
-
-    @NonNull
-    @Override
-    public AccountViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.view_holder_running_account, parent, false);
-        return new AccountViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull AccountViewHolder holder, int position) {
-        RunningAccountBase currentRunningAccount = accountList.get(position);
-        String name_and_datetime = String.format("%s·%s",
-                currentRunningAccount.getName(),
-                currentRunningAccount.getDate_time()
-        );
-
-        holder.remark_text.setText(currentRunningAccount.getRemark());                  //备注
-        holder.name_datetime_text.setText(name_and_datetime);                           //名称和日期
-        holder.amount_text.setText(String.valueOf(currentRunningAccount.getAmount()));  //金额
-
-        holder.itemView.setOnClickListener(v ->
-                listener.onRunningAccountViewClick(
-                        holder.getBindingAdapterPosition(),
-                        currentRunningAccount)
-        );
-    }
-
-    @Override
-    public int getItemCount() {
-        return this.accountList.size();
-    }
-
-    /**
-     * 获取指定位置的流水数据类型
-     *
-     * @param position 指定的下标
-     * @return 流水数据类型
-     */
-    public RunningAccountBase getItem(int position) {
-        return accountList.get(position);
+        this.sectionHashMap = new HashMap<>();
     }
 
     /**
@@ -118,25 +129,39 @@ public class AccountRecyclerAdapter extends RecyclerView.Adapter<AccountRecycler
             if (rno == 0) return;   //如果为0则说明数据库保存失败，直接结束该方法
 
             //获取特殊数据并实例化流水类
-            RunningAccountBase newRunningAccount;
+            RunningAccountBase runningAccount;
             if (type == RunningAccountType.EXPENSE) {
-                newRunningAccount = new ExpenseRunningAccount(remark, date_time, amount, isDefaultRemark);
+                runningAccount = new ExpenseRunningAccount(remark, date_time, amount, isDefaultRemark);
             } else if (type == RunningAccountType.INCOME) {
-                newRunningAccount = new IncomeRunningAccount(remark, date_time, amount, isDefaultRemark);
+                runningAccount = new IncomeRunningAccount(remark, date_time, amount, isDefaultRemark);
             } else if (type == RunningAccountType.TRANSFER) {
                 String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
                 String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
-                newRunningAccount = new TransferRunningAccount(remark, date_time, amount, isDefaultRemark, exportAccount, importAccount);
+                runningAccount = new TransferRunningAccount(remark, date_time, amount, isDefaultRemark, exportAccount, importAccount);
             } else {
                 NullPointerException e = new NullPointerException("流水类型获取失败");
                 ExceptionHelper.showExceptionDialog(context, e);
                 return;
             }
 
-            newRunningAccount.setRno(rno);  //保存流水编号
+            runningAccount.setRno(rno);  //保存流水编号
 
-            this.accountList.add(0, newRunningAccount);
-            notifyItemInserted(0);
+            //刷新UI
+            this.accountList.add(0, runningAccount);
+            String date = runningAccount.getDatetime().substring(0, 10);
+            Section section = sectionHashMap.get(date);
+            ContentItem contentItem = new ContentItem(runningAccount);
+            if (section == null) {
+                Section newSection = new Section();
+                sectionHashMap.put(date, newSection);
+                HeaderItem headerItem = new HeaderItem(date);
+                newSection.setHeader(headerItem);
+
+                newSection.add(contentItem);
+                this.add(0, newSection);
+            } else {
+                section.add(contentItem);
+            }
         }
     }
 
@@ -175,7 +200,20 @@ public class AccountRecyclerAdapter extends RecyclerView.Adapter<AccountRecycler
 
         //刷新UI
         this.accountList.add(0, runningAccount);
-        notifyItemInserted(0);
+        String date = runningAccount.getDatetime().substring(0, 10);
+        Section section = sectionHashMap.get(date);
+        ContentItem contentItem = new ContentItem(runningAccount);
+        if (section == null) {
+            Section newSection = new Section();
+            sectionHashMap.put(date, newSection);
+            HeaderItem headerItem = new HeaderItem(date);
+            newSection.setHeader(headerItem);
+
+            newSection.add(contentItem);
+            this.add(0, newSection);
+        } else {
+            section.add(contentItem);
+        }
     }
 
     /**
@@ -187,7 +225,6 @@ public class AccountRecyclerAdapter extends RecyclerView.Adapter<AccountRecycler
         //解析数据
         long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
         RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-        int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), -1);    //原视图下标
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
         if (remark == null) remark = "";
@@ -212,8 +249,28 @@ public class AccountRecyclerAdapter extends RecyclerView.Adapter<AccountRecycler
 
         runningAccount.setRno(rno);
 
-        this.accountList.set(position, runningAccount);
-        notifyItemChanged(position);
+        //更新列表中的数据
+        for (int index = 0; index < accountList.size(); index++) {
+            long account_no = accountList.get(index).getRno();
+            if (rno == account_no) {
+                accountList.set(index, runningAccount);
+                break;
+            }
+        }
+        //遍历更新ContentItem以刷新UI
+        Section section = sectionHashMap.get(runningAccount.getDatetime().substring(0, 10));
+        if (section != null) {
+            List<ContentItem> contentItemList = new ArrayList<>();
+            for (int position = 0; position < section.getItemCount(); position++) {
+                Item<?> item = section.getItem(position);
+                if (item instanceof ContentItem && ((ContentItem) item).getRno() == rno) {
+                    contentItemList.add(new ContentItem(runningAccount));
+                } else if (item instanceof ContentItem) {
+                    contentItemList.add((ContentItem) item);
+                }
+            }
+            section.update(contentItemList);
+        }
     }
 
     /**
@@ -239,7 +296,6 @@ public class AccountRecyclerAdapter extends RecyclerView.Adapter<AccountRecycler
 
         //刷新UI
         accountList.remove(position);
-        notifyItemRemoved(position);
     }
 
     /**
@@ -247,9 +303,29 @@ public class AccountRecyclerAdapter extends RecyclerView.Adapter<AccountRecycler
      *
      * @param refreshedList 刷新后的流水账数据列表
      */
-    @SuppressLint("NotifyDataSetChanged")
     public void refreshRunningAccount(List<RunningAccountBase> refreshedList) {
-        accountList = refreshedList;
-        notifyDataSetChanged();
+        sectionHashMap.clear();
+        accountList.clear();
+        accountList.addAll(refreshedList);
+        this.clear();
+
+        for (RunningAccountBase runningAccount : accountList) {
+            String datetime = runningAccount.getDatetime();
+            String date = datetime.substring(0, 10);
+
+            Section dateSection = sectionHashMap.get(date);
+            ContentItem contentItem = new ContentItem(runningAccount);
+            if (dateSection == null) {
+                Section section = new Section();
+                sectionHashMap.put(date, section);
+                HeaderItem headerItem = new HeaderItem(date);
+                section.setHeader(headerItem);
+
+                section.add(contentItem);
+                this.add(section);
+            } else {
+                dateSection.add(contentItem);
+            }
+        }
     }
 }

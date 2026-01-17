@@ -20,7 +20,7 @@ public class ExpenseRunningAccount extends RunningAccountBase {
         this.name = "支出";
         this.remark = remark.isEmpty() ? default_remark : remark;
         this.isDefaultRemark = remark.isEmpty();
-        this.date_time = date_time;
+        this.datetime = date_time;
         this.amount = amount;
         this.isDefaultRemark = isDefaultRemark;
         this.rno = -1;
@@ -39,7 +39,7 @@ public class ExpenseRunningAccount extends RunningAccountBase {
         this.type = RunningAccountType.EXPENSE;
         this.name = "支出";
         this.remark = remark.isEmpty() ? default_remark : remark;
-        this.date_time = date_time;
+        this.datetime = date_time;
         this.amount = amount;
         this.isDefaultRemark = isDefaultRemark;
     }

@@ -33,7 +33,6 @@ import java.util.List;
 
 public class RunningAccountModifyActivity extends AppCompatActivity {
     private RunningAccountType type = null;                         //流水种类
-    private int position = -1;                                      //流水项目的下标
     private long rno;                                               //流水编号
     private RunningAccountFragmentBase runningAccountFragment;      //流水账数据输入碎片
     private ActivityRunningAccountModifyBinding binding;            //绑定的XML视图引用
@@ -51,7 +50,6 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
         Bundle dataBundle = getIntent().getExtras();
         if (dataBundle != null) {
             type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-            position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
             rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
         } else {
             NullPointerException e = new NullPointerException("编辑流水时无法读取原有的数据");
@@ -146,7 +144,6 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
                     .setMessage("此流水记录将会被永久删除，确认继续吗？")
                     .setPositiveButton("确认", (dialog, which) -> {
                         Bundle dataBundle = new Bundle();
-                        dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), position);
                         result2BookKeeping.putExtras(dataBundle);
                         setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2BookKeeping);
                         finish();
@@ -165,7 +162,6 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
     private Bundle getInputData() {
         Bundle dataBundle = runningAccountFragment.getInputData();
 
-        dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), position);       //流水视图下标
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());     //流水种类
         dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);                     //流水编号
 

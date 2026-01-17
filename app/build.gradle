@@ -59,4 +59,5 @@ dependencies {
     implementation libs.camera.view
     implementation libs.glide
     implementation libs.photoview
+    implementation libs.groupie
 }
