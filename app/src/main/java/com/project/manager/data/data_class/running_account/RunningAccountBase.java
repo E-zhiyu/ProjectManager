@@ -21,7 +21,7 @@ public abstract class RunningAccountBase {
     protected RunningAccountType type;  //种类
     protected String remark;            //备注
     protected boolean isDefaultRemark;  //是否使用默认备注
-    protected String date_time;         //日期和时间
+    protected String datetime;         //日期和时间
     protected double amount;            //金额
     protected long rno;                 //流水编号
 
@@ -41,8 +41,8 @@ public abstract class RunningAccountBase {
         return isDefaultRemark;
     }
 
-    public String getDate_time() {
-        return date_time;
+    public String getDatetime() {
+        return datetime;
     }
 
     public double getAmount() {

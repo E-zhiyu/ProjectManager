@@ -185,10 +185,6 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
                 error = "金额不能为空";
                 text_edit_layout.setErrorEnabled(true);
                 text_edit_layout.setError(error);
-            } else if (edittext_str.startsWith("0")) {
-                error = "金额不能以0开头";
-                text_edit_layout.setErrorEnabled(true);
-                text_edit_layout.setError(error);
             } else {
                 text_edit_layout.setError(null);    //消除错误提示
                 text_edit_layout.setErrorEnabled(false);

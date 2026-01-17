@@ -66,10 +66,7 @@ public class TransferFragment extends RunningAccountFragmentBase {
             TextInputLayout text_edit_layout;   //被验证的文本框对应的布局管理器
             edittext_str = String.valueOf(((TextInputEditText) v).getText());   //获取待验证组件的文本内容
 
-            if (v.getId() == R.id.amount_input) {
-                error = "金额不能为空";
-                text_edit_layout = amount_layout;
-            } else if (v.getId() == R.id.export_account_input) {
+            if (v.getId() == R.id.export_account_input) {
                 error = "转出账户不能为空";
                 text_edit_layout = export_layout;
             } else if (v.getId() == R.id.import_account_input) {
