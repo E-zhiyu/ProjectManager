@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace 'com.project.manager'
+    namespace 'com.manager.assistant'
     compileSdkVersion 36
 
     defaultConfig {
