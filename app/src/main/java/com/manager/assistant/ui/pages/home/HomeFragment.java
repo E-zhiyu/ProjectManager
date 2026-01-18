@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.manager.assistant.data.data_class.WebLink;
 import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
 import com.manager.assistant.data.data_save.database.BookKeepingColumns;
 import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
@@ -26,7 +27,9 @@ import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.Runn
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -100,6 +103,15 @@ public class HomeFragment extends Fragment {
         } else {
             binding.bookkeepingDaysText.setText("这是您记账的第一天");
         }
+
+        List<WebLink> linkList = new ArrayList<>();
+        linkList.add(new WebLink("Deepseek", "https://chat.deepseek.com/"));
+        linkList.add(new WebLink("Deepseek", "https://chat.deepseek.com/"));
+        linkList.add(new WebLink("Deepseek", "https://chat.deepseek.com/"));
+        linkList.add(new WebLink("Deepseek", "https://chat.deepseek.com/"));
+        LinkAdapter linkAdapter = new LinkAdapter(requireContext());
+        binding.webLinkRecycler.setAdapter(linkAdapter);
+        linkAdapter.refreshLink(linkList);
     }
 
     /**
