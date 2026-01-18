@@ -12,6 +12,8 @@ import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.7.4  \n" +
+            "**新增内容**  \n" +
+            "- 主页添加采购公告，收集自陕西省政府采购网，可在设置中关闭公告显示  \n\n" +
             "**BUG修复**  \n" +
             "- 修复能够正常添加以0开头的记录但是仍会提示不能以0开头的BUG  \n" +
             "- 修复记账界面标签过滤弹窗无法自动关闭的BUG  \n\n" +
