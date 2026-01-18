@@ -60,4 +60,6 @@ dependencies {
     implementation libs.glide
     implementation libs.photoview
     implementation libs.groupie
+    implementation libs.retrofit
+    implementation libs.jsoup
 }
