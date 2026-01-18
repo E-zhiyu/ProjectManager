@@ -84,20 +84,36 @@ public class WebsiteLinkFetchHelper {
         new Thread(() -> {
             try {
                 Document doc = Jsoup.parse(html);
-                Elements links = doc.select("a[href]");
-                List<WebLink> linkItems = new ArrayList<>();
+                //通过ul的id定位目标板块
+                Element ulElement = doc.getElementById("electronicStoreShow");
+                if (ulElement == null) {
+                    postError("未找到目标 ul 列表", callback);
+                    return;
+                }
 
-                for (Element link : links) {
-                    String text = link.text().trim();
-                    String href = link.attr("abs:href"); // 获取绝对URL
+                //提取所有li中的链接
+                List<WebLink> linkList = new ArrayList<>();
+                Elements liElements = ulElement.select("li");   //TODO:动态加载无法直接读取
+                for (Element li : liElements) {
+                    Element linkElement = li.selectFirst("a");
 
-                    // 过滤无效链接
-                    if (!text.isEmpty() && !href.equals("#") && !href.isEmpty()) {
-                        linkItems.add(new WebLink(text, href));
+                    if (linkElement != null) {
+                        String text = linkElement.text().trim();
+                        String href = linkElement.attr("abs:href"); // 获取绝对URL
+
+                        //过滤无效链接
+                        if (text.isEmpty()) {
+                            continue;   //过滤空标题链接
+                        }
+                        if (!href.startsWith("http://") && !href.startsWith("https://")) {
+                            continue;   //跳过非HTTP/HTTPS链接
+                        }
+
+                        linkList.add(new WebLink(text, href));
                     }
                 }
 
-                postSuccess(linkItems, callback);
+                postSuccess(linkList, callback);
             } catch (Exception e) {
                 postError("解析失败: " + e.getMessage(), callback);
             }

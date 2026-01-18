@@ -28,7 +28,6 @@ import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.Runn
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -264,13 +263,16 @@ public class HomeFragment extends Fragment {
      * @param adapter 链接显示列表视图的适配器
      */
     private void fetchLinks(LinkAdapter adapter) {
-
         WebsiteLinkFetchHelper linkFetchHelper = new WebsiteLinkFetchHelper("https://www.ccgp-shaanxi.gov.cn/");
         linkFetchHelper.scrapeLinks("https://www.ccgp-shaanxi.gov.cn/", new WebsiteLinkFetchHelper.ScrapeCallback() {
             @Override
             public void onSuccess(List<WebLink> links) {
-                binding.webLinkCard.setVisibility(View.VISIBLE);
-                adapter.refreshLink(links);
+                if (!links.isEmpty()) {
+                    binding.webLinkCard.setVisibility(View.VISIBLE);
+                    adapter.refreshLink(links);
+                } else {
+                    Toast.makeText(requireContext(), "未获取到任何链接", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
