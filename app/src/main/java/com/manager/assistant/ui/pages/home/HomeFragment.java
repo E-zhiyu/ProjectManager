@@ -22,6 +22,7 @@ import com.manager.assistant.data.data_save.database.BookKeepingTables;
 import com.manager.assistant.data.data_save.preference.BookKeepingStartDatePreference;
 import com.manager.assistant.databinding.FragmentHomeBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
+import com.manager.assistant.helpers.WebsiteLinkFetchHelper;
 import com.manager.assistant.ui.pages.home.report.ReportActivity;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
@@ -104,14 +105,9 @@ public class HomeFragment extends Fragment {
             binding.bookkeepingDaysText.setText("这是您记账的第一天");
         }
 
-        List<WebLink> linkList = new ArrayList<>();
-        linkList.add(new WebLink("Deepseek", "https://chat.deepseek.com/"));
-        linkList.add(new WebLink("Deepseek", "https://chat.deepseek.com/"));
-        linkList.add(new WebLink("Deepseek", "https://chat.deepseek.com/"));
-        linkList.add(new WebLink("Deepseek", "https://chat.deepseek.com/"));
         LinkAdapter linkAdapter = new LinkAdapter(requireContext());
         binding.webLinkRecycler.setAdapter(linkAdapter);
-        linkAdapter.refreshLink(linkList);
+        fetchLinks(linkAdapter);
     }
 
     /**
@@ -260,5 +256,27 @@ public class HomeFragment extends Fragment {
                             Toast.makeText(requireContext(), "界面刷新出错", Toast.LENGTH_SHORT).show();
                         })
         );
+    }
+
+    /**
+     * 从网页爬取超链接并显示在界面中
+     *
+     * @param adapter 链接显示列表视图的适配器
+     */
+    private void fetchLinks(LinkAdapter adapter) {
+
+        WebsiteLinkFetchHelper linkFetchHelper = new WebsiteLinkFetchHelper("https://www.ccgp-shaanxi.gov.cn/");
+        linkFetchHelper.scrapeLinks("https://www.ccgp-shaanxi.gov.cn/", new WebsiteLinkFetchHelper.ScrapeCallback() {
+            @Override
+            public void onSuccess(List<WebLink> links) {
+                binding.webLinkCard.setVisibility(View.VISIBLE);
+                adapter.refreshLink(links);
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

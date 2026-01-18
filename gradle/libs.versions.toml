@@ -38,6 +38,7 @@ camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cam
 camera-core = { module = "androidx.camera:camera-core", version.ref = "cameraCore" }
 camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraCore" }
 converter-jsoup = { module = "com.squareup.retrofit2:converter-jsoup", version.ref = "converterJsoup" }
+converter-scalars = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "converterJsoup" }
 core = { module = "io.noties.markwon:core", version.ref = "core" }
 documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
