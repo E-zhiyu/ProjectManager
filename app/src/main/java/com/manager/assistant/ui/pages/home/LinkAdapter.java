@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textview.MaterialTextView;
-import com.manager.assistant.data.data_class.WebLink;
+import com.manager.assistant.helpers.WebsiteLinkFetchHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.Locale;
 import io.noties.markwon.Markwon;
 
 public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder> {
-    private final List<WebLink> linkList; //链接列表
+    private final List<WebsiteLinkFetchHelper.WebLink> linkList; //链接列表
     private final Context context;        //上下文
 
     public static class LinkViewHolder extends RecyclerView.ViewHolder {
@@ -52,9 +52,9 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull LinkViewHolder holder, int position) {
-        WebLink webLink = linkList.get(position);
+        WebsiteLinkFetchHelper.WebLink webLink = linkList.get(position);
         String title = webLink.getTitle();
-        String url = webLink.getUrl();
+        String url = webLink.getPageurl();
 
         //解析为Markdown格式
         Markwon markwon = Markwon.create(context);
@@ -73,7 +73,7 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
      * @param linkList 刷新后的链接列表
      */
     @SuppressLint("NotifyDataSetChanged")
-    public void refreshLink(List<WebLink> linkList) {
+    public void refreshLink(List<WebsiteLinkFetchHelper.WebLink> linkList) {
         this.linkList.clear();
         this.linkList.addAll(linkList);
         notifyDataSetChanged();

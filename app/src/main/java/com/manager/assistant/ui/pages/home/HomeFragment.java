@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.manager.assistant.data.data_class.WebLink;
 import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
 import com.manager.assistant.data.data_save.database.BookKeepingColumns;
 import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
@@ -26,10 +25,13 @@ import com.manager.assistant.helpers.WebsiteLinkFetchHelper;
 import com.manager.assistant.ui.pages.home.report.ReportActivity;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
+import java.net.ConnectException;
+import java.net.ProtocolException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -263,22 +265,28 @@ public class HomeFragment extends Fragment {
      * @param adapter 链接显示列表视图的适配器
      */
     private void fetchLinks(LinkAdapter adapter) {
-        WebsiteLinkFetchHelper linkFetchHelper = new WebsiteLinkFetchHelper("https://www.ccgp-shaanxi.gov.cn/");
-        linkFetchHelper.scrapeLinks("https://www.ccgp-shaanxi.gov.cn/", new WebsiteLinkFetchHelper.ScrapeCallback() {
-            @Override
-            public void onSuccess(List<WebLink> links) {
-                if (!links.isEmpty()) {
-                    binding.webLinkCard.setVisibility(View.VISIBLE);
-                    adapter.refreshLink(links);
-                } else {
-                    Toast.makeText(requireContext(), "未获取到任何链接", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(String errorMessage) {
-                Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
-            }
-        });
+        disposables.add(
+                Observable.fromCallable(() -> WebsiteLinkFetchHelper.getUrlJson("https://www.ccgp-shaanxi.gov.cn/freecms/rest/v1/notice/selectInfoForIndex.do?&siteId=a7a15d60-de5b-42f2-b35a-7e3efc34e54f&channel=1eb454a2-7ff7-4a3b-b12c-12acc2685bd1&currPage=1&pageSize=11&regionCode=610001&noticeType=001011,001012,001013,001014,001016,001019&cityOrArea=&selectTimeName=noticeTime"))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(linkList -> {
+                            if (!linkList.isEmpty()) {
+                                binding.webLinkCard.setVisibility(View.VISIBLE);
+                                adapter.refreshLink(linkList);
+                            } else {
+                                Toast.makeText(requireContext(), "未获取到任何有效链接", Toast.LENGTH_SHORT).show();
+                            }
+                        }, e -> {
+                            if (e instanceof ProtocolException) {
+                                Toast.makeText(requireContext(), "无法获取公告", Toast.LENGTH_SHORT).show();
+                            } else if (e instanceof SocketTimeoutException) {
+                                Toast.makeText(requireContext(), "连接超时，无法获取公告", Toast.LENGTH_SHORT).show();
+                            } else if (e instanceof ConnectException || e instanceof UnknownHostException) {
+                                Toast.makeText(requireContext(), "无法获取公告，请检查网络连接", Toast.LENGTH_SHORT).show();
+                            } else {
+                                ExceptionHelper.showExceptionDialog(requireContext(), e);
+                            }
+                        })
+        );
     }
 }
