@@ -45,7 +45,7 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
                 ViewGroup.LayoutParams.WRAP_CONTENT
         ));
         textView.setPadding(0, 5, 16, 5);
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);   //设置文字大小为17sp
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);   //设置文字大小为17sp
 
         return new LinkViewHolder(textView);
     }

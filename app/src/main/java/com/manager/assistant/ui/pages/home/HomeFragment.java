@@ -18,6 +18,7 @@ import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
 import com.manager.assistant.data.data_save.database.BookKeepingColumns;
 import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
 import com.manager.assistant.data.data_save.database.BookKeepingTables;
+import com.manager.assistant.data.data_save.preference.AppSettingsPreference;
 import com.manager.assistant.data.data_save.preference.BookKeepingStartDatePreference;
 import com.manager.assistant.databinding.FragmentHomeBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
@@ -43,6 +44,7 @@ public class HomeFragment extends Fragment {
     private FragmentHomeBinding binding;                    //XML视图绑定引用
     private double day_balance, day_expense, day_income;    //日结余、日支出、日收入
     private final CompositeDisposable disposables = new CompositeDisposable();
+    private LinkAdapter linkAdapter;
 
     @Nullable
     @Override
@@ -63,6 +65,12 @@ public class HomeFragment extends Fragment {
 
         //每次Fragment变为可见时刷新数据
         refreshUI();
+
+        if (!AppSettingsPreference.getHomeLinks(requireContext())) {
+            binding.webLinkCard.setVisibility(View.GONE);
+        } else {
+            fetchLinks(false);
+        }
     }
 
     @Override
@@ -106,9 +114,11 @@ public class HomeFragment extends Fragment {
             binding.bookkeepingDaysText.setText("这是您记账的第一天");
         }
 
-        LinkAdapter linkAdapter = new LinkAdapter(requireContext());
+        linkAdapter = new LinkAdapter(requireContext());
         binding.webLinkRecycler.setAdapter(linkAdapter);
-        fetchLinks(linkAdapter);
+        if (AppSettingsPreference.getHomeLinks(requireContext())) {
+            fetchLinks(true);
+        }
     }
 
     /**
@@ -262,9 +272,9 @@ public class HomeFragment extends Fragment {
     /**
      * 从网页爬取超链接并显示在界面中
      *
-     * @param adapter 链接显示列表视图的适配器
+     * @param isToastNeed 是否需要弹出吐司提示
      */
-    private void fetchLinks(LinkAdapter adapter) {
+    private void fetchLinks(boolean isToastNeed) {
         disposables.add(
                 Observable.fromCallable(() -> WebsiteLinkFetchHelper.getUrlJson("https://www.ccgp-shaanxi.gov.cn/freecms/rest/v1/notice/selectInfoForIndex.do?&siteId=a7a15d60-de5b-42f2-b35a-7e3efc34e54f&channel=1eb454a2-7ff7-4a3b-b12c-12acc2685bd1&currPage=1&pageSize=11&regionCode=610001&noticeType=001011,001012,001013,001014,001016,001019&cityOrArea=&selectTimeName=noticeTime"))
                         .subscribeOn(Schedulers.io())
@@ -272,19 +282,28 @@ public class HomeFragment extends Fragment {
                         .subscribe(linkList -> {
                             if (!linkList.isEmpty()) {
                                 binding.webLinkCard.setVisibility(View.VISIBLE);
-                                adapter.refreshLink(linkList);
+                                linkAdapter.refreshLink(linkList);
+                                if (isToastNeed) {
+                                    Toast.makeText(requireContext(), "成功加载采购公告（可在设置中关闭）", Toast.LENGTH_SHORT).show();
+                                }
                             } else {
-                                Toast.makeText(requireContext(), "未获取到任何有效链接", Toast.LENGTH_SHORT).show();
+                                if (isToastNeed) {
+                                    Toast.makeText(requireContext(), "未获取到任何有效链接", Toast.LENGTH_SHORT).show();
+                                }
                             }
                         }, e -> {
                             if (e instanceof ProtocolException) {
-                                Toast.makeText(requireContext(), "无法获取公告", Toast.LENGTH_SHORT).show();
+                                if (isToastNeed) {
+                                    Toast.makeText(requireContext(), "无法获取公告", Toast.LENGTH_SHORT).show();
+                                }
                             } else if (e instanceof SocketTimeoutException) {
-                                Toast.makeText(requireContext(), "连接超时，无法获取公告", Toast.LENGTH_SHORT).show();
+                                if (isToastNeed) {
+                                    Toast.makeText(requireContext(), "连接超时，无法获取公告", Toast.LENGTH_SHORT).show();
+                                }
                             } else if (e instanceof ConnectException || e instanceof UnknownHostException) {
-                                Toast.makeText(requireContext(), "无法获取公告，请检查网络连接", Toast.LENGTH_SHORT).show();
-                            } else {
-                                ExceptionHelper.showExceptionDialog(requireContext(), e);
+                                if (isToastNeed) {
+                                    Toast.makeText(requireContext(), "无法获取公告，请检查网络连接", Toast.LENGTH_SHORT).show();
+                                }
                             }
                         })
         );

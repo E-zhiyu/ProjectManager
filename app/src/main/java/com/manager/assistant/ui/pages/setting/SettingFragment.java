@@ -242,6 +242,16 @@ public class SettingFragment extends Fragment {
 
             firstScreenMenu.show();
         });
+
+        SettingSwitchView homeLinksSwitch = new SettingSwitchView(
+                requireContext(),
+                binding.homeLinksOption,
+                R.string.purchase_bulletin,
+                "控制主页采购公告是否显示",
+                R.drawable.baseline_link_24
+        );
+        homeLinksSwitch.setChecked(AppSettingsPreference.getHomeLinks(requireContext()));
+        homeLinksSwitch.setFunctionListener((buttonView, isChecked) -> AppSettingsPreference.setHomeLinks(requireContext(), isChecked));
     }
 
     /**

@@ -9,9 +9,10 @@ import com.manager.assistant.helpers.ThemeModeHelper;
 
 public class AppSettingsPreference {
     private static final String PREF_NAME = "ThemePreference";
-    private static final String KEY_THEME_MODE = "theme_mode";
-    private static final String KEY_DYNAMIC_COLOR = "dynamic_color";
-    private static final String KEY_FIRST_SCREEN = "first_screen";
+    private static final String KEY_THEME_MODE = "theme_mode";          //主题模式
+    private static final String KEY_DYNAMIC_COLOR = "dynamic_color";    //动态色彩
+    private static final String KEY_FIRST_SCREEN = "first_screen";      //开屏界面
+    private static final String KEY_HOME_LINKS = "home_links";          //主页链接显示
 
     public static void setThemeMode(@NonNull Context context, int themeMode) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -41,5 +42,15 @@ public class AppSettingsPreference {
     public static int getFirstScreen(@NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return pref.getInt(KEY_FIRST_SCREEN, 0);
+    }
+
+    public static void setHomeLinks(@NonNull Context context, boolean isVisible) {
+        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        pref.edit().putBoolean(KEY_HOME_LINKS, isVisible).apply();
+    }
+
+    public static boolean getHomeLinks(@NonNull Context context) {
+        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return pref.getBoolean(KEY_HOME_LINKS, true);
     }
 }

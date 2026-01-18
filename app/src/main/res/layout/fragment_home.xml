@@ -1,15 +1,15 @@
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.pages.home.HomeFragment">
 
-    <com.google.android.material.appbar.AppBarLayout
-        style="@style/AppBarLayoutStyle"
+    <!-- 主内容布局 -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp">
+        android:orientation="vertical">
 
         <com.google.android.material.card.MaterialCardView
             style="@style/RoundCardStyle"
@@ -40,101 +40,88 @@
                     android:text="@string/num_of_bookkeeping_days" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-    </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        <!-- 结余卡片 -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/report_balance_cardview"
+            style="@style/ContentCardStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <!-- 主内容布局 -->
-        <LinearLayout
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/ReportInfoTextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="10dp"
+                    android:text="@string/today_balance"
+                    android:textSize="20sp" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/balance_text"
+                    style="@style/ReportInfoTextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/balance"
+                    android:textSize="25sp" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/expense_income_text"
+                    style="@style/ReportInfoTextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="10dp"
+                    android:text="@string/expense_and_income" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 报表界面跳转按钮 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/report_btn"
+            style="@style/OutlinedBtnStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:text="@string/check_more_data"
+            app:icon="@drawable/baseline_menu_24"
+            app:iconGravity="textStart" />
 
-            <!-- 结余卡片 -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/report_balance_cardview"
-                style="@style/ContentCardStyle"
+        <!-- 超链接布局 -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/web_link_card"
+            style="@style/ContentCardStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <LinearLayout
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/web_link_title_text"
+                    style="@style/LabelTextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/purchase_bulletin"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/web_link_recycler"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <com.google.android.material.textview.MaterialTextView
-                        style="@style/ReportInfoTextViewStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="10dp"
-                        android:text="@string/today_balance"
-                        android:textSize="20sp" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/balance_text"
-                        style="@style/ReportInfoTextViewStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/balance"
-                        android:textSize="25sp" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/expense_income_text"
-                        style="@style/ReportInfoTextViewStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingBottom="10dp"
-                        android:text="@string/expense_and_income" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- 报表界面跳转按钮 -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/report_btn"
-                style="@style/OutlinedBtnStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/check_more_data"
-                app:icon="@drawable/baseline_menu_24"
-                app:iconGravity="textStart" />
-
-            <!-- 超链接布局 -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/web_link_card"
-                style="@style/ContentCardStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/web_link_title_text"
-                        style="@style/LabelTextViewStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/purchase_bulletin"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/web_link_recycler"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
-                        android:nestedScrollingEnabled="false"
-                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/web_link_title_text" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:nestedScrollingEnabled="false"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/web_link_title_text" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
