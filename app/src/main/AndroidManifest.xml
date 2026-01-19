@@ -4,22 +4,22 @@
 
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
-        tools:ignore="PackageVisibilityPolicy,QueryAllPackagesPermission" />
-    <uses-permission android:name="com.android.permission.GET_INSTALLED_APPS" />
+        tools:ignore="PackageVisibilityPolicy,QueryAllPackagesPermission" />    <!-- 读取应用列表权限 -->
+    <uses-permission android:name="com.android.permission.GET_INSTALLED_APPS" />    <!-- 读取应用列表权限 -->
     <uses-permission
         android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
-        tools:ignore="ProtectedPermissions" />
+        tools:ignore="ProtectedPermissions" />  <!-- 通知使用权限 -->
     <uses-permission
         android:name="android.permission.REQUEST_INSTALL_PACKAGES"
-        tools:ignore="RequestInstallPackagesPolicy" />
-    <uses-permission android:name="android.permission.INTERNET" />
+        tools:ignore="RequestInstallPackagesPolicy" />  <!-- 应用列表读取权限 -->
+    <uses-permission android:name="android.permission.INTERNET" />  <!-- 网络权限 -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
+        android:maxSdkVersion="32" />   <!-- 读取外部存储权限 -->
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" />
-    <uses-permission android:name="android.permission.CAMERA" />
+        android:maxSdkVersion="28" />   <!-- 写入外部存储权限 -->
+    <uses-permission android:name="android.permission.CAMERA" />    <!-- 相机权限 -->
 
     <uses-feature android:name="android.hardware.camera.any" />
     <uses-feature

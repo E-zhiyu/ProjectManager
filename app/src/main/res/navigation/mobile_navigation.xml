@@ -7,17 +7,17 @@
 
     <fragment
         android:id="@+id/navigation_bookkeeping"
-        android:name="com.project.manager.ui.pages.bookkeeping.BookKeepingFragment"
+        android:name="com.manager.assistant.ui.pages.bookkeeping.BookKeepingFragment"
         android:label="@string/title_bookkeeping"
         tools:layout="@layout/fragment_bookkeeping" />
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.project.manager.ui.pages.home.HomeFragment"
+        android:name="com.manager.assistant.ui.pages.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
     <fragment
         android:id="@+id/navigation_settings"
-        android:name="com.project.manager.ui.pages.setting.SettingFragment"
+        android:name="com.manager.assistant.ui.pages.setting.SettingFragment"
         android:label="@string/title_setting"
         tools:layout="@layout/fragment_setting" />
 </navigation>
