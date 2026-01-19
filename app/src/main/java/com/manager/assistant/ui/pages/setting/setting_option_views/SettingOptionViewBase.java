@@ -56,6 +56,24 @@ abstract public class SettingOptionViewBase<C, L> {
     }
 
     /**
+     * 布局容器设置长按监听器
+     *
+     * @param listener 长按监听器
+     */
+    public void setOnLongClickListener(View.OnLongClickListener listener) {
+        binding.constraintLayout.setOnLongClickListener(listener);
+    }
+
+    /**
+     * 设置可见性
+     *
+     * @param visibility 可见性代码
+     */
+    public void setVisibility(int visibility) {
+        binding.constraintLayout.setVisibility(visibility);
+    }
+
+    /**
      * 初始化视图的方法
      */
     protected abstract void initView(Context context);
