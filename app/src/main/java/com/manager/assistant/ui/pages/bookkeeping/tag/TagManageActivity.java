@@ -12,8 +12,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.button.MaterialButton;
 import com.manager.assistant.databinding.ActivityTagManageBinding;
 import com.manager.assistant.helpers.ColorHelper;
 import com.manager.assistant.enums.RequestResultCode;
@@ -21,6 +19,7 @@ import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.data.data_class.TagGroup;
+import com.manager.assistant.ui.others.listeners.RecyclerScrollHideShowListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,19 +44,6 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
 
         initActivityLauncher();
         initViews();
-
-        List<TagGroup> tagGroupList;    //获取标签分组数据
-        try {
-            tagGroupList = TagGroup.loadTagGroups(this);
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(this, e);
-            Toast.makeText(this, "标签数据读取失败", Toast.LENGTH_SHORT).show();
-            tagGroupList = new ArrayList<>();
-        }
-
-        RecyclerView tagGroupRecycler = binding.tagGroupRecycler;
-        adapter = new TagManageRecyclerAdapter(tagGroupList, this, this);
-        tagGroupRecycler.setAdapter(adapter);
     }
 
     @Override
@@ -107,12 +93,10 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
     //初始化视图
     private void initViews() {
         //设置标题栏的图标点击监听器
-        MaterialToolbar toolbar = binding.toolbar;
-        toolbar.setNavigationOnClickListener(v -> finish());
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
 
         //设置按钮点击监听
-        MaterialButton tag_add_btn = binding.tagAddBtn;
-        tag_add_btn.setOnClickListener(v -> {
+        binding.addFloatingBtn.setOnClickListener(v -> {
             Intent skip2TagAdd = new Intent(this, TagAddModifyActivity.class);
 
             //获取已保存的标签分组信息
@@ -128,17 +112,15 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
             tagAddLauncher.launch(skip2TagAdd);
         });
 
-        //设置刷新布局的刷新动作监听
-        SwipeRefreshLayout refreshLayout = binding.refreshLayout;
-
         //获取颜色资源并设置下拉刷新布局的颜色
         int colorPrimary = ColorHelper.getPrimaryColor(this);
         int colorSecondary = ColorHelper.getSecondaryPrimaryColor(this);
-        refreshLayout.setColorSchemeColors(colorPrimary, colorSecondary);
+        binding.refreshLayout.setColorSchemeColors(colorPrimary, colorSecondary);
         int colorBackground = ColorHelper.getBackgroundColor(this);
-        refreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
+        binding.refreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
 
-        refreshLayout.setOnRefreshListener(() -> disposables.add(
+        //设置刷新监听器
+        binding.refreshLayout.setOnRefreshListener(() -> disposables.add(
                 Observable.fromCallable(() -> TagGroup.loadTagGroups(this))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
@@ -147,9 +129,37 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
                                     ExceptionHelper.showExceptionDialog(this, e);
                                     Toast.makeText(this, "刷新失败", Toast.LENGTH_SHORT).show();
                                 },
-                                () -> refreshLayout.setRefreshing(false)
+                                () -> {
+                                    binding.refreshLayout.setRefreshing(false);
+                                    binding.addFloatingBtn.show();
+                                }
                         )
         ));
+
+        //初始化RecyclerView
+        List<TagGroup> tagGroupList;    //获取标签分组数据
+        try {
+            tagGroupList = TagGroup.loadTagGroups(this);
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(this, e);
+            Toast.makeText(this, "标签数据读取失败", Toast.LENGTH_SHORT).show();
+            tagGroupList = new ArrayList<>();
+        }
+        adapter = new TagManageRecyclerAdapter(tagGroupList, this, this);
+        binding.tagGroupRecycler.setAdapter(adapter);
+
+        //添加RecyclerView滚动监听器，用以控制添加按钮的显示与否
+        binding.tagGroupRecycler.addOnScrollListener(new RecyclerScrollHideShowListener() {
+            @Override
+            public void onHide() {
+                binding.addFloatingBtn.hide();
+            }
+
+            @Override
+            public void onShow() {
+                binding.addFloatingBtn.show();
+            }
+        });
     }
 
     //初始化活动启动器

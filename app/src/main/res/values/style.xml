@@ -163,6 +163,12 @@
         <item name="android:background">@drawable/ripple_circle</item>
     </style>
 
+    <style name="AddFloatingActionBtnStyle" parent="ThemeOverlay.Material3.FloatingActionButton.Primary">
+        <item name="android:src">@drawable/baseline_add_24</item>
+        <item name="android:layout_marginEnd">20dp</item>
+        <item name="android:layout_marginBottom">20dp</item>
+    </style>
+
     <!-- 灰色半透明背景图标按钮样式 -->
     <style name="TranslucentGrayImageButtonStyle" parent="Widget.AppCompat.ImageButton">
         <item name="tint">@android:color/white</item>
