@@ -69,6 +69,9 @@ public class HomeFragment extends Fragment {
         if (!AppSettingsPreference.getHomeLinks(requireContext())) {
             binding.webLinkCard.setVisibility(View.GONE);
         } else {
+            if (binding.webLinkCard.getVisibility() == View.GONE) {
+                binding.linkLoadingIndicator.setVisibility(View.VISIBLE);
+            }
             fetchLinks(false);
         }
     }
@@ -118,6 +121,8 @@ public class HomeFragment extends Fragment {
         binding.webLinkRecycler.setAdapter(linkAdapter);
         if (AppSettingsPreference.getHomeLinks(requireContext())) {
             fetchLinks(true);
+        } else {
+            binding.linkLoadingIndicator.setVisibility(View.GONE);
         }
     }
 
@@ -280,32 +285,35 @@ public class HomeFragment extends Fragment {
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(linkList -> {
-                            if (!linkList.isEmpty()) {
-                                binding.webLinkCard.setVisibility(View.VISIBLE);
-                                linkAdapter.refreshLink(linkList);
-                                if (isToastNeed) {
-                                    Toast.makeText(requireContext(), "成功加载采购公告（可在设置中关闭）", Toast.LENGTH_SHORT).show();
-                                }
-                            } else {
-                                if (isToastNeed) {
-                                    Toast.makeText(requireContext(), "未获取到任何有效链接", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        }, e -> {
-                            if (e instanceof ProtocolException) {
-                                if (isToastNeed) {
-                                    Toast.makeText(requireContext(), "无法获取公告", Toast.LENGTH_SHORT).show();
-                                }
-                            } else if (e instanceof SocketTimeoutException) {
-                                if (isToastNeed) {
-                                    Toast.makeText(requireContext(), "连接超时，无法获取公告", Toast.LENGTH_SHORT).show();
-                                }
-                            } else if (e instanceof ConnectException || e instanceof UnknownHostException) {
-                                if (isToastNeed) {
-                                    Toast.makeText(requireContext(), "无法获取公告，请检查网络连接", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        })
+                                    if (!linkList.isEmpty()) {
+                                        linkAdapter.refreshLink(linkList);
+                                        binding.webLinkCard.setVisibility(View.VISIBLE);
+                                        if (isToastNeed) {
+                                            Toast.makeText(requireContext(), "成功加载采购公告（可在设置中关闭）", Toast.LENGTH_SHORT).show();
+                                        }
+                                    } else {
+                                        if (isToastNeed) {
+                                            Toast.makeText(requireContext(), "未获取到任何有效链接", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                }, e -> {
+                                    if (e instanceof ProtocolException) {
+                                        if (isToastNeed) {
+                                            Toast.makeText(requireContext(), "无法获取公告", Toast.LENGTH_SHORT).show();
+                                        }
+                                    } else if (e instanceof SocketTimeoutException) {
+                                        if (isToastNeed) {
+                                            Toast.makeText(requireContext(), "连接超时，无法获取公告", Toast.LENGTH_SHORT).show();
+                                        }
+                                    } else if (e instanceof ConnectException || e instanceof UnknownHostException) {
+                                        if (isToastNeed) {
+                                            Toast.makeText(requireContext(), "无法获取公告，请检查网络连接", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                    binding.linkLoadingIndicator.setVisibility(View.GONE);
+                                },
+                                () -> binding.linkLoadingIndicator.setVisibility(View.GONE)
+                        )
         );
     }
 }

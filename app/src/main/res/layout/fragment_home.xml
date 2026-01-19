@@ -90,6 +90,12 @@
             app:iconGravity="textStart" />
 
         <!-- 超链接布局 -->
+        <com.google.android.material.loadingindicator.LoadingIndicator
+            android:id="@+id/link_loading_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" />
+
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/web_link_card"
             style="@style/ContentCardStyle"
