@@ -37,7 +37,7 @@ import java.util.regex.PatternSyntaxException;
 
 import io.noties.markwon.Markwon;
 
-public class RuleAddModifyActivity extends AppCompatActivity implements View.OnClickListener, View.OnFocusChangeListener {
+public class RuleAddModifyActivity extends AppCompatActivity implements View.OnFocusChangeListener {
     private boolean isModifyMode = false;                           //是否为规则编辑模式
     private int viewHolderPosition;                                 //规则ViewHolder下标
     private long rule_no;                                           //规则编号
@@ -75,69 +75,6 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
     protected void onDestroy() {
         super.onDestroy();
         binding = null;
-    }
-
-    @Override
-    public void onClick(@NonNull View v) {
-        if (v.getId() == R.id.input_instruction_btn) {
-            showInputInstructionDialog();
-        } else if (v.getId() == R.id.type_input) {
-            String[] types = {RunningAccountType.EXPENSE.getTitle(),
-                    RunningAccountType.INCOME.getTitle()
-            };
-
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle("流水种类选择")
-                    .setSingleChoiceItems(types, type.ordinal(), (dialog, which) -> {
-                        int index = 0;
-                        for (RunningAccountType selected_type : RunningAccountType.values()) {
-                            if (index == which) {
-                                type = selected_type;
-                                typeInput.setText(type.getTitle());
-                                break;
-                            }
-                            index++;
-                        }
-                        dialog.dismiss();
-                    })
-                    .setNegativeButton("关闭", (dialog, which) -> dialog.dismiss())
-                    .show();
-        } else if (v.getId() == R.id.package_name_input) {
-            Intent skip2PackageNameSelect = new Intent(this, PackageNameSelectActivity.class);
-            packageNameSelectLauncher.launch(skip2PackageNameSelect);
-        } else if (v.getId() == R.id.tag_name_input) {
-            tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked);
-            tagSheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
-        } else if (v.getId() == R.id.finish_btn) {
-            String err = verifyInput();
-            if (err == null) {
-                Intent result2AnalysisRuleActivity = new Intent();
-                Bundle dataBundle = getInputData();
-                result2AnalysisRuleActivity.putExtras(dataBundle);
-                setResult(Activity.RESULT_OK, result2AnalysisRuleActivity);
-                finish();
-            } else {
-                Toast.makeText(this, err, Toast.LENGTH_SHORT).show();
-            }
-        } else if (v.getId() == R.id.cancel_btn) {
-            finish();
-        } else if (v.getId() == R.id.delete_btn) {
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle("删除规则")
-                    .setMessage("确定要删除这条规则吗？")
-                    .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
-                    .setPositiveButton("确定", (dialog, which) -> {
-                        Intent result2AnalysisRuleActivity = new Intent();
-                        Bundle dataBundle = new Bundle();
-                        dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), viewHolderPosition);
-                        result2AnalysisRuleActivity.putExtras(dataBundle);
-
-                        setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2AnalysisRuleActivity);
-                        dialog.dismiss();
-                        finish();
-                    })
-                    .show();
-        }
     }
 
     @Override
@@ -212,12 +149,51 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
 
         //设置点击监听器以及文本内容
         typeInput.setText(RunningAccountType.EXPENSE.getTitle());
-        typeInput.setOnClickListener(this);
-        tagInput.setOnClickListener(this);
-        packageNameInput.setOnClickListener(this);
-        binding.inputInstructionBtn.setOnClickListener(this);
-        binding.finishBtn.setOnClickListener(this);
-        binding.cancelBtn.setOnClickListener(this);
+        typeInput.setOnClickListener(v -> {
+            String[] types = {
+                    RunningAccountType.EXPENSE.getTitle(),
+                    RunningAccountType.INCOME.getTitle()
+            };
+
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("流水种类选择")
+                    .setSingleChoiceItems(types, type.ordinal(), (dialog, which) -> {
+                        int index = 0;
+                        for (RunningAccountType selected_type : RunningAccountType.values()) {
+                            if (index == which) {
+                                type = selected_type;
+                                typeInput.setText(type.getTitle());
+                                break;
+                            }
+                            index++;
+                        }
+                        dialog.dismiss();
+                    })
+                    .setNegativeButton("关闭", (dialog, which) -> dialog.dismiss())
+                    .show();
+        });
+        tagInput.setOnClickListener(v -> {
+            tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked);
+            tagSheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
+        });
+        packageNameInput.setOnClickListener(v -> {
+            Intent skip2PackageNameSelect = new Intent(this, PackageNameSelectActivity.class);
+            packageNameSelectLauncher.launch(skip2PackageNameSelect);
+        });
+        binding.inputInstructionBtn.setOnClickListener(v -> showInputInstructionDialog());
+        binding.finishBtn.setOnClickListener(v -> {
+            String err = verifyInput();
+            if (err == null) {
+                Intent result2AnalysisRuleActivity = new Intent();
+                Bundle dataBundle = getInputData();
+                result2AnalysisRuleActivity.putExtras(dataBundle);
+                setResult(Activity.RESULT_OK, result2AnalysisRuleActivity);
+                finish();
+            } else {
+                Toast.makeText(this, err, Toast.LENGTH_SHORT).show();
+            }
+        });
+        binding.cancelBtn.setOnClickListener(v -> finish());
 
         //设置焦点变更监听器
         ruleNameInput.setOnFocusChangeListener(this);
@@ -248,7 +224,21 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnC
         if (initData != null && isModifyMode) {
             MaterialButton deleteBtn = binding.deleteBtn;
             deleteBtn.setVisibility(View.VISIBLE);
-            deleteBtn.setOnClickListener(this);
+            deleteBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(this)
+                    .setTitle("删除规则")
+                    .setMessage("确定要删除这条规则吗？")
+                    .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
+                    .setPositiveButton("确定", (dialog, which) -> {
+                        Intent result2AnalysisRuleActivity = new Intent();
+                        Bundle dataBundle = new Bundle();
+                        dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), viewHolderPosition);
+                        result2AnalysisRuleActivity.putExtras(dataBundle);
+
+                        setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2AnalysisRuleActivity);
+                        dialog.dismiss();
+                        finish();
+                    })
+                    .show());
 
             MaterialToolbar toolbar = binding.toolbar;
             toolbar.setTitle(R.string.modify_rule);
