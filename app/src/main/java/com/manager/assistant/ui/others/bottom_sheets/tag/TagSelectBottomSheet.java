@@ -125,8 +125,6 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void loadTagGroupData() {
-        binding.refreshLayout.setRefreshing(true);
-        binding.refreshLayout.setVisibility(View.VISIBLE);
         disposables.add(
                 Observable.fromCallable(() -> TagGroup.loadTagGroups(requireContext()))
                         .subscribeOn(Schedulers.io())
@@ -134,10 +132,7 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment {
                         .subscribe(
                                 tagGroupList -> tagAdapter.setTagGroupList(tagGroupList),
                                 e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
-                                () -> {
-                                    binding.refreshLayout.setRefreshing(false);
-                                    binding.refreshLayout.setVisibility(View.GONE);
-                                }
+                                () -> binding.loadingIndicator.setVisibility(View.GONE)
                         )
         );
     }
