@@ -11,7 +11,10 @@ import com.manager.assistant.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.7.4  \n" +
+    private static final String update_log_md = "# v1.7.5  \n" +
+            "**修改内容**  \n" +
+            "- 流水数据输入界面使用多线程实现图片加载功能，防止阻塞主线程  \n\n" +
+            "# v1.7.4  \n" +
             "**新增内容**  \n" +
             "- 主页添加采购公告，收集自陕西省政府采购网，可在设置中关闭公告显示  \n\n" +
             "**BUG修复**  \n" +

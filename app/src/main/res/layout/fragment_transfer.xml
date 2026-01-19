@@ -130,6 +130,12 @@
                 app:iconGravity="textStart" />
         </LinearLayout>
 
+        <com.google.android.material.loadingindicator.LoadingIndicator
+            android:id="@+id/loading_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/picture_recycler"
             android:layout_width="match_parent"

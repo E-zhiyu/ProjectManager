@@ -77,15 +77,16 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     /**
      * 图片适配器构造方法
      *
-     * @param context     上下文
-     * @param pictureList 图片列表
+     * @param context  上下文
+     * @param listener 图片删除状态切换监听器
      */
-    public PictureAdapter(Context context, @NonNull List<Picture> pictureList, DeleteModeSwitchListener listener) {
+    public PictureAdapter(Context context, DeleteModeSwitchListener listener) {
         this.context = context;
-        this.pictureList = pictureList;
-        pictureSelectList = new ArrayList<>(Collections.nCopies(pictureList.size(), false));    //默认未选择
+        this.pictureList = new ArrayList<>();
+        this.pictureSelectList = new ArrayList<>();
         this.listener = listener;
 
+        //动态计算图片宽度
         int screen_width = getScreenWidth(context);
         int picture_size = screen_width * 5 / 18;               //图片宽高占屏幕宽度的5/18
         glideOptions = new RequestOptions()
@@ -177,6 +178,25 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
 
         for (int index = 0; index < pictureList.size(); index++) {
             notifyItemChanged(index);
+        }
+    }
+
+    /**
+     * 刷新图片
+     *
+     * @param pictureList 刷新后的图片列表
+     */
+    public void refreshPicture(List<Picture> pictureList) {
+        this.pictureList.clear();
+        this.pictureList.addAll(pictureList);
+        pictureSelectList.clear();
+        pictureSelectList.addAll(new ArrayList<>(Collections.nCopies(pictureList.size(), false)));    //默认未选择
+
+        //刷新UI
+        if (pictureList.size() == 1) {
+            notifyItemInserted(0);
+        } else if (pictureList.size() > 1) {
+            notifyItemRangeInserted(0, pictureList.size() - 1);
         }
     }
 

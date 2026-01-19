@@ -106,12 +106,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         }
 
         //传递完初始化数据后设置RecyclerVIew的适配器
-        int spanCount = 3;
-        RecyclerView pictureRecycler = contentView.findViewById(R.id.picture_recycler);
-        pictureRecycler.setLayoutManager(new GridLayoutManager(requireContext(), spanCount));
-        int spacing = 16; // 单位：像素
-        pictureRecycler.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing, true));
-        setupRecyclerAdapter(pictureRecycler);
+        setupPictureRecyclerAdapter();
 
         startObserveTag();
 
@@ -478,32 +473,41 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
 
     /**
      * 设置RecyclerView的适配器
-     *
-     * @param recyclerView 需要设置适配器的RecyclerView
      */
-    private void setupRecyclerAdapter(RecyclerView recyclerView) {
-        //加载图片资源
-        List<Picture> pictureList;
-        if (rno == 0) {
-            pictureList = new ArrayList<>();
-        } else {
-            try {
-                pictureList = Picture.loadPicturesByRno(requireContext(), rno);
-            } catch (SQLiteException e) {
-                Toast.makeText(requireContext(), "无法加载图片资源", Toast.LENGTH_SHORT).show();
-                ExceptionHelper.showExceptionDialog(requireContext(), e);
-                pictureList = new ArrayList<>();
-            }
-        }
+    private void setupPictureRecyclerAdapter() {
+        //获取RecyclerView实例
+        int spanCount = 3;
+        RecyclerView pictureRecycler = contentView.findViewById(R.id.picture_recycler);
+        pictureRecycler.setLayoutManager(new GridLayoutManager(requireContext(), spanCount));
+        int spacing = 16; // 单位：像素
+        pictureRecycler.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing, true));
 
-        pictureAdapter = new PictureAdapter(requireContext(), pictureList, isDeleteMode -> {
+        //先设置适配器
+        pictureAdapter = new PictureAdapter(requireContext(), isDeleteMode -> {
             if (isDeleteMode) {
                 pictureDeleteBtn.setVisibility(View.VISIBLE);
             } else {
                 pictureDeleteBtn.setVisibility(View.GONE);
             }
         });
-        recyclerView.setAdapter(pictureAdapter);
+        pictureRecycler.setAdapter(pictureAdapter);
+
+        //多线程刷新图片防止阻塞
+        disposables.add(
+                Observable.fromCallable(() -> {
+                            if (rno == 0) {
+                                return new ArrayList<Picture>();
+                            } else {
+                                return Picture.loadPicturesByRno(requireContext(), rno);
+                            }
+                        })
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(pictureList -> pictureAdapter.refreshPicture(pictureList),
+                                e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
+                                () -> contentView.findViewById(R.id.loading_indicator).setVisibility(View.GONE)
+                        )
+        );
     }
 
     /**
