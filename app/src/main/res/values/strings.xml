@@ -117,4 +117,5 @@
     <string name="progressing">正在处理……</string>
     <string name="purchase_bulletin">采购公告</string>
     <string name="add_floating_btn_description">带有添加图标的浮动按钮</string>
+    <string name="show_rule_input_instruction">显示输入项说明</string>
 </resources>
