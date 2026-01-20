@@ -58,14 +58,12 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tag_group_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:endIconDrawable="@drawable/round_format_list_bulleted_24"
-                app:endIconMode="custom">
+                android:layout_height="wrap_content">
 
-                <com.google.android.material.textfield.TextInputEditText
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/tag_group_input"
-                    style="@style/UserInputEditTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/tag_group"

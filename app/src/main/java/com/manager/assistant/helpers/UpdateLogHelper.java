@@ -12,7 +12,13 @@ import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.7.5  \n" +
+            "**界面优化**  \n" +
+            "- 将部分点击式输入框改为下拉框  \n" +
+            "- 将部分标题栏的按钮改为右下角浮动按钮  \n\n" +
+            "**BUG修复**  \n" +
+            "- 修复添加标签没有提示的BUG  \n\n" +
             "**修改内容**  \n" +
+            "- 添加新标签分组时将会自动滚动到最底部以显示刚刚添加的分组  \n" +
             "- 流水数据输入界面使用多线程实现图片加载功能，防止阻塞主线程  \n\n" +
             "# v1.7.4  \n" +
             "**新增内容**  \n" +

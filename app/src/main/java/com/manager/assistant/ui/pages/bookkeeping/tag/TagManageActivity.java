@@ -23,6 +23,7 @@ import com.manager.assistant.ui.others.listeners.RecyclerScrollHideShowListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -65,13 +66,11 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         clickedTagData.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
         clickedTagData.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), group_no);
 
-        //获取已保存的标签分组信息
-        List<TagGroup> tagGroupList = adapter.getTagGroupList();
-        ArrayList<String> groupNameList = new ArrayList<>();
-        for (TagGroup group : tagGroupList) {
-            groupNameList.add(group.getGroup_name());
-        }
-        clickedTagData.putStringArrayList(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue(), groupNameList);
+        //获取已保存的标签分组信息并传递到子界面
+        ArrayList<String> groupNames = adapter.getTagGroupList().stream()
+                .map(TagGroup::getGroup_name)
+                .collect(Collectors.toCollection(ArrayList::new));
+        clickedTagData.putStringArrayList(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue(), groupNames);
 
         skip2ModifyTag.putExtras(clickedTagData);
         skip2ModifyTag.putExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), true);
@@ -264,9 +263,11 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
                 if (needNewGroup) {
                     TagGroup new_group = new TagGroup(group_name, group_no);
                     adapter.addNewTag(new_tag, new_group);
+                    binding.tagGroupRecycler.scrollToPosition(adapter.getItemCount() - 1);
                 } else {
                     adapter.addNewTag(new_tag, group_no);
                 }
+                Toast.makeText(this, "标签添加成功", Toast.LENGTH_SHORT).show();
             }
         }
     }
