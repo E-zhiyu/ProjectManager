@@ -19,11 +19,17 @@ public class NoFilteringArrayAdapter<T> extends ArrayAdapter<T> {
     private final List<T> originalData;
 
     public NoFilteringArrayAdapter(@NonNull Context context,
-                                    int resource,
-                                    @NonNull List<T> objects) {
+                                   int resource,
+                                   @NonNull List<T> objects) {
         super(context, resource, objects);
-        // 确保使用可变列表
         this.originalData = new ArrayList<>(objects);
+    }
+
+    public NoFilteringArrayAdapter(Context context,
+                                   int resource,
+                                   T[] objects) {
+        super(context, resource, objects);
+        this.originalData = Arrays.asList(objects);
     }
 
     @NonNull
@@ -33,6 +39,7 @@ public class NoFilteringArrayAdapter<T> extends ArrayAdapter<T> {
     }
 
     private class NonFilteringFilter extends Filter {
+        @NonNull
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
             FilterResults results = new FilterResults();
@@ -42,24 +49,8 @@ public class NoFilteringArrayAdapter<T> extends ArrayAdapter<T> {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         protected void publishResults(CharSequence constraint,
                                       FilterResults results) {
-            // 不调用 clear() 和 addAll()，直接操作数据
-            if (getCount() > 0) {
-                // 逐步删除，避免异常
-                while (getCount() > 0) {
-                    remove(getItem(0));
-                }
-            }
-
-            // 添加新数据
-            if (results.values instanceof List) {
-                List<T> filteredList = (List<T>) results.values;
-                for (T item : filteredList) {
-                    add(item);
-                }
-            }
             notifyDataSetChanged();
         }
     }

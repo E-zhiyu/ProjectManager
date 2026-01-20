@@ -126,14 +126,13 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnF
         MaterialToolbar toolbar = binding.toolbar;
         toolbar.setNavigationOnClickListener(v -> finish());
 
-        List<String> types = Arrays.stream(RunningAccountType.values())
-                .limit(2)   //只要支出和收入
-                .map(RunningAccountType::getTitle)
-                .collect(Collectors.toList());
         NoFilteringArrayAdapter<String> adapter = new NoFilteringArrayAdapter<>(
                 this,
                 androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
-                types
+                new String[]{
+                        RunningAccountType.EXPENSE.getTitle(),
+                        RunningAccountType.INCOME.getTitle()
+                }
         );
         binding.typeInput.setAdapter(adapter);
         binding.typeInput.setDropDownAnchor(R.id.type_input);
