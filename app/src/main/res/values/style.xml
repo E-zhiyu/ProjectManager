@@ -140,8 +140,9 @@
     </style>
 
     <!-- 透明背景按钮样式 -->
-    <style name="TransparentBtnStyle" parent="Widget.Material3.Button.TextButton">
+    <style name="TextBtnStyle" parent="Widget.Material3.Button.TextButton">
         <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="cornerRadius">20dp</item>
         <item name="iconPadding">2dp</item>
     </style>
 
@@ -149,6 +150,7 @@
     <style name="OutlinedBtnStyle" parent="Widget.Material3.Button.OutlinedButton">
         <item name="android:textColor">?attr/colorPrimary</item>
         <item name="strokeColor">?attr/colorPrimary</item>
+        <item name="cornerRadius">20dp</item>
         <item name="strokeWidth">1dp</item>
         <item name="android:layout_marginStart">10dp</item>
         <item name="android:layout_marginEnd">10dp</item>

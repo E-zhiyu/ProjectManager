@@ -24,7 +24,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/edit_tag_btn"
-            style="@style/TransparentBtnStyle"
+            style="@style/TextBtnStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/manage_tag"
@@ -35,7 +35,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/clear_input_btn"
-            style="@style/TransparentBtnStyle"
+            style="@style/TextBtnStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/clear_input"
