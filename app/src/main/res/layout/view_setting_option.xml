@@ -28,7 +28,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -43,6 +43,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="40dp"
+            android:ellipsize="end"
+            android:focusableInTouchMode="true"
+            android:singleLine="true"
             android:text="@string/title_setting"
             android:textSize="18sp" />
 
@@ -51,6 +54,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="40dp"
+            android:ellipsize="end"
+            android:focusableInTouchMode="true"
+            android:singleLine="true"
             android:text="@string/setting"
             android:textColor="?attr/colorControlNormal"
             android:textSize="15sp" />
