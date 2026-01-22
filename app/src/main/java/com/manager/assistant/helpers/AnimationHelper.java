@@ -4,13 +4,99 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
+import android.graphics.RectF;
+import android.util.TypedValue;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.shape.Shapeable;
+
 public class AnimationHelper {
+    /**
+     * 为任何实现了 Shapeable 接口的 View 添加圆角变形动画（按下的圆角为8dp）
+     *
+     * @param view 目标视图 (如 MaterialButton, FAB 等)
+     */
+    public static void attachMorphAnimation(View view) {
+        attachMorphAnimation(view, 8);
+    }
+
+    /**
+     * 为任何实现了 Shapeable 接口的 View 添加圆角变形动画
+     *
+     * @param view            目标视图 (如 MaterialButton, FAB 等)
+     * @param pressedCornerDp 按下时的圆角大小 (单位: dp)
+     */
+    public static void attachMorphAnimation(View view, float pressedCornerDp) {
+        if (!(view instanceof Shapeable)) {
+            throw new IllegalArgumentException("View must implement Shapeable interface");
+        }
+
+        Shapeable shapeable = (Shapeable) view;
+
+        // 1. 将 dp 转换为 px
+        float pressedPx = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                pressedCornerDp,
+                view.getResources().getDisplayMetrics()
+        );
+
+        // 2. 监听触摸事件
+        view.setOnTouchListener(new View.OnTouchListener() {
+            private float initialPx = -1f;
+            private ValueAnimator animator;
+
+            @SuppressLint("ClickableViewAccessibility")
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // 首次触摸时获取初始圆角大小
+                if (initialPx == -1f) {
+                    RectF rect = new RectF(0, 0, v.getWidth(), v.getHeight());
+                    initialPx = shapeable.getShapeAppearanceModel()
+                            .getTopLeftCornerSize()
+                            .getCornerSize(rect);
+                }
+
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        startAnimation(shapeable, initialPx, pressedPx);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        startAnimation(shapeable, pressedPx, initialPx);
+                        break;
+                }
+
+                // 返回 false，确保不会拦截点击事件 (onClick 依然有效)
+                return false;
+            }
+
+            private void startAnimation(Shapeable target, float from, float to) {
+                if (animator != null) animator.cancel();
+
+                animator = ValueAnimator.ofFloat(from, to);
+                animator.setDuration(150);
+                animator.setInterpolator(new AccelerateDecelerateInterpolator());
+                animator.addUpdateListener(animation -> {
+                    float value = (float) animation.getAnimatedValue();
+                    target.setShapeAppearanceModel(
+                            target.getShapeAppearanceModel().toBuilder()
+                                    .setAllCornerSizes(value)
+                                    .build()
+                    );
+                });
+                animator.start();
+            }
+        });
+    }
+
     /**
      * 执行平滑滑动动画
      *

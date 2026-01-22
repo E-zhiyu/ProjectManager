@@ -18,6 +18,7 @@ import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
 import com.manager.assistant.databinding.ActivityRunningAccountModifyBinding;
 import com.manager.assistant.enums.DirectoryPaths;
 import com.manager.assistant.enums.RequestResultCode;
+import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.ExpenseFragment;
@@ -137,6 +138,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
                 finish();
             }
         });
+        AnimationHelper.attachMorphAnimation(binding.finishBtn, 8);
         binding.deleteBtn.setOnClickListener(v -> {
             Intent result2BookKeeping = new Intent();
             new MaterialAlertDialogBuilder(this)

@@ -41,21 +41,21 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <com.manager.assistant.ui.others.MorphingMaterialButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/delete_btn"
                 style="@style/OutlinedBtnStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/delete" />
 
-            <com.manager.assistant.ui.others.MorphingMaterialButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/cancel_btn"
                 style="@style/OutlinedBtnStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/cancel" />
 
-            <com.manager.assistant.ui.others.MorphingMaterialButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/finish_btn"
                 style="@style/CommonBtnStyle"
                 android:layout_width="wrap_content"
