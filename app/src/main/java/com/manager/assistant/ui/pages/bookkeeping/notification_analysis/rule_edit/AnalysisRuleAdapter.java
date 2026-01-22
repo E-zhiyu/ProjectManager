@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.broadcast.BroadcastConstants;
+import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.data.data_class.AnalysisRule;
@@ -88,6 +89,7 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
 
         holder.itemView.setOnClickListener(v ->
                 listener.onRuleClicked(holder.getBindingAdapterPosition(), rule));
+        AnimationHelper.attachMorphAnimation(holder.itemView.findViewById(R.id.root_layout));
     }
 
     @Override

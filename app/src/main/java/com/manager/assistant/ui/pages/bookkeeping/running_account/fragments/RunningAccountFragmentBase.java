@@ -35,6 +35,7 @@ import com.manager.assistant.enums.DirectoryPaths;
 import com.manager.assistant.enums.LogTags;
 import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.Picture;
+import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.dialogs.ProgressDialog;
 import com.manager.assistant.ui.others.bottom_sheets.picture.AddPictureOptionBottomSheet;
@@ -98,6 +99,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         contentView = inflater.inflate(getLayoutResId(), container, false);
         initViews();
+        AnimationHelper.setupAllChildMorphAnimation(contentView.findViewById(R.id.root_layout));
         initLaunchers();
 
         //判断是否传递了外部数据，如果传递了则将数据填入对应控件

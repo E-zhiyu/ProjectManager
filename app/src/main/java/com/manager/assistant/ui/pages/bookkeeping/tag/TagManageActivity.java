@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.manager.assistant.databinding.ActivityTagManageBinding;
+import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ColorHelper;
 import com.manager.assistant.enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
@@ -45,6 +46,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
 
         initActivityLauncher();
         initViews();
+        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
     }
 
     @Override

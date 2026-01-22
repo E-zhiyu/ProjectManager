@@ -18,6 +18,7 @@ import com.manager.assistant.data.data_class.Picture;
 import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
 import com.manager.assistant.databinding.ActivityRunningAccountAddBinding;
 import com.manager.assistant.enums.DirectoryPaths;
+import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.ExpenseFragment;
@@ -43,6 +44,7 @@ public class RunningAccountAddActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         initViews();
+        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
 
         //设置返回监听器
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {

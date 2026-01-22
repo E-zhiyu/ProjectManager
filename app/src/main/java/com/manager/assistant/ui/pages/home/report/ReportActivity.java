@@ -28,6 +28,7 @@ import com.manager.assistant.data.data_save.database.BookKeepingColumns;
 import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
 import com.manager.assistant.data.data_save.database.BookKeepingTables;
 import com.manager.assistant.databinding.ActivityReportBinding;
+import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.enums.TagString;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
@@ -73,6 +74,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         setContentView(binding.getRoot());
 
         initViews();
+        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
 
         List<ReportRunningAccountData> dataList = loadReportData(dateRangeType);    //加载报表数据
         updateSourceViews(dataList);                                                //更新收支来源视图

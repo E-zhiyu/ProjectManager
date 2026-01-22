@@ -21,6 +21,7 @@ import com.manager.assistant.data.data_save.database.BookKeepingTables;
 import com.manager.assistant.data.data_save.preference.AppSettingsPreference;
 import com.manager.assistant.data.data_save.preference.BookKeepingStartDatePreference;
 import com.manager.assistant.databinding.FragmentHomeBinding;
+import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.WebsiteLinkFetchHelper;
 import com.manager.assistant.ui.pages.home.report.ReportActivity;
@@ -54,6 +55,7 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
 
         initViews();
+        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
         initBalanceView();
 
         return binding.getRoot();

@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.7.5  \n" +
             "**界面优化**  \n" +
+            "- 为界面中大部分可点击的组件添加按下时改变圆角大小的动画  \n" +
             "- 将部分点击式输入框改为下拉框  \n" +
             "- 将部分标题栏的按钮改为右下角浮动按钮  \n\n" +
             "**BUG修复**  \n" +

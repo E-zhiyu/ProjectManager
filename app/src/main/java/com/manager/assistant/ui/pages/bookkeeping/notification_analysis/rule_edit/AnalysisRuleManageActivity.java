@@ -15,6 +15,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
 import com.manager.assistant.data.data_save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.databinding.ActivityAnalysisRuleManageBinding;
+import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ColorHelper;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.enums.RequestResultCode;
@@ -47,6 +48,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         initViews();
+        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
         initLaunchers();
 
         //第一次打开提示授予自启动权限

@@ -32,6 +32,7 @@ import com.manager.assistant.data.data_save.database.BookKeepingColumns;
 import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
 import com.manager.assistant.data.data_save.database.BookKeepingTables;
 import com.manager.assistant.databinding.FragmentBookkeepingBinding;
+import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ColorHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.listeners.RecyclerScrollHideShowListener;
@@ -70,6 +71,7 @@ public class BookKeepingFragment extends Fragment {
 
         initActivityLauncher();
         initViews();
+        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
         setupBroadcastReceiver();
 
         AccountRecyclerViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountRecyclerViewModel.class);

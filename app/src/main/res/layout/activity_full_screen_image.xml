@@ -18,21 +18,25 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/save_picture_btn"
-            style="@style/TranslucentGrayImageButtonStyle"
+            style="?attr/materialIconButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
+            android:backgroundTint="@color/gray_translucent"
             android:contentDescription="@string/save_picture_btn"
-            android:src="@drawable/baseline_file_download_24" />
+            app:icon="@drawable/baseline_file_download_24"
+            app:iconTint="@color/mdtp_white" />
 
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/share_picture_btn"
-            style="@style/TranslucentGrayImageButtonStyle"
+            style="?attr/materialIconButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:backgroundTint="@color/gray_translucent"
             android:contentDescription="@string/share_picture_btn"
-            android:src="@drawable/baseline_share_24" />
+            app:icon="@drawable/baseline_share_24"
+            app:iconTint="@color/mdtp_white" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

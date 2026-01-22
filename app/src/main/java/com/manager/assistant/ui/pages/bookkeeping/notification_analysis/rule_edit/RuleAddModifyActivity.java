@@ -21,6 +21,7 @@ import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.databinding.ActivityRuleAddModifyBinding;
 import com.manager.assistant.enums.RequestResultCode;
+import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.enums.TagString;
@@ -58,6 +59,7 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnF
         setContentView(binding.getRoot());
 
         initViews();
+        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
         receiveInitData();
         initLaunchers();
 

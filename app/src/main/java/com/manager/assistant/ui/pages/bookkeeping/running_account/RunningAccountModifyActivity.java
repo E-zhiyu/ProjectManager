@@ -46,6 +46,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         initViews();
+        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
 
         //接收种类和下标参数
         Bundle dataBundle = getIntent().getExtras();
@@ -138,7 +139,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
                 finish();
             }
         });
-        AnimationHelper.attachMorphAnimation(binding.finishBtn, 8);
+
         binding.deleteBtn.setOnClickListener(v -> {
             Intent result2BookKeeping = new Intent();
             new MaterialAlertDialogBuilder(this)

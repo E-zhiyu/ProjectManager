@@ -16,9 +16,27 @@ import android.view.animation.LinearInterpolator;
 import androidx.annotation.NonNull;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.shape.Shapeable;
 
 public class AnimationHelper {
+
+    /**
+     * 将根布局内的所有MaterialButton和FAB组件添加点击时的圆角变化动画
+     *
+     * @param root 根布局
+     */
+    public static void setupAllChildMorphAnimation(@NonNull ViewGroup root) {
+        for (int index = 0; index < root.getChildCount(); index++) {
+            View child = root.getChildAt(index);
+            if (child instanceof MaterialButton || child instanceof FloatingActionButton) {
+                attachMorphAnimation(child);
+            } else if (child instanceof ViewGroup) {
+                setupAllChildMorphAnimation((ViewGroup) child);
+            }
+        }
+    }
+
     /**
      * 为任何实现了 Shapeable 接口的 View 添加圆角变形动画（按下的圆角为8dp）
      *

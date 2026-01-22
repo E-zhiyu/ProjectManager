@@ -20,6 +20,7 @@ import com.manager.assistant.enums.RequestResultCode;
 import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.enums.TagString;
 import com.manager.assistant.data.data_class.Tag;
+import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
 import com.manager.assistant.ui.data_communication.tag_modify.TagUpdateReason;
@@ -41,6 +42,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
         setContentView(binding.getRoot());
 
         initViews();
+        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
         receiveInitData();
     }
 
@@ -122,7 +124,9 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
         }
     }
 
-    //初始化视图
+    /**
+     * 初始化视图
+     */
     private void initViews() {
         //设置标题栏的图标点击监听器
         MaterialToolbar toolbar = binding.toolbar;

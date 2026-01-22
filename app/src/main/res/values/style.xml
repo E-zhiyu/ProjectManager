@@ -120,29 +120,18 @@
         <item name="android:padding">10dp</item>
     </style>
 
-    <!-- 信息展示卡片样式 -->
-    <style name="InfoCardStyle">
-        <item name="cardBackgroundColor">@color/card_background_color</item>
-        <item name="strokeColor">@android:color/transparent</item>
-    </style>
-
     <!-- 按钮样式 -->
     <style name="CommonBtnStyle" parent="Widget.Material3.Button">
-        <item name="backgroundTint">?attr/colorPrimary</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
-        <item name="android:textSize">15sp</item>
-        <item name="cornerRadius">20dp</item>
         <item name="layout_goneMarginStart">5dp</item>
         <item name="layout_goneMarginEnd">5dp</item>
         <item name="layout_goneMarginTop">5dp</item>
         <item name="layout_goneMarginBottom">5dp</item>
-        <item name="android:padding">10dp</item>
     </style>
 
     <!-- 透明背景按钮样式 -->
     <style name="TextBtnStyle" parent="Widget.Material3.Button.TextButton">
         <item name="android:textColor">?attr/colorPrimary</item>
-        <item name="cornerRadius">20dp</item>
         <item name="iconPadding">2dp</item>
     </style>
 
@@ -150,7 +139,6 @@
     <style name="OutlinedBtnStyle" parent="Widget.Material3.Button.OutlinedButton">
         <item name="android:textColor">?attr/colorPrimary</item>
         <item name="strokeColor">?attr/colorPrimary</item>
-        <item name="cornerRadius">20dp</item>
         <item name="strokeWidth">1dp</item>
         <item name="android:layout_marginStart">10dp</item>
         <item name="android:layout_marginEnd">10dp</item>
@@ -167,13 +155,6 @@
         <item name="android:src">@drawable/baseline_add_24</item>
         <item name="android:layout_marginEnd">20dp</item>
         <item name="android:layout_marginBottom">20dp</item>
-    </style>
-
-    <!-- 灰色半透明背景图标按钮样式 -->
-    <style name="TranslucentGrayImageButtonStyle" parent="Widget.AppCompat.ImageButton">
-        <item name="tint">@android:color/white</item>
-        <item name="android:padding">5dp</item>
-        <item name="android:background">@drawable/background_translucent_round</item>
     </style>
 
     <style name="ImageViewStyle">
