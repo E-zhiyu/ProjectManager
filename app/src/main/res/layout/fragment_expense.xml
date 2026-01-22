@@ -14,10 +14,13 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/amount_layout"
+            style="@style/CommonTextInputLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:counterEnabled="false"
             app:endIconDrawable="@drawable/baseline_clear_24"
-            app:endIconMode="clear_text">
+            app:endIconMode="clear_text"
+            app:helperText="@string/account_amount_help">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/amount_input"
@@ -30,11 +33,14 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/remark_layout"
+            style="@style/CommonTextInputLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/remark"
+            app:counterMaxLength="20"
             app:endIconDrawable="@drawable/baseline_clear_24"
-            app:endIconMode="clear_text">
+            app:endIconMode="clear_text"
+            app:helperText="@string/account_remark_help">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/remark_input"
@@ -45,26 +51,32 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/datetime_layout"
+            style="@style/CommonTextInputLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/date_time">
+            android:hint="@string/date_time"
+            app:counterEnabled="false"
+            app:helperText="@string/account_datetime_help">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/datetime_input"
-                style="@style/ClickableAutoCompleteTextViewStyle"
+                style="@style/AutoCompleteTextViewStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/running_account_tag_layout"
+            style="@style/CommonTextInputLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/tag">
+            android:hint="@string/tag"
+            app:counterEnabled="false"
+            app:helperText="@string/account_tag_help">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/running_account_tag_input"
-                style="@style/ClickableAutoCompleteTextViewStyle"
+                style="@style/AutoCompleteTextViewStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>

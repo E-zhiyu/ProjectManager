@@ -143,13 +143,11 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnFoc
                     group_layout.setError("分组名称不能为空");
                 } else {
                     group_layout.setError(null);
-                    group_layout.setErrorEnabled(false);
                 }
             }
         } else {
             if (v.getId() == R.id.tag_group_input) {
                 group_layout.setError(null);
-                group_layout.setErrorEnabled(false);
             }
         }
     }

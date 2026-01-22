@@ -110,16 +110,12 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnF
             }
         } else {
             if (v == binding.ruleNameInput) {
-                binding.ruleNameLayout.setErrorEnabled(false);
                 binding.ruleNameLayout.setError(null);
             } else if (v == binding.packageNameInput) {
-                binding.packageNameLayout.setErrorEnabled(false);
                 binding.packageNameLayout.setError(null);
             } else if (v == binding.notificationTitleInput) {
-                binding.notificationTitleLayout.setErrorEnabled(false);
                 binding.notificationTitleLayout.setError(null);
             } else if (v == binding.notificationContentInput) {
-                binding.notificationContentLayout.setErrorEnabled(false);
                 binding.notificationContentLayout.setError(null);
             }
         }
@@ -271,7 +267,6 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnF
         String package_name = data.getStringExtra(KeyValueStrings.PACKAGE_NAME.getValue());
         binding.packageNameInput.setText(package_name);
         binding.packageNameLayout.setError(null);
-        binding.packageNameLayout.setErrorEnabled(false);
     }
 
     //处理标签按钮点击事件

@@ -168,15 +168,31 @@
         <item name="buttonTint">?attr/colorPrimary</item>
     </style>
 
+    <!-- 普通文本框布局样式 -->
+    <style name="CommonTextInputLayoutStyle" parent="Widget.Material3.TextInputLayout.OutlinedBox.Dense">
+        <item name="errorEnabled">true</item>
+        <item name="counterEnabled">true</item>
+        <item name="helperTextEnabled">true</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+    </style>
+
+    <style name="DropdownMenuTextInputLayoutStyle" parent="Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu">
+        <item name="errorEnabled">true</item>
+        <item name="helperTextEnabled">true</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+    </style>
+
     <!-- 需要用户输入文本的文本框样式 -->
-    <style name="UserInputEditTextStyle" parent="Widget.Material3.TextInputEditText.OutlinedBox">
+    <style name="UserInputEditTextStyle" parent="Widget.Material3.TextInputEditText.OutlinedBox.Dense">
         <item name="android:inputType">text</item>
         <item name="android:textColorHighlight">?attr/colorSurfaceVariant</item>
         <item name="android:maxLength">20</item>
     </style>
 
-    <!-- 需要点击的文本框样式 -->
-    <style name="ClickableAutoCompleteTextViewStyle" parent="Widget.Material3.AutoCompleteTextView.OutlinedBox">
+    <!-- 自动填充文本框样式 -->
+    <style name="AutoCompleteTextViewStyle" parent="Widget.Material3.AutoCompleteTextView.OutlinedBox.Dense">
         <item name="android:inputType">none</item>
         <item name="android:textColorHighlight">?attr/colorControlHighlight</item>
     </style>

@@ -13,7 +13,6 @@ import com.manager.assistant.enums.KeyValueStrings;
 public class TransferFragment extends RunningAccountFragmentBase {
     private TextInputLayout export_layout, import_layout;   //转出和转入账户的文本框布局管理器
     private TextInputEditText export_input, import_input;   //转出和转入账户的文本框
-    private long lastFocusChangeTime = 0;                   //上次触发onFocusChange()方法的时间
 
     public TransferFragment() {
         super();
@@ -55,44 +54,37 @@ public class TransferFragment extends RunningAccountFragmentBase {
 
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastFocusChangeTime < 200) { //200ms内忽略重复事件
-            return;
-        }
-        lastFocusChangeTime = currentTime;
-
         if (!hasFocus) {
-            String edittext_str, error;         //文本框内容和错误提示
-            TextInputLayout text_edit_layout;   //被验证的文本框对应的布局管理器
-            edittext_str = String.valueOf(((TextInputEditText) v).getText());   //获取待验证组件的文本内容
+            String edittextStr, error;          //文本框内容和错误提示
+            TextInputLayout errLayout;          //被验证的文本框对应的布局管理器
+            edittextStr = String.valueOf(((TextInputEditText) v).getText());   //获取待验证组件的文本内容
 
-            if (v.getId() == R.id.export_account_input) {
+            if (v.getId() == R.id.amount_input) {
+                error = "金额不能为空";
+                errLayout = amountLayout;
+            } else if (v.getId() == R.id.export_account_input) {
                 error = "转出账户不能为空";
-                text_edit_layout = export_layout;
+                errLayout = export_layout;
             } else if (v.getId() == R.id.import_account_input) {
                 error = "转入账户不能为空";
-                text_edit_layout = import_layout;
+                errLayout = import_layout;
             } else {
                 return;
             }
 
-            if (edittext_str.isEmpty()) {
-                text_edit_layout.setErrorEnabled(true);
-                text_edit_layout.setError(error);
+            if (edittextStr.isEmpty()) {
+                errLayout.setErrorEnabled(true);
+                errLayout.setError(error);
             } else {
-                text_edit_layout.setError(null);
-                text_edit_layout.setErrorEnabled(false);
+                errLayout.setError(null);
             }
         } else {
             if (v.getId() == R.id.amount_input) {
                 amountLayout.setError(null);
-                amountLayout.setErrorEnabled(false);
             } else if (v.getId() == R.id.export_account_input) {
                 export_layout.setError(null);
-                export_layout.setErrorEnabled(false);
             } else if (v.getId() == R.id.import_account_input) {
                 import_layout.setError(null);
-                import_layout.setErrorEnabled(false);
             }
         }
     }

@@ -63,16 +63,13 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
                     binding.tagNameLayout.setError("标签名不能为空");
                 } else {
                     binding.tagNameLayout.setError(null);
-                    binding.tagNameLayout.setErrorEnabled(false);
                 }
             }
         } else {
             if (v.getId() == R.id.tag_group_input) {
                 binding.tagGroupLayout.setError(null);
-                binding.tagGroupLayout.setErrorEnabled(false);
             } else if (v.getId() == R.id.tag_name_input) {
                 binding.tagNameLayout.setError(null);
-                binding.tagNameLayout.setErrorEnabled(false);
             }
         }
     }

@@ -43,10 +43,13 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tag_name_layout"
+                style="@style/CommonTextInputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:counterMaxLength="20"
                 app:endIconDrawable="@drawable/baseline_clear_24"
-                app:endIconMode="clear_text">
+                app:endIconMode="clear_text"
+                app:helperText="@string/tag_name_help">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tag_name_input"
@@ -58,15 +61,21 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tag_group_layout"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/DropdownMenuTextInputLayoutStyle"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+
+                app:counterEnabled="true"
+                app:counterMaxLength="20"
+                app:helperText="@string/tag_group_name_help">
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/tag_group_input"
+                    style="@style/AutoCompleteTextViewStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/tag_group"
+                    android:inputType="text"
                     android:maxLength="20" />
             </com.google.android.material.textfield.TextInputLayout>
 

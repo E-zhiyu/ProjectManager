@@ -173,26 +173,24 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
     public void onFocusChange(View v, boolean hasFocus) {
         if (!hasFocus) {
             String edittext_str, error;         //文本框内容和错误提示
-            TextInputLayout text_edit_layout;   //被验证的文本框对应的布局管理器
+            TextInputLayout errLayout;   //被验证的文本框对应的布局管理器
             edittext_str = String.valueOf(((TextInputEditText) v).getText());   //获取待验证组件的文本内容
             if (v.getId() == R.id.amount_input) {
-                text_edit_layout = amountLayout;
+                errLayout = amountLayout;
+                error = "金额不能为空";
             } else {
                 return;
             }
 
             if (edittext_str.isEmpty()) {
-                error = "金额不能为空";
-                text_edit_layout.setErrorEnabled(true);
-                text_edit_layout.setError(error);
+                errLayout.setErrorEnabled(true);
+                errLayout.setError(error);
             } else {
-                text_edit_layout.setError(null);    //消除错误提示
-                text_edit_layout.setErrorEnabled(false);
+                errLayout.setError(null);    //消除错误提示
             }
         } else {
             if (v.getId() == R.id.amount_input) {
                 amountLayout.setError(null);
-                amountLayout.setErrorEnabled(false);
             }
         }
     }
@@ -253,7 +251,6 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         this.tag_no = tag_no;   //更新全局变量中的标签编号
 
         tagInput.setText(tag_name);
-        tagLayout.setErrorEnabled(false);  //去除错误提示
         tagLayout.setError(null);
         tagSheet.dismiss();
     }
