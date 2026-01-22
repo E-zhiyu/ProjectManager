@@ -176,10 +176,8 @@
     </style>
 
     <!-- 需要点击的文本框样式 -->
-    <style name="ClickableEditTextStyle" parent="Widget.Material3.TextInputEditText.OutlinedBox">
-        <item name="android:inputType">text</item>
-        <item name="android:focusable">false</item>
-        <item name="android:clickable">true</item>
+    <style name="ClickableAutoCompleteTextViewStyle" parent="Widget.Material3.AutoCompleteTextView.OutlinedBox">
+        <item name="android:inputType">none</item>
         <item name="android:textColorHighlight">?attr/colorControlHighlight</item>
     </style>
 

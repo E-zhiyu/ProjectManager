@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -27,6 +28,7 @@ import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
@@ -71,11 +73,12 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
     protected View contentView;                             //绑定的XML界面
     protected String defaultRemark;                         //默认备注
     protected RunningAccountType type;                      //流水类型
-    protected TextInputLayout amount_layout, tag_layout;    //金额和标签文本框布局管理器
-    protected TextInputEditText amount_input, tag_input;    //金额和标签文本输入框
+    protected TextInputLayout amountLayout, tagLayout;      //金额和标签文本框布局管理器
+    protected TextInputEditText amountInput;                //金额输入框
+    protected MaterialAutoCompleteTextView tagInput;        //标签输入框
     private long tag_no = 0;                                //用户选择的标签编号（默认无标签则为0）
     private long rno = 0;                                   //流水编号
-    private TagSelectBottomSheet tag_sheet;                 //底部弹出窗口
+    private TagSelectBottomSheet tagSheet;                  //标签选择弹窗
     private ActivityResultLauncher<Intent> cameraLauncher;  //拍照Activity启动器
     private ActivityResultLauncher<String> albumLauncher;   //相册图片选择启动器
     private PictureAdapter pictureAdapter;                  //图片RecyclerView的适配器
@@ -173,7 +176,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
             TextInputLayout text_edit_layout;   //被验证的文本框对应的布局管理器
             edittext_str = String.valueOf(((TextInputEditText) v).getText());   //获取待验证组件的文本内容
             if (v.getId() == R.id.amount_input) {
-                text_edit_layout = amount_layout;
+                text_edit_layout = amountLayout;
             } else {
                 return;
             }
@@ -188,8 +191,8 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
             }
         } else {
             if (v.getId() == R.id.amount_input) {
-                amount_layout.setError(null);
-                amount_layout.setErrorEnabled(false);
+                amountLayout.setError(null);
+                amountLayout.setErrorEnabled(false);
             }
         }
     }
@@ -197,16 +200,27 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
     /**
      * 初始化视图
      */
+    @SuppressLint("ClickableViewAccessibility")
     protected void initViews() {
-        TextInputEditText dt_input = contentView.findViewById(R.id.datetime_input);
-        amount_layout = contentView.findViewById(R.id.amount_layout);
-        amount_input = contentView.findViewById(R.id.amount_input);
-        tag_layout = contentView.findViewById(R.id.running_account_tag_layout);
-        tag_input = contentView.findViewById(R.id.running_account_tag_input);
+        MaterialAutoCompleteTextView dt_input = contentView.findViewById(R.id.datetime_input);
+        amountLayout = contentView.findViewById(R.id.amount_layout);
+        amountInput = contentView.findViewById(R.id.amount_input);
+        tagLayout = contentView.findViewById(R.id.running_account_tag_layout);
+        tagInput = contentView.findViewById(R.id.running_account_tag_input);
 
-        amount_input.setOnFocusChangeListener(this);
-        dt_input.setOnClickListener(v -> showMaterialDateTimePicker());
-        tag_input.setOnClickListener(v -> showTagSelectSheet());
+        amountInput.setOnFocusChangeListener(this);
+        dt_input.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                showMaterialDateTimePicker();
+            }
+            return false;
+        });
+        tagInput.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                showTagSelectSheet();
+            }
+            return false;
+        });
 
         //初始化日期内容
         Calendar calendar = Calendar.getInstance();
@@ -238,10 +252,10 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
     public void onTagBtnClicked(long tag_no, String tag_name) {
         this.tag_no = tag_no;   //更新全局变量中的标签编号
 
-        tag_input.setText(tag_name);
-        tag_layout.setErrorEnabled(false);  //去除错误提示
-        tag_layout.setError(null);
-        tag_sheet.dismiss();
+        tagInput.setText(tag_name);
+        tagLayout.setErrorEnabled(false);  //去除错误提示
+        tagLayout.setError(null);
+        tagSheet.dismiss();
     }
 
     /**
@@ -279,15 +293,15 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
                     if (tag_no == this.tag_no) {    //只有找到匹配的标签编号才修改
                         switch (updateReason) {
                             case RENAME:
-                                tag_input.setText(tag_name);
+                                tagInput.setText(tag_name);
                                 break;
                             case DELETE:
                                 this.tag_no = 0;
-                                tag_input.setText("");
+                                tagInput.setText("");
                                 break;
                             case MERGE:
                                 this.tag_no = Tag.nameTransToTno(tag_name, requireContext());
-                                tag_input.setText(tag_name);
+                                tagInput.setText(tag_name);
                                 break;
                         }
                     }
@@ -305,15 +319,15 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         String error = null;
 
         //判断是否输入金额
-        String amountStr = String.valueOf(amount_input.getText());
+        String amountStr = String.valueOf(amountInput.getText());
         if (amountStr.isEmpty()) {
             error = "金额不能为空";
-            amount_layout.setErrorEnabled(true);
-            amount_layout.setError(error);
+            amountLayout.setErrorEnabled(true);
+            amountLayout.setError(error);
         } else if (Double.parseDouble(amountStr) == 0) {
             error = "金额不能为0";
-            amount_layout.setErrorEnabled(true);
-            amount_layout.setError(error);
+            amountLayout.setErrorEnabled(true);
+            amountLayout.setError(error);
         }
 
         return error;
@@ -341,12 +355,12 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
             Toast.makeText(requireContext(), "无法加载该流水记录的标签信息", Toast.LENGTH_SHORT).show();
         }
 
-        amount_input.setText(String.valueOf(amount));                                   //金额
-        TextInputEditText remark_input = contentView.findViewById(R.id.remark_input);   //备注
-        remark_input.setText(isDefaultRemark ? "" : remark);
-        TextInputEditText date_input = contentView.findViewById(R.id.datetime_input);   //日期
-        date_input.setText(date_time);
-        tag_input.setText(tag_name);                                                    //标签名称
+        amountInput.setText(String.valueOf(amount));                                   //金额
+        TextInputEditText remarkInput = contentView.findViewById(R.id.remark_input);    //备注
+        remarkInput.setText(isDefaultRemark ? "" : remark);
+        MaterialAutoCompleteTextView datetimeInput = contentView.findViewById(R.id.datetime_input);   //日期
+        datetimeInput.setText(date_time);
+        tagInput.setText(tag_name);                                                     //标签名称
     }
 
     /**
@@ -372,7 +386,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         }
         dataBundle.putBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue(), isDefaultRemark);
         dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
-        double amount = Double.parseDouble(String.valueOf(amount_input.getText()));         //金额
+        double amount = Double.parseDouble(String.valueOf(amountInput.getText()));         //金额
         dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
         dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);                      //标签编号
 
@@ -388,8 +402,8 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         dateBuilder.setTitleText("选择日期");
 
         //初始化日期格式化器
-        TextInputEditText dateTimeInput = contentView.findViewById(R.id.datetime_input);
-        String input_datetime = String.valueOf(dateTimeInput.getText());
+        MaterialAutoCompleteTextView datetimeInput = contentView.findViewById(R.id.datetime_input);
+        String input_datetime = String.valueOf(datetimeInput.getText());
         String pattern = "yyyy-MM-dd HH:mm";    //日期字符串格式
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
         LocalDateTime localDateTime = LocalDateTime.parse(input_datetime, formatter);
@@ -469,8 +483,8 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
      * 标签文本框点击回调
      */
     private void showTagSelectSheet() {
-        tag_sheet = new TagSelectBottomSheet(this::onTagBtnClicked);
-        tag_sheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
+        tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked);
+        tagSheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
     }
 
     /**

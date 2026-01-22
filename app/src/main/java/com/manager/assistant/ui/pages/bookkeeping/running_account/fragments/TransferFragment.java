@@ -85,8 +85,8 @@ public class TransferFragment extends RunningAccountFragmentBase {
             }
         } else {
             if (v.getId() == R.id.amount_input) {
-                amount_layout.setError(null);
-                amount_layout.setErrorEnabled(false);
+                amountLayout.setError(null);
+                amountLayout.setErrorEnabled(false);
             } else if (v.getId() == R.id.export_account_input) {
                 export_layout.setError(null);
                 export_layout.setErrorEnabled(false);

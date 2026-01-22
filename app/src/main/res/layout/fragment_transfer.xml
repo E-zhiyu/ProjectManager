@@ -50,12 +50,11 @@
             android:layout_height="wrap_content"
             android:hint="@string/date_time">
 
-            <com.google.android.material.textfield.TextInputEditText
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/datetime_input"
-                style="@style/ClickableEditTextStyle"
+                style="@style/ClickableAutoCompleteTextViewStyle"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:focusable="false" />
+                android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -64,9 +63,9 @@
             android:layout_height="wrap_content"
             android:hint="@string/tag">
 
-            <com.google.android.material.textfield.TextInputEditText
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/running_account_tag_input"
-                style="@style/ClickableEditTextStyle"
+                style="@style/ClickableAutoCompleteTextViewStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
