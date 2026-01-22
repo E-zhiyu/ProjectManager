@@ -54,7 +54,7 @@ public class AnimationHelper {
      */
     public static void attachMorphAnimation(View view, float pressedCornerDp) {
         if (!(view instanceof Shapeable)) {
-            throw new IllegalArgumentException("View must implement Shapeable interface");
+            throw new IllegalArgumentException("视图必须实现Shapeable接口");
         }
 
         Shapeable shapeable = (Shapeable) view;
