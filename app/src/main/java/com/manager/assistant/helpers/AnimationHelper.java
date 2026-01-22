@@ -195,7 +195,7 @@ public class AnimationHelper {
             animator = ObjectAnimator.ofFloat(
                     expand_fold_view,
                     "rotation",
-                    0f,
+                    360f,
                     180f
             );
         }
