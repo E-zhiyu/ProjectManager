@@ -6,6 +6,8 @@ import android.widget.Filter;
 
 import androidx.annotation.NonNull;
 
+import com.manager.assistant.R;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,17 +20,13 @@ import java.util.List;
 public class NoFilteringArrayAdapter<T> extends ArrayAdapter<T> {
     private final List<T> originalData;
 
-    public NoFilteringArrayAdapter(@NonNull Context context,
-                                   int resource,
-                                   @NonNull List<T> objects) {
-        super(context, resource, objects);
+    public NoFilteringArrayAdapter(@NonNull Context context, @NonNull List<T> objects) {
+        super(context, R.layout.exposed_dropdown_popup_item, objects);
         this.originalData = new ArrayList<>(objects);
     }
 
-    public NoFilteringArrayAdapter(Context context,
-                                   int resource,
-                                   T[] objects) {
-        super(context, resource, objects);
+    public NoFilteringArrayAdapter(Context context, T[] objects) {
+        super(context, R.layout.exposed_dropdown_popup_item, objects);
         this.originalData = Arrays.asList(objects);
     }
 

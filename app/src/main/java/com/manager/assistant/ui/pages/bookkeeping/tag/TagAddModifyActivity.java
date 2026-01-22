@@ -136,7 +136,6 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
         if (groupNameList != null) {
             NoFilteringArrayAdapter<String> adapter = new NoFilteringArrayAdapter<>(
                     this,
-                    androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
                     groupNameList
             );
             binding.tagGroupInput.setAdapter(adapter);

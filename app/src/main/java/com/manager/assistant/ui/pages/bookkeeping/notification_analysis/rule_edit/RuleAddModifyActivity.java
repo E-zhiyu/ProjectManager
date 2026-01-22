@@ -130,7 +130,6 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnF
 
         NoFilteringArrayAdapter<String> adapter = new NoFilteringArrayAdapter<>(
                 this,
-                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
                 new String[]{
                         RunningAccountType.EXPENSE.getTitle(),
                         RunningAccountType.INCOME.getTitle()
