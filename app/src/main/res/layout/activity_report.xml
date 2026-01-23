@@ -17,37 +17,36 @@
         app:navigationIcon="@drawable/baseline_arrow_back_ios_new_24"
         app:title="@string/title_report" />
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/report_date_textview"
+    <com.google.android.material.button.MaterialSplitButton
+        android:id="@+id/date_select_split_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="?selectableItemBackground"
-        android:clickable="true"
-        android:drawableStart="@drawable/baseline_calendar_month_24"
-        android:drawableEnd="@drawable/baseline_keyboard_arrow_right_24"
-        android:drawablePadding="5dp"
-        android:focusable="true"
-        android:padding="10dp"
-        android:text="@string/date"
-        android:textSize="20sp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+        android:layout_marginStart="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/date_range_select_view"
-        style="@style/SpinnerTextViewStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/today"
-        app:layout_constraintBaseline_toBaselineOf="@+id/report_date_textview"
-        app:layout_constraintRight_toRightOf="parent" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/report_date_select_btn"
+            style="?attr/materialSplitButtonLeadingFilledStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/date"
+            app:icon="@drawable/baseline_calendar_month_24" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/date_range_select_btn"
+            style="?attr/materialSplitButtonIconFilledStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/baseline_unfold_more_24" />
+    </com.google.android.material.button.MaterialSplitButton>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/report_date_textview">
+        app:layout_constraintTop_toBottomOf="@id/date_select_split_btn">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -71,6 +70,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/balance"
+                        android:textSize="20sp" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/date_range_text"
+                        style="@style/ReportInfoTextViewStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/today"
                         android:textSize="20sp" />
 
                     <com.google.android.material.textview.MaterialTextView
@@ -167,27 +174,47 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="visible">
 
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
                     <com.google.android.material.textview.MaterialTextView
                         style="@style/LabelTextViewStyle"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/running_account_every_month" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/month_account_type_select_view"
-                        style="@style/SpinnerTextViewStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/balance" />
-                </LinearLayout>
+                        android:layout_gravity="center_vertical"
+                        android:text="@string/running_account_every_month"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.button.MaterialSplitButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="7dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/month_account_type_leading_btn"
+                            style="?attr/materialSplitButtonLeadingFilledStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/balance" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/month_account_type_select_btn"
+                            style="?attr/materialSplitButtonIconFilledStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:icon="@drawable/baseline_unfold_more_24"
+                            app:iconGravity="textStart" />
+                    </com.google.android.material.button.MaterialSplitButton>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <com.google.android.material.card.MaterialCardView
                     style="@style/ContentCardStyle"

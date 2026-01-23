@@ -28,7 +28,6 @@ import com.manager.assistant.data.data_save.database.BookKeepingColumns;
 import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
 import com.manager.assistant.data.data_save.database.BookKeepingTables;
 import com.manager.assistant.databinding.ActivityReportBinding;
-import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.enums.TagString;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
@@ -45,15 +44,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class ReportActivity extends AppCompatActivity implements View.OnClickListener {
+public class ReportActivity extends AppCompatActivity {
     private final List<AccountSourceInfo> expenseSourceInfoList = new ArrayList<>();        //支出来源列表
     private final List<AccountSourceInfo> incomeSourceInfoList = new ArrayList<>();         //收入来源列表
     private int year, month, day;                                                           //年月日
     private DateRangeType dateRangeType = DateRangeType.TODAY;                              //日期范围种类
-    private AccountSourceAdapter expense_adapter, income_adapter;                           //收支来源布局适配器
+    private AccountSourceAdapter expenseAdapter, incomeAdapter;                           //收支来源布局适配器
     private MonthAccountInfoType monthAccountInfoType = MonthAccountInfoType.BALANCE;       //月流水信息种类
     private final List<MonthAccountInfo> monthAccountInfoList = new ArrayList<>();          //月流水信息列表
-    private MonthAccountAdapter month_account_adapter;                                      //月流水信息适配器
+    private MonthAccountAdapter monthAccountAdapter;                                        //月流水信息适配器
     private double year_expense = 0, year_income = 0;                                       //年支出和年收入
     private ActivityReportBinding binding;                                                  //XML界面绑定引用
 
@@ -74,7 +73,6 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         setContentView(binding.getRoot());
 
         initViews();
-        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
 
         List<ReportRunningAccountData> dataList = loadReportData(dateRangeType);    //加载报表数据
         updateSourceViews(dataList);                                                //更新收支来源视图
@@ -89,17 +87,6 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     protected void onDestroy() {
         super.onDestroy();
         binding = null;
-    }
-
-    @Override
-    public void onClick(@NonNull View v) {
-        if (v.getId() == R.id.report_date_textview) {
-            showDatePickerDialog();
-        } else if (v.getId() == R.id.date_range_select_view) {
-            showDateRangeSelectPopupMenu(v);
-        } else if (v.getId() == R.id.month_account_type_select_view) {
-            showMonthAccountInfoTypePopupMenu(v);
-        }
     }
 
     /**
@@ -117,24 +104,29 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         @SuppressLint("DefaultLocale") String date_str = String.format("%04d年%02d月%02d日", year, month, day);
 
         //设置点击监听器
-        MaterialTextView date_textview = binding.reportDateTextview;
-        date_textview.setText(date_str);
-        date_textview.setOnClickListener(this);
-        MaterialTextView date_range_select_view = binding.dateRangeSelectView;
-        date_range_select_view.setOnClickListener(this);
-        MaterialTextView month_account_info_type_select_view = binding.monthAccountTypeSelectView;
-        month_account_info_type_select_view.setOnClickListener(this);
+        binding.reportDateSelectBtn.setText(date_str);
+        binding.reportDateSelectBtn.setOnClickListener(v -> showDatePickerDialog());
+        binding.dateRangeSelectBtn.addOnCheckedChangeListener((materialButton, b) -> {
+            if (b) {
+                showDateRangeSelectPopupMenu(materialButton);
+            }
+        });
+        binding.monthAccountTypeSelectBtn.addOnCheckedChangeListener(((materialButton, b) -> {
+            if (b) {
+                showMonthAccountInfoTypePopupMenu(materialButton);
+            }
+        }));
 
         //获取RecyclerView并设置适配器
         RecyclerView expense_source_recycler = binding.expenseSourceRecycler;
-        expense_adapter = new AccountSourceAdapter(expenseSourceInfoList);
-        expense_source_recycler.setAdapter(expense_adapter);
+        expenseAdapter = new AccountSourceAdapter(expenseSourceInfoList);
+        expense_source_recycler.setAdapter(expenseAdapter);
         RecyclerView income_source_recycler = binding.incomeSourceRecycler;
-        income_adapter = new AccountSourceAdapter(incomeSourceInfoList);
-        income_source_recycler.setAdapter(income_adapter);
+        incomeAdapter = new AccountSourceAdapter(incomeSourceInfoList);
+        income_source_recycler.setAdapter(incomeAdapter);
         RecyclerView month_account_recycler = binding.monthAccountRecycler;
-        month_account_adapter = new MonthAccountAdapter(monthAccountInfoList, monthAccountInfoType, this);
-        month_account_recycler.setAdapter(month_account_adapter);
+        monthAccountAdapter = new MonthAccountAdapter(monthAccountInfoList, monthAccountInfoType, this);
+        month_account_recycler.setAdapter(monthAccountAdapter);
     }
 
     /**
@@ -338,8 +330,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         //更新收支来源视图
-        expense_adapter.notifyDataSetChanged();
-        income_adapter.notifyDataSetChanged();
+        expenseAdapter.notifyDataSetChanged();
+        incomeAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -539,7 +531,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             this.year = selected_calendar.get(Calendar.YEAR);
             this.month = selected_calendar.get(Calendar.MONTH) + 1;
             this.day = selected_calendar.get(Calendar.DAY_OF_MONTH);
-            TextView date_textview = binding.reportDateTextview;
+            TextView date_textview = binding.reportDateSelectBtn;
             date_textview.setText(String.format("%04d年%02d月%02d日", year, month, day));
 
             //重新加载报表信息
@@ -549,7 +541,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                 dataList = loadReportData(DateRangeType.THIS_YEAR);
                 updateMonthAccountData(dataList);
                 refreshMonthAccountInfoViews();
-                month_account_adapter.onYearChanged();
+                monthAccountAdapter.onYearChanged();
             }
         });
     }
@@ -569,22 +561,22 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             if (item.getItemId() == R.id.action_today) {
                 monthAccountLayout.setVisibility(View.GONE);
                 dateRangeType = DateRangeType.TODAY;
-                ((MaterialTextView) view).setText(R.string.today);
+                binding.dateRangeText.setText(R.string.today);
                 itemClicked = true;
             } else if (item.getItemId() == R.id.action_this_month) {
                 monthAccountLayout.setVisibility(View.GONE);
                 dateRangeType = DateRangeType.THIS_MONTH;
-                ((MaterialTextView) view).setText(R.string.this_month);
+                binding.dateRangeText.setText(R.string.this_month);
                 itemClicked = true;
             } else if (item.getItemId() == R.id.action_recent_3_month) {
                 monthAccountLayout.setVisibility(View.GONE);
                 dateRangeType = DateRangeType.RECENT_3_MONTH;
-                ((MaterialTextView) view).setText(R.string.recent_3_month);
+                binding.dateRangeText.setText(R.string.recent_3_month);
                 itemClicked = true;
             } else if (item.getItemId() == R.id.action_this_year) {
                 monthAccountLayout.setVisibility(View.VISIBLE);
                 dateRangeType = DateRangeType.THIS_YEAR;
-                ((MaterialTextView) view).setText(R.string.this_year);
+                binding.dateRangeText.setText(R.string.this_year);
                 itemClicked = true;
             }
 
@@ -595,6 +587,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             return itemClicked;
         });
 
+        //设置菜单消失监听并显示菜单
+        dateRangeSelectMenu.setOnDismissListener(menu -> binding.dateRangeSelectBtn.setChecked(false));
         dateRangeSelectMenu.show();
     }
 
@@ -612,15 +606,15 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             MonthAccountInfoType old_type = monthAccountInfoType;   //用于比较两次选择是否相同
             if (item.getItemId() == R.id.action_balance) {
                 monthAccountInfoType = MonthAccountInfoType.BALANCE;
-                ((MaterialTextView) view).setText(R.string.balance);
+                binding.monthAccountTypeLeadingBtn.setText(R.string.balance);
                 itemClicked = true;
             } else if (item.getItemId() == R.id.action_expense) {
                 monthAccountInfoType = MonthAccountInfoType.EXPENSE;
-                ((MaterialTextView) view).setText(R.string.expense);
+                binding.monthAccountTypeLeadingBtn.setText(R.string.expense);
                 itemClicked = true;
             } else if (item.getItemId() == R.id.action_income) {
                 monthAccountInfoType = MonthAccountInfoType.INCOME;
-                ((MaterialTextView) view).setText(R.string.income);
+                binding.monthAccountTypeLeadingBtn.setText(R.string.income);
                 itemClicked = true;
             }
 
@@ -628,12 +622,13 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                 List<ReportRunningAccountData> dataList = loadReportData(DateRangeType.THIS_YEAR);
                 updateMonthAccountData(dataList);
                 refreshMonthAccountInfoViews();
-                month_account_adapter.onMonthAccountInfoTypeChanged(monthAccountInfoType);
+                monthAccountAdapter.onMonthAccountInfoTypeChanged(monthAccountInfoType);
             }
 
             return itemClicked;
         });
 
+        monthAccountInfoTypeMenu.setOnDismissListener(menu -> binding.monthAccountTypeSelectBtn.setChecked(false));
         monthAccountInfoTypeMenu.show();
     }
 }

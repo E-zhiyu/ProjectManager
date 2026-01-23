@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.7.5  \n" +
             "**界面优化**  \n" +
+            "- 使用Split Button替代下拉式文本框  \n" +
             "- 标签管理界面折叠标签时图标会逆时针旋转  \n" +
             "- 为大部分文本输入框添加说明文本以及字数计数器  \n" +
             "- 为界面中大部分可点击的组件添加按下时改变圆角大小的动画  \n" +
