@@ -45,7 +45,7 @@ public class HomeFragment extends Fragment {
     private FragmentHomeBinding binding;                    //XML视图绑定引用
     private double day_balance, day_expense, day_income;    //日结余、日支出、日收入
     private final CompositeDisposable disposables = new CompositeDisposable();
-    private LinkAdapter linkAdapter;
+    private LinkAdapter linkAdapter;                        //链接列表适配器
 
     @Nullable
     @Override
@@ -284,7 +284,7 @@ public class HomeFragment extends Fragment {
     private void fetchLinks(boolean isToastNeed) {
         disposables.add(
                 Observable.fromCallable(() -> WebsiteLinkFetchHelper.getUrlJson("https://www.ccgp-shaanxi.gov.cn/freecms/rest/v1/notice/selectInfoForIndex.do?&siteId=a7a15d60-de5b-42f2-b35a-7e3efc34e54f&channel=1eb454a2-7ff7-4a3b-b12c-12acc2685bd1&currPage=1&pageSize=11&regionCode=610001&noticeType=001011,001012,001013,001014,001016,001019&cityOrArea=&selectTimeName=noticeTime"))
-                        .subscribeOn(Schedulers.io())
+                        .subscribeOn(Schedulers.newThread())        //不在IO线程爬取，防止阻塞流水读取
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(linkList -> {
                                     if (!linkList.isEmpty()) {
