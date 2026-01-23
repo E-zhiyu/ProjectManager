@@ -59,14 +59,14 @@ public class AnimationHelper {
 
         Shapeable shapeable = (Shapeable) view;
 
-        // 1. 将 dp 转换为 px
+        //将 dp 转换为 px
         float pressedPx = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 pressedCornerDp,
                 view.getResources().getDisplayMetrics()
         );
 
-        // 2. 监听触摸事件
+        //监听触摸事件
         view.setOnTouchListener(new View.OnTouchListener() {
             private float initialPx = -1f;
             private ValueAnimator animator;
@@ -92,12 +92,16 @@ public class AnimationHelper {
                         break;
                 }
 
-                // 返回 false，确保不会拦截点击事件 (onClick 依然有效)
+                //返回false，确保不会拦截点击事件
                 return false;
             }
 
             private void startAnimation(Shapeable target, float from, float to) {
-                if (animator != null) animator.cancel();
+                //若动画正在运行，则在当前位置反向运行
+                if (animator != null && animator.isRunning()) {
+                    animator.reverse();
+                    return;
+                }
 
                 animator = ValueAnimator.ofFloat(from, to);
                 animator.setDuration(150);
