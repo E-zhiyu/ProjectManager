@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                 navigationView.getMenu().getItem(position).setChecked(true);
             }
         });
-        viewPager2.setOffscreenPageLimit(1);    //设置保留邻近Fragment
+        viewPager2.setOffscreenPageLimit(2);    //设置保留邻近Fragment
 
         return viewPager2;
     }

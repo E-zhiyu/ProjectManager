@@ -116,7 +116,7 @@ public class RunningAccountAddActivity extends AppCompatActivity {
                 currentFragment = (RunningAccountFragmentBase) (viewPagerAdapter.getFragment(position));
             }
         });
-        viewPager2.setOffscreenPageLimit(1);    //设置保留邻近Fragment
+        viewPager2.setOffscreenPageLimit(2);    //设置保留邻近Fragment数量
     }
 
     /**
