@@ -23,7 +23,7 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/LabelTextViewStyle"
+                    style="@style/MediumTitleTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -32,7 +32,7 @@
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/bookkeeping_days_text"
-                    style="@style/LabelTextViewStyle"
+                    style="@style/MediumTitleTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -109,7 +109,7 @@
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/web_link_title_text"
-                    style="@style/LabelTextViewStyle"
+                    style="@style/MediumTitleTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/purchase_bulletin"

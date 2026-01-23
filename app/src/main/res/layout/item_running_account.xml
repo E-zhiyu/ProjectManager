@@ -23,12 +23,14 @@
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/remark_text"
+                style="@style/LargeBodyTextViewStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/remark" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/type_datetime_textview"
+                style="@style/MediumBodyTextViewStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/date_time" />
@@ -37,6 +39,7 @@
         <!-- 右侧金额信息 -->
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/amount_text"
+            style="@style/MediumBodyTextViewStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"

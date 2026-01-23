@@ -26,12 +26,14 @@
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/rule_name_text"
+                style="@style/LargeBodyTextViewStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/rule_name" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/type_text"
+                style="@style/MediumBodyTextViewStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/running_account_type" />
@@ -39,6 +41,7 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tag_name_text"
+            style="@style/MediumBodyTextViewStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"

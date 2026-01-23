@@ -6,7 +6,7 @@
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/header_title"
-        style="@style/LabelTextViewStyle"
+        style="@style/MediumTitleTextViewStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/date"

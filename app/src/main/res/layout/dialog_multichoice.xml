@@ -4,6 +4,4 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="15dp"
-    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager">
-
-</androidx.recyclerview.widget.RecyclerView>
+    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />

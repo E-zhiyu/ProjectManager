@@ -5,12 +5,7 @@
         <item name="android:backgroundTint">?attr/colorSurface</item>
         <item name="navigationIconTint">?attr/colorPrimary</item>
         <item name="contentInsetStart">10dp</item>
-        <item name="titleTextAppearance">@style/TitleStyle</item>
-    </style>
-
-    <!-- 标题文本样式 -->
-    <style name="TitleStyle">
-        <item name="android:textSize">23sp</item>
+        <item name="titleTextAppearance">?attr/textAppearanceHeadlineSmall</item>
     </style>
 
     <!-- 普通页面样式 -->
@@ -25,13 +20,40 @@
         <item name="android:paddingStart">15dp</item>
     </style>
 
-    <!-- 标签文本视图样式 -->
-    <style name="LabelTextViewStyle">
+    <!-- 文本样式基类 -->
+    <style name="TextViewStyleBase">
         <item name="android:paddingStart">10dp</item>
         <item name="android:paddingEnd">10dp</item>
         <item name="android:paddingTop">10dp</item>
         <item name="android:paddingBottom">10dp</item>
-        <item name="android:textSize">20sp</item>
+    </style>
+
+    <!-- 中等标题文本视图样式 -->
+    <style name="MediumTitleTextViewStyle" parent="TextViewStyleBase">
+        <item name="android:textAppearance">?attr/textAppearanceTitleMedium</item>
+    </style>
+
+    <!-- 大标题文本视图样式 -->
+    <style name="LargeTitleTextViewStyle" parent="TextViewStyleBase">
+        <item name="android:textAppearance">?attr/textAppearanceTitleLarge</item>
+    </style>
+
+    <!-- 大字号内容文本视图样式 -->
+    <style name="LargeBodyTextViewStyle" parent="TextViewStyleBase">
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+    </style>
+
+    <!-- 中等字号内容文本视图样式 -->
+    <style name="MediumBodyTextViewStyle" parent="TextViewStyleBase">
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
     </style>
 
     <!-- 可点击的文本框样式 -->
@@ -47,18 +69,15 @@
     </style>
 
     <!-- 缩小版标签文本样式 -->
-    <style name="SmallLabelTextViewStyle">
-        <item name="android:paddingStart">10dp</item>
-        <item name="android:paddingEnd">10dp</item>
-        <item name="android:paddingTop">10dp</item>
-        <item name="android:paddingBottom">10dp</item>
-        <item name="android:textSize">17sp</item>
+    <style name="SmallTitleTextViewStyle" parent="TextViewStyleBase">
+        <item name="android:textAppearance">?attr/textAppearanceTitleSmall</item>
     </style>
 
     <!-- 提示文本视图样式 -->
     <style name="TipTextViewStyle">
         <item name="android:paddingTop">10dp</item>
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
         <item name="android:drawablePadding">10dp</item>
         <item name="android:drawableStart">@drawable/baseline_error_outline_24</item>
         <item name="drawableTint">?attr/colorOnSurfaceVariant</item>

@@ -71,7 +71,6 @@ public class BookKeepingFragment extends Fragment {
 
         initActivityLauncher();
         initViews();
-        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
         setupBroadcastReceiver();
 
         AccountRecyclerViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountRecyclerViewModel.class);
@@ -145,7 +144,7 @@ public class BookKeepingFragment extends Fragment {
         if (tag_name.isEmpty() && tag_no != 0) {
             tag_no = 0;
             filter_tag_no = 0;
-            binding.filterText.setText("全部");
+            binding.filterLeadingBtn.setText("全部");
             Toast.makeText(requireContext(), "标签被删除，已自动清空过滤器", Toast.LENGTH_SHORT).show();
         }
 
@@ -279,16 +278,20 @@ public class BookKeepingFragment extends Fragment {
         );
     }
 
-    //初始化视图
+    /**
+     * 初始化视图
+     */
     private void initViews() {
         //绑定单击按钮监听器
         binding.addFloatingBtn.setOnClickListener(v -> {
             Intent skip2NewRunningAccount = new Intent(requireContext(), RunningAccountAddActivity.class);
             runningAccountAddLauncher.launch(skip2NewRunningAccount);
         });
+        AnimationHelper.attachMorphAnimation(binding.addFloatingBtn);
 
-        //绑定过滤器文本的点击监听器
-        binding.filterText.setOnClickListener(v -> {
+        //绑定过滤器按钮的点击监听器
+        binding.filterSelectBtn.setCheckable(false);
+        binding.filterSelectBtn.setOnClickListener(v -> {
             tagSelectBottomSheet = new TagSelectBottomSheet(
                     this::onTagBtnClicked,
                     null,
@@ -458,15 +461,16 @@ public class BookKeepingFragment extends Fragment {
         filter_tag_no = tag_no;
 
         if (tag_no == 0) {
-            binding.filterText.setText("全部");
+            binding.filterLeadingBtn.setText("全部");
         } else {
-            binding.filterText.setText(tag_name);
+            binding.filterLeadingBtn.setText(tag_name);
         }
 
         if (tagSelectBottomSheet != null) {
             tagSelectBottomSheet.dismiss();
         }
 
+        binding.filterSelectBtn.setChecked(false);
         refreshUI();
     }
 
