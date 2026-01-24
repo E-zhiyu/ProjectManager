@@ -128,8 +128,8 @@
     <string name="account_remark_help">简单描述该流水记录的备注</string>
     <string name="account_datetime_help">产生该条记录的具体时间</string>
     <string name="account_tag_help">标记该流水记录的标签</string>
-    <string name="account_export_help">转出账户的名称</string>
-    <string name="account_import_help">转入账户的名称</string>
+    <string name="account_export_help">您名下的转出账户名称</string>
+    <string name="account_import_help">您名下的转入账户名称</string>
     <string name="tag_name_help">该标签的名称</string>
     <string name="tag_group_name_help">该标签所属分组的名称</string>
 </resources>
