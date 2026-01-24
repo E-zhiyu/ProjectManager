@@ -195,11 +195,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         pictureSelectList.addAll(new ArrayList<>(Collections.nCopies(pictureList.size(), false)));    //默认未选择
 
         //刷新UI
-        if (pictureList.size() == 1) {
-            notifyItemInserted(0);
-        } else if (pictureList.size() > 1) {
-            notifyItemRangeInserted(0, pictureList.size() - 1);
-        }
+        notifyItemRangeInserted(0, pictureList.size());
     }
 
     /**
@@ -289,11 +285,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         this.pictureList.addAll(pictureList);
         pictureSelectList.addAll(new ArrayList<>(Collections.nCopies(pictureList.size(), false)));
 
-        if (step > 1) {
-            notifyItemRangeInserted(start, start + step - 1);
-        } else if (step == 1) {
-            notifyItemInserted(start);
-        }
+        notifyItemRangeInserted(start, start + step);
     }
 
     /**

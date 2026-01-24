@@ -62,40 +62,42 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:padding="5dp">
+                    android:orientation="vertical">
 
                     <com.google.android.material.textview.MaterialTextView
-                        style="@style/ReportInfoTextViewStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/balance"
-                        android:textAppearance="?attr/textAppearanceTitleLarge" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/date_range_text"
-                        style="@style/ReportInfoTextViewStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/today"
-                        android:textAppearance="?attr/textAppearanceTitleMedium" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/balance_text"
-                        style="@style/ReportInfoTextViewStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/balance"
-                        android:textAppearance="?attr/textAppearanceTitleLarge" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/expense_income_text"
-                        style="@style/ReportInfoTextViewStyle"
+                        style="@style/LargeTitleTextViewStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="5dp"
-                        android:text="@string/expense_and_income"
-                        android:textAppearance="?attr/textAppearanceBodyMedium" />
+                        android:text="@string/balance" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/date_range_text"
+                        style="@style/MediumTitleTextViewStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="0dp"
+                        android:paddingBottom="5dp"
+                        android:text="@string/today" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/balance_text"
+                        style="@style/LargeTitleTextViewStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="0dp"
+                        android:paddingBottom="5dp"
+                        android:text="@string/balance" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/expense_income_text"
+                        style="@style/MediumBodyTextViewStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="0dp"
+                        android:paddingBottom="10dp"
+                        android:text="@string/expense_and_income" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -108,11 +110,10 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/MediumTitleTextViewStyle"
+                    style="@style/LargeTitleTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/expenditure_income_source"
-                    android:textAppearance="?attr/textAppearanceTitleLarge" />
+                    android:text="@string/expenditure_income_source" />
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/income_source_card"
