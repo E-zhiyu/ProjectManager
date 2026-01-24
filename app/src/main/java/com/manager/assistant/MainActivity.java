@@ -15,6 +15,7 @@ import com.manager.assistant.databinding.ActivityMainBinding;
 import com.manager.assistant.helpers.ThemeModeHelper;
 import com.manager.assistant.data.data_save.preference.AppSettingsPreference;
 import com.manager.assistant.helpers.UpdateHelper;
+import com.manager.assistant.ui.others.adapters.FragmentPagerAdapter;
 import com.manager.assistant.ui.pages.bookkeeping.BookKeepingFragment;
 import com.manager.assistant.ui.pages.home.HomeFragment;
 import com.manager.assistant.ui.pages.setting.SettingFragment;
