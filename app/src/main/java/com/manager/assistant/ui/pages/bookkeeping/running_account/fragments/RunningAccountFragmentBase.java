@@ -506,21 +506,19 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         pictureRecycler.setAdapter(pictureAdapter);
 
         //多线程刷新图片防止阻塞
-        disposables.add(
-                Observable.fromCallable(() -> {
-                            if (rno == 0) {
-                                return new ArrayList<Picture>();
-                            } else {
-                                return Picture.loadPicturesByRno(requireContext(), rno);
-                            }
-                        })
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(pictureList -> pictureAdapter.refreshPicture(pictureList),
-                                e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
-                                () -> contentView.findViewById(R.id.loading_indicator).setVisibility(View.GONE)
-                        )
-        );
+        if (rno != 0) {
+            disposables.add(
+                    Observable.fromCallable(() -> Picture.loadPicturesByRno(requireContext(), rno))
+                            .subscribeOn(Schedulers.newThread())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(pictureList -> pictureAdapter.refreshPicture(pictureList),
+                                    e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
+                                    () -> contentView.findViewById(R.id.loading_indicator).setVisibility(View.GONE)
+                            )
+            );
+        } else {
+            contentView.findViewById(R.id.loading_indicator).setVisibility(View.GONE);
+        }
     }
 
     /**
