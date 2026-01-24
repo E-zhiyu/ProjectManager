@@ -60,7 +60,7 @@
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/datetime_input"
-                style="@style/AutoCompleteTextViewStyle"
+                style="@style/UneditableAutoCompleteTextViewStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -76,7 +76,7 @@
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/running_account_tag_input"
-                style="@style/AutoCompleteTextViewStyle"
+                style="@style/UneditableAutoCompleteTextViewStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>

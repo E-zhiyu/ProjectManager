@@ -53,7 +53,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class BookKeepingFragment extends Fragment {
-    private AccountRecyclerAdapter accountAdapter;                  //流水列表适配器
+    private AccountRecyclerAdapter accountAdapter;                          //流水列表适配器
     private BookKeepingDbHelper dbHelper;                                   //流水数据库帮助器
     private ActivityResultLauncher<Intent> runningAccountAddLauncher, modifyRunningAccountLauncher;  //子活动启动器
     private int account_num;                                                //流水记录数量

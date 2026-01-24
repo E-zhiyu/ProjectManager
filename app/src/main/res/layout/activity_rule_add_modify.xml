@@ -56,7 +56,7 @@
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/type_input"
-                    style="@style/AutoCompleteTextViewStyle"
+                    style="@style/UneditableAutoCompleteTextViewStyle"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:hint="@string/running_account_type"
@@ -72,7 +72,7 @@
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/tag_name_input"
-                    style="@style/AutoCompleteTextViewStyle"
+                    style="@style/UneditableAutoCompleteTextViewStyle"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:hint="@string/tag_optional" />
@@ -88,7 +88,7 @@
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/package_name_input"
-                    style="@style/AutoCompleteTextViewStyle"
+                    style="@style/UneditableAutoCompleteTextViewStyle"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:hint="@string/package_name"

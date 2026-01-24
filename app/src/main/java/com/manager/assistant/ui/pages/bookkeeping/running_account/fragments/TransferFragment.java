@@ -2,17 +2,26 @@ package com.manager.assistant.ui.pages.bookkeeping.running_account.fragments;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.manager.assistant.R;
+import com.manager.assistant.data.data_class.running_account.TransferRunningAccount;
 import com.manager.assistant.enums.KeyValueStrings;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
 public class TransferFragment extends RunningAccountFragmentBase {
-    private TextInputLayout export_layout, import_layout;   //转出和转入账户的文本框布局管理器
-    private TextInputEditText export_input, import_input;   //转出和转入账户的文本框
+    private TextInputLayout export_layout, import_layout;               //转出和转入账户的文本框布局管理器
+    private MaterialAutoCompleteTextView export_input, import_input;    //转出和转入账户的文本框
 
     public TransferFragment() {
         super();
@@ -39,6 +48,15 @@ public class TransferFragment extends RunningAccountFragmentBase {
 
         export_input.setOnFocusChangeListener(this);
         import_input.setOnFocusChangeListener(this);
+
+        HashSet<String> importExportAccountNameSet = TransferRunningAccount.getAllExportOrImportAccounts(requireContext());
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
+                requireContext(),
+                R.layout.exposed_dropdown_popup_item,
+                new ArrayList<>(importExportAccountNameSet)
+        );
+        export_input.setAdapter(arrayAdapter);
+        import_input.setAdapter(arrayAdapter);
     }
 
     @Override
@@ -57,7 +75,13 @@ public class TransferFragment extends RunningAccountFragmentBase {
         if (!hasFocus) {
             String edittextStr, error;          //文本框内容和错误提示
             TextInputLayout errLayout;          //被验证的文本框对应的布局管理器
-            edittextStr = String.valueOf(((TextInputEditText) v).getText());   //获取待验证组件的文本内容
+            if (v instanceof MaterialAutoCompleteTextView) {
+                edittextStr = String.valueOf(((MaterialAutoCompleteTextView) v).getText());
+            } else if (v instanceof TextInputEditText) {
+                edittextStr = String.valueOf(((TextInputEditText) v).getText());
+            } else {
+                return;
+            }
 
             if (v.getId() == R.id.amount_input) {
                 error = "金额不能为空";
