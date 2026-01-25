@@ -292,7 +292,7 @@ public class HomeFragment extends Fragment {
                                         linkAdapter.refreshLink(linkList);
                                         binding.webLinkCard.setVisibility(View.VISIBLE);
                                         if (isToastNeed) {
-                                            Toast.makeText(requireContext(), "成功加载采购公告（可在设置中关闭）", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(requireContext(), "成功加载采购公告", Toast.LENGTH_SHORT).show();
                                         }
                                     } else {
                                         if (isToastNeed) {
