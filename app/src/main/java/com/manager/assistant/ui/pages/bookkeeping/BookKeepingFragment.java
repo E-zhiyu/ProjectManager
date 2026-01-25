@@ -32,8 +32,10 @@ import com.manager.assistant.data.data_save.database.BookKeepingColumns;
 import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
 import com.manager.assistant.data.data_save.database.BookKeepingTables;
 import com.manager.assistant.databinding.FragmentBookkeepingBinding;
+import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ColorHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
+import com.manager.assistant.ui.others.listeners.RecyclerScrollHideShowListener;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.RunningAccountModifyActivity;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.RunningAccountAddActivity;
 import com.manager.assistant.enums.RequestResultCode;
@@ -51,7 +53,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class BookKeepingFragment extends Fragment {
-    private AccountRecyclerAdapter accountAdapter;                  //流水列表适配器
+    private AccountRecyclerAdapter accountAdapter;                          //流水列表适配器
     private BookKeepingDbHelper dbHelper;                                   //流水数据库帮助器
     private ActivityResultLauncher<Intent> runningAccountAddLauncher, modifyRunningAccountLauncher;  //子活动启动器
     private int account_num;                                                //流水记录数量
@@ -142,7 +144,7 @@ public class BookKeepingFragment extends Fragment {
         if (tag_name.isEmpty() && tag_no != 0) {
             tag_no = 0;
             filter_tag_no = 0;
-            binding.filterText.setText("全部");
+            binding.filterLeadingBtn.setText("全部");
             Toast.makeText(requireContext(), "标签被删除，已自动清空过滤器", Toast.LENGTH_SHORT).show();
         }
 
@@ -276,16 +278,20 @@ public class BookKeepingFragment extends Fragment {
         );
     }
 
-    //初始化视图
+    /**
+     * 初始化视图
+     */
     private void initViews() {
         //绑定单击按钮监听器
-        binding.runningAccountAddBtn.setOnClickListener(v -> {
+        binding.addFloatingBtn.setOnClickListener(v -> {
             Intent skip2NewRunningAccount = new Intent(requireContext(), RunningAccountAddActivity.class);
             runningAccountAddLauncher.launch(skip2NewRunningAccount);
         });
+        AnimationHelper.attachMorphAnimation(binding.addFloatingBtn);
 
-        //绑定过滤器文本的点击监听器
-        binding.filterText.setOnClickListener(v -> {
+        //绑定过滤器按钮的点击监听器
+        binding.filterSelectBtn.setCheckable(false);
+        binding.filterSelectBtn.setOnClickListener(v -> {
             tagSelectBottomSheet = new TagSelectBottomSheet(
                     this::onTagBtnClicked,
                     null,
@@ -328,7 +334,20 @@ public class BookKeepingFragment extends Fragment {
     private void setupAccountAdapter() {
         //设置适配器
         accountAdapter = new AccountRecyclerAdapter(this::onRunningAccountViewClick, requireContext());
-        binding.runningAccountRecyclerView.setAdapter(accountAdapter);
+        binding.accountRecycler.setAdapter(accountAdapter);
+
+        //设置滚动监听器
+        binding.accountRecycler.addOnScrollListener(new RecyclerScrollHideShowListener() {
+            @Override
+            public void onHide() {
+                binding.addFloatingBtn.hide();
+            }
+
+            @Override
+            public void onShow() {
+                binding.addFloatingBtn.show();
+            }
+        });
 
         //加载流水记录
         binding.refreshLayout.setRefreshing(true);
@@ -358,7 +377,7 @@ public class BookKeepingFragment extends Fragment {
         long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
         if (tag_no == this.filter_tag_no || this.filter_tag_no == 0) {
             accountAdapter.addNewRunningAccountByNotification(dataBundle);
-            binding.runningAccountRecyclerView.scrollToPosition(0);
+            binding.accountRecycler.scrollToPosition(0);
             Toast.makeText(requireContext(), "成功添加一条流水记录（自动记账）", Toast.LENGTH_SHORT).show();
 
             account_num++;
@@ -380,7 +399,7 @@ public class BookKeepingFragment extends Fragment {
         }
 
         accountAdapter.addNewRunningAccount(dataBundle, filter_tag_no); //将新建的流水视图添加至列表视图适配器
-        binding.runningAccountRecyclerView.scrollToPosition(0);                 //滚动到顶部（因为添加的新记录在顶部）
+        binding.accountRecycler.scrollToPosition(0);                 //滚动到顶部（因为添加的新记录在顶部）
         Toast.makeText(requireContext(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
 
         //更新记录数量
@@ -442,15 +461,16 @@ public class BookKeepingFragment extends Fragment {
         filter_tag_no = tag_no;
 
         if (tag_no == 0) {
-            binding.filterText.setText("全部");
+            binding.filterLeadingBtn.setText("全部");
         } else {
-            binding.filterText.setText(tag_name);
+            binding.filterLeadingBtn.setText(tag_name);
         }
 
         if (tagSelectBottomSheet != null) {
             tagSelectBottomSheet.dismiss();
         }
 
+        binding.filterSelectBtn.setChecked(false);
         refreshUI();
     }
 
@@ -470,7 +490,10 @@ public class BookKeepingFragment extends Fragment {
                                     refreshAccountNumText();
                                 },  //成功回调
                                 e -> ExceptionHelper.showExceptionDialog(requireContext(), e),  //错误处理
-                                () -> binding.refreshLayout.setRefreshing(false)    //onComplete子句
+                                () -> {
+                                    binding.refreshLayout.setRefreshing(false);
+                                    binding.addFloatingBtn.show();
+                                }
                         )
         );
     }

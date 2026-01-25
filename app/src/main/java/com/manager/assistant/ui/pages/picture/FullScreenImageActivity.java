@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.manager.assistant.databinding.ActivityFullScreenImageBinding;
+import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.PictureHelper;
 import com.manager.assistant.enums.KeyValueStrings;
 
@@ -17,7 +18,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class FullScreenImageActivity extends AppCompatActivity {
-    ActivityFullScreenImageBinding binding;             //绑定的XML视图
+    private ActivityFullScreenImageBinding binding;             //绑定的XML视图
     private String[] pictureUriStrings;                 //图片Uri字符串数组
 
     @Override
@@ -37,6 +38,7 @@ public class FullScreenImageActivity extends AppCompatActivity {
         pictureUriStrings = getIntent().getStringArrayExtra(KeyValueStrings.FILE_URI.getValue());
 
         initViews();
+        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
     }
 
     private void initViews() {

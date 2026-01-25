@@ -65,7 +65,7 @@
     <string name="update_log">更新日志</string>
     <string name="tag_merge">合并标签</string>
     <string name="group_merge">合并分组</string>
-    <string name="tag_new_modify_tip">输入已存在的标签分组名称会将标签添加至对应分组，输入不存在的标签分组名称则会创建新分组并将标签添加至新创建的分组，留空则将标签添加至默认分组</string>
+    <string name="tag_new_modify_tip">您可以从分组下拉框选择一个现有分组，或者输入一个新分组名称添加一个新分组，若分组留空则将该标签添加至默认分组</string>
     <string name="running_account_every_month">每月流水总结</string>
     <string name="num_of_bookkeeping_days">记账天数</string>
     <string name="num_of_running_account">流水记录数量</string>
@@ -79,13 +79,13 @@
     <string name="notification_title">通知标题</string>
     <string name="running_account_type">流水类型</string>
     <string name="notification_content_regex">通知内容(正则)</string>
-    <string name="input_introduce">输入说明</string>
+    <string name="input_instruction">详细输入说明</string>
     <string name="search_app">搜索应用……</string>
     <string name="hide_background">后台隐藏</string>
     <string name="auto_start_permission">自启动权限</string>
     <string name="battery_optimization">电池优化</string>
     <string name="background_setting">后台设置</string>
-    <string name="analysis_rule_tip">为保证能够稳定在后台监听通知，请确保您已经完成以下操作：\n1.授予自启动权限(必须授予)\n2.将电池优化设置为“无限制”\n3.在最近任务中锁定本应用\n4.打开退出应用后隐藏最近任务的开关(可选，仅仅为了防止手滑杀掉后台)</string>
+    <string name="analysis_rule_tip">为保证能够稳定在后台监听通知，请确保您已经完成以下操作：\n1.授予自启动权限(必须授予)\n2.将电池优化设置为“无限制”\n3.在最近任务中锁定本应用\n4.打开退出应用后隐藏最近任务的开关</string>
     <string name="tag_optional">标签(可选)</string>
     <string name="btn_expands_list">展开列表选项的按钮</string>
     <string name="isSysAppIncluded">包含系统应用</string>
@@ -107,7 +107,7 @@
     <string name="add_picture">添加图片</string>
     <string name="click_to_take_picture">点击拍照</string>
     <string name="capture_toolbar_tip">您可以拍下任何有关的图片，\n以便日后快速了解该流水记录的详细内容</string>
-    <string name="container_of_account_picture">流水记录图片显示容器</string>
+    <string name="container_of_account_picture">流水记录图片</string>
     <string name="delete_picture">删除图片</string>
     <string name="save_picture_btn">保存图片按钮</string>
     <string name="share_picture_btn">分享图片按钮</string>
@@ -116,4 +116,20 @@
     <string name="progress_0">0/0 (0%)</string>
     <string name="progressing">正在处理……</string>
     <string name="purchase_bulletin">采购公告</string>
+    <string name="add_floating_btn_description">添加按钮</string>
+    <string name="show_rule_input_instruction">输入项说明按钮</string>
+    <string name="rule_name_help_text">该通知解析规则的名称</string>
+    <string name="rule_account_type_help">由该规则生成流水记录的种类</string>
+    <string name="rule_tag_help">由该规则生成流水记录附带的标签</string>
+    <string name="rule_package_name_help">发送通知应用的包名</string>
+    <string name="rule_notification_title_help">通知的标题</string>
+    <string name="rule_notification_content_help">正则表达式，用首个捕获组捕获金额信息</string>
+    <string name="account_amount_help">流水金额</string>
+    <string name="account_remark_help">简单描述该流水记录的备注</string>
+    <string name="account_datetime_help">产生该条记录的具体时间</string>
+    <string name="account_tag_help">标记该流水记录的标签</string>
+    <string name="account_export_help">您名下的转出账户名称</string>
+    <string name="account_import_help">您名下的转入账户名称</string>
+    <string name="tag_name_help">该标签的名称</string>
+    <string name="tag_group_name_help">该标签所属分组的名称</string>
 </resources>

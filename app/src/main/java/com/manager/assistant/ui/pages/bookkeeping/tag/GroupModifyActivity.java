@@ -17,6 +17,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.manager.assistant.R;
 import com.manager.assistant.databinding.ActivityGroupModifyBinding;
 import com.manager.assistant.enums.RequestResultCode;
+import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.data.data_class.TagGroup;
@@ -38,6 +39,7 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnFoc
         setContentView(binding.getRoot());
 
         initViews();
+        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
     }
 
     @Override
@@ -141,17 +143,18 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnFoc
                     group_layout.setError("分组名称不能为空");
                 } else {
                     group_layout.setError(null);
-                    group_layout.setErrorEnabled(false);
                 }
             }
         } else {
             if (v.getId() == R.id.tag_group_input) {
                 group_layout.setError(null);
-                group_layout.setErrorEnabled(false);
             }
         }
     }
 
+    /**
+     * 初始化视图
+     */
     private void initViews() {
         //设置标题栏的图标点击监听器
         MaterialToolbar toolbar = binding.toolbar;

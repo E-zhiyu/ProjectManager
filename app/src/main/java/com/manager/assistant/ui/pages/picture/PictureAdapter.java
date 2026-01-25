@@ -20,10 +20,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.card.MaterialCardView;
 import com.manager.assistant.enums.LogTags;
 import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.Picture;
 import com.manager.assistant.enums.KeyValueStrings;
+import com.manager.assistant.helpers.AnimationHelper;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -50,8 +52,8 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     }
 
     public static class PictureViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageView;                //图像容器视图
-        CheckedTextView checkedTextView;    //右上角复选框
+        ImageView imageView;                    //图像容器视图
+        CheckedTextView checkedTextView;        //右上角复选框
 
         public PictureViewHolder(@NonNull View view) {
             super(view);
@@ -77,15 +79,16 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     /**
      * 图片适配器构造方法
      *
-     * @param context     上下文
-     * @param pictureList 图片列表
+     * @param context  上下文
+     * @param listener 图片删除状态切换监听器
      */
-    public PictureAdapter(Context context, @NonNull List<Picture> pictureList, DeleteModeSwitchListener listener) {
+    public PictureAdapter(Context context, DeleteModeSwitchListener listener) {
         this.context = context;
-        this.pictureList = pictureList;
-        pictureSelectList = new ArrayList<>(Collections.nCopies(pictureList.size(), false));    //默认未选择
+        this.pictureList = new ArrayList<>();
+        this.pictureSelectList = new ArrayList<>();
         this.listener = listener;
 
+        //动态计算图片宽度
         int screen_width = getScreenWidth(context);
         int picture_size = screen_width * 5 / 18;               //图片宽高占屏幕宽度的5/18
         glideOptions = new RequestOptions()
@@ -181,6 +184,21 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     }
 
     /**
+     * 刷新图片
+     *
+     * @param pictureList 刷新后的图片列表
+     */
+    public void refreshPicture(List<Picture> pictureList) {
+        this.pictureList.clear();
+        this.pictureList.addAll(pictureList);
+        pictureSelectList.clear();
+        pictureSelectList.addAll(new ArrayList<>(Collections.nCopies(pictureList.size(), false)));    //默认未选择
+
+        //刷新UI
+        notifyItemRangeInserted(0, pictureList.size());
+    }
+
+    /**
      * 打开图片查看Activity
      *
      * @param position 点击的图片的下标
@@ -267,11 +285,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         this.pictureList.addAll(pictureList);
         pictureSelectList.addAll(new ArrayList<>(Collections.nCopies(pictureList.size(), false)));
 
-        if (step > 1) {
-            notifyItemRangeInserted(start, start + step - 1);
-        } else if (step == 1) {
-            notifyItemInserted(start);
-        }
+        notifyItemRangeInserted(start, start + step);
     }
 
     /**

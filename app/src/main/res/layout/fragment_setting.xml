@@ -3,7 +3,6 @@
     style="@style/CommonPageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".ui.pages.setting.SettingFragment">
 
     <LinearLayout
@@ -23,7 +22,7 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/LabelTextViewStyle"
+                    style="@style/LargeTitleTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/setting" />
@@ -58,7 +57,7 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/LabelTextViewStyle"
+                    style="@style/LargeTitleTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/data_manage" />
@@ -109,7 +108,7 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/LabelTextViewStyle"
+                    style="@style/LargeTitleTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/auto_bookkeeping" />
@@ -148,7 +147,7 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/LabelTextViewStyle"
+                    style="@style/LargeTitleTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/background_setting" />
@@ -179,7 +178,7 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/LabelTextViewStyle"
+                    style="@style/LargeTitleTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/about" />

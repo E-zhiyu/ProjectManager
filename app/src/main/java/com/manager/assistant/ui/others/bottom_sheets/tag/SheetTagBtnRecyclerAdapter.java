@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.data.data_class.Tag;
 
@@ -27,16 +28,17 @@ public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtn
     @NonNull
     @Override
     public BtnViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        MaterialButton tag_btn = new MaterialButton(context);
+        MaterialButton tagBtn = new MaterialButton(context);
 
         //设置按钮的属性
-        tag_btn.setLayoutParams(new ViewGroup.LayoutParams(
+        tagBtn.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
         ));
-        tag_btn.setPadding(16, 16, 16, 16);
+        tagBtn.setPadding(16, 16, 16, 16);
+        AnimationHelper.attachMorphAnimation(tagBtn);
 
-        return new BtnViewHolder(tag_btn);
+        return new BtnViewHolder(tagBtn);
     }
 
     @Override
@@ -45,9 +47,9 @@ public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtn
         String tag_name = oneTag.getName();
         long tag_no = oneTag.getTno();
 
-        holder.tag_btn.setText(tag_name);
+        holder.tagBtn.setText(tag_name);
 
-        holder.tag_btn.setOnClickListener(v -> {
+        holder.tagBtn.setOnClickListener(v -> {
             try {
                 tagBtnClickedListener.onTagBtnClicked(tag_no, tag_name);
             } catch (NullPointerException e) {
@@ -68,11 +70,11 @@ public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtn
     }
 
     public static class BtnViewHolder extends RecyclerView.ViewHolder {
-        MaterialButton tag_btn;     //标签按钮
+        MaterialButton tagBtn;     //标签按钮
 
-        public BtnViewHolder(@NonNull MaterialButton tag_btn) {
-            super(tag_btn);
-            this.tag_btn = tag_btn;
+        public BtnViewHolder(@NonNull MaterialButton tagBtn) {
+            super(tagBtn);
+            this.tagBtn = tagBtn;
         }
     }
 }

@@ -30,6 +30,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.manager.assistant.enums.DirectoryPaths;
 import com.manager.assistant.enums.LogTags;
 import com.manager.assistant.databinding.ActivityCameraBinding;
+import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.IconHelper;
 import com.manager.assistant.helpers.PermissionHelper;
@@ -86,6 +87,7 @@ public class CameraActivity extends AppCompatActivity {
         getWindow().setNavigationBarColor(ContextCompat.getColor(this, android.R.color.black));
 
         initViews();
+        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
 
         if (isAllPermissionGranted()) {
             startCamera();

@@ -13,10 +13,11 @@ import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.AccountSourceInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdapter.AccountProportionViewHolder> {
-    private final List<AccountSourceInfo> sourceCardList;  //来源卡片列表
+    private final List<AccountSourceInfo> sourceInfoList = new ArrayList<>();   //来源卡片列表
 
     public static class AccountProportionViewHolder extends RecyclerView.ViewHolder {
         MaterialTextView sourceNameText;        //标签名称文本
@@ -34,8 +35,8 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
         }
     }
 
-    public AccountSourceAdapter(List<AccountSourceInfo> sourceCardList) {
-        this.sourceCardList = sourceCardList;
+    public AccountSourceAdapter(List<AccountSourceInfo> sourceInfoList) {
+        this.sourceInfoList.addAll(sourceInfoList);
     }
 
     @NonNull
@@ -48,13 +49,13 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
 
     @Override
     public int getItemCount() {
-        return sourceCardList.size();
+        return sourceInfoList.size();
     }
 
     @Override
     @SuppressLint("DefaultLocale")
     public void onBindViewHolder(@NonNull AccountProportionViewHolder holder, int position) {
-        AccountSourceInfo oneSourceInfo = sourceCardList.get(position);
+        AccountSourceInfo oneSourceInfo = sourceInfoList.get(position);
         String source_name = oneSourceInfo.getSource_name();
         int percentage = oneSourceInfo.getPercentage();
         double amount = oneSourceInfo.getAmount();
@@ -64,5 +65,19 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
         String percentage_str = String.format("%d%%", percentage);
         holder.proportionText.setText(percentage_str);             //百分比文本
         holder.proportionBar.setProgress(percentage);              //百分比进度条
+    }
+
+    /**
+     * 刷新收支来源
+     *
+     * @param sourceInfoList 刷新后的收支来源数据
+     */
+    public void refreshSource(List<AccountSourceInfo> sourceInfoList) {
+        int old_item_count = getItemCount();
+        this.sourceInfoList.clear();
+        notifyItemRangeRemoved(0, old_item_count);
+
+        this.sourceInfoList.addAll(sourceInfoList);
+        notifyItemRangeInserted(0, sourceInfoList.size());
     }
 }

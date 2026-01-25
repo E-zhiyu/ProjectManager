@@ -16,7 +16,7 @@
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tag_group_name_view"
-                style="@style/LabelTextViewStyle"
+                style="@style/LargeTitleTextViewStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/selectableItemBackground"

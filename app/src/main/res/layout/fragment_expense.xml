@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -13,10 +14,13 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/amount_layout"
+            style="@style/CommonTextInputLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:counterEnabled="false"
             app:endIconDrawable="@drawable/baseline_clear_24"
-            app:endIconMode="clear_text">
+            app:endIconMode="clear_text"
+            app:helperText="@string/account_amount_help">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/amount_input"
@@ -29,11 +33,14 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/remark_layout"
+            style="@style/CommonTextInputLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/remark"
+            app:counterMaxLength="20"
             app:endIconDrawable="@drawable/baseline_clear_24"
-            app:endIconMode="clear_text">
+            app:endIconMode="clear_text"
+            app:helperText="@string/account_remark_help">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/remark_input"
@@ -44,27 +51,32 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/datetime_layout"
+            style="@style/CommonTextInputLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/date_time">
+            android:hint="@string/date_time"
+            app:counterEnabled="false"
+            app:helperText="@string/account_datetime_help">
 
-            <com.google.android.material.textfield.TextInputEditText
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/datetime_input"
-                style="@style/ClickableEditTextStyle"
+                style="@style/UneditableAutoCompleteTextViewStyle"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:focusable="false" />
+                android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/running_account_tag_layout"
+            style="@style/CommonTextInputLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/tag">
+            android:hint="@string/tag"
+            app:counterEnabled="false"
+            app:helperText="@string/account_tag_help">
 
-            <com.google.android.material.textfield.TextInputEditText
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/running_account_tag_input"
-                style="@style/ClickableEditTextStyle"
+                style="@style/UneditableAutoCompleteTextViewStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -99,6 +111,12 @@
                 app:icon="@drawable/baseline_delete_forever_24"
                 app:iconGravity="textStart" />
         </LinearLayout>
+
+        <com.google.android.material.loadingindicator.LoadingIndicator
+            android:id="@+id/loading_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/picture_recycler"

@@ -13,11 +13,12 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.manager.assistant.FragmentPagerAdapter;
+import com.manager.assistant.ui.others.adapters.FragmentPagerAdapter;
 import com.manager.assistant.data.data_class.Picture;
 import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
 import com.manager.assistant.databinding.ActivityRunningAccountAddBinding;
 import com.manager.assistant.enums.DirectoryPaths;
+import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.ExpenseFragment;
@@ -43,6 +44,7 @@ public class RunningAccountAddActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         initViews();
+        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
 
         //设置返回监听器
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -114,7 +116,7 @@ public class RunningAccountAddActivity extends AppCompatActivity {
                 currentFragment = (RunningAccountFragmentBase) (viewPagerAdapter.getFragment(position));
             }
         });
-        viewPager2.setOffscreenPageLimit(1);    //设置保留邻近Fragment
+        viewPager2.setOffscreenPageLimit(2);    //设置保留邻近Fragment数量
     }
 
     /**

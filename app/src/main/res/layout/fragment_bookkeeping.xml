@@ -11,50 +11,56 @@
         android:layout_height="wrap_content">
 
         <!-- 顶部按钮视图 -->
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/colorSurface"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             app:layout_scrollFlags="scroll|enterAlways|snap">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/running_account_add_btn"
-                style="@style/OutlinedBtnStyle"
-                android:layout_width="match_parent"
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/account_num_text"
+                style="@style/LargeTitleTextViewStyle"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="@string/running_account_add"
-                app:icon="@drawable/baseline_add_24"
-                app:iconGravity="textStart" />
+                android:layout_weight="1"
+                android:text="@string/num_of_shown"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <com.google.android.material.button.MaterialSplitButton
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/account_num_text"
-                    style="@style/SmallLabelTextViewStyle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/num_of_shown" />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/filter_text"
-                    style="@style/SmallLabelTextViewStyle"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/filter_leading_btn"
+                    style="?attr/materialSplitButtonLeadingFilledStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:drawableStart="@drawable/baseline_filter_alt_24"
-                    android:drawableEnd="@drawable/baseline_keyboard_arrow_right_24"
-                    android:focusable="true"
-                    android:text="@string/all" />
-            </LinearLayout>
-        </LinearLayout>
+                    android:text="@string/all"
+                    app:icon="@drawable/outline_filter_alt_24" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/filter_select_btn"
+                    style="?attr/materialSplitButtonIconFilledStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/baseline_unfold_more_24" />
+            </com.google.android.material.button.MaterialSplitButton>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add_floating_btn"
+        style="@style/AddFloatingActionBtnStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:contentDescription="@string/add_floating_btn_description" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/refresh_layout"
@@ -64,7 +70,7 @@
 
         <!-- 流水列表视图 -->
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/running_account_recycler_view"
+            android:id="@+id/account_recycler"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"

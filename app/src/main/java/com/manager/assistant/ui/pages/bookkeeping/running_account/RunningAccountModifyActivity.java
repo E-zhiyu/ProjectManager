@@ -18,6 +18,7 @@ import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
 import com.manager.assistant.databinding.ActivityRunningAccountModifyBinding;
 import com.manager.assistant.enums.DirectoryPaths;
 import com.manager.assistant.enums.RequestResultCode;
+import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.ExpenseFragment;
@@ -45,6 +46,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         initViews();
+        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
 
         //接收种类和下标参数
         Bundle dataBundle = getIntent().getExtras();
@@ -72,7 +74,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
 
             //将Fragment添加到布局
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.running_account_edit_fragment_container, runningAccountFragment);
+            transaction.add(R.id.fragment_container, runningAccountFragment);
             transaction.commit();
             runningAccountFragment.receiveInitData(dataBundle);   //将原本的数据传递给碎片实例
         }
@@ -137,6 +139,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
                 finish();
             }
         });
+
         binding.deleteBtn.setOnClickListener(v -> {
             Intent result2BookKeeping = new Intent();
             new MaterialAlertDialogBuilder(this)

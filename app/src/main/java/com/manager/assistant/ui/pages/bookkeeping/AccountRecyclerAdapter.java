@@ -16,6 +16,7 @@ import com.manager.assistant.data.data_class.running_account.IncomeRunningAccoun
 import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
 import com.manager.assistant.data.data_class.running_account.TransferRunningAccount;
 import com.manager.assistant.enums.LogTags;
+import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.xwray.groupie.GroupAdapter;
@@ -84,6 +85,7 @@ public class AccountRecyclerAdapter extends GroupAdapter<GroupieViewHolder> {
             typeDatetimeText.setText(type_datetime);
 
             groupieViewHolder.itemView.setOnClickListener(v -> listener.onRunningAccountClick(runningAccount));
+            AnimationHelper.attachMorphAnimation(groupieViewHolder.itemView);
         }
 
         @Override

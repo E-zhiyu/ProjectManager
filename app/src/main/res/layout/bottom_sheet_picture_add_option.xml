@@ -7,7 +7,7 @@
     android:paddingBottom="20dp">
 
     <com.google.android.material.textview.MaterialTextView
-        style="@style/LabelTextViewStyle"
+        style="@style/MediumTitleTextViewStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

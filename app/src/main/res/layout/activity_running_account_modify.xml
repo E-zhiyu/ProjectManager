@@ -17,12 +17,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="@drawable/baseline_arrow_back_ios_new_24"
-        app:title="流水编辑">
-
-    </com.google.android.material.appbar.MaterialToolbar>
+        app:title="流水编辑" />
 
     <FrameLayout
-        android:id="@+id/running_account_edit_fragment_container"
+        android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/btn_card_view"

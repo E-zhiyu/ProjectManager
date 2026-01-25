@@ -15,12 +15,13 @@ import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.MonthAccountInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapter.MonthAccountViewHolder> {
-    private final List<MonthAccountInfo> monthAccountInfoList;  //每月流水数据列表
-    private ReportActivity.MonthAccountInfoType monthAccountInfoType;          //显示的每月流水数据的种类
-    private final Context context;                              //上下文
+    private final List<MonthAccountInfo> monthAccountInfoList = new ArrayList<>();  //每月流水数据列表
+    private ReportActivity.MonthAccountInfoType monthAccountInfoType;               //显示的每月流水数据的种类
+    private final Context context;                                                  //上下文
 
     public static class MonthAccountViewHolder extends RecyclerView.ViewHolder {
         MaterialTextView monthNameText;         //月份文本
@@ -38,8 +39,13 @@ public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapte
         }
     }
 
-    public MonthAccountAdapter(List<MonthAccountInfo> monthAccountInfoList, ReportActivity.MonthAccountInfoType monthAccountInfoType, Context context) {
-        this.monthAccountInfoList = monthAccountInfoList;
+    /**
+     * 每月流水信息显示适配器
+     *
+     * @param monthAccountInfoType 显示的流水信息种类
+     * @param context              上下文
+     */
+    public MonthAccountAdapter(ReportActivity.MonthAccountInfoType monthAccountInfoType, Context context) {
         this.monthAccountInfoType = monthAccountInfoType;
         this.context = context;
     }
@@ -88,18 +94,19 @@ public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapte
     }
 
     /**
-     * 每月流水信息类型改变时刷新视图
+     * 刷新每月流水记录
      *
-     * @param type 新类型
+     * @param monthAccountInfoList 刷新后的流水数据列表
+     * @param type                 刷新后的流水显示类型
      */
-    @SuppressLint("NotifyDataSetChanged")
-    public void onMonthAccountInfoTypeChanged(ReportActivity.MonthAccountInfoType type) {
+    public void refreshMonthAccountInfo(List<MonthAccountInfo> monthAccountInfoList, ReportActivity.MonthAccountInfoType type) {
         this.monthAccountInfoType = type;
-        notifyDataSetChanged();
-    }
 
-    @SuppressLint("NotifyDataSetChanged")
-    public void onYearChanged() {
-        notifyDataSetChanged();
+        int old_item_count = getItemCount();
+        this.monthAccountInfoList.clear();
+        notifyItemRangeRemoved(0, old_item_count);
+
+        this.monthAccountInfoList.addAll(monthAccountInfoList);
+        notifyItemRangeInserted(0, monthAccountInfoList.size());
     }
 }

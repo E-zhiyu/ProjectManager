@@ -77,7 +77,7 @@ public class SettingFragment extends Fragment {
     private FragmentSettingBinding binding;                                         //绑定的XML视图
     private ActivityResultLauncher<Intent> importDataLauncher, exportDataLauncher;  //活动启动器
     private ActivityResultLauncher<Intent> backupDirectorySetLauncher;              //自动备份文件夹选择的启动器
-    private DataIOHelper dataIOHelper;                                                      //SAF文件帮助器
+    private DataIOHelper dataIOHelper;                                              //SAF文件帮助器
     private AutoBackupHelper autoBackupHelper;                                      //自动备份帮助器
     private BroadcastReceiver notificationPermissionListener;                       //通知监听服务正常运行的广播接收器
     private final CompositeDisposable disposables = new CompositeDisposable();      //多线程任务列表

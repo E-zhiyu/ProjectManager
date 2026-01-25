@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/InfoCardStyle"
+    android:id="@+id/root_layout"
+    style="@style/ContentCardStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginLeft="10dp"
     android:layout_marginTop="5dp"
     android:layout_marginRight="10dp"
+    android:layout_marginBottom="0dp"
     android:background="?selectableItemBackground"
     android:clickable="true"
     android:focusable="true">
@@ -24,12 +26,14 @@
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/rule_name_text"
+                style="@style/LargeBodyTextViewStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/rule_name" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/type_text"
+                style="@style/MediumBodyTextViewStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/running_account_type" />
@@ -37,6 +41,7 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tag_name_text"
+            style="@style/MediumBodyTextViewStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"

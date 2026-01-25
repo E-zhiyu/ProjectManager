@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingBottom="20dp"
-    android:paddingTop="10dp">
+    android:paddingTop="10dp"
+    android:paddingBottom="20dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -14,7 +14,7 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tag_select_title"
-            style="@style/TitleStyle"
+            style="@style/LargeTitleTextViewStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/select_tag"
@@ -24,7 +24,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/edit_tag_btn"
-            style="@style/TransparentBtnStyle"
+            style="@style/TextBtnStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/manage_tag"
@@ -35,7 +35,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/clear_input_btn"
-            style="@style/TransparentBtnStyle"
+            style="@style/TextBtnStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/clear_input"
@@ -45,10 +45,11 @@
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/refresh_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+    <com.google.android.material.loadingindicator.LoadingIndicator
+        android:id="@+id/loading_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/tag_group_recycler"

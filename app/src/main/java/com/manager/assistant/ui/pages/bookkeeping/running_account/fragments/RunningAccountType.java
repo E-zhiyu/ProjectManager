@@ -1,15 +1,15 @@
 package com.manager.assistant.ui.pages.bookkeeping.running_account.fragments;
 
 public enum RunningAccountType {
-    EXPENSE("支出", true),
-    INCOME("收入", false),
-    TRANSFER("转账", true);
-    final String title;
-    final boolean isExpenseType;
+    EXPENSE("支出", -1),
+    INCOME("收入", 1),
+    TRANSFER("转账", 0);
+    private final String title; //名称
+    private final int flag;     //是否为收入/支出种类的标识符
 
-    RunningAccountType(String title, boolean isExpenseType) {
+    RunningAccountType(String title, int flag) {
         this.title = title;
-        this.isExpenseType = isExpenseType;
+        this.flag = flag;
     }
 
     public String getTitle() {
@@ -17,6 +17,10 @@ public enum RunningAccountType {
     }
 
     public boolean isExpenseType() {
-        return isExpenseType;
+        return flag == -1;
+    }
+
+    public boolean isIncomeType() {
+        return flag == 1;
     }
 }

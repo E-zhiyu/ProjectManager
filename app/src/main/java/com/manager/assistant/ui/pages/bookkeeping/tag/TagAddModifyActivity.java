@@ -4,6 +4,7 @@ import android.content.Intent;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,6 +20,8 @@ import com.manager.assistant.enums.RequestResultCode;
 import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.enums.TagString;
 import com.manager.assistant.data.data_class.Tag;
+import com.manager.assistant.helpers.AnimationHelper;
+import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
 import com.manager.assistant.ui.data_communication.tag_modify.TagUpdateReason;
 import com.manager.assistant.ui.data_communication.tag_modify.TagRepository;
@@ -26,10 +29,7 @@ import com.manager.assistant.ui.data_communication.tag_modify.TagRepository;
 import java.util.ArrayList;
 
 public class TagAddModifyActivity extends AppCompatActivity implements View.OnFocusChangeListener, View.OnClickListener {
-    private TextInputLayout tag_name_layout, tag_group_layout;  //标签名称和标签分组输入框布局管理器
-    private TextInputEditText tag_name_input, tag_group_input;  //标签名称和标签分组输入框
     private boolean isModifyMode = false;                       //是否为标签编辑模式
-    private int selected_group_index = -1;                      //选择的分组的索引
     private long tag_no = 0, group_no = 0;                      //标签和标签分组编号
     private TagSelectBottomSheet tag_sheet;                     //标签选择底部弹窗
     private ActivityTagAddModifyBinding binding;                //绑定的XML视图的引用
@@ -41,12 +41,8 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
         binding = ActivityTagAddModifyBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        tag_name_input = binding.tagNameInput;
-        tag_group_input = binding.tagGroupInput;
-        tag_name_layout = binding.tagNameLayout;
-        tag_group_layout = binding.tagGroupLayout;
-
         initViews();
+        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
         receiveInitData();
     }
 
@@ -60,23 +56,20 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
     public void onFocusChange(View v, boolean hasFocus) {
         if (!hasFocus) {
             if (v.getId() == R.id.tag_name_input) {
-                String tag_name = String.valueOf(tag_name_input.getText());
+                String tag_name = String.valueOf(binding.tagNameInput.getText());
 
                 if (tag_name.isEmpty()) {
-                    tag_name_layout.setErrorEnabled(true);
-                    tag_name_layout.setError("标签名不能为空");
+                    binding.tagNameLayout.setErrorEnabled(true);
+                    binding.tagNameLayout.setError("标签名不能为空");
                 } else {
-                    tag_name_layout.setError(null);
-                    tag_name_layout.setErrorEnabled(false);
+                    binding.tagNameLayout.setError(null);
                 }
             }
         } else {
             if (v.getId() == R.id.tag_group_input) {
-                tag_group_layout.setError(null);
-                tag_group_layout.setErrorEnabled(false);
+                binding.tagGroupLayout.setError(null);
             } else if (v.getId() == R.id.tag_name_input) {
-                tag_name_layout.setError(null);
-                tag_name_layout.setErrorEnabled(false);
+                binding.tagNameLayout.setError(null);
             }
         }
     }
@@ -95,9 +88,9 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
             if (error != null) {
                 Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
             } else {
-                String tag_name = String.valueOf(tag_name_input.getText());
+                String tag_name = String.valueOf(binding.tagNameInput.getText());
                 dataBundle.putString(KeyValueStrings.TAG_NAME.getValue(), tag_name);         //标签名
-                String group_name = String.valueOf(tag_group_input.getText());
+                String group_name = String.valueOf(binding.tagGroupInput.getText());
                 dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), group_name); //分组名称
 
                 if (isModifyMode) {
@@ -128,15 +121,29 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
         }
     }
 
-    //初始化视图
+    /**
+     * 初始化视图
+     */
     private void initViews() {
         //设置标题栏的图标点击监听器
         MaterialToolbar toolbar = binding.toolbar;
         toolbar.setNavigationOnClickListener(v -> finish());
 
-        tag_group_layout.setEndIconOnClickListener((v -> onGroupLayoutEndIconClicked()));
+        ArrayList<String> groupNameList = getIntent().getStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue());
+        if (groupNameList != null) {
+            NoFilteringArrayAdapter<String> adapter = new NoFilteringArrayAdapter<>(
+                    this,
+                    groupNameList
+            );
+            binding.tagGroupInput.setAdapter(adapter);
 
-        tag_name_input.setOnFocusChangeListener(this);
+            binding.tagGroupInput.setOnItemClickListener((parent, view, position, id) -> {
+                String groupName = groupNameList.get(position);
+                binding.tagGroupInput.setText(groupName);
+            });
+        }
+
+        binding.tagNameInput.setOnFocusChangeListener(this);
 
         binding.deleteBtn.setOnClickListener(this);
         binding.finishBtn.setOnClickListener(this);
@@ -154,7 +161,9 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
         );
     }
 
-    //接收初始化数据
+    /**
+     * 编辑模式下接收初始化数据
+     */
     private void receiveInitData() {
         //加载传入的数据
         Bundle tagData = getIntent().getExtras();
@@ -172,25 +181,8 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
             String tag_name = tagData.getString(KeyValueStrings.TAG_NAME.getValue());           //该标签名称
             String group_name = tagData.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());   //所属分组名称
 
-            tag_name_input.setText(tag_name);
-            tag_group_input.setText(group_name);
-
-            //判断是否正确获取分组名称
-            if (group_name == null) {
-                Toast.makeText(this, "无法初始化分组名列表选中的下标：无效的分组名称", Toast.LENGTH_SHORT).show();
-            } else {
-                //初始化分组名列表选择下标
-                ArrayList<String> tagGroupArrayList = getIntent().getStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue());
-                String[] group_names;   //标签分组名称数组
-                if (tagGroupArrayList != null) {
-                    group_names = tagGroupArrayList.toArray(new String[0]);
-
-                    for (selected_group_index = 0; selected_group_index < group_names.length; selected_group_index++) {
-                        if (group_name.equals(group_names[selected_group_index]))
-                            break;
-                    }
-                }
-            }
+            binding.tagNameInput.setText(tag_name);
+            binding.tagGroupInput.setText(group_name);
         }
     }
 
@@ -215,7 +207,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
 
     //输入内容合法性校验
     private String inputInfoVerify() {
-        String tag_name = String.valueOf(tag_name_input.getText());
+        String tag_name = String.valueOf(binding.tagNameInput.getText());
 
         String error = null;
         if (tag_name.isEmpty()) {
@@ -226,35 +218,10 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
 
         //判断是否需要显示错误提示
         if (error != null) {
-            tag_name_layout.setErrorEnabled(true);
-            tag_name_layout.setError(error);
+            binding.tagNameLayout.setErrorEnabled(true);
+            binding.tagNameLayout.setError(error);
         }
 
         return error;
-    }
-
-    //标签分组右侧按钮点击回调
-    private void onGroupLayoutEndIconClicked() {
-        ArrayList<String> tagGroupArrayList = getIntent().getStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue());
-        if (tagGroupArrayList != null && !tagGroupArrayList.isEmpty()) {
-            String[] group_names = tagGroupArrayList.toArray(new String[0]);
-
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle("选择标签分组")
-                    .setSingleChoiceItems(group_names, selected_group_index, (dialog, witch) -> {
-                        String group_name = group_names[witch];
-                        tag_group_input.setText(group_name);
-                        selected_group_index = witch;
-                        dialog.dismiss();
-                    })
-                    .setNegativeButton("关闭", (dialog, id) -> dialog.dismiss())
-                    .show();
-        } else {
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle("提示")
-                    .setMessage("您还未创建任何标签分组")
-                    .setPositiveButton("确认", ((dialog, id) -> dialog.dismiss()))
-                    .show();
-        }
     }
 }

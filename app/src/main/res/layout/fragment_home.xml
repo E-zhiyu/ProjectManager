@@ -23,7 +23,7 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/LabelTextViewStyle"
+                    style="@style/LargeTitleTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -32,7 +32,7 @@
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/bookkeeping_days_text"
-                    style="@style/LabelTextViewStyle"
+                    style="@style/MediumTitleTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -54,26 +54,29 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/ReportInfoTextViewStyle"
+                    style="@style/LargeTitleTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingTop="10dp"
-                    android:text="@string/today_balance"
-                    android:textSize="20sp" />
+                    android:paddingBottom="5dp"
+                    android:text="@string/today_balance" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/balance_text"
-                    style="@style/ReportInfoTextViewStyle"
+                    style="@style/LargeTitleTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/balance"
-                    android:textSize="25sp" />
+                    android:paddingTop="0dp"
+                    android:paddingBottom="5dp"
+                    android:text="@string/balance" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/expense_income_text"
-                    style="@style/ReportInfoTextViewStyle"
+                    style="@style/MediumBodyTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="0dp"
                     android:paddingBottom="10dp"
                     android:text="@string/expense_and_income" />
             </LinearLayout>
@@ -90,6 +93,12 @@
             app:iconGravity="textStart" />
 
         <!-- 超链接布局 -->
+        <com.google.android.material.loadingindicator.LoadingIndicator
+            android:id="@+id/link_loading_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" />
+
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/web_link_card"
             style="@style/ContentCardStyle"
@@ -103,7 +112,7 @@
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/web_link_title_text"
-                    style="@style/LabelTextViewStyle"
+                    style="@style/LargeTitleTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/purchase_bulletin"

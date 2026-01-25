@@ -5,12 +5,7 @@
         <item name="android:backgroundTint">?attr/colorSurface</item>
         <item name="navigationIconTint">?attr/colorPrimary</item>
         <item name="contentInsetStart">10dp</item>
-        <item name="titleTextAppearance">@style/TitleStyle</item>
-    </style>
-
-    <!-- 标题文本样式 -->
-    <style name="TitleStyle">
-        <item name="android:textSize">23sp</item>
+        <item name="titleTextAppearance">?attr/textAppearanceHeadlineSmall</item>
     </style>
 
     <!-- 普通页面样式 -->
@@ -19,19 +14,40 @@
         <item name="android:background">?attr/colorSurface</item>
     </style>
 
-    <!-- 报表内容文本视图样式 -->
-    <style name="ReportInfoTextViewStyle">
-        <item name="android:paddingTop">5dp</item>
-        <item name="android:paddingStart">15dp</item>
-    </style>
-
-    <!-- 标签文本视图样式 -->
-    <style name="LabelTextViewStyle">
+    <!-- 文本样式基类 -->
+    <style name="TextViewStyleBase">
         <item name="android:paddingStart">10dp</item>
         <item name="android:paddingEnd">10dp</item>
         <item name="android:paddingTop">10dp</item>
         <item name="android:paddingBottom">10dp</item>
-        <item name="android:textSize">20sp</item>
+    </style>
+
+    <!-- 中等标题文本视图样式 -->
+    <style name="MediumTitleTextViewStyle" parent="TextViewStyleBase">
+        <item name="android:textAppearance">?attr/textAppearanceTitleMedium</item>
+    </style>
+
+    <!-- 大标题文本视图样式 -->
+    <style name="LargeTitleTextViewStyle" parent="TextViewStyleBase">
+        <item name="android:textAppearance">?attr/textAppearanceTitleLarge</item>
+    </style>
+
+    <!-- 大字号内容文本视图样式 -->
+    <style name="LargeBodyTextViewStyle" parent="TextViewStyleBase">
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+    </style>
+
+    <!-- 中等字号内容文本视图样式 -->
+    <style name="MediumBodyTextViewStyle" parent="TextViewStyleBase">
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
     </style>
 
     <!-- 可点击的文本框样式 -->
@@ -47,31 +63,18 @@
     </style>
 
     <!-- 缩小版标签文本样式 -->
-    <style name="SmallLabelTextViewStyle">
-        <item name="android:paddingStart">10dp</item>
-        <item name="android:paddingEnd">10dp</item>
-        <item name="android:paddingTop">10dp</item>
-        <item name="android:paddingBottom">10dp</item>
-        <item name="android:textSize">17sp</item>
+    <style name="SmallTitleTextViewStyle" parent="TextViewStyleBase">
+        <item name="android:textAppearance">?attr/textAppearanceTitleSmall</item>
     </style>
 
     <!-- 提示文本视图样式 -->
     <style name="TipTextViewStyle">
         <item name="android:paddingTop">10dp</item>
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
         <item name="android:drawablePadding">10dp</item>
         <item name="android:drawableStart">@drawable/baseline_error_outline_24</item>
         <item name="drawableTint">?attr/colorOnSurfaceVariant</item>
-    </style>
-
-    <!-- 下拉框文本视图样式 -->
-    <style name="SpinnerTextViewStyle">
-        <item name="android:textSize">17sp</item>
-        <item name="android:padding">10dp</item>
-        <item name="android:clickable">true</item>
-        <item name="android:background">?attr/selectableItemBackground</item>
-        <item name="android:focusable">true</item>
-        <item name="android:drawableEnd">@drawable/baseline_unfold_more_24</item>
     </style>
 
     <!-- 圆角卡片容器器样式 -->
@@ -120,29 +123,17 @@
         <item name="android:padding">10dp</item>
     </style>
 
-    <!-- 信息展示卡片样式 -->
-    <style name="InfoCardStyle">
-        <item name="cardBackgroundColor">@color/card_background_color</item>
-        <item name="strokeColor">@android:color/transparent</item>
-    </style>
-
     <!-- 按钮样式 -->
     <style name="CommonBtnStyle" parent="Widget.Material3.Button">
-        <item name="backgroundTint">?attr/colorPrimary</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
-        <item name="android:textSize">15sp</item>
-        <item name="cornerRadius">20dp</item>
         <item name="layout_goneMarginStart">5dp</item>
         <item name="layout_goneMarginEnd">5dp</item>
         <item name="layout_goneMarginTop">5dp</item>
         <item name="layout_goneMarginBottom">5dp</item>
-        <item name="android:padding">10dp</item>
     </style>
 
     <!-- 透明背景按钮样式 -->
-    <style name="TransparentBtnStyle" parent="Widget.Material3.Button">
-        <item name="backgroundTint">@android:color/transparent</item>
-        <item name="rippleColor">?attr/colorControlHighlight</item>
+    <style name="TextBtnStyle" parent="Widget.Material3.Button.TextButton">
         <item name="android:textColor">?attr/colorPrimary</item>
         <item name="iconPadding">2dp</item>
     </style>
@@ -163,11 +154,10 @@
         <item name="android:background">@drawable/ripple_circle</item>
     </style>
 
-    <!-- 灰色半透明背景图标按钮样式 -->
-    <style name="TranslucentGrayImageButtonStyle" parent="Widget.AppCompat.ImageButton">
-        <item name="tint">@android:color/white</item>
-        <item name="android:padding">5dp</item>
-        <item name="android:background">@drawable/background_translucent_round</item>
+    <style name="AddFloatingActionBtnStyle" parent="ThemeOverlay.Material3.FloatingActionButton.Primary">
+        <item name="android:src">@drawable/baseline_add_24</item>
+        <item name="android:layout_marginEnd">20dp</item>
+        <item name="android:layout_marginBottom">20dp</item>
     </style>
 
     <style name="ImageViewStyle">
@@ -181,19 +171,38 @@
         <item name="buttonTint">?attr/colorPrimary</item>
     </style>
 
+    <!-- 普通文本框布局样式 -->
+    <style name="CommonTextInputLayoutStyle" parent="Widget.Material3.TextInputLayout.OutlinedBox.Dense">
+        <item name="errorEnabled">true</item>
+        <item name="counterEnabled">true</item>
+        <item name="helperTextEnabled">true</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+    </style>
+
+    <style name="DropdownMenuTextInputLayoutStyle" parent="Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu">
+        <item name="errorEnabled">true</item>
+        <item name="helperTextEnabled">true</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+    </style>
+
     <!-- 需要用户输入文本的文本框样式 -->
-    <style name="UserInputEditTextStyle" parent="Widget.Material3.TextInputEditText.OutlinedBox">
+    <style name="UserInputEditTextStyle" parent="Widget.Material3.TextInputEditText.OutlinedBox.Dense">
         <item name="android:inputType">text</item>
         <item name="android:textColorHighlight">?attr/colorSurfaceVariant</item>
         <item name="android:maxLength">20</item>
     </style>
 
-    <!-- 需要点击的文本框样式 -->
-    <style name="ClickableEditTextStyle" parent="Widget.Material3.TextInputEditText.OutlinedBox">
-        <item name="android:inputType">text</item>
-        <item name="android:focusable">false</item>
-        <item name="android:clickable">true</item>
+    <!-- 自动填充文本框样式 -->
+    <style name="UneditableAutoCompleteTextViewStyle" parent="Widget.Material3.AutoCompleteTextView.OutlinedBox.Dense">
+        <item name="android:inputType">none</item>
         <item name="android:textColorHighlight">?attr/colorControlHighlight</item>
+    </style>
+
+    <!-- 可编辑的自动填充文本框样式 -->
+    <style name="EditableAutoCompleteTextViewStyle" parent="UneditableAutoCompleteTextViewStyle">
+        <item name="android:inputType">text</item>
     </style>
 
     <!-- AppBarLayout样式 -->

@@ -15,6 +15,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
 import com.manager.assistant.data.data_save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.databinding.ActivityAnalysisRuleManageBinding;
+import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ColorHelper;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.enums.RequestResultCode;
@@ -22,6 +23,7 @@ import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.data.data_class.AnalysisRule;
 import com.manager.assistant.ui.data_communication.tag_modify.TagRepository;
+import com.manager.assistant.ui.others.listeners.RecyclerScrollHideShowListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +33,7 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class AnalysisRuleManageActivity extends AppCompatActivity implements View.OnClickListener {
+public class AnalysisRuleManageActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> ruleAddLauncher;     //添加规则界面的启动器
     private ActivityResultLauncher<Intent> ruleModifyLauncher;  //修改规则的启动器
     private AnalysisRuleAdapter ruleAdapter;                   //规则列表适配器
@@ -46,6 +48,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
         setContentView(binding.getRoot());
 
         initViews();
+        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
         initLaunchers();
 
         //第一次打开提示授予自启动权限
@@ -80,20 +83,16 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
         disposables.dispose();
     }
 
-    @Override
-    public void onClick(@NonNull View v) {
-        if (v.getId() == R.id.rule_add_btn) {
-            Intent skip2RuleAdd = new Intent(this, RuleAddModifyActivity.class);
-            skip2RuleAdd.putExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), false);
-            ruleAddLauncher.launch(skip2RuleAdd);
-        }
-    }
-
     private void initViews() {
         //设置标题栏的图标点击监听器
         binding.toolbar.setNavigationOnClickListener(v -> finish());
 
-        binding.ruleAddBtn.setOnClickListener(this);
+        //添加规则按钮
+        binding.addFloatingBtn.setOnClickListener(v -> {
+            Intent skip2RuleAdd = new Intent(this, RuleAddModifyActivity.class);
+            skip2RuleAdd.putExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), false);
+            ruleAddLauncher.launch(skip2RuleAdd);
+        });
 
         //获取颜色资源并设置下拉刷新布局的颜色
         int colorPrimary = ColorHelper.getPrimaryColor(this);
@@ -114,6 +113,19 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
         ruleAdapter = new AnalysisRuleAdapter(ruleList, this::onRuleClicked, this);
         binding.refreshLayout.setRefreshing(false);
         binding.ruleRecycler.setAdapter(ruleAdapter);
+
+        //设置规则列表滚动监听器
+        binding.ruleRecycler.addOnScrollListener(new RecyclerScrollHideShowListener() {
+            @Override
+            public void onHide() {
+                binding.addFloatingBtn.hide();
+            }
+
+            @Override
+            public void onShow() {
+                binding.addFloatingBtn.show();
+            }
+        });
 
         //设置下拉刷新布局的刷新监听器
         binding.refreshLayout.setOnRefreshListener(this::refreshUI);
@@ -216,7 +228,10 @@ public class AnalysisRuleManageActivity extends AppCompatActivity implements Vie
                         .subscribe(
                                 ruleList -> ruleAdapter.onListRefreshed(ruleList),
                                 e -> ExceptionHelper.showExceptionDialog(this, e),
-                                () -> binding.refreshLayout.setRefreshing(false)
+                                () -> {
+                                    binding.refreshLayout.setRefreshing(false);
+                                    binding.addFloatingBtn.show();
+                                }
                         )
         );
     }
