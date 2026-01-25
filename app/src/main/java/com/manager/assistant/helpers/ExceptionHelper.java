@@ -20,6 +20,7 @@ public class ExceptionHelper {
                     Toast.makeText(context, "已将错误信息复制到剪贴板", Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
                 })
+                .setCancelable(false)   //无法点击空白区域取消
                 .setNegativeButton("关闭", (dialog, which) -> dialog.dismiss())
                 .show();
     }
@@ -31,13 +32,13 @@ public class ExceptionHelper {
      * @param text    要复制的文本
      */
     private static void copyToClipboard(@NonNull Context context, String text) {
-        // 获取系统剪贴板服务
+        //获取系统剪贴板服务
         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
 
-        // 创建 ClipData 对象
-        ClipData clip = ClipData.newPlainText("Copied Text", text);
+        //创建 ClipData 对象
+        ClipData clip = ClipData.newPlainText("经理助手错误信息", text);
 
-        // 设置剪贴板内容
+        //设置剪贴板内容
         if (clipboard != null) {
             clipboard.setPrimaryClip(clip);
         }
