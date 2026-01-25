@@ -130,6 +130,7 @@
         <item name="layout_goneMarginEnd">5dp</item>
         <item name="layout_goneMarginTop">5dp</item>
         <item name="layout_goneMarginBottom">5dp</item>
+        <item name="iconTintMode">add</item>
     </style>
 
     <!-- 透明背景按钮样式 -->
