@@ -60,21 +60,21 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
     public static class TagEditViewHolder extends RecyclerView.ViewHolder {
         MaterialTextView group_name_text;       //分组名称文本视图
         ImageButton expand_fold_view;           //控制卡片展开和折叠的按钮
-        LinearLayout sub_view_layout;           //子组件的线性布局管理器
+        LinearLayout subViewLayout;           //子组件的线性布局管理器
 
         public TagEditViewHolder(@NonNull View itemView) {
             super(itemView);
             group_name_text = itemView.findViewById(R.id.tag_group_name_view);
-            sub_view_layout = itemView.findViewById(R.id.sub_view_layout);
+            subViewLayout = itemView.findViewById(R.id.sub_view_layout);
             expand_fold_view = itemView.findViewById(R.id.expand_fold_btn);
 
             //设置展开和折叠视图的点击方法
             expand_fold_view.setOnClickListener(v -> {
                 //旋转分组名称文本右侧的图标
-                AnimationHelper.rotateIcon(expand_fold_view, sub_view_layout.getVisibility() == View.VISIBLE);
+                AnimationHelper.rotateIcon(expand_fold_view, subViewLayout.getVisibility() == View.VISIBLE);
 
                 //切换子组件布局的可见性
-                AnimationHelper.switchViewFoldOrExpanded(sub_view_layout.getVisibility() != View.VISIBLE, sub_view_layout);
+                AnimationHelper.switchViewFoldOrExpanded(subViewLayout.getVisibility() != View.VISIBLE, subViewLayout);
             });
         }
     }
@@ -107,7 +107,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
         );
 
         //添加标签文本视图
-        holder.sub_view_layout.removeAllViews();    //先删除旧视图
+        holder.subViewLayout.removeAllViews();    //先删除旧视图
         for (Tag oneTag : currentGroup.getTags()) {
             String tag_name = oneTag.getName();
             long tag_no = oneTag.getTno();
@@ -119,7 +119,6 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
                     ViewGroup.LayoutParams.WRAP_CONTENT
             ));
             tagTextView.setPadding(50, 20, 25, 20);
-            tagTextView.setTextAppearance(R.style.CommonTextAppearance);
 
             //添加点击的波纹效果
             try (TypedArray typedArray = context.obtainStyledAttributes(
@@ -142,7 +141,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             );
 
             tagTextView.setText(tag_name);
-            holder.sub_view_layout.addView(tagTextView);
+            holder.subViewLayout.addView(tagTextView);
         }
     }
 

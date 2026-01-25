@@ -238,9 +238,4 @@
         <item name="android:backgroundTint">?attr/colorSurface</item>
         <item name="tabIndicatorColor">?attr/colorPrimary</item>
     </style>
-
-    <!-- 普通文本样式 -->
-    <style name="CommonTextAppearance">
-        <item name="android:textSize">17sp</item>
-    </style>
 </resources>

@@ -35,7 +35,6 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
         this.context = context;
     }
 
-    @SuppressLint("ResourceType")
     @NonNull
     @Override
     public LinkViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -47,7 +46,6 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
         ));
         textView.setPadding(0, 5, 16, 5);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);   //设置文字大小为17sp
-        textView.setTextAppearance(context, com.google.android.material.R.attr.textAppearanceBodyMedium);
 
         return new LinkViewHolder(textView);
     }
