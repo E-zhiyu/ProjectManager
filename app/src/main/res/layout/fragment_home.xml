@@ -112,7 +112,7 @@
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/web_link_title_text"
-                    style="@style/MediumTitleTextViewStyle"
+                    style="@style/LargeTitleTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/purchase_bulletin"

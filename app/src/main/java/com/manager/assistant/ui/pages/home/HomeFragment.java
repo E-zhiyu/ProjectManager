@@ -97,22 +97,22 @@ public class HomeFragment extends Fragment {
         });
 
         //初始化记账日期
-        String start_date_str = getBookKeepingStartDate();  //获取开始记账的日期
-        long bookkeeping_day_num;
-        if (!start_date_str.isEmpty()) {
-            LocalDate startDate = LocalDate.parse(start_date_str);
+        String startDateStr = getBookKeepingStartDate();  //获取开始记账的日期
+        long bookkeeping_day_count;
+        if (!startDateStr.isEmpty()) {
+            LocalDate startDate = LocalDate.parse(startDateStr);
             LocalDate currentDate = LocalDate.now();
 
-            bookkeeping_day_num = ChronoUnit.DAYS.between(startDate, currentDate);  //计算相差的天数
+            bookkeeping_day_count = ChronoUnit.DAYS.between(startDate, currentDate);    //计算相差的天数
         } else {
-            bookkeeping_day_num = 0;   //无法获取则说明是第一天记账
+            bookkeeping_day_count = 0;   //无法获取则说明是第一天记账
         }
-        if (bookkeeping_day_num != 0) {
+        if (bookkeeping_day_count != 0) {
             binding.bookkeepingDaysText.setText(
                     String.format(
                             Locale.getDefault(),
                             "您已累计记账%d天",
-                            bookkeeping_day_num
+                            bookkeeping_day_count
                     )
             );
         } else {
@@ -211,19 +211,20 @@ public class HomeFragment extends Fragment {
      * @return 开始记账的日期字符串（无法获取则为空串）
      */
     private String getBookKeepingStartDate() {
-        String start_date_str = BookKeepingStartDatePreference.getStartDate(requireContext());
-        if (start_date_str.isEmpty()) {
+        String startDate = BookKeepingStartDatePreference.getStartDate(requireContext());
+        if (startDate.isEmpty()) {
+            //如果没有保存开始记账日期，则尝试获取最早一次流水记录的日期
             try {
-                start_date_str = RunningAccountBase.getEarliestAccountDate(requireContext());
-                if (!start_date_str.isEmpty()) {
-                    BookKeepingStartDatePreference.saveStartDate(start_date_str, requireContext());
+                startDate = RunningAccountBase.getEarliestAccountDate(requireContext());
+                if (!startDate.isEmpty()) {
+                    BookKeepingStartDatePreference.saveStartDate(startDate, requireContext());
                 }
             } catch (SQLiteException e) {
                 ExceptionHelper.showExceptionDialog(requireContext(), e);
             }
         }
 
-        return start_date_str;
+        return startDate;
     }
 
     /**
