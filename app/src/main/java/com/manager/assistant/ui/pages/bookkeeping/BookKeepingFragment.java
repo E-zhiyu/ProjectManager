@@ -3,8 +3,6 @@ package com.manager.assistant.ui.pages.bookkeeping;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -23,28 +21,20 @@ import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.enums.TagString;
 import com.manager.assistant.broadcast.BroadcastConstants;
 import com.manager.assistant.broadcast.RunningAccountUpdatedBroadcastReceiver;
-import com.manager.assistant.data.data_class.Tag;
-import com.manager.assistant.data.data_class.running_account.ExpenseRunningAccount;
-import com.manager.assistant.data.data_class.running_account.IncomeRunningAccount;
 import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
 import com.manager.assistant.data.data_class.running_account.TransferRunningAccount;
-import com.manager.assistant.data.data_save.database.BookKeepingColumns;
-import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
-import com.manager.assistant.data.data_save.database.BookKeepingTables;
 import com.manager.assistant.databinding.FragmentBookkeepingBinding;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ColorHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
+import com.manager.assistant.ui.others.bottom_sheets.filter.AccountFilterBottomSheet;
 import com.manager.assistant.ui.others.listeners.RecyclerScrollHideShowListener;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.RunningAccountModifyActivity;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.RunningAccountAddActivity;
 import com.manager.assistant.enums.RequestResultCode;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
-import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
 import com.manager.assistant.ui.data_communication.account_recycler.AccountRecyclerViewModel;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -54,20 +44,15 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class BookKeepingFragment extends Fragment {
     private AccountRecyclerAdapter accountAdapter;                          //流水列表适配器
-    private BookKeepingDbHelper dbHelper;                                   //流水数据库帮助器
     private ActivityResultLauncher<Intent> runningAccountAddLauncher, modifyRunningAccountLauncher;  //子活动启动器
     private int account_num;                                                //流水记录数量
     private FragmentBookkeepingBinding binding;                             //绑定的XML视图
     private RunningAccountUpdatedBroadcastReceiver accountUpdatedReceiver;  //流水数据更新的广播接收器
-    private TagSelectBottomSheet tagSelectBottomSheet;                      //标签选择弹窗
-    private long filter_tag_no = 0;                                         //过滤器过滤的标签编号
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
+    private AccountFilterBottomSheet.FilterSetting filterSetting = new AccountFilterBottomSheet.FilterSetting();    //过滤器设置
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
-
-        //实例化数据库帮助器
-        dbHelper = new BookKeepingDbHelper(requireContext());
 
         initActivityLauncher();
         initViews();
@@ -132,108 +117,6 @@ public class BookKeepingFragment extends Fragment {
         modifyRunningAccountLauncher.launch(skip2RunningAccountModify);
     }
 
-    /**
-     * 从数据库中加载流水视图
-     */
-    @NonNull
-    private List<RunningAccountBase> loadRunningAccountData(long tag_no) {
-        SQLiteDatabase db = dbHelper.openReadLink();  //获取读连接
-
-        //判断该标签是否存在
-        String tag_name = Tag.tagNoTransToName(tag_no, requireContext());
-        if (tag_name.isEmpty() && tag_no != 0) {
-            tag_no = 0;
-            filter_tag_no = 0;
-            binding.filterLeadingBtn.setText("全部");
-            Toast.makeText(requireContext(), "标签被删除，已自动清空过滤器", Toast.LENGTH_SHORT).show();
-        }
-
-        //生成查询条件
-        String selection;
-        String[] selectionArgs;
-        if (tag_no == 0) {
-            selection = null;
-            selectionArgs = null;
-        } else {
-            selection = BookKeepingColumns.TAG_NO + "=?";
-            selectionArgs = new String[]{String.valueOf(tag_no)};
-        }
-
-        //定义查询光标
-        Cursor basic_cursor = db.query(
-                BookKeepingTables.BASIC.toString(),
-                null,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                BookKeepingColumns.DATETIME + " DESC," + BookKeepingColumns.RNO + " DESC"
-        );
-
-        //查询数据
-        List<RunningAccountBase> runningAccountList = new ArrayList<>();
-        while (basic_cursor.moveToNext()) {
-            //流水编号
-            long rno = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.RNO.toString()));
-            //金额
-            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.AMOUNT.toString()));
-            //种类
-            RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.TYPE.toString())));
-            //备注
-            String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.REMARK.toString()));
-            if (remark == null) remark = "";
-            //是否使用默认备注
-            boolean isDefaultRemark;
-            isDefaultRemark = remark.isEmpty();
-            //日期和时间
-            String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.DATETIME.toString()));
-
-            RunningAccountBase runningAccountView = null;
-            switch (type) {
-                case EXPENSE:
-                    runningAccountView = new ExpenseRunningAccount(rno, remark, datetime, amount, isDefaultRemark);
-                    break;
-                case INCOME:
-                    runningAccountView = new IncomeRunningAccount(rno, remark, datetime, amount, isDefaultRemark);
-                    break;
-                case TRANSFER:
-                    String[] columns = {BookKeepingColumns.EXPORT.toString(), BookKeepingColumns.IMPORT.toString()};
-                    String transfer_selection = BookKeepingColumns.RNO + "=?";
-                    String[] transfer_selectionArgs = {String.valueOf(rno)};
-
-                    Cursor transfer_cursor = db.query(
-                            BookKeepingTables.TRANSFER.toString(),
-                            columns,
-                            transfer_selection,
-                            transfer_selectionArgs,
-                            null,
-                            null,
-                            null
-                    );
-
-                    while (transfer_cursor.moveToNext()) {
-                        String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(BookKeepingColumns.EXPORT.toString()));
-                        String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(BookKeepingColumns.IMPORT.toString()));
-                        transfer_cursor.close();
-                        runningAccountView = new TransferRunningAccount(rno, remark, datetime, amount, isDefaultRemark, exportAccount, importAccount);
-                    }
-
-                    break;
-                default:
-                    RuntimeException e = new RuntimeException("无法辨别获取到的流水类型");
-                    ExceptionHelper.showExceptionDialog(requireContext(), e);
-                    break;
-            }
-            if (runningAccountView != null) {
-                runningAccountList.add(runningAccountView);
-            }
-        }
-        basic_cursor.close();
-        db.close();
-
-        return runningAccountList;
-    }
-
     //初始化活动启动器
     private void initActivityLauncher() {
         runningAccountAddLauncher = registerForActivityResult(
@@ -292,12 +175,13 @@ public class BookKeepingFragment extends Fragment {
         //绑定过滤器按钮的点击监听器
         binding.filterSelectBtn.setCheckable(false);
         binding.filterSelectBtn.setOnClickListener(v -> {
-            tagSelectBottomSheet = new TagSelectBottomSheet(
-                    this::onTagBtnClicked,
-                    null,
-                    "清除过滤"
-            );
-            tagSelectBottomSheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
+            AccountFilterBottomSheet filterBottomSheet = new AccountFilterBottomSheet(
+                    filterSetting,
+                    setting -> {
+                        filterSetting = setting != null ? setting : new AccountFilterBottomSheet.FilterSetting();
+                        refreshUI();
+                    });
+            filterBottomSheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
         });
 
         //获取颜色资源并设置下拉刷新布局的颜色
@@ -350,22 +234,7 @@ public class BookKeepingFragment extends Fragment {
         });
 
         //加载流水记录
-        binding.refreshLayout.setRefreshing(true);
-        disposables.add(
-                Observable.fromCallable(() -> loadRunningAccountData(filter_tag_no))
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(runningAccountList -> {
-                                    accountAdapter.refreshRunningAccount(runningAccountList);
-
-                                    //初始化流水记录数量文本
-                                    account_num = runningAccountList.size();
-                                    binding.accountNumText.setText(String.format(Locale.getDefault(), "显示数量：%d", account_num));
-                                },
-                                e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
-                                () -> binding.refreshLayout.setRefreshing(false)
-                        )
-        );
+        refreshUI();
     }
 
     /**
@@ -374,15 +243,12 @@ public class BookKeepingFragment extends Fragment {
      * @param dataBundle 新增流水记录的数据
      */
     private void onNewAccountAddedReceived(@NonNull Bundle dataBundle) {
-        long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
-        if (tag_no == this.filter_tag_no || this.filter_tag_no == 0) {
-            accountAdapter.addNewRunningAccountByNotification(dataBundle);
-            binding.accountRecycler.scrollToPosition(0);
-            Toast.makeText(requireContext(), "成功添加一条流水记录（自动记账）", Toast.LENGTH_SHORT).show();
+        accountAdapter.addNewRunningAccountByNotification(dataBundle);
+        binding.accountRecycler.scrollToPosition(0);
+        Toast.makeText(requireContext(), "成功添加一条流水记录（自动记账）", Toast.LENGTH_SHORT).show();
 
-            account_num++;
-            refreshAccountNumText();
-        }
+        account_num++;
+        refreshAccountNumText();
     }
 
     /**
@@ -398,8 +264,8 @@ public class BookKeepingFragment extends Fragment {
             return;
         }
 
-        accountAdapter.addNewRunningAccount(dataBundle, filter_tag_no); //将新建的流水视图添加至列表视图适配器
-        binding.accountRecycler.scrollToPosition(0);                 //滚动到顶部（因为添加的新记录在顶部）
+        accountAdapter.addNewRunningAccount(dataBundle);            //将新建的流水视图添加至列表视图适配器
+        binding.accountRecycler.scrollToPosition(0);                //滚动到顶部（因为添加的新记录在顶部）
         Toast.makeText(requireContext(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
 
         //更新记录数量
@@ -445,33 +311,12 @@ public class BookKeepingFragment extends Fragment {
         refreshAccountNumText();
     }
 
-    //刷新流水记录数量文本
+    /**
+     * 刷新流水记录数量文本
+     */
     private void refreshAccountNumText() {
         MaterialTextView accountNumText = binding.accountNumText;
         accountNumText.setText(String.format(Locale.getDefault(), "显示数量：%d", account_num));
-    }
-
-    /**
-     * 处理标签按钮点击的回调
-     *
-     * @param tag_no   点击的标签编号
-     * @param tag_name 点击的标签名称
-     */
-    private void onTagBtnClicked(long tag_no, String tag_name) {
-        filter_tag_no = tag_no;
-
-        if (tag_no == 0) {
-            binding.filterLeadingBtn.setText("全部");
-        } else {
-            binding.filterLeadingBtn.setText(tag_name);
-        }
-
-        if (tagSelectBottomSheet != null) {
-            tagSelectBottomSheet.dismiss();
-        }
-
-        binding.filterSelectBtn.setChecked(false);
-        refreshUI();
     }
 
     /**
@@ -480,7 +325,7 @@ public class BookKeepingFragment extends Fragment {
     private void refreshUI() {
         binding.refreshLayout.setRefreshing(true);
         disposables.add(
-                Observable.fromCallable(() -> loadRunningAccountData(filter_tag_no))
+                Observable.fromCallable(() -> RunningAccountBase.loadRunningAccountData(filterSetting, requireContext()))
                         .subscribeOn(Schedulers.io())               //在IO线程执行查询
                         .observeOn(AndroidSchedulers.mainThread())  //切换到主线程更新 UI
                         .subscribe(

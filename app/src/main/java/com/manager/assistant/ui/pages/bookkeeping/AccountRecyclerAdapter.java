@@ -114,56 +114,51 @@ public class AccountRecyclerAdapter extends GroupAdapter<GroupieViewHolder> {
     /**
      * 添加新流水视图
      *
-     * @param dataBundle    新建流水的数据包
-     * @param filter_tag_no 过滤器的标签编号
+     * @param dataBundle 新建流水的数据包
      */
-    public void addNewRunningAccount(@NonNull Bundle dataBundle, long filter_tag_no) {
-        //获取基本流水数据
-        long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
-        if (tag_no == filter_tag_no || filter_tag_no == 0) {
-            RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-            String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
-            if (remark == null) remark = "";
-            boolean isDefaultRemark = dataBundle.getBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue());
-            double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
-            String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
-            long rno = dataBundle.getLong(KeyValueStrings.RNO.getValue(), 0);
-            if (rno == 0) return;   //如果为0则说明数据库保存失败，直接结束该方法
+    public void addNewRunningAccount(@NonNull Bundle dataBundle) {
+        RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
+        String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
+        if (remark == null) remark = "";
+        boolean isDefaultRemark = dataBundle.getBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue());
+        double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
+        String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
+        long rno = dataBundle.getLong(KeyValueStrings.RNO.getValue(), 0);
+        if (rno == 0) return;   //如果为0则说明数据库保存失败，直接结束该方法
 
-            //获取特殊数据并实例化流水类
-            RunningAccountBase runningAccount;
-            if (type == RunningAccountType.EXPENSE) {
-                runningAccount = new ExpenseRunningAccount(remark, date_time, amount, isDefaultRemark);
-            } else if (type == RunningAccountType.INCOME) {
-                runningAccount = new IncomeRunningAccount(remark, date_time, amount, isDefaultRemark);
-            } else if (type == RunningAccountType.TRANSFER) {
-                String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
-                String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
-                runningAccount = new TransferRunningAccount(remark, date_time, amount, isDefaultRemark, exportAccount, importAccount);
-            } else {
-                NullPointerException e = new NullPointerException("流水类型获取失败");
-                ExceptionHelper.showExceptionDialog(context, e);
-                return;
-            }
+        //获取特殊数据并实例化流水类
+        RunningAccountBase runningAccount;
+        if (type == RunningAccountType.EXPENSE) {
+            runningAccount = new ExpenseRunningAccount(remark, date_time, amount, isDefaultRemark);
+        } else if (type == RunningAccountType.INCOME) {
+            runningAccount = new IncomeRunningAccount(remark, date_time, amount, isDefaultRemark);
+        } else if (type == RunningAccountType.TRANSFER) {
+            String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
+            String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
+            runningAccount = new TransferRunningAccount(remark, date_time, amount, isDefaultRemark, exportAccount, importAccount);
+        } else {
+            NullPointerException e = new NullPointerException("流水类型获取失败");
+            ExceptionHelper.showExceptionDialog(context, e);
+            return;
+        }
 
-            runningAccount.setRno(rno);  //保存流水编号
+        runningAccount.setRno(rno);  //保存流水编号
 
-            //刷新UI
-            this.accountList.add(0, runningAccount);
-            String date = runningAccount.getDatetime().substring(0, 10);
-            Section section = sectionHashMap.get(date);
-            ContentItem contentItem = new ContentItem(runningAccount);
-            if (section == null) {
-                Section newSection = new Section();
-                sectionHashMap.put(date, newSection);
-                HeaderItem headerItem = new HeaderItem(date);
-                newSection.setHeader(headerItem);
+        //刷新UI
+        this.accountList.add(0, runningAccount);
+        String date = runningAccount.getDatetime().substring(0, 10);
+        Section section = sectionHashMap.get(date);
+        ContentItem contentItem = new ContentItem(runningAccount);
+        if (section == null) {
+            Section newSection = new Section();
+            sectionHashMap.put(date, newSection);
+            HeaderItem headerItem = new HeaderItem(date);
+            newSection.setHeader(headerItem);
 
-                newSection.add(contentItem);
-                this.add(0, newSection);
-            } else {
-                section.add(contentItem);
-            }
+            newSection.add(contentItem);
+            this.add(0, newSection);
+        } else {
+            section.add(contentItem);
         }
     }
 

@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
@@ -14,7 +15,16 @@ import com.manager.assistant.data.data_save.database.BookKeepingColumns;
 import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
 import com.manager.assistant.data.data_save.database.BookKeepingTables;
 import com.manager.assistant.enums.KeyValueStrings;
+import com.manager.assistant.helpers.ExceptionHelper;
+import com.manager.assistant.ui.others.bottom_sheets.filter.AccountFilterBottomSheet;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 public abstract class RunningAccountBase {
     protected String name;              //名称
@@ -55,6 +65,144 @@ public abstract class RunningAccountBase {
 
     public void setRno(long rno) {
         this.rno = rno;
+    }
+
+    /**
+     * 加载流水记录
+     *
+     * @param setting 过滤器设置
+     * @param context 上下文
+     * @return 包含符合过滤条件的流水记录列表
+     */
+    @NonNull
+    public static List<RunningAccountBase> loadRunningAccountData(@NonNull AccountFilterBottomSheet.FilterSetting setting, Context context) {
+        BookKeepingDbHelper dbHelper = new BookKeepingDbHelper(context);
+        SQLiteDatabase db = dbHelper.openReadLink();
+
+        //生成selection子句
+        StringBuilder selection = new StringBuilder("1=1");
+        List<String> selectionArgList = new ArrayList<>();
+        List<Long> selectedTagList = setting.getSelectedTagList();
+        List<Integer> selectedTypeList = setting.getSelectedTypeList();
+        Calendar startCalendar = setting.getStartCalendar();
+        Calendar endCalendar = setting.getEndCalendar();
+
+        //生成流水种类条件
+        if (!selectedTypeList.isEmpty()) {
+            selection.append(" AND ");
+            selection.append(BookKeepingColumns.TYPE);
+            selection.append(" IN (");
+            selection.append(TextUtils.join(",", Collections.nCopies(selectedTypeList.size(), "?")));
+            selection.append(")");
+
+            List<String> typeStringList = selectedTypeList.stream()
+                    .map(ordinal -> RunningAccountType.values()[ordinal])
+                    .map(RunningAccountType::toString)
+                    .collect(Collectors.toList());
+            selectionArgList.addAll(typeStringList);
+        }
+
+        //生成标签条件
+        if (!selectedTagList.isEmpty()) {
+            selection.append(" AND ");
+            selection.append(BookKeepingColumns.TAG_NO);
+            selection.append(" IN (");
+            selection.append(TextUtils.join(",", Collections.nCopies(selectedTagList.size(), "?")));
+            selection.append(")");
+
+            List<String> tagNoStringList = selectedTagList.stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.toList());
+            selectionArgList.addAll(tagNoStringList);
+        }
+
+        //生成日期条件
+        if (startCalendar != null && endCalendar != null) {
+            selection.append(" AND ");
+            selection.append(BookKeepingColumns.DATETIME);
+            selection.append(">=?");
+            selection.append(" AND ");
+            selection.append(BookKeepingColumns.DATETIME);
+            selection.append("<=?");
+
+            int sy = startCalendar.get(Calendar.YEAR);
+            int sm = startCalendar.get(Calendar.MONTH) + 1;
+            int sd = startCalendar.get(Calendar.DAY_OF_MONTH);
+            int ey = endCalendar.get(Calendar.YEAR);
+            int em = endCalendar.get(Calendar.MONTH) + 1;
+            int ed = endCalendar.get(Calendar.DAY_OF_MONTH) + 1;    //包含最后一天，所以加一
+            selectionArgList.add(String.format(Locale.getDefault(), "%d-%d-%d", sy, sm, sd));
+            selectionArgList.add(String.format(Locale.getDefault(), "%d-%d-%d", ey, em, ed));
+        }
+
+        //查询流水记录
+        Cursor basic_cursor = db.query(
+                BookKeepingTables.BASIC.toString(),
+                null,
+                selection.toString(),
+                selectionArgList.toArray(new String[0]),
+                null,
+                null,
+                BookKeepingColumns.DATETIME + " DESC," + BookKeepingColumns.RNO + " DESC"
+        );
+
+        //查询数据
+        List<RunningAccountBase> runningAccountList = new ArrayList<>();
+        while (basic_cursor.moveToNext()) {
+            //流水编号
+            long rno = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.RNO.toString()));
+            //金额
+            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.AMOUNT.toString()));
+            //种类
+            RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.TYPE.toString())));
+            //备注
+            String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.REMARK.toString()));
+            if (remark == null) remark = "";
+            //是否使用默认备注
+            boolean isDefaultRemark;
+            isDefaultRemark = remark.isEmpty();
+            //日期和时间
+            String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.DATETIME.toString()));
+
+            RunningAccountBase runningAccountView = null;
+            switch (type) {
+                case EXPENSE:
+                    runningAccountView = new ExpenseRunningAccount(rno, remark, datetime, amount, isDefaultRemark);
+                    break;
+                case INCOME:
+                    runningAccountView = new IncomeRunningAccount(rno, remark, datetime, amount, isDefaultRemark);
+                    break;
+                case TRANSFER:
+                    String[] columns = {BookKeepingColumns.EXPORT.toString(), BookKeepingColumns.IMPORT.toString()};
+                    String transfer_selection = BookKeepingColumns.RNO + "=?";
+                    String[] transfer_selectionArgs = {String.valueOf(rno)};
+
+                    Cursor transfer_cursor = db.query(
+                            BookKeepingTables.TRANSFER.toString(),
+                            columns,
+                            transfer_selection,
+                            transfer_selectionArgs,
+                            null,
+                            null,
+                            null
+                    );
+
+                    while (transfer_cursor.moveToNext()) {
+                        String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(BookKeepingColumns.EXPORT.toString()));
+                        String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(BookKeepingColumns.IMPORT.toString()));
+                        transfer_cursor.close();
+                        runningAccountView = new TransferRunningAccount(rno, remark, datetime, amount, isDefaultRemark, exportAccount, importAccount);
+                    }
+                    break;
+            }
+            if (runningAccountView != null) {
+                runningAccountList.add(runningAccountView);
+            }
+        }
+        basic_cursor.close();
+        db.close();
+
+        return runningAccountList;
     }
 
     /**
