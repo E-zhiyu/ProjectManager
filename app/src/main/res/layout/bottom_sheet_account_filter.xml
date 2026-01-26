@@ -44,6 +44,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/date_range_layout"
         style="@style/CommonTextInputLayoutStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -51,8 +52,8 @@
         android:layout_marginEnd="20dp"
         app:counterEnabled="false"
         app:endIconDrawable="@drawable/baseline_clear_24"
-        app:endIconMode="clear_text"
-        app:helperText="选择流水日期范围，留空则不限制日期范围">
+        app:endIconMode="custom"
+        app:helperText="@string/date_range_help">
 
         <com.google.android.material.textfield.MaterialAutoCompleteTextView
             android:id="@+id/date_range_input"

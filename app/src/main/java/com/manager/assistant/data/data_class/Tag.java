@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
@@ -14,6 +15,11 @@ import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
 import com.manager.assistant.data.data_save.database.BookKeepingTables;
 
 import org.jetbrains.annotations.Contract;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Tag {
     private String name;    //名称
@@ -110,6 +116,52 @@ public class Tag {
         cursor.close();
         db.close();
         return tag_name;
+    }
+
+    /**
+     * 将一系列标签编号转换为标签名称
+     *
+     * @param tagNoList 标签编号列表
+     * @param context   上下文
+     * @return 标签名称列表
+     * @throws SQLiteException 读取失败引发的数据库异常
+     */
+    @NonNull
+    @Contract("_, _ -> new")
+    public static List<String> tagNoTransToName(@NonNull List<Long> tagNoList, Context context) throws SQLiteException {
+        if (tagNoList.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
+        SQLiteDatabase db = db_helper.openReadLink();
+
+        //生成选择条件
+        StringBuilder selection;
+        selection = new StringBuilder(BookKeepingColumns.TAG_NO + " IN (");
+        selection.append(TextUtils.join(",", Collections.nCopies(tagNoList.size(), "?")));
+        selection.append(")");
+
+        String[] columns = {BookKeepingColumns.TAG_NAME.toString()};
+        Cursor cursor = db.query(
+                BookKeepingTables.TAG.toString(),
+                columns,
+                selection.toString(),
+                tagNoList.stream().map(String::valueOf).toArray(String[]::new),
+                null,
+                null,
+                null
+        );
+
+        List<String> tagNameList = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            String tagName = cursor.getString(cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NAME.toString()));
+            tagNameList.add(tagName);
+        }
+
+        cursor.close();
+        db.close();
+        return tagNameList;
     }
 
     /**
@@ -231,7 +283,7 @@ public class Tag {
     public static void deleteTag(long group_no, @NonNull SQLiteDatabase db) throws SQLiteException {
         //查询标签编号
         String[] columns = {BookKeepingColumns.TAG_NO.toString()};
-        String selection = BookKeepingColumns.GROUP_NO+"=?";
+        String selection = BookKeepingColumns.GROUP_NO + "=?";
         String[] selectionArgs = {String.valueOf(group_no)};
         Cursor tagCursor = db.query(
                 BookKeepingTables.TAG.toString(),

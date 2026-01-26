@@ -96,7 +96,6 @@
     <string name="welcome_string">欢迎使用经理助手</string>
     <string name="today_balance">今日结余</string>
     <string name="check_more_data">查看更多统计数据</string>
-    <string name="all">全部</string>
     <string name="num_of_shown">显示数量：∞</string>
     <string name="every_day">每天</string>
     <string name="every_week">每星期</string>
@@ -136,4 +135,6 @@
     <string name="clear">清除</string>
     <string name="long_click_to_clear_tag">长按清除标签</string>
     <string name="apply">应用</string>
+    <string name="set_filter">设置过滤</string>
+    <string name="date_range_help">选择流水日期范围，留空则不限制日期范围</string>
 </resources>

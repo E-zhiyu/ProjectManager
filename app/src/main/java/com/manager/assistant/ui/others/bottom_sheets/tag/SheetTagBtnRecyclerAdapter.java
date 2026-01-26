@@ -66,7 +66,7 @@ public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtn
 
     //标签按钮点击监听接口
     public interface OnTagBtnClickedListener {
-        void onTagBtnClicked(long tag_no, String tag_name); //传递标签编号和名称
+        void onTagBtnClicked(long tag_no, String tagName); //传递标签编号和名称
     }
 
     public static class BtnViewHolder extends RecyclerView.ViewHolder {

@@ -14,9 +14,11 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.manager.assistant.R;
+import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.data.data_class.TagGroup;
 import com.manager.assistant.databinding.BottomSheetAccountFilterBinding;
 import com.manager.assistant.enums.TagString;
+import com.manager.assistant.helpers.ResHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.bottom_sheets.tag.SheetTagGroupRecyclerAdapter;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
@@ -86,6 +88,11 @@ public class AccountFilterBottomSheet extends BottomSheetDialogFragment {
         public void setEndCalendar(Calendar endCalendar) {
             this.endCalendar = endCalendar;
         }
+
+        public void clearCalendar() {
+            this.startCalendar = null;
+            this.endCalendar = null;
+        }
     }
 
     public interface OnFilterApplyListener {
@@ -120,12 +127,34 @@ public class AccountFilterBottomSheet extends BottomSheetDialogFragment {
     private void initViews() {
         //日期选择文本框
         binding.dateRangeInput.setOnClickListener(v -> showDateRangeSelectDialog());
+        binding.dateRangeInput.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                showDateRangeSelectDialog();
+            }
+        });
+        binding.dateRangeLayout.setEndIconOnClickListener(v -> {
+            binding.dateRangeInput.setText("");
+            setting.clearCalendar();
+        });
+        Calendar startCalendar = setting.getStartCalendar();
+        Calendar endCalendar = setting.getEndCalendar();
+        if (startCalendar != null && endCalendar != null) {
+            int sy = startCalendar.get(Calendar.YEAR);
+            int sm = startCalendar.get(Calendar.MONTH) + 1;
+            int sd = startCalendar.get(Calendar.DAY_OF_MONTH);
+            int ey = endCalendar.get(Calendar.YEAR);
+            int em = endCalendar.get(Calendar.MONTH) + 1;
+            int ed = endCalendar.get(Calendar.DAY_OF_MONTH);
+            String selectedDateRange = String.format(Locale.getDefault(), "%d年%d月%d日 - %d年%d月%d日", sy, sm, sd, ey, em, ed);
+            binding.dateRangeInput.setText(selectedDateRange);
+        }
 
         //流水种类ChipGroup
         String[] accountTypeTitles = Arrays.stream(RunningAccountType.values())
                 .map(RunningAccountType::getTitle)
                 .toArray(String[]::new);
         int index = 0;
+        List<Integer> selectedTypeList = setting.getSelectedTypeList();
         for (String title : accountTypeTitles) {
             //创建Chip实例
             Chip titleChip = new Chip(requireContext());
@@ -133,6 +162,10 @@ public class AccountFilterBottomSheet extends BottomSheetDialogFragment {
             titleChip.setCheckedIconVisible(true);
             titleChip.setCheckedIcon(ContextCompat.getDrawable(requireContext(), R.drawable.baseline_check_24));
             titleChip.setText(title);
+
+            if (selectedTypeList.contains(index)) {
+                titleChip.setChecked(true);
+            }
 
             //设置点击监听
             int finalIndex = index;
@@ -159,20 +192,14 @@ public class AccountFilterBottomSheet extends BottomSheetDialogFragment {
         //标签选择列表
         SheetTagGroupRecyclerAdapter tagAdapter = new SheetTagGroupRecyclerAdapter(
                 0,
-                (tag_no, tag_name) -> {
+                (tag_no, tagName) -> {
                     List<Long> selectedTagList = setting.getSelectedTagList();
                     if (!selectedTagList.contains(tag_no)) {
+                        //将标签编号添加至列表中
                         setting.addTag(tag_no);
 
-                        //创建Chip
-                        Chip tagChip = new Chip(requireContext());
-                        tagChip.setText(tag_name);
-                        tagChip.setCloseIconVisible(true);
-                        tagChip.setCloseIcon(ContextCompat.getDrawable(requireContext(), R.drawable.baseline_clear_24));
-                        tagChip.setOnCloseIconClickListener(v -> {
-                            binding.tagChipGroup.removeView(tagChip);
-                            setting.removeTag(tag_no);
-                        });
+                        //创建Chip实例
+                        Chip tagChip = getClosableTagChip(tagName, tag_no);
 
                         //添加至ChipGroup中
                         binding.tagChipGroup.addView(tagChip);
@@ -182,6 +209,16 @@ public class AccountFilterBottomSheet extends BottomSheetDialogFragment {
         );
         binding.tagGroupRecycler.setAdapter(tagAdapter);
         loadTagGroup(tagAdapter);
+
+        //初始化已选择的标签
+        List<String> selectedTagNameList = Tag.tagNoTransToName(setting.getSelectedTagList(), requireContext());
+        for (int i = 0; i < selectedTagNameList.size(); i++) {
+            String tagName = selectedTagNameList.get(i);
+            long tag_no = setting.getSelectedTagList().get(i);
+
+            Chip tagChip = getClosableTagChip(tagName, tag_no);
+            binding.tagChipGroup.addView(tagChip);
+        }
 
         //清除和完成按钮
         binding.finishBtn.setOnClickListener(v -> {
@@ -219,6 +256,7 @@ public class AccountFilterBottomSheet extends BottomSheetDialogFragment {
         MaterialDatePicker.Builder<Pair<Long, Long>> dateBuilder = getDateBuilder();
 
         MaterialDatePicker<Pair<Long, Long>> dateRangePicker = dateBuilder
+                .setTheme(ResHelper.getStyleOrThrow(requireContext(), com.google.android.material.R.attr.materialCalendarTheme))
                 .build();
         dateRangePicker.addOnPositiveButtonClickListener(selection -> {
             long start = selection.first;
@@ -258,5 +296,25 @@ public class AccountFilterBottomSheet extends BottomSheetDialogFragment {
             dateBuilder.setSelection(new Pair<>(startTimeMilli, endTimeMilli));
         }
         return dateBuilder;
+    }
+
+    /**
+     * 获取可以关闭的标签Chip
+     *
+     * @param tagName 标签名称
+     * @return 显示标签名称的Chip实例
+     */
+    @NonNull
+    private Chip getClosableTagChip(String tagName, long tag_no) {
+        Chip tagChip = new Chip(requireContext());
+        tagChip.setText(tagName);
+        tagChip.setCloseIconVisible(true);
+        tagChip.setCloseIcon(ContextCompat.getDrawable(requireContext(), R.drawable.baseline_clear_24));
+        tagChip.setOnCloseIconClickListener(v -> {
+            binding.tagChipGroup.removeView(tagChip);
+            setting.removeTag(tag_no);
+        });
+
+        return tagChip;
     }
 }
