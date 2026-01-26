@@ -211,12 +211,12 @@ public class AccountFilterBottomSheet extends BottomSheetDialogFragment {
         loadTagGroup(tagAdapter);
 
         //初始化已选择的标签
-        List<String> selectedTagNameList = Tag.tagNoTransToName(setting.getSelectedTagList(), requireContext());
-        for (int i = 0; i < selectedTagNameList.size(); i++) {
-            String tagName = selectedTagNameList.get(i);
-            long tag_no = setting.getSelectedTagList().get(i);
+        List<Tag> selectedTagList = Tag.getTagByTagNo(setting.getSelectedTagList(), requireContext());
+        for (Tag tag : selectedTagList) {
+            String tagName = tag.getName();
+            long tno = tag.getTno();
 
-            Chip tagChip = getClosableTagChip(tagName, tag_no);
+            Chip tagChip = getClosableTagChip(tagName, tno);
             binding.tagChipGroup.addView(tagChip);
         }
 

@@ -19,7 +19,6 @@ import org.jetbrains.annotations.Contract;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Tag {
     private String name;    //名称
@@ -128,7 +127,7 @@ public class Tag {
      */
     @NonNull
     @Contract("_, _ -> new")
-    public static List<String> tagNoTransToName(@NonNull List<Long> tagNoList, Context context) throws SQLiteException {
+    public static List<Tag> getTagByTagNo(@NonNull List<Long> tagNoList, Context context) throws SQLiteException {
         if (tagNoList.isEmpty()) {
             return new ArrayList<>();
         }
@@ -142,7 +141,10 @@ public class Tag {
         selection.append(TextUtils.join(",", Collections.nCopies(tagNoList.size(), "?")));
         selection.append(")");
 
-        String[] columns = {BookKeepingColumns.TAG_NAME.toString()};
+        String[] columns = {
+                BookKeepingColumns.TAG_NAME.toString(),
+                BookKeepingColumns.TAG_NO.toString()
+        };
         Cursor cursor = db.query(
                 BookKeepingTables.TAG.toString(),
                 columns,
@@ -153,15 +155,16 @@ public class Tag {
                 null
         );
 
-        List<String> tagNameList = new ArrayList<>();
+        List<Tag> tagList = new ArrayList<>();
         while (cursor.moveToNext()) {
             String tagName = cursor.getString(cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NAME.toString()));
-            tagNameList.add(tagName);
+            long tag_no = cursor.getLong(cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));
+            tagList.add(new Tag(tagName, tag_no));
         }
 
         cursor.close();
         db.close();
-        return tagNameList;
+        return tagList;
     }
 
     /**
@@ -343,7 +346,7 @@ public class Tag {
      */
     @NonNull
     @Contract("_, _ -> new")
-    public static Tag getTagOfRunningAccount(long rno, Context context) throws SQLiteException {
+    public static Tag getTagByTagNo(long rno, Context context) throws SQLiteException {
         BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
