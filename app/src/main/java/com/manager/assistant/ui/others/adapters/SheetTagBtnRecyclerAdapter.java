@@ -15,9 +15,9 @@ import com.manager.assistant.data.data_class.Tag;
 import java.util.List;
 
 public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtnRecyclerAdapter.BtnViewHolder> {
-    private final List<Tag> tagList;  //标签数据源列表
-    private final Context context;    //上下文
-    private final OnTagBtnClickedListener tagBtnClickedListener;  //标签按钮点击监听器
+    private final List<Tag> tagList;                                //标签数据源列表
+    private final Context context;                                  //上下文
+    private final OnTagBtnClickedListener tagBtnClickedListener;    //标签按钮点击监听器
 
     public SheetTagBtnRecyclerAdapter(List<Tag> tagList, Context context, OnTagBtnClickedListener tagBtnClickedListener) {
         this.tagList = tagList;
