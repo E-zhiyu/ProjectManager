@@ -12,6 +12,8 @@ import androidx.core.util.Pair;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.Tag;
@@ -145,7 +147,11 @@ public class AccountFilterBottomSheet extends BottomSheetDialogFragment {
             int ey = endCalendar.get(Calendar.YEAR);
             int em = endCalendar.get(Calendar.MONTH) + 1;
             int ed = endCalendar.get(Calendar.DAY_OF_MONTH);
-            String selectedDateRange = String.format(Locale.getDefault(), "%d年%d月%d日 - %d年%d月%d日", sy, sm, sd, ey, em, ed);
+            String selectedDateRange = String.format(
+                    Locale.getDefault(),
+                    "%04d年%02d月%02d日 - %04d年%02d月%02d日",
+                    sy, sm, sd, ey, em, ed
+            );
             binding.dateRangeInput.setText(selectedDateRange);
         }
 
@@ -256,7 +262,15 @@ public class AccountFilterBottomSheet extends BottomSheetDialogFragment {
         MaterialDatePicker.Builder<Pair<Long, Long>> dateBuilder = getDateBuilder();
 
         MaterialDatePicker<Pair<Long, Long>> dateRangePicker = dateBuilder
-                .setTheme(ResHelper.getStyleOrThrow(requireContext(), com.google.android.material.R.attr.materialCalendarTheme))
+                .setTheme(ResHelper.getStyleOrThrow(
+                        requireContext(),
+                        com.google.android.material.R.attr.materialCalendarTheme
+                ))
+                .setCalendarConstraints(
+                        new CalendarConstraints.Builder()
+                                .setValidator(DateValidatorPointBackward.now()) //限制为过去日期
+                                .build()
+                )
                 .build();
         dateRangePicker.addOnPositiveButtonClickListener(selection -> {
             long start = selection.first;
@@ -275,7 +289,11 @@ public class AccountFilterBottomSheet extends BottomSheetDialogFragment {
             int ey = endSelected.get(Calendar.YEAR);
             int em = endSelected.get(Calendar.MONTH) + 1;
             int ed = endSelected.get(Calendar.DAY_OF_MONTH);
-            String selectedDateRange = String.format(Locale.getDefault(), "%d年%d月%d日 - %d年%d月%d日", sy, sm, sd, ey, em, ed);
+            String selectedDateRange = String.format(
+                    Locale.getDefault(),
+                    "%04d年%02d月%02d日 - %04d年%02d月%02d日",
+                    sy, sm, sd, ey, em, ed
+            );
             binding.dateRangeInput.setText(selectedDateRange);
         });
 

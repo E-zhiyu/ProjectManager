@@ -123,7 +123,7 @@ public abstract class RunningAccountBase {
             selection.append(">=?");
             selection.append(" AND ");
             selection.append(BookKeepingColumns.DATETIME);
-            selection.append("<=?");
+            selection.append("<?");
 
             int sy = startCalendar.get(Calendar.YEAR);
             int sm = startCalendar.get(Calendar.MONTH) + 1;
@@ -131,8 +131,8 @@ public abstract class RunningAccountBase {
             int ey = endCalendar.get(Calendar.YEAR);
             int em = endCalendar.get(Calendar.MONTH) + 1;
             int ed = endCalendar.get(Calendar.DAY_OF_MONTH) + 1;    //包含最后一天，所以加一
-            selectionArgList.add(String.format(Locale.getDefault(), "%d-%d-%d", sy, sm, sd));
-            selectionArgList.add(String.format(Locale.getDefault(), "%d-%d-%d", ey, em, ed));
+            selectionArgList.add(String.format(Locale.getDefault(), "%04d-%02d-%02d", sy, sm, sd));
+            selectionArgList.add(String.format(Locale.getDefault(), "%04d-%02d-%02d", ey, em, ed));
         }
 
         //查询流水记录
