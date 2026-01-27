@@ -5,6 +5,7 @@ public class PojoTag {
     private String name;    //名称
     private long tno;       //编号
     private long group_no;  //标签分组编号
+    private int scope;      //作用域
 
     public String getName() {
         return name;
@@ -30,10 +31,19 @@ public class PojoTag {
         this.group_no = group_no;
     }
 
-    public PojoTag(String name, long tno, long group_no) {
+    public int getScope() {
+        return scope;
+    }
+
+    public void setScope(int scope) {
+        this.scope = scope;
+    }
+
+    public PojoTag(String name, long tno, long group_no, int scope) {
         this.name = name;
         this.tno = tno;
         this.group_no = group_no;
+        this.scope = scope;
     }
 
     public PojoTag() {
