@@ -22,7 +22,7 @@ import com.manager.assistant.databinding.BottomSheetAccountFilterBinding;
 import com.manager.assistant.enums.TagString;
 import com.manager.assistant.helpers.ResHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.ui.others.bottom_sheets.tag.SheetTagGroupRecyclerAdapter;
+import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
 import java.util.ArrayList;
@@ -197,7 +197,6 @@ public class AccountFilterBottomSheet extends BottomSheetDialogFragment {
 
         //标签选择列表
         SheetTagGroupRecyclerAdapter tagAdapter = new SheetTagGroupRecyclerAdapter(
-                0,
                 (tag_no, tagName) -> {
                     List<Long> selectedTagList = setting.getSelectedTagList();
                     if (!selectedTagList.contains(tag_no)) {

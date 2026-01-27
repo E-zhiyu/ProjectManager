@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.others.bottom_sheets.tag;
+package com.manager.assistant.ui.others.adapters;
 
 import android.content.Context;
 import android.view.ViewGroup;

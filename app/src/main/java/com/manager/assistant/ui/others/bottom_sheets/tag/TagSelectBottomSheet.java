@@ -8,13 +8,13 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.android.material.button.MaterialButton;
 import com.manager.assistant.databinding.BottomSheetTagSelectBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.data.data_class.TagGroup;
+import com.manager.assistant.ui.others.adapters.SheetTagBtnRecyclerAdapter;
+import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;
 import com.manager.assistant.ui.pages.bookkeeping.tag.TagManageActivity;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -84,14 +84,14 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment {
         }
 
         //设置标签列表视图适配器
-        SheetTagGroupRecyclerAdapter tagAdapter = new SheetTagGroupRecyclerAdapter(excepted_tag_no, tagBtnClickedListener, requireContext());
+        SheetTagGroupRecyclerAdapter tagAdapter = new SheetTagGroupRecyclerAdapter(tagBtnClickedListener, requireContext());
         binding.tagGroupRecycler.setAdapter(tagAdapter);
         loadTagGroupData(tagAdapter);
     }
 
     private void loadTagGroupData(@NonNull SheetTagGroupRecyclerAdapter tagAdapter) {
         disposables.add(
-                Observable.fromCallable(() -> TagGroup.loadTagGroups(requireContext()))
+                Observable.fromCallable(() -> TagGroup.loadTagGroups(requireContext(), excepted_tag_no))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(

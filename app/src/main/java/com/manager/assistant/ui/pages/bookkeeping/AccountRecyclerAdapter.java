@@ -57,7 +57,7 @@ public class AccountRecyclerAdapter extends GroupAdapter<GroupieViewHolder> {
 
         @Override
         public int getLayout() {
-            return R.layout.item_date_header;
+            return R.layout.item_text_header;
         }
     }
 

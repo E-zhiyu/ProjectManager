@@ -126,7 +126,7 @@ public class TagGroup {
     }
 
     /**
-     * 加载标签数据
+     * 加载标签数据但是不排除标签
      *
      * @param context 用于打开数据库的上下文
      * @return 标签分组列表
@@ -134,6 +134,19 @@ public class TagGroup {
      */
     @NonNull
     public static List<TagGroup> loadTagGroups(Context context) throws SQLiteException {
+        return loadTagGroups(context, 0);
+    }
+
+    /**
+     * 加载标签数据并排除某个标签
+     *
+     * @param context      用于打开数据库的上下文
+     * @param excepted_tno 被排除的标签编号
+     * @return 标签分组列表
+     * @throws SQLiteException 读取失败产生的数据库异常
+     */
+    @NonNull
+    public static List<TagGroup> loadTagGroups(Context context, long excepted_tno) throws SQLiteException {
         BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
         List<TagGroup> tagGroupList = new ArrayList<>();    //标签组实例列表
@@ -169,6 +182,8 @@ public class TagGroup {
             long tag_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));            //标签编号
             long group_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(BookKeepingColumns.GROUP_NO.toString()));        //分组编号
             Tag oneTag = new Tag(tag_name, tag_no);
+
+            if (tag_no == excepted_tno) continue;   //不添加被排除的标签
 
             for (TagGroup group : tagGroupList) {
                 if (group.getGroup_no() == group_no) {

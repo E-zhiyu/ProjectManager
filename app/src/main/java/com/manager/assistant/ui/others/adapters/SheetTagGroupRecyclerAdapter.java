@@ -1,6 +1,5 @@
-package com.manager.assistant.ui.others.bottom_sheets.tag;
+package com.manager.assistant.ui.others.adapters;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,13 +13,13 @@ import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.data.data_class.TagGroup;
+import com.manager.assistant.ui.others.bottom_sheets.tag.GridSpacingItemDecoration;
 
 import java.util.List;
 
 public class SheetTagGroupRecyclerAdapter extends RecyclerView.Adapter<SheetTagGroupRecyclerAdapter.TagSelectHolder> {
     private List<TagGroup> tagGroupList;                                        //标签组列表
     private final Context context;                                              //上下文
-    private final long excepted_tag_no;                                         //被排除的标签编号（不会显示在视图中）
     private final SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener;  //标签按钮点击监听器
 
     public static class TagSelectHolder extends RecyclerView.ViewHolder {
@@ -35,8 +34,7 @@ public class SheetTagGroupRecyclerAdapter extends RecyclerView.Adapter<SheetTagG
         }
     }
 
-    public SheetTagGroupRecyclerAdapter(long excepted_tag_no, SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener, Context context) {
-        this.excepted_tag_no = excepted_tag_no;
+    public SheetTagGroupRecyclerAdapter(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener, Context context) {
         this.listener = listener;
         this.context = context;
     }
@@ -55,18 +53,6 @@ public class SheetTagGroupRecyclerAdapter extends RecyclerView.Adapter<SheetTagG
         TagGroup currentTagGroup = this.tagGroupList.get(position);
         String group_name = currentTagGroup.getGroup_name();
         List<Tag> tags = currentTagGroup.getTags();
-
-        //去除需要排除的标签按钮
-        int index = 0, delete_tag_index = -1;
-        for (Tag tag : tags) {
-            if (tag.getTno() == excepted_tag_no) {
-                delete_tag_index = index;
-            }
-            index++;
-        }
-        if (delete_tag_index != -1) {
-            tags.remove(delete_tag_index);
-        }
 
         //根据当前的标签列表是否为空设置视图内容
         if (tags.isEmpty()) {
