@@ -67,7 +67,7 @@ public class BookKeepingDbHelper extends SQLiteOpenHelper {
                     BookKeepingColumns.TAG_NO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                     BookKeepingColumns.TAG_NAME + " VARCHAR(20) NOT NULL UNIQUE," +
                     BookKeepingColumns.GROUP_NO + " INTEGER NOT NULL," +
-                    BookKeepingColumns.TAG_SCOPE + " INTEGER DEFAULT 0," +
+                    BookKeepingColumns.TAG_SCOPE + " INTEGER DEFAULT 0," +  //默认为0，为了让旧版升级的标签默认对所有种类可见，每位中0表示可见，1则表示不可见
 
                     //分组编号外键约束
                     "CONSTRAINT " + BookKeepingConstraints.FK_GROUP_NO +

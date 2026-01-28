@@ -190,7 +190,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
     private void onTagBtnClicked(long tag_no, String tag_name) {
         //通知流水输入界面更新名称
         TagRepository repository = TagRepository.getInstance();
-        repository.updateTag(tag_name, this.tag_no, TagUpdateReason.MERGE);    //传递合并到的标签的名称和原来标签的编号
+        repository.updateTag(tag_name, tag_no, TagUpdateReason.MERGE);    //传递合并到的标签的名称和原来标签的编号
 
         tag_sheet.dismiss();
 

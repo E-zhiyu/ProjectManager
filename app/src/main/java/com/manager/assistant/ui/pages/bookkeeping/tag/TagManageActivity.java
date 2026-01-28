@@ -261,13 +261,13 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
             }
             if (tag_no != 0) {
                 //将变化保存至列表中并传递给适配器
-                Tag new_tag = new Tag(tag_name, tag_no);
+                Tag newTag = new Tag(tag_name, tag_no,-1);
                 if (needNewGroup) {
                     TagGroup new_group = new TagGroup(group_name, group_no);
-                    adapter.addNewTag(new_tag, new_group);
+                    adapter.addNewTag(newTag, new_group);
                     binding.tagGroupRecycler.scrollToPosition(adapter.getItemCount() - 1);
                 } else {
-                    adapter.addNewTag(new_tag, group_no);
+                    adapter.addNewTag(newTag, group_no);
                 }
                 Toast.makeText(this, "标签添加成功", Toast.LENGTH_SHORT).show();
             }

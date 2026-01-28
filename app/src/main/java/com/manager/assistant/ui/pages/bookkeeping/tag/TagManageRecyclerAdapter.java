@@ -239,7 +239,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             }
 
             TagGroup newGroup = new TagGroup(new_group_name, group_no_after_modifying);
-            newGroup.addTag(new Tag(new_tag_name, tag_no));
+            newGroup.addTag(new Tag(new_tag_name, tag_no, -1));
 
             int new_group_index = tagGroupList.size();
             tagGroupList.add(newGroup);
@@ -249,7 +249,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             int new_group_index = 0;    //待新增标签的分组下标
             for (TagGroup group : this.tagGroupList) {
                 if (group.getGroup_no() == group_no_after_modifying) {
-                    Tag new_tag = new Tag(new_tag_name, tag_no);
+                    Tag new_tag = new Tag(new_tag_name, tag_no, -1);
                     group.addTag(new_tag);
                     break;
                 }

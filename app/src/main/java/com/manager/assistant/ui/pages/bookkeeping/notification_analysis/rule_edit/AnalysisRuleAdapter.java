@@ -71,7 +71,7 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         AnalysisRule rule = ruleList.get(position);
         String rule_name = rule.getRuleName();
         RunningAccountType type = rule.getType();
-        Tag rule_tag = Tag.getTagOfAnalysisRule(rule.getRuleNo(), context);
+        Tag rule_tag = Tag.getTagByRuleNo(rule.getRuleNo(), context);
 
         String type_str = "未知";
         switch (type) {

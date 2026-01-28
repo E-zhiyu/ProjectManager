@@ -344,7 +344,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
 
         String tag_name = "";
         try {
-            Tag tag = Tag.getTagByTagNo(rno, requireContext());
+            Tag tag = Tag.getTagByRno(rno, requireContext());
             tag_no = tag.getTno();
             tag_name = tag.getName();
         } catch (SQLiteException e) {
@@ -480,7 +480,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
      * 标签文本框点击回调
      */
     private void showTagSelectSheet() {
-        tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked);
+        tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, type);
         tagSheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
     }
 

@@ -141,7 +141,7 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnF
         //标签名称
         binding.tagNameInput.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked);
+                tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, type);
                 tagSheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
             }
             return false;
@@ -225,7 +225,7 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnF
             rule_no = initData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());                            //规则编号
             viewHolderPosition = initData.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());              //视图下标
             type = RunningAccountType.valueOf(initData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));     //流水种类
-            Tag rule_tag = Tag.getTagOfAnalysisRule(rule_no, this);                                     //标签
+            Tag rule_tag = Tag.getTagByRuleNo(rule_no, this);                                     //标签
             tag_no = rule_tag.getTno();
             String package_name = initData.getString(KeyValueStrings.PACKAGE_NAME.getValue());                  //包名
             String notification_title = initData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());      //通知标题

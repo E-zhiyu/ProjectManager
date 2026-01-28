@@ -11,10 +11,12 @@ import androidx.annotation.NonNull;
 import com.manager.assistant.data.data_save.database.BookKeepingColumns;
 import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
 import com.manager.assistant.data.data_save.database.BookKeepingTables;
+import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.ui.pages.setting.data_io.pojo.PojoTagGroup;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class TagGroup {
     private final List<Tag> tags;   //该分组下的标签字符串
@@ -134,7 +136,7 @@ public class TagGroup {
      */
     @NonNull
     public static List<TagGroup> loadTagGroups(Context context) throws SQLiteException {
-        return loadTagGroups(context, 0);
+        return loadTagGroups(context, 0, null);
     }
 
     /**
@@ -142,11 +144,12 @@ public class TagGroup {
      *
      * @param context      用于打开数据库的上下文
      * @param excepted_tno 被排除的标签编号
+     * @param scopeType    标签作用域
      * @return 标签分组列表
      * @throws SQLiteException 读取失败产生的数据库异常
      */
     @NonNull
-    public static List<TagGroup> loadTagGroups(Context context, long excepted_tno) throws SQLiteException {
+    public static List<TagGroup> loadTagGroups(Context context, long excepted_tno, RunningAccountType scopeType) throws SQLiteException {
         BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
         List<TagGroup> tagGroupList = new ArrayList<>();    //标签组实例列表
@@ -167,21 +170,34 @@ public class TagGroup {
             tagGroupList.add(new TagGroup(group_name, group_no));
         }
 
+        //生成标签查询条件
+        String selection = null;
+        if (scopeType != null) {
+            int ordinal = scopeType.ordinal();
+            selection = String.format(
+                    Locale.getDefault(),
+                    "%s&%d==0",     //某一位为0表示这个标签对于该位数对应的序列数的种类可见
+                    BookKeepingColumns.TAG_SCOPE,
+                    ordinal
+            );
+        }
+
         //再查询标签表
-        Cursor tag_cursor = db.query(
+        Cursor tagCursor = db.query(
                 BookKeepingTables.TAG.toString(),
                 null,
-                null,
+                selection,
                 null,
                 null,
                 null,
                 BookKeepingColumns.TAG_NO.toString()
         );
-        while (tag_cursor.moveToNext()) {
-            String tag_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NAME.toString()));    //标签名称
-            long tag_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));            //标签编号
-            long group_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(BookKeepingColumns.GROUP_NO.toString()));        //分组编号
-            Tag oneTag = new Tag(tag_name, tag_no);
+        while (tagCursor.moveToNext()) {
+            String tag_name = tagCursor.getString(tagCursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NAME.toString()));    //标签名称
+            long tag_no = tagCursor.getLong(tagCursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));            //标签编号
+            long group_no = tagCursor.getLong(tagCursor.getColumnIndexOrThrow(BookKeepingColumns.GROUP_NO.toString()));        //分组编号
+            int tag_scope = tagCursor.getInt(tagCursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_SCOPE.toString()));
+            Tag oneTag = new Tag(tag_name, tag_no, tag_scope);
 
             if (tag_no == excepted_tno) continue;   //不添加被排除的标签
 
@@ -193,7 +209,7 @@ public class TagGroup {
             }
         }
 
-        tag_cursor.close();
+        tagCursor.close();
         group_cursor.close();
         db.close();
         return tagGroupList;

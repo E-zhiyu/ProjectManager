@@ -131,7 +131,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                 try {
                     //获取标签编号
                     long rule_no = rule.getRuleNo();
-                    long tag_no = Tag.getTagOfAnalysisRule(rule_no, getBaseContext()).getTno();
+                    long tag_no = Tag.getTagByRuleNo(rule_no, getBaseContext()).getTno();
 
                     dataBundle = getNewAccountData(matcher, rule.getType(), tag_no, rule.getRuleName());
                     Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据保存成功");

@@ -15,6 +15,7 @@ import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.data.data_class.TagGroup;
 import com.manager.assistant.ui.others.adapters.SheetTagBtnRecyclerAdapter;
 import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;
+import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.ui.pages.bookkeeping.tag.TagManageActivity;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -28,14 +29,16 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment {
     private boolean isTagExcepted = false;          //是否存在被排除的标签
     private final SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener tagBtnClickedListener; //标签按钮点击事件的监听器
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
+    private final RunningAccountType tagScopeType;  //标签作用域种类（即流水记录种类）
 
     /**
      * 标签选择菜单构造方法
      *
      * @param listener 标签按钮点击监听器
      */
-    public TagSelectBottomSheet(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener) {
+    public TagSelectBottomSheet(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener, RunningAccountType tagScopeType) {
         this.tagBtnClickedListener = listener;
+        this.tagScopeType = tagScopeType;
     }
 
     /**
@@ -47,6 +50,7 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment {
     public TagSelectBottomSheet(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener, long excepted_tag_no) {
         this.tagBtnClickedListener = listener;
         this.excepted_tag_no = excepted_tag_no;
+        tagScopeType = null;    //不需要过滤标签作用域
         isTagExcepted = true;
     }
 
@@ -91,7 +95,7 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment {
 
     private void loadTagGroupData(@NonNull SheetTagGroupRecyclerAdapter tagAdapter) {
         disposables.add(
-                Observable.fromCallable(() -> TagGroup.loadTagGroups(requireContext(), excepted_tag_no))
+                Observable.fromCallable(() -> TagGroup.loadTagGroups(requireContext(), excepted_tag_no, tagScopeType))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(

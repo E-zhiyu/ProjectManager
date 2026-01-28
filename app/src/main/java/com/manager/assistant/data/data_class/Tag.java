@@ -23,11 +23,19 @@ import java.util.List;
 public class Tag {
     private String name;    //名称
     private final long tno; //编号
+    private int scope;      //作用域
 
-    public Tag(String name, long tno) {
+    public Tag(String name, long tno, int scope) {
         this.name = name;
         this.tno = tno;
+        this.scope = scope;
     }
+
+//    public Tag(String name, long tno) {
+//        this.name = name;
+//        this.tno = tno;
+//        this.scope = 0;
+//    }
 
     public String getName() {
         return name;
@@ -39,6 +47,14 @@ public class Tag {
 
     public long getTno() {
         return tno;
+    }
+
+    public int getScope() {
+        return scope;
+    }
+
+    public void setScope(int scope) {
+        this.scope = scope;
     }
 
     /**
@@ -159,7 +175,8 @@ public class Tag {
         while (cursor.moveToNext()) {
             String tagName = cursor.getString(cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NAME.toString()));
             long tag_no = cursor.getLong(cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));
-            tagList.add(new Tag(tagName, tag_no));
+            int scope = cursor.getInt(cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_SCOPE.toString()));
+            tagList.add(new Tag(tagName, tag_no, scope));
         }
 
         cursor.close();
@@ -346,7 +363,7 @@ public class Tag {
      */
     @NonNull
     @Contract("_, _ -> new")
-    public static Tag getTagByTagNo(long rno, Context context) throws SQLiteException {
+    public static Tag getTagByRno(long rno, Context context) throws SQLiteException {
         BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
@@ -354,7 +371,7 @@ public class Tag {
         String[] columns = {BookKeepingColumns.TAG_NO.toString()};
         String selection = BookKeepingColumns.RNO + "=?";
         String[] selectionArgs = {String.valueOf(rno)};
-        Cursor basic_cursor = db.query(
+        Cursor basicCursor = db.query(
                 BookKeepingTables.BASIC.toString(),
                 columns,
                 selection,
@@ -365,18 +382,22 @@ public class Tag {
                 "1"
         );
 
+        //判断该流水记录是否有标签，如果没有则返回空标签对象
         long tag_no = 0;
-        if (basic_cursor.moveToNext()) {
-            tag_no = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));
+        if (basicCursor.moveToNext()) {
+            tag_no = basicCursor.getLong(basicCursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));
             if (tag_no == 0)
-                return new Tag("", 0);
+                return new Tag("", 0, 0);
         }
 
         //查询标签名称
-        String[] tag_columns = {BookKeepingColumns.TAG_NAME.toString()};
+        String[] tag_columns = {
+                BookKeepingColumns.TAG_NAME.toString(),
+                BookKeepingColumns.TAG_SCOPE.toString()
+        };
         String tag_selection = BookKeepingColumns.TAG_NO + "=?";
         String[] tag_selectionArgs = {String.valueOf(tag_no)};
-        Cursor tag_cursor = db.query(
+        Cursor tagCursor = db.query(
                 BookKeepingTables.TAG.toString(),
                 tag_columns,
                 tag_selection, tag_selectionArgs,
@@ -387,14 +408,16 @@ public class Tag {
         );
 
         String tag_name = "";
-        if (tag_cursor.moveToNext()) {
-            tag_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NAME.toString()));
+        int scope = 0;
+        if (tagCursor.moveToNext()) {
+            tag_name = tagCursor.getString(tagCursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NAME.toString()));
+            scope = tagCursor.getInt(tagCursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_SCOPE.toString()));
         }
 
-        basic_cursor.close();
-        tag_cursor.close();
+        basicCursor.close();
+        tagCursor.close();
         db.close();
-        return new Tag(tag_name, tag_no);
+        return new Tag(tag_name, tag_no, scope);
     }
 
     /**
@@ -407,7 +430,7 @@ public class Tag {
      */
     @NonNull
     @Contract("_, _ -> new")
-    public static Tag getTagOfAnalysisRule(long rule_no, Context context) throws SQLiteException {
+    public static Tag getTagByRuleNo(long rule_no, Context context) throws SQLiteException {
         BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
@@ -430,14 +453,17 @@ public class Tag {
         if (rule_cursor.moveToNext()) {
             tag_no = rule_cursor.getLong(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));
             if (tag_no == 0)
-                return new Tag("", 0);
+                return new Tag("", 0, 0);
         }
 
         //查询标签名称
-        String[] tag_columns = {BookKeepingColumns.TAG_NAME.toString()};
+        String[] tag_columns = {
+                BookKeepingColumns.TAG_NAME.toString(),
+                BookKeepingColumns.TAG_SCOPE.toString()
+        };
         String tag_selection = BookKeepingColumns.TAG_NO + "=?";
         String[] tag_selectionArgs = {String.valueOf(tag_no)};
-        Cursor tag_cursor = db.query(
+        Cursor tagCursor = db.query(
                 BookKeepingTables.TAG.toString(),
                 tag_columns,
                 tag_selection, tag_selectionArgs,
@@ -448,13 +474,15 @@ public class Tag {
         );
 
         String tag_name = "";
-        if (tag_cursor.moveToNext()) {
-            tag_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NAME.toString()));
+        int scope = 0;
+        if (tagCursor.moveToNext()) {
+            tag_name = tagCursor.getString(tagCursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NAME.toString()));
+            scope = tagCursor.getInt(tagCursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_SCOPE.toString()));
         }
 
         rule_cursor.close();
-        tag_cursor.close();
+        tagCursor.close();
         db.close();
-        return new Tag(tag_name, tag_no);
+        return new Tag(tag_name, tag_no, scope);
     }
 }
