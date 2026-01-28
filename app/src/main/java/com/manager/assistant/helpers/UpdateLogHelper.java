@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.7.6  \n" +
             "**修改内容**  \n" +
+            "- 标签输入界面可以选择标签的作用域  \n" +
             "- 改进记账界面的过滤功能，现在可以同时过滤多个标签，并且支持过滤流水种类和日期范围  \n\n" +
             "# v1.7.5  \n" +
             "**界面优化**  \n" +
