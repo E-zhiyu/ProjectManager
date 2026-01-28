@@ -39,10 +39,11 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
          *
          * @param tag_no     标签编号
          * @param tag_name   标签名称
+         * @param tag_scope  标签作用域
          * @param group_no   标签分组编号
          * @param group_name 标签分组名称
          */
-        void onTagTextViewClicked(long tag_no, String tag_name, long group_no, String group_name);
+        void onTagTextViewClicked(long tag_no, String tag_name, int tag_scope, long group_no, String group_name);
 
         /**
          * 处理分组文本视图点击事件
@@ -111,6 +112,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
         for (Tag oneTag : currentGroup.getTags()) {
             String tag_name = oneTag.getName();
             long tag_no = oneTag.getTno();
+            int tag_scope = oneTag.getScope();
 
             //设置文本属性
             MaterialTextView tagTextView = new MaterialTextView(context);
@@ -137,7 +139,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
             //设置标签文本点击监听器
             tagTextView.setOnClickListener(v ->
-                    textClickedListener.onTagTextViewClicked(tag_no, tag_name, group_no, group_name)
+                    textClickedListener.onTagTextViewClicked(tag_no, tag_name, tag_scope, group_no, group_name)
             );
 
             tagTextView.setText(tag_name);
@@ -188,12 +190,13 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
      *
      * @param new_tag_name 新标签名称
      * @param tag_no       标签编号
+     * @param tag_scope    标签作用域
      * @param group_no     该标签所属的分组编号
      */
-    public void modifyTag(String new_tag_name, long tag_no, long group_no) {
+    public void modifyTag(String new_tag_name, long tag_no, int tag_scope, long group_no) {
         //将数据保存至数据库
         try {
-            Tag.modifyTag(new_tag_name, tag_no, context);
+            Tag.modifyTag(new_tag_name, tag_no, tag_scope, context);
             Toast.makeText(context, "标签修改成功", Toast.LENGTH_SHORT).show();
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
@@ -222,11 +225,12 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
      *
      * @param new_tag_name             新标签名称
      * @param tag_no                   标签编号
+     * @param tag_scope                标签作用域
      * @param new_group_name           新标签分组名称
      * @param origin_group_no          原标签分组编号
      * @param group_no_after_modifying 新标签分组编号
      */
-    public void modifyTag(String new_tag_name, long tag_no, String new_group_name, long origin_group_no, long group_no_after_modifying) {
+    public void modifyTag(String new_tag_name, long tag_no, int tag_scope, String new_group_name, long origin_group_no, long group_no_after_modifying) {
         //判断是否需要新建标签分组
         if (group_no_after_modifying == -1) {
             //保存新标签分组
@@ -239,7 +243,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             }
 
             TagGroup newGroup = new TagGroup(new_group_name, group_no_after_modifying);
-            newGroup.addTag(new Tag(new_tag_name, tag_no, -1));
+            newGroup.addTag(new Tag(new_tag_name, tag_no, tag_scope));
 
             int new_group_index = tagGroupList.size();
             tagGroupList.add(newGroup);
@@ -249,7 +253,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             int new_group_index = 0;    //待新增标签的分组下标
             for (TagGroup group : this.tagGroupList) {
                 if (group.getGroup_no() == group_no_after_modifying) {
-                    Tag new_tag = new Tag(new_tag_name, tag_no, -1);
+                    Tag new_tag = new Tag(new_tag_name, tag_no, tag_scope);
                     group.addTag(new_tag);
                     break;
                 }
@@ -261,7 +265,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
         //将数据保存至数据库
         try {
-            Tag.modifyTag(new_tag_name, tag_no, group_no_after_modifying, context);
+            Tag.modifyTag(new_tag_name, tag_no, tag_scope, group_no_after_modifying, context);
             Toast.makeText(context, "标签修改成功", Toast.LENGTH_SHORT).show();
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);

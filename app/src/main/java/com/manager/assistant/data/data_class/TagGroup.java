@@ -173,12 +173,12 @@ public class TagGroup {
         //生成标签查询条件
         String selection = null;
         if (scopeType != null) {
-            int ordinal = scopeType.ordinal();
+            int binary = (int) Math.pow(2, scopeType.ordinal());
             selection = String.format(
                     Locale.getDefault(),
                     "%s&%d==0",     //某一位为0表示这个标签对于该位数对应的序列数的种类可见
                     BookKeepingColumns.TAG_SCOPE,
-                    ordinal
+                    binary
             );
         }
 

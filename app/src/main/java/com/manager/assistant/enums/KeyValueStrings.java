@@ -15,6 +15,7 @@ public enum KeyValueStrings {
     IS_MODIFY_MODE("is_modify_mode"),                       //是否为修改模式
     TAG_NAME("tag_name"),                                   //标签名称
     TAG_NO("tag_no"),                                       //标签编号
+    TAG_SCOPE("tag_scope"),                                 //标签作用域
     TAG_GROUP_NAME("tag_group_name"),                       //标签分组名称
     TAG_GROUP_NO("tag_group_no"),                           //标签分组编号
     MERGE_TARGET_NO("merged_no"),                           //合并到的分组或标签编号

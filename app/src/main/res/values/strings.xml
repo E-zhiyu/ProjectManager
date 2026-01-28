@@ -137,4 +137,5 @@
     <string name="apply">应用</string>
     <string name="set_filter">设置过滤</string>
     <string name="date_range_help">选择流水日期范围，留空则不限制日期范围</string>
+    <string name="tag_scope">标签作用域</string>
 </resources>

@@ -31,11 +31,11 @@ public class Tag {
         this.scope = scope;
     }
 
-//    public Tag(String name, long tno) {
-//        this.name = name;
-//        this.tno = tno;
-//        this.scope = 0;
-//    }
+    public Tag(String name, long tno) {
+        this.name = name;
+        this.tno = tno;
+        this.scope = 0;
+    }
 
     public String getName() {
         return name;
@@ -187,22 +187,24 @@ public class Tag {
     /**
      * 保存新的标签到数据库
      *
-     * @param tag_name 标签名称
-     * @param group_no 该标签对应的分组编号
-     * @param context  用于打开数据库的上下文
+     * @param tagName   标签名称
+     * @param tag_scope 标签作用域
+     * @param group_no  该标签对应的分组编号
+     * @param context   用于打开数据库的上下文
      * @return 对应的标签编号
      * @throws SQLiteException 无法修改数据库时引发的异常
      */
-    public static long saveNewTag(String tag_name, long group_no, Context context) throws SQLiteException {
+    public static long saveNewTag(String tagName, int tag_scope, long group_no, Context context) throws SQLiteException {
         long tag_no;    //标签编号
 
         BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
-        ContentValues tag_values = new ContentValues();
-        tag_values.put(BookKeepingColumns.TAG_NAME.toString(), tag_name);
-        tag_values.put(BookKeepingColumns.GROUP_NO.toString(), group_no);
-        tag_no = db.insert(BookKeepingTables.TAG.toString(), null, tag_values);
+        ContentValues tagValues = new ContentValues();
+        tagValues.put(BookKeepingColumns.TAG_NAME.toString(), tagName);
+        tagValues.put(BookKeepingColumns.TAG_SCOPE.toString(), tag_scope);
+        tagValues.put(BookKeepingColumns.GROUP_NO.toString(), group_no);
+        tag_no = db.insert(BookKeepingTables.TAG.toString(), null, tagValues);
 
         db.close();
         return tag_no;
@@ -211,14 +213,16 @@ public class Tag {
     /**
      * 修改标签（不修改所属分组）
      *
-     * @param new_name 新标签名称
-     * @param tag_no   标签编号
-     * @param context  打开数据库所需的上下文
+     * @param new_name  新标签名称
+     * @param tag_no    标签编号
+     * @param tag_scope 标签作用域
+     * @param context   打开数据库所需的上下文
      * @throws SQLiteException 无法修改数据库时引发的异常
      */
-    public static void modifyTag(String new_name, long tag_no, Context context) throws SQLiteException {
-        ContentValues tag_values = new ContentValues();
-        tag_values.put(BookKeepingColumns.TAG_NAME.toString(), new_name);
+    public static void modifyTag(String new_name, long tag_no, int tag_scope, Context context) throws SQLiteException {
+        ContentValues tagValues = new ContentValues();
+        tagValues.put(BookKeepingColumns.TAG_NAME.toString(), new_name);
+        tagValues.put(BookKeepingColumns.TAG_SCOPE.toString(), tag_scope);
         String whereStr = BookKeepingColumns.TAG_NO + "=?";
         String[] whereStrArgs = {String.valueOf(tag_no)};
 
@@ -227,7 +231,7 @@ public class Tag {
 
         db.update(
                 BookKeepingTables.TAG.toString(),
-                tag_values,
+                tagValues,
                 whereStr,
                 whereStrArgs
         );
@@ -240,14 +244,16 @@ public class Tag {
      *
      * @param new_tag_name 新标签名称
      * @param tag_no       待修改的标签编号
+     * @param tag_scope    标签作用域
      * @param new_group_no 新分组编号
      * @param context      打开数据库所需的上下文
      * @throws SQLiteException 无法修改数据库时引发的异常
      */
-    public static void modifyTag(String new_tag_name, long tag_no, long new_group_no, Context context) throws SQLiteException {
-        ContentValues tag_values = new ContentValues();
-        tag_values.put(BookKeepingColumns.TAG_NAME.toString(), new_tag_name);
-        tag_values.put(BookKeepingColumns.GROUP_NO.toString(), new_group_no);
+    public static void modifyTag(String new_tag_name, long tag_no, int tag_scope, long new_group_no, Context context) throws SQLiteException {
+        ContentValues tagValues = new ContentValues();
+        tagValues.put(BookKeepingColumns.TAG_NAME.toString(), new_tag_name);
+        tagValues.put(BookKeepingColumns.TAG_SCOPE.toString(), tag_scope);
+        tagValues.put(BookKeepingColumns.GROUP_NO.toString(), new_group_no);
         String whereStr = BookKeepingColumns.TAG_NO + "=?";
         String[] whereStrArgs = {String.valueOf(tag_no)};
 
@@ -256,7 +262,7 @@ public class Tag {
 
         db.update(
                 BookKeepingTables.TAG.toString(),
-                tag_values,
+                tagValues,
                 whereStr,
                 whereStrArgs
         );

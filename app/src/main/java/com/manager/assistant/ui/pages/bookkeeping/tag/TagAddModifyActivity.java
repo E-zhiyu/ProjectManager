@@ -2,18 +2,19 @@ package com.manager.assistant.ui.pages.bookkeeping.tag;
 
 import android.content.Intent;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import com.manager.assistant.R;
 import com.manager.assistant.databinding.ActivityTagAddModifyBinding;
 import com.manager.assistant.enums.RequestResultCode;
@@ -21,18 +22,21 @@ import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.enums.TagString;
 import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.helpers.AnimationHelper;
+import com.manager.assistant.helpers.ColorHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
 import com.manager.assistant.ui.data_communication.tag_modify.TagUpdateReason;
 import com.manager.assistant.ui.data_communication.tag_modify.TagRepository;
+import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
 import java.util.ArrayList;
 
 public class TagAddModifyActivity extends AppCompatActivity implements View.OnFocusChangeListener, View.OnClickListener {
     private boolean isModifyMode = false;                       //是否为标签编辑模式
     private long tag_no = 0, group_no = 0;                      //标签和标签分组编号
-    private TagSelectBottomSheet tag_sheet;                     //标签选择底部弹窗
+    private TagSelectBottomSheet tagSheet;                      //标签选择底部弹窗
     private ActivityTagAddModifyBinding binding;                //绑定的XML视图的引用
+    private int scope = 0;                                      //标签作用域范围
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +45,9 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
         binding = ActivityTagAddModifyBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        receiveInitData();
         initViews();
         AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
-        receiveInitData();
     }
 
     @Override
@@ -89,9 +93,10 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
                 Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
             } else {
                 String tag_name = String.valueOf(binding.tagNameInput.getText());
-                dataBundle.putString(KeyValueStrings.TAG_NAME.getValue(), tag_name);         //标签名
+                dataBundle.putString(KeyValueStrings.TAG_NAME.getValue(), tag_name);            //标签名
                 String group_name = String.valueOf(binding.tagGroupInput.getText());
-                dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), group_name); //分组名称
+                dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), group_name);    //分组名称
+                dataBundle.putInt(KeyValueStrings.TAG_SCOPE.getValue(), scope);                 //标签作用域
 
                 if (isModifyMode) {
                     TagRepository repository = TagRepository.getInstance();
@@ -153,12 +158,36 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
                 .setTitle("合并标签")
                 .setMessage("此操作会将本标签与其他标签合并，使用本标签标记的流水记录将自动替换为用合并后的标签标记，并且本标签将被永久删除，确认继续吗？")
                 .setPositiveButton("确认", (dialog, which) -> {
-                    tag_sheet = new TagSelectBottomSheet(this::onTagBtnClicked, tag_no);
-                    tag_sheet.show(getSupportFragmentManager(), TagString.TAG_MERGE_SHEET.getValue());
+                    tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, tag_no);
+                    tagSheet.show(getSupportFragmentManager(), TagString.TAG_MERGE_SHEET.getValue());
                 })
                 .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
                 .show()
         );
+
+        //标签作用域选择
+        for (RunningAccountType type : RunningAccountType.values()) {
+            Chip scopeChip = new Chip(this);
+            scopeChip.setCheckable(true);
+            scopeChip.setCheckedIconVisible(true);
+            scopeChip.setCheckedIcon(ContextCompat.getDrawable(this, R.drawable.baseline_check_24));
+            scopeChip.setText(type.getTitle());
+
+            //设置初始选择状态
+            int iBinary = (int) Math.pow(2, type.ordinal());
+            scopeChip.setChecked((scope & iBinary) == 0);
+
+            scopeChip.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                int binary = (int) Math.pow(2, type.ordinal());
+                if (!isChecked) {
+                    scope |= binary;    //未被选择则将对应二进制位置为1，标记为对那种类型不可见
+                } else {
+                    scope &= ~binary;
+                }
+            });
+
+            binding.scopeSelectChipGroup.addView(scopeChip);
+        }
     }
 
     /**
@@ -178,6 +207,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
 
             tag_no = tagData.getLong(KeyValueStrings.TAG_NO.getValue());                        //该标签编号
             group_no = tagData.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());                //所属分组编号
+            scope = tagData.getInt(KeyValueStrings.TAG_SCOPE.getValue());                       //标签作用域
             String tag_name = tagData.getString(KeyValueStrings.TAG_NAME.getValue());           //该标签名称
             String group_name = tagData.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());   //所属分组名称
 
@@ -192,7 +222,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
         TagRepository repository = TagRepository.getInstance();
         repository.updateTag(tag_name, tag_no, TagUpdateReason.MERGE);    //传递合并到的标签的名称和原来标签的编号
 
-        tag_sheet.dismiss();
+        tagSheet.dismiss();
 
         //将数据传递给父界面
         Intent result2TagEdit = new Intent();
