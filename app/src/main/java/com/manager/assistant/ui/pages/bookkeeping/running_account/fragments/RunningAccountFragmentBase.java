@@ -20,6 +20,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -42,6 +43,7 @@ import com.manager.assistant.enums.LogTags;
 import com.manager.assistant.enums.TagString;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
+import com.manager.assistant.ui.data_communication.account_picture.AccountPictureViewModel;
 import com.manager.assistant.ui.data_communication.tag_modify.TagRepository;
 import com.manager.assistant.ui.data_communication.tag_modify.TagUpdateReason;
 import com.manager.assistant.ui.others.bottom_sheets.picture.AddPictureOptionBottomSheet;
@@ -83,6 +85,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
     private PictureAdapter pictureAdapter;                  //图片RecyclerView的适配器
     private MaterialButton pictureDeleteBtn;                //删除选中的图片的按钮
     private final CompositeDisposable disposables = new CompositeDisposable();  //多线程任务列表
+    private boolean viewModelRefreshPictureEnabled = true;  //是否能够通过ViewModel刷新图片视图
 
     public RunningAccountFragmentBase() {
         setDefaultRemark();
@@ -108,6 +111,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         setupPictureRecyclerAdapter();
 
         startObserveTag();
+        startObservePicture();
 
         return contentView;
     }
@@ -231,12 +235,22 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
                 .setMessage("是否删除选中的图片？此操作会立刻执行并且无法撤回！")
                 .setPositiveButton(
                         "确定",
-                        (dialog, which) -> pictureAdapter.deleteSelectedPicture()
+                        (dialog, which) -> {
+                            viewModelRefreshPictureEnabled = false; //禁用本实例ViewModel的刷新功能，防止动画重叠
+                            AccountPictureViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountPictureViewModel.class);
+                            pictureAdapter.deleteSelectedPicture(viewModel);
+                        }
                 )
                 .setNegativeButton("取消", null)
                 .show());
     }
 
+    /**
+     * 标签选中弹窗的标签按钮点击回调
+     *
+     * @param tag_no   点击的标签编号
+     * @param tag_name 点击的标签名称
+     */
     public void onTagBtnClicked(long tag_no, String tag_name) {
         this.tag_no = tag_no;   //更新全局变量中的标签编号
 
@@ -267,7 +281,9 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         );
     }
 
-    //观察标签数据变化
+    /**
+     * 观察标签数据的变化
+     */
     private void startObserveTag() {
         TagRepository repository = TagRepository.getInstance();
         repository.getChangedTagList().observe(getViewLifecycleOwner(), tagList -> {
@@ -298,6 +314,22 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
     }
 
     /**
+     * 观察来自其他Fragment的图片变化
+     */
+    private void startObservePicture() {
+        AccountPictureViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountPictureViewModel.class);
+        viewModel.getPictureLiveData().observe(
+                getViewLifecycleOwner(), pictureList -> {
+                    if (viewModelRefreshPictureEnabled) {
+                        pictureAdapter.refreshPicture(pictureList);
+                    }
+
+                    viewModelRefreshPictureEnabled = true;
+                }
+        );
+    }
+
+    /**
      * 验证输入内容
      *
      * @return 错误提示(无错误为null)
@@ -322,11 +354,12 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
 
     /**
      * 编辑流水时初始化控件内容的方法
+     *
      * @return 初始化数据的数据包
      */
     public Bundle receiveInitData() {
         Bundle dataBundle = requireActivity().getIntent().getExtras();
-        if (dataBundle==null) {
+        if (dataBundle == null) {
             return null;
         }
 
@@ -533,6 +566,9 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         Uri pictureUri = Uri.parse(uriStr);
         Picture newPicture = new Picture(pictureUri, rno);
         pictureAdapter.addPicture(newPicture);
+
+        AccountPictureViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountPictureViewModel.class);
+        viewModel.addPicture(newPicture);
     }
 
     /**
@@ -613,6 +649,9 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
                                             ), Toast.LENGTH_SHORT
                                     ).show();
                                     pictureAdapter.addPicture(pictureList);
+
+                                    AccountPictureViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountPictureViewModel.class);
+                                    viewModel.addPicture(pictureList);
                                 },
                                 e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
                                 processDialog::dismiss

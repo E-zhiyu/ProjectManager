@@ -26,6 +26,7 @@ import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.Picture;
 import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.helpers.AnimationHelper;
+import com.manager.assistant.ui.data_communication.account_picture.AccountPictureViewModel;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -96,6 +97,15 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
                 .error(R.drawable.baseline_error_outline_24)    //错误图
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC) //缓存策略
                 .override(picture_size, picture_size);          //图片尺寸
+    }
+
+    /**
+     * 获取图片列表
+     *
+     * @return 图片列表
+     */
+    public List<Picture> getPictureList() {
+        return pictureList;
     }
 
     /**
@@ -189,12 +199,13 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
      * @param pictureList 刷新后的图片列表
      */
     public void refreshPicture(List<Picture> pictureList) {
+        int old_count = this.pictureList.size();
         this.pictureList.clear();
-        this.pictureList.addAll(pictureList);
         pictureSelectList.clear();
-        pictureSelectList.addAll(new ArrayList<>(Collections.nCopies(pictureList.size(), false)));    //默认未选择
+        notifyItemRangeRemoved(0, old_count);
 
-        //刷新UI
+        this.pictureList.addAll(pictureList);
+        pictureSelectList.addAll(new ArrayList<>(Collections.nCopies(pictureList.size(), false)));    //默认未选择
         notifyItemRangeInserted(0, pictureList.size());
     }
 
@@ -257,6 +268,12 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         return origin_position - lost_picture_num;
     }
 
+    /**
+     * 获取屏幕宽度
+     *
+     * @param context 上下文
+     * @return 屏幕宽度像素值
+     */
     private int getScreenWidth(Context context) {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -290,8 +307,10 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
 
     /**
      * 删除被选中的图片
+     *
+     * @param viewModel 控制图片视图的ViewModel
      */
-    public void deleteSelectedPicture() {
+    public void deleteSelectedPicture(AccountPictureViewModel viewModel) {
         //从尾部开始删除，避免影响下标值
         int delete_num = 0;
         for (int index = pictureSelectList.size() - 1; index >= 0; index--) {
@@ -331,5 +350,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
 
         //关闭图片删除模式
         switchDeleteMode(false);
+
+        viewModel.deletePicture(pictureList);
     }
 }
