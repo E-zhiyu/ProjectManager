@@ -95,7 +95,7 @@ public class ReportActivity extends AppCompatActivity {
         year = now.get(Calendar.YEAR);
         month = now.get(Calendar.MONTH) + 1;
         day = now.get(Calendar.DAY_OF_MONTH);
-        @SuppressLint("DefaultLocale") String date_str = String.format("%04d年%02d月%02d日", year, month, day);
+        String date_str = String.format(Locale.getDefault(), "%04d年%02d月%02d日", year, month, day);
 
         //设置点击监听器
         binding.reportDateSelectBtn.setText(date_str);

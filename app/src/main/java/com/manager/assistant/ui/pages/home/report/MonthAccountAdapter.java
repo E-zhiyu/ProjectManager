@@ -17,6 +17,7 @@ import com.manager.assistant.data.data_class.MonthAccountInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapter.MonthAccountViewHolder> {
     private final List<MonthAccountInfo> monthAccountInfoList = new ArrayList<>();  //每月流水数据列表
@@ -59,7 +60,6 @@ public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapte
     }
 
     @Override
-    @SuppressLint("DefaultLocale")
     public void onBindViewHolder(@NonNull MonthAccountAdapter.MonthAccountViewHolder holder, int position) {
         MonthAccountInfo oneMonthInfo = monthAccountInfoList.get(position);
         double amount = 0;
@@ -79,11 +79,11 @@ public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapte
                 break;
         }
         int percentage = oneMonthInfo.getPercentage();
-        String month_name = String.format("%d月", position + 1);
+        String month_name = String.format(Locale.getDefault(), "%d月", position + 1);
 
         holder.monthNameText.setText(month_name);                 //月份名称
-        holder.amountText.setText(String.format("%.2f", amount));  //金额
-        String percentage_str = String.format("%d%%", percentage);
+        holder.amountText.setText(String.format(Locale.getDefault(), "%.2f", amount));  //金额
+        String percentage_str = String.format(Locale.getDefault(), "%d%%", percentage);
         holder.proportionText.setText(percentage_str);             //百分比文本
         holder.proportionBar.setProgress(percentage);              //百分比进度条
     }

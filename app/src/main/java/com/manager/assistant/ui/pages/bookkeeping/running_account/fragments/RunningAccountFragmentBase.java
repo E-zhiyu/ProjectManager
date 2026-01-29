@@ -216,7 +216,9 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
 
         //初始化日期内容
         Calendar calendar = Calendar.getInstance();
-        @SuppressLint("DefaultLocale") String dt_string = String.format("%04d-%02d-%02d %02d:%02d",
+        String dt_string = String.format(
+                Locale.getDefault(),
+                "%04d-%02d-%02d %02d:%02d",
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH) + 1,
                 calendar.get(Calendar.DAY_OF_MONTH),
@@ -487,7 +489,9 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
 
             //修改文本框的日期和时间
             TextInputEditText datetime_input = contentView.findViewById(R.id.datetime_input);
-            @SuppressLint("DefaultLocale") String datetime_str = String.format("%04d-%02d-%02d %02d:%02d",
+            String datetime_str = String.format(
+                    Locale.getDefault(),
+                    "%04d-%02d-%02d %02d:%02d",
                     selectionCalendar.get(Calendar.YEAR),
                     selectionCalendar.get(Calendar.MONTH) + 1,
                     selectionCalendar.get(Calendar.DAY_OF_MONTH),
