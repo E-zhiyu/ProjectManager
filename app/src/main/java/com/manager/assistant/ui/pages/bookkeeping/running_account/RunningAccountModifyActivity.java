@@ -76,7 +76,6 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.add(R.id.fragment_container, runningAccountFragment);
             transaction.commit();
-            runningAccountFragment.receiveInitData(dataBundle);   //将原本的数据传递给碎片实例
         }
 
         //设置返回监听器

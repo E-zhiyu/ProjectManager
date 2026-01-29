@@ -98,10 +98,8 @@ public class BookKeepingFragment extends Fragment {
         dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
         String remark = runningAccount.getRemark();                 //备注
         dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
-        boolean isDefaultRemark = runningAccount.isDefaultRemark(); //是否使用默认备注
-        dataBundle.putBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue(), isDefaultRemark);
-        String date_time = runningAccount.getDatetime();           //日期
-        dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), date_time);
+        String datetime = runningAccount.getDatetime();           //日期
+        dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), datetime);
         long rno = runningAccount.getRno();                         //流水编号
         dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
 
@@ -127,7 +125,7 @@ public class BookKeepingFragment extends Fragment {
 
                     if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
                         if (data != null) {
-                            onNewAccountAddedReceived(data);
+                            onNewAccountAdded(data);
                         } else {
                             NullPointerException e = new NullPointerException("无法获取新增流水的数据");
                             ExceptionHelper.showExceptionDialog(requireContext(), e);
@@ -202,7 +200,7 @@ public class BookKeepingFragment extends Fragment {
      * 初始化广播接收器
      */
     private void setupBroadcastReceiver() {
-        accountUpdatedReceiver = new RunningAccountUpdatedBroadcastReceiver(this::onNewAccountAddedReceived);
+        accountUpdatedReceiver = new RunningAccountUpdatedBroadcastReceiver(this::onNewAccountAdded);
         IntentFilter filter = new IntentFilter();
         filter.addAction(BroadcastConstants.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -242,7 +240,7 @@ public class BookKeepingFragment extends Fragment {
      *
      * @param dataBundle 新增流水记录的数据
      */
-    private void onNewAccountAddedReceived(@NonNull Bundle dataBundle) {
+    private void onNewAccountAdded(@NonNull Bundle dataBundle) {
         accountAdapter.addNewRunningAccountByNotification(dataBundle);
         binding.accountRecycler.scrollToPosition(0);
         Toast.makeText(requireContext(), "成功添加一条流水记录（自动记账）", Toast.LENGTH_SHORT).show();
@@ -256,7 +254,7 @@ public class BookKeepingFragment extends Fragment {
      *
      * @param resultIntent 包含流水数据的意图对象
      */
-    private void onNewAccountAddedReceived(@NonNull Intent resultIntent) {
+    private void onNewAccountAdded(@NonNull Intent resultIntent) {
         Bundle dataBundle = resultIntent.getExtras();
         if (dataBundle == null) {
             NullPointerException e = new NullPointerException("无法获取新建的流水数据");

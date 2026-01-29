@@ -15,7 +15,6 @@ import com.manager.assistant.data.data_save.database.BookKeepingColumns;
 import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
 import com.manager.assistant.data.data_save.database.BookKeepingTables;
 import com.manager.assistant.enums.KeyValueStrings;
-import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.bottom_sheets.filter.AccountFilterBottomSheet;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
@@ -27,16 +26,20 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 public abstract class RunningAccountBase {
-    protected String name;              //名称
+    protected String title;              //名称
     protected RunningAccountType type;  //种类
     protected String remark;            //备注
-    protected boolean isDefaultRemark;  //是否使用默认备注
-    protected String datetime;         //日期和时间
+    protected String defaultRemark;     //默认备注
+    protected String datetime;          //日期和时间
     protected double amount;            //金额
     protected long rno;                 //流水编号
 
-    public String getName() {
-        return name;
+    public RunningAccountBase() {
+        defaultRemark = initDefaultRemark();
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     public RunningAccountType getType() {
@@ -44,11 +47,11 @@ public abstract class RunningAccountBase {
     }
 
     public String getRemark() {
-        return remark;
+        return remark == null ? "" : remark;
     }
 
-    public boolean isDefaultRemark() {
-        return isDefaultRemark;
+    public String getDefaultRemark() {
+        return defaultRemark;
     }
 
     public String getDatetime() {
@@ -66,6 +69,8 @@ public abstract class RunningAccountBase {
     public void setRno(long rno) {
         this.rno = rno;
     }
+
+    protected abstract String initDefaultRemark();
 
     /**
      * 加载流水记录
@@ -158,19 +163,16 @@ public abstract class RunningAccountBase {
             //备注
             String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.REMARK.toString()));
             if (remark == null) remark = "";
-            //是否使用默认备注
-            boolean isDefaultRemark;
-            isDefaultRemark = remark.isEmpty();
             //日期和时间
             String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.DATETIME.toString()));
 
             RunningAccountBase runningAccountView = null;
             switch (type) {
                 case EXPENSE:
-                    runningAccountView = new ExpenseRunningAccount(rno, remark, datetime, amount, isDefaultRemark);
+                    runningAccountView = new ExpenseRunningAccount(rno, remark, datetime, amount);
                     break;
                 case INCOME:
-                    runningAccountView = new IncomeRunningAccount(rno, remark, datetime, amount, isDefaultRemark);
+                    runningAccountView = new IncomeRunningAccount(rno, remark, datetime, amount);
                     break;
                 case TRANSFER:
                     String[] columns = {BookKeepingColumns.EXPORT.toString(), BookKeepingColumns.IMPORT.toString()};
@@ -191,7 +193,7 @@ public abstract class RunningAccountBase {
                         String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(BookKeepingColumns.EXPORT.toString()));
                         String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(BookKeepingColumns.IMPORT.toString()));
                         transfer_cursor.close();
-                        runningAccountView = new TransferRunningAccount(rno, remark, datetime, amount, isDefaultRemark, exportAccount, importAccount);
+                        runningAccountView = new TransferRunningAccount(rno, remark, datetime, amount, exportAccount, importAccount);
                     }
                     break;
             }
@@ -256,7 +258,6 @@ public abstract class RunningAccountBase {
         String type = dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue());
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
         if (remark == null) remark = "";
-        boolean isDefaultRemark = dataBundle.getBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue());
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
         String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
         long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
@@ -264,7 +265,7 @@ public abstract class RunningAccountBase {
         ContentValues basic_values = new ContentValues();
         basic_values.put(BookKeepingColumns.TYPE.toString(), type);                                 //种类
         basic_values.put(BookKeepingColumns.AMOUNT.toString(), amount);                             //金额
-        basic_values.put(BookKeepingColumns.REMARK.toString(), isDefaultRemark ? null : remark);    //备注
+        basic_values.put(BookKeepingColumns.REMARK.toString(), remark);                             //备注
         basic_values.put(BookKeepingColumns.DATETIME.toString(), date_time);                        //日期
         basic_values.put(BookKeepingColumns.TAG_NO.toString(), tag_no);                             //标签编号
 
@@ -303,17 +304,16 @@ public abstract class RunningAccountBase {
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
         if (remark == null) remark = "";
-        boolean isDefaultRemark = dataBundle.getBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue());
         String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
         long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
 
         //修改基本数据
         ContentValues basic_values = new ContentValues();
-        basic_values.put(BookKeepingColumns.TYPE.toString(), type);                   //种类
-        basic_values.put(BookKeepingColumns.AMOUNT.toString(), amount);                          //金额
-        basic_values.put(BookKeepingColumns.REMARK.toString(), isDefaultRemark ? null : remark); //备注
-        basic_values.put(BookKeepingColumns.DATETIME.toString(), date_time);                     //日期
-        basic_values.put(BookKeepingColumns.TAG_NO.toString(), tag_no);                          //标签编号
+        basic_values.put(BookKeepingColumns.TYPE.toString(), type);             //种类
+        basic_values.put(BookKeepingColumns.AMOUNT.toString(), amount);         //金额
+        basic_values.put(BookKeepingColumns.REMARK.toString(), remark);         //备注
+        basic_values.put(BookKeepingColumns.DATETIME.toString(), date_time);    //日期
+        basic_values.put(BookKeepingColumns.TAG_NO.toString(), tag_no);         //标签编号
         String selection = BookKeepingColumns.RNO + "=?";
         String[] selectionArgs = new String[]{String.valueOf(rno)};
         db.update(

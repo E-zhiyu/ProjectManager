@@ -3,8 +3,6 @@ package com.manager.assistant.ui.pages.bookkeeping.running_account.fragments;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 
@@ -17,7 +15,6 @@ import com.manager.assistant.enums.KeyValueStrings;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 public class TransferFragment extends RunningAccountFragmentBase {
     private TextInputLayout export_layout, import_layout;               //转出和转入账户的文本框布局管理器
@@ -40,7 +37,6 @@ public class TransferFragment extends RunningAccountFragmentBase {
 
     @Override
     protected void initViews() {
-        super.initViews();
         export_layout = contentView.findViewById(R.id.export_account_layout);
         export_input = contentView.findViewById(R.id.export_account_input);
         import_layout = contentView.findViewById(R.id.import_account_layout);
@@ -57,17 +53,23 @@ public class TransferFragment extends RunningAccountFragmentBase {
         );
         export_input.setAdapter(arrayAdapter);
         import_input.setAdapter(arrayAdapter);
+        super.initViews();
     }
 
     @Override
-    public void initViewsWhenModifying(@NonNull Bundle dataBundle) {
-        super.initViewsWhenModifying(dataBundle);
+    public Bundle receiveInitData() {
+        Bundle dataBundle = super.receiveInitData();
+        if (dataBundle == null) {
+            return null;
+        }
 
         String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());
         String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());
 
         export_input.setText(exportAccount);   //转出账户
         import_input.setText(importAccount);   //转入账户
+
+        return dataBundle;
     }
 
     @Override

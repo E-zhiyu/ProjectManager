@@ -76,13 +76,13 @@ public class AccountRecyclerAdapter extends GroupAdapter<GroupieViewHolder> {
 
             String type = runningAccount.getType().getTitle();
             String datetime = runningAccount.getDatetime();
-            String type_datetime = String.format(Locale.getDefault(), "%s·%s", type, datetime);
+            String type_and_datetime = String.format(Locale.getDefault(), "%s·%s", type, datetime);
             String remark = runningAccount.getRemark();
             double amount = runningAccount.getAmount();
 
             amountText.setText(String.format(Locale.getDefault(), "%.2f", amount));
-            remarkText.setText(remark);
-            typeDatetimeText.setText(type_datetime);
+            remarkText.setText(remark.isEmpty() ? runningAccount.getDefaultRemark() : remark);
+            typeDatetimeText.setText(type_and_datetime);
 
             groupieViewHolder.itemView.setOnClickListener(v -> listener.onRunningAccountClick(runningAccount));
             AnimationHelper.attachMorphAnimation(groupieViewHolder.itemView);
@@ -120,7 +120,6 @@ public class AccountRecyclerAdapter extends GroupAdapter<GroupieViewHolder> {
         RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
         if (remark == null) remark = "";
-        boolean isDefaultRemark = dataBundle.getBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue());
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
         String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
         long rno = dataBundle.getLong(KeyValueStrings.RNO.getValue(), 0);
@@ -129,13 +128,13 @@ public class AccountRecyclerAdapter extends GroupAdapter<GroupieViewHolder> {
         //获取特殊数据并实例化流水类
         RunningAccountBase runningAccount;
         if (type == RunningAccountType.EXPENSE) {
-            runningAccount = new ExpenseRunningAccount(remark, date_time, amount, isDefaultRemark);
+            runningAccount = new ExpenseRunningAccount(remark, date_time, amount);
         } else if (type == RunningAccountType.INCOME) {
-            runningAccount = new IncomeRunningAccount(remark, date_time, amount, isDefaultRemark);
+            runningAccount = new IncomeRunningAccount(remark, date_time, amount);
         } else if (type == RunningAccountType.TRANSFER) {
             String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
             String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
-            runningAccount = new TransferRunningAccount(remark, date_time, amount, isDefaultRemark, exportAccount, importAccount);
+            runningAccount = new TransferRunningAccount(remark, date_time, amount, exportAccount, importAccount);
         } else {
             NullPointerException e = new NullPointerException("流水类型获取失败");
             ExceptionHelper.showExceptionDialog(context, e);
@@ -174,19 +173,18 @@ public class AccountRecyclerAdapter extends GroupAdapter<GroupieViewHolder> {
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
         if (remark == null) remark = "";
-        boolean isDefaultRemark = dataBundle.getBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue());
         String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
 
         //实例化流水类
         RunningAccountBase runningAccount;
         if (type == RunningAccountType.EXPENSE) {
-            runningAccount = new ExpenseRunningAccount(remark, date_time, amount, isDefaultRemark);
+            runningAccount = new ExpenseRunningAccount(remark, date_time, amount);
         } else if (type == RunningAccountType.INCOME) {
-            runningAccount = new IncomeRunningAccount(remark, date_time, amount, isDefaultRemark);
+            runningAccount = new IncomeRunningAccount(remark, date_time, amount);
         } else if (type == RunningAccountType.TRANSFER) {
             String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
             String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
-            runningAccount = new TransferRunningAccount(remark, date_time, amount, isDefaultRemark, exportAccount, importAccount);
+            runningAccount = new TransferRunningAccount(remark, date_time, amount, exportAccount, importAccount);
         } else {
             NullPointerException e = new NullPointerException("流水类型获取失败");
             ExceptionHelper.showExceptionDialog(context, e);
@@ -225,19 +223,18 @@ public class AccountRecyclerAdapter extends GroupAdapter<GroupieViewHolder> {
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
         if (remark == null) remark = "";
-        boolean isDefaultRemark = dataBundle.getBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue());
         String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
 
         //实例化流水类
         RunningAccountBase runningAccount;
         if (type == RunningAccountType.EXPENSE) {
-            runningAccount = new ExpenseRunningAccount(remark, date_time, amount, isDefaultRemark);
+            runningAccount = new ExpenseRunningAccount(remark, date_time, amount);
         } else if (type == RunningAccountType.INCOME) {
-            runningAccount = new IncomeRunningAccount(remark, date_time, amount, isDefaultRemark);
+            runningAccount = new IncomeRunningAccount(remark, date_time, amount);
         } else if (type == RunningAccountType.TRANSFER) {
             String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
             String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
-            runningAccount = new TransferRunningAccount(remark, date_time, amount, isDefaultRemark, exportAccount, importAccount);
+            runningAccount = new TransferRunningAccount(remark, date_time, amount, exportAccount, importAccount);
         } else {
             NullPointerException e = new NullPointerException("流水类型获取失败");
             ExceptionHelper.showExceptionDialog(context, e);

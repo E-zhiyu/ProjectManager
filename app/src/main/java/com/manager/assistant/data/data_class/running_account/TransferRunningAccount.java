@@ -12,17 +12,14 @@ import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
 import com.manager.assistant.data.data_save.database.BookKeepingTables;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 /**
  * 转账流水类
  */
 public class TransferRunningAccount extends RunningAccountBase {
-    protected final String default_remark = "一条转账记录";
-    String exportAccount;   //转出账户
-    String importAccount;   //转入账户
+    private final String exportAccount; //转出账户
+    private final String importAccount; //转入账户
 
     public String getExportAccount() {
         return exportAccount;
@@ -41,14 +38,14 @@ public class TransferRunningAccount extends RunningAccountBase {
      * @param exportAccount 转出账户
      * @param importAccount 转入账户
      */
-    public TransferRunningAccount(@NonNull String remark, String date_time, double amount, boolean isDefaultRemark, String exportAccount, String importAccount) {
+    public TransferRunningAccount(@NonNull String remark, String date_time, double amount, String exportAccount, String importAccount) {
+        super();
         this.rno = -1;
         this.type = RunningAccountType.TRANSFER;
-        this.name = "转账";
-        this.remark = remark.isEmpty() ? default_remark : remark;
+        this.title = "转账";
+        this.remark = remark;
         this.datetime = date_time;
         this.amount = amount;
-        this.isDefaultRemark = isDefaultRemark;
         this.exportAccount = exportAccount;
         this.importAccount = importAccount;
     }
@@ -63,14 +60,14 @@ public class TransferRunningAccount extends RunningAccountBase {
      * @param exportAccount 转出账户
      * @param importAccount 转入账户
      */
-    public TransferRunningAccount(long rno, @NonNull String remark, String date_time, double amount, boolean isDefaultRemark, String exportAccount, String importAccount) {
+    public TransferRunningAccount(long rno, @NonNull String remark, String date_time, double amount, String exportAccount, String importAccount) {
+        super();
         this.rno = rno;
         this.type = RunningAccountType.TRANSFER;
-        this.name = "转账";
-        this.remark = remark.isEmpty() ? default_remark : remark;
+        this.title = "转账";
+        this.remark = remark;
         this.datetime = date_time;
         this.amount = amount;
-        this.isDefaultRemark = isDefaultRemark;
         this.exportAccount = exportAccount;
         this.importAccount = importAccount;
     }
@@ -127,5 +124,10 @@ public class TransferRunningAccount extends RunningAccountBase {
         transferCursor.close();
         db.close();
         return nameSet;
+    }
+
+    @Override
+    protected String initDefaultRemark() {
+        return "一条转账记录";
     }
 }

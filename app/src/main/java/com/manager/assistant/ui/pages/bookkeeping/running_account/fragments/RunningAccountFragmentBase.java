@@ -33,21 +33,21 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
-import com.manager.assistant.enums.DirectoryPaths;
-import com.manager.assistant.enums.LogTags;
 import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.Picture;
+import com.manager.assistant.data.data_class.Tag;
+import com.manager.assistant.enums.DirectoryPaths;
+import com.manager.assistant.enums.KeyValueStrings;
+import com.manager.assistant.enums.LogTags;
+import com.manager.assistant.enums.TagString;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.ui.others.dialogs.ProgressDialog;
-import com.manager.assistant.ui.others.bottom_sheets.picture.AddPictureOptionBottomSheet;
-import com.manager.assistant.enums.KeyValueStrings;
-import com.manager.assistant.enums.TagString;
-import com.manager.assistant.ui.data_communication.tag_modify.TagUpdateReason;
 import com.manager.assistant.ui.data_communication.tag_modify.TagRepository;
-import com.manager.assistant.data.data_class.Tag;
+import com.manager.assistant.ui.data_communication.tag_modify.TagUpdateReason;
+import com.manager.assistant.ui.others.bottom_sheets.picture.AddPictureOptionBottomSheet;
 import com.manager.assistant.ui.others.bottom_sheets.tag.GridSpacingItemDecoration;
 import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
+import com.manager.assistant.ui.others.dialogs.ProgressDialog;
 import com.manager.assistant.ui.pages.picture.PictureAdapter;
 
 import java.io.File;
@@ -69,7 +69,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public abstract class RunningAccountFragmentBase extends Fragment implements View.OnFocusChangeListener {
-    protected Bundle initData = null;                       //初始化控件内容的数据（用于编辑流水记录时）
     protected View contentView;                             //绑定的XML界面
     protected String defaultRemark;                         //默认备注
     protected RunningAccountType type;                      //流水类型
@@ -105,11 +104,6 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         AnimationHelper.setupAllChildMorphAnimation(contentView.findViewById(R.id.root_layout));
         initLaunchers();
 
-        //判断是否传递了外部数据，如果传递了则将数据填入对应控件
-        if (initData != null) {
-            initViewsWhenModifying(initData);
-        }
-
         //传递完初始化数据后设置RecyclerVIew的适配器
         setupPictureRecyclerAdapter();
 
@@ -141,12 +135,6 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
                 }
             }
         }
-    }
-
-
-    //修改流水时接收初始化数据
-    public void receiveInitData(Bundle initData) {
-        this.initData = initData;
     }
 
     /**
@@ -205,6 +193,8 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         amountInput = contentView.findViewById(R.id.amount_input);
         tagLayout = contentView.findViewById(R.id.running_account_tag_layout);
         tagInput = contentView.findViewById(R.id.running_account_tag_input);
+
+        receiveInitData();  //获取组件的引用后接收初始化数据
 
         amountInput.setOnFocusChangeListener(this);
         dt_input.setOnTouchListener((v, event) -> {
@@ -332,13 +322,16 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
 
     /**
      * 编辑流水时初始化控件内容的方法
-     *
-     * @param dataBundle 包含初始信息的包裹
+     * @return 初始化数据的数据包
      */
-    public void initViewsWhenModifying(@NonNull Bundle dataBundle) {
+    public Bundle receiveInitData() {
+        Bundle dataBundle = requireActivity().getIntent().getExtras();
+        if (dataBundle==null) {
+            return null;
+        }
+
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
-        boolean isDefaultRemark = dataBundle.getBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue());
         String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
         rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
 
@@ -352,12 +345,14 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
             Toast.makeText(requireContext(), "无法加载该流水记录的标签信息", Toast.LENGTH_SHORT).show();
         }
 
-        amountInput.setText(String.valueOf(amount));                                   //金额
+        amountInput.setText(String.valueOf(amount));                                    //金额
         TextInputEditText remarkInput = contentView.findViewById(R.id.remark_input);    //备注
-        remarkInput.setText(isDefaultRemark ? "" : remark);
+        remarkInput.setText(remark);
         MaterialAutoCompleteTextView datetimeInput = contentView.findViewById(R.id.datetime_input);   //日期
         datetimeInput.setText(date_time);
         tagInput.setText(tag_name);                                                     //标签名称
+
+        return dataBundle;
     }
 
     /**
@@ -374,14 +369,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), date_time);
         TextInputEditText remarkEditText = contentView.findViewById(R.id.remark_input);     //备注
         String remark = String.valueOf(remarkEditText.getText());
-        boolean isDefaultRemark;                                                            //是否使用默认备注
-        if (remark.isEmpty()) {
-            isDefaultRemark = true;
-            remark = defaultRemark;
-        } else {
-            isDefaultRemark = false;
-        }
-        dataBundle.putBoolean(KeyValueStrings.ACCOUNT_IS_DEFAULT_REMARK.getValue(), isDefaultRemark);
+
         dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
         double amount = Double.parseDouble(String.valueOf(amountInput.getText()));         //金额
         dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
