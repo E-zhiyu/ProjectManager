@@ -3,7 +3,6 @@ package com.manager.assistant.ui.pages.bookkeeping.running_account.fragments;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -50,7 +49,6 @@ public class TransferFragment extends RunningAccountFragmentBase<FragmentTransfe
 
     @Override
     protected void initViews() {
-        amountLayout = binding.amountLayout;
         tagLayout = binding.runningAccountTagLayout;
         tagInput = binding.runningAccountTagInput;
         datetimeInput = binding.datetimeInput;
@@ -229,12 +227,12 @@ public class TransferFragment extends RunningAccountFragmentBase<FragmentTransfe
         String amountStr = String.valueOf(binding.amountInput.getText());
         if (amountStr.isEmpty()) {
             error = "金额不能为空";
-            amountLayout.setErrorEnabled(true);
-            amountLayout.setError(error);
+            binding.amountLayout.setErrorEnabled(true);
+            binding.amountLayout.setError(error);
         } else if (Double.parseDouble(amountStr) == 0) {
             error = "金额不能为0";
-            amountLayout.setErrorEnabled(true);
-            amountLayout.setError(error);
+            binding.amountLayout.setErrorEnabled(true);
+            binding.amountLayout.setError(error);
         } else if (String.valueOf(exportInput.getText()).isEmpty()) {
             error = "转出账户不能为空";
             exportLayout.setErrorEnabled(true);

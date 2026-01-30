@@ -39,7 +39,6 @@ public class ExpenseFragment extends RunningAccountFragmentBase<FragmentExpenseB
 
     @Override
     protected void initViews() {
-        amountLayout = binding.amountLayout;
         tagLayout = binding.runningAccountTagLayout;
         tagInput = binding.runningAccountTagInput;
         datetimeInput = binding.datetimeInput;
@@ -116,12 +115,12 @@ public class ExpenseFragment extends RunningAccountFragmentBase<FragmentExpenseB
         String amountStr = String.valueOf(binding.amountInput.getText());
         if (amountStr.isEmpty()) {
             error = "金额不能为空";
-            amountLayout.setErrorEnabled(true);
-            amountLayout.setError(error);
+            binding.amountLayout.setErrorEnabled(true);
+            binding.amountLayout.setError(error);
         } else if (Double.parseDouble(amountStr) == 0) {
             error = "金额不能为0";
-            amountLayout.setErrorEnabled(true);
-            amountLayout.setError(error);
+            binding.amountLayout.setErrorEnabled(true);
+            binding.amountLayout.setError(error);
         }
 
         return error;
