@@ -159,7 +159,8 @@ public class Tag {
 
         String[] columns = {
                 BookKeepingColumns.TAG_NAME.toString(),
-                BookKeepingColumns.TAG_NO.toString()
+                BookKeepingColumns.TAG_NO.toString(),
+                BookKeepingColumns.TAG_SCOPE.toString()
         };
         Cursor cursor = db.query(
                 BookKeepingTables.TAG.toString(),
