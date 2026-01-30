@@ -24,7 +24,7 @@ import java.util.Locale;
 
 public class ExpenseFragment extends RunningAccountFragmentBase<FragmentExpenseBinding> {
     public ExpenseFragment() {
-        this.type = RunningAccountType.EXPENSE;
+        super(RunningAccountType.EXPENSE);
     }
 
     @Override

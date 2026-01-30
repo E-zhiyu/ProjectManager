@@ -66,6 +66,11 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+/**
+ * 流水记录输入界面基类
+ *
+ * @param <B> 流水记录输入界面的ViewBinding类型
+ */
 public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends Fragment {
     protected B binding;                                    //绑定的XML视图
     protected String defaultRemark;                         //默认备注
@@ -85,8 +90,9 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
     private final CompositeDisposable disposables = new CompositeDisposable();  //多线程任务列表
     protected boolean viewModelRefreshPictureEnabled = true;  //是否能够通过ViewModel刷新图片视图
 
-    public RunningAccountFragmentBase() {
+    public RunningAccountFragmentBase(RunningAccountType type) {
         setDefaultRemark();
+        this.type = type;
     }
 
     public String getName() {
@@ -153,6 +159,13 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
      */
     protected abstract void setDefaultRemark();
 
+    /**
+     * 获取ViewBinding
+     *
+     * @param inflater  布局填充器
+     * @param container 父容器
+     * @return ViewBinding实例
+     */
     protected abstract B getViewBinding(@NonNull LayoutInflater inflater, ViewGroup container);
 
     /**

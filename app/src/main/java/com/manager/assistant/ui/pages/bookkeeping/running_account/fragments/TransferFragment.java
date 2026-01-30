@@ -33,8 +33,7 @@ public class TransferFragment extends RunningAccountFragmentBase<FragmentTransfe
     private MaterialAutoCompleteTextView exportInput, importInput;    //转出和转入账户的文本框
 
     public TransferFragment() {
-        super();
-        this.type = RunningAccountType.TRANSFER;
+        super(RunningAccountType.TRANSFER);
     }
 
     @Override

@@ -24,7 +24,7 @@ import java.util.Locale;
 
 public class IncomeFragment extends RunningAccountFragmentBase<FragmentIncomeBinding> {
     public IncomeFragment() {
-        this.type = RunningAccountType.INCOME;
+        super(RunningAccountType.INCOME);
     }
 
     @Override
