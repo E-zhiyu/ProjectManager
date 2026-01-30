@@ -2,10 +2,8 @@ package com.manager.assistant.ui.pages.bookkeeping.tag;
 
 import android.content.Intent;
 
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,7 +20,6 @@ import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.enums.TagString;
 import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.helpers.AnimationHelper;
-import com.manager.assistant.helpers.ColorHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
 import com.manager.assistant.ui.data_communication.tag_modify.TagUpdateReason;
@@ -31,7 +28,7 @@ import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.Runn
 
 import java.util.ArrayList;
 
-public class TagAddModifyActivity extends AppCompatActivity implements View.OnFocusChangeListener, View.OnClickListener {
+public class TagAddModifyActivity extends AppCompatActivity implements View.OnClickListener {
     private boolean isModifyMode = false;                       //是否为标签编辑模式
     private long tag_no = 0, group_no = 0;                      //标签和标签分组编号
     private TagSelectBottomSheet tagSheet;                      //标签选择底部弹窗
@@ -54,28 +51,6 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
     protected void onDestroy() {
         super.onDestroy();
         binding = null;
-    }
-
-    @Override
-    public void onFocusChange(View v, boolean hasFocus) {
-        if (!hasFocus) {
-            if (v.getId() == R.id.tag_name_input) {
-                String tag_name = String.valueOf(binding.tagNameInput.getText());
-
-                if (tag_name.isEmpty()) {
-                    binding.tagNameLayout.setErrorEnabled(true);
-                    binding.tagNameLayout.setError("标签名不能为空");
-                } else {
-                    binding.tagNameLayout.setError(null);
-                }
-            }
-        } else {
-            if (v.getId() == R.id.tag_group_input) {
-                binding.tagGroupLayout.setError(null);
-            } else if (v.getId() == R.id.tag_name_input) {
-                binding.tagNameLayout.setError(null);
-            }
-        }
     }
 
     @Override
@@ -131,8 +106,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
      */
     private void initViews() {
         //设置标题栏的图标点击监听器
-        MaterialToolbar toolbar = binding.toolbar;
-        toolbar.setNavigationOnClickListener(v -> finish());
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
 
         ArrayList<String> groupNameList = getIntent().getStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue());
         if (groupNameList != null) {
@@ -148,7 +122,21 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
             });
         }
 
-        binding.tagNameInput.setOnFocusChangeListener(this);
+        binding.tagNameInput.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                String tag_name = String.valueOf(binding.tagNameInput.getText());
+
+                if (tag_name.isEmpty()) {
+                    binding.tagNameLayout.setErrorEnabled(true);
+                    binding.tagNameLayout.setError("标签名不能为空");
+                } else {
+                    binding.tagNameLayout.setError(null);
+                }
+            } else {
+                binding.tagNameLayout.setError(null);
+            }
+        });
+        binding.tagNameInput.setOnClickListener(v -> binding.tagNameLayout.setError(null));
 
         binding.deleteBtn.setOnClickListener(this);
         binding.finishBtn.setOnClickListener(this);
@@ -216,7 +204,12 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnFo
         }
     }
 
-    //标签按钮点击处理方法
+    /**
+     * 合并标签时标签按钮点击回调
+     *
+     * @param tag_no   目标标签编号
+     * @param tag_name 目标标签名称
+     */
     private void onTagBtnClicked(long tag_no, String tag_name) {
         //通知流水输入界面更新名称
         TagRepository repository = TagRepository.getInstance();
