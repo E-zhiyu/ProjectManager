@@ -1,6 +1,5 @@
 package com.manager.assistant.ui.pages.picture;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -20,12 +19,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.android.material.card.MaterialCardView;
 import com.manager.assistant.enums.LogTags;
 import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.Picture;
 import com.manager.assistant.enums.KeyValueStrings;
-import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.ui.data_communication.account_picture.AccountPictureViewModel;
 
 import java.io.File;
@@ -179,7 +176,6 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
      *
      * @param isDeleteMode 切换后是否为删除模式
      */
-    @SuppressLint("NotifyDataSetChanged")
     public void switchDeleteMode(boolean isDeleteMode) {
         this.isDeleteMode = isDeleteMode;
         listener.onDeleteModeSwitched(isDeleteMode);

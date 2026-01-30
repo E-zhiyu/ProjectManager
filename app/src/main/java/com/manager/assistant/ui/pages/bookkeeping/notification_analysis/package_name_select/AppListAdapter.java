@@ -1,6 +1,5 @@
 package com.manager.assistant.ui.pages.bookkeeping.notification_analysis.package_name_select;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
@@ -19,9 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppInfoViewHolder> {
-    private final Context context;
-    private final AppClickedListener listener;
-    private List<AppInfo> appInfoList;    //应用列表
+    private final Context context;              //上下文
+    private final AppClickedListener listener;  //应用条目点击监听器
+    private final List<AppInfo> appInfoList;    //应用列表
 
     public static class AppInfoViewHolder extends RecyclerView.ViewHolder {
         ShapeableImageView app_icon_view;                   //应用图标视图
@@ -83,9 +82,12 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppInfoV
      *
      * @param appInfoList 刷新后的应用信息列表
      */
-    @SuppressLint("NotifyDataSetChanged")
     public void setAppInfoList(List<AppInfo> appInfoList) {
-        this.appInfoList = appInfoList;
-        notifyDataSetChanged();
+        int old_count = this.appInfoList.size();
+        this.appInfoList.clear();
+        notifyItemRangeRemoved(0, old_count);
+
+        this.appInfoList.addAll(appInfoList);
+        notifyItemRangeInserted(0, appInfoList.size());
     }
 }

@@ -72,10 +72,12 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
      *
      * @param linkList 刷新后的链接列表
      */
-    @SuppressLint("NotifyDataSetChanged")
     public void refreshLink(List<WebsiteLinkFetchHelper.WebLink> linkList) {
+        int old_count = this.linkList.size();
         this.linkList.clear();
+        notifyItemRangeRemoved(0, old_count);
+
         this.linkList.addAll(linkList);
-        notifyDataSetChanged();
+        notifyItemRangeInserted(0, linkList.size());
     }
 }

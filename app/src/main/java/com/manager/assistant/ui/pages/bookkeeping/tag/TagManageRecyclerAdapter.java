@@ -1,6 +1,5 @@
 package com.manager.assistant.ui.pages.bookkeeping.tag;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.sqlite.SQLiteException;
@@ -29,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecyclerAdapter.TagEditViewHolder> {
-    private List<TagGroup> tagGroupList;                            //标签组列表
+    private final List<TagGroup> tagGroupList;                      //标签组列表
     private final Context context;                                  //上下文
     private final OnTextViewClickedListener textClickedListener;    //标签文本点击事件监听器
 
@@ -396,10 +395,13 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
      *
      * @param tagGroupList 刷新时重新获取的数据
      */
-    @SuppressLint("NotifyDataSetChanged")
     public void refreshUI(List<TagGroup> tagGroupList) {
-        this.tagGroupList = tagGroupList;
-        notifyDataSetChanged();
+        int old_count = this.tagGroupList.size();
+        this.tagGroupList.clear();
+        notifyItemRangeRemoved(0, old_count);
+
+        this.tagGroupList.addAll(tagGroupList);
+        notifyItemRangeInserted(0, tagGroupList.size());
     }
 
     /**

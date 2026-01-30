@@ -26,14 +26,4 @@ public class FragmentPagerAdapter extends FragmentStateAdapter {
     public int getItemCount() {
         return fragmentList.size();
     }
-
-    /**
-     * 获取指定下标的Fragment
-     *
-     * @param position 需要获取的Fragment的下标
-     * @return 对应下标的Fragment
-     */
-    public Fragment getFragment(int position) {
-        return fragmentList.get(position);
-    }
 }

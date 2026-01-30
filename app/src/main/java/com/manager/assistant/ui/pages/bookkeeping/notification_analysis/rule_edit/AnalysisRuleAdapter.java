@@ -1,6 +1,5 @@
 package com.manager.assistant.ui.pages.bookkeeping.notification_analysis.rule_edit;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteException;
@@ -28,7 +27,7 @@ import java.util.List;
 public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapter.AnalysisRuleViewHolder> {
     private final Context context;
     private final RuleClickedListener listener; //规则视图点击监听器
-    private List<AnalysisRule> ruleList;  //规则列表
+    private final List<AnalysisRule> ruleList;  //规则列表
 
     public static class AnalysisRuleViewHolder extends RecyclerView.ViewHolder {
         MaterialTextView rule_name_text, tag_name_text, type_text;
@@ -184,13 +183,23 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         sendRuleUpdatedBroadcast();
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    public void onListRefreshed(List<AnalysisRule> newList) {
-        this.ruleList = newList;
-        notifyDataSetChanged();
+    /**
+     * 刷新通知解析规则列表
+     *
+     * @param ruleList 刷新后的列表
+     */
+    public void refreshRuleList(List<AnalysisRule> ruleList) {
+        int old_count = this.ruleList.size();
+        this.ruleList.clear();
+        notifyItemRangeRemoved(0, old_count);
+
+        this.ruleList.addAll(ruleList);
+        notifyItemRangeInserted(0, ruleList.size());
     }
 
-    //发送规则变更的广播
+    /**
+     * 发送规则变更的广播
+     */
     private void sendRuleUpdatedBroadcast() {
         Intent ruleUpdated = new Intent(BroadcastConstants.ACTION_RULES_UPDATED.toString());
         context.sendBroadcast(ruleUpdated);
