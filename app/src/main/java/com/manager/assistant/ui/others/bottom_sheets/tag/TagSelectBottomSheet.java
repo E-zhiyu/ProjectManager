@@ -81,7 +81,10 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment {
                 startActivity(skip2TagEdit);
                 dismiss();
             });
-            binding.clearInputBtn.setOnClickListener(v -> tagBtnClickedListener.onTagBtnClicked(0, ""));
+            binding.clearInputBtn.setOnClickListener(v -> {
+                tagBtnClickedListener.onTagBtnClicked(0, "");
+                dismiss();
+            });
         } else {
             binding.editTagBtn.setVisibility(View.GONE);
             binding.clearInputBtn.setVisibility(View.GONE);

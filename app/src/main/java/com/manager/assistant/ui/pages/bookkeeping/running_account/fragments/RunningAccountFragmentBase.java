@@ -1,16 +1,13 @@
 package com.manager.assistant.ui.pages.bookkeeping.running_account.fragments;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -23,18 +20,17 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewbinding.ViewBinding;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.loadingindicator.LoadingIndicator;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
-import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.Picture;
 import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.enums.DirectoryPaths;
@@ -70,25 +66,35 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public abstract class RunningAccountFragmentBase extends Fragment implements View.OnFocusChangeListener {
-    protected View contentView;                             //绑定的XML界面
+public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends Fragment {
+    protected B binding;                                    //绑定的XML视图
     protected String defaultRemark;                         //默认备注
     protected RunningAccountType type;                      //流水类型
-    protected TextInputLayout amountLayout, tagLayout;      //金额和标签文本框布局管理器
-    protected TextInputEditText amountInput;                //金额输入框
+    protected TextInputLayout tagLayout;                    //标签文本框布局管理器
     protected MaterialAutoCompleteTextView tagInput;        //标签输入框
-    private long tag_no = 0;                                //用户选择的标签编号（默认无标签则为0）
-    private long rno = 0;                                   //流水编号
+    protected MaterialAutoCompleteTextView datetimeInput;   //日期和时间输入
+    protected LoadingIndicator loadingIndicator;            //图片加载组件
+    protected RecyclerView pictureRecycler;                 //图片列表视图
+    protected MaterialButton pictureDeleteBtn;              //图片删除按钮
+    protected long tno = 0;                                 //用户选择的标签编号（默认无标签则为0）
+    protected long rno = 0;                                 //流水编号
     private TagSelectBottomSheet tagSheet;                  //标签选择弹窗
     private ActivityResultLauncher<Intent> cameraLauncher;  //拍照Activity启动器
     private ActivityResultLauncher<String> albumLauncher;   //相册图片选择启动器
-    private PictureAdapter pictureAdapter;                  //图片RecyclerView的适配器
-    private MaterialButton pictureDeleteBtn;                //删除选中的图片的按钮
+    protected PictureAdapter pictureAdapter;                //图片RecyclerView的适配器
     private final CompositeDisposable disposables = new CompositeDisposable();  //多线程任务列表
-    private boolean viewModelRefreshPictureEnabled = true;  //是否能够通过ViewModel刷新图片视图
+    protected boolean viewModelRefreshPictureEnabled = true;  //是否能够通过ViewModel刷新图片视图
 
     public RunningAccountFragmentBase() {
         setDefaultRemark();
+    }
+
+    public String getName() {
+        return type.getTitle();
+    }
+
+    public long getTno() {
+        return tno;
     }
 
     /**
@@ -102,9 +108,10 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        contentView = inflater.inflate(getLayoutResId(), container, false);
+        binding = getViewBinding(inflater, container);
+
         initViews();
-        AnimationHelper.setupAllChildMorphAnimation(contentView.findViewById(R.id.root_layout));
+        AnimationHelper.setupAllChildMorphAnimation((ViewGroup) binding.getRoot());
         initLaunchers();
 
         //传递完初始化数据后设置RecyclerVIew的适配器
@@ -113,7 +120,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         startObserveTag();
         startObservePicture();
 
-        return contentView;
+        return binding.getRoot();
     }
 
     @Override
@@ -142,110 +149,16 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
     }
 
     /**
-     * 获取碎片名称供TabLayout使用
-     *
-     * @return 碎片名称
-     */
-    public String getName() {
-        return type.getTitle();
-    }
-
-    /**
      * 子类设置默认备注的方法
      */
     protected abstract void setDefaultRemark();
 
-    protected abstract int getLayoutResId();
-
-    public long getTag_no() {
-        return tag_no;
-    }
-
-    @Override
-    public void onFocusChange(View v, boolean hasFocus) {
-        if (!hasFocus) {
-            String edittext_str, error;         //文本框内容和错误提示
-            TextInputLayout errLayout;   //被验证的文本框对应的布局管理器
-            edittext_str = String.valueOf(((TextInputEditText) v).getText());   //获取待验证组件的文本内容
-            if (v.getId() == R.id.amount_input) {
-                errLayout = amountLayout;
-                error = "金额不能为空";
-            } else {
-                return;
-            }
-
-            if (edittext_str.isEmpty()) {
-                errLayout.setErrorEnabled(true);
-                errLayout.setError(error);
-            } else {
-                errLayout.setError(null);    //消除错误提示
-            }
-        } else {
-            if (v.getId() == R.id.amount_input) {
-                amountLayout.setError(null);
-            }
-        }
-    }
+    protected abstract B getViewBinding(@NonNull LayoutInflater inflater, ViewGroup container);
 
     /**
      * 初始化视图
      */
-    @SuppressLint("ClickableViewAccessibility")
-    protected void initViews() {
-        MaterialAutoCompleteTextView dt_input = contentView.findViewById(R.id.datetime_input);
-        amountLayout = contentView.findViewById(R.id.amount_layout);
-        amountInput = contentView.findViewById(R.id.amount_input);
-        tagLayout = contentView.findViewById(R.id.running_account_tag_layout);
-        tagInput = contentView.findViewById(R.id.running_account_tag_input);
-
-        receiveInitData();  //获取组件的引用后接收初始化数据
-
-        amountInput.setOnFocusChangeListener(this);
-        dt_input.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                showMaterialDateTimePicker();
-            }
-            return false;
-        });
-        tagInput.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                showTagSelectSheet();
-            }
-            return false;
-        });
-
-        //初始化日期内容
-        Calendar calendar = Calendar.getInstance();
-        String dt_string = String.format(
-                Locale.getDefault(),
-                "%04d-%02d-%02d %02d:%02d",
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH) + 1,
-                calendar.get(Calendar.DAY_OF_MONTH),
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE));
-        dt_input.setText(dt_string);
-
-        //添加图片的按钮
-        MaterialButton pictureAddBtn = contentView.findViewById(R.id.picture_add);
-        pictureAddBtn.setOnClickListener(v -> showAddPictureBottomSheet());
-
-        //删除图片按钮
-        pictureDeleteBtn = contentView.findViewById(R.id.picture_delete_btn);
-        pictureDeleteBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("删除图片")
-                .setMessage("是否删除选中的图片？此操作会立刻执行并且无法撤回！")
-                .setPositiveButton(
-                        "确定",
-                        (dialog, which) -> {
-                            viewModelRefreshPictureEnabled = false; //禁用本实例ViewModel的刷新功能，防止动画重叠
-                            AccountPictureViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountPictureViewModel.class);
-                            pictureAdapter.deleteSelectedPicture(viewModel);
-                        }
-                )
-                .setNegativeButton("取消", null)
-                .show());
-    }
+    abstract protected void initViews();
 
     /**
      * 标签选中弹窗的标签按钮点击回调
@@ -254,8 +167,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
      * @param tag_name 点击的标签名称
      */
     public void onTagBtnClicked(long tag_no, String tag_name) {
-        this.tag_no = tag_no;   //更新全局变量中的标签编号
-
+        this.tno = tag_no;   //更新全局变量中的标签编号
         tagInput.setText(tag_name);
         tagLayout.setError(null);
         tagSheet.dismiss();
@@ -295,17 +207,17 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
                     String tag_name = tag.getName();
                     long tag_no = tag.getTno();
 
-                    if (tag_no == this.tag_no) {    //只有找到匹配的标签编号才修改
+                    if (tag_no == this.tno) {    //只有找到匹配的标签编号才修改
                         switch (updateReason) {
                             case RENAME:
                                 tagInput.setText(tag_name);
                                 break;
                             case DELETE:
-                                this.tag_no = 0;
+                                this.tno = 0;
                                 tagInput.setText("");
                                 break;
                             case MERGE:
-                                this.tag_no = Tag.nameTransToTno(tag_name, requireContext());
+                                this.tno = Tag.nameTransToTno(tag_name, requireContext());
                                 tagInput.setText(tag_name);
                                 break;
                         }
@@ -336,82 +248,19 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
      *
      * @return 错误提示(无错误为null)
      */
-    public String verifyInputData() {
-        String error = null;
-
-        //判断是否输入金额
-        String amountStr = String.valueOf(amountInput.getText());
-        if (amountStr.isEmpty()) {
-            error = "金额不能为空";
-            amountLayout.setErrorEnabled(true);
-            amountLayout.setError(error);
-        } else if (Double.parseDouble(amountStr) == 0) {
-            error = "金额不能为0";
-            amountLayout.setErrorEnabled(true);
-            amountLayout.setError(error);
-        }
-
-        return error;
-    }
+    abstract public String verifyInputData();
 
     /**
      * 编辑流水时初始化控件内容的方法
-     *
-     * @return 初始化数据的数据包
      */
-    public Bundle receiveInitData() {
-        Bundle dataBundle = requireActivity().getIntent().getExtras();
-        if (dataBundle == null) {
-            return null;
-        }
-
-        double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
-        String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
-        String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
-        rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
-
-        String tag_name = "";
-        try {
-            Tag tag = Tag.getTagByRno(rno, requireContext());
-            tag_no = tag.getTno();
-            tag_name = tag.getName();
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(requireContext(), e);
-            Toast.makeText(requireContext(), "无法加载该流水记录的标签信息", Toast.LENGTH_SHORT).show();
-        }
-
-        amountInput.setText(String.valueOf(amount));                                    //金额
-        TextInputEditText remarkInput = contentView.findViewById(R.id.remark_input);    //备注
-        remarkInput.setText(remark);
-        MaterialAutoCompleteTextView datetimeInput = contentView.findViewById(R.id.datetime_input);   //日期
-        datetimeInput.setText(date_time);
-        tagInput.setText(tag_name);                                                     //标签名称
-
-        return dataBundle;
-    }
+    abstract protected void receiveInitData();
 
     /**
      * 获取输入的数据
      *
      * @return 包含输入数据的Bundle
      */
-    public Bundle getInputData() {
-        Bundle dataBundle = new Bundle();
-
-        dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());     //种类
-        MaterialAutoCompleteTextView dateTimeTextView = contentView.findViewById(R.id.datetime_input); //日期和时间
-        String date_time = String.valueOf(dateTimeTextView.getText());
-        dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), date_time);
-        TextInputEditText remarkEditText = contentView.findViewById(R.id.remark_input);     //备注
-        String remark = String.valueOf(remarkEditText.getText());
-
-        dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
-        double amount = Double.parseDouble(String.valueOf(amountInput.getText()));         //金额
-        dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
-        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);                      //标签编号
-
-        return dataBundle;
-    }
+    abstract public Bundle getInputData();
 
     /**
      * 弹出日期和时间选择框
@@ -422,7 +271,6 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
         dateBuilder.setTitleText("选择日期");
 
         //初始化日期格式化器
-        MaterialAutoCompleteTextView datetimeInput = contentView.findViewById(R.id.datetime_input);
         String input_datetime = String.valueOf(datetimeInput.getText());
         String pattern = "yyyy-MM-dd HH:mm";    //日期字符串格式
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
@@ -463,7 +311,7 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
      * @param selectionCalendar 包含选择日期信息的日历对象
      * @param initialCalendar   初始化用的日历对象
      */
-    private void showMaterialTimePicker(@NonNull Calendar selectionCalendar, @NonNull Calendar initialCalendar) {
+    protected void showMaterialTimePicker(@NonNull Calendar selectionCalendar, @NonNull Calendar initialCalendar) {
         //创建时间选择器
         MaterialTimePicker.Builder timeBuilder = new MaterialTimePicker.Builder();
         timeBuilder.setTimeFormat(TimeFormat.CLOCK_24H); // 24小时制
@@ -488,7 +336,6 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
             selectionCalendar.set(Calendar.MINUTE, minute);
 
             //修改文本框的日期和时间
-            TextInputEditText datetime_input = contentView.findViewById(R.id.datetime_input);
             String datetime_str = String.format(
                     Locale.getDefault(),
                     "%04d-%02d-%02d %02d:%02d",
@@ -497,14 +344,14 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
                     selectionCalendar.get(Calendar.DAY_OF_MONTH),
                     selectionCalendar.get(Calendar.HOUR_OF_DAY),
                     selectionCalendar.get(Calendar.MINUTE));
-            datetime_input.setText(datetime_str);
+            datetimeInput.setText(datetime_str);
         });
     }
 
     /**
      * 标签文本框点击回调
      */
-    private void showTagSelectSheet() {
+    protected void showTagSelectSheet() {
         tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, type);
         tagSheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
     }
@@ -515,7 +362,6 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
     private void setupPictureRecyclerAdapter() {
         //获取RecyclerView实例
         int spanCount = 3;
-        RecyclerView pictureRecycler = contentView.findViewById(R.id.picture_recycler);
         pictureRecycler.setLayoutManager(new GridLayoutManager(requireContext(), spanCount));
         int spacing = 16; // 单位：像素
         pictureRecycler.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing, true));
@@ -538,18 +384,18 @@ public abstract class RunningAccountFragmentBase extends Fragment implements Vie
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(pictureList -> pictureAdapter.refreshPicture(pictureList),
                                     e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
-                                    () -> contentView.findViewById(R.id.loading_indicator).setVisibility(View.GONE)
+                                    () -> loadingIndicator.setVisibility(View.GONE)
                             )
             );
         } else {
-            contentView.findViewById(R.id.loading_indicator).setVisibility(View.GONE);
+            loadingIndicator.setVisibility(View.GONE);
         }
     }
 
     /**
      * 添加图片按钮点击回调
      */
-    private void showAddPictureBottomSheet() {
+    protected void showAddPictureBottomSheet() {
         AddPictureOptionBottomSheet sheet = new AddPictureOptionBottomSheet(
                 requireContext(),
                 cameraLauncher,
