@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
@@ -25,6 +26,7 @@ import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.Runn
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.IncomeFragment;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.TransferFragment;
+import com.manager.assistant.ui.pages.picture.PictureAdapter;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -76,6 +78,31 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
             transaction.add(R.id.fragment_container, runningAccountFragment, TagString.ACCOUNT_FRAGMENT.getValue());
             transaction.commit();
         }
+
+        //设置返回监听器
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                try {
+                    RunningAccountFragmentBase<?> fragment = getAccountFragment(TagString.ACCOUNT_FRAGMENT.getValue());
+                    if (fragment == null) {
+                        setEnabled(false);
+                        finish();
+                        return;
+                    }
+                    PictureAdapter pictureAdapter = fragment.getPictureAdapter();
+                    if (pictureAdapter.isDeleteMode()) {
+                        pictureAdapter.switchDeleteMode(false);
+                    } else {
+                        setEnabled(false);
+                        finish();
+                    }
+                } catch (NumberFormatException e) {
+                    setEnabled(false);
+                    finish();
+                }
+            }
+        });
     }
 
     @Override
@@ -96,7 +123,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
         binding.finishBtn.setOnClickListener(v -> {
             Intent result2BookKeeping = new Intent();
             String error;
-            RunningAccountFragmentBase<?> runningAccountFragment = (RunningAccountFragmentBase<?>) getSupportFragmentManager().findFragmentByTag(TagString.ACCOUNT_FRAGMENT.getValue());
+            RunningAccountFragmentBase<?> runningAccountFragment = getAccountFragment(TagString.ACCOUNT_FRAGMENT.getValue());
             if (runningAccountFragment == null) {
                 return;
             }
@@ -151,7 +178,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
      */
     @Nullable
     private Bundle getInputData() {
-        RunningAccountFragmentBase<?> runningAccountFragment = (RunningAccountFragmentBase<?>) getSupportFragmentManager().findFragmentByTag(TagString.ACCOUNT_FRAGMENT.getValue());
+        RunningAccountFragmentBase<?> runningAccountFragment = getAccountFragment(TagString.ACCOUNT_FRAGMENT.getValue());
         if (runningAccountFragment == null) {
             return null;
         }
@@ -201,5 +228,16 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
             Toast.makeText(this, "将图片保存至数据库失败", Toast.LENGTH_SHORT).show();
             ExceptionHelper.showExceptionDialog(this, e);
         }
+    }
+
+    /**
+     * 获取流水记录输入Fragment
+     *
+     * @param tag 目标Fragment的tag
+     * @return 用于输入流水记录的Fragment
+     */
+    @Nullable
+    private RunningAccountFragmentBase<?> getAccountFragment(String tag) {
+        return (RunningAccountFragmentBase<?>) getSupportFragmentManager().findFragmentByTag(tag);
     }
 }

@@ -110,11 +110,6 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
         return tno;
     }
 
-    /**
-     * 获取图片适配器
-     *
-     * @return 图片适配器
-     */
     public PictureAdapter getPictureAdapter() {
         return pictureAdapter;
     }
@@ -132,22 +127,6 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
 
         startObserveTag();
         startObservePicture();
-
-        //设置返回监听器
-        requireActivity().getOnBackPressedDispatcher().addCallback(requireActivity(), new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                try {
-                    if (pictureAdapter.isDeleteMode()) {
-                        pictureAdapter.switchDeleteMode(false);
-                    } else {
-                        requireActivity().finish();
-                    }
-                } catch (NumberFormatException e) {
-                    requireActivity().finish();
-                }
-            }
-        });
 
         return binding.getRoot();
     }

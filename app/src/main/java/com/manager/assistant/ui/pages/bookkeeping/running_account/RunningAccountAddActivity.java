@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
@@ -23,18 +24,18 @@ import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.ExpenseFragment;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.IncomeFragment;
-import com.manager.assistant.ui.pages.picture.PictureAdapter;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountFragmentBase;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.TransferFragment;
 import com.manager.assistant.enums.RequestResultCode;
+import com.manager.assistant.ui.pages.picture.PictureAdapter;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RunningAccountAddActivity extends AppCompatActivity {
-    private RunningAccountFragmentBase<?> currentFragment;  //翻页视图显示的Fragment
-    private ActivityRunningAccountAddBinding binding;
+    private ActivityRunningAccountAddBinding binding;   //绑定的XML视图
+    private int current_index;                          //当前Fragment的下标
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,31 @@ public class RunningAccountAddActivity extends AppCompatActivity {
 
         initViews();
         AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
+
+        //设置返回监听器
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                try {
+                    RunningAccountFragmentBase<?> fragment = getCurrentFragment();
+                    if (fragment == null) {
+                        setEnabled(false);
+                        finish();
+                        return;
+                    }
+                    PictureAdapter pictureAdapter = fragment.getPictureAdapter();
+                    if (pictureAdapter.isDeleteMode()) {
+                        pictureAdapter.switchDeleteMode(false);
+                    } else {
+                        setEnabled(false);
+                        finish();
+                    }
+                } catch (NumberFormatException e) {
+                    setEnabled(false);
+                    finish();
+                }
+            }
+        });
     }
 
     @Override
@@ -53,7 +79,9 @@ public class RunningAccountAddActivity extends AppCompatActivity {
         binding = null;
     }
 
-    //初始化视图
+    /**
+     * 初始化视图
+     */
     private void initViews() {
         //设置标题栏的图标点击监听器
         MaterialToolbar toolbar = binding.toolbar;
@@ -61,6 +89,8 @@ public class RunningAccountAddActivity extends AppCompatActivity {
 
         //为完成按钮绑定单击监听器
         binding.finishBtn.setOnClickListener(v -> {
+            RunningAccountFragmentBase<?> currentFragment = getCurrentFragment();
+            if (currentFragment == null) return;
             String error = currentFragment.verifyInputData();
 
             //判断是否获取到警告消息（null:无警告，验证通过）
@@ -96,7 +126,7 @@ public class RunningAccountAddActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                currentFragment = (RunningAccountFragmentBase<?>) (viewPagerAdapter.getFragment(position));
+                current_index = position;
             }
         });
         viewPager2.setOffscreenPageLimit(2);    //设置保留邻近Fragment数量
@@ -107,6 +137,8 @@ public class RunningAccountAddActivity extends AppCompatActivity {
      */
     private void onFinishBtnClicked() {
         Intent result2BookKeeping = new Intent();
+        RunningAccountFragmentBase<?> currentFragment = getCurrentFragment();
+        if (currentFragment == null) return;
         Bundle dataBundle = currentFragment.getInputData();    //获取输入的信息并打包
 
         //将流水保存至数据库
@@ -163,5 +195,11 @@ public class RunningAccountAddActivity extends AppCompatActivity {
             Toast.makeText(this, "将图片保存至数据库失败", Toast.LENGTH_SHORT).show();
             ExceptionHelper.showExceptionDialog(this, e);
         }
+    }
+
+    @Nullable
+    private RunningAccountFragmentBase<?> getCurrentFragment() {
+        String tag = "f" + current_index;
+        return (RunningAccountFragmentBase<?>) getSupportFragmentManager().findFragmentByTag(tag);
     }
 }
