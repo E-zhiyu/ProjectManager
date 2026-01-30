@@ -14,7 +14,6 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.data.data_class.running_account.TransferRunningAccount;
@@ -29,16 +28,8 @@ import java.util.HashSet;
 import java.util.Locale;
 
 public class TransferFragment extends RunningAccountFragmentBase<FragmentTransferBinding> {
-    private TextInputLayout exportLayout, importLayout;               //转出和转入账户的文本框布局管理器
-    private MaterialAutoCompleteTextView exportInput, importInput;    //转出和转入账户的文本框
-
     public TransferFragment() {
-        super(RunningAccountType.TRANSFER);
-    }
-
-    @Override
-    protected void setDefaultRemark() {
-        this.defaultRemark = "一条转账记录";
+        super(RunningAccountType.TRANSFER, "一条转账记录");
     }
 
     @Override
@@ -54,10 +45,6 @@ public class TransferFragment extends RunningAccountFragmentBase<FragmentTransfe
         loadingIndicator = binding.loadingIndicator;
         pictureRecycler = binding.pictureRecycler;
         pictureDeleteBtn = binding.pictureDeleteBtn;
-        exportLayout = binding.exportAccountLayout;
-        exportInput = binding.exportAccountInput;
-        importLayout = binding.importAccountLayout;
-        importInput = binding.importAccountInput;
 
         receiveInitData();  //获取组件的引用后接收初始化数据
 
@@ -81,8 +68,8 @@ public class TransferFragment extends RunningAccountFragmentBase<FragmentTransfe
                 showMaterialDateTimePicker();
             }
         });
-        tagInput.setOnClickListener(v -> showTagSelectSheet());
-        tagInput.setOnFocusChangeListener((v, hasFocus) -> {
+        binding.runningAccountTagInput.setOnClickListener(v -> showTagSelectSheet());
+        binding.runningAccountTagInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 showTagSelectSheet();
             }
@@ -180,13 +167,13 @@ public class TransferFragment extends RunningAccountFragmentBase<FragmentTransfe
         remarkInput.setText(remark);
         MaterialAutoCompleteTextView datetimeInput = binding.datetimeInput;             //日期
         datetimeInput.setText(date_time);
-        tagInput.setText(tag_name);                                                     //标签名称
+        binding.runningAccountTagInput.setText(tag_name);                               //标签名称
 
         String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());
         String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());
 
-        exportInput.setText(exportAccount);   //转出账户
-        importInput.setText(importAccount);   //转入账户
+        binding.exportAccountInput.setText(exportAccount);   //转出账户
+        binding.importAccountInput.setText(importAccount);   //转入账户
     }
 
     /**
@@ -202,17 +189,17 @@ public class TransferFragment extends RunningAccountFragmentBase<FragmentTransfe
         MaterialAutoCompleteTextView dateTimeTextView = binding.datetimeInput;          //日期和时间
         String datetime = String.valueOf(dateTimeTextView.getText());
         dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), datetime);
-        TextInputEditText remarkEditText = binding.remarkInput;                         //备注
+        TextInputEditText remarkEditText = binding.remarkInput;                             //备注
         String remark = String.valueOf(remarkEditText.getText());
 
         dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
         double amount = Double.parseDouble(String.valueOf(binding.amountInput.getText()));  //金额
         dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
-        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tno);                  //标签编号
+        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tno);                         //标签编号
 
-        String exportAccount = String.valueOf(exportInput.getText());                   //转出账户
+        String exportAccount = String.valueOf(binding.exportAccountInput.getText());        //转出账户
         dataBundle.putString(KeyValueStrings.ACCOUNT_EXPORT.getValue(), exportAccount);
-        String importAccount = String.valueOf(importInput.getText());                   //转入账户
+        String importAccount = String.valueOf(binding.importAccountInput.getText());        //转入账户
         dataBundle.putString(KeyValueStrings.ACCOUNT_IMPORT.getValue(), importAccount);
 
         return dataBundle;
@@ -232,14 +219,14 @@ public class TransferFragment extends RunningAccountFragmentBase<FragmentTransfe
             error = "金额不能为0";
             binding.amountLayout.setErrorEnabled(true);
             binding.amountLayout.setError(error);
-        } else if (String.valueOf(exportInput.getText()).isEmpty()) {
+        } else if (String.valueOf(binding.exportAccountInput.getText()).isEmpty()) {
             error = "转出账户不能为空";
-            exportLayout.setErrorEnabled(true);
-            exportLayout.setError(error);
-        } else if (String.valueOf(importInput.getText()).isEmpty()) {
+            binding.exportAccountLayout.setErrorEnabled(true);
+            binding.exportAccountLayout.setError(error);
+        } else if (String.valueOf(binding.importAccountInput.getText()).isEmpty()) {
             error = "转入账户不能为空";
-            importLayout.setErrorEnabled(true);
-            importLayout.setError(error);
+            binding.importAccountLayout.setErrorEnabled(true);
+            binding.importAccountLayout.setError(error);
         }
 
         return error;

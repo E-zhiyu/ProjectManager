@@ -24,12 +24,7 @@ import java.util.Locale;
 
 public class ExpenseFragment extends RunningAccountFragmentBase<FragmentExpenseBinding> {
     public ExpenseFragment() {
-        super(RunningAccountType.EXPENSE);
-    }
-
-    @Override
-    protected void setDefaultRemark() {
-        this.defaultRemark = "一条支出记录";
+        super(RunningAccountType.EXPENSE, "一条支出记录");
     }
 
     @Override
@@ -68,8 +63,8 @@ public class ExpenseFragment extends RunningAccountFragmentBase<FragmentExpenseB
                 showMaterialDateTimePicker();
             }
         });
-        tagInput.setOnClickListener(v -> showTagSelectSheet());
-        tagInput.setOnFocusChangeListener((v, hasFocus) -> {
+        binding.runningAccountTagInput.setOnClickListener(v -> showTagSelectSheet());
+        binding.runningAccountTagInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 showTagSelectSheet();
             }
@@ -153,7 +148,7 @@ public class ExpenseFragment extends RunningAccountFragmentBase<FragmentExpenseB
         remarkInput.setText(remark);
         MaterialAutoCompleteTextView datetimeInput = binding.datetimeInput;             //日期
         datetimeInput.setText(date_time);
-        tagInput.setText(tag_name);                                                     //标签名称
+        binding.runningAccountTagInput.setText(tag_name);                               //标签名称
     }
 
     @Override

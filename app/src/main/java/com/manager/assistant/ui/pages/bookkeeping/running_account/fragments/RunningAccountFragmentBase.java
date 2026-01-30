@@ -90,9 +90,15 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
     private final CompositeDisposable disposables = new CompositeDisposable();  //多线程任务列表
     protected boolean viewModelRefreshPictureEnabled = true;  //是否能够通过ViewModel刷新图片视图
 
-    public RunningAccountFragmentBase(RunningAccountType type) {
-        setDefaultRemark();
+    /**
+     * 流水记录输入界面基类构造方法
+     *
+     * @param type          流水种类
+     * @param defaultRemark 默认备注
+     */
+    public RunningAccountFragmentBase(RunningAccountType type, String defaultRemark) {
         this.type = type;
+        this.defaultRemark = defaultRemark;
     }
 
     public String getName() {
@@ -153,11 +159,6 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
             }
         }
     }
-
-    /**
-     * 子类设置默认备注的方法
-     */
-    protected abstract void setDefaultRemark();
 
     /**
      * 获取ViewBinding
