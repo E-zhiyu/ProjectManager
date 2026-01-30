@@ -5,12 +5,10 @@ import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.Picture;
@@ -18,11 +16,11 @@ import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
 import com.manager.assistant.databinding.ActivityRunningAccountModifyBinding;
 import com.manager.assistant.enums.DirectoryPaths;
 import com.manager.assistant.enums.RequestResultCode;
+import com.manager.assistant.enums.TagString;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.ExpenseFragment;
-import com.manager.assistant.ui.pages.picture.PictureAdapter;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountFragmentBase;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.IncomeFragment;
@@ -35,7 +33,6 @@ import java.util.List;
 public class RunningAccountModifyActivity extends AppCompatActivity {
     private RunningAccountType type = null;                         //流水种类
     private long rno;                                               //流水编号
-    private RunningAccountFragmentBase runningAccountFragment;      //流水账数据输入碎片
     private ActivityRunningAccountModifyBinding binding;            //绑定的XML视图引用
 
     @Override
@@ -58,8 +55,10 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
             ExceptionHelper.showExceptionDialog(this, e);
         }
 
+        //只在第一次创建界面时创建新Fragment
         if (savedInstanceState == null) {
-            //创建流水编辑Fragment实例（第一次创建界面时）
+            //创建流水编辑Fragment实例
+            RunningAccountFragmentBase<?> runningAccountFragment;
             if (type == RunningAccountType.EXPENSE) {
                 runningAccountFragment = new ExpenseFragment();
             } else if (type == RunningAccountType.INCOME) {
@@ -72,28 +71,11 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
                 return;
             }
 
-            //将Fragment添加到布局
+            //将Fragment添加至布局
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.fragment_container, runningAccountFragment);
+            transaction.add(R.id.fragment_container, runningAccountFragment, TagString.ACCOUNT_FRAGMENT.getValue());
             transaction.commit();
         }
-
-        //设置返回监听器
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                try {
-                    PictureAdapter pictureAdapter = runningAccountFragment.getPictureAdapter();
-                    if (pictureAdapter.isDeleteMode()) {
-                        pictureAdapter.switchDeleteMode(false);
-                    } else {
-                        finish();
-                    }
-                } catch (NumberFormatException e) {
-                    finish();
-                }
-            }
-        });
     }
 
     @Override
@@ -102,17 +84,22 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
         binding = null;
     }
 
-    //初始化视图
+    /**
+     * 初始化视图
+     */
     private void initViews() {
         //设置标题栏的图标点击监听器
-        MaterialToolbar toolbar = binding.toolbar;
-        toolbar.setNavigationOnClickListener(v -> finish());
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
 
         //为按钮设置单击监听器
         binding.cancelBtn.setOnClickListener(v -> finish());
         binding.finishBtn.setOnClickListener(v -> {
             Intent result2BookKeeping = new Intent();
             String error;
+            RunningAccountFragmentBase<?> runningAccountFragment = (RunningAccountFragmentBase<?>) getSupportFragmentManager().findFragmentByTag(TagString.ACCOUNT_FRAGMENT.getValue());
+            if (runningAccountFragment == null) {
+                return;
+            }
             error = runningAccountFragment.verifyInputData();
 
             //判断是否获取到报错消息（null:无报错，验证通过）
@@ -120,6 +107,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
                 Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
             } else {
                 Bundle dataBundle = getInputData();
+                if (dataBundle == null) return;
                 result2BookKeeping.putExtras(dataBundle);
 
                 //将数据保存至数据库
@@ -161,8 +149,12 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
      *
      * @return 包含修改后数据的包裹
      */
-    @NonNull
+    @Nullable
     private Bundle getInputData() {
+        RunningAccountFragmentBase<?> runningAccountFragment = (RunningAccountFragmentBase<?>) getSupportFragmentManager().findFragmentByTag(TagString.ACCOUNT_FRAGMENT.getValue());
+        if (runningAccountFragment == null) {
+            return null;
+        }
         Bundle dataBundle = runningAccountFragment.getInputData();
 
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());     //流水种类

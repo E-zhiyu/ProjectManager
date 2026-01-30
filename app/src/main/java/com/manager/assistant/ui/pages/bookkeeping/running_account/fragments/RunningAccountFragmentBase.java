@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -131,6 +132,22 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
 
         startObserveTag();
         startObservePicture();
+
+        //设置返回监听器
+        requireActivity().getOnBackPressedDispatcher().addCallback(requireActivity(), new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                try {
+                    if (pictureAdapter.isDeleteMode()) {
+                        pictureAdapter.switchDeleteMode(false);
+                    } else {
+                        requireActivity().finish();
+                    }
+                } catch (NumberFormatException e) {
+                    requireActivity().finish();
+                }
+            }
+        });
 
         return binding.getRoot();
     }

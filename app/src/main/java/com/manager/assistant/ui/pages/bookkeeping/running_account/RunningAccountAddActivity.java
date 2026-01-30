@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RunningAccountAddActivity extends AppCompatActivity {
-    private RunningAccountFragmentBase currentFragment; //翻页视图显示的Fragment
+    private RunningAccountFragmentBase<?> currentFragment;  //翻页视图显示的Fragment
     private ActivityRunningAccountAddBinding binding;
 
     @Override
@@ -45,23 +45,6 @@ public class RunningAccountAddActivity extends AppCompatActivity {
 
         initViews();
         AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
-
-        //设置返回监听器
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                try {
-                    PictureAdapter pictureAdapter = currentFragment.getPictureAdapter();
-                    if (pictureAdapter.isDeleteMode()) {
-                        pictureAdapter.switchDeleteMode(false);
-                    } else {
-                        finish();
-                    }
-                } catch (NumberFormatException e) {
-                    finish();
-                }
-            }
-        });
     }
 
     @Override
@@ -105,7 +88,7 @@ public class RunningAccountAddActivity extends AppCompatActivity {
         new TabLayoutMediator(
                 tabLayout,
                 viewPager2,
-                (tab, position) -> tab.setText(((RunningAccountFragmentBase) fragmentList.get(position)).getName())
+                (tab, position) -> tab.setText(((RunningAccountFragmentBase<?>) fragmentList.get(position)).getName())
         ).attach();
 
         //定义翻页回调以刷新活动的fragment实例
@@ -113,7 +96,7 @@ public class RunningAccountAddActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                currentFragment = (RunningAccountFragmentBase) (viewPagerAdapter.getFragment(position));
+                currentFragment = (RunningAccountFragmentBase<?>) (viewPagerAdapter.getFragment(position));
             }
         });
         viewPager2.setOffscreenPageLimit(2);    //设置保留邻近Fragment数量
