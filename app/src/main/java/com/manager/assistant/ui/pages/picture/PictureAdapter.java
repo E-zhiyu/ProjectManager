@@ -234,6 +234,8 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
             skip2ImageActivity.putExtra(KeyValueStrings.FILE_URI.getValue(), pictureUris);
             skip2ImageActivity.putExtra(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), getLegalStartPosition(position));
             context.startActivity(skip2ImageActivity);
+        } else {
+            Toast.makeText(context, "该图片文件不存在", Toast.LENGTH_SHORT).show();
         }
     }
 
