@@ -33,6 +33,7 @@ import com.manager.assistant.ui.pages.picture.PictureAdapter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class RunningAccountModifyActivity extends AppCompatActivity {
     private RunningAccountType type = null;                         //流水种类
@@ -46,18 +47,9 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
         binding = ActivityRunningAccountModifyBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        receiveInitData();
         initViews();
         AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
-
-        //接收种类和下标参数
-        Bundle dataBundle = getIntent().getExtras();
-        if (dataBundle != null) {
-            type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-            rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
-        } else {
-            NullPointerException e = new NullPointerException("编辑流水时无法读取原有的数据");
-            ExceptionHelper.showExceptionDialog(this, e);
-        }
 
         //只在第一次创建界面时创建新Fragment
         if (savedInstanceState == null) {
@@ -116,11 +108,25 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
     }
 
     /**
+     * 接收初始化数据
+     */
+    private void receiveInitData() {
+        Bundle dataBundle = getIntent().getExtras();
+        if (dataBundle != null) {
+            type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
+            rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
+        } else {
+            NullPointerException e = new NullPointerException("编辑流水时无法读取原有的数据");
+            ExceptionHelper.showExceptionDialog(this, e);
+        }
+    }
+
+    /**
      * 初始化视图
      */
     private void initViews() {
-        //设置标题栏的图标点击监听器
         binding.toolbar.setNavigationOnClickListener(v -> finish());
+        binding.toolbar.setTitle(String.format(Locale.getDefault(), "%s编辑", type.getTitle()));
 
         //为按钮设置单击监听器
         binding.cancelBtn.setOnClickListener(v -> finish());
