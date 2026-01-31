@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.7.6  \n" +
             "**BUG修复**  \n" +
+            "- 修复添加流水记录时长按图片时只有当前种类的输入界面能进入编辑状态的BUG  \n" +
             "- 修复流水记录输入界面翻转屏幕或者切换深浅色模式后进行任何操作容易崩溃的BUG  \n" +
             "- 修复添加流水记录时对图片的修改不会自动同步到其他流水类型输入界面的BUG  \n\n" +
             "**修改内容**  \n" +

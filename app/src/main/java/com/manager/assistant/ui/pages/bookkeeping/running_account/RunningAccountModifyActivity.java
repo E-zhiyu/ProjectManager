@@ -9,6 +9,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
@@ -21,6 +22,7 @@ import com.manager.assistant.enums.TagString;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.enums.KeyValueStrings;
+import com.manager.assistant.ui.data_communication.account_picture.AccountPictureViewModel;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.ExpenseFragment;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountFragmentBase;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
@@ -92,7 +94,9 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
                     }
                     PictureAdapter pictureAdapter = fragment.getPictureAdapter();
                     if (pictureAdapter.isDeleteMode()) {
-                        pictureAdapter.switchDeleteMode(false);
+                        //使用ViewModel通知所有适配器更新状态
+                        AccountPictureViewModel viewModel = new ViewModelProvider(RunningAccountModifyActivity.this).get(AccountPictureViewModel.class);
+                        viewModel.updateAdapterStat(false);
                     } else {
                         setEnabled(false);
                         finish();

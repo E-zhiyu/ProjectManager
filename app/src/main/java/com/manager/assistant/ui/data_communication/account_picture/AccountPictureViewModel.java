@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AccountPictureViewModel extends ViewModel {
-    private final MutableLiveData<List<Picture>> pictureLiveData = new MutableLiveData<>();   //图片列表
+    private final MutableLiveData<List<Picture>> pictureLiveData = new MutableLiveData<>(); //图片列表
+    private final MutableLiveData<Boolean> adapterStatData = new MutableLiveData<>();       //适配器是否位于删除状态
 
     /**
      * 获取图片数据
@@ -19,6 +20,10 @@ public class AccountPictureViewModel extends ViewModel {
      */
     public LiveData<List<Picture>> getPictureLiveData() {
         return pictureLiveData;
+    }
+
+    public LiveData<Boolean> getAdapterStatData() {
+        return adapterStatData;
     }
 
     /**
@@ -67,5 +72,14 @@ public class AccountPictureViewModel extends ViewModel {
     public void deletePicture(List<Picture> pictureListAfterDelete) {
         List<Picture> pictureList = new ArrayList<>(pictureListAfterDelete);
         pictureLiveData.postValue(pictureList);
+    }
+
+    /**
+     * 更新图片适配器状态
+     *
+     * @param isDeleteMode 更新后是否为删除图片模式
+     */
+    public void updateAdapterStat(boolean isDeleteMode) {
+        adapterStatData.postValue(isDeleteMode);
     }
 }

@@ -73,23 +73,24 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
  * @param <B> 流水记录输入界面的ViewBinding类型
  */
 public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends Fragment {
-    protected B binding;                                    //绑定的XML视图
-    protected String defaultRemark;                         //默认备注
-    protected RunningAccountType type;                      //流水类型
-    protected TextInputLayout tagLayout;                    //标签文本框布局管理器
-    protected MaterialAutoCompleteTextView tagInput;        //标签输入框
-    protected MaterialAutoCompleteTextView datetimeInput;   //日期和时间输入
-    protected LoadingIndicator loadingIndicator;            //图片加载组件
-    protected RecyclerView pictureRecycler;                 //图片列表视图
-    protected MaterialButton pictureDeleteBtn;              //图片删除按钮
-    protected long tno = 0;                                 //用户选择的标签编号（默认无标签则为0）
-    protected long rno = 0;                                 //流水编号
-    private TagSelectBottomSheet tagSheet;                  //标签选择弹窗
-    private ActivityResultLauncher<Intent> cameraLauncher;  //拍照Activity启动器
-    private ActivityResultLauncher<String> albumLauncher;   //相册图片选择启动器
-    protected PictureAdapter pictureAdapter;                //图片RecyclerView的适配器
-    private final CompositeDisposable disposables = new CompositeDisposable();  //多线程任务列表
-    protected boolean viewModelRefreshPictureEnabled = true;  //是否能够通过ViewModel刷新图片视图
+    protected B binding;                                        //绑定的XML视图
+    protected String defaultRemark;                             //默认备注
+    protected RunningAccountType type;                          //流水类型
+    protected TextInputLayout tagLayout;                        //标签文本框布局管理器
+    protected MaterialAutoCompleteTextView tagInput;            //标签输入框
+    protected MaterialAutoCompleteTextView datetimeInput;       //日期和时间输入
+    protected LoadingIndicator loadingIndicator;                //图片加载组件
+    protected RecyclerView pictureRecycler;                     //图片列表视图
+    protected MaterialButton pictureDeleteBtn;                  //图片删除按钮
+    protected long tno = 0;                                     //用户选择的标签编号（默认无标签则为0）
+    protected long rno = 0;                                     //流水编号
+    protected TagSelectBottomSheet tagSheet;                    //标签选择弹窗
+    protected ActivityResultLauncher<Intent> cameraLauncher;    //拍照Activity启动器
+    protected ActivityResultLauncher<String> albumLauncher;     //相册图片选择启动器
+    protected PictureAdapter pictureAdapter;                    //图片RecyclerView的适配器
+    protected final CompositeDisposable disposables = new CompositeDisposable();    //多线程任务列表
+    protected boolean viewModelRefreshPictureEnabled = true;    //是否能够通过ViewModel刷新图片视图
+    protected boolean viewModelUpdateAdapterStatEnabled = true; //是否允许ViewModel更新图片适配器删除模式状态
 
     /**
      * 流水记录输入界面基类构造方法
@@ -242,6 +243,8 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
      */
     private void startObservePicture() {
         AccountPictureViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountPictureViewModel.class);
+
+        //观察图片列表
         viewModel.getPictureLiveData().observe(
                 getViewLifecycleOwner(), pictureList -> {
                     if (viewModelRefreshPictureEnabled) {
@@ -250,6 +253,11 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
 
                     viewModelRefreshPictureEnabled = true;
                 }
+        );
+
+        //观察适配器删除模式状态
+        viewModel.getAdapterStatData().observe(
+                getViewLifecycleOwner(), isDeleteMode -> pictureAdapter.switchDeleteMode(isDeleteMode)
         );
     }
 
@@ -377,7 +385,7 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
         pictureRecycler.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing, true));
 
         //先设置适配器
-        pictureAdapter = new PictureAdapter(requireContext(), isDeleteMode -> {
+        pictureAdapter = new PictureAdapter(requireActivity(), requireActivity(), isDeleteMode -> {
             if (isDeleteMode) {
                 pictureDeleteBtn.setVisibility(View.VISIBLE);
             } else {

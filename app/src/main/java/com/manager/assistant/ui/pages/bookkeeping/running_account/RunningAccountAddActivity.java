@@ -9,11 +9,13 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.manager.assistant.ui.data_communication.account_picture.AccountPictureViewModel;
 import com.manager.assistant.ui.others.adapters.FragmentPagerAdapter;
 import com.manager.assistant.data.data_class.Picture;
 import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
@@ -60,7 +62,9 @@ public class RunningAccountAddActivity extends AppCompatActivity {
                     }
                     PictureAdapter pictureAdapter = fragment.getPictureAdapter();
                     if (pictureAdapter.isDeleteMode()) {
-                        pictureAdapter.switchDeleteMode(false);
+                        //使用ViewModel通知所有适配器更新状态
+                        AccountPictureViewModel viewModel = new ViewModelProvider(RunningAccountAddActivity.this).get(AccountPictureViewModel.class);
+                        viewModel.updateAdapterStat(false);
                     } else {
                         setEnabled(false);
                         finish();

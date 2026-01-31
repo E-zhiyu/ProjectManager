@@ -14,6 +14,8 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -34,6 +36,7 @@ import java.util.Objects;
 
 public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureViewHolder> {
     private final Context context;                      //上下文
+    private final ViewModelStoreOwner owner;            //ViewModel所有者
     private final List<Picture> pictureList;            //数据源列表
     private final List<Boolean> pictureSelectList;      //记录图片选择状态的列表
     private boolean isDeleteMode = false;               //标记是否为删除图片模式
@@ -78,10 +81,12 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
      * 图片适配器构造方法
      *
      * @param context  上下文
+     * @param owner    ViewModel的所有者
      * @param listener 图片删除状态切换监听器
      */
-    public PictureAdapter(Context context, DeleteModeSwitchListener listener) {
+    public PictureAdapter(Context context, ViewModelStoreOwner owner, DeleteModeSwitchListener listener) {
         this.context = context;
+        this.owner = owner;
         this.pictureList = new ArrayList<>();
         this.pictureSelectList = new ArrayList<>();
         this.listener = listener;
@@ -155,7 +160,10 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
             holder.imageView.setOnLongClickListener(v -> {
                 if (!isDeleteMode) {
                     pictureSelectList.set(holder.getBindingAdapterPosition(), true);
-                    switchDeleteMode(true);
+
+                    //使用ViewModel通知所有适配器更新状态
+                    AccountPictureViewModel viewModel = new ViewModelProvider(owner).get(AccountPictureViewModel.class);
+                    viewModel.updateAdapterStat(true);
 
                     Toast.makeText(context, "返回即可退出图片删除模式", Toast.LENGTH_SHORT).show();
                     return true;
@@ -344,9 +352,10 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
             Toast.makeText(context, "没有图片被删除", Toast.LENGTH_SHORT).show();
         }
 
-        //关闭图片删除模式
-        switchDeleteMode(false);
+        //使用ViewModel关闭所有适配器的删除模式
+        viewModel.updateAdapterStat(false);
 
+        //使用ViewModel更新图片列表
         viewModel.deletePicture(pictureList);
     }
 }
