@@ -1,6 +1,5 @@
 package com.manager.assistant.ui.pages.bookkeeping.tag;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.sqlite.SQLiteException;
@@ -29,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecyclerAdapter.TagEditViewHolder> {
-    private List<TagGroup> tagGroupList;                            //标签组列表
+    private final List<TagGroup> tagGroupList;                      //标签组列表
     private final Context context;                                  //上下文
     private final OnTextViewClickedListener textClickedListener;    //标签文本点击事件监听器
 
@@ -39,10 +38,11 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
          *
          * @param tag_no     标签编号
          * @param tag_name   标签名称
+         * @param tag_scope  标签作用域
          * @param group_no   标签分组编号
          * @param group_name 标签分组名称
          */
-        void onTagTextViewClicked(long tag_no, String tag_name, long group_no, String group_name);
+        void onTagTextViewClicked(long tag_no, String tag_name, int tag_scope, long group_no, String group_name);
 
         /**
          * 处理分组文本视图点击事件
@@ -60,21 +60,21 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
     public static class TagEditViewHolder extends RecyclerView.ViewHolder {
         MaterialTextView group_name_text;       //分组名称文本视图
         ImageButton expand_fold_view;           //控制卡片展开和折叠的按钮
-        LinearLayout sub_view_layout;           //子组件的线性布局管理器
+        LinearLayout subViewLayout;           //子组件的线性布局管理器
 
         public TagEditViewHolder(@NonNull View itemView) {
             super(itemView);
             group_name_text = itemView.findViewById(R.id.tag_group_name_view);
-            sub_view_layout = itemView.findViewById(R.id.sub_view_layout);
+            subViewLayout = itemView.findViewById(R.id.sub_view_layout);
             expand_fold_view = itemView.findViewById(R.id.expand_fold_btn);
 
             //设置展开和折叠视图的点击方法
             expand_fold_view.setOnClickListener(v -> {
                 //旋转分组名称文本右侧的图标
-                AnimationHelper.rotateIcon(expand_fold_view, sub_view_layout.getVisibility() == View.VISIBLE);
+                AnimationHelper.rotateIcon(expand_fold_view, subViewLayout.getVisibility() == View.VISIBLE);
 
                 //切换子组件布局的可见性
-                AnimationHelper.switchViewFoldOrExpanded(sub_view_layout.getVisibility() != View.VISIBLE, sub_view_layout);
+                AnimationHelper.switchViewFoldOrExpanded(subViewLayout.getVisibility() != View.VISIBLE, subViewLayout);
             });
         }
     }
@@ -107,10 +107,11 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
         );
 
         //添加标签文本视图
-        holder.sub_view_layout.removeAllViews();    //先删除旧视图
+        holder.subViewLayout.removeAllViews();    //先删除旧视图
         for (Tag oneTag : currentGroup.getTags()) {
             String tag_name = oneTag.getName();
             long tag_no = oneTag.getTno();
+            int tag_scope = oneTag.getScope();
 
             //设置文本属性
             MaterialTextView tagTextView = new MaterialTextView(context);
@@ -119,7 +120,6 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
                     ViewGroup.LayoutParams.WRAP_CONTENT
             ));
             tagTextView.setPadding(50, 20, 25, 20);
-            tagTextView.setTextAppearance(R.style.CommonTextAppearance);
 
             //添加点击的波纹效果
             try (TypedArray typedArray = context.obtainStyledAttributes(
@@ -138,11 +138,11 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
             //设置标签文本点击监听器
             tagTextView.setOnClickListener(v ->
-                    textClickedListener.onTagTextViewClicked(tag_no, tag_name, group_no, group_name)
+                    textClickedListener.onTagTextViewClicked(tag_no, tag_name, tag_scope, group_no, group_name)
             );
 
             tagTextView.setText(tag_name);
-            holder.sub_view_layout.addView(tagTextView);
+            holder.subViewLayout.addView(tagTextView);
         }
     }
 
@@ -187,14 +187,15 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
     /**
      * 编辑标签（未更换分组）
      *
-     * @param new_tag_name 新标签名称
-     * @param tag_no       标签编号
-     * @param group_no     该标签所属的分组编号
+     * @param newTagName 新标签名称
+     * @param tag_no     标签编号
+     * @param tag_scope  标签作用域
+     * @param group_no   该标签所属的分组编号
      */
-    public void modifyTag(String new_tag_name, long tag_no, long group_no) {
+    public void modifyTag(String newTagName, long tag_no, int tag_scope, long group_no) {
         //将数据保存至数据库
         try {
-            Tag.modifyTag(new_tag_name, tag_no, context);
+            Tag.modifyTag(newTagName, tag_no, tag_scope, context);
             Toast.makeText(context, "标签修改成功", Toast.LENGTH_SHORT).show();
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
@@ -207,7 +208,8 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             if (group.getGroup_no() == group_no) {
                 for (Tag tag : group.getTags()) {
                     if (tag.getTno() == tag_no) {
-                        tag.setName(new_tag_name);
+                        tag.setName(newTagName);
+                        tag.setScope(tag_scope);
                         break;
                     }
                 }
@@ -221,26 +223,34 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
     /**
      * 编辑标签（更换分组）
      *
-     * @param new_tag_name             新标签名称
+     * @param newTagName               新标签名称
      * @param tag_no                   标签编号
-     * @param new_group_name           新标签分组名称
+     * @param tag_scope                标签作用域
+     * @param newGroupName             新标签分组名称
      * @param origin_group_no          原标签分组编号
      * @param group_no_after_modifying 新标签分组编号
      */
-    public void modifyTag(String new_tag_name, long tag_no, String new_group_name, long origin_group_no, long group_no_after_modifying) {
+    public void modifyTag(
+            String newTagName,
+            long tag_no,
+            int tag_scope,
+            String newGroupName,
+            long origin_group_no,
+            long group_no_after_modifying) {
+
         //判断是否需要新建标签分组
         if (group_no_after_modifying == -1) {
             //保存新标签分组
             try {
-                group_no_after_modifying = TagGroup.saveNewGroup(new_group_name, context);  //获取为新分组分配的编号
+                group_no_after_modifying = TagGroup.saveNewGroup(newGroupName, context);  //获取为新分组分配的编号
             } catch (SQLiteException e) {
                 ExceptionHelper.showExceptionDialog(context, e);
                 Toast.makeText(context, "标签修改失败", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            TagGroup newGroup = new TagGroup(new_group_name, group_no_after_modifying);
-            newGroup.addTag(new Tag(new_tag_name, tag_no));
+            TagGroup newGroup = new TagGroup(newGroupName, group_no_after_modifying);
+            newGroup.addTag(new Tag(newTagName, tag_no, tag_scope));
 
             int new_group_index = tagGroupList.size();
             tagGroupList.add(newGroup);
@@ -250,7 +260,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             int new_group_index = 0;    //待新增标签的分组下标
             for (TagGroup group : this.tagGroupList) {
                 if (group.getGroup_no() == group_no_after_modifying) {
-                    Tag new_tag = new Tag(new_tag_name, tag_no);
+                    Tag new_tag = new Tag(newTagName, tag_no, tag_scope);
                     group.addTag(new_tag);
                     break;
                 }
@@ -262,7 +272,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
         //将数据保存至数据库
         try {
-            Tag.modifyTag(new_tag_name, tag_no, group_no_after_modifying, context);
+            Tag.modifyTag(newTagName, tag_no, tag_scope, group_no_after_modifying, context);
             Toast.makeText(context, "标签修改成功", Toast.LENGTH_SHORT).show();
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
@@ -393,10 +403,13 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
      *
      * @param tagGroupList 刷新时重新获取的数据
      */
-    @SuppressLint("NotifyDataSetChanged")
     public void refreshUI(List<TagGroup> tagGroupList) {
-        this.tagGroupList = tagGroupList;
-        notifyDataSetChanged();
+        int old_count = this.tagGroupList.size();
+        this.tagGroupList.clear();
+        notifyItemRangeRemoved(0, old_count);
+
+        this.tagGroupList.addAll(tagGroupList);
+        notifyItemRangeInserted(0, tagGroupList.size());
     }
 
     /**

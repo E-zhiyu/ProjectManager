@@ -8,13 +8,14 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.android.material.button.MaterialButton;
 import com.manager.assistant.databinding.BottomSheetTagSelectBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.data.data_class.TagGroup;
+import com.manager.assistant.ui.others.adapters.SheetTagBtnRecyclerAdapter;
+import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;
+import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.ui.pages.bookkeeping.tag.TagManageActivity;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -27,32 +28,17 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment {
     private long excepted_tag_no = 0;               //被排除的标签编号（不会显示）
     private boolean isTagExcepted = false;          //是否存在被排除的标签
     private final SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener tagBtnClickedListener; //标签按钮点击事件的监听器
-    private String editBtnStr = "标签管理";         //左侧编辑按钮文本
-    private String clearBtnStr = "清除输入";        //右侧清除按钮文本
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
-    private SheetTagGroupRecyclerAdapter tagAdapter;    //标签按钮布局适配器
+    private final RunningAccountType tagScopeType;  //标签作用域种类（即流水记录种类）
 
     /**
      * 标签选择菜单构造方法
      *
      * @param listener 标签按钮点击监听器
      */
-    public TagSelectBottomSheet(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener) {
+    public TagSelectBottomSheet(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener, RunningAccountType tagScopeType) {
         this.tagBtnClickedListener = listener;
-        //标签数据观察者（观察标签是否更改或者删除）
-    }
-
-    /**
-     * 标签选择菜单构造方法
-     *
-     * @param listener    标签按钮点击监听器
-     * @param editBtnStr  标签编辑按钮的文本（设置为null则隐藏按钮）
-     * @param clearBtnStr 清除输入按钮的文本（设置为null则隐藏按钮）
-     */
-    public TagSelectBottomSheet(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener, String editBtnStr, String clearBtnStr) {
-        this.tagBtnClickedListener = listener;
-        this.editBtnStr = editBtnStr;
-        this.clearBtnStr = clearBtnStr;
+        this.tagScopeType = tagScopeType;
     }
 
     /**
@@ -64,6 +50,7 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment {
     public TagSelectBottomSheet(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener, long excepted_tag_no) {
         this.tagBtnClickedListener = listener;
         this.excepted_tag_no = excepted_tag_no;
+        tagScopeType = null;    //不需要过滤标签作用域
         isTagExcepted = true;
     }
 
@@ -73,16 +60,6 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment {
         binding = BottomSheetTagSelectBinding.inflate(inflater, container, false);
 
         initViews();
-
-        //设置标签列表视图适配器
-        RecyclerView tag_group_recycler_view = binding.tagGroupRecycler;
-        tagAdapter = new SheetTagGroupRecyclerAdapter(excepted_tag_no, requireContext());
-        tag_group_recycler_view.setAdapter(tagAdapter);
-
-        loadTagGroupData();
-
-        //设置标签按钮点击事件监听器
-        tagAdapter.setOnTagBtnClickedListener(this.tagBtnClickedListener);
 
         return binding.getRoot();
     }
@@ -94,43 +71,38 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment {
         disposables.dispose();
     }
 
-    //初始化视图
+    /**
+     * 初始化视图
+     */
     private void initViews() {
-        MaterialButton editTagBtn = binding.editTagBtn;
-        MaterialButton clearInputBtn = binding.clearInputBtn;
-
-        //设置按钮文本
-        if (editBtnStr != null) {
-            editTagBtn.setText(editBtnStr);
-        } else {
-            editTagBtn.setVisibility(View.GONE);
-        }
-        if (clearBtnStr != null) {
-            clearInputBtn.setText(clearBtnStr);
-        } else {
-            clearInputBtn.setVisibility(View.GONE);
-        }
-
         if (!isTagExcepted) {
-            editTagBtn.setOnClickListener(v -> {
+            binding.editTagBtn.setOnClickListener(v -> {
                 Intent skip2TagEdit = new Intent(requireContext(), TagManageActivity.class);
                 startActivity(skip2TagEdit);
                 dismiss();
             });
-            clearInputBtn.setOnClickListener(v -> tagBtnClickedListener.onTagBtnClicked(0, ""));
+            binding.clearInputBtn.setOnClickListener(v -> {
+                tagBtnClickedListener.onTagBtnClicked(0, "");
+                dismiss();
+            });
         } else {
-            editTagBtn.setVisibility(View.GONE);
-            clearInputBtn.setVisibility(View.GONE);
+            binding.editTagBtn.setVisibility(View.GONE);
+            binding.clearInputBtn.setVisibility(View.GONE);
         }
+
+        //设置标签列表视图适配器
+        SheetTagGroupRecyclerAdapter tagAdapter = new SheetTagGroupRecyclerAdapter(tagBtnClickedListener, requireContext());
+        binding.tagGroupRecycler.setAdapter(tagAdapter);
+        loadTagGroupData(tagAdapter);
     }
 
-    private void loadTagGroupData() {
+    private void loadTagGroupData(@NonNull SheetTagGroupRecyclerAdapter tagAdapter) {
         disposables.add(
-                Observable.fromCallable(() -> TagGroup.loadTagGroups(requireContext()))
+                Observable.fromCallable(() -> TagGroup.loadTagGroups(requireContext(), excepted_tag_no, tagScopeType))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
-                                tagGroupList -> tagAdapter.setTagGroupList(tagGroupList),
+                                tagAdapter::setTagGroupList,
                                 e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
                                 () -> binding.loadingIndicator.setVisibility(View.GONE)
                         )

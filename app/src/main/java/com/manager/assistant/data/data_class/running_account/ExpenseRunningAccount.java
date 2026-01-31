@@ -2,12 +2,9 @@ package com.manager.assistant.data.data_class.running_account;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType; /**
- * 支出流水类
- */
-public class ExpenseRunningAccount extends RunningAccountBase {
-    protected final String default_remark = "一条支出记录";
+import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
+public class ExpenseRunningAccount extends RunningAccountBase {
     /**
      * 不给定编号的构造方法
      *
@@ -15,14 +12,13 @@ public class ExpenseRunningAccount extends RunningAccountBase {
      * @param date_time 日期和时间
      * @param amount    金额
      */
-    public ExpenseRunningAccount(@NonNull String remark, String date_time, double amount, boolean isDefaultRemark) {
+    public ExpenseRunningAccount(@NonNull String remark, String date_time, double amount) {
+        super();
         this.type = RunningAccountType.EXPENSE;
-        this.name = "支出";
-        this.remark = remark.isEmpty() ? default_remark : remark;
-        this.isDefaultRemark = remark.isEmpty();
+        this.title = "支出";
+        this.remark = remark;
         this.datetime = date_time;
         this.amount = amount;
-        this.isDefaultRemark = isDefaultRemark;
         this.rno = -1;
     }
 
@@ -34,13 +30,18 @@ public class ExpenseRunningAccount extends RunningAccountBase {
      * @param date_time 日期和时间
      * @param amount    金额
      */
-    public ExpenseRunningAccount(long rno, @NonNull String remark, String date_time, double amount, boolean isDefaultRemark) {
+    public ExpenseRunningAccount(long rno, @NonNull String remark, String date_time, double amount) {
+        super();
         this.rno = rno;
         this.type = RunningAccountType.EXPENSE;
-        this.name = "支出";
-        this.remark = remark.isEmpty() ? default_remark : remark;
+        this.title = "支出";
+        this.remark = remark;
         this.datetime = date_time;
         this.amount = amount;
-        this.isDefaultRemark = isDefaultRemark;
+    }
+
+    @Override
+    protected String initDefaultRemark() {
+        return "一条支出记录";
     }
 }

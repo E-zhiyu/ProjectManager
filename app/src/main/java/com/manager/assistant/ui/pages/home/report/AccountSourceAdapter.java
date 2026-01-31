@@ -15,6 +15,7 @@ import com.manager.assistant.data.data_class.AccountSourceInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdapter.AccountProportionViewHolder> {
     private final List<AccountSourceInfo> sourceInfoList = new ArrayList<>();   //来源卡片列表
@@ -53,7 +54,6 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
     }
 
     @Override
-    @SuppressLint("DefaultLocale")
     public void onBindViewHolder(@NonNull AccountProportionViewHolder holder, int position) {
         AccountSourceInfo oneSourceInfo = sourceInfoList.get(position);
         String source_name = oneSourceInfo.getSource_name();
@@ -61,8 +61,8 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
         double amount = oneSourceInfo.getAmount();
 
         holder.sourceNameText.setText(source_name);               //来源名称
-        holder.amountText.setText(String.format("%.2f", amount));  //金额
-        String percentage_str = String.format("%d%%", percentage);
+        holder.amountText.setText(String.format(Locale.getDefault(), "%.2f", amount));  //金额
+        String percentage_str = String.format(Locale.getDefault(), "%d%%", percentage);
         holder.proportionText.setText(percentage_str);             //百分比文本
         holder.proportionBar.setProgress(percentage);              //百分比进度条
     }

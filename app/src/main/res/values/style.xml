@@ -130,6 +130,7 @@
         <item name="layout_goneMarginEnd">5dp</item>
         <item name="layout_goneMarginTop">5dp</item>
         <item name="layout_goneMarginBottom">5dp</item>
+        <item name="iconTintMode">add</item>
     </style>
 
     <!-- 透明背景按钮样式 -->
@@ -237,10 +238,5 @@
     <style name="TabLayoutStyle" parent="android:Widget">
         <item name="android:backgroundTint">?attr/colorSurface</item>
         <item name="tabIndicatorColor">?attr/colorPrimary</item>
-    </style>
-
-    <!-- 普通文本样式 -->
-    <style name="CommonTextAppearance">
-        <item name="android:textSize">17sp</item>
     </style>
 </resources>

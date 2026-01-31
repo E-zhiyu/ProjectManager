@@ -95,7 +95,7 @@ public class ReportActivity extends AppCompatActivity {
         year = now.get(Calendar.YEAR);
         month = now.get(Calendar.MONTH) + 1;
         day = now.get(Calendar.DAY_OF_MONTH);
-        @SuppressLint("DefaultLocale") String date_str = String.format("%04d年%02d月%02d日", year, month, day);
+        String date_str = String.format(Locale.getDefault(), "%04d年%02d月%02d日", year, month, day);
 
         //设置点击监听器
         binding.reportDateSelectBtn.setText(date_str);
@@ -492,7 +492,6 @@ public class ReportActivity extends AppCompatActivity {
     /**
      * 弹出日期选择页
      */
-    @SuppressLint("DefaultLocale")
     private void showDatePickerDialog() {
         //实例化一个日期对象用于存放选中的日期
         Calendar selectedCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));  //指定UTC时区以确保早晨不会选择到昨天
@@ -523,7 +522,7 @@ public class ReportActivity extends AppCompatActivity {
             this.month = selected_calendar.get(Calendar.MONTH) + 1;
             this.day = selected_calendar.get(Calendar.DAY_OF_MONTH);
             TextView date_textview = binding.reportDateSelectBtn;
-            date_textview.setText(String.format("%04d年%02d月%02d日", year, month, day));
+            date_textview.setText(String.format(Locale.getDefault(), "%04d年%02d月%02d日", year, month, day));
 
             //重新加载报表信息
             List<ReportRunningAccountData> dataList = loadReportData(dateRangeType);

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -12,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.manager.assistant.R;
 import com.manager.assistant.data.data_save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.databinding.ActivityAnalysisRuleManageBinding;
 import com.manager.assistant.helpers.AnimationHelper;
@@ -226,7 +224,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
-                                ruleList -> ruleAdapter.onListRefreshed(ruleList),
+                                ruleList -> ruleAdapter.refreshRuleList(ruleList),
                                 e -> ExceptionHelper.showExceptionDialog(this, e),
                                 () -> {
                                     binding.refreshLayout.setRefreshing(false);

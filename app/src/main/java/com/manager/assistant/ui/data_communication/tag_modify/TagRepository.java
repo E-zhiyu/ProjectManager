@@ -45,8 +45,8 @@ public class TagRepository {
         this.updateReason = updateReason;
 
         List<Tag> tagList = new ArrayList<>();
-        Tag modified_tag = new Tag(tag_name, tag_no);
-        tagList.add(modified_tag);
+        Tag modifiedTag = new Tag(tag_name, tag_no);
+        tagList.add(modifiedTag);
         changedTagList.setValue(tagList);
     }
 

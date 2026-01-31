@@ -67,7 +67,7 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
         List<PojoBasicRunningAccount> pojoBasicRunningAccountList = new ArrayList<>();
         SQLiteDatabase db = dbHelper.openReadLink();
 
-        Cursor basic_cursor = db.query(
+        Cursor basicCursor = db.query(
                 BookKeepingTables.BASIC.toString(),
                 null,
                 null,           //无WHERE子句
@@ -78,25 +78,25 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
         );
 
         //查询数据
-        while (basic_cursor.moveToNext()) {
+        while (basicCursor.moveToNext()) {
             //流水编号
-            long rno = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.RNO.toString()));
+            long rno = basicCursor.getLong(basicCursor.getColumnIndexOrThrow(BookKeepingColumns.RNO.toString()));
             //金额
-            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.AMOUNT.toString()));
+            double amount = basicCursor.getDouble(basicCursor.getColumnIndexOrThrow(BookKeepingColumns.AMOUNT.toString()));
             //种类
-            String type = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.TYPE.toString()));
+            String type = basicCursor.getString(basicCursor.getColumnIndexOrThrow(BookKeepingColumns.TYPE.toString()));
             //备注
-            String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.REMARK.toString()));
+            String remark = basicCursor.getString(basicCursor.getColumnIndexOrThrow(BookKeepingColumns.REMARK.toString()));
             //日期和时间
-            String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.DATETIME.toString()));
+            String datetime = basicCursor.getString(basicCursor.getColumnIndexOrThrow(BookKeepingColumns.DATETIME.toString()));
             //标签编号
-            long tag_no = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));
+            long tag_no = basicCursor.getLong(basicCursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));
 
             PojoBasicRunningAccount pojoBasicRunningAccount = new PojoBasicRunningAccount(type, remark, datetime, tag_no, amount, rno);
             pojoBasicRunningAccountList.add(pojoBasicRunningAccount);
         }
 
-        basic_cursor.close();
+        basicCursor.close();
         db.close();
         return pojoBasicRunningAccountList;
     }
@@ -111,20 +111,20 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
         for (PojoBasicRunningAccount basic_data : runningAccountDataList) {
             String type = basic_data.getType();              //种类
             String remark = basic_data.getRemark();          //备注
-            String date_time = basic_data.getDate_time();    //日期和时间
+            String datetime = basic_data.getDate_time();     //日期和时间
             long tag_no = basic_data.getTag_no();            //标签编号
             double amount = basic_data.getAmount();          //金额
             long rno = basic_data.getRno();                  //流水编号
 
             //写入基本数据
-            ContentValues basic_values = new ContentValues();
-            basic_values.put(BookKeepingColumns.TYPE.toString(), type);
-            basic_values.put(BookKeepingColumns.REMARK.toString(), remark);
-            basic_values.put(BookKeepingColumns.DATETIME.toString(), date_time);
-            basic_values.put(BookKeepingColumns.TAG_NO.toString(), tag_no);
-            basic_values.put(BookKeepingColumns.AMOUNT.toString(), amount);
-            basic_values.put(BookKeepingColumns.RNO.toString(), rno);
-            db.insert(BookKeepingTables.BASIC.toString(), null, basic_values);
+            ContentValues basicValues = new ContentValues();
+            basicValues.put(BookKeepingColumns.TYPE.toString(), type);
+            basicValues.put(BookKeepingColumns.REMARK.toString(), remark);
+            basicValues.put(BookKeepingColumns.DATETIME.toString(), datetime);
+            basicValues.put(BookKeepingColumns.TAG_NO.toString(), tag_no);
+            basicValues.put(BookKeepingColumns.AMOUNT.toString(), amount);
+            basicValues.put(BookKeepingColumns.RNO.toString(), rno);
+            db.insert(BookKeepingTables.BASIC.toString(), null, basicValues);
         }
 
         db.close();
@@ -136,7 +136,7 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
         List<PojoTransferRunningAccount> pojoTransferRunningAccountList = new ArrayList<>();
         SQLiteDatabase db = dbHelper.openReadLink();
 
-        Cursor transfer_cursor = db.query(
+        Cursor transferCursor = db.query(
                 BookKeepingTables.TRANSFER.toString(),
                 null,
                 null,
@@ -146,16 +146,16 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
                 null
         );
 
-        while (transfer_cursor.moveToNext()) {
-            String export_account = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(BookKeepingColumns.EXPORT.toString()));
-            String import_account = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(BookKeepingColumns.IMPORT.toString()));
-            long rno = transfer_cursor.getLong(transfer_cursor.getColumnIndexOrThrow(BookKeepingColumns.RNO.toString()));
+        while (transferCursor.moveToNext()) {
+            String exportAccount = transferCursor.getString(transferCursor.getColumnIndexOrThrow(BookKeepingColumns.EXPORT.toString()));
+            String importAccount = transferCursor.getString(transferCursor.getColumnIndexOrThrow(BookKeepingColumns.IMPORT.toString()));
+            long rno = transferCursor.getLong(transferCursor.getColumnIndexOrThrow(BookKeepingColumns.RNO.toString()));
 
-            PojoTransferRunningAccount pojoTransferRunningAccount = new PojoTransferRunningAccount(rno, export_account, import_account);
+            PojoTransferRunningAccount pojoTransferRunningAccount = new PojoTransferRunningAccount(rno, exportAccount, importAccount);
             pojoTransferRunningAccountList.add(pojoTransferRunningAccount);
         }
 
-        transfer_cursor.close();
+        transferCursor.close();
         db.close();
         return pojoTransferRunningAccountList;
     }
@@ -167,16 +167,17 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
         db.delete(BookKeepingTables.TRANSFER.toString(), null, null);
 
         for (PojoTransferRunningAccount transfer_data : pojoTransferRunningAccountList) {
-            String export_account = transfer_data.getExport_account();
-            String import_account = transfer_data.getImport_account();
+            String exportAccount, importAccount;
+            exportAccount = transfer_data.getExport_account();
+            importAccount = transfer_data.getImport_account();
             long rno = transfer_data.getRno();
 
             //将数据写入数据库
-            ContentValues transfer_values = new ContentValues();
-            transfer_values.put(BookKeepingColumns.EXPORT.toString(), export_account);
-            transfer_values.put(BookKeepingColumns.IMPORT.toString(), import_account);
-            transfer_values.put(BookKeepingColumns.RNO.toString(), rno);
-            db.insert(BookKeepingTables.TRANSFER.toString(), null, transfer_values);
+            ContentValues transferValues = new ContentValues();
+            transferValues.put(BookKeepingColumns.EXPORT.toString(), exportAccount);
+            transferValues.put(BookKeepingColumns.IMPORT.toString(), importAccount);
+            transferValues.put(BookKeepingColumns.RNO.toString(), rno);
+            db.insert(BookKeepingTables.TRANSFER.toString(), null, transferValues);
         }
 
         db.close();
@@ -188,7 +189,7 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
         List<PojoTag> pojoTagList = new ArrayList<>();
         SQLiteDatabase db = dbHelper.openReadLink();
 
-        Cursor tag_cursor = db.query(
+        Cursor tagCursor = db.query(
                 BookKeepingTables.TAG.toString(),
                 null,
                 null,
@@ -198,16 +199,17 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
                 null
         );
 
-        while (tag_cursor.moveToNext()) {
-            long tag_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));
-            long group_no = tag_cursor.getLong(tag_cursor.getColumnIndexOrThrow(BookKeepingColumns.GROUP_NO.toString()));
-            String tag_name = tag_cursor.getString(tag_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NAME.toString()));
+        while (tagCursor.moveToNext()) {
+            long tag_no = tagCursor.getLong(tagCursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));
+            long group_no = tagCursor.getLong(tagCursor.getColumnIndexOrThrow(BookKeepingColumns.GROUP_NO.toString()));
+            String tag_name = tagCursor.getString(tagCursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NAME.toString()));
+            int scope = tagCursor.getInt(tagCursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_SCOPE.toString()));
 
-            PojoTag pojoTag = new PojoTag(tag_name, tag_no, group_no);
+            PojoTag pojoTag = new PojoTag(tag_name, tag_no, group_no, scope);
             pojoTagList.add(pojoTag);
         }
 
-        tag_cursor.close();
+        tagCursor.close();
         db.close();
         return pojoTagList;
     }
@@ -219,17 +221,19 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
         //删除之前表的内容
         db.delete(BookKeepingTables.TAG.toString(), null, null);
 
-        for (PojoTag tag_data : pojoTagList) {
-            String tag_name = tag_data.getName();
-            long tag_no = tag_data.getTno();
-            long group_no = tag_data.getGroup_no();
+        for (PojoTag tagData : pojoTagList) {
+            String tag_name = tagData.getName();
+            long tag_no = tagData.getTno();
+            long group_no = tagData.getGroup_no();
+            int scope = tagData.getScope();
 
             //将数据写入数据库
-            ContentValues tag_values = new ContentValues();
-            tag_values.put(BookKeepingColumns.TAG_NAME.toString(), tag_name);
-            tag_values.put(BookKeepingColumns.TAG_NO.toString(), tag_no);
-            tag_values.put(BookKeepingColumns.GROUP_NO.toString(), group_no);
-            db.insert(BookKeepingTables.TAG.toString(), null, tag_values);
+            ContentValues tagValues = new ContentValues();
+            tagValues.put(BookKeepingColumns.TAG_SCOPE.toString(), scope);
+            tagValues.put(BookKeepingColumns.TAG_NAME.toString(), tag_name);
+            tagValues.put(BookKeepingColumns.TAG_NO.toString(), tag_no);
+            tagValues.put(BookKeepingColumns.GROUP_NO.toString(), group_no);
+            db.insert(BookKeepingTables.TAG.toString(), null, tagValues);
         }
 
         db.close();
@@ -272,25 +276,25 @@ public class RunningAccountDataHelper extends DataHelperBase<BookKeepingDbHelper
         db.delete(BookKeepingTables.TAG_GROUP.toString(), null, null);
 
         boolean isDefaultGroupInImportedData = false;
-        for (PojoTagGroup tag_group_data : pojoTagGroupList) {
-            String group_name = tag_group_data.getGroup_name();
-            long group_no = tag_group_data.getGroup_no();
+        for (PojoTagGroup tagGroupData : pojoTagGroupList) {
+            String groupName = tagGroupData.getGroup_name();
+            long group_no = tagGroupData.getGroup_no();
 
             if (group_no == 0) isDefaultGroupInImportedData = true; //判断导入的数据是否含有编号为0的默认分组
 
             //将数据写入数据库
-            ContentValues group_values = new ContentValues();
-            group_values.put(BookKeepingColumns.GROUP_NAME.toString(), group_name);
-            group_values.put(BookKeepingColumns.GROUP_NO.toString(), group_no);
-            db.insert(BookKeepingTables.TAG_GROUP.toString(), null, group_values);
+            ContentValues groupValues = new ContentValues();
+            groupValues.put(BookKeepingColumns.GROUP_NAME.toString(), groupName);
+            groupValues.put(BookKeepingColumns.GROUP_NO.toString(), group_no);
+            db.insert(BookKeepingTables.TAG_GROUP.toString(), null, groupValues);
         }
 
         //如果没有默认分组，则添加一个默认分组记录
         if (!isDefaultGroupInImportedData) {
-            ContentValues default_group_values = new ContentValues();
-            default_group_values.put(BookKeepingColumns.GROUP_NAME.toString(), BookKeepingDbHelper.defaultGroupName);
-            default_group_values.put(BookKeepingColumns.GROUP_NO.toString(), 0);
-            db.insert(BookKeepingTables.TAG_GROUP.toString(), null, default_group_values);
+            ContentValues defaultGroupValues = new ContentValues();
+            defaultGroupValues.put(BookKeepingColumns.GROUP_NAME.toString(), BookKeepingDbHelper.defaultGroupName);
+            defaultGroupValues.put(BookKeepingColumns.GROUP_NO.toString(), 0);
+            db.insert(BookKeepingTables.TAG_GROUP.toString(), null, defaultGroupValues);
         }
 
         db.close();

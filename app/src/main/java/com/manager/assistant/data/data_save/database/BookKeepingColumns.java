@@ -12,6 +12,7 @@ public enum BookKeepingColumns {
     IMPORT("Import"),           //转入账户
     TAG_NAME("TagName"),        //标签名称
     TAG_NO("TagNo"),            //标签编号
+    TAG_SCOPE("TagScope"),      //标签作用域
     GROUP_NAME("GroupName"),    //标签分组名称
     GROUP_NO("GroupNO"),        //标签分组编号
     RULE_NO("Rule_no"),         //规则编号

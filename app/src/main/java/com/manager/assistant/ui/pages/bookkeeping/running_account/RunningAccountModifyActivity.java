@@ -6,11 +6,11 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.Picture;
@@ -18,24 +18,26 @@ import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
 import com.manager.assistant.databinding.ActivityRunningAccountModifyBinding;
 import com.manager.assistant.enums.DirectoryPaths;
 import com.manager.assistant.enums.RequestResultCode;
+import com.manager.assistant.enums.TagString;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.enums.KeyValueStrings;
+import com.manager.assistant.ui.data_communication.account_picture.AccountPictureViewModel;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.ExpenseFragment;
-import com.manager.assistant.ui.pages.picture.PictureAdapter;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountFragmentBase;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.IncomeFragment;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.TransferFragment;
+import com.manager.assistant.ui.pages.picture.PictureAdapter;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class RunningAccountModifyActivity extends AppCompatActivity {
     private RunningAccountType type = null;                         //流水种类
     private long rno;                                               //流水编号
-    private RunningAccountFragmentBase runningAccountFragment;      //流水账数据输入碎片
     private ActivityRunningAccountModifyBinding binding;            //绑定的XML视图引用
 
     @Override
@@ -45,21 +47,14 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
         binding = ActivityRunningAccountModifyBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        receiveInitData();
         initViews();
         AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
 
-        //接收种类和下标参数
-        Bundle dataBundle = getIntent().getExtras();
-        if (dataBundle != null) {
-            type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-            rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
-        } else {
-            NullPointerException e = new NullPointerException("编辑流水时无法读取原有的数据");
-            ExceptionHelper.showExceptionDialog(this, e);
-        }
-
+        //只在第一次创建界面时创建新Fragment
         if (savedInstanceState == null) {
-            //创建流水编辑Fragment实例（第一次创建界面时）
+            //创建流水编辑Fragment实例
+            RunningAccountFragmentBase<?> runningAccountFragment;
             if (type == RunningAccountType.EXPENSE) {
                 runningAccountFragment = new ExpenseFragment();
             } else if (type == RunningAccountType.INCOME) {
@@ -72,11 +67,10 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
                 return;
             }
 
-            //将Fragment添加到布局
+            //将Fragment添加至布局
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.fragment_container, runningAccountFragment);
+            transaction.add(R.id.fragment_container, runningAccountFragment, TagString.ACCOUNT_FRAGMENT.getValue());
             transaction.commit();
-            runningAccountFragment.receiveInitData(dataBundle);   //将原本的数据传递给碎片实例
         }
 
         //设置返回监听器
@@ -84,13 +78,23 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
             @Override
             public void handleOnBackPressed() {
                 try {
-                    PictureAdapter pictureAdapter = runningAccountFragment.getPictureAdapter();
+                    RunningAccountFragmentBase<?> fragment = getAccountFragment(TagString.ACCOUNT_FRAGMENT.getValue());
+                    if (fragment == null) {
+                        setEnabled(false);
+                        finish();
+                        return;
+                    }
+                    PictureAdapter pictureAdapter = fragment.getPictureAdapter();
                     if (pictureAdapter.isDeleteMode()) {
-                        pictureAdapter.switchDeleteMode(false);
+                        //使用ViewModel通知所有适配器更新状态
+                        AccountPictureViewModel viewModel = new ViewModelProvider(RunningAccountModifyActivity.this).get(AccountPictureViewModel.class);
+                        viewModel.updateAdapterStat(false);
                     } else {
+                        setEnabled(false);
                         finish();
                     }
                 } catch (NumberFormatException e) {
+                    setEnabled(false);
                     finish();
                 }
             }
@@ -103,17 +107,36 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
         binding = null;
     }
 
-    //初始化视图
+    /**
+     * 接收初始化数据
+     */
+    private void receiveInitData() {
+        Bundle dataBundle = getIntent().getExtras();
+        if (dataBundle != null) {
+            type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
+            rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
+        } else {
+            NullPointerException e = new NullPointerException("编辑流水时无法读取原有的数据");
+            ExceptionHelper.showExceptionDialog(this, e);
+        }
+    }
+
+    /**
+     * 初始化视图
+     */
     private void initViews() {
-        //设置标题栏的图标点击监听器
-        MaterialToolbar toolbar = binding.toolbar;
-        toolbar.setNavigationOnClickListener(v -> finish());
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
+        binding.toolbar.setTitle(String.format(Locale.getDefault(), "%s编辑", type.getTitle()));
 
         //为按钮设置单击监听器
         binding.cancelBtn.setOnClickListener(v -> finish());
         binding.finishBtn.setOnClickListener(v -> {
             Intent result2BookKeeping = new Intent();
             String error;
+            RunningAccountFragmentBase<?> runningAccountFragment = getAccountFragment(TagString.ACCOUNT_FRAGMENT.getValue());
+            if (runningAccountFragment == null) {
+                return;
+            }
             error = runningAccountFragment.verifyInputData();
 
             //判断是否获取到报错消息（null:无报错，验证通过）
@@ -121,6 +144,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
                 Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
             } else {
                 Bundle dataBundle = getInputData();
+                if (dataBundle == null) return;
                 result2BookKeeping.putExtras(dataBundle);
 
                 //将数据保存至数据库
@@ -162,8 +186,12 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
      *
      * @return 包含修改后数据的包裹
      */
-    @NonNull
+    @Nullable
     private Bundle getInputData() {
+        RunningAccountFragmentBase<?> runningAccountFragment = getAccountFragment(TagString.ACCOUNT_FRAGMENT.getValue());
+        if (runningAccountFragment == null) {
+            return null;
+        }
         Bundle dataBundle = runningAccountFragment.getInputData();
 
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());     //流水种类
@@ -210,5 +238,16 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
             Toast.makeText(this, "将图片保存至数据库失败", Toast.LENGTH_SHORT).show();
             ExceptionHelper.showExceptionDialog(this, e);
         }
+    }
+
+    /**
+     * 获取流水记录输入Fragment
+     *
+     * @param tag 目标Fragment的tag
+     * @return 用于输入流水记录的Fragment
+     */
+    @Nullable
+    private RunningAccountFragmentBase<?> getAccountFragment(String tag) {
+        return (RunningAccountFragmentBase<?>) getSupportFragmentManager().findFragmentByTag(tag);
     }
 }

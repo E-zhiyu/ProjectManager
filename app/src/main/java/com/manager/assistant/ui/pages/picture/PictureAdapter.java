@@ -1,6 +1,5 @@
 package com.manager.assistant.ui.pages.picture;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -15,17 +14,18 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.android.material.card.MaterialCardView;
 import com.manager.assistant.enums.LogTags;
 import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.Picture;
 import com.manager.assistant.enums.KeyValueStrings;
-import com.manager.assistant.helpers.AnimationHelper;
+import com.manager.assistant.ui.data_communication.account_picture.AccountPictureViewModel;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,6 +36,7 @@ import java.util.Objects;
 
 public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureViewHolder> {
     private final Context context;                      //上下文
+    private final ViewModelStoreOwner owner;            //ViewModel所有者
     private final List<Picture> pictureList;            //数据源列表
     private final List<Boolean> pictureSelectList;      //记录图片选择状态的列表
     private boolean isDeleteMode = false;               //标记是否为删除图片模式
@@ -80,10 +81,12 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
      * 图片适配器构造方法
      *
      * @param context  上下文
+     * @param owner    ViewModel的所有者
      * @param listener 图片删除状态切换监听器
      */
-    public PictureAdapter(Context context, DeleteModeSwitchListener listener) {
+    public PictureAdapter(Context context, ViewModelStoreOwner owner, DeleteModeSwitchListener listener) {
         this.context = context;
+        this.owner = owner;
         this.pictureList = new ArrayList<>();
         this.pictureSelectList = new ArrayList<>();
         this.listener = listener;
@@ -96,6 +99,10 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
                 .error(R.drawable.baseline_error_outline_24)    //错误图
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC) //缓存策略
                 .override(picture_size, picture_size);          //图片尺寸
+    }
+
+    public List<Boolean> getPictureSelectList() {
+        return pictureSelectList;
     }
 
     /**
@@ -148,7 +155,10 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
             holder.imageView.setOnLongClickListener(v -> {
                 if (!isDeleteMode) {
                     pictureSelectList.set(holder.getBindingAdapterPosition(), true);
-                    switchDeleteMode(true);
+
+                    //使用ViewModel通知所有适配器更新状态
+                    AccountPictureViewModel viewModel = new ViewModelProvider(owner).get(AccountPictureViewModel.class);
+                    viewModel.updateAdapterStat(true);
 
                     Toast.makeText(context, "返回即可退出图片删除模式", Toast.LENGTH_SHORT).show();
                     return true;
@@ -169,13 +179,13 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
      *
      * @param isDeleteMode 切换后是否为删除模式
      */
-    @SuppressLint("NotifyDataSetChanged")
     public void switchDeleteMode(boolean isDeleteMode) {
         this.isDeleteMode = isDeleteMode;
         listener.onDeleteModeSwitched(isDeleteMode);
 
         if (!isDeleteMode) {
-            Collections.fill(pictureSelectList, false);
+            pictureSelectList.clear();
+            pictureSelectList.addAll(new ArrayList<>(Collections.nCopies(pictureList.size(), false)));
         }
 
         for (int index = 0; index < pictureList.size(); index++) {
@@ -189,12 +199,13 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
      * @param pictureList 刷新后的图片列表
      */
     public void refreshPicture(List<Picture> pictureList) {
+        int old_count = this.pictureList.size();
         this.pictureList.clear();
-        this.pictureList.addAll(pictureList);
         pictureSelectList.clear();
-        pictureSelectList.addAll(new ArrayList<>(Collections.nCopies(pictureList.size(), false)));    //默认未选择
+        notifyItemRangeRemoved(0, old_count);
 
-        //刷新UI
+        this.pictureList.addAll(pictureList);
+        pictureSelectList.addAll(new ArrayList<>(Collections.nCopies(pictureList.size(), false)));    //默认未选择
         notifyItemRangeInserted(0, pictureList.size());
     }
 
@@ -219,6 +230,8 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
             skip2ImageActivity.putExtra(KeyValueStrings.FILE_URI.getValue(), pictureUris);
             skip2ImageActivity.putExtra(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), getLegalStartPosition(position));
             context.startActivity(skip2ImageActivity);
+        } else {
+            Toast.makeText(context, "该图片文件不存在", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -257,6 +270,12 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         return origin_position - lost_picture_num;
     }
 
+    /**
+     * 获取屏幕宽度
+     *
+     * @param context 上下文
+     * @return 屏幕宽度像素值
+     */
     private int getScreenWidth(Context context) {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -264,18 +283,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     }
 
     /**
-     * 将单个图片添加至界面中
-     *
-     * @param picture 新相片数据实例
-     */
-    public void addPicture(Picture picture) {
-        pictureSelectList.add(false);
-        pictureList.add(picture);
-        notifyItemInserted(pictureList.size() - 1);
-    }
-
-    /**
-     * 添加多个图片到界面中
+     * 添加图片到界面中
      *
      * @param pictureList 包含图片数据的列表
      */
@@ -290,10 +298,11 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
 
     /**
      * 删除被选中的图片
+     *
+     * @param pictureSelectList 图片选择状态列表
      */
-    public void deleteSelectedPicture() {
+    public void deleteSelectedPicture(@NonNull List<Boolean> pictureSelectList) {
         //从尾部开始删除，避免影响下标值
-        int delete_num = 0;
         for (int index = pictureSelectList.size() - 1; index >= 0; index--) {
             boolean isSelected = pictureSelectList.get(index);
             if (isSelected) {
@@ -317,19 +326,9 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
                 }
 
                 pictureList.remove(index);
-                pictureSelectList.remove(index);
+                this.pictureSelectList.remove(index);
                 notifyItemRemoved(index);
-                delete_num++;
             }
         }
-
-        if (delete_num > 0) {
-            Toast.makeText(context, String.format(Locale.getDefault(), "已删除%d张图片", delete_num), Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(context, "没有图片被删除", Toast.LENGTH_SHORT).show();
-        }
-
-        //关闭图片删除模式
-        switchDeleteMode(false);
     }
 }

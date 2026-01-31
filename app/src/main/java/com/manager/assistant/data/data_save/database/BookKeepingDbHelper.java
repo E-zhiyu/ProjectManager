@@ -16,7 +16,7 @@ import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.Runn
 
 public class BookKeepingDbHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "running_account.db";   //数据库名称
-    private static final int DATABASE_VERSION = 5;                      //数据库版本
+    private static final int DATABASE_VERSION = 6;                      //数据库版本
     private final Context context;                                      //上下文
     public static final String defaultGroupName = "默认分组";           //默认分组名称
 
@@ -67,6 +67,7 @@ public class BookKeepingDbHelper extends SQLiteOpenHelper {
                     BookKeepingColumns.TAG_NO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                     BookKeepingColumns.TAG_NAME + " VARCHAR(20) NOT NULL UNIQUE," +
                     BookKeepingColumns.GROUP_NO + " INTEGER NOT NULL," +
+                    BookKeepingColumns.TAG_SCOPE + " INTEGER DEFAULT 0," +  //默认为0，为了让旧版升级的标签默认对所有种类可见，每位中0表示可见，1则表示不可见
 
                     //分组编号外键约束
                     "CONSTRAINT " + BookKeepingConstraints.FK_GROUP_NO +
@@ -155,6 +156,7 @@ public class BookKeepingDbHelper extends SQLiteOpenHelper {
             else if (oldVersion == 2) up2To3(db);
             else if (oldVersion == 3) up3To4(db);
             else if (oldVersion == 4) up4To5(db);
+            else if (oldVersion == 5) up5To6(db);
 
             oldVersion++;
         }
@@ -242,6 +244,18 @@ public class BookKeepingDbHelper extends SQLiteOpenHelper {
                     " ON DELETE CASCADE" +
                     ")";
             db.execSQL(create);
+        } catch (SQLException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+            Toast.makeText(context, err, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    //添加标签作用域字段
+    private void up5To6(@NonNull SQLiteDatabase db) {
+        String err = "标签表升级失败";
+        try {
+            String sql = "ALTER TABLE tag_data ADD COLUMN TagScope INTEGER DEFAULT 0";
+            db.execSQL(sql);
         } catch (SQLException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             Toast.makeText(context, err, Toast.LENGTH_SHORT).show();
