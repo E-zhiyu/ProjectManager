@@ -11,7 +11,10 @@ import com.manager.assistant.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.7.6  \n" +
+    private static final String update_log_md = "# v1.7.7  \n" +
+            "**BUG修复  \n" +
+            "- 修复上个版本无法修改标签名称的BUG  \n\n" +
+            "# v1.7.6  \n" +
             "**BUG修复**  \n" +
             "- 修复将标签名称修改为已存在的标签时能够通过输入内容校验的BUG  \n" +
             "- 修复在流水记录输入界面翻转屏幕或者切换深浅色模式后误删除新添加的图片的BUG  \n" +

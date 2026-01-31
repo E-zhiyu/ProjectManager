@@ -9,11 +9,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import com.manager.assistant.R;
 import com.manager.assistant.databinding.ActivityGroupModifyBinding;
 import com.manager.assistant.enums.RequestResultCode;
@@ -25,10 +21,8 @@ import com.manager.assistant.ui.pages.setting.data_io.pojo.PojoTagGroup;
 
 import java.util.List;
 
-public class GroupModifyActivity extends AppCompatActivity implements View.OnFocusChangeListener, View.OnClickListener {
+public class GroupModifyActivity extends AppCompatActivity implements View.OnClickListener {
     private long group_no;                      //分组编号
-    private TextInputLayout group_layout;       //分组名称文本框Layout
-    private TextInputEditText group_input;      //分组名称输入文本框
     private ActivityGroupModifyBinding binding; //绑定的XML视图引用
 
     @Override
@@ -60,7 +54,7 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnFoc
             if (err != null) {
                 Toast.makeText(this, err, Toast.LENGTH_SHORT).show();
             } else {
-                String new_group_name = String.valueOf(group_input.getText());
+                String new_group_name = String.valueOf(binding.tagGroupInput.getText());
                 dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), new_group_name);
 
                 result2EditActivity.putExtras(dataBundle);
@@ -132,45 +126,34 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnFoc
         }
     }
 
-    @Override
-    public void onFocusChange(View v, boolean hasFocus) {
-        if (!hasFocus) {
-            if (v.getId() == R.id.tag_group_input) {
-                String group_name = String.valueOf(group_input.getText());
-
-                if (group_name.isEmpty()) {
-                    group_layout.setErrorEnabled(true);
-                    group_layout.setError("分组名称不能为空");
-                } else {
-                    group_layout.setError(null);
-                }
-            }
-        } else {
-            if (v.getId() == R.id.tag_group_input) {
-                group_layout.setError(null);
-            }
-        }
-    }
-
     /**
      * 初始化视图
      */
     private void initViews() {
         //设置标题栏的图标点击监听器
-        MaterialToolbar toolbar = binding.toolbar;
-        toolbar.setNavigationOnClickListener(v -> finish());
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
 
-        group_input = binding.tagGroupInput;
-        group_layout = binding.groupNameLayout;
+        binding.tagGroupInput.setOnFocusChangeListener(((v, hasFocus) -> {
+            if (!hasFocus) {
+                String groupName = String.valueOf(binding.tagGroupInput.getText());
+                long group_no = TagGroup.nameTransToGno(groupName, this);
 
-        group_input.setOnFocusChangeListener(this);
+                if (groupName.isEmpty()) {
+                    binding.groupNameLayout.setErrorEnabled(true);
+                    binding.groupNameLayout.setError("分组名称不能为空");
+                } else if (group_no != -1 && group_no != this.group_no) {
+                    binding.groupNameLayout.setErrorEnabled(true);
+                    binding.groupNameLayout.setError("已存在同名分组");
+                }
+            } else {
+                binding.groupNameLayout.setError(null);
+            }
+        }));
+        binding.tagGroupInput.setOnClickListener(v -> binding.groupNameLayout.setError(null));
 
         //设置按钮点击监听器
-        MaterialButton delete_btn, group_merge_btn;
-        delete_btn = binding.deleteBtn;
-        delete_btn.setOnClickListener(this);
-        group_merge_btn = binding.mergeBtn;
-        group_merge_btn.setOnClickListener(this);
+        binding.deleteBtn.setOnClickListener(this);
+        binding.mergeBtn.setOnClickListener(this);
         binding.finishBtn.setOnClickListener(this);
         binding.cancelBtn.setOnClickListener(this);
 
@@ -179,32 +162,35 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnFoc
         if (dataBundle != null) {
             group_no = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());
             String group_name = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
-            group_input.setText(group_name);
+            binding.tagGroupInput.setText(group_name);
         } else {
             Toast.makeText(this, "无法初始化分组信息", Toast.LENGTH_SHORT).show();
         }
 
         //当修改默认分组时隐藏部分组件
         if (group_no == 0) {
-            delete_btn.setVisibility(View.GONE);
-            group_merge_btn.setVisibility(View.GONE);
+            binding.deleteBtn.setVisibility(View.GONE);
+            binding.mergeBtn.setVisibility(View.GONE);
         }
     }
 
-    //输入内容合法性校验
+    /**
+     * 校验输入内容的合法性
+     *
+     * @return 错误提示（没有错误则为null）
+     */
     private String inputInfoVerify() {
-        String group_name = String.valueOf(group_input.getText());
+        String group_name = String.valueOf(binding.tagGroupInput.getText());
 
         String error = null;
         if (group_name.isEmpty()) {
             error = "分组名不能为空";
+            binding.groupNameLayout.setErrorEnabled(true);
+            binding.groupNameLayout.setError(error);
         } else if (TagGroup.nameTransToGno(group_name, this) != -1) {
             error = "已存在同名分组";
-        }
-
-        if (error != null) {
-            group_layout.setErrorEnabled(true);
-            group_layout.setError(error);
+            binding.groupNameLayout.setErrorEnabled(true);
+            binding.groupNameLayout.setError(error);
         }
 
         return error;

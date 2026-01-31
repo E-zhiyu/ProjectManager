@@ -130,7 +130,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
                 if (tagName.isEmpty()) {
                     binding.tagNameLayout.setErrorEnabled(true);
                     binding.tagNameLayout.setError("标签名不能为空");
-                } else if (tno != tag_no) {                         //当查询到的标签编号与自身编号不一致时
+                } else if (tno != 0 && tno != tag_no) {              //查询到数据库中存在同名编号并且编号不为自身时
                     binding.tagNameLayout.setErrorEnabled(true);
                     binding.tagNameLayout.setError("已存在同名标签");
                 } else {
@@ -239,11 +239,12 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
      */
     private String inputInfoVerify() {
         String tag_name = String.valueOf(binding.tagNameInput.getText());
+        long db_tno = Tag.nameTransToTno(tag_name, this);
 
         String error = null;
         if (tag_name.isEmpty()) {
             error = "标签名不能为空";
-        } else if (Tag.nameTransToTno(tag_name, this) != tag_no) {  //查询到的标签编号不为自身时
+        } else if (db_tno != 0 && db_tno != tag_no) {  //查询到数据库中存在同名编号并且编号不为自身时
             error = "已存在同名标签";
         }
 
