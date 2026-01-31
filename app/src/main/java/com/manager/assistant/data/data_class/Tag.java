@@ -62,7 +62,7 @@ public class Tag {
      *
      * @param name    标签名称
      * @param context 用于打开数据库的上下文
-     * @return 对应的标签编号
+     * @return 对应的标签编号（查询不到则返回0）
      * @throws SQLiteException 数据库读取失败产生的异常
      */
     public static int nameTransToTno(String name, Context context) throws SQLiteException {

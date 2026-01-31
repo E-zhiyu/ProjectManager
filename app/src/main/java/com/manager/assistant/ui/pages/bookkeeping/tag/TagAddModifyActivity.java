@@ -124,11 +124,15 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
 
         binding.tagNameInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
-                String tag_name = String.valueOf(binding.tagNameInput.getText());
+                String tagName = String.valueOf(binding.tagNameInput.getText());
+                long tno = Tag.nameTransToTno(tagName, this);
 
-                if (tag_name.isEmpty()) {
+                if (tagName.isEmpty()) {
                     binding.tagNameLayout.setErrorEnabled(true);
                     binding.tagNameLayout.setError("标签名不能为空");
+                } else if (tno != tag_no) {                         //当查询到的标签编号与自身编号不一致时
+                    binding.tagNameLayout.setErrorEnabled(true);
+                    binding.tagNameLayout.setError("已存在同名标签");
                 } else {
                     binding.tagNameLayout.setError(null);
                 }
@@ -228,14 +232,18 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
         finish();
     }
 
-    //输入内容合法性校验
+    /**
+     * 校验输入内容的合法性
+     *
+     * @return 错误提示（没有错误则为null）
+     */
     private String inputInfoVerify() {
         String tag_name = String.valueOf(binding.tagNameInput.getText());
 
         String error = null;
         if (tag_name.isEmpty()) {
             error = "标签名不能为空";
-        } else if (Tag.nameTransToTno(tag_name, this) != 0 && !isModifyMode) {  //仅在添加模式检测同名
+        } else if (Tag.nameTransToTno(tag_name, this) != tag_no) {  //查询到的标签编号不为自身时
             error = "已存在同名标签";
         }
 
