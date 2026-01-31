@@ -10,11 +10,15 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
+
+import com.manager.assistant.enums.DirectoryPaths;
+import com.manager.assistant.enums.LogTags;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,12 +30,40 @@ import java.util.Locale;
 
 public class PictureHelper {
     /**
+     * 清空临时图片目录
+     *
+     * @param context 上下文
+     */
+    public static void clearTempPictureDir(Context context) {
+        Log.d(LogTags.PICTURE_HELPER.getV(), "开始清理临时图片目录");
+
+        //删除临时图片目录文件
+        File tempPictureDir = DirectoryPaths.PICTURE_TEMP.getDir(context);
+        if (tempPictureDir != null) {
+            File[] files = tempPictureDir.listFiles();
+            if (files != null) {
+                Log.d(LogTags.PICTURE_HELPER.getV(), String.format(Locale.getDefault(), "清理%d个临时图片", files.length));
+                boolean isAllTempFileDeleted = true;
+                for (File tempPicture : files) {
+                    if (!tempPicture.delete()) {
+                        isAllTempFileDeleted = false;
+                    }
+                }
+
+                if (!isAllTempFileDeleted) {
+                    Log.w(LogTags.PICTURE_HELPER.getV(), "临时图片删除失败");
+                }
+            }
+        }
+    }
+
+    /**
      * 分享单张图片
      *
-     * @param context   上下文
+     * @param context     上下文
      * @param pictureFile 待分享的图片文件
      */
-    public static void shareImageFromAppDir(Context context, File pictureFile, OnShareListener listener) {
+    public static void shareImage(Context context, File pictureFile, OnShareListener listener) {
         try {
             if (!pictureFile.exists()) {
                 listener.onShareFailed("图片文件不存在");

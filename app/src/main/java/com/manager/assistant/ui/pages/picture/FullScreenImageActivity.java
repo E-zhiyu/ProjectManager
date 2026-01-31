@@ -83,7 +83,7 @@ public class FullScreenImageActivity extends AppCompatActivity {
         int current_picture_index = binding.viewPager2.getCurrentItem();
         Uri currentUri = Uri.parse(pictureUriStrings[current_picture_index]);
         File pictureFile = new File(Objects.requireNonNull(currentUri.getPath()));
-        PictureHelper.shareImageFromAppDir(this, pictureFile, new PictureHelper.OnShareListener() {
+        PictureHelper.shareImage(this, pictureFile, new PictureHelper.OnShareListener() {
             @Override
             public void onShareSuccess() {
                 Toast.makeText(FullScreenImageActivity.this, "正在分享图片……", Toast.LENGTH_SHORT).show();

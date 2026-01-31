@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +18,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.textview.MaterialTextView;
+import com.manager.assistant.enums.DirectoryPaths;
 import com.manager.assistant.enums.KeyValueStrings;
+import com.manager.assistant.enums.LogTags;
 import com.manager.assistant.enums.TagString;
 import com.manager.assistant.broadcast.BroadcastConstants;
 import com.manager.assistant.broadcast.RunningAccountUpdatedBroadcastReceiver;
@@ -27,6 +30,7 @@ import com.manager.assistant.databinding.FragmentBookkeepingBinding;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ColorHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
+import com.manager.assistant.helpers.PictureHelper;
 import com.manager.assistant.ui.others.bottom_sheets.filter.AccountFilterBottomSheet;
 import com.manager.assistant.ui.others.listeners.RecyclerScrollHideShowListener;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.RunningAccountModifyActivity;
@@ -35,6 +39,7 @@ import com.manager.assistant.enums.RequestResultCode;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.ui.data_communication.account_recycler.AccountRecyclerViewModel;
 
+import java.io.File;
 import java.util.Locale;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -44,7 +49,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class BookKeepingFragment extends Fragment {
     private AccountRecyclerAdapter accountAdapter;                          //流水列表适配器
-    private ActivityResultLauncher<Intent> runningAccountAddLauncher, modifyRunningAccountLauncher;  //子活动启动器
+    private ActivityResultLauncher<Intent> accountAddLauncher, accountModifyLauncher;   //子活动启动器
     private int account_num;                                                //流水记录数量
     private FragmentBookkeepingBinding binding;                             //绑定的XML视图
     private RunningAccountUpdatedBroadcastReceiver accountUpdatedReceiver;  //流水数据更新的广播接收器
@@ -112,49 +117,42 @@ public class BookKeepingFragment extends Fragment {
         }
 
         skip2RunningAccountModify.putExtras(dataBundle);
-        modifyRunningAccountLauncher.launch(skip2RunningAccountModify);
+        accountModifyLauncher.launch(skip2RunningAccountModify);
     }
 
-    //初始化活动启动器
+    /**
+     * 初始化活动启动器
+     */
     private void initActivityLauncher() {
-        runningAccountAddLauncher = registerForActivityResult(
+        accountAddLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
-                        if (data != null) {
-                            onNewAccountAdded(data);
-                        } else {
-                            NullPointerException e = new NullPointerException("无法获取新增流水的数据");
-                            ExceptionHelper.showExceptionDialog(requireContext(), e);
-                        }
+                    if (resultCode == RequestResultCode.RESULT_OK.ordinal() && data != null) {
+                        onNewAccountAdded(data);
                     }
+
+                    //最后清理临时图片目录
+                    PictureHelper.clearTempPictureDir(requireContext());
                 }
         );
 
-        modifyRunningAccountLauncher = registerForActivityResult(
+        accountModifyLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
-                        if (data != null) {
-                            onAccountDeleted(data);
-                        } else {
-                            NullPointerException e = new NullPointerException("无法读取编辑后的流水数据");
-                            ExceptionHelper.showExceptionDialog(requireContext(), e);
-                        }
-                    } else if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
-                        if (data != null) {
-                            onAccountModified(data);
-                        } else {
-                            NullPointerException e = new NullPointerException("无法读取编辑后的流水数据");
-                            ExceptionHelper.showExceptionDialog(requireContext(), e);
-                        }
+                    if (resultCode == RequestResultCode.RESULT_DELETE.ordinal() && data != null) {
+                        onAccountDeleted(data);
+                    } else if (resultCode == RequestResultCode.RESULT_OK.ordinal() && data != null) {
+                        onAccountModified(data);
                     }
+
+                    //最后清理临时图片目录
+                    PictureHelper.clearTempPictureDir(requireContext());
                 }
         );
     }
@@ -166,7 +164,7 @@ public class BookKeepingFragment extends Fragment {
         //绑定单击按钮监听器
         binding.addFloatingBtn.setOnClickListener(v -> {
             Intent skip2NewRunningAccount = new Intent(requireContext(), RunningAccountAddActivity.class);
-            runningAccountAddLauncher.launch(skip2NewRunningAccount);
+            accountAddLauncher.launch(skip2NewRunningAccount);
         });
         AnimationHelper.attachMorphAnimation(binding.addFloatingBtn);
 

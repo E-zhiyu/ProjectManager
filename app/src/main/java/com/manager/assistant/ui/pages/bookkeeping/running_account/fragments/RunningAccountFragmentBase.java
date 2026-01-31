@@ -136,24 +136,6 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
         super.onDestroy();
 
         disposables.dispose();
-
-        //删除临时图片目录文件
-        File tempPictureDir = DirectoryPaths.PICTURE_TEMP.getDir(requireContext());
-        if (tempPictureDir != null) {
-            File[] files = tempPictureDir.listFiles();
-            if (files != null) {
-                boolean isAllTempFileDeleted = true;
-                for (File tempPicture : files) {
-                    if (!tempPicture.delete()) {
-                        isAllTempFileDeleted = false;
-                    }
-                }
-
-                if (!isAllTempFileDeleted) {
-                    Log.w(LogTags.ACCOUNT_FRAGMENT.getV(), "临时图片删除失败");
-                }
-            }
-        }
     }
 
     /**

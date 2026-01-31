@@ -8,6 +8,7 @@ public enum LogTags {
     BACKUP_WORKER("BackupWorker"),
     WORK_STATS("WorkStats"),
     CAMERA_ACTIVITY("CameraActivity"),
+    PICTURE_HELPER("PictureHelper"),
     ACCOUNT_FRAGMENT("AccountFragment"),
     PICTURE_ADAPTER("PictureAdapter"),
     ACCOUNT_DATA_HELPER("AccountDataHelper"),
