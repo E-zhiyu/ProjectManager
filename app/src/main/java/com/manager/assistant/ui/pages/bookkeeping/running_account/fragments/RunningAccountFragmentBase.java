@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -244,20 +243,19 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
     private void startObservePicture() {
         AccountPictureViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountPictureViewModel.class);
 
-        //观察图片列表
-        viewModel.getPictureLiveData().observe(
-                getViewLifecycleOwner(), pictureList -> {
-                    if (viewModelRefreshPictureEnabled) {
-                        pictureAdapter.refreshPicture(pictureList);
-                    }
-
-                    viewModelRefreshPictureEnabled = true;
-                }
-        );
-
         //观察适配器删除模式状态
         viewModel.getAdapterStatData().observe(
                 getViewLifecycleOwner(), isDeleteMode -> pictureAdapter.switchDeleteMode(isDeleteMode)
+        );
+
+        //观察新增图片
+        viewModel.getNewPictureData().observe(
+                getViewLifecycleOwner(), pictureList -> pictureAdapter.addPicture(pictureList)
+        );
+
+        //观察图片删除
+        viewModel.getPictureSelectData().observe(
+                getViewLifecycleOwner(), pictureSelectList -> pictureAdapter.deleteSelectedPicture(pictureSelectList)
         );
     }
 
@@ -433,7 +431,6 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
 
         Uri pictureUri = Uri.parse(uriStr);
         Picture newPicture = new Picture(pictureUri, rno);
-        pictureAdapter.addPicture(newPicture);
 
         AccountPictureViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountPictureViewModel.class);
         viewModel.addPicture(newPicture);
@@ -445,6 +442,8 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
      * @param uriList 包含选择图片的Uri的列表
      */
     private void onAlbumPictureUrisReceived(@NonNull List<Uri> uriList) {
+        if (uriList.isEmpty()) return;  //若Uri列表为空说明用户取消添加
+
         //创建临时文件夹
         File tempPictureDir = DirectoryPaths.PICTURE_TEMP.getDir(requireContext());
         if (tempPictureDir == null) {
@@ -516,7 +515,6 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
                                                     pictureList.size()
                                             ), Toast.LENGTH_SHORT
                                     ).show();
-                                    pictureAdapter.addPicture(pictureList);
 
                                     AccountPictureViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountPictureViewModel.class);
                                     viewModel.addPicture(pictureList);

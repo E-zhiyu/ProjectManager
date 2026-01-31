@@ -101,13 +101,8 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
                 .override(picture_size, picture_size);          //图片尺寸
     }
 
-    /**
-     * 获取图片列表
-     *
-     * @return 图片列表
-     */
-    public List<Picture> getPictureList() {
-        return pictureList;
+    public List<Boolean> getPictureSelectList() {
+        return pictureSelectList;
     }
 
     /**
@@ -189,7 +184,8 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         listener.onDeleteModeSwitched(isDeleteMode);
 
         if (!isDeleteMode) {
-            Collections.fill(pictureSelectList, false);
+            pictureSelectList.clear();
+            pictureSelectList.addAll(new ArrayList<>(Collections.nCopies(pictureList.size(), false)));
         }
 
         for (int index = 0; index < pictureList.size(); index++) {
@@ -287,18 +283,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     }
 
     /**
-     * 将单个图片添加至界面中
-     *
-     * @param picture 新相片数据实例
-     */
-    public void addPicture(Picture picture) {
-        pictureSelectList.add(false);
-        pictureList.add(picture);
-        notifyItemInserted(pictureList.size() - 1);
-    }
-
-    /**
-     * 添加多个图片到界面中
+     * 添加图片到界面中
      *
      * @param pictureList 包含图片数据的列表
      */
@@ -314,11 +299,10 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     /**
      * 删除被选中的图片
      *
-     * @param viewModel 控制图片视图的ViewModel
+     * @param pictureSelectList 图片选择状态列表
      */
-    public void deleteSelectedPicture(AccountPictureViewModel viewModel) {
+    public void deleteSelectedPicture(@NonNull List<Boolean> pictureSelectList) {
         //从尾部开始删除，避免影响下标值
-        int delete_num = 0;
         for (int index = pictureSelectList.size() - 1; index >= 0; index--) {
             boolean isSelected = pictureSelectList.get(index);
             if (isSelected) {
@@ -342,22 +326,9 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
                 }
 
                 pictureList.remove(index);
-                pictureSelectList.remove(index);
+                this.pictureSelectList.remove(index);
                 notifyItemRemoved(index);
-                delete_num++;
             }
         }
-
-        if (delete_num > 0) {
-            Toast.makeText(context, String.format(Locale.getDefault(), "已删除%d张图片", delete_num), Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(context, "没有图片被删除", Toast.LENGTH_SHORT).show();
-        }
-
-        //使用ViewModel关闭所有适配器的删除模式
-        viewModel.updateAdapterStat(false);
-
-        //使用ViewModel更新图片列表
-        viewModel.deletePicture(pictureList);
     }
 }

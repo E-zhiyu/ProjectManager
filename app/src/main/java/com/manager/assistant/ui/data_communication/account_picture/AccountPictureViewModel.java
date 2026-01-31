@@ -10,20 +10,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AccountPictureViewModel extends ViewModel {
-    private final MutableLiveData<List<Picture>> pictureLiveData = new MutableLiveData<>(); //图片列表
+    private final MutableLiveData<List<Boolean>> selectedPictureData = new MutableLiveData<>(); //删除图片时的图片选择状态
     private final MutableLiveData<Boolean> adapterStatData = new MutableLiveData<>();       //适配器是否位于删除状态
+    private final MutableLiveData<List<Picture>> newPictureData = new MutableLiveData<>();  //添加图片时的新图片数据
 
     /**
-     * 获取图片数据
+     * 获取适配器状态数据（是否为图片删除模式）
      *
-     * @return 包含图片数据的LiveData
+     * @return 适配器状态LiveData
      */
-    public LiveData<List<Picture>> getPictureLiveData() {
-        return pictureLiveData;
-    }
-
     public LiveData<Boolean> getAdapterStatData() {
         return adapterStatData;
+    }
+
+    /**
+     * 获取图片选择状态数据
+     *
+     * @return 图片选择状态LiveData
+     */
+    public LiveData<List<Boolean>> getPictureSelectData() {
+        return selectedPictureData;
+    }
+
+    /**
+     * 获取新图片数据
+     *
+     * @return 包含新图片实例的LiveData
+     */
+    public LiveData<List<Picture>> getNewPictureData() {
+        return newPictureData;
     }
 
     /**
@@ -32,17 +47,9 @@ public class AccountPictureViewModel extends ViewModel {
      * @param newPicture 新图片实例
      */
     public void addPicture(Picture newPicture) {
-        List<Picture> currentData = pictureLiveData.getValue();
-
-        List<Picture> pictureList;
-        if (currentData == null) {
-            pictureList = new ArrayList<>();
-        } else {
-            pictureList = new ArrayList<>(currentData);
-        }
-
+        List<Picture> pictureList = new ArrayList<>();
         pictureList.add(newPicture);
-        pictureLiveData.postValue(pictureList);
+        newPictureData.postValue(pictureList);
     }
 
     /**
@@ -51,27 +58,18 @@ public class AccountPictureViewModel extends ViewModel {
      * @param newPictureList 新图片列表
      */
     public void addPicture(List<Picture> newPictureList) {
-        List<Picture> currentData = pictureLiveData.getValue();
-
-        List<Picture> pictureList;
-        if (currentData == null) {
-            pictureList = new ArrayList<>();
-        } else {
-            pictureList = new ArrayList<>(currentData);
-        }
-
-        pictureList.addAll(newPictureList);
-        pictureLiveData.postValue(pictureList);
+        List<Picture> pictureList = new ArrayList<>(newPictureList);
+        newPictureData.postValue(pictureList);
     }
 
     /**
      * 删除选中的图片
      *
-     * @param pictureListAfterDelete 删除图片后的列表
+     * @param pictureSelectList 删除图片后的列表
      */
-    public void deletePicture(List<Picture> pictureListAfterDelete) {
-        List<Picture> pictureList = new ArrayList<>(pictureListAfterDelete);
-        pictureLiveData.postValue(pictureList);
+    public void deletePicture(List<Boolean> pictureSelectList) {
+        List<Boolean> pictureList = new ArrayList<>(pictureSelectList);
+        selectedPictureData.postValue(pictureList);
     }
 
     /**

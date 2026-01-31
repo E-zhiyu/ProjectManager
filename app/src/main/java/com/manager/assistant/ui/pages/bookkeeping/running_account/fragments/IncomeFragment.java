@@ -20,6 +20,7 @@ import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.data_communication.account_picture.AccountPictureViewModel;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 public class IncomeFragment extends RunningAccountFragmentBase<FragmentIncomeBinding> {
@@ -94,8 +95,18 @@ public class IncomeFragment extends RunningAccountFragmentBase<FragmentIncomeBin
                         "确定",
                         (dialog, which) -> {
                             viewModelRefreshPictureEnabled = false; //禁用本实例ViewModel的刷新功能，防止动画重叠
+                            List<Boolean> pictureSelectList = pictureAdapter.getPictureSelectList();
                             AccountPictureViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountPictureViewModel.class);
-                            pictureAdapter.deleteSelectedPicture(viewModel);
+
+                            viewModel.updateAdapterStat(false); //使用ViewModel关闭所有适配器的删除模式
+                            viewModel.deletePicture(pictureSelectList);     //使用ViewModel删除图片
+
+                            long delete_count = pictureSelectList.stream().filter(e -> e == true).count();
+                            if (delete_count != 0) {
+                                Toast.makeText(requireContext(), String.format(Locale.getDefault(), "已删除%d张图片", delete_count), Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(requireContext(), "没有图片被删除", Toast.LENGTH_SHORT).show();
+                            }
                         }
                 )
                 .setNegativeButton("取消", null)
