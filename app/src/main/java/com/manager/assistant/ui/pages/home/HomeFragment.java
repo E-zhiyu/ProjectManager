@@ -302,7 +302,7 @@ public class HomeFragment extends Fragment {
                                 }, e -> {
                                     if (e instanceof ProtocolException) {
                                         if (isToastNeed) {
-                                            Toast.makeText(requireContext(), "无法获取公告", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(requireContext(), "无法获取采购公告", Toast.LENGTH_SHORT).show();
                                         }
                                     } else if (e instanceof SocketTimeoutException) {
                                         if (isToastNeed) {
@@ -311,6 +311,10 @@ public class HomeFragment extends Fragment {
                                     } else if (e instanceof ConnectException || e instanceof UnknownHostException) {
                                         if (isToastNeed) {
                                             Toast.makeText(requireContext(), "无法获取公告，请检查网络连接", Toast.LENGTH_SHORT).show();
+                                        }
+                                    } else {
+                                        if (isToastNeed) {
+                                            Toast.makeText(requireContext(), "无法获取采购公告", Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                     binding.linkLoadingIndicator.setVisibility(View.GONE);

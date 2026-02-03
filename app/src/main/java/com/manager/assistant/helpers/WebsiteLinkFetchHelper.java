@@ -21,11 +21,6 @@ public class WebsiteLinkFetchHelper {
         private String title;   //链接标题
         private String pageurl; //链接Url
 
-        public WebLink(String title, String pageurl) {
-            this.title = title;
-            this.pageurl = pageurl;
-        }
-
         public WebLink() {
         }
 
