@@ -2,7 +2,7 @@ package com.manager.assistant.data.data_save.database;
 
 import androidx.annotation.NonNull;
 
-public enum BookKeepingColumns {
+public enum BookkeepingColumns {
     RNO("Rno"),                 //流水编号
     AMOUNT("Amount"),           //金额
     TYPE("Type"),               //种类
@@ -24,7 +24,7 @@ public enum BookKeepingColumns {
     PNO("pno");                 //图片编号
     private final String value;
 
-    BookKeepingColumns(String value) {
+    BookkeepingColumns(String value) {
         this.value = value;
     }
 

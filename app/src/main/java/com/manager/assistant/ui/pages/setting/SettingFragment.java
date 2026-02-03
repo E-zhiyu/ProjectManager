@@ -29,7 +29,7 @@ import com.manager.assistant.enums.LogTags;
 import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.R;
 import com.manager.assistant.broadcast.BroadcastConstants;
-import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
+import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.data_save.preference.AutoBackupPreference;
 import com.manager.assistant.data.data_save.preference.KeepAlivePreference;
 import com.manager.assistant.databinding.FragmentSettingBinding;
@@ -96,12 +96,12 @@ public class SettingFragment extends Fragment {
         );
         private final String name;              //选项名称
         private final String defaultFileName;   //默认文件名称
-        private final Function<Context, DataHelperBase<BookKeepingDbHelper, ?>> helperFactory;  //数据帮助器的构造方法
+        private final Function<Context, DataHelperBase<BookkeepingDbHelper, ?>> helperFactory;  //数据帮助器的构造方法
 
         IODataType(
                 String name,
                 String defaultFileName,
-                Function<Context, DataHelperBase<BookKeepingDbHelper, ?>> helperFactory) {
+                Function<Context, DataHelperBase<BookkeepingDbHelper, ?>> helperFactory) {
             this.name = name;
             this.defaultFileName = defaultFileName;
             this.helperFactory = helperFactory;
@@ -115,7 +115,7 @@ public class SettingFragment extends Fragment {
             return defaultFileName;
         }
 
-        public DataHelperBase<BookKeepingDbHelper, ?> getDataHelper(Context context) {
+        public DataHelperBase<BookkeepingDbHelper, ?> getDataHelper(Context context) {
             return helperFactory.apply(context);
         }
     }
@@ -687,7 +687,7 @@ public class SettingFragment extends Fragment {
         for (IODataType dataType : IODataType.values()) {
             if (!choseItem[dataType.ordinal()]) continue;
 
-            DataHelperBase<BookKeepingDbHelper, ?> dataHelper = dataType.getDataHelper(requireContext());
+            DataHelperBase<BookkeepingDbHelper, ?> dataHelper = dataType.getDataHelper(requireContext());
             try {
                 String fileName = dataType.getDefaultFileName();
                 String fileContent = dataHelper.getDataInJSON();
@@ -1070,7 +1070,7 @@ public class SettingFragment extends Fragment {
             String targetFileName = dataType.getDefaultFileName();
 
             //获取数据帮助器
-            DataHelperBase<BookKeepingDbHelper, ?> dataHelper;
+            DataHelperBase<BookkeepingDbHelper, ?> dataHelper;
             if (dataType == IODataType.RULE_DATA && isRuleDataChecked && isAccountDataChecked) {
                 //当流水数据和规则数据都选中时，获取能够写入标签数据的数据帮助器
                 dataHelper = new AnalysisRuleDataHelper(requireContext(), true);

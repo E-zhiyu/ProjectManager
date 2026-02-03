@@ -2,14 +2,17 @@ package com.manager.assistant.data.data_save.database;
 
 import androidx.annotation.NonNull;
 
-public enum BookKeepingConstraints {
-    FK_TAG_NO("fk_tag_no"),         //标签编号外键约束
-    FK_RNO("fk_rno"),               //流水账编号外键约束
-    FK_GROUP_NO("fk_group_no");     //分组编号外键约束
+public enum BookkeepingTables {
+    BASIC("basic_data"),
+    TRANSFER("transfer_data"),
+    TAG("tag_data"),
+    TAG_GROUP("tag_group_data"),
+    ANALYSIS_RULE("analysis_rule_data"),
+    PICTURE("picture");
 
     private final String value;
 
-    BookKeepingConstraints(String value) {
+    BookkeepingTables(String value) {
         this.value = value;
     }
 

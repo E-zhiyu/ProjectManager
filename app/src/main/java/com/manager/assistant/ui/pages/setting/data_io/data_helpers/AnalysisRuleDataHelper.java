@@ -9,16 +9,16 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.data.data_save.database.BookKeepingColumns;
-import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
-import com.manager.assistant.data.data_save.database.BookKeepingTables;
+import com.manager.assistant.data.data_save.database.BookkeepingColumns;
+import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
+import com.manager.assistant.data.data_save.database.BookkeepingTables;
 import com.manager.assistant.ui.pages.setting.data_io.pojo.PojoAnalysisRule;
 import com.manager.assistant.ui.pages.setting.data_io.maps.TotalRuleDataMap;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AnalysisRuleDataHelper extends DataHelperBase<BookKeepingDbHelper, TotalRuleDataMap> {
+public class AnalysisRuleDataHelper extends DataHelperBase<BookkeepingDbHelper, TotalRuleDataMap> {
     private final boolean isTagNoShouldWrite;
 
     /**
@@ -43,8 +43,8 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookKeepingDbHelper, 
     }
 
     @Override
-    protected BookKeepingDbHelper createHelper() {
-        return new BookKeepingDbHelper(context);
+    protected BookkeepingDbHelper createHelper() {
+        return new BookkeepingDbHelper(context);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookKeepingDbHelper, 
         SQLiteDatabase db = dbHelper.openReadLink();
 
         Cursor rule_cursor = db.query(
-                BookKeepingTables.ANALYSIS_RULE.toString(),
+                BookkeepingTables.ANALYSIS_RULE.toString(),
                 null,
                 null,
                 null,
@@ -86,13 +86,13 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookKeepingDbHelper, 
         );
 
         while (rule_cursor.moveToNext()) {
-            String ruleName = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.RULE_NAME.toString()));
-            long rule_no = rule_cursor.getLong(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.RULE_NO.toString()));
-            long tag_no = rule_cursor.getLong(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));
-            String type = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.TYPE.toString()));
-            String package_name = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.PACKAGE_NAME.toString()));
-            String title = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.NOTIFICATION_TITLE.toString()));
-            String content = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.NOTIFICATION_CONTENT.toString()));
+            String ruleName = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookkeepingColumns.RULE_NAME.toString()));
+            long rule_no = rule_cursor.getLong(rule_cursor.getColumnIndexOrThrow(BookkeepingColumns.RULE_NO.toString()));
+            long tag_no = rule_cursor.getLong(rule_cursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NO.toString()));
+            String type = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookkeepingColumns.TYPE.toString()));
+            String package_name = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookkeepingColumns.PACKAGE_NAME.toString()));
+            String title = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookkeepingColumns.NOTIFICATION_TITLE.toString()));
+            String content = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookkeepingColumns.NOTIFICATION_CONTENT.toString()));
 
             PojoAnalysisRule rule = new PojoAnalysisRule(ruleName, rule_no, tag_no, type, package_name, title, content);
             ruleList.add(rule);
@@ -107,7 +107,7 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookKeepingDbHelper, 
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         //清空之前表的内容
-        db.delete(BookKeepingTables.ANALYSIS_RULE.toString(), null, null);
+        db.delete(BookkeepingTables.ANALYSIS_RULE.toString(), null, null);
 
         for (PojoAnalysisRule rule : ruleList) {
             String rule_name = rule.getRuleName();
@@ -119,16 +119,16 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookKeepingDbHelper, 
             String content = rule.getContent();
 
             ContentValues rule_values = new ContentValues();
-            rule_values.put(BookKeepingColumns.RULE_NAME.toString(), rule_name);
-            rule_values.put(BookKeepingColumns.RULE_NO.toString(), rule_no);
+            rule_values.put(BookkeepingColumns.RULE_NAME.toString(), rule_name);
+            rule_values.put(BookkeepingColumns.RULE_NO.toString(), rule_no);
             if (isTagNoShouldWrite) {
-                rule_values.put(BookKeepingColumns.TAG_NO.toString(), tag_no);
+                rule_values.put(BookkeepingColumns.TAG_NO.toString(), tag_no);
             }
-            rule_values.put(BookKeepingColumns.TYPE.toString(), type);
-            rule_values.put(BookKeepingColumns.PACKAGE_NAME.toString(), package_name);
-            rule_values.put(BookKeepingColumns.NOTIFICATION_TITLE.toString(), title);
-            rule_values.put(BookKeepingColumns.NOTIFICATION_CONTENT.toString(), content);
-            db.insert(BookKeepingTables.ANALYSIS_RULE.toString(), null, rule_values);
+            rule_values.put(BookkeepingColumns.TYPE.toString(), type);
+            rule_values.put(BookkeepingColumns.PACKAGE_NAME.toString(), package_name);
+            rule_values.put(BookkeepingColumns.NOTIFICATION_TITLE.toString(), title);
+            rule_values.put(BookkeepingColumns.NOTIFICATION_CONTENT.toString(), content);
+            db.insert(BookkeepingTables.ANALYSIS_RULE.toString(), null, rule_values);
         }
 
         db.close();
@@ -137,13 +137,13 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookKeepingDbHelper, 
     public static void resetRule(Context context) {
         String tip_str = "数据清除失败：未知原因";
         try {
-            BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
+            BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
             SQLiteDatabase db = db_helper.openWriteLink();
 
-            db.delete(BookKeepingTables.ANALYSIS_RULE.toString(), null, null);
+            db.delete(BookkeepingTables.ANALYSIS_RULE.toString(), null, null);
 
             //恢复默认规则
-            BookKeepingDbHelper.addDefaultRule(db);
+            BookkeepingDbHelper.addDefaultRule(db);
 
             db.close();
             tip_str = "规则重置成功";

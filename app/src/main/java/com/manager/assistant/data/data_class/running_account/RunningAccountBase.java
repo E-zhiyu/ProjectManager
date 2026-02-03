@@ -11,9 +11,9 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 
 import com.manager.assistant.data.data_class.Picture;
-import com.manager.assistant.data.data_save.database.BookKeepingColumns;
-import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
-import com.manager.assistant.data.data_save.database.BookKeepingTables;
+import com.manager.assistant.data.data_save.database.BookkeepingColumns;
+import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
+import com.manager.assistant.data.data_save.database.BookkeepingTables;
 import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.ui.others.bottom_sheets.filter.AccountFilterBottomSheet;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
@@ -81,7 +81,7 @@ public abstract class RunningAccountBase {
      */
     @NonNull
     public static List<RunningAccountBase> loadRunningAccountData(@NonNull AccountFilterBottomSheet.FilterSetting setting, Context context) {
-        BookKeepingDbHelper dbHelper = new BookKeepingDbHelper(context);
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openReadLink();
 
         //生成selection子句
@@ -95,7 +95,7 @@ public abstract class RunningAccountBase {
         //生成流水种类条件
         if (!selectedTypeList.isEmpty()) {
             selection.append(" AND ");
-            selection.append(BookKeepingColumns.TYPE);
+            selection.append(BookkeepingColumns.TYPE);
             selection.append(" IN (");
             selection.append(TextUtils.join(",", Collections.nCopies(selectedTypeList.size(), "?")));
             selection.append(")");
@@ -110,7 +110,7 @@ public abstract class RunningAccountBase {
         //生成标签条件
         if (!selectedTagList.isEmpty()) {
             selection.append(" AND ");
-            selection.append(BookKeepingColumns.TAG_NO);
+            selection.append(BookkeepingColumns.TAG_NO);
             selection.append(" IN (");
             selection.append(TextUtils.join(",", Collections.nCopies(selectedTagList.size(), "?")));
             selection.append(")");
@@ -124,10 +124,10 @@ public abstract class RunningAccountBase {
         //生成日期条件
         if (startCalendar != null && endCalendar != null) {
             selection.append(" AND ");
-            selection.append(BookKeepingColumns.DATETIME);
+            selection.append(BookkeepingColumns.DATETIME);
             selection.append(">=?");
             selection.append(" AND ");
-            selection.append(BookKeepingColumns.DATETIME);
+            selection.append(BookkeepingColumns.DATETIME);
             selection.append("<?");
 
             int sy = startCalendar.get(Calendar.YEAR);
@@ -142,29 +142,29 @@ public abstract class RunningAccountBase {
 
         //查询流水记录
         Cursor basic_cursor = db.query(
-                BookKeepingTables.BASIC.toString(),
+                BookkeepingTables.BASIC.toString(),
                 null,
                 selection.toString(),
                 selectionArgList.toArray(new String[0]),
                 null,
                 null,
-                BookKeepingColumns.DATETIME + " DESC," + BookKeepingColumns.RNO + " DESC"
+                BookkeepingColumns.DATETIME + " DESC," + BookkeepingColumns.RNO + " DESC"
         );
 
         //查询数据
         List<RunningAccountBase> runningAccountList = new ArrayList<>();
         while (basic_cursor.moveToNext()) {
             //流水编号
-            long rno = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.RNO.toString()));
+            long rno = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.RNO.toString()));
             //金额
-            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.AMOUNT.toString()));
+            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.AMOUNT.toString()));
             //种类
-            RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.TYPE.toString())));
+            RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.TYPE.toString())));
             //备注
-            String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.REMARK.toString()));
+            String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.REMARK.toString()));
             if (remark == null) remark = "";
             //日期和时间
-            String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.DATETIME.toString()));
+            String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.DATETIME.toString()));
 
             RunningAccountBase runningAccountView = null;
             switch (type) {
@@ -175,12 +175,12 @@ public abstract class RunningAccountBase {
                     runningAccountView = new IncomeRunningAccount(rno, remark, datetime, amount);
                     break;
                 case TRANSFER:
-                    String[] columns = {BookKeepingColumns.EXPORT.toString(), BookKeepingColumns.IMPORT.toString()};
-                    String transfer_selection = BookKeepingColumns.RNO + "=?";
+                    String[] columns = {BookkeepingColumns.EXPORT.toString(), BookkeepingColumns.IMPORT.toString()};
+                    String transfer_selection = BookkeepingColumns.RNO + "=?";
                     String[] transfer_selectionArgs = {String.valueOf(rno)};
 
                     Cursor transfer_cursor = db.query(
-                            BookKeepingTables.TRANSFER.toString(),
+                            BookkeepingTables.TRANSFER.toString(),
                             columns,
                             transfer_selection,
                             transfer_selectionArgs,
@@ -190,8 +190,8 @@ public abstract class RunningAccountBase {
                     );
 
                     while (transfer_cursor.moveToNext()) {
-                        String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(BookKeepingColumns.EXPORT.toString()));
-                        String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(BookKeepingColumns.IMPORT.toString()));
+                        String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(BookkeepingColumns.EXPORT.toString()));
+                        String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(BookkeepingColumns.IMPORT.toString()));
                         transfer_cursor.close();
                         runningAccountView = new TransferRunningAccount(rno, remark, datetime, amount, exportAccount, importAccount);
                     }
@@ -215,24 +215,24 @@ public abstract class RunningAccountBase {
      * @throws SQLiteException 读取失败引发的数据库异常
      */
     public static String getEarliestAccountDate(Context context) throws SQLiteException {
-        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
+        BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
 
-        String[] columns = {BookKeepingColumns.DATETIME.toString()};
+        String[] columns = {BookkeepingColumns.DATETIME.toString()};
         Cursor basic_cursor = db.query(
-                BookKeepingTables.BASIC.toString(),
+                BookkeepingTables.BASIC.toString(),
                 columns,
                 null,
                 null,
                 null,
                 null,
-                BookKeepingColumns.DATETIME.toString(),
+                BookkeepingColumns.DATETIME.toString(),
                 "1"
         );
 
         String earliest_date_str = "";
         if (basic_cursor.moveToNext()) {
-            earliest_date_str = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.DATETIME.toString()));
+            earliest_date_str = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.DATETIME.toString()));
 
             //去除后面的时间部分
             earliest_date_str = earliest_date_str.substring(0, 10);
@@ -252,7 +252,7 @@ public abstract class RunningAccountBase {
      * @throws SQLiteException 写入数据库可能引发的异常
      */
     public static long saveNewAccount(@NonNull Bundle dataBundle, Context context) throws SQLiteException {
-        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
+        BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         String type = dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue());
@@ -263,13 +263,13 @@ public abstract class RunningAccountBase {
         long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
 
         ContentValues basic_values = new ContentValues();
-        basic_values.put(BookKeepingColumns.TYPE.toString(), type);                                 //种类
-        basic_values.put(BookKeepingColumns.AMOUNT.toString(), amount);                             //金额
-        basic_values.put(BookKeepingColumns.REMARK.toString(), remark);                             //备注
-        basic_values.put(BookKeepingColumns.DATETIME.toString(), date_time);                        //日期
-        basic_values.put(BookKeepingColumns.TAG_NO.toString(), tag_no);                             //标签编号
+        basic_values.put(BookkeepingColumns.TYPE.toString(), type);                                 //种类
+        basic_values.put(BookkeepingColumns.AMOUNT.toString(), amount);                             //金额
+        basic_values.put(BookkeepingColumns.REMARK.toString(), remark);                             //备注
+        basic_values.put(BookkeepingColumns.DATETIME.toString(), date_time);                        //日期
+        basic_values.put(BookkeepingColumns.TAG_NO.toString(), tag_no);                             //标签编号
 
-        long rno = db.insert(BookKeepingTables.BASIC.toString(), null, basic_values);
+        long rno = db.insert(BookkeepingTables.BASIC.toString(), null, basic_values);
 
         //判断是否为特殊类型
         ContentValues special_values = new ContentValues();
@@ -277,10 +277,10 @@ public abstract class RunningAccountBase {
             String export_account = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());
             String import_account = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());
 
-            special_values.put(BookKeepingColumns.EXPORT.toString(), export_account);
-            special_values.put(BookKeepingColumns.IMPORT.toString(), import_account);
-            special_values.put(BookKeepingColumns.RNO.toString(), rno);
-            db.insert(BookKeepingTables.TRANSFER.toString(), null, special_values);
+            special_values.put(BookkeepingColumns.EXPORT.toString(), export_account);
+            special_values.put(BookkeepingColumns.IMPORT.toString(), import_account);
+            special_values.put(BookkeepingColumns.RNO.toString(), rno);
+            db.insert(BookkeepingTables.TRANSFER.toString(), null, special_values);
         }
 
         db.close();
@@ -295,7 +295,7 @@ public abstract class RunningAccountBase {
      * @throws SQLiteException 写入数据库可能引发的异常
      */
     public static void modifyAccount(@NonNull Bundle dataBundle, Context context) throws SQLiteException {
-        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
+        BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //解析数据
@@ -309,15 +309,15 @@ public abstract class RunningAccountBase {
 
         //修改基本数据
         ContentValues basic_values = new ContentValues();
-        basic_values.put(BookKeepingColumns.TYPE.toString(), type);             //种类
-        basic_values.put(BookKeepingColumns.AMOUNT.toString(), amount);         //金额
-        basic_values.put(BookKeepingColumns.REMARK.toString(), remark);         //备注
-        basic_values.put(BookKeepingColumns.DATETIME.toString(), date_time);    //日期
-        basic_values.put(BookKeepingColumns.TAG_NO.toString(), tag_no);         //标签编号
-        String selection = BookKeepingColumns.RNO + "=?";
+        basic_values.put(BookkeepingColumns.TYPE.toString(), type);             //种类
+        basic_values.put(BookkeepingColumns.AMOUNT.toString(), amount);         //金额
+        basic_values.put(BookkeepingColumns.REMARK.toString(), remark);         //备注
+        basic_values.put(BookkeepingColumns.DATETIME.toString(), date_time);    //日期
+        basic_values.put(BookkeepingColumns.TAG_NO.toString(), tag_no);         //标签编号
+        String selection = BookkeepingColumns.RNO + "=?";
         String[] selectionArgs = new String[]{String.valueOf(rno)};
         db.update(
-                BookKeepingTables.BASIC.toString(),
+                BookkeepingTables.BASIC.toString(),
                 basic_values,
                 selection,
                 selectionArgs
@@ -329,10 +329,10 @@ public abstract class RunningAccountBase {
             String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());
             String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());
 
-            special_values.put(BookKeepingColumns.EXPORT.toString(), exportAccount);
-            special_values.put(BookKeepingColumns.IMPORT.toString(), importAccount);
+            special_values.put(BookkeepingColumns.EXPORT.toString(), exportAccount);
+            special_values.put(BookkeepingColumns.IMPORT.toString(), importAccount);
             db.update(
-                    BookKeepingTables.TRANSFER.toString(),
+                    BookkeepingTables.TRANSFER.toString(),
                     special_values,
                     selection,
                     selectionArgs
@@ -350,16 +350,16 @@ public abstract class RunningAccountBase {
      * @throws SQLiteException 写入数据库时可能引发的异常
      */
     public static void deleteAccount(long rno, Context context) throws SQLiteException {
-        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
+        BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         Picture.deletePicture(rno, db); //删除图片
         TransferRunningAccount.deleteTransferAccount(rno, db);  //删除转账数据(如果是转账类型)
 
-        String selection = BookKeepingColumns.RNO + "=?";
+        String selection = BookkeepingColumns.RNO + "=?";
         String[] selectionArgs = {String.valueOf(rno)};
         db.delete(
-                BookKeepingTables.BASIC.toString(),
+                BookkeepingTables.BASIC.toString(),
                 selection,
                 selectionArgs
         );
@@ -375,13 +375,13 @@ public abstract class RunningAccountBase {
      * @throws SQLiteException 数据库修改失败引发的异常
      */
     public static void setDefaultTagNo(long tag_no, @NonNull SQLiteDatabase db) throws SQLiteException {
-        String where = BookKeepingColumns.TAG_NO + "=?";
+        String where = BookkeepingColumns.TAG_NO + "=?";
         String[] whereArgs = {String.valueOf(tag_no)};
 
         ContentValues accountValues = new ContentValues();
-        accountValues.put(BookKeepingColumns.TAG_NO.toString(), 0);
+        accountValues.put(BookkeepingColumns.TAG_NO.toString(), 0);
         db.update(
-                BookKeepingTables.BASIC.toString(),
+                BookkeepingTables.BASIC.toString(),
                 accountValues,
                 where,
                 whereArgs

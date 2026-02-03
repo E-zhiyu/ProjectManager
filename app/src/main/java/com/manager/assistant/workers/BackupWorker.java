@@ -9,7 +9,7 @@ import androidx.work.WorkerParameters;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.manager.assistant.enums.LogTags;
-import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
+import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
 import com.manager.assistant.helpers.DataIOHelper;
 import com.manager.assistant.ui.pages.setting.SettingFragment;
 import com.manager.assistant.ui.pages.setting.data_io.data_helpers.DataHelperBase;
@@ -33,7 +33,7 @@ public class BackupWorker extends Worker {
         //获取APP数据
         List<String> fileNameList = new ArrayList<>(), fileContentList = new ArrayList<>();
         for (SettingFragment.IODataType dataType : SettingFragment.IODataType.values()) {
-            DataHelperBase<BookKeepingDbHelper, ?> dataHelper = dataType.getDataHelper(context);
+            DataHelperBase<BookkeepingDbHelper, ?> dataHelper = dataType.getDataHelper(context);
 
             try {
                 String fileName = dataType.getDefaultFileName();

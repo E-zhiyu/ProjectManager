@@ -21,9 +21,9 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.AccountSourceInfo;
 import com.manager.assistant.data.data_class.MonthAccountInfo;
-import com.manager.assistant.data.data_save.database.BookKeepingColumns;
-import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
-import com.manager.assistant.data.data_save.database.BookKeepingTables;
+import com.manager.assistant.data.data_save.database.BookkeepingColumns;
+import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
+import com.manager.assistant.data.data_save.database.BookkeepingTables;
 import com.manager.assistant.databinding.ActivityReportBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.enums.TagString;
@@ -155,16 +155,16 @@ public class ReportActivity extends AppCompatActivity {
      */
     private List<ReportRunningAccountData> loadReportData(@NonNull DateRangeType dateRangeType) throws SQLiteException {
         List<ReportRunningAccountData> dataList = new ArrayList<>();
-        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(this);
+        BookkeepingDbHelper db_helper = new BookkeepingDbHelper(this);
         SQLiteDatabase db = db_helper.openReadLink();
 
         String[] columns = new String[]{
-                BookKeepingColumns.AMOUNT.toString(),
-                BookKeepingColumns.TYPE.toString(),
-                BookKeepingColumns.TAG_NO.toString(),
-                BookKeepingColumns.DATETIME.toString()
+                BookkeepingColumns.AMOUNT.toString(),
+                BookkeepingColumns.TYPE.toString(),
+                BookkeepingColumns.TAG_NO.toString(),
+                BookkeepingColumns.DATETIME.toString()
         };
-        String selection = BookKeepingColumns.DATETIME + ">=? AND " + BookKeepingColumns.DATETIME + "<?";
+        String selection = BookkeepingColumns.DATETIME + ">=? AND " + BookkeepingColumns.DATETIME + "<?";
 
         //根据日期范围设置selection语句的参数
         String[] selectionArgs;
@@ -208,20 +208,20 @@ public class ReportActivity extends AppCompatActivity {
         }
 
         Cursor basic_cursor = db.query(
-                BookKeepingTables.BASIC.toString(),
+                BookkeepingTables.BASIC.toString(),
                 columns,
                 selection,
                 selectionArgs,
                 null,
                 null,
-                BookKeepingColumns.DATETIME + " DESC"
+                BookkeepingColumns.DATETIME + " DESC"
         );
 
         while (basic_cursor.moveToNext()) {
-            RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.TYPE.toString())));
-            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.AMOUNT.toString()));
-            long tag_no = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.TAG_NO.toString()));
-            String date_time = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.DATETIME.toString()));
+            RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.TYPE.toString())));
+            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.AMOUNT.toString()));
+            long tag_no = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NO.toString()));
+            String date_time = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.DATETIME.toString()));
 
             //获取月份
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");

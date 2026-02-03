@@ -15,9 +15,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
-import com.manager.assistant.data.data_save.database.BookKeepingColumns;
-import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
-import com.manager.assistant.data.data_save.database.BookKeepingTables;
+import com.manager.assistant.data.data_save.database.BookkeepingColumns;
+import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
+import com.manager.assistant.data.data_save.database.BookkeepingTables;
 import com.manager.assistant.data.data_save.preference.AppSettingsPreference;
 import com.manager.assistant.data.data_save.preference.BookKeepingStartDatePreference;
 import com.manager.assistant.databinding.FragmentHomeBinding;
@@ -155,7 +155,7 @@ public class HomeFragment extends Fragment {
      * 加载今日相关的流水数据
      */
     private void getTodayBalanceInfo() throws SQLiteException {
-        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(requireContext());
+        BookkeepingDbHelper db_helper = new BookkeepingDbHelper(requireContext());
         SQLiteDatabase db = db_helper.openReadLink();
 
         //获取当前日期
@@ -166,16 +166,16 @@ public class HomeFragment extends Fragment {
 
         //创建数据库游标
         String[] columns = new String[]{
-                BookKeepingColumns.AMOUNT.toString(),
-                BookKeepingColumns.TYPE.toString()
+                BookkeepingColumns.AMOUNT.toString(),
+                BookkeepingColumns.TYPE.toString()
         };
-        String selection = BookKeepingColumns.DATETIME + ">=? AND " + BookKeepingColumns.DATETIME + "<?";
+        String selection = BookkeepingColumns.DATETIME + ">=? AND " + BookkeepingColumns.DATETIME + "<?";
         String[] selectionArgs = {
                 String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month, day),
                 String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month, day + 1)
         };
         Cursor basic_cursor = db.query(
-                BookKeepingTables.BASIC.toString(),
+                BookkeepingTables.BASIC.toString(),
                 columns,
                 selection,
                 selectionArgs,
@@ -189,8 +189,8 @@ public class HomeFragment extends Fragment {
         day_expense = 0;
         day_income = 0;
         while (basic_cursor.moveToNext()) {
-            RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.TYPE.toString())));
-            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(BookKeepingColumns.AMOUNT.toString()));
+            RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.TYPE.toString())));
+            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.AMOUNT.toString()));
 
             if (type.isExpenseType()) {
                 day_balance -= amount;
