@@ -61,6 +61,36 @@ public class ReportActivity extends AppCompatActivity {
         TODAY, THIS_MONTH, RECENT_3_MONTH, THIS_YEAR
     }
 
+    static class ReportRunningAccountData {
+        private final RunningAccountType type;  //流水种类
+        private final double amount;            //金额
+        private final long tag_no;              //标签编号
+        private final int month;                //月份
+
+        public ReportRunningAccountData(RunningAccountType type, double amount, long tag_no, int month) {
+            this.type = type;
+            this.amount = amount;
+            this.tag_no = tag_no;
+            this.month = month;
+        }
+
+        public RunningAccountType getType() {
+            return type;
+        }
+
+        public double getAmount() {
+            return amount;
+        }
+
+        public long getTag_no() {
+            return tag_no;
+        }
+
+        public int getMonth() {
+            return month;
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
