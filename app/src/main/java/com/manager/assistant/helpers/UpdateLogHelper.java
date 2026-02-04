@@ -12,7 +12,7 @@ import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.7.7  \n" +
-            "**BUG修复  \n" +
+            "**BUG修复**  \n" +
             "- 修复上个版本无法修改标签名称的BUG  \n\n" +
             "# v1.7.6  \n" +
             "**BUG修复**  \n" +
