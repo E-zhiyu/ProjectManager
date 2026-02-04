@@ -137,6 +137,8 @@
                 style="@style/OutlinedBtnStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="0dp"
+                android:layout_marginEnd="0dp"
                 android:text="@string/input_instruction"
                 app:icon="@drawable/outline_info_24"
                 app:iconGravity="textStart" />

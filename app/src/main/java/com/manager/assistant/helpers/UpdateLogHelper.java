@@ -11,7 +11,10 @@ import com.manager.assistant.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.7.7  \n" +
+    private static final String update_log_md = "# v1.7.8  \n" +
+            "**修改内容**  \n" +
+            "- 修改通知解析规则输入界面的“输入说明”按钮的宽度，使其与文本输入框等宽  \n\n" +
+            "# v1.7.7  \n" +
             "**BUG修复**  \n" +
             "- 修复上个版本无法修改标签名称的BUG  \n\n" +
             "# v1.7.6  \n" +
