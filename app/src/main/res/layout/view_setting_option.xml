@@ -7,11 +7,10 @@
     android:paddingTop="5dp"
     android:paddingBottom="5dp">
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/free_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
