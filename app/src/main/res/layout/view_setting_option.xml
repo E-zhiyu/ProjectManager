@@ -46,7 +46,7 @@
             android:layout_marginStart="40dp"
             android:ellipsize="end"
             android:focusableInTouchMode="true"
-            android:singleLine="true"
+            android:maxLines="1"
             android:text="@string/title_setting" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -57,7 +57,7 @@
             android:layout_marginStart="40dp"
             android:ellipsize="end"
             android:focusableInTouchMode="true"
-            android:singleLine="true"
+            android:maxLines="1"
             android:text="@string/setting"
             android:textColor="?attr/colorControlNormal" />
     </LinearLayout>
