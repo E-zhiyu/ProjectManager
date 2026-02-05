@@ -338,7 +338,7 @@ public class SettingFragment extends Fragment {
         autoBackupHelper.setSwitchOptionView(autoBackupSwitch); //设置帮助器的开关视图，以便控制其状态
         String backupDir = AutoBackupPreference.getBackupDirectoryUri(requireContext());
         boolean switchStat = AutoBackupPreference.getSwitchStat(requireContext());
-        if (backupDir != null && switchStat) {
+        if (backupDir != null && new File(backupDir).exists() && switchStat) {
             autoBackupSwitch.setChecked(true);
             binding.autoBackupLayout.setVisibility(View.VISIBLE);
         } else {
@@ -347,7 +347,7 @@ public class SettingFragment extends Fragment {
         }
         autoBackupSwitch.setFunctionListener(
                 (buttonView, isChecked) -> {
-                    if (backupDir == null && isChecked) {   //未设置备份目录则先提示设置
+                    if ((backupDir == null || !new File(backupDir).exists()) && isChecked) {    //备份目录无效则先提示设置
                         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("功能启用提示")
                                 .setMessage("该功能需要先设置备份文件存储目录，请点击“确定”按钮设置存储目录")
