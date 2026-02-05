@@ -10,7 +10,6 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
 
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
@@ -23,6 +22,7 @@ import com.manager.assistant.enums.TagString;
 import com.manager.assistant.helpers.ResHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;
+import com.manager.assistant.ui.others.bottom_sheets.BaseBottomSheetDialogFragment;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class AccountFilterBottomSheet extends BottomSheetDialogFragment {
+public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
     private BottomSheetAccountFilterBinding binding;            //绑定的XML视图
     private final FilterSetting setting;                        //用户自定义的过滤器设置
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）

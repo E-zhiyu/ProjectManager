@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.7.8  \n" +
             "**修改内容**  \n" +
+            "- 为底部弹出菜单添加返回时的动画效果（需要使用全面屏手势）  \n" +
             "- 修改通知解析规则输入界面的“输入说明”按钮的宽度，使其与文本输入框等宽  \n\n" +
             "# v1.7.7  \n" +
             "**BUG修复**  \n" +
