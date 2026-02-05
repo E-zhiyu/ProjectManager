@@ -1,5 +1,6 @@
 package com.manager.assistant.ui.pages.setting;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -605,6 +606,10 @@ public class SettingFragment extends Fragment {
                 result -> {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
+                    if (resultCode != Activity.RESULT_OK || data == null || data.getData() == null) {
+                        dataIOHelper.clearTempFile();
+                        return;
+                    }
 
                     ProgressDialog progressDialog = new ProgressDialog(requireContext(), "导出数据", "正在导出数据……");
                     progressDialog.buildDialog(
@@ -618,13 +623,16 @@ public class SettingFragment extends Fragment {
 
                     disposables.add(
                             Observable.fromCallable(() -> {
-                                        dataIOHelper.handleActivityResult(resultCode, data, true);
+                                        dataIOHelper.handleExportResult(data.getData());
                                         return true;
                                     })
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(b -> Toast.makeText(requireContext(), "数据导出成功", Toast.LENGTH_SHORT).show(),
-                                            e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
+                                            e -> {
+                                                ExceptionHelper.showExceptionDialog(requireContext(), e);
+                                                progressDialog.dismiss();
+                                            },
                                             progressDialog::dismiss
                                     )
                     );
@@ -636,6 +644,10 @@ public class SettingFragment extends Fragment {
                 result -> {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
+                    if (resultCode != Activity.RESULT_OK || data == null || data.getData() == null) {
+                        dataIOHelper.clearTempFile();
+                        return;
+                    }
 
                     ProgressDialog progressDialog = new ProgressDialog(requireContext(), "导入数据", "正在扫描备份文件……");
                     progressDialog.buildDialog(
@@ -649,14 +661,17 @@ public class SettingFragment extends Fragment {
 
                     disposables.add(
                             Observable.fromCallable(() -> {
-                                        dataIOHelper.handleActivityResult(resultCode, data, false);
+                                        dataIOHelper.handleImportResul(data.getData());
                                         return true;
                                     })
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(b -> {
                                             },
-                                            e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
+                                            e -> {
+                                                ExceptionHelper.showExceptionDialog(requireContext(), e);
+                                                progressDialog.dismiss();
+                                            },
                                             progressDialog::dismiss
                                     )
                     );
