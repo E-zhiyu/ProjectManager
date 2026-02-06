@@ -520,13 +520,10 @@ public class SettingFragment extends Fragment {
         );
         hideBackgroundOption.setChecked(KeepAlivePreference.getHideRecents(requireContext()));
         hideBackgroundOption.setFunctionListener(
-                (buttonView, isChecked) -> {
-                    KeepAlivePreference.setHideRecents(isChecked, requireContext());
-
-                    if (isChecked) {
-                        Toast.makeText(requireContext(), "请在最近任务中锁定本应用以达到更好的效果", Toast.LENGTH_SHORT).show();
-                    }
-                }
+                (buttonView, isChecked) -> KeepAlivePreference.setHideRecents(
+                        isChecked,
+                        requireContext()
+                )
         );
 
         //自启动

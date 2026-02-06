@@ -18,7 +18,6 @@ import com.manager.assistant.enums.LogTags;
 import com.manager.assistant.broadcast.NotificationAnalysisBroadcastReceiver;
 import com.manager.assistant.broadcast.BroadcastConstants;
 import com.manager.assistant.data.data_save.preference.AutoBookKeepingPreference;
-import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.data.data_class.AnalysisRule;
 import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
@@ -36,9 +35,9 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 public class AutoBookKeepingNotificationListenerService extends NotificationListenerService implements NotificationAnalysisBroadcastReceiver.BroadcastListener {
-    private List<AnalysisRule> ruleList;                            //解析规则列表
-    private NotificationAnalysisBroadcastReceiver ruleUpdateReceiver;    //规则更新的广播接收器
-    private boolean isFunctionOpened;                               //通知解析功能是否开启
+    private List<AnalysisRule> ruleList;                                //解析规则列表
+    private NotificationAnalysisBroadcastReceiver ruleUpdateReceiver;   //规则更新的广播接收器
+    private boolean isFunctionOpened;                                   //通知解析功能是否开启
 
     @Override
     public void onCreate() {
@@ -46,12 +45,12 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
 
         //启动时则加载规则
         try {
-            ruleList = AnalysisRule.loadAnalysisRule(getBaseContext());
+            ruleList = AnalysisRule.loadAnalysisRule(getApplicationContext());
         } catch (SQLiteException e) {
             ruleList = new ArrayList<>();
-            ExceptionHelper.showExceptionDialog(getBaseContext(), e);
+            Toast.makeText(getApplicationContext(), "通知监听服务无法加载解析规则", Toast.LENGTH_SHORT).show();
         }
-        isFunctionOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(getBaseContext());   //启动时加载功能开关状态
+        isFunctionOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(getApplicationContext());   //启动时加载功能开关状态
 
         //注册规则更新和开关状态更新的广播接收器
         ruleUpdateReceiver = new NotificationAnalysisBroadcastReceiver(this);
@@ -89,7 +88,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
     @Override
     public void onNotificationPosted(@NonNull StatusBarNotification sbn) {
         if (!isFunctionOpened) {
-            Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "功能未启用，拒绝处理通知");
+            Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "自动记账功能未启用");
             return;
         }  //功能未打开则直接结束
 
@@ -103,20 +102,20 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         Log.d(LogTags.NOTIFICATION_SERVICE.getV(), String.format("通知标题：%s", title));
         Log.d(LogTags.NOTIFICATION_SERVICE.getV(), String.format("通知内容：%s", text));
 
-        // 处理通知内容
+        //处理通知内容
         for (AnalysisRule rule : ruleList) {
-            String rule_package_name = rule.getPackageName();
-            String rule_title = rule.getNotificationTitle();
-            String rule_content = rule.getNotificationContent();
+            String rulePackageName = rule.getPackageName();
+            String ruleTitle = rule.getNotificationTitle();
+            String ruleContent = rule.getNotificationContent();
 
-            Matcher matcher;            //匹配通知内容
+            Matcher matcher;    //通知内容匹配器
             try {
-                Pattern pattern = Pattern.compile(rule_content);    //编译为正则表达式
+                Pattern pattern = Pattern.compile(ruleContent);     //编译为正则表达式
                 matcher = pattern.matcher(text);
             } catch (PatternSyntaxException e) {                    //处理无法编译为Matcher的情况
                 Log.e(LogTags.NOTIFICATION_SERVICE.getV(), "正则表达式编译出错");
                 Toast.makeText(
-                        getBaseContext(),
+                        getApplicationContext(),
                         String.format(
                                 Locale.getDefault(),
                                 "规则“%s”的正则表达式编译出错",
@@ -126,22 +125,18 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                 continue;
             }
 
-            if (rule_package_name.equals(packageName) && rule_title.equals(title) && matcher.find()) {
+            if (rulePackageName.equals(packageName) && ruleTitle.equals(title) && matcher.find()) {
                 Bundle dataBundle;
                 try {
                     //获取标签编号
                     long rule_no = rule.getRuleNo();
-                    long tag_no = Tag.getTagByRuleNo(rule_no, getBaseContext()).getTno();
+                    long tag_no = Tag.getTagByRuleNo(rule_no, getApplicationContext()).getTno();
 
                     dataBundle = getNewAccountData(matcher, rule.getType(), tag_no, rule.getRuleName());
                     Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据保存成功");
                 } catch (SQLiteException e) {
                     Log.e(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据保存失败或标签编号读取失败");
-                    ExceptionHelper.showExceptionDialog(getBaseContext(), e);
-                    return;
-                } catch (NullPointerException e) {
-                    Log.e(LogTags.NOTIFICATION_SERVICE.getV(), "通知解析失败");
-                    ExceptionHelper.showExceptionDialog(getBaseContext(), e);
+                    Toast.makeText(getApplicationContext(), "自动记账出错：无法获取标签编号", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -149,7 +144,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                 if (dataBundle != null) {
                     Intent accountAdded = new Intent(BroadcastConstants.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
                     accountAdded.putExtras(dataBundle);
-                    getBaseContext().sendBroadcast(accountAdded);
+                    getApplicationContext().sendBroadcast(accountAdded);
                 }
 
                 break;  //匹配到规则则结束循环
@@ -164,11 +159,11 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
     public void onRuleUpdated() {
         try {
             Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "收到规则更新广播，正在更新规则……");
-            ruleList = AnalysisRule.loadAnalysisRule(getBaseContext());
+            ruleList = AnalysisRule.loadAnalysisRule(getApplicationContext());
             Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "规则更新成功");
         } catch (SQLiteException e) {
             Log.w(LogTags.NOTIFICATION_SERVICE.getV(), "规则更新失败");
-            ExceptionHelper.showExceptionDialog(getBaseContext(), e);
+            Toast.makeText(getApplicationContext(), "自动记账出错：无法获取更新的规则", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -178,7 +173,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
     @Override
     public void onFunctionSwitched() {
         Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "收到功能开关状态变更广播");
-        isFunctionOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(getBaseContext());
+        isFunctionOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(getApplicationContext());
         Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "通知解析功能：" + isFunctionOpened);
     }
 
@@ -199,9 +194,8 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         try {
             amount = Double.parseDouble(Objects.requireNonNull(matcher.group(1)));
         } catch (IndexOutOfBoundsException e) { //处理没有捕获组的情况
-            Context context = getBaseContext();
             Toast.makeText(
-                    context,
+                    getApplicationContext(),
                     String.format(
                             Locale.getDefault(),
                             "规则“%s”没有金额捕获组",
@@ -211,9 +205,8 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
             ).show();
             return null;
         } catch (NumberFormatException e) {
-            Context context = getBaseContext();
             Toast.makeText(
-                    context,
+                    getApplicationContext(),
                     String.format(
                             Locale.getDefault(),
                             "规则“%s”的捕获组无法正确捕获金额数据",
@@ -228,7 +221,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         long currentTimeMillis = System.currentTimeMillis();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
         Date now = new Date(currentTimeMillis);
-        String time_str = dateFormat.format(now);
+        String timeStr = dateFormat.format(now);
 
         //生成备注
         String remark = "自动记账：" + ruleName;
@@ -236,7 +229,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         //生成流水记录数据包
         Bundle dataBundle = new Bundle();
         dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
-        dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), time_str);
+        dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), timeStr);
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());
         dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
         dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);

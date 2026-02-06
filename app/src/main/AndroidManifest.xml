@@ -96,6 +96,7 @@
             android:name=".services.AutoBookKeepingNotificationListenerService"
             android:exported="true"
             android:label="自动记账通知监听服务"
+            android:process=":bookkeeping_auto"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
