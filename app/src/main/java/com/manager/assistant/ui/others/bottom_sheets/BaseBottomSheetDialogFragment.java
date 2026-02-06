@@ -37,18 +37,13 @@ abstract public class BaseBottomSheetDialogFragment extends BottomSheetDialogFra
         /* Android 13+ */
 
         @Override
-        public void onBackStarted(@NonNull BackEvent backEvent) {
-            onBackGestureStarted();
-        }
-
-        @Override
         public void onBackProgressed(@NonNull BackEvent backEvent) {
-            onBackGestureProgress(backEvent.getProgress());
+            applyInsetAnimation(backEvent.getProgress());
         }
 
         @Override
         public void onBackCancelled() {
-            onBackGestureCancelled();
+            applyInsetAnimation(1f);
         }
 
         /* 所有版本都会回调 */
@@ -128,29 +123,6 @@ abstract public class BaseBottomSheetDialogFragment extends BottomSheetDialogFra
         requireActivity()
                 .getOnBackPressedDispatcher()
                 .addCallback(this, backCallback);
-    }
-
-    /**
-     * 返回开始回调
-     */
-    protected void onBackGestureStarted() {
-        // no-op
-    }
-
-    /**
-     * 返回过程中回调
-     *
-     * @param progress 返回手势的过程值（0~1）
-     */
-    protected void onBackGestureProgress(float progress) {
-        applyInsetAnimation(progress);
-    }
-
-    /**
-     * 返回取消回调
-     */
-    protected void onBackGestureCancelled() {
-        applyInsetAnimation(1f);
     }
 
     /**
