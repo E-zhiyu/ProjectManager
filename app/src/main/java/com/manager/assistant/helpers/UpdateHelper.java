@@ -339,7 +339,7 @@ public class UpdateHelper {
                         (dialog, which) -> downloadLatestFile(context, MandatoryDownloadUrl, MandatoryVersionName)
                 );
         dialogBuilder.setNegativeButton("退出", (dialog, which) -> dialog.cancel());
-        dialogBuilder.setOnCancelListener(dialog -> android.os.Process.killProcess(android.os.Process.myPid()));
+        dialogBuilder.setOnCancelListener(dialog -> System.exit(0));
 
         dialogBuilder.show();
     }
