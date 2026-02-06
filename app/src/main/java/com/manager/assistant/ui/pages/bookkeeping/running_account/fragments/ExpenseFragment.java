@@ -42,6 +42,18 @@ public class ExpenseFragment extends RunningAccountFragmentBase<FragmentExpenseB
         pictureRecycler = binding.pictureRecycler;
         pictureDeleteBtn = binding.pictureDeleteBtn;
 
+        //初始化日期内容(必须在接收初始化数据之前)
+        Calendar calendar = Calendar.getInstance();
+        String dtString = String.format(
+                Locale.getDefault(),
+                "%04d-%02d-%02d %02d:%02d",
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH) + 1,
+                calendar.get(Calendar.DAY_OF_MONTH),
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE));
+        binding.datetimeInput.setText(dtString);
+
         receiveInitData();  //获取组件的引用后接收初始化数据
 
         binding.amountInput.setOnFocusChangeListener((v, hasFocus) -> {
@@ -70,18 +82,6 @@ public class ExpenseFragment extends RunningAccountFragmentBase<FragmentExpenseB
                 showTagSelectSheet();
             }
         });
-
-        //初始化日期内容
-        Calendar calendar = Calendar.getInstance();
-        String dt_string = String.format(
-                Locale.getDefault(),
-                "%04d-%02d-%02d %02d:%02d",
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH) + 1,
-                calendar.get(Calendar.DAY_OF_MONTH),
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE));
-        binding.datetimeInput.setText(dt_string);
 
         //添加图片的按钮
         MaterialButton pictureAddBtn = binding.pictureAdd;

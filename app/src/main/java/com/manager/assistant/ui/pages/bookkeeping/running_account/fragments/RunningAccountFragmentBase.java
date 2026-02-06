@@ -89,7 +89,6 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
     protected PictureAdapter pictureAdapter;                    //图片RecyclerView的适配器
     protected final CompositeDisposable disposables = new CompositeDisposable();    //多线程任务列表
     protected boolean viewModelRefreshPictureEnabled = true;    //是否能够通过ViewModel刷新图片视图
-    protected boolean viewModelUpdateAdapterStatEnabled = true; //是否允许ViewModel更新图片适配器删除模式状态
 
     /**
      * 流水记录输入界面基类构造方法

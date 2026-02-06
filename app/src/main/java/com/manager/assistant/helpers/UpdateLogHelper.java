@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.7.8  \n" +
             "**BUG修复**  \n" +
+            "- 修复编辑流水记录时填充的是当前日期而不是流水记录中的日期的BUG  \n" +
             "- 修复系统字体较大时可能导致记账界面流水数量与过滤按钮重叠的BUG  \n" +
             "- 修复导出数据或导入数据时直接从SAF返回仍然会弹出进度条对话框的BUG  \n\n" +
             "**修改内容**  \n" +
