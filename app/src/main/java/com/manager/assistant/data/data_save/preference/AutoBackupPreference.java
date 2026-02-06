@@ -40,7 +40,7 @@ public class AutoBackupPreference {
      */
     public static String getBackupDirectoryUri(@NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        return pref.getString(KEY_BACKUP_DIRECTORY, null);
+        return pref.getString(KEY_BACKUP_DIRECTORY, "");
     }
 
     public static void setBackupFrequency(@NonNull Context context, int frequency) {

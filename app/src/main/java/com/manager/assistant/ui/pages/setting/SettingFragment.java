@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -338,7 +339,7 @@ public class SettingFragment extends Fragment {
         autoBackupHelper.setSwitchOptionView(autoBackupSwitch); //设置帮助器的开关视图，以便控制其状态
         String backupDir = AutoBackupPreference.getBackupDirectoryUri(requireContext());
         boolean switchStat = AutoBackupPreference.getSwitchStat(requireContext());
-        if (backupDir != null && new File(backupDir).exists() && switchStat) {
+        if (backupDir != null && switchStat) {
             autoBackupSwitch.setChecked(true);
             binding.autoBackupLayout.setVisibility(View.VISIBLE);
         } else {
@@ -347,7 +348,7 @@ public class SettingFragment extends Fragment {
         }
         autoBackupSwitch.setFunctionListener(
                 (buttonView, isChecked) -> {
-                    if ((backupDir == null || !new File(backupDir).exists()) && isChecked) {    //备份目录无效则先提示设置
+                    if (backupDir == null && isChecked) {    //备份目录无效则先提示设置
                         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("功能启用提示")
                                 .setMessage("该功能需要先设置备份文件存储目录，请点击“确定”按钮设置存储目录")
@@ -685,9 +686,12 @@ public class SettingFragment extends Fragment {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    autoBackupHelper.handleActivityResult(resultCode, data);
+                    autoBackupHelper.handleActivityResult(resultCode, data, binding.backupDirectoryOption.descriptionText);
                 }
         );
+        String uriStr = Uri.decode(AutoBackupPreference.getBackupDirectoryUri(requireContext()));
+        uriStr = uriStr.substring(61);
+        binding.backupDirectoryOption.descriptionText.setText(uriStr);
     }
 
     /**
