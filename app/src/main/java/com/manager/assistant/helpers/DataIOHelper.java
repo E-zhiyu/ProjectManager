@@ -417,59 +417,46 @@ public class DataIOHelper {
     }
 
     /**
-     * 处理SAF的结果（应在宿主的ActivityResultLauncher<Intent>类中调用）
+     * 处理数据导出结果
      *
-     * @param resultCode  回应代码
-     * @param data        包含目标文件Uri的Intent
-     * @param isWriteMode 是否为文件写入模式
+     * @param uri 通过SAF返回的目标Uri
      */
-    public void handleActivityResult(int resultCode, @Nullable Intent data, boolean isWriteMode) {
-        //处理导出数据的结果
-        if (isWriteMode) {
-            if (resultCode == Activity.RESULT_OK && data != null) {
-                Uri uri = data.getData();
+    public void handleExportResult(@NonNull Uri uri) {
+        createZipFile(dataTempDir, isPictureNeed);
+        copyTempZipToUri(uri);
+        Log.i(LogTags.DATA_IO_HELPER.getV(), "用户确认选择并进行下一步");
 
-                if (uri != null) {
-                    createZipFile(dataTempDir, isPictureNeed);
-                    copyTempZipToUri(uri);
+        clearTempFile();
+    }
+
+    /**
+     * 处理导入数据结果
+     *
+     * @param uri 通过SAF返回的Uri
+     */
+    public void handleImportResul(@NonNull Uri uri) {
+        String type = getMimeType(uri);
+        if (type != null) {
+            importZipUri = uri; //保存压缩文件Uri
+
+            //判断文件类型
+            if (type.equals("application/zip")) {
+                Log.i(LogTags.DATA_IO_HELPER.getV(), "用户选择zip备份文件");
+                scanZipFile(uri);
+            } else if (type.equals("application/json")) {
+                File oneJsonFile = getFileFromDocumentUri(uri);
+                if (importCallback != null) {
+                    importCallback.onOneJsonFileRead(oneJsonFile);
                 }
-                Log.i(LogTags.DATA_IO_HELPER.getV(), "用户确认选择并进行下一步");
+                Log.i(LogTags.DATA_IO_HELPER.getV(), "用户选择JSON文件");
             } else {
-                Log.i(LogTags.DATA_IO_HELPER.getV(), "用户取消选择并关闭SAF");
-            }
-
-            clearTempFile();
-        }
-        //处理导入数据的结果
-        else {
-            if (resultCode == Activity.RESULT_OK && data != null) {
-                Uri uri = data.getData();
-                String type = getMimeType(uri);
-                if (uri != null && type != null) {
-                    importZipUri = uri; //保存压缩文件Uri
-
-                    //判断文件类型
-                    if (type.equals("application/zip")) {
-                        Log.i(LogTags.DATA_IO_HELPER.getV(), "用户选择zip备份文件");
-                        scanZipFile(uri);
-                    } else if (type.equals("application/json")) {
-                        File oneJsonFile = getFileFromDocumentUri(uri);
-                        if (importCallback != null) {
-                            importCallback.onOneJsonFileRead(oneJsonFile);
-                        }
-                        Log.i(LogTags.DATA_IO_HELPER.getV(), "用户选择JSON文件");
-                    } else {
-                        Log.e(LogTags.DATA_IO_HELPER.getV(), "用户选择了未知种类的文件");
-                        if (importCallback != null) {
-                            importCallback.onError("请选择zip或json文件");
-                        }
-                    }
-                } else {
-                    Log.e(LogTags.DATA_IO_HELPER.getV(), "无法获取文件信息");
+                Log.e(LogTags.DATA_IO_HELPER.getV(), "用户选择了未知种类的文件");
+                if (importCallback != null) {
+                    importCallback.onError("请选择zip或json文件");
                 }
-            } else {
-                Log.i(LogTags.DATA_IO_HELPER.getV(), "用户取消选择并关闭SAF");
             }
+        } else {
+            Log.e(LogTags.DATA_IO_HELPER.getV(), "无法获取文件信息");
         }
     }
 

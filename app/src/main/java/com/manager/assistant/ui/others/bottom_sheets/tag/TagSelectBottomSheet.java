@@ -9,12 +9,12 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.manager.assistant.databinding.BottomSheetTagSelectBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.data.data_class.TagGroup;
 import com.manager.assistant.ui.others.adapters.SheetTagBtnRecyclerAdapter;
 import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;
+import com.manager.assistant.ui.others.bottom_sheets.BaseBottomSheetDialogFragment;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.ui.pages.bookkeeping.tag.TagManageActivity;
 
@@ -23,7 +23,7 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class TagSelectBottomSheet extends BottomSheetDialogFragment {
+public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
     private BottomSheetTagSelectBinding binding;    //绑定的XML视图
     private long excepted_tag_no = 0;               //被排除的标签编号（不会显示）
     private boolean isTagExcepted = false;          //是否存在被排除的标签
@@ -96,6 +96,11 @@ public class TagSelectBottomSheet extends BottomSheetDialogFragment {
         loadTagGroupData(tagAdapter);
     }
 
+    /**
+     * 加载标签数据
+     *
+     * @param tagAdapter 显示标签数据的视图适配器
+     */
     private void loadTagGroupData(@NonNull SheetTagGroupRecyclerAdapter tagAdapter) {
         disposables.add(
                 Observable.fromCallable(() -> TagGroup.loadTagGroups(requireContext(), excepted_tag_no, tagScopeType))

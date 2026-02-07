@@ -11,9 +11,9 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.manager.assistant.enums.LogTags;
-import com.manager.assistant.data.data_save.database.BookKeepingColumns;
-import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
-import com.manager.assistant.data.data_save.database.BookKeepingTables;
+import com.manager.assistant.data.data_save.database.BookkeepingColumns;
+import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
+import com.manager.assistant.data.data_save.database.BookkeepingTables;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -60,26 +60,26 @@ public class Picture {
      */
     @NonNull
     public static List<Picture> loadPicturesByRno(Context context, long target_rno) throws SQLiteException {
-        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
+        BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
         List<Picture> pictureList = new ArrayList<>();
 
-        String selection = BookKeepingColumns.RNO + "=?";
+        String selection = BookkeepingColumns.RNO + "=?";
         String[] selectionArgs = {String.valueOf(target_rno)};
         Cursor picture_cursor = db.query(
-                BookKeepingTables.PICTURE.toString(),
+                BookkeepingTables.PICTURE.toString(),
                 null,
                 selection,
                 selectionArgs,
                 null,
                 null,
-                BookKeepingColumns.PNO.toString()
+                BookkeepingColumns.PNO.toString()
         );
 
         while (picture_cursor.moveToNext()) {
-            String pictureUri = picture_cursor.getString(picture_cursor.getColumnIndexOrThrow(BookKeepingColumns.PICTURE_URI.toString()));
-            long rno = picture_cursor.getLong(picture_cursor.getColumnIndexOrThrow(BookKeepingColumns.RNO.toString()));
-            long pno = picture_cursor.getLong(picture_cursor.getColumnIndexOrThrow(BookKeepingColumns.PNO.toString()));
+            String pictureUri = picture_cursor.getString(picture_cursor.getColumnIndexOrThrow(BookkeepingColumns.PICTURE_URI.toString()));
+            long rno = picture_cursor.getLong(picture_cursor.getColumnIndexOrThrow(BookkeepingColumns.RNO.toString()));
+            long pno = picture_cursor.getLong(picture_cursor.getColumnIndexOrThrow(BookkeepingColumns.PNO.toString()));
 
             Picture newPicture = new Picture(Uri.parse(pictureUri), rno);
             newPicture.setPno(pno);
@@ -100,16 +100,16 @@ public class Picture {
      * @throws SQLiteException 数据库写入失败引发的异常
      */
     public static void addPicture(Context context, @NonNull List<File> pictureFileList, long rno) throws SQLiteException {
-        BookKeepingDbHelper dbHelper = new BookKeepingDbHelper(context);
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         for (File picture : pictureFileList) {
             String uriStr = picture.toURI().toString();
 
             ContentValues pictureValues = new ContentValues();
-            pictureValues.put(BookKeepingColumns.PICTURE_URI.toString(), uriStr);
-            pictureValues.put(BookKeepingColumns.RNO.toString(), rno);
-            db.insert(BookKeepingTables.PICTURE.toString(), null, pictureValues);
+            pictureValues.put(BookkeepingColumns.PICTURE_URI.toString(), uriStr);
+            pictureValues.put(BookkeepingColumns.RNO.toString(), rno);
+            db.insert(BookkeepingTables.PICTURE.toString(), null, pictureValues);
         }
 
         db.close();
@@ -123,12 +123,12 @@ public class Picture {
      * @throws SQLiteException 删除失败引发的异常
      */
     public static void deletePicture(Context context, long pno) throws SQLiteException {
-        BookKeepingDbHelper dbHelper = new BookKeepingDbHelper(context);
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openWriteLink();
 
-        String where = BookKeepingColumns.PNO + "=?";
+        String where = BookkeepingColumns.PNO + "=?";
         String[] whereArgs = {String.valueOf(pno)};
-        db.delete(BookKeepingTables.PICTURE.toString(), where, whereArgs);
+        db.delete(BookkeepingTables.PICTURE.toString(), where, whereArgs);
 
         db.close();
     }
@@ -142,11 +142,11 @@ public class Picture {
      */
     public static void deletePicture(long rno, @NonNull SQLiteDatabase db) throws SQLiteException {
         //查询图片Uri
-        String[] columns = {BookKeepingColumns.PICTURE_URI.toString()};
-        String selection = BookKeepingColumns.RNO + "=?";
+        String[] columns = {BookkeepingColumns.PICTURE_URI.toString()};
+        String selection = BookkeepingColumns.RNO + "=?";
         String[] selectionArgs = {String.valueOf(rno)};
         Cursor pictureCursor = db.query(
-                BookKeepingTables.PICTURE.toString(),
+                BookkeepingTables.PICTURE.toString(),
                 columns,
                 selection,
                 selectionArgs,
@@ -157,7 +157,7 @@ public class Picture {
 
         //通过Uri删除图片文件
         while (pictureCursor.moveToNext()) {
-            String uriStr = pictureCursor.getString(pictureCursor.getColumnIndexOrThrow(BookKeepingColumns.PICTURE_URI.toString()));
+            String uriStr = pictureCursor.getString(pictureCursor.getColumnIndexOrThrow(BookkeepingColumns.PICTURE_URI.toString()));
             File pictureFile = new File(Objects.requireNonNull(Uri.parse(uriStr).getPath()));
 
             if (!pictureFile.exists() || !pictureFile.delete()) {
@@ -166,7 +166,7 @@ public class Picture {
         }
 
         //删除数据库中的条目
-        db.delete(BookKeepingTables.PICTURE.toString(), selection,selectionArgs);
+        db.delete(BookkeepingTables.PICTURE.toString(), selection,selectionArgs);
 
         pictureCursor.close();
     }

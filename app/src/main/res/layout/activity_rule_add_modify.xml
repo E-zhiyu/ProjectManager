@@ -83,7 +83,7 @@
                 style="@style/CommonTextInputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:counterEnabled="false"
+                app:counterMaxLength="50"
                 app:helperText="@string/rule_package_name_help">
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -91,8 +91,7 @@
                     style="@style/UneditableAutoCompleteTextViewStyle"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="@string/package_name"
-                    android:maxLength="50" />
+                    android:hint="@string/package_name" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -137,6 +136,8 @@
                 style="@style/OutlinedBtnStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="0dp"
+                android:layout_marginEnd="0dp"
                 android:text="@string/input_instruction"
                 app:icon="@drawable/outline_info_24"
                 app:iconGravity="textStart" />

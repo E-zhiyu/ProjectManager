@@ -289,11 +289,11 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
      */
     public void addPicture(@NonNull List<Picture> pictureList) {
         int start = this.pictureList.size();    //添加后的起始下标
-        int step = pictureList.size();          //步长
+        int count = pictureList.size();         //步长
         this.pictureList.addAll(pictureList);
         pictureSelectList.addAll(new ArrayList<>(Collections.nCopies(pictureList.size(), false)));
 
-        notifyItemRangeInserted(start, start + step);
+        notifyItemRangeInserted(start, count);
     }
 
     /**

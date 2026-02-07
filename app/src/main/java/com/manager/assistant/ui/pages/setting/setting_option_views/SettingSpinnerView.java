@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
@@ -34,7 +35,10 @@ public class SettingSpinnerView extends SettingOptionViewBase<MaterialTextView, 
         Drawable endDrawable = AppCompatResources.getDrawable(context, R.drawable.baseline_unfold_more_24);
 
         functionComponent = new MaterialTextView(context);
-        functionComponent.setTextSize(15);
+        functionComponent.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
         functionComponent.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, endDrawable, null);
         TextViewCompat.setCompoundDrawableTintList(functionComponent, ColorStateList.valueOf(ColorHelper.getPrimaryColor(context)));
         functionComponent.setPadding(10, 10, 25, 10);

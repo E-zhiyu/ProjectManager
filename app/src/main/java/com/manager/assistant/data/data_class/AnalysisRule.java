@@ -9,9 +9,9 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.data.data_save.database.BookKeepingColumns;
-import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
-import com.manager.assistant.data.data_save.database.BookKeepingTables;
+import com.manager.assistant.data.data_save.database.BookkeepingColumns;
+import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
+import com.manager.assistant.data.data_save.database.BookkeepingTables;
 import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
@@ -68,27 +68,27 @@ public class AnalysisRule {
      */
     @NonNull
     public static List<AnalysisRule> loadAnalysisRule(Context context) throws SQLiteException {
-        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
+        BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
         List<AnalysisRule> ruleList = new ArrayList<>();
 
         Cursor rule_cursor = db.query(
-                BookKeepingTables.ANALYSIS_RULE.toString(),
+                BookkeepingTables.ANALYSIS_RULE.toString(),
                 null,
                 null,
                 null,
                 null,
                 null,
-                BookKeepingColumns.RULE_NO.toString()
+                BookkeepingColumns.RULE_NO.toString()
         );
 
         while (rule_cursor.moveToNext()) {
-            String rule_name = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.RULE_NAME.toString()));
-            long rule_no = rule_cursor.getLong(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.RULE_NO.toString()));
-            RunningAccountType type = RunningAccountType.valueOf(rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.TYPE.toString())));
-            String package_name = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.PACKAGE_NAME.toString()));
-            String notification_title = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.NOTIFICATION_TITLE.toString()));
-            String notification_content = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookKeepingColumns.NOTIFICATION_CONTENT.toString()));
+            String rule_name = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookkeepingColumns.RULE_NAME.toString()));
+            long rule_no = rule_cursor.getLong(rule_cursor.getColumnIndexOrThrow(BookkeepingColumns.RULE_NO.toString()));
+            RunningAccountType type = RunningAccountType.valueOf(rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookkeepingColumns.TYPE.toString())));
+            String package_name = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookkeepingColumns.PACKAGE_NAME.toString()));
+            String notification_title = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookkeepingColumns.NOTIFICATION_TITLE.toString()));
+            String notification_content = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookkeepingColumns.NOTIFICATION_CONTENT.toString()));
 
             AnalysisRule rule = new AnalysisRule(rule_name, rule_no, type, package_name, notification_title, notification_content);
             ruleList.add(rule);
@@ -100,7 +100,7 @@ public class AnalysisRule {
     }
 
     public static long saveNewRule(@NonNull Bundle newRuleData, Context context) throws SQLiteException {
-        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
+        BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //解析规则数据
@@ -113,20 +113,20 @@ public class AnalysisRule {
 
         //将数据写入数据库
         ContentValues rule_values = new ContentValues();
-        rule_values.put(BookKeepingColumns.RULE_NAME.toString(), rule_name);
-        rule_values.put(BookKeepingColumns.TYPE.toString(), type);
-        rule_values.put(BookKeepingColumns.TAG_NO.toString(), tag_no);
-        rule_values.put(BookKeepingColumns.PACKAGE_NAME.toString(), package_name);
-        rule_values.put(BookKeepingColumns.NOTIFICATION_TITLE.toString(), notification_title);
-        rule_values.put(BookKeepingColumns.NOTIFICATION_CONTENT.toString(), notification_content);
-        long rule_no = db.insert(BookKeepingTables.ANALYSIS_RULE.toString(), null, rule_values);    //获取自增主键值
+        rule_values.put(BookkeepingColumns.RULE_NAME.toString(), rule_name);
+        rule_values.put(BookkeepingColumns.TYPE.toString(), type);
+        rule_values.put(BookkeepingColumns.TAG_NO.toString(), tag_no);
+        rule_values.put(BookkeepingColumns.PACKAGE_NAME.toString(), package_name);
+        rule_values.put(BookkeepingColumns.NOTIFICATION_TITLE.toString(), notification_title);
+        rule_values.put(BookkeepingColumns.NOTIFICATION_CONTENT.toString(), notification_content);
+        long rule_no = db.insert(BookkeepingTables.ANALYSIS_RULE.toString(), null, rule_values);    //获取自增主键值
 
         db.close();
         return rule_no;
     }
 
     public static void modifyRule(@NonNull Bundle ruleData, Context context) throws SQLiteException {
-        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
+        BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //解析规则数据
@@ -138,28 +138,28 @@ public class AnalysisRule {
         String notification_title = ruleData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
         String notification_content = ruleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
 
-        String where = BookKeepingColumns.RULE_NO + "=?";
+        String where = BookkeepingColumns.RULE_NO + "=?";
         String[] whereArgs = {String.valueOf(rule_no)};
         ContentValues rule_values = new ContentValues();
-        rule_values.put(BookKeepingColumns.RULE_NAME.toString(), rule_name);
-        rule_values.put(BookKeepingColumns.TYPE.toString(), type);
-        rule_values.put(BookKeepingColumns.TAG_NO.toString(), tag_no);
-        rule_values.put(BookKeepingColumns.PACKAGE_NAME.toString(), package_name);
-        rule_values.put(BookKeepingColumns.NOTIFICATION_TITLE.toString(), notification_title);
-        rule_values.put(BookKeepingColumns.NOTIFICATION_CONTENT.toString(), notification_content);
+        rule_values.put(BookkeepingColumns.RULE_NAME.toString(), rule_name);
+        rule_values.put(BookkeepingColumns.TYPE.toString(), type);
+        rule_values.put(BookkeepingColumns.TAG_NO.toString(), tag_no);
+        rule_values.put(BookkeepingColumns.PACKAGE_NAME.toString(), package_name);
+        rule_values.put(BookkeepingColumns.NOTIFICATION_TITLE.toString(), notification_title);
+        rule_values.put(BookkeepingColumns.NOTIFICATION_CONTENT.toString(), notification_content);
 
-        db.update(BookKeepingTables.ANALYSIS_RULE.toString(), rule_values, where, whereArgs);
+        db.update(BookkeepingTables.ANALYSIS_RULE.toString(), rule_values, where, whereArgs);
 
         db.close();
     }
 
     public static void deleteRule(long rule_no, Context context) throws SQLiteException {
-        BookKeepingDbHelper db_helper = new BookKeepingDbHelper(context);
+        BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
-        String where = BookKeepingColumns.RULE_NO + "=?";
+        String where = BookkeepingColumns.RULE_NO + "=?";
         String[] whereArgs = {String.valueOf(rule_no)};
-        db.delete(BookKeepingTables.ANALYSIS_RULE.toString(), where, whereArgs);
+        db.delete(BookkeepingTables.ANALYSIS_RULE.toString(), where, whereArgs);
 
         db.close();
     }
@@ -172,13 +172,13 @@ public class AnalysisRule {
      * @throws SQLiteException 数据库修改失败引发的异常
      */
     public static void setDefaultTagNo(long tag_no, @NonNull SQLiteDatabase db) throws SQLiteException {
-        String where = BookKeepingColumns.TAG_NO + "=?";
+        String where = BookkeepingColumns.TAG_NO + "=?";
         String[] whereArgs = {String.valueOf(tag_no)};
 
         ContentValues ruleValues = new ContentValues();
-        ruleValues.put(BookKeepingColumns.TAG_NO.toString(), 0);
+        ruleValues.put(BookkeepingColumns.TAG_NO.toString(), 0);
         db.update(
-                BookKeepingTables.ANALYSIS_RULE.toString(),
+                BookkeepingTables.ANALYSIS_RULE.toString(),
                 ruleValues,
                 where,
                 whereArgs

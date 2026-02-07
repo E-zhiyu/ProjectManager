@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 
+import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.data.data_save.preference.AutoBackupPreference;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingSwitchView;
 import com.manager.assistant.workers.BackupScheduler;
@@ -69,10 +70,11 @@ public class AutoBackupHelper {
     /**
      * 处理SAF数据的回调方法（应在宿主的ActivityResultLauncher<Intent>类中调用）
      *
-     * @param resultCode 响应代码
-     * @param data       包含回调数据的Intent
+     * @param resultCode   响应代码
+     * @param data         包含回调数据的Intent
+     * @param pathTextView 显示选择目录的路径的文本视图
      */
-    public void handleActivityResult(int resultCode, @Nullable Intent data) {
+    public void handleActivityResult(int resultCode, @Nullable Intent data, MaterialTextView pathTextView) {
         if (resultCode == Activity.RESULT_OK && data != null) {
             Toast.makeText(context, "成功设置备份存储目录", Toast.LENGTH_SHORT).show();
 
@@ -84,6 +86,9 @@ public class AutoBackupHelper {
             String oldDirUriStr = AutoBackupPreference.getBackupDirectoryUri(context);
             String uriStr = backupDirUri.toString();
             AutoBackupPreference.setBackupDirectoryUri(context, uriStr);
+
+            //通过TextView显示路径
+            pathTextView.setText(Uri.decode(uriStr).substring(61));
 
             //请求持久化权限
             context.getContentResolver().takePersistableUriPermission(

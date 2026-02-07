@@ -1,9 +1,11 @@
 package com.manager.assistant.ui.pages.setting;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,7 +31,7 @@ import com.manager.assistant.enums.LogTags;
 import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.R;
 import com.manager.assistant.broadcast.BroadcastConstants;
-import com.manager.assistant.data.data_save.database.BookKeepingDbHelper;
+import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.data_save.preference.AutoBackupPreference;
 import com.manager.assistant.data.data_save.preference.KeepAlivePreference;
 import com.manager.assistant.databinding.FragmentSettingBinding;
@@ -96,12 +98,12 @@ public class SettingFragment extends Fragment {
         );
         private final String name;              //选项名称
         private final String defaultFileName;   //默认文件名称
-        private final Function<Context, DataHelperBase<BookKeepingDbHelper, ?>> helperFactory;  //数据帮助器的构造方法
+        private final Function<Context, DataHelperBase<BookkeepingDbHelper, ?>> helperFactory;  //数据帮助器的构造方法
 
         IODataType(
                 String name,
                 String defaultFileName,
-                Function<Context, DataHelperBase<BookKeepingDbHelper, ?>> helperFactory) {
+                Function<Context, DataHelperBase<BookkeepingDbHelper, ?>> helperFactory) {
             this.name = name;
             this.defaultFileName = defaultFileName;
             this.helperFactory = helperFactory;
@@ -115,7 +117,7 @@ public class SettingFragment extends Fragment {
             return defaultFileName;
         }
 
-        public DataHelperBase<BookKeepingDbHelper, ?> getDataHelper(Context context) {
+        public DataHelperBase<BookkeepingDbHelper, ?> getDataHelper(Context context) {
             return helperFactory.apply(context);
         }
     }
@@ -337,7 +339,7 @@ public class SettingFragment extends Fragment {
         autoBackupHelper.setSwitchOptionView(autoBackupSwitch); //设置帮助器的开关视图，以便控制其状态
         String backupDir = AutoBackupPreference.getBackupDirectoryUri(requireContext());
         boolean switchStat = AutoBackupPreference.getSwitchStat(requireContext());
-        if (backupDir != null && switchStat) {
+        if (!backupDir.isEmpty() && switchStat) {
             autoBackupSwitch.setChecked(true);
             binding.autoBackupLayout.setVisibility(View.VISIBLE);
         } else {
@@ -346,7 +348,7 @@ public class SettingFragment extends Fragment {
         }
         autoBackupSwitch.setFunctionListener(
                 (buttonView, isChecked) -> {
-                    if (backupDir == null && isChecked) {   //未设置备份目录则先提示设置
+                    if (backupDir.isEmpty() && isChecked) {    //备份目录无效则先提示设置
                         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("功能启用提示")
                                 .setMessage("该功能需要先设置备份文件存储目录，请点击“确定”按钮设置存储目录")
@@ -438,6 +440,11 @@ public class SettingFragment extends Fragment {
         backupDirectoryOption.setFunctionListener(
                 v -> autoBackupHelper.selectBackupDirectory(backupDirectorySetLauncher)
         );
+        String uriStr = Uri.decode(AutoBackupPreference.getBackupDirectoryUri(requireContext()));
+        if (!uriStr.isEmpty()) {
+            uriStr = uriStr.substring(61);
+            binding.backupDirectoryOption.descriptionText.setText(uriStr);
+        }
     }
 
     /**
@@ -452,7 +459,6 @@ public class SettingFragment extends Fragment {
                 "解析通知实现自动记账",
                 R.drawable.baseline_notifications_24
         );
-        //完成通知解析开关状态初始化
         boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(requireContext());
         if (isNotificationAnalysisOpened && PermissionHelper.isNotificationServiceEnabled(requireContext())) {
             binding.ruleManageLayout.setVisibility(View.VISIBLE);
@@ -467,6 +473,12 @@ public class SettingFragment extends Fragment {
         notificationAnalysisSwitchOption.setFunctionListener(
                 (buttonView, isChecked) -> onNotificationAnalysisSwitchChanged(notificationAnalysisSwitchOption, isChecked)
         );
+
+        //开关左侧文本长按功能
+        notificationAnalysisSwitchOption.setOnLongClickListener(v -> {
+            PermissionHelper.requestNotificationPermission(requireContext());
+            return true;
+        });
 
         //通知解析规则管理
         SettingClickableTextView ruleManageOption = new SettingClickableTextView(
@@ -518,13 +530,10 @@ public class SettingFragment extends Fragment {
         );
         hideBackgroundOption.setChecked(KeepAlivePreference.getHideRecents(requireContext()));
         hideBackgroundOption.setFunctionListener(
-                (buttonView, isChecked) -> {
-                    KeepAlivePreference.setHideRecents(isChecked, requireContext());
-
-                    if (isChecked) {
-                        Toast.makeText(requireContext(), "请在最近任务中锁定本应用以达到更好的效果", Toast.LENGTH_SHORT).show();
-                    }
-                }
+                (buttonView, isChecked) -> KeepAlivePreference.setHideRecents(
+                        isChecked,
+                        requireContext()
+                )
         );
 
         //自启动
@@ -544,7 +553,7 @@ public class SettingFragment extends Fragment {
                 requireContext(),
                 binding.batteryOptimizationOption,
                 R.string.battery_optimization,
-                "点击跳转电池优化设置界面",
+                "跳转至安卓原生电池优化界面",
                 R.drawable.baseline_battery_5_bar_24
         );
         batteryOptimizationOption.setFunctionListener(
@@ -605,6 +614,10 @@ public class SettingFragment extends Fragment {
                 result -> {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
+                    if (resultCode != Activity.RESULT_OK || data == null || data.getData() == null) {
+                        dataIOHelper.clearTempFile();
+                        return;
+                    }
 
                     ProgressDialog progressDialog = new ProgressDialog(requireContext(), "导出数据", "正在导出数据……");
                     progressDialog.buildDialog(
@@ -618,13 +631,16 @@ public class SettingFragment extends Fragment {
 
                     disposables.add(
                             Observable.fromCallable(() -> {
-                                        dataIOHelper.handleActivityResult(resultCode, data, true);
+                                        dataIOHelper.handleExportResult(data.getData());
                                         return true;
                                     })
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(b -> Toast.makeText(requireContext(), "数据导出成功", Toast.LENGTH_SHORT).show(),
-                                            e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
+                                            e -> {
+                                                ExceptionHelper.showExceptionDialog(requireContext(), e);
+                                                progressDialog.dismiss();
+                                            },
                                             progressDialog::dismiss
                                     )
                     );
@@ -636,6 +652,10 @@ public class SettingFragment extends Fragment {
                 result -> {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
+                    if (resultCode != Activity.RESULT_OK || data == null || data.getData() == null) {
+                        dataIOHelper.clearTempFile();
+                        return;
+                    }
 
                     ProgressDialog progressDialog = new ProgressDialog(requireContext(), "导入数据", "正在扫描备份文件……");
                     progressDialog.buildDialog(
@@ -649,14 +669,17 @@ public class SettingFragment extends Fragment {
 
                     disposables.add(
                             Observable.fromCallable(() -> {
-                                        dataIOHelper.handleActivityResult(resultCode, data, false);
+                                        dataIOHelper.handleImportResul(data.getData());
                                         return true;
                                     })
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(b -> {
                                             },
-                                            e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
+                                            e -> {
+                                                ExceptionHelper.showExceptionDialog(requireContext(), e);
+                                                progressDialog.dismiss();
+                                            },
                                             progressDialog::dismiss
                                     )
                     );
@@ -670,7 +693,7 @@ public class SettingFragment extends Fragment {
                     int resultCode = result.getResultCode();
                     Intent data = result.getData();
 
-                    autoBackupHelper.handleActivityResult(resultCode, data);
+                    autoBackupHelper.handleActivityResult(resultCode, data, binding.backupDirectoryOption.descriptionText);
                 }
         );
     }
@@ -687,7 +710,7 @@ public class SettingFragment extends Fragment {
         for (IODataType dataType : IODataType.values()) {
             if (!choseItem[dataType.ordinal()]) continue;
 
-            DataHelperBase<BookKeepingDbHelper, ?> dataHelper = dataType.getDataHelper(requireContext());
+            DataHelperBase<BookkeepingDbHelper, ?> dataHelper = dataType.getDataHelper(requireContext());
             try {
                 String fileName = dataType.getDefaultFileName();
                 String fileContent = dataHelper.getDataInJSON();
@@ -870,11 +893,14 @@ public class SettingFragment extends Fragment {
 
     /**
      * 通知解析开关状态变更调用的方法
+     *
+     * @param switchView 开关视图
+     * @param isChecked  开关状态
      */
     private void onNotificationAnalysisSwitchChanged(SettingSwitchView switchView, boolean isChecked) {
         AutoBookKeepingPreference.setSwitchStat(isChecked, requireContext());   //将打开状态写入文件
 
-        //实例化并注册权限授予通知
+        //实例化并注册权限授予通知监听器
         notificationPermissionListener = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -1070,7 +1096,7 @@ public class SettingFragment extends Fragment {
             String targetFileName = dataType.getDefaultFileName();
 
             //获取数据帮助器
-            DataHelperBase<BookKeepingDbHelper, ?> dataHelper;
+            DataHelperBase<BookkeepingDbHelper, ?> dataHelper;
             if (dataType == IODataType.RULE_DATA && isRuleDataChecked && isAccountDataChecked) {
                 //当流水数据和规则数据都选中时，获取能够写入标签数据的数据帮助器
                 dataHelper = new AnalysisRuleDataHelper(requireContext(), true);

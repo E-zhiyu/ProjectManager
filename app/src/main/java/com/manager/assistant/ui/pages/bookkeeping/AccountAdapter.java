@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-public class AccountRecyclerAdapter extends GroupAdapter<GroupieViewHolder> {
+public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
     private final List<RunningAccountBase> accountList;         //数据源
     private final Context context;                              //上下文
     private final OnRunningAccountViewClickListener listener;   //单击接口
@@ -104,7 +104,7 @@ public class AccountRecyclerAdapter extends GroupAdapter<GroupieViewHolder> {
      * @param listener 流水记录点击监听
      * @param context  上下文
      */
-    public AccountRecyclerAdapter(OnRunningAccountViewClickListener listener, Context context) {
+    public AccountAdapter(OnRunningAccountViewClickListener listener, Context context) {
         this.accountList = new ArrayList<>();
         this.listener = listener;
         this.context = context;
@@ -204,7 +204,7 @@ public class AccountRecyclerAdapter extends GroupAdapter<GroupieViewHolder> {
             HeaderItem headerItem = new HeaderItem(date);
             newSection.setHeader(headerItem);
 
-            newSection.add(contentItem);
+            newSection.add(0, contentItem);
             this.add(0, newSection);
         } else {
             section.add(contentItem);
@@ -223,18 +223,18 @@ public class AccountRecyclerAdapter extends GroupAdapter<GroupieViewHolder> {
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
         if (remark == null) remark = "";
-        String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
+        String datetime = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
 
         //实例化流水类
         RunningAccountBase runningAccount;
         if (type == RunningAccountType.EXPENSE) {
-            runningAccount = new ExpenseRunningAccount(remark, date_time, amount);
+            runningAccount = new ExpenseRunningAccount(remark, datetime, amount);
         } else if (type == RunningAccountType.INCOME) {
-            runningAccount = new IncomeRunningAccount(remark, date_time, amount);
+            runningAccount = new IncomeRunningAccount(remark, datetime, amount);
         } else if (type == RunningAccountType.TRANSFER) {
             String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
             String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
-            runningAccount = new TransferRunningAccount(remark, date_time, amount, exportAccount, importAccount);
+            runningAccount = new TransferRunningAccount(remark, datetime, amount, exportAccount, importAccount);
         } else {
             NullPointerException e = new NullPointerException("流水类型获取失败");
             ExceptionHelper.showExceptionDialog(context, e);
@@ -244,45 +244,86 @@ public class AccountRecyclerAdapter extends GroupAdapter<GroupieViewHolder> {
         runningAccount.setRno(rno);
 
         //更新列表中的数据
+        String oldDatetime = "";                                            //原来的日期
+        String newDatetime = runningAccount.getDatetime().substring(0, 10); //编辑后的日期
         for (int index = 0; index < accountList.size(); index++) {
-            long account_no = accountList.get(index).getRno();
-            if (rno == account_no) {
+            long list_rno = accountList.get(index).getRno();
+            if (rno == list_rno) {
+                oldDatetime = accountList.get(index).getDatetime().substring(0, 10);
                 accountList.set(index, runningAccount);
                 break;
             }
         }
-        //遍历更新ContentItem以刷新UI
-        Section section = sectionHashMap.get(runningAccount.getDatetime().substring(0, 10));
-        if (section != null) {
-            List<ContentItem> contentItemList = new ArrayList<>();
-            for (int position = 0; position < section.getItemCount(); position++) {
-                Item<?> item = section.getItem(position);
-                if (item instanceof ContentItem && ((ContentItem) item).getRno() == rno) {
-                    contentItemList.add(new ContentItem(runningAccount));
-                } else if (item instanceof ContentItem) {
-                    contentItemList.add((ContentItem) item);
+
+        //更新UI
+        if (oldDatetime.equals(newDatetime)) {
+            Section section = sectionHashMap.get(oldDatetime);
+            if (section != null) {
+                List<ContentItem> contentItemList = new ArrayList<>();
+                for (int position = 0; position < section.getItemCount(); position++) {
+                    Item<?> item = section.getItem(position);
+                    if (item instanceof ContentItem && ((ContentItem) item).getRno() == rno) {
+                        contentItemList.add(new ContentItem(runningAccount));
+                    } else if (item instanceof ContentItem) {
+                        contentItemList.add((ContentItem) item);
+                    }
+                }
+                section.update(contentItemList);
+            }
+        } else {
+            //删除旧的
+            Section oldSection = sectionHashMap.get(oldDatetime);
+            if (oldSection != null) {
+                int old_count = oldSection.getItemCount();
+                if (old_count > 2) {
+                    List<ContentItem> contentItemList = new ArrayList<>();
+                    for (int i = 0; i < old_count; i++) {
+                        Item<?> item = oldSection.getItem(i);
+                        if (item instanceof ContentItem && ((ContentItem) item).getRno() != rno) {
+                            contentItemList.add((ContentItem) item);
+                        }
+                    }
+                    oldSection.update(contentItemList);
+                } else {
+                    Log.d(LogTags.ACCOUNT_ADAPTER.getV(), "Section为空，删除整个Section");
+                    this.remove(oldSection);
+                    sectionHashMap.remove(oldDatetime);
                 }
             }
-            section.update(contentItemList);
+
+            //添加新的
+            Section newSection = sectionHashMap.get(newDatetime);
+            ContentItem contentItem = new ContentItem(runningAccount);
+            if (newSection != null) {
+                newSection.add(contentItem);
+            } else {
+                newSection = new Section();
+                sectionHashMap.put(newDatetime, newSection);
+
+                HeaderItem headerItem = new HeaderItem(newDatetime);
+                newSection.setHeader(headerItem);
+                newSection.add(contentItem);
+                this.add(0, newSection);
+            }
         }
     }
 
     /**
      * 删除指定下标的流水记录
      *
-     * @param rno_to_delete 待删除的流水记录的编号
+     * @param rno_delete 待删除的流水记录的编号
      */
-    public void deleteRunningAccount(long rno_to_delete) {
-        if (rno_to_delete == -1) {
+    public void deleteRunningAccount(long rno_delete) {
+        if (rno_delete == -1) {
             Log.e(LogTags.ACCOUNT_ADAPTER.getV(), "未获取到合法的流水编号，无法删除流水记录");
             return;
         } else {
-            Log.i(LogTags.ACCOUNT_ADAPTER.getV(), String.format(Locale.getDefault(), "待删除流水编号：%d", rno_to_delete));
+            Log.i(LogTags.ACCOUNT_ADAPTER.getV(), String.format(Locale.getDefault(), "待删除流水编号：%d", rno_delete));
         }
 
         //从数据库中删除
         try {
-            RunningAccountBase.deleteAccount(rno_to_delete, context);
+            RunningAccountBase.deleteAccount(rno_delete, context);
             Log.i(LogTags.ACCOUNT_ADAPTER.getV(), "数据库中删除成功");
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
@@ -295,7 +336,7 @@ public class AccountRecyclerAdapter extends GroupAdapter<GroupieViewHolder> {
         String date = "";
         for (int index = 0; index < accountList.size(); index++) {
             RunningAccountBase runningAccount = accountList.get(index);
-            if (rno_to_delete == runningAccount.getRno()) {
+            if (rno_delete == runningAccount.getRno()) {
                 Log.i(LogTags.ACCOUNT_ADAPTER.getV(), "成功在List中找到需要删除的数据类");
                 date = runningAccount.getDatetime().substring(0, 10);
                 accountList.remove(index);
@@ -317,7 +358,7 @@ public class AccountRecyclerAdapter extends GroupAdapter<GroupieViewHolder> {
                 List<ContentItem> contentItemList = new ArrayList<>();
                 for (int index = 0; index < section.getItemCount(); index++) {
                     Item<?> item = section.getItem(index);
-                    if (item instanceof ContentItem && ((ContentItem) item).getRno() != rno_to_delete) {
+                    if (item instanceof ContentItem && ((ContentItem) item).getRno() != rno_delete) {
                         contentItemList.add((ContentItem) item);
                     }
                 }

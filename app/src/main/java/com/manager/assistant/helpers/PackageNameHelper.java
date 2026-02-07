@@ -56,7 +56,7 @@ public class PackageNameHelper {
         List<AppInfo> searchResult = new ArrayList<>();
 
         for (AppInfo app : fullAppInfoList) {
-            String app_name = app.getApp_name();
+            String app_name = app.getAppName();
             if (app_name.toLowerCase().contains(query.toLowerCase()))
                 searchResult.add(app);
         }

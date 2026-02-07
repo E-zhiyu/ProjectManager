@@ -11,8 +11,19 @@ import com.manager.assistant.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.7.7  \n" +
-            "**BUG修复  \n" +
+    private static final String update_log_md = "# v1.7.8  \n" +
+            "**BUG修复**  \n" +
+            "- 修复编辑流水记录时修改日期后导致UI不同步的BUG  \n" +
+            "- 修复编辑流水记录时填充的是当前日期而不是流水记录中的日期的BUG  \n" +
+            "- 修复系统字体较大时可能导致记账界面流水数量与过滤按钮重叠的BUG  \n" +
+            "- 修复导出数据或导入数据时直接从SAF返回仍然会弹出进度条对话框的BUG  \n\n" +
+            "**修改内容**  \n" +
+            "- 自动记账的通知监听服务会在单独的进程中运行，意味着即使主进程被杀死仍然可以自动记账  \n" +
+            "- 备份目录选项的描述文本会显示选择的备份文件存储目录  \n" +
+            "- 为底部弹出菜单添加返回时的动画效果（需要使用全面屏手势）  \n" +
+            "- 修改通知解析规则输入界面的“输入说明”按钮的宽度，使其与文本输入框等宽  \n\n" +
+            "# v1.7.7  \n" +
+            "**BUG修复**  \n" +
             "- 修复上个版本无法修改标签名称的BUG  \n\n" +
             "# v1.7.6  \n" +
             "**BUG修复**  \n" +

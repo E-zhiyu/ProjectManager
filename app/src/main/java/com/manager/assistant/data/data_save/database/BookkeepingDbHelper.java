@@ -14,13 +14,13 @@ import androidx.annotation.Nullable;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
-public class BookKeepingDbHelper extends SQLiteOpenHelper {
+public class BookkeepingDbHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "running_account.db";   //数据库名称
     private static final int DATABASE_VERSION = 6;                      //数据库版本
     private final Context context;                                      //上下文
     public static final String defaultGroupName = "默认分组";           //默认分组名称
 
-    public BookKeepingDbHelper(@Nullable Context context) {
+    public BookkeepingDbHelper(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.context = context;
     }
@@ -50,80 +50,80 @@ public class BookKeepingDbHelper extends SQLiteOpenHelper {
         try {
             //创建标签分组表
             err = "标签分组表失败";
-            create = "CREATE TABLE IF NOT EXISTS " + BookKeepingTables.TAG_GROUP + "(" +
-                    BookKeepingColumns.GROUP_NO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    BookKeepingColumns.GROUP_NAME + " VARCHAR(20) NOT NULL UNIQUE" +
+            create = "CREATE TABLE IF NOT EXISTS " + BookkeepingTables.TAG_GROUP + "(" +
+                    BookkeepingColumns.GROUP_NO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    BookkeepingColumns.GROUP_NAME + " VARCHAR(20) NOT NULL UNIQUE" +
                     ")";
             db.execSQL(create);
 
             ContentValues default_group_values = new ContentValues();
-            default_group_values.put(BookKeepingColumns.GROUP_NO.toString(), 0);
-            default_group_values.put(BookKeepingColumns.GROUP_NAME.toString(), defaultGroupName);
-            db.insert(BookKeepingTables.TAG_GROUP.toString(), null, default_group_values);
+            default_group_values.put(BookkeepingColumns.GROUP_NO.toString(), 0);
+            default_group_values.put(BookkeepingColumns.GROUP_NAME.toString(), defaultGroupName);
+            db.insert(BookkeepingTables.TAG_GROUP.toString(), null, default_group_values);
 
             //创建标签表
             err = "标签表创建失败";
-            create = "CREATE TABLE IF NOT EXISTS " + BookKeepingTables.TAG + "(" +
-                    BookKeepingColumns.TAG_NO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    BookKeepingColumns.TAG_NAME + " VARCHAR(20) NOT NULL UNIQUE," +
-                    BookKeepingColumns.GROUP_NO + " INTEGER NOT NULL," +
-                    BookKeepingColumns.TAG_SCOPE + " INTEGER DEFAULT 0," +  //默认为0，为了让旧版升级的标签默认对所有种类可见，每位中0表示可见，1则表示不可见
+            create = "CREATE TABLE IF NOT EXISTS " + BookkeepingTables.TAG + "(" +
+                    BookkeepingColumns.TAG_NO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    BookkeepingColumns.TAG_NAME + " VARCHAR(20) NOT NULL UNIQUE," +
+                    BookkeepingColumns.GROUP_NO + " INTEGER NOT NULL," +
+                    BookkeepingColumns.TAG_SCOPE + " INTEGER DEFAULT 0," +  //默认为0，为了让旧版升级的标签默认对所有种类可见，每位中0表示可见，1则表示不可见
 
                     //分组编号外键约束
-                    "CONSTRAINT " + BookKeepingConstraints.FK_GROUP_NO +
-                    " FOREIGN KEY (" + BookKeepingColumns.GROUP_NO + ")" +
-                    " REFERENCES " + BookKeepingTables.TAG_GROUP + "(" + BookKeepingColumns.GROUP_NO + ")" +
+                    "CONSTRAINT " + BookkeepingConstraints.FK_GROUP_NO +
+                    " FOREIGN KEY (" + BookkeepingColumns.GROUP_NO + ")" +
+                    " REFERENCES " + BookkeepingTables.TAG_GROUP + "(" + BookkeepingColumns.GROUP_NO + ")" +
                     " ON DELETE CASCADE" +
                     ")";
             db.execSQL(create);
 
             //创建流水基本数据表
             err = "流水基本数据表创建失败";
-            create = "CREATE TABLE IF NOT EXISTS " + BookKeepingTables.BASIC + "(" +
-                    BookKeepingColumns.RNO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    BookKeepingColumns.AMOUNT + " DECIMAL(20,2) NOT NULL," +
-                    BookKeepingColumns.TYPE + " VARCHAR(15) NOT NULL," +
-                    BookKeepingColumns.REMARK + " VARCHAR(20)," +
-                    BookKeepingColumns.DATETIME + " DATETIME NOT NULL," +
-                    BookKeepingColumns.TAG_NO + " INTEGER DEFAULT 0," +
+            create = "CREATE TABLE IF NOT EXISTS " + BookkeepingTables.BASIC + "(" +
+                    BookkeepingColumns.RNO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    BookkeepingColumns.AMOUNT + " DECIMAL(20,2) NOT NULL," +
+                    BookkeepingColumns.TYPE + " VARCHAR(15) NOT NULL," +
+                    BookkeepingColumns.REMARK + " VARCHAR(20)," +
+                    BookkeepingColumns.DATETIME + " DATETIME NOT NULL," +
+                    BookkeepingColumns.TAG_NO + " INTEGER DEFAULT 0," +
 
                     //标签编号外键约束
-                    "CONSTRAINT " + BookKeepingConstraints.FK_TAG_NO +
-                    " FOREIGN KEY (" + BookKeepingColumns.TAG_NO + ")" +
-                    " REFERENCES " + BookKeepingTables.TAG + "(" + BookKeepingColumns.TAG_NO + ")" +
+                    "CONSTRAINT " + BookkeepingConstraints.FK_TAG_NO +
+                    " FOREIGN KEY (" + BookkeepingColumns.TAG_NO + ")" +
+                    " REFERENCES " + BookkeepingTables.TAG + "(" + BookkeepingColumns.TAG_NO + ")" +
                     " ON DELETE SET DEFAULT" +
                     ")";
             db.execSQL(create);
 
             //创建转账独占数据表
             err = "转账流水表创建失败";
-            create = "CREATE TABLE IF NOT EXISTS " + BookKeepingTables.TRANSFER + "(" +
-                    BookKeepingColumns.RNO + " INTEGER PRIMARY KEY NOT NULL," +
-                    BookKeepingColumns.EXPORT + " VARCHAR(20) NOT NULL," +
-                    BookKeepingColumns.IMPORT + " VARCHAR(20) NOT NULL," +
+            create = "CREATE TABLE IF NOT EXISTS " + BookkeepingTables.TRANSFER + "(" +
+                    BookkeepingColumns.RNO + " INTEGER PRIMARY KEY NOT NULL," +
+                    BookkeepingColumns.EXPORT + " VARCHAR(20) NOT NULL," +
+                    BookkeepingColumns.IMPORT + " VARCHAR(20) NOT NULL," +
 
                     //流水编号外键约束
-                    "CONSTRAINT " + BookKeepingConstraints.FK_RNO +
-                    " FOREIGN KEY (" + BookKeepingColumns.RNO + ")" +
-                    " REFERENCES " + BookKeepingTables.BASIC + "(" + BookKeepingColumns.RNO + ")" +
+                    "CONSTRAINT " + BookkeepingConstraints.FK_RNO +
+                    " FOREIGN KEY (" + BookkeepingColumns.RNO + ")" +
+                    " REFERENCES " + BookkeepingTables.BASIC + "(" + BookkeepingColumns.RNO + ")" +
                     " ON DELETE CASCADE" +
                     ")";
             db.execSQL(create);
 
             //创建通知解析规则表
             err = "通知解析规则表创建失败";
-            create = "CREATE TABLE IF NOT EXISTS " + BookKeepingTables.ANALYSIS_RULE + "(" +
-                    BookKeepingColumns.RULE_NAME + " VARCHAR(20) NOT NULL," +
-                    BookKeepingColumns.RULE_NO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    BookKeepingColumns.TYPE + " VARCHAR(20) NOT NULL," +
-                    BookKeepingColumns.TAG_NO + " INTEGER DEFAULT 0," +
-                    BookKeepingColumns.PACKAGE_NAME + " VARCHAR(50) NOT NULL," +
-                    BookKeepingColumns.NOTIFICATION_TITLE + " VARCHAR(20) NOT NULL," +
-                    BookKeepingColumns.NOTIFICATION_CONTENT + " VARCHAR(50) NOT NULL," +
+            create = "CREATE TABLE IF NOT EXISTS " + BookkeepingTables.ANALYSIS_RULE + "(" +
+                    BookkeepingColumns.RULE_NAME + " VARCHAR(20) NOT NULL," +
+                    BookkeepingColumns.RULE_NO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    BookkeepingColumns.TYPE + " VARCHAR(20) NOT NULL," +
+                    BookkeepingColumns.TAG_NO + " INTEGER DEFAULT 0," +
+                    BookkeepingColumns.PACKAGE_NAME + " VARCHAR(50) NOT NULL," +
+                    BookkeepingColumns.NOTIFICATION_TITLE + " VARCHAR(20) NOT NULL," +
+                    BookkeepingColumns.NOTIFICATION_CONTENT + " VARCHAR(50) NOT NULL," +
 
-                    "CONSTRAINT " + BookKeepingConstraints.FK_TAG_NO +
-                    " FOREIGN KEY (" + BookKeepingColumns.TAG_NO + ")" +
-                    " REFERENCES " + BookKeepingTables.TAG + "(" + BookKeepingColumns.TAG_NO + ")" +
+                    "CONSTRAINT " + BookkeepingConstraints.FK_TAG_NO +
+                    " FOREIGN KEY (" + BookkeepingColumns.TAG_NO + ")" +
+                    " REFERENCES " + BookkeepingTables.TAG + "(" + BookkeepingColumns.TAG_NO + ")" +
                     " ON DELETE SET DEFAULT" +
                     ")";
             db.execSQL(create);
@@ -132,14 +132,14 @@ public class BookKeepingDbHelper extends SQLiteOpenHelper {
 
             //创建流水图片基本表
             err = "流水图片表创建失败";
-            create = "CREATE TABLE IF NOT EXISTS " + BookKeepingTables.PICTURE + "(" +
-                    BookKeepingColumns.RNO + " INTEGER NOT NULL," +
-                    BookKeepingColumns.PNO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    BookKeepingColumns.PICTURE_URI + " VARCHAR(100) NOT NULL," +
+            create = "CREATE TABLE IF NOT EXISTS " + BookkeepingTables.PICTURE + "(" +
+                    BookkeepingColumns.RNO + " INTEGER NOT NULL," +
+                    BookkeepingColumns.PNO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    BookkeepingColumns.PICTURE_URI + " VARCHAR(100) NOT NULL," +
 
-                    "CONSTRAINT " + BookKeepingConstraints.FK_RNO +
-                    " FOREIGN KEY (" + BookKeepingColumns.RNO + ")" +
-                    " REFERENCES " + BookKeepingTables.BASIC + "(" + BookKeepingColumns.RNO + ")" +
+                    "CONSTRAINT " + BookkeepingConstraints.FK_RNO +
+                    " FOREIGN KEY (" + BookkeepingColumns.RNO + ")" +
+                    " REFERENCES " + BookkeepingTables.BASIC + "(" + BookkeepingColumns.RNO + ")" +
                     " ON DELETE CASCADE" +
                     ")";
             db.execSQL(create);
@@ -233,14 +233,14 @@ public class BookKeepingDbHelper extends SQLiteOpenHelper {
     private void up4To5(@NonNull SQLiteDatabase db) {
         String err = "流水图片表创建失败";
         try {
-            String create = "CREATE TABLE IF NOT EXISTS " + BookKeepingTables.PICTURE + "(" +
-                    BookKeepingColumns.RNO + " INTEGER NOT NULL," +
-                    BookKeepingColumns.PNO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    BookKeepingColumns.PICTURE_URI + " VARCHAR(100) NOT NULL," +
+            String create = "CREATE TABLE IF NOT EXISTS " + BookkeepingTables.PICTURE + "(" +
+                    BookkeepingColumns.RNO + " INTEGER NOT NULL," +
+                    BookkeepingColumns.PNO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    BookkeepingColumns.PICTURE_URI + " VARCHAR(100) NOT NULL," +
 
-                    "CONSTRAINT " + BookKeepingConstraints.FK_RNO +
-                    " FOREIGN KEY (" + BookKeepingColumns.RNO + ")" +
-                    " REFERENCES " + BookKeepingTables.BASIC + "(" + BookKeepingColumns.RNO + ")" +
+                    "CONSTRAINT " + BookkeepingConstraints.FK_RNO +
+                    " FOREIGN KEY (" + BookkeepingColumns.RNO + ")" +
+                    " REFERENCES " + BookkeepingTables.BASIC + "(" + BookkeepingColumns.RNO + ")" +
                     " ON DELETE CASCADE" +
                     ")";
             db.execSQL(create);
@@ -270,20 +270,20 @@ public class BookKeepingDbHelper extends SQLiteOpenHelper {
     public static void addDefaultRule(@NonNull SQLiteDatabase db) {
         //微信支付
         ContentValues rule_values = new ContentValues();
-        rule_values.put(BookKeepingColumns.RULE_NAME.toString(), "微信支付");                       //名称
-        rule_values.put(BookKeepingColumns.TYPE.toString(), RunningAccountType.EXPENSE.toString());//流水种类
-        rule_values.put(BookKeepingColumns.PACKAGE_NAME.toString(), "com.tencent.mm");              //包名
-        rule_values.put(BookKeepingColumns.NOTIFICATION_TITLE.toString(), "微信支付");              //通知标题
-        rule_values.put(BookKeepingColumns.NOTIFICATION_CONTENT.toString(), "已支付.(\\d+\\.?\\d{0,2})"); //匹配通知内容
-        db.insert(BookKeepingTables.ANALYSIS_RULE.toString(), null, rule_values);
+        rule_values.put(BookkeepingColumns.RULE_NAME.toString(), "微信支付");                       //名称
+        rule_values.put(BookkeepingColumns.TYPE.toString(), RunningAccountType.EXPENSE.toString());//流水种类
+        rule_values.put(BookkeepingColumns.PACKAGE_NAME.toString(), "com.tencent.mm");              //包名
+        rule_values.put(BookkeepingColumns.NOTIFICATION_TITLE.toString(), "微信支付");              //通知标题
+        rule_values.put(BookkeepingColumns.NOTIFICATION_CONTENT.toString(), "已支付.(\\d+\\.?\\d{0,2})"); //匹配通知内容
+        db.insert(BookkeepingTables.ANALYSIS_RULE.toString(), null, rule_values);
 
         //支付宝支付
         rule_values.clear();
-        rule_values.put(BookKeepingColumns.RULE_NAME.toString(), "支付宝支付");                       //名称
-        rule_values.put(BookKeepingColumns.TYPE.toString(), RunningAccountType.EXPENSE.toString());//流水种类
-        rule_values.put(BookKeepingColumns.PACKAGE_NAME.toString(), "com.eg.android.AlipayGphone");//包名
-        rule_values.put(BookKeepingColumns.NOTIFICATION_TITLE.toString(), "交易提醒");              //通知标题
-        rule_values.put(BookKeepingColumns.NOTIFICATION_CONTENT.toString(), "有一笔(\\d+\\.?\\d{0,2})元的支出"); //匹配通知内容
-        db.insert(BookKeepingTables.ANALYSIS_RULE.toString(), null, rule_values);
+        rule_values.put(BookkeepingColumns.RULE_NAME.toString(), "支付宝支付");                       //名称
+        rule_values.put(BookkeepingColumns.TYPE.toString(), RunningAccountType.EXPENSE.toString());//流水种类
+        rule_values.put(BookkeepingColumns.PACKAGE_NAME.toString(), "com.eg.android.AlipayGphone");//包名
+        rule_values.put(BookkeepingColumns.NOTIFICATION_TITLE.toString(), "交易提醒");              //通知标题
+        rule_values.put(BookkeepingColumns.NOTIFICATION_CONTENT.toString(), "有一笔(\\d+\\.?\\d{0,2})元的支出"); //匹配通知内容
+        db.insert(BookkeepingTables.ANALYSIS_RULE.toString(), null, rule_values);
     }
 }

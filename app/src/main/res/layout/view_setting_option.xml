@@ -7,11 +7,10 @@
     android:paddingTop="5dp"
     android:paddingBottom="5dp">
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/free_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -46,7 +45,7 @@
             android:layout_marginStart="40dp"
             android:ellipsize="end"
             android:focusableInTouchMode="true"
-            android:singleLine="true"
+            android:maxLines="1"
             android:text="@string/title_setting" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -57,7 +56,7 @@
             android:layout_marginStart="40dp"
             android:ellipsize="end"
             android:focusableInTouchMode="true"
-            android:singleLine="true"
+            android:maxLines="1"
             android:text="@string/setting"
             android:textColor="?attr/colorControlNormal" />
     </LinearLayout>

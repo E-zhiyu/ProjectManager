@@ -13,7 +13,8 @@
         app:cardBackgroundColor="@color/card_background_color"
         app:cardCornerRadius="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeWidth="1dp">
 
         <ImageView
             android:id="@+id/image_view"

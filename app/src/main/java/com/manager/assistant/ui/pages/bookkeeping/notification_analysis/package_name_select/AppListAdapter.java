@@ -23,15 +23,15 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppInfoV
     private final List<AppInfo> appInfoList;    //应用列表
 
     public static class AppInfoViewHolder extends RecyclerView.ViewHolder {
-        ShapeableImageView app_icon_view;                   //应用图标视图
-        MaterialTextView app_name_text, package_name_text;  //应用名称和包名文本视图
+        ShapeableImageView appIconView;                   //应用图标视图
+        MaterialTextView appNameText, packageNameText;  //应用名称和包名文本视图
 
         public AppInfoViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            app_icon_view = itemView.findViewById(R.id.app_icon_view);
-            app_name_text = itemView.findViewById(R.id.app_name_text);
-            package_name_text = itemView.findViewById(R.id.package_name_text);
+            appIconView = itemView.findViewById(R.id.app_icon_view);
+            appNameText = itemView.findViewById(R.id.app_name_text);
+            packageNameText = itemView.findViewById(R.id.package_name_text);
         }
     }
 
@@ -61,15 +61,15 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppInfoV
     @Override
     public void onBindViewHolder(@NonNull AppInfoViewHolder holder, int position) {
         AppInfo appInfo = appInfoList.get(position);
-        String app_name = appInfo.getApp_name();
-        String package_name = appInfo.getPackage_name();
-        Bitmap app_icon = appInfo.getApp_icon();
+        String appName = appInfo.getAppName();
+        String packageName = appInfo.getPackageName();
+        Bitmap appIcon = appInfo.getAppIcon();
 
-        holder.app_name_text.setText(app_name);
-        holder.package_name_text.setText(package_name);
-        holder.app_icon_view.setImageBitmap(app_icon);
+        holder.appNameText.setText(appName);
+        holder.packageNameText.setText(packageName);
+        holder.appIconView.setImageBitmap(appIcon);
 
-        holder.itemView.setOnClickListener(v -> listener.onAppClicked(package_name));   //绑定点击动作
+        holder.itemView.setOnClickListener(v -> listener.onAppClicked(packageName));   //绑定点击动作
     }
 
     @Override

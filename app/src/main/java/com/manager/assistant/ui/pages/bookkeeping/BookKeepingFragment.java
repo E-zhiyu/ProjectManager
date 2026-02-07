@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,9 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.textview.MaterialTextView;
-import com.manager.assistant.enums.DirectoryPaths;
 import com.manager.assistant.enums.KeyValueStrings;
-import com.manager.assistant.enums.LogTags;
 import com.manager.assistant.enums.TagString;
 import com.manager.assistant.broadcast.BroadcastConstants;
 import com.manager.assistant.broadcast.RunningAccountUpdatedBroadcastReceiver;
@@ -39,7 +36,6 @@ import com.manager.assistant.enums.RequestResultCode;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.ui.data_communication.account_recycler.AccountRecyclerViewModel;
 
-import java.io.File;
 import java.util.Locale;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -48,9 +44,9 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class BookKeepingFragment extends Fragment {
-    private AccountRecyclerAdapter accountAdapter;                          //流水列表适配器
+    private AccountAdapter accountAdapter;                          //流水列表适配器
     private ActivityResultLauncher<Intent> accountAddLauncher, accountModifyLauncher;   //子活动启动器
-    private int account_num;                                                //流水记录数量
+    private int account_count;                                              //流水记录数量
     private FragmentBookkeepingBinding binding;                             //绑定的XML视图
     private RunningAccountUpdatedBroadcastReceiver accountUpdatedReceiver;  //流水数据更新的广播接收器
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
@@ -78,7 +74,6 @@ public class BookKeepingFragment extends Fragment {
         super.onDestroyView();
         binding = null;
 
-        // 防止内存泄漏
         disposables.dispose();
 
         //取消注册广播接收器
@@ -213,7 +208,7 @@ public class BookKeepingFragment extends Fragment {
      */
     private void setupAccountAdapter() {
         //设置适配器
-        accountAdapter = new AccountRecyclerAdapter(this::onRunningAccountViewClick, requireContext());
+        accountAdapter = new AccountAdapter(this::onRunningAccountViewClick, requireContext());
         binding.accountRecycler.setAdapter(accountAdapter);
 
         //设置滚动监听器
@@ -243,7 +238,7 @@ public class BookKeepingFragment extends Fragment {
         binding.accountRecycler.scrollToPosition(0);
         Toast.makeText(requireContext(), "成功添加一条流水记录（自动记账）", Toast.LENGTH_SHORT).show();
 
-        account_num++;
+        account_count++;
         refreshAccountNumText();
     }
 
@@ -265,7 +260,7 @@ public class BookKeepingFragment extends Fragment {
         Toast.makeText(requireContext(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
 
         //更新记录数量
-        account_num++;
+        account_count++;
         refreshAccountNumText();
     }
 
@@ -303,7 +298,7 @@ public class BookKeepingFragment extends Fragment {
         Toast.makeText(requireContext(), "流水记录已删除", Toast.LENGTH_SHORT).show();
 
         //更新流水记录数量文本
-        account_num--;
+        account_count--;
         refreshAccountNumText();
     }
 
@@ -312,7 +307,7 @@ public class BookKeepingFragment extends Fragment {
      */
     private void refreshAccountNumText() {
         MaterialTextView accountNumText = binding.accountNumText;
-        accountNumText.setText(String.format(Locale.getDefault(), "显示数量：%d", account_num));
+        accountNumText.setText(String.format(Locale.getDefault(), "显示数量：%d", account_count));
     }
 
     /**
@@ -327,7 +322,7 @@ public class BookKeepingFragment extends Fragment {
                         .subscribe(
                                 refreshedAccount -> {
                                     accountAdapter.refreshRunningAccount(refreshedAccount);
-                                    account_num = refreshedAccount.size();
+                                    account_count = refreshedAccount.size();
                                     refreshAccountNumText();
                                 },  //成功回调
                                 e -> ExceptionHelper.showExceptionDialog(requireContext(), e),  //错误处理
