@@ -133,7 +133,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                     long tag_no = Tag.getTagByRuleNo(rule_no, getApplicationContext()).getTno();
 
                     dataBundle = getNewAccountData(matcher, rule.getType(), tag_no, rule.getRuleName());
-                    Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据保存成功");
+                    Log.i(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据保存成功");
                 } catch (SQLiteException e) {
                     Log.e(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据保存失败或标签编号读取失败");
                     Toast.makeText(getApplicationContext(), "自动记账出错：无法获取标签编号", Toast.LENGTH_SHORT).show();
