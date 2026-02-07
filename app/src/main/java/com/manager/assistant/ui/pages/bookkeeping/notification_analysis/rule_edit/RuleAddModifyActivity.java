@@ -38,7 +38,7 @@ import java.util.regex.PatternSyntaxException;
 
 import io.noties.markwon.Markwon;
 
-public class RuleAddModifyActivity extends AppCompatActivity implements View.OnFocusChangeListener {
+public class RuleAddModifyActivity extends AppCompatActivity {
     private boolean isModifyMode = false;                           //是否为规则编辑模式
     private int viewHolderPosition;                                 //规则ViewHolder下标
     private long rule_no;                                           //规则编号
@@ -69,60 +69,12 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnF
         binding = null;
     }
 
-    @Override
-    public void onFocusChange(View v, boolean hasFocus) {
-        if (!hasFocus) {
-            String err = null;
-            if (v == binding.ruleNameInput && String.valueOf(binding.ruleNameInput.getText()).isEmpty()) {
-                err = "规则名称不能为空";
-                binding.ruleNameLayout.setErrorEnabled(true);
-                binding.ruleNameLayout.setError(err);
-            } else if (v == binding.packageNameInput && String.valueOf(binding.packageNameInput.getText()).isEmpty()) {
-                err = "包名不能为空";
-                binding.packageNameLayout.setErrorEnabled(true);
-                binding.packageNameLayout.setError(err);
-            } else if (v == binding.notificationTitleInput && String.valueOf(binding.notificationTitleInput.getText()).isEmpty()) {
-                err = "通知标题不能为空";
-                binding.notificationTitleLayout.setErrorEnabled(true);
-                binding.notificationTitleLayout.setError(err);
-            } else if (v == binding.notificationContentInput && String.valueOf(binding.notificationContentInput.getText()).isEmpty()) {
-                err = "通知内容不能为空";
-                binding.notificationContentLayout.setErrorEnabled(true);
-                binding.notificationContentLayout.setError(err);
-            } else if (v == binding.notificationContentInput) {
-                try {
-                    String content_pattern = String.valueOf(binding.notificationContentInput.getText());
-                    Pattern.compile(content_pattern);
-                } catch (PatternSyntaxException e) {
-                    err = "通知内容正则表达式存在语法错误";
-                    binding.notificationContentLayout.setErrorEnabled(true);
-                    binding.notificationContentLayout.setError(err);
-                }
-            }
-
-            if (err != null) {
-                Toast.makeText(this, err, Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            if (v == binding.ruleNameInput) {
-                binding.ruleNameLayout.setError(null);
-            } else if (v == binding.packageNameInput) {
-                binding.packageNameLayout.setError(null);
-            } else if (v == binding.notificationTitleInput) {
-                binding.notificationTitleLayout.setError(null);
-            } else if (v == binding.notificationContentInput) {
-                binding.notificationContentLayout.setError(null);
-            }
-        }
-    }
-
     /**
      * 初始化视图
      */
     private void initViews() {
         //设置标题栏的图标点击监听器
-        MaterialToolbar toolbar = binding.toolbar;
-        toolbar.setNavigationOnClickListener(v -> finish());
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
 
         //流水种类
         NoFilteringArrayAdapter<String> adapter = new NoFilteringArrayAdapter<>(
@@ -153,8 +105,15 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnF
         //包名
         binding.packageNameInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
+                binding.packageNameLayout.setError(null);
                 Intent skip2PackageNameSelect = new Intent(this, PackageNameSelectActivity.class);
                 packageNameSelectLauncher.launch(skip2PackageNameSelect);
+            } else {
+                String packageName = String.valueOf(binding.packageNameInput.getText());
+                if (packageName.isEmpty()) {
+                    binding.packageNameLayout.setErrorEnabled(true);
+                    binding.packageNameLayout.setError("包名不能为空");
+                }
             }
         });
         binding.packageNameInput.setOnClickListener(v -> {
@@ -179,10 +138,39 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnF
         binding.cancelBtn.setOnClickListener(v -> finish());
 
         //设置焦点变更监听器
-        binding.ruleNameInput.setOnFocusChangeListener(this);
-        binding.packageNameInput.setOnFocusChangeListener(this);
-        binding.notificationTitleInput.setOnFocusChangeListener(this);
-        binding.notificationContentInput.setOnFocusChangeListener(this);
+        binding.ruleNameInput.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                binding.ruleNameLayout.setError(null);
+            } else {
+                String ruleName = String.valueOf(binding.ruleNameInput.getText());
+                if (ruleName.isEmpty()) {
+                    binding.ruleNameLayout.setErrorEnabled(true);
+                    binding.ruleNameLayout.setError("规则名称不能为空");
+                }
+            }
+        });
+        binding.notificationTitleInput.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                binding.notificationTitleLayout.setError(null);
+            } else {
+                String title = String.valueOf(binding.notificationTitleInput.getText());
+                if (title.isEmpty()) {
+                    binding.notificationTitleLayout.setErrorEnabled(true);
+                    binding.notificationTitleLayout.setError("通知标题不能为空");
+                }
+            }
+        });
+        binding.notificationContentInput.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                binding.notificationContentLayout.setError(null);
+            } else {
+                String content = String.valueOf(binding.notificationContentInput.getText());
+                if (content.isEmpty()) {
+                    binding.notificationContentLayout.setErrorEnabled(true);
+                    binding.notificationContentLayout.setError("通知内容不能为空");
+                }
+            }
+        });
 
         //设置正则表达式输入框右侧按钮功能
         binding.notificationContentLayout.setEndIconOnClickListener(v -> {
