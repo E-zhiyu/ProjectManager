@@ -459,7 +459,6 @@ public class SettingFragment extends Fragment {
                 "解析通知实现自动记账",
                 R.drawable.baseline_notifications_24
         );
-        //完成通知解析开关状态初始化
         boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(requireContext());
         if (isNotificationAnalysisOpened && PermissionHelper.isNotificationServiceEnabled(requireContext())) {
             binding.ruleManageLayout.setVisibility(View.VISIBLE);
@@ -474,6 +473,12 @@ public class SettingFragment extends Fragment {
         notificationAnalysisSwitchOption.setFunctionListener(
                 (buttonView, isChecked) -> onNotificationAnalysisSwitchChanged(notificationAnalysisSwitchOption, isChecked)
         );
+
+        //开关左侧文本长按功能
+        notificationAnalysisSwitchOption.setOnLongClickListener(v -> {
+            PermissionHelper.requestNotificationPermission(requireContext());
+            return true;
+        });
 
         //通知解析规则管理
         SettingClickableTextView ruleManageOption = new SettingClickableTextView(
@@ -888,11 +893,14 @@ public class SettingFragment extends Fragment {
 
     /**
      * 通知解析开关状态变更调用的方法
+     *
+     * @param switchView 开关视图
+     * @param isChecked  开关状态
      */
     private void onNotificationAnalysisSwitchChanged(SettingSwitchView switchView, boolean isChecked) {
         AutoBookKeepingPreference.setSwitchStat(isChecked, requireContext());   //将打开状态写入文件
 
-        //实例化并注册权限授予通知
+        //实例化并注册权限授予通知监听器
         notificationPermissionListener = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
