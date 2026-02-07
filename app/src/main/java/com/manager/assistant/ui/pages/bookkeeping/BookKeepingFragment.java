@@ -44,7 +44,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class BookKeepingFragment extends Fragment {
-    private AccountRecyclerAdapter accountAdapter;                          //流水列表适配器
+    private AccountAdapter accountAdapter;                          //流水列表适配器
     private ActivityResultLauncher<Intent> accountAddLauncher, accountModifyLauncher;   //子活动启动器
     private int account_count;                                              //流水记录数量
     private FragmentBookkeepingBinding binding;                             //绑定的XML视图
@@ -208,7 +208,7 @@ public class BookKeepingFragment extends Fragment {
      */
     private void setupAccountAdapter() {
         //设置适配器
-        accountAdapter = new AccountRecyclerAdapter(this::onRunningAccountViewClick, requireContext());
+        accountAdapter = new AccountAdapter(this::onRunningAccountViewClick, requireContext());
         binding.accountRecycler.setAdapter(accountAdapter);
 
         //设置滚动监听器
