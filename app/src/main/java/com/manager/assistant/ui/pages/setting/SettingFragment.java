@@ -553,7 +553,7 @@ public class SettingFragment extends Fragment {
                 requireContext(),
                 binding.batteryOptimizationOption,
                 R.string.battery_optimization,
-                "点击跳转电池优化设置界面",
+                "跳转至安卓原生电池优化界面",
                 R.drawable.baseline_battery_5_bar_24
         );
         batteryOptimizationOption.setFunctionListener(

@@ -1,12 +1,10 @@
 package com.manager.assistant.ui.pages.bookkeeping.notification_analysis.rule_edit;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
@@ -118,7 +116,9 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnF
         }
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    /**
+     * 初始化视图
+     */
     private void initViews() {
         //设置标题栏的图标点击监听器
         MaterialToolbar toolbar = binding.toolbar;
@@ -139,21 +139,25 @@ public class RuleAddModifyActivity extends AppCompatActivity implements View.OnF
         );
 
         //标签名称
-        binding.tagNameInput.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_UP) {
+        binding.tagNameInput.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
                 tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, type);
                 tagSheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
             }
-            return false;
+        });
+        binding.tagNameInput.setOnClickListener(v -> {
+            tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, type);
+            tagSheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
         });
 
         //包名
-        binding.packageNameInput.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                Intent skip2PackageNameSelect = new Intent(this, PackageNameSelectActivity.class);
-                packageNameSelectLauncher.launch(skip2PackageNameSelect);
-            }
-            return false;
+        binding.packageNameInput.setOnFocusChangeListener((v, hasFocus) -> {
+            Intent skip2PackageNameSelect = new Intent(this, PackageNameSelectActivity.class);
+            packageNameSelectLauncher.launch(skip2PackageNameSelect);
+        });
+        binding.packageNameInput.setOnClickListener(v -> {
+            Intent skip2PackageNameSelect = new Intent(this, PackageNameSelectActivity.class);
+            packageNameSelectLauncher.launch(skip2PackageNameSelect);
         });
 
         //其他按钮
