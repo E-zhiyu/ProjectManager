@@ -96,6 +96,11 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
         loadTagGroupData(tagAdapter);
     }
 
+    /**
+     * 加载标签数据
+     *
+     * @param tagAdapter 显示标签数据的视图适配器
+     */
     private void loadTagGroupData(@NonNull SheetTagGroupRecyclerAdapter tagAdapter) {
         disposables.add(
                 Observable.fromCallable(() -> TagGroup.loadTagGroups(requireContext(), excepted_tag_no, tagScopeType))
