@@ -204,7 +204,7 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
             HeaderItem headerItem = new HeaderItem(date);
             newSection.setHeader(headerItem);
 
-            newSection.add(contentItem);
+            newSection.add(0, contentItem);
             this.add(0, newSection);
         } else {
             section.add(contentItem);
