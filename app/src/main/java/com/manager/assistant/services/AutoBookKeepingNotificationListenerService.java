@@ -1,5 +1,6 @@
 package com.manager.assistant.services;
 
+import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -13,7 +14,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
+import com.manager.assistant.R;
 import com.manager.assistant.enums.LogTags;
 import com.manager.assistant.broadcast.NotificationAnalysisBroadcastReceiver;
 import com.manager.assistant.broadcast.BroadcastConstants;
@@ -40,6 +43,12 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
     private boolean isFunctionOpened;                                   //通知解析功能是否开启
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "服务已启动");
+        return START_STICKY;
+    }
+
+    @Override
     public void onCreate() {
         super.onCreate();
 
@@ -50,7 +59,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
             ruleList = new ArrayList<>();
             Toast.makeText(getApplicationContext(), "通知监听服务无法加载解析规则", Toast.LENGTH_SHORT).show();
         }
-        isFunctionOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(getApplicationContext());   //启动时加载功能开关状态
+        isFunctionOpened = AutoBookKeepingPreference.getSwitchStat(getApplicationContext());   //启动时加载功能开关状态
 
         //注册规则更新和开关状态更新的广播接收器
         ruleUpdateReceiver = new NotificationAnalysisBroadcastReceiver(this);
@@ -77,12 +86,6 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         if (ruleUpdateReceiver != null) {
             unregisterReceiver(ruleUpdateReceiver);
         }
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "服务已启动");
-        return START_STICKY;
     }
 
     @Override
@@ -173,7 +176,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
     @Override
     public void onFunctionSwitched() {
         Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "收到功能开关状态变更广播");
-        isFunctionOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(getApplicationContext());
+        isFunctionOpened = AutoBookKeepingPreference.getSwitchStat(getApplicationContext());
         Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "通知解析功能：" + isFunctionOpened);
     }
 

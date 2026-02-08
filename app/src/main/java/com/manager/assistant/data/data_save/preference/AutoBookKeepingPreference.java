@@ -18,7 +18,7 @@ public class AutoBookKeepingPreference {
         pref.edit().putBoolean(KEY_NOTIFICATION_ANALYSIS_OPENED, isOpened).apply();
     }
 
-    public static boolean getNotificationAnalysisOpened(@NonNull Context context) {
+    public static boolean getSwitchStat(@NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return pref.getBoolean(KEY_NOTIFICATION_ANALYSIS_OPENED, false);
     }
