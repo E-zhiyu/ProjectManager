@@ -11,7 +11,10 @@ import com.manager.assistant.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.7.8  \n" +
+    private static final String update_log_md = "# v1.7.9  \n" +
+            "**修改内容**  \n" +
+            "- 回退上个版本将通知监听服务放在独立进程的更改，因为这将导致自动记账功能不稳定  \n" +
+            "# v1.7.8  \n" +
             "**BUG修复**  \n" +
             "- 修复编辑流水记录时修改日期后导致UI不同步的BUG  \n" +
             "- 修复编辑流水记录时填充的是当前日期而不是流水记录中的日期的BUG  \n" +
