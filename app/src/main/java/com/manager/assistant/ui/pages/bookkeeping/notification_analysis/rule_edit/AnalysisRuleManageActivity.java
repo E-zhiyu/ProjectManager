@@ -56,12 +56,9 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
             //弹出提示框
             new MaterialAlertDialogBuilder(this)
                     .setTitle("提示")
-                    .setMessage("由于国内厂商的电池策略，使用该功能前必须授予应用自启动权限，需要跳转到自启动权限管理界面吗？")
-                    .setNegativeButton("不用了", ((dialog, which) -> dialog.dismiss()))
-                    .setPositiveButton("前往授权", ((dialog, which) -> {
-                        dialog.dismiss();
-                        PermissionHelper.requestAutoStartPermission(this);
-                    }))
+                    .setMessage("如果您的系统有自启动权限设置，请授予本应用自启动权限，否则该功能无法正常运行\n(提示：该功能需要在后台常驻才能稳定运行，建议在最近任务中锁定本应用)")
+                    .setNegativeButton("关闭", ((dialog, which) -> dialog.dismiss()))
+                    .setPositiveButton("前往授权", ((dialog, which) -> PermissionHelper.requestAutoStartPermission(this)))
                     .show();
         }
 
