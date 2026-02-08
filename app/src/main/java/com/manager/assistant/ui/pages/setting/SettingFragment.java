@@ -1,12 +1,9 @@
 package com.manager.assistant.ui.pages.setting;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -81,7 +78,6 @@ public class SettingFragment extends Fragment {
     private ActivityResultLauncher<Intent> backupDirectorySetLauncher;              //自动备份文件夹选择的启动器
     private DataIOHelper dataIOHelper;                                              //SAF文件帮助器
     private AutoBackupHelper autoBackupHelper;                                      //自动备份帮助器
-    private BroadcastReceiver notificationPermissionListener;                       //通知监听服务正常运行的广播接收器
     private final CompositeDisposable disposables = new CompositeDisposable();      //多线程任务列表
 
     //导入和导出的数据种类枚举
@@ -137,15 +133,7 @@ public class SettingFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-
-        //尝试注销广播接收器
-        try {
-            requireContext().unregisterReceiver(notificationPermissionListener);
-        } catch (Exception e) {
-            Log.d(LogTags.SETTING_FRAGMENT.getV(), "广播接收器注销失败：该接收器未注册");
-        }
         binding = null;
-
         disposables.dispose();
     }
 
@@ -459,7 +447,7 @@ public class SettingFragment extends Fragment {
                 "解析通知实现自动记账",
                 R.drawable.baseline_notifications_24
         );
-        boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getNotificationAnalysisOpened(requireContext());
+        boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getSwitchStat(requireContext());
         if (isNotificationAnalysisOpened && PermissionHelper.isNotificationServiceEnabled(requireContext())) {
             binding.ruleManageLayout.setVisibility(View.VISIBLE);
             notificationAnalysisSwitchOption.setChecked(true);
@@ -900,41 +888,13 @@ public class SettingFragment extends Fragment {
     private void onNotificationAnalysisSwitchChanged(SettingSwitchView switchView, boolean isChecked) {
         AutoBookKeepingPreference.setSwitchStat(isChecked, requireContext());   //将打开状态写入文件
 
-        //实例化并注册权限授予通知监听器
-        notificationPermissionListener = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                AnimationHelper.switchViewFoldOrExpanded(true, binding.ruleManageLayout);  //切换通知解析选项布局的可见性
-                switchView.setChecked(true);
-
-                //发送功能开关变更广播
-                Intent functionSwitched = new Intent(BroadcastConstants.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString());
-                requireContext().sendBroadcast(functionSwitched);
-
-                try {
-                    requireContext().unregisterReceiver(this);
-                } catch (Exception e) {
-                    Log.d(LogTags.SETTING_FRAGMENT.getV(), "广播接收器注销失败：该接收器未注册");
-                }
-            }
-        };
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BroadcastConstants.ACTION_NOTIFICATION_LISTENER_ENABLED.toString());
-
         //开启开关时检测是否没有权限，如果没有则提示用户授权
         if (!PermissionHelper.isNotificationServiceEnabled(requireContext()) && isChecked) {
             switchView.setChecked(false);
             new MaterialAlertDialogBuilder(requireContext())
                     .setTitle("权限申请说明")
-                    .setMessage("此功能需要使用“通知使用权”权限，该权限允许应用读取其他软件发送的通知内容。本应用不会也无法使用该权限获取用户隐私信息，仅用于解析通知中可能出现的流水账信息，请您放心使用。\n是否为本应用授权？")
+                    .setMessage("此功能需要使用“通知使用权”权限，该权限允许应用读取其他软件发送的通知内容。本应用不会也无法使用该权限获取用户隐私信息，仅用于解析通知中可能出现的流水账信息，请您放心使用。\n\n是否为本应用授权？")
                     .setPositiveButton("确认", (dialog, which) -> {
-                        //注册通知接收器以接收通知监听服务是否启动
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            requireContext().registerReceiver(notificationPermissionListener, filter, Context.RECEIVER_EXPORTED);
-                        } else {
-                            requireContext().registerReceiver(notificationPermissionListener, filter);
-                        }
-
                         //申请通知监听权限
                         PermissionHelper.requestNotificationPermission(requireContext());
                     })
