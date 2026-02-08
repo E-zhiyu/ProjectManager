@@ -40,6 +40,7 @@ import com.manager.assistant.data.data_save.preference.BookKeepingStartDatePrefe
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.DataIOHelper;
 import com.manager.assistant.helpers.UpdateHelper;
+import com.manager.assistant.helpers.UriPathHelper;
 import com.manager.assistant.ui.others.dialogs.MultiChoiceDialog;
 import com.manager.assistant.ui.others.dialogs.ProgressDialog;
 import com.manager.assistant.ui.pages.bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
@@ -428,10 +429,10 @@ public class SettingFragment extends Fragment {
         backupDirectoryOption.setFunctionListener(
                 v -> autoBackupHelper.selectBackupDirectory(backupDirectorySetLauncher)
         );
-        String uriStr = Uri.decode(AutoBackupPreference.getBackupDirectoryUri(requireContext()));
+        String uriStr = AutoBackupPreference.getBackupDirectoryUri(requireContext());
         if (!uriStr.isEmpty()) {
-            uriStr = uriStr.substring(61);
-            binding.backupDirectoryOption.descriptionText.setText(uriStr);
+            String path = UriPathHelper.getDisplayPathFromSAFUri(requireContext(), Uri.parse(uriStr));
+            binding.backupDirectoryOption.descriptionText.setText(path);
         }
     }
 

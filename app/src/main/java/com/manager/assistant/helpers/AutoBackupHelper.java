@@ -88,7 +88,8 @@ public class AutoBackupHelper {
             AutoBackupPreference.setBackupDirectoryUri(context, uriStr);
 
             //通过TextView显示路径
-            pathTextView.setText(Uri.decode(uriStr).substring(61));
+            String path = UriPathHelper.getDisplayPathFromSAFUri(context, backupDirUri);
+            pathTextView.setText(path);
 
             //请求持久化权限
             context.getContentResolver().takePersistableUriPermission(
