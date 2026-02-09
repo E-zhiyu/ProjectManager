@@ -16,7 +16,7 @@ import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.Runn
 
 public class BookkeepingDbHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "running_account.db";   //数据库名称
-    private static final int DATABASE_VERSION = 6;                      //数据库版本
+    private static final int DATABASE_VERSION = 7;                      //数据库版本
     private final Context context;                                      //上下文
     public static final String defaultGroupName = "默认分组";           //默认分组名称
 
@@ -98,7 +98,7 @@ public class BookkeepingDbHelper extends SQLiteOpenHelper {
             //创建转账独占数据表
             err = "转账流水表创建失败";
             create = "CREATE TABLE IF NOT EXISTS " + BookkeepingTables.TRANSFER + "(" +
-                    BookkeepingColumns.RNO + " INTEGER PRIMARY KEY NOT NULL," +
+                    BookkeepingColumns.RNO + " INTEGER PRIMARY KEY," +
                     BookkeepingColumns.EXPORT + " VARCHAR(20) NOT NULL," +
                     BookkeepingColumns.IMPORT + " VARCHAR(20) NOT NULL," +
 
@@ -128,7 +128,21 @@ public class BookkeepingDbHelper extends SQLiteOpenHelper {
                     ")";
             db.execSQL(create);
 
-            addDefaultRule(db);
+            addDefaultRule(db); //添加默认规则
+
+            //创建转账类型规则的账户基本表
+            err = "通知解析规则的转账账户表创建失败";
+            create = "CREATE TABLE IF NOT EXISTS " + BookkeepingTables.RULE_ACCOUNT + "(" +
+                    BookkeepingColumns.RULE_NO + " INTEGER PRIMARY KEY," +
+                    BookkeepingColumns.EXPORT + " VARCHAR(20) NOT NULL," +
+                    BookkeepingColumns.IMPORT + " VARCHAR(20) NOT NULL," +
+
+                    "CONSTRAINT " + BookkeepingConstraints.FK_RULE_NO +
+                    " FOREIGN KEY (" + BookkeepingColumns.RULE_NO + ")" +
+                    " REFERENCES " + BookkeepingTables.ANALYSIS_RULE + "(" + BookkeepingColumns.RULE_NO + ")" +
+                    " ON DELETE CASCADE" +
+                    ")";
+            db.execSQL(create);
 
             //创建流水图片基本表
             err = "流水图片表创建失败";
@@ -157,6 +171,7 @@ public class BookkeepingDbHelper extends SQLiteOpenHelper {
             else if (oldVersion == 3) up3To4(db);
             else if (oldVersion == 4) up4To5(db);
             else if (oldVersion == 5) up5To6(db);
+            else if (oldVersion == 6) up6To7(db);
 
             oldVersion++;
         }
@@ -257,6 +272,27 @@ public class BookkeepingDbHelper extends SQLiteOpenHelper {
             String sql = "ALTER TABLE tag_data ADD COLUMN TagScope INTEGER DEFAULT 0";
             db.execSQL(sql);
         } catch (SQLException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+            Toast.makeText(context, err, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    //添加通知解析规则的转入转出账户表
+    private void up6To7(@NonNull SQLiteDatabase db) {
+        String err = "规则账户表创建失败";
+        try {
+            String create = "CREATE TABLE IF NOT EXISTS " + BookkeepingTables.RULE_ACCOUNT + "(" +
+                    BookkeepingColumns.RULE_NO + " INTEGER PRIMARY KEY," +
+                    BookkeepingColumns.EXPORT + " VARCHAR(20) NOT NULL," +
+                    BookkeepingColumns.IMPORT + " VARCHAR(20) NOT NULL," +
+
+                    "CONSTRAINT " + BookkeepingConstraints.FK_RULE_NO +
+                    " FOREIGN KEY (" + BookkeepingColumns.RULE_NO + ")" +
+                    " REFERENCES " + BookkeepingTables.ANALYSIS_RULE + "(" + BookkeepingColumns.RULE_NO + ")" +
+                    " ON DELETE CASCADE" +
+                    ")";
+            db.execSQL(create);
+        } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             Toast.makeText(context, err, Toast.LENGTH_SHORT).show();
         }

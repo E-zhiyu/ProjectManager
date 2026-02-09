@@ -112,14 +112,14 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         }
 
         //解析规则数据
-        String rule_name = newRuleData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());
+        String ruleName = newRuleData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());
         RunningAccountType type = RunningAccountType.valueOf(newRuleData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-        String package_name = newRuleData.getString(KeyValueStrings.PACKAGE_NAME.getValue());
-        String notification_title = newRuleData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
-        String notification_content = newRuleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
+        String packageName = newRuleData.getString(KeyValueStrings.PACKAGE_NAME.getValue());
+        String notificationTitle = newRuleData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
+        String notificationContent = newRuleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
 
         //刷新视图
-        AnalysisRule newRule = new AnalysisRule(rule_name, rule_no, type, package_name, notification_title, notification_content);
+        AnalysisRule newRule = new AnalysisRule(ruleName, rule_no, type, packageName, notificationTitle, notificationContent);
         ruleList.add(newRule);
         notifyItemInserted(ruleList.size() - 1);
         Toast.makeText(context, "解析规则添加成功", Toast.LENGTH_SHORT).show();

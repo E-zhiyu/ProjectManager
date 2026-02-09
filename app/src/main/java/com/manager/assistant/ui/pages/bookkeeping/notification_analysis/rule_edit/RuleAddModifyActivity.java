@@ -33,6 +33,7 @@ import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
 import com.manager.assistant.ui.data_communication.tag_modify.TagUpdateReason;
 import com.manager.assistant.ui.data_communication.tag_modify.TagRepository;
 
+import java.util.Arrays;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -79,15 +80,22 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         //流水种类
         NoFilteringArrayAdapter<String> adapter = new NoFilteringArrayAdapter<>(
                 this,
-                new String[]{
-                        RunningAccountType.EXPENSE.getTitle(),
-                        RunningAccountType.INCOME.getTitle()
-                }
+                Arrays.stream(RunningAccountType.values())
+                        .map(RunningAccountType::getTitle)
+                        .toArray(String[]::new)
         );
         binding.typeInput.setAdapter(adapter);
         binding.typeInput.setText(RunningAccountType.EXPENSE.getTitle());
         binding.typeInput.setOnItemClickListener(
-                (parent, view, position, id) -> type = RunningAccountType.values()[position]
+                (parent, view, position, id) -> {
+                    if (position == RunningAccountType.TRANSFER.ordinal() && type != RunningAccountType.TRANSFER) {
+                        AnimationHelper.switchViewFoldOrExpanded(true, binding.transferInputLayout);
+                    } else if (position != RunningAccountType.TRANSFER.ordinal() && type == RunningAccountType.TRANSFER) {
+                        AnimationHelper.switchViewFoldOrExpanded(false, binding.transferInputLayout);
+                    }
+
+                    type = RunningAccountType.values()[position];
+                }
         );
 
         //标签名称
@@ -351,17 +359,25 @@ public class RuleAddModifyActivity extends AppCompatActivity {
     private Bundle getInputData() {
         Bundle dataBundle = new Bundle();
 
-        String rule_name = String.valueOf(binding.ruleNameInput.getText());
-        String package_name = String.valueOf(binding.packageNameInput.getText());
-        String notification_title = String.valueOf(binding.notificationTitleInput.getText());
-        String notification_content = String.valueOf(binding.notificationContentInput.getText());
+        String ruleName = String.valueOf(binding.ruleNameInput.getText());
+        String packageName = String.valueOf(binding.packageNameInput.getText());
+        String notificationTitle = String.valueOf(binding.notificationTitleInput.getText());
+        String notificationContent = String.valueOf(binding.notificationContentInput.getText());
 
-        dataBundle.putString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue(), rule_name);
+        dataBundle.putString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue(), ruleName);
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());
         dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
-        dataBundle.putString(KeyValueStrings.PACKAGE_NAME.getValue(), package_name);
-        dataBundle.putString(KeyValueStrings.NOTIFICATION_TITLE.getValue(), notification_title);
-        dataBundle.putString(KeyValueStrings.NOTIFICATION_CONTENT.getValue(), notification_content);
+        dataBundle.putString(KeyValueStrings.PACKAGE_NAME.getValue(), packageName);
+        dataBundle.putString(KeyValueStrings.NOTIFICATION_TITLE.getValue(), notificationTitle);
+        dataBundle.putString(KeyValueStrings.NOTIFICATION_CONTENT.getValue(), notificationContent);
+
+        //写入转账相关的数据
+        if (type == RunningAccountType.TRANSFER) {
+            String exportAccount = String.valueOf(binding.exportAccountInput.getText());
+            String importAccount = String.valueOf(binding.importAccountInput.getText());
+            dataBundle.putString(KeyValueStrings.ACCOUNT_EXPORT.getValue(), exportAccount);
+            dataBundle.putString(KeyValueStrings.ACCOUNT_IMPORT.getValue(), importAccount);
+        }
 
         if (isModifyMode) {
             dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), viewHolderPosition);
@@ -371,15 +387,19 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         return dataBundle;
     }
 
-    //显示输入说明对话框
+    /**
+     * 显示输入说明对话框
+     */
     private void showInputInstructionDialog() {
         String instruction = "- 规则名称：该通知解析规则的名称  \n" +
                 "- 流水类型：通过该规则解析得到的流水记录的类型  \n" +
+                "- 转出账户(仅转账类型)：转出财产的金融账户名称  \n" +
+                "- 转入账户(仅转账类型)：转入财产的进入账户名称  \n" +
                 "- 标签(可选)：通过该规则解析得到的流水记录的标签  \n" +
                 "- 应用包名：发送通知的APP包名  \n" +
                 "- 通知标题：通知的标题(如“微信支付”)  \n" +
                 "- 通知内容(正则表达式)：使用正则表达式匹配通知内容，若成功匹配则按照该规则添加新的流水记录。(注意：第一个捕获组务必为金额信息)  \n\n" +
-                "**提示：如果您不会使用正则表达式，请尝试询问AI，并在[regex101](https://regex101.com/)中测试您的正则表达式**";
+                "**提示：如果您不会使用正则表达式，请尝试询问AI，跟AI说明哪个数字为金额数据并让其编写使用捕获组捕获该数字的正则表达式，并在[regex101](https://regex101.com/)中测试您得到的正则表达式是否符合要求**";
 
         View update_dialog_view = LayoutInflater.from(this)
                 .inflate(R.layout.view_markdown_text, null);
