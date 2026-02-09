@@ -11,7 +11,10 @@ import com.manager.assistant.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.7.9  \n" +
+    private static final String update_log_md = "# v1.7.10  \n" +
+            "**BUG修复**  \n" +
+            "- 修复转出/转入账户输入框没有文本计数器的BUG  \n\n" +
+            "# v1.7.9  \n" +
             "**BUG修复**  \n" +
             "- 修复自动备份目录显示不正确的BUG  \n\n" +
             "**修改内容**  \n" +

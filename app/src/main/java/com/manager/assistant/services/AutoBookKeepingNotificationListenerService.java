@@ -1,6 +1,5 @@
 package com.manager.assistant.services;
 
-import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -14,9 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
 
-import com.manager.assistant.R;
 import com.manager.assistant.enums.LogTags;
 import com.manager.assistant.broadcast.NotificationAnalysisBroadcastReceiver;
 import com.manager.assistant.broadcast.BroadcastConstants;
@@ -37,7 +34,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-public class AutoBookKeepingNotificationListenerService extends NotificationListenerService implements NotificationAnalysisBroadcastReceiver.BroadcastListener {
+public class AutoBookKeepingNotificationListenerService extends NotificationListenerService
+        implements NotificationAnalysisBroadcastReceiver.BroadcastListener {
     private List<AnalysisRule> ruleList;                                //解析规则列表
     private NotificationAnalysisBroadcastReceiver ruleUpdateReceiver;   //规则更新的广播接收器
     private boolean isFunctionOpened;                                   //通知解析功能是否开启
