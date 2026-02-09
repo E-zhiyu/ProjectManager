@@ -26,6 +26,7 @@ import com.manager.assistant.data.data_class.Tag;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -39,6 +40,9 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
     private List<AnalysisRule> ruleList;                                //解析规则列表
     private NotificationAnalysisBroadcastReceiver ruleUpdateReceiver;   //规则更新的广播接收器
     private boolean isFunctionOpened;                                   //通知解析功能是否开启
+    private String lastPackageName = "";                                //上一次接收通知的包名
+    private String lastTitle = "";                                      //上一次通知的标题
+    private long lastReceiveTimeMillis = 0;                             //上一次接收消息的时间（毫秒）
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -88,16 +92,30 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
 
     @Override
     public void onNotificationPosted(@NonNull StatusBarNotification sbn) {
+        //未开启通知监听功能则不运行
         if (!isFunctionOpened) {
             Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "自动记账功能未启用");
             return;
-        }  //功能未打开则直接结束
+        }
 
         //获取通知数据
         String packageName = sbn.getPackageName();
         String title = sbn.getNotification().extras.getString("android.title");
         String text = sbn.getNotification().extras.getString("android.text");
-        if (text == null) return;
+        if (text == null || title == null) return;
+
+        //同一应用发送太频繁直接不运行
+        long currentTimeMillis = Calendar.getInstance().getTimeInMillis();
+        long difference = currentTimeMillis - lastReceiveTimeMillis;        //求时间差
+        lastReceiveTimeMillis = currentTimeMillis;
+        boolean isSamePackageName = packageName.equals(lastPackageName);    //判断是否包名相同
+        lastPackageName = packageName;
+        boolean isSameTitle = title.equals(lastTitle);                      //判断标题是否相同
+        lastTitle = title;
+        if (difference <= 1500 && isSameTitle && isSamePackageName) {
+            Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "同一应用发送通知过于频繁，不执行任何操作");
+            return;
+        }
 
         Log.d(LogTags.NOTIFICATION_SERVICE.getV(), String.format("通知发送者包名：%s", packageName));
         Log.d(LogTags.NOTIFICATION_SERVICE.getV(), String.format("通知标题：%s", title));

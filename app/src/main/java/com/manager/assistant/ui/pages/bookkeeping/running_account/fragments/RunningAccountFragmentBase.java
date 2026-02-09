@@ -268,10 +268,10 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
         dateBuilder.setTitleText("选择日期");
 
         //初始化日期格式化器
-        String input_datetime = String.valueOf(datetimeInput.getText());
+        String inputDatetime = String.valueOf(datetimeInput.getText());
         String pattern = "yyyy-MM-dd HH:mm";    //日期字符串格式
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-        LocalDateTime localDateTime = LocalDateTime.parse(input_datetime, formatter);
+        LocalDateTime localDateTime = LocalDateTime.parse(inputDatetime, formatter);
 
         // 转换为 java.util.Date
         long epochMillis = localDateTime.atZone(java.time.ZoneId.systemDefault())
@@ -294,11 +294,11 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
         datePicker.show(getParentFragmentManager(), TagString.DATE_PICKER.getValue());
 
         datePicker.addOnPositiveButtonClickListener(selection -> {
-            Calendar selected_calendar = Calendar.getInstance();
-            selected_calendar.setTimeInMillis(selection);
+            Calendar selectedCalendar = Calendar.getInstance();
+            selectedCalendar.setTimeInMillis(selection);
 
             //选择日期后，再弹出时间选择器
-            showMaterialTimePicker(selected_calendar, initialCalendar);
+            showMaterialTimePicker(selectedCalendar, initialCalendar);
         });
     }
 
