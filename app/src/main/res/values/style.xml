@@ -77,25 +77,25 @@
         <item name="drawableTint">?attr/colorOnSurfaceVariant</item>
     </style>
 
-    <!-- 圆角卡片容器器样式 -->
-    <style name="RoundCardStyle">
+    <style name="CardStyleBase">
         <item name="cardBackgroundColor">@color/card_background_color</item>
-        <item name="cardCornerRadius">50dp</item>
         <item name="strokeColor">@android:color/transparent</item>
+    </style>
+
+    <!-- 圆角卡片容器器样式 -->
+    <style name="RoundCardStyle" parent="CardStyleBase">
+        <item name="cardCornerRadius">50dp</item>
         <item name="android:layout_margin">10dp</item>
     </style>
 
     <!-- 透明背景卡片容器样式 -->
-    <style name="TransparentCardStyle">
+    <style name="TransparentCardStyle" parent="CardStyleBase">
         <item name="cardBackgroundColor">@android:color/transparent</item>
-        <item name="strokeColor">@android:color/transparent</item>
     </style>
 
     <!-- 带有多项内容的卡片容器 -->
-    <style name="ContentCardStyle">
-        <item name="cardBackgroundColor">@color/card_background_color</item>
+    <style name="ContentCardStyle" parent="CardStyleBase">
         <item name="cardCornerRadius">15dp</item>
-        <item name="strokeColor">@android:color/transparent</item>
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:layout_marginStart">10dp</item>
         <item name="android:layout_marginEnd">10dp</item>
@@ -103,9 +103,8 @@
     </style>
 
     <!-- 直角边框的卡片样式(专用于界面底部的按钮容器) -->
-    <style name="BottomRightAngleCardStyle">
+    <style name="BottomRightAngleCardStyle" parent="CardStyleBase">
         <item name="cardCornerRadius">0dp</item>
-        <item name="strokeColor">@android:color/transparent</item>
         <item name="cardBackgroundColor">@android:color/transparent</item>
     </style>
 
@@ -157,6 +156,7 @@
 
     <style name="AddFloatingActionBtnStyle" parent="ThemeOverlay.Material3.FloatingActionButton.Primary">
         <item name="android:src">@drawable/baseline_add_24</item>
+        <item name="backgroundTint">?attr/colorTertiaryContainer</item>
         <item name="android:layout_marginEnd">20dp</item>
         <item name="android:layout_marginBottom">20dp</item>
     </style>
