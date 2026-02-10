@@ -13,12 +13,12 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
+import com.manager.assistant.data.data_class.AnalysisRule;
 import com.manager.assistant.databinding.ActivityRuleAddModifyBinding;
 import com.manager.assistant.enums.RequestResultCode;
 import com.manager.assistant.helpers.AnimationHelper;
@@ -34,6 +34,7 @@ import com.manager.assistant.ui.data_communication.tag_modify.TagUpdateReason;
 import com.manager.assistant.ui.data_communication.tag_modify.TagRepository;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -56,10 +57,10 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         binding = ActivityRuleAddModifyBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        initViews();
-        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
         receiveInitData();
+        initViews();
         initLaunchers();
+        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
 
         startObserveTag();
     }
@@ -85,7 +86,6 @@ public class RuleAddModifyActivity extends AppCompatActivity {
                         .toArray(String[]::new)
         );
         binding.typeInput.setAdapter(adapter);
-        binding.typeInput.setText(RunningAccountType.EXPENSE.getTitle());
         binding.typeInput.setOnItemClickListener(
                 (parent, view, position, id) -> {
                     if (position == RunningAccountType.TRANSFER.ordinal() && type != RunningAccountType.TRANSFER) {
@@ -196,7 +196,9 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         });
     }
 
-    //接收编辑模式下的初始化数据
+    /**
+     * 编辑模式接收初始化数据
+     */
     private void receiveInitData() {
         Bundle initData = getIntent().getExtras();
         isModifyMode = getIntent().getBooleanExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), false);
@@ -219,26 +221,35 @@ public class RuleAddModifyActivity extends AppCompatActivity {
                     })
                     .show());
 
-            MaterialToolbar toolbar = binding.toolbar;
-            toolbar.setTitle(R.string.modify_rule);
+            binding.toolbar.setTitle(R.string.modify_rule);
 
             //解析数据
-            String rule_name = initData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());               //规则名称
+            String ruleName = initData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());                //规则名称
             rule_no = initData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());                            //规则编号
             viewHolderPosition = initData.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());              //视图下标
             type = RunningAccountType.valueOf(initData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));     //流水种类
-            Tag rule_tag = Tag.getTagByRuleNo(rule_no, this);                                     //标签
-            tag_no = rule_tag.getTno();
-            String package_name = initData.getString(KeyValueStrings.PACKAGE_NAME.getValue());                  //包名
-            String notification_title = initData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());      //通知标题
-            String notification_content = initData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());  //通知内容
+            Tag ruleTag = Tag.getTagByRuleNo(rule_no, this);                                            //标签
+            tag_no = ruleTag.getTno();
+            String packageName = initData.getString(KeyValueStrings.PACKAGE_NAME.getValue());                   //包名
+            String notificationTitle = initData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());       //通知标题
+            String notificationContent = initData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());   //通知内容
+            if (type == RunningAccountType.TRANSFER) {                                                          //转账账户信息
+                binding.transferInputLayout.setVisibility(View.VISIBLE);
+                List<String> transferAccountInfo = AnalysisRule.getTransferAccounts(rule_no, this);
+                if (!transferAccountInfo.isEmpty()) {
+                    String exportAccount = transferAccountInfo.get(0);
+                    String importAccount = transferAccountInfo.get(1);
+                    binding.exportAccountInput.setText(exportAccount);
+                    binding.importAccountInput.setText(importAccount);
+                }
+            }
 
-            binding.ruleNameInput.setText(rule_name);
+            binding.ruleNameInput.setText(ruleName);
             binding.typeInput.setText(type.getTitle());
-            binding.tagNameInput.setText(rule_tag.getName());
-            binding.packageNameInput.setText(package_name);
-            binding.notificationTitleInput.setText(notification_title);
-            binding.notificationContentInput.setText(notification_content);
+            binding.tagNameInput.setText(ruleTag.getName());
+            binding.packageNameInput.setText(packageName);
+            binding.notificationTitleInput.setText(notificationTitle);
+            binding.notificationContentInput.setText(notificationContent);
         }
     }
 

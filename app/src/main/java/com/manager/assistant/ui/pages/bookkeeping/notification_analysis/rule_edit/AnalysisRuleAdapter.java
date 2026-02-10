@@ -30,14 +30,14 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
     private final List<AnalysisRule> ruleList;  //规则列表
 
     public static class AnalysisRuleViewHolder extends RecyclerView.ViewHolder {
-        MaterialTextView rule_name_text, tag_name_text, type_text;
+        MaterialTextView ruleNameText, tagNameText, typeText;
 
         public AnalysisRuleViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            rule_name_text = itemView.findViewById(R.id.rule_name_text);
-            tag_name_text = itemView.findViewById(R.id.tag_name_text);
-            type_text = itemView.findViewById(R.id.type_text);
+            ruleNameText = itemView.findViewById(R.id.rule_name_text);
+            tagNameText = itemView.findViewById(R.id.tag_name_text);
+            typeText = itemView.findViewById(R.id.type_text);
         }
     }
 
@@ -72,19 +72,10 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         RunningAccountType type = rule.getType();
         Tag rule_tag = Tag.getTagByRuleNo(rule.getRuleNo(), context);
 
-        String type_str = "未知";
-        switch (type) {
-            case EXPENSE:
-                type_str = "支出";
-                break;
-            case INCOME:
-                type_str = "收入";
-                break;
-        }
-
-        holder.rule_name_text.setText(rule_name);
-        holder.type_text.setText(type_str);
-        holder.tag_name_text.setText(rule_tag.getName());
+        String typeStr = type.getTitle();
+        holder.ruleNameText.setText(rule_name);
+        holder.typeText.setText(typeStr);
+        holder.tagNameText.setText(rule_tag.getName());
 
         holder.itemView.setOnClickListener(v ->
                 listener.onRuleClicked(holder.getBindingAdapterPosition(), rule));

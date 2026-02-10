@@ -229,4 +229,46 @@ public class AnalysisRule {
                 whereArgs
         );
     }
+
+    /**
+     * 获取转账账户
+     *
+     * @param ruleNo  通知解析规则编号
+     * @param context 上下文
+     * @return 带有转出账户和转入账户名称的列表
+     */
+    @NonNull
+    public static List<String> getTransferAccounts(long ruleNo, Context context) {
+        List<String> accountList = new ArrayList<>();
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
+        SQLiteDatabase db = dbHelper.openReadLink();
+
+        String[] columns = {
+                BookkeepingColumns.EXPORT.toString(),
+                BookkeepingColumns.IMPORT.toString()
+        };
+        String selection = BookkeepingColumns.RULE_NO + "=?";
+        String[] selectionArgs = {String.valueOf(ruleNo)};
+        Cursor accountCursor = db.query(
+                BookkeepingTables.RULE_ACCOUNT.toString(),
+                columns,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null,
+                "1"
+        );
+
+        if (accountCursor.moveToNext()) {
+            String exportAccount = accountCursor.getString(accountCursor.getColumnIndexOrThrow(BookkeepingColumns.EXPORT.toString()));
+            String importAccount = accountCursor.getString(accountCursor.getColumnIndexOrThrow(BookkeepingColumns.IMPORT.toString()));
+            accountList.add(exportAccount);
+            accountList.add(importAccount);
+        }
+
+        accountCursor.close();
+        db.close();
+        return accountList;
+    }
 }
