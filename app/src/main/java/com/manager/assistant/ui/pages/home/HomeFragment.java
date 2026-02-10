@@ -195,7 +195,7 @@ public class HomeFragment extends Fragment {
             if (type.isExpenseType()) {
                 day_balance -= amount;
                 day_expense += amount;
-            } else {
+            } else if (type.isIncomeType()) {
                 day_balance += amount;
                 day_income += amount;
             }
