@@ -259,28 +259,28 @@ public abstract class RunningAccountBase {
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
         if (remark == null) remark = "";
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
-        String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
+        String datetime = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
         long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
 
-        ContentValues basic_values = new ContentValues();
-        basic_values.put(BookkeepingColumns.TYPE.toString(), type);                                 //种类
-        basic_values.put(BookkeepingColumns.AMOUNT.toString(), amount);                             //金额
-        basic_values.put(BookkeepingColumns.REMARK.toString(), remark);                             //备注
-        basic_values.put(BookkeepingColumns.DATETIME.toString(), date_time);                        //日期
-        basic_values.put(BookkeepingColumns.TAG_NO.toString(), tag_no);                             //标签编号
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(BookkeepingColumns.TYPE.toString(), type);                                //种类
+        contentValues.put(BookkeepingColumns.AMOUNT.toString(), amount);                            //金额
+        contentValues.put(BookkeepingColumns.REMARK.toString(), remark);                            //备注
+        contentValues.put(BookkeepingColumns.DATETIME.toString(), datetime);                        //日期
+        contentValues.put(BookkeepingColumns.TAG_NO.toString(), tag_no);                            //标签编号
 
-        long rno = db.insert(BookkeepingTables.BASIC.toString(), null, basic_values);
+        long rno = db.insert(BookkeepingTables.BASIC.toString(), null, contentValues);
 
         //判断是否为特殊类型
-        ContentValues special_values = new ContentValues();
         if (type != null && type.equals(RunningAccountType.TRANSFER.toString())) {
-            String export_account = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());
-            String import_account = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());
+            String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());
+            String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());
 
-            special_values.put(BookkeepingColumns.EXPORT.toString(), export_account);
-            special_values.put(BookkeepingColumns.IMPORT.toString(), import_account);
-            special_values.put(BookkeepingColumns.RNO.toString(), rno);
-            db.insert(BookkeepingTables.TRANSFER.toString(), null, special_values);
+            ContentValues specialValues = new ContentValues();
+            specialValues.put(BookkeepingColumns.EXPORT.toString(), exportAccount);
+            specialValues.put(BookkeepingColumns.IMPORT.toString(), importAccount);
+            specialValues.put(BookkeepingColumns.RNO.toString(), rno);
+            db.insert(BookkeepingTables.TRANSFER.toString(), null, specialValues);
         }
 
         db.close();

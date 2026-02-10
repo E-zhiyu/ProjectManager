@@ -151,7 +151,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                     long rule_no = rule.getRuleNo();
                     long tag_no = Tag.getTagByRuleNo(rule_no, getApplicationContext()).getTno();
 
-                    dataBundle = getNewAccountData(matcher, rule.getType(), tag_no, rule.getRuleName());
+                    dataBundle = getNewAccountData(matcher, rule.getType(), tag_no, rule.getRuleName(), rule_no);
                     Log.i(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据保存成功");
                 } catch (SQLiteException e) {
                     Log.e(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据保存失败或标签编号读取失败");
@@ -203,11 +203,17 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
      * @param type     解析规则中的流水种类
      * @param tag_no   解析规则对应的标签编号
      * @param ruleName 解析规则的名称
+     * @param rule_no  规则编号
      * @return 解析通知内容后生成的流水数据包(正则表达式解析失败返回null)
      * @throws SQLiteException 流水数据保存失败引发的异常
      */
     @Nullable
-    private Bundle getNewAccountData(@NonNull Matcher matcher, @NonNull RunningAccountType type, long tag_no, String ruleName) throws SQLiteException {
+    private Bundle getNewAccountData(
+            @NonNull Matcher matcher,
+            @NonNull RunningAccountType type,
+            long tag_no,
+            String ruleName,
+            long rule_no) throws SQLiteException {
         //获取匹配到的金额数据
         double amount;
         try {
@@ -252,6 +258,15 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());
         dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
         dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
+        if (type == RunningAccountType.TRANSFER) {
+            List<String> transferAccountInfo = AnalysisRule.getTransferAccounts(rule_no, getApplicationContext());
+            if (!transferAccountInfo.isEmpty()) {
+                String exportAccount = transferAccountInfo.get(0);
+                String importAccount = transferAccountInfo.get(1);
+                dataBundle.putString(KeyValueStrings.ACCOUNT_EXPORT.getValue(), exportAccount);
+                dataBundle.putString(KeyValueStrings.ACCOUNT_IMPORT.getValue(), importAccount);
+            }
+        }
 
         long rno = RunningAccountBase.saveNewAccount(dataBundle, getApplicationContext());
         dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);

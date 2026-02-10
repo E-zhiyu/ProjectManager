@@ -98,6 +98,34 @@ public class RuleAddModifyActivity extends AppCompatActivity {
                 }
         );
 
+        //转出账户
+        binding.exportAccountInput.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                String exportAccount = String.valueOf(binding.exportAccountInput.getText());
+                if (exportAccount.isEmpty()) {
+                    binding.exportAccountLayout.setErrorEnabled(true);
+                    binding.exportAccountLayout.setError("转出账户不能为空");
+                }
+            } else {
+                binding.exportAccountLayout.setError(null);
+            }
+        });
+        binding.exportAccountInput.setOnClickListener(v -> binding.exportAccountLayout.setError(null));
+
+        //转入账户
+        binding.importAccountInput.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                String importAccount = String.valueOf(binding.importAccountInput.getText());
+                if (importAccount.isEmpty()) {
+                    binding.importAccountLayout.setErrorEnabled(true);
+                    binding.importAccountLayout.setError("转入账户不能为空");
+                }
+            } else {
+                binding.importAccountLayout.setError(null);
+            }
+        });
+        binding.importAccountInput.setOnClickListener(v -> binding.importAccountLayout.setError(null));
+
         //标签名称
         binding.tagNameInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
@@ -328,6 +356,12 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         if (String.valueOf(binding.ruleNameInput.getText()).isEmpty()) {
             errLayout = binding.ruleNameLayout;
             err = "规则名称不能为空";
+        } else if (String.valueOf(binding.exportAccountInput.getText()).isEmpty() && type == RunningAccountType.TRANSFER) {
+            errLayout = binding.exportAccountLayout;
+            err = "转出账户不能为空";
+        } else if (String.valueOf(binding.importAccountInput.getText()).isEmpty() && type == RunningAccountType.TRANSFER) {
+            errLayout = binding.importAccountLayout;
+            err = "转入账户不能为空";
         } else if (String.valueOf(binding.packageNameInput.getText()).isEmpty()) {
             errLayout = binding.packageNameLayout;
             err = "包名不能为空";
