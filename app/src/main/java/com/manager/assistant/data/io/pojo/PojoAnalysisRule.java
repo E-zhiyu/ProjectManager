@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.setting.data_io.pojo;
+package com.manager.assistant.data.io.pojo;
 
 public class PojoAnalysisRule {
     private String ruleName;    //规则名称

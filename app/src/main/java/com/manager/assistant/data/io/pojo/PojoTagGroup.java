@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.setting.data_io.pojo;
+package com.manager.assistant.data.io.pojo;
 
 public class PojoTagGroup {
     private String group_name;      //标签组名称

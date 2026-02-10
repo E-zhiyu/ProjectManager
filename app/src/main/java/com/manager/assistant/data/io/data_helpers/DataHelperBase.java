@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.setting.data_io.data_helpers;
+package com.manager.assistant.data.io.data_helpers;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteOpenHelper;

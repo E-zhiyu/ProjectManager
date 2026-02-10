@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.setting.data_io.data_helpers;
+package com.manager.assistant.data.io.data_helpers;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -16,12 +16,12 @@ import com.manager.assistant.data.data_save.database.BookkeepingColumns;
 import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.data_save.database.BookkeepingTables;
 import com.manager.assistant.data.data_save.preference.BookKeepingStartDatePreference;
-import com.manager.assistant.ui.pages.setting.data_io.pojo.PojoBasicRunningAccount;
-import com.manager.assistant.ui.pages.setting.data_io.pojo.PojoPicture;
-import com.manager.assistant.ui.pages.setting.data_io.pojo.PojoTag;
-import com.manager.assistant.ui.pages.setting.data_io.pojo.PojoTagGroup;
-import com.manager.assistant.ui.pages.setting.data_io.maps.TotalAccountDataMap;
-import com.manager.assistant.ui.pages.setting.data_io.pojo.PojoTransferRunningAccount;
+import com.manager.assistant.data.io.pojo.PojoBasicRunningAccount;
+import com.manager.assistant.data.io.pojo.PojoPicture;
+import com.manager.assistant.data.io.pojo.PojoTag;
+import com.manager.assistant.data.io.pojo.PojoTagGroup;
+import com.manager.assistant.data.io.maps.TotalAccountDataMap;
+import com.manager.assistant.data.io.pojo.PojoTransferRunningAccount;
 
 import java.io.File;
 import java.util.ArrayList;
