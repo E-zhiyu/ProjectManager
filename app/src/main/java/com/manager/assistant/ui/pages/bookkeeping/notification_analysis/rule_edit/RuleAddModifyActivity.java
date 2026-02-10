@@ -33,7 +33,9 @@ import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
 import com.manager.assistant.ui.data_communication.tag_modify.TagUpdateReason;
 import com.manager.assistant.ui.data_communication.tag_modify.TagRepository;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -79,13 +81,13 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
 
         //流水种类
-        NoFilteringArrayAdapter<String> adapter = new NoFilteringArrayAdapter<>(
+        NoFilteringArrayAdapter<String> typeAdapter = new NoFilteringArrayAdapter<>(
                 this,
                 Arrays.stream(RunningAccountType.values())
                         .map(RunningAccountType::getTitle)
                         .toArray(String[]::new)
         );
-        binding.typeInput.setAdapter(adapter);
+        binding.typeInput.setAdapter(typeAdapter);
         binding.typeInput.setOnItemClickListener(
                 (parent, view, position, id) -> {
                     if (position == RunningAccountType.TRANSFER.ordinal() && type != RunningAccountType.TRANSFER) {
@@ -97,6 +99,12 @@ public class RuleAddModifyActivity extends AppCompatActivity {
                     type = RunningAccountType.values()[position];
                 }
         );
+
+        //转出账户和转入账户添加适配器
+        HashSet<String> accountSet = AnalysisRule.getAllExportOrImportAccounts(this);
+        NoFilteringArrayAdapter<String> accountAdapter = new NoFilteringArrayAdapter<>(this, new ArrayList<>(accountSet));
+        binding.exportAccountInput.setAdapter(accountAdapter);
+        binding.importAccountInput.setAdapter(accountAdapter);
 
         //转出账户
         binding.exportAccountInput.setOnFocusChangeListener((v, hasFocus) -> {

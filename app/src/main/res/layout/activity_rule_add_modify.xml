@@ -72,32 +72,32 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/export_account_layout"
-                    style="@style/CommonTextInputLayoutStyle"
+                    style="@style/DropdownMenuTextInputLayoutStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/export_account"
                     app:counterMaxLength="20"
                     app:helperText="@string/account_export_help">
 
-                    <com.google.android.material.textfield.TextInputEditText
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
                         android:id="@+id/export_account_input"
-                        style="@style/UserInputEditTextStyle"
+                        style="@style/EditableAutoCompleteTextViewStyle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/import_account_layout"
-                    style="@style/CommonTextInputLayoutStyle"
+                    style="@style/DropdownMenuTextInputLayoutStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/import_account"
                     app:counterMaxLength="20"
                     app:helperText="@string/account_import_help">
 
-                    <com.google.android.material.textfield.TextInputEditText
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
                         android:id="@+id/import_account_input"
-                        style="@style/UserInputEditTextStyle"
+                        style="@style/EditableAutoCompleteTextViewStyle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
                 </com.google.android.material.textfield.TextInputLayout>

@@ -16,6 +16,7 @@ import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class AnalysisRule {
@@ -270,5 +271,43 @@ public class AnalysisRule {
         accountCursor.close();
         db.close();
         return accountList;
+    }
+
+    /**
+     * 获取所有转出和转入账户
+     *
+     * @param context 上下文
+     * @return 包含所有转出和转入账户名称的哈希集合
+     */
+    @NonNull
+    public static HashSet<String> getAllExportOrImportAccounts(Context context) {
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
+        SQLiteDatabase db = dbHelper.openReadLink();
+
+        String[] columns = {
+                BookkeepingColumns.EXPORT.toString(),
+                BookkeepingColumns.IMPORT.toString()
+        };
+        Cursor accountCursor = db.query(
+                BookkeepingTables.RULE_ACCOUNT.toString(),
+                columns,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        HashSet<String> accountSet = new HashSet<>();
+        while (accountCursor.moveToNext()) {
+            String exportAccount = accountCursor.getString(accountCursor.getColumnIndexOrThrow(BookkeepingColumns.EXPORT.toString()));
+            String importAccount = accountCursor.getString(accountCursor.getColumnIndexOrThrow(BookkeepingColumns.IMPORT.toString()));
+            accountSet.add(exportAccount);
+            accountSet.add(importAccount);
+        }
+
+        accountCursor.close();
+        db.close();
+        return accountSet;
     }
 }
