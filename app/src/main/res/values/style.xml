@@ -198,12 +198,14 @@
     <!-- 自动填充文本框样式 -->
     <style name="UneditableAutoCompleteTextViewStyle" parent="Widget.Material3.AutoCompleteTextView.OutlinedBox.Dense">
         <item name="android:inputType">none</item>
+        <item name="maxLines">1</item>
         <item name="android:textColorHighlight">?attr/colorControlHighlight</item>
     </style>
 
     <!-- 可编辑的自动填充文本框样式 -->
     <style name="EditableAutoCompleteTextViewStyle" parent="UneditableAutoCompleteTextViewStyle">
         <item name="android:inputType">text</item>
+        <item name="maxLines">1</item>
     </style>
 
     <!-- AppBarLayout样式 -->

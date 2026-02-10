@@ -82,35 +82,41 @@
         app:dividerInsetEnd="20dp"
         app:dividerInsetStart="20dp" />
 
+    <com.google.android.material.chip.ChipGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/clear_tag_chip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkable="false"
+            android:text="@string/long_click_to_clear_tag" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/no_tag_chip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkable="false"
+            android:text="@string/no_tag_selection" />
+    </com.google.android.material.chip.ChipGroup>
+
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         android:scrollbars="none">
 
-        <LinearLayout
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/tag_chip_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:orientation="horizontal">
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/clear_tag_chip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:checkable="false"
-                android:text="@string/long_click_to_clear_tag"
-                app:closeIcon="@drawable/baseline_keyboard_arrow_right_24"
-                app:closeIconEnabled="true" />
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/tag_chip_group"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingStart="0dp"
-                android:paddingEnd="20dp"
-                app:singleLine="true" />
-        </LinearLayout>
+            android:paddingStart="0dp"
+            android:paddingEnd="20dp"
+            app:singleLine="true" />
     </HorizontalScrollView>
 
     <com.google.android.material.loadingindicator.LoadingIndicator

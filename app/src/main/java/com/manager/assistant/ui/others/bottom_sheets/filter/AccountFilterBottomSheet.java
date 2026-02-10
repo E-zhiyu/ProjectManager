@@ -188,18 +188,27 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
             binding.accountStyleChipGroup.addView(titleChip);
         }
 
-        //标签清除Chip点击监听
+        //标签清除Chip长按监听
         binding.clearTagChip.setOnLongClickListener(v -> {
             binding.tagChipGroup.removeAllViews();
             setting.clearTag();
             return true;
         });
 
+        //无标签Chip点击监听
+        binding.noTagChip.setOnClickListener(v -> {
+            if (!setting.getSelectedTagList().contains(0L)) {
+                setting.addTag(0L);
+
+                Chip noTagChip = getClosableTagChip("无标签", 0);
+                binding.tagChipGroup.addView(noTagChip, 0);
+            }
+        });
+
         //标签选择列表
         SheetTagGroupRecyclerAdapter tagAdapter = new SheetTagGroupRecyclerAdapter(
                 (tag_no, tagName) -> {
-                    List<Long> selectedTagList = setting.getSelectedTagList();
-                    if (!selectedTagList.contains(tag_no)) {
+                    if (!setting.getSelectedTagList().contains(tag_no)) {
                         //将标签编号添加至列表中
                         setting.addTag(tag_no);
 
