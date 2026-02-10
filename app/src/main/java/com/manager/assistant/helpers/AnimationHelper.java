@@ -134,6 +134,7 @@ public class AnimationHelper {
             ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
             layoutParams.height = height;
             view.setLayoutParams(layoutParams);
+            view.requestLayout();
         });
 
         //设置动画结束后执行的代码
@@ -155,15 +156,10 @@ public class AnimationHelper {
      * @param view       需要执行动画的视图
      */
     public static void switchViewFoldOrExpanded(boolean isExpanded, @NonNull View view) {
-        // 测量视图
+        //测量视图
         int widthSpec = View.MeasureSpec.makeMeasureSpec(((View) view.getParent()).getWidth(), View.MeasureSpec.AT_MOST);
         int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
         view.measure(widthSpec, heightSpec);
-
-        //临时改为可见
-        int originVisibility = view.getVisibility();
-        view.setVisibility(View.VISIBLE);
-        view.requestLayout(); //强制触发布局流程
 
         view.post(() -> {
             int layout_height = view.getMeasuredHeight();   //获得测量的高度
@@ -174,8 +170,6 @@ public class AnimationHelper {
                 AnimationHelper.animateHeight(view, layout_height, 0, () -> view.setVisibility(View.GONE));
             }
         });
-
-        view.setVisibility(originVisibility);   //恢复原来的可见性
     }
 
     /**
