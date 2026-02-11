@@ -61,6 +61,26 @@ public class RunningAccountDataHelper extends DataHelperBase<BookkeepingDbHelper
         BookKeepingStartDatePreference.saveStartDate("", context);  //清空已保存的开始记账的日期
     }
 
+    @Override
+    public TotalAccountDataMap getAllDataInMap() {
+        //读取所有数据
+        List<PojoBasicRunningAccount> pojoBasicRunningAccountList = getBasicData();
+        List<PojoTransferRunningAccount> pojoTransferRunningAccountList = getTransferData();
+        List<PojoTag> pojoTagList = getTagData();
+        List<PojoTagGroup> pojoTagGroupList = getTagGroupData();
+        List<PojoPicture> pojoPictureList = getPictureData();
+
+        //将所有数据合并至一个字典
+        TotalAccountDataMap totalAccountDataMap = new TotalAccountDataMap();
+        totalAccountDataMap.setBasic_data(pojoBasicRunningAccountList);
+        totalAccountDataMap.setTransfer_data(pojoTransferRunningAccountList);
+        totalAccountDataMap.setTag_data(pojoTagList);
+        totalAccountDataMap.setTag_group_data(pojoTagGroupList);
+        totalAccountDataMap.setPicture_data(pojoPictureList);
+
+        return totalAccountDataMap;
+    }
+
     //获取所有流水账基本数据（对应基本流水记录表）
     @NonNull
     private List<PojoBasicRunningAccount> getBasicData() {
@@ -102,11 +122,15 @@ public class RunningAccountDataHelper extends DataHelperBase<BookkeepingDbHelper
     }
 
     //将流水账基本数据写入数据库
-    private void setBasicData(@NonNull List<PojoBasicRunningAccount> runningAccountDataList) {
+    private void setBasicData(List<PojoBasicRunningAccount> runningAccountDataList) {
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         //删除之前表的内容
         db.delete(BookkeepingTables.BASIC.toString(), null, null);
+
+        if (runningAccountDataList == null) {
+            return;
+        }
 
         for (PojoBasicRunningAccount basic_data : runningAccountDataList) {
             String type = basic_data.getType();              //种类
@@ -160,11 +184,15 @@ public class RunningAccountDataHelper extends DataHelperBase<BookkeepingDbHelper
         return pojoTransferRunningAccountList;
     }
 
-    private void setTransferData(@NonNull List<PojoTransferRunningAccount> pojoTransferRunningAccountList) {
+    private void setTransferData(List<PojoTransferRunningAccount> pojoTransferRunningAccountList) {
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         //删除之前表的内容
         db.delete(BookkeepingTables.TRANSFER.toString(), null, null);
+
+        if (pojoTransferRunningAccountList == null) {
+            return;
+        }
 
         for (PojoTransferRunningAccount transfer_data : pojoTransferRunningAccountList) {
             String exportAccount, importAccount;
@@ -215,11 +243,15 @@ public class RunningAccountDataHelper extends DataHelperBase<BookkeepingDbHelper
     }
 
     //将标签数据写入数据库
-    private void setTagData(@NonNull List<PojoTag> pojoTagList) {
+    private void setTagData(List<PojoTag> pojoTagList) {
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         //删除之前表的内容
         db.delete(BookkeepingTables.TAG.toString(), null, null);
+
+        if (pojoTagList == null) {
+            return;
+        }
 
         for (PojoTag tagData : pojoTagList) {
             String tag_name = tagData.getName();
@@ -269,11 +301,15 @@ public class RunningAccountDataHelper extends DataHelperBase<BookkeepingDbHelper
     }
 
     //将标签分组数据写入数据库
-    private void setTagGroupData(@NonNull List<PojoTagGroup> pojoTagGroupList) {
+    private void setTagGroupData(List<PojoTagGroup> pojoTagGroupList) {
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         //删除之前表的内容
         db.delete(BookkeepingTables.TAG_GROUP.toString(), null, null);
+
+        if (pojoTagGroupList == null) {
+            return;
+        }
 
         boolean isDefaultGroupInImportedData = false;
         for (PojoTagGroup tagGroupData : pojoTagGroupList) {
@@ -339,10 +375,14 @@ public class RunningAccountDataHelper extends DataHelperBase<BookkeepingDbHelper
      *
      * @param pictureList 图片数据列表
      */
-    private void setPictureData(@NonNull List<PojoPicture> pictureList) {
+    private void setPictureData(List<PojoPicture> pictureList) {
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         db.delete(BookkeepingTables.PICTURE.toString(), null, null);
+
+        if (pictureList == null) {
+            return;
+        }
 
         for (PojoPicture picture : pictureList) {
             long pno = picture.getPno();
@@ -357,26 +397,6 @@ public class RunningAccountDataHelper extends DataHelperBase<BookkeepingDbHelper
         }
 
         db.close();
-    }
-
-    @Override
-    public TotalAccountDataMap getAllDataInMap() {
-        //读取所有数据
-        List<PojoBasicRunningAccount> pojoBasicRunningAccountList = getBasicData();
-        List<PojoTransferRunningAccount> pojoTransferRunningAccountList = getTransferData();
-        List<PojoTag> pojoTagList = getTagData();
-        List<PojoTagGroup> pojoTagGroupList = getTagGroupData();
-        List<PojoPicture> pojoPictureList = getPictureData();
-
-        //将所有数据合并至一个字典
-        TotalAccountDataMap totalAccountDataMap = new TotalAccountDataMap();
-        totalAccountDataMap.setBasic_data(pojoBasicRunningAccountList);
-        totalAccountDataMap.setTransfer_data(pojoTransferRunningAccountList);
-        totalAccountDataMap.setTag_data(pojoTagList);
-        totalAccountDataMap.setTag_group_data(pojoTagGroupList);
-        totalAccountDataMap.setPicture_data(pojoPictureList);
-
-        return totalAccountDataMap;
     }
 
     /**

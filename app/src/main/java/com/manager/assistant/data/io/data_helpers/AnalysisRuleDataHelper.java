@@ -108,11 +108,15 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookkeepingDbHelper, 
         return ruleList;
     }
 
-    private void setRuleData(@NonNull List<PojoAnalysisRule> ruleList) {
+    private void setRuleData(List<PojoAnalysisRule> ruleList) {
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         //清空之前表的内容
         db.delete(BookkeepingTables.ANALYSIS_RULE.toString(), null, null);
+
+        if (ruleList == null) {
+            return;
+        }
 
         for (PojoAnalysisRule rule : ruleList) {
             String ruleName = rule.getRuleName();
@@ -170,9 +174,13 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookkeepingDbHelper, 
         return ruleAccountList;
     }
 
-    private void setRuleAccount(@NonNull List<PojoRuleAccount> ruleAccountList) {
+    private void setRuleAccount(List<PojoRuleAccount> ruleAccountList) {
         SQLiteDatabase db = dbHelper.openWriteLink();
         db.delete(BookkeepingTables.RULE_ACCOUNT.toString(), null, null);
+
+        if (ruleAccountList == null) {
+            return;
+        }
 
         for (PojoRuleAccount ruleAccount : ruleAccountList) {
             long rule_no = ruleAccount.getRuleNo();
