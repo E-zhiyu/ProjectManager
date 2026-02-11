@@ -25,9 +25,9 @@ import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.Runn
 import com.manager.assistant.data.data_class.Tag;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -37,12 +37,68 @@ import java.util.regex.PatternSyntaxException;
 
 public class AutoBookKeepingNotificationListenerService extends NotificationListenerService
         implements NotificationAnalysisBroadcastReceiver.BroadcastListener {
-    private List<AnalysisRule> ruleList;                                //解析规则列表
+    private final HashMap<RuleKey, RuleValue> ruleHashMap = new HashMap<>();    //解析规则哈希表
     private NotificationAnalysisBroadcastReceiver ruleUpdateReceiver;   //规则更新的广播接收器
     private boolean isFunctionOpened;                                   //通知解析功能是否开启
     private String lastPackageName = "";                                //上一次接收通知的包名
     private String lastTitle = "";                                      //上一次通知的标题
     private long lastReceiveTimeMillis = 0;                             //上一次接收消息的时间（毫秒）
+
+    private static class RuleKey {
+        private final String title;                                     //通知标题
+        private final String packageName;                               //通知发送者包名
+
+        public RuleKey(String packageName, String title) {
+            this.packageName = packageName;
+            this.title = title;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+
+            if (o == null || getClass() != o.getClass()) return false;
+
+            RuleKey key = (RuleKey) o;
+            return Objects.equals(title, key.title)
+                    && Objects.equals(packageName, key.packageName);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(title, packageName);
+        }
+    }
+
+    private static class RuleValue {
+        private final String ruleName;          //规则名称
+        private final String content;           //通知内容正则表达式
+        private final RunningAccountType type;  //通知种类
+        private final long rule_no;             //规则编号
+
+        public RuleValue(String ruleName, String content, RunningAccountType type, long rule_no) {
+            this.ruleName = ruleName;
+            this.content = content;
+            this.type = type;
+            this.rule_no = rule_no;
+        }
+
+        public String getRuleName() {
+            return ruleName;
+        }
+
+        public String getContent() {
+            return content;
+        }
+
+        public RunningAccountType getType() {
+            return type;
+        }
+
+        public long getRule_no() {
+            return rule_no;
+        }
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -56,9 +112,9 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
 
         //启动时则加载规则
         try {
-            ruleList = AnalysisRule.loadAnalysisRule(getApplicationContext());
+//            ruleList = AnalysisRule.loadAnalysisRule(getApplicationContext());
+            ruleHashMap.putAll(loadRulesInHashMap());
         } catch (SQLiteException e) {
-            ruleList = new ArrayList<>();
             Toast.makeText(getApplicationContext(), "通知监听服务无法加载解析规则", Toast.LENGTH_SHORT).show();
         }
         isFunctionOpened = AutoBookKeepingPreference.getSwitchStat(getApplicationContext());   //启动时加载功能开关状态
@@ -122,14 +178,17 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         Log.d(LogTags.NOTIFICATION_SERVICE.getV(), String.format("通知内容：%s", text));
 
         //处理通知内容
-        for (AnalysisRule rule : ruleList) {
-            String rulePackageName = rule.getPackageName();
-            String ruleTitle = rule.getNotificationTitle();
-            String ruleContent = rule.getNotificationContent();
+        RuleKey key = new RuleKey(packageName, title);
+        RuleValue value = ruleHashMap.get(key);
+        if (value != null) {
+            String content = value.getContent();
+            String ruleName = value.getRuleName();
+            RunningAccountType type = value.getType();
+            long rule_no = value.getRule_no();
 
-            Matcher matcher;    //通知内容匹配器
+            Matcher matcher;                                        //通知内容匹配器
             try {
-                Pattern pattern = Pattern.compile(ruleContent);     //编译为正则表达式
+                Pattern pattern = Pattern.compile(content);         //编译为正则表达式
                 matcher = pattern.matcher(text);
             } catch (PatternSyntaxException e) {                    //处理无法编译为Matcher的情况
                 Log.e(LogTags.NOTIFICATION_SERVICE.getV(), "正则表达式编译出错");
@@ -138,20 +197,20 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                         String.format(
                                 Locale.getDefault(),
                                 "规则“%s”的正则表达式编译出错",
-                                rule.getRuleName()),
+                                ruleName
+                        ),
                         Toast.LENGTH_SHORT
                 ).show();
-                continue;
+                return;
             }
 
-            if (rulePackageName.equals(packageName) && ruleTitle.equals(title) && matcher.find()) {
+            if (matcher.find()) {
                 Bundle dataBundle;
                 try {
                     //获取标签编号
-                    long rule_no = rule.getRuleNo();
                     long tag_no = Tag.getTagByRuleNo(rule_no, getApplicationContext()).getTno();
 
-                    dataBundle = getNewAccountData(matcher, rule.getType(), tag_no, rule.getRuleName(), rule_no);
+                    dataBundle = getNewAccountData(matcher, type, tag_no, ruleName, rule_no);
                     Log.i(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据保存成功");
                 } catch (SQLiteException e) {
                     Log.e(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据保存失败或标签编号读取失败");
@@ -165,8 +224,6 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                     accountAdded.putExtras(dataBundle);
                     getApplicationContext().sendBroadcast(accountAdded);
                 }
-
-                break;  //匹配到规则则结束循环
             }
         }
     }
@@ -178,7 +235,8 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
     public void onRuleUpdated() {
         try {
             Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "收到规则更新广播，正在更新规则……");
-            ruleList = AnalysisRule.loadAnalysisRule(getApplicationContext());
+            //解析规则列表
+            ruleHashMap.putAll(loadRulesInHashMap());
             Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "规则更新成功");
         } catch (SQLiteException e) {
             Log.w(LogTags.NOTIFICATION_SERVICE.getV(), "规则更新失败");
@@ -272,5 +330,33 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
 
         return dataBundle;
+    }
+
+    /**
+     * 加载通知解析规则
+     *
+     * @return 规则哈希表
+     * @throws SQLiteException 规则读取失败引发的异常
+     */
+    @NonNull
+    private HashMap<RuleKey, RuleValue> loadRulesInHashMap() throws SQLiteException {
+        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "开始加载通知解析规则");
+
+        HashMap<RuleKey, RuleValue> ruleHashMap = new HashMap<>();
+        List<AnalysisRule> ruleList1 = AnalysisRule.loadAnalysisRule(getApplicationContext());
+        for (AnalysisRule rule : ruleList1) {
+            String ruleName = rule.getRuleName();
+            long rule_no = rule.getRuleNo();
+            RunningAccountType type = rule.getType();
+            String packageName = rule.getPackageName();
+            String title = rule.getNotificationTitle();
+            String content = rule.getNotificationContent();
+
+            RuleKey key = new RuleKey(packageName, title);
+            RuleValue value = new RuleValue(ruleName, content, type, rule_no);
+            ruleHashMap.putIfAbsent(key, value);    //只有键值唯一的时候才放入到哈希表
+        }
+
+        return ruleHashMap;
     }
 }
