@@ -87,6 +87,7 @@ public class RuleAddModifyActivity extends AppCompatActivity {
                         .map(RunningAccountType::getTitle)
                         .toArray(String[]::new)
         );
+        binding.typeInput.setText(type.getTitle());
         binding.typeInput.setAdapter(typeAdapter);
         binding.typeInput.setOnItemClickListener(
                 (parent, view, position, id) -> {
@@ -281,7 +282,6 @@ public class RuleAddModifyActivity extends AppCompatActivity {
             }
 
             binding.ruleNameInput.setText(ruleName);
-            binding.typeInput.setText(type.getTitle());
             binding.tagNameInput.setText(ruleTag.getName());
             binding.packageNameInput.setText(packageName);
             binding.notificationTitleInput.setText(notificationTitle);
