@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.7.10  \n" +
             "**BUG修复**  \n" +
+            "- 修复备份文件月份从0开始的BUG  \n" +
             "- 修复转出/转入账户输入框没有文本计数器的BUG  \n\n" +
             "**修改内容**  \n" +
             "- 优化通知解析时的规则查询与匹配性能  \n" +
