@@ -1,6 +1,5 @@
 package com.manager.assistant.helpers;
 
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,9 +28,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -258,17 +258,9 @@ public class DataIOHelper {
         packPicturesInZip();
 
         //获取当前日期和时间并生成默认文件名
-        Calendar calendar = Calendar.getInstance();
-        String now_date = String.format(
-                Locale.getDefault(),
-                "%04d%02d%02d(%02d%02d%02d)",
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH),
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE),
-                calendar.get(Calendar.SECOND)
-        );
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd(HHmmss)");
+        String now_date = formatter.format(now);
         String backUpFileName = String.format(Locale.getDefault(), "ManagerAssistantData_%s.zip", now_date);
 
         DocumentFile parentDir = DocumentFile.fromTreeUri(context, parentDirUri);
@@ -353,17 +345,9 @@ public class DataIOHelper {
         Log.d(LogTags.DATA_IO_HELPER.getV(), "正在通过SAF指定zip备份文件存放位置……");
 
         //获取当前日期和时间并生成默认文件名
-        Calendar calendar = Calendar.getInstance();
-        String now_date = String.format(
-                Locale.getDefault(),
-                "%04d%02d%02d(%02d%02d%02d)",
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH),
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE),
-                calendar.get(Calendar.SECOND)
-        );
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd(HHmmss)");
+        String now_date = formatter.format(now);
         String targetFileName = String.format(Locale.getDefault(), "ManagerAssistantData_%s.zip", now_date);
 
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
@@ -549,7 +533,7 @@ public class DataIOHelper {
         try {
             //获取DocumentFile对象
             DocumentFile documentFile = DocumentFile.fromSingleUri(context, uri);
-            if (documentFile != null && documentFile.canRead()) {
+            if (documentFile.canRead()) {
                 //复制文件到Android/data下的临时目录
                 File tempFile = new File(dataTempDir, "temp_json");
                 try (InputStream in = context.getContentResolver().openInputStream(uri);

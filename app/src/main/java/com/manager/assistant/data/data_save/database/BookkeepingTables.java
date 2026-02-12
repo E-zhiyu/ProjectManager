@@ -8,6 +8,7 @@ public enum BookkeepingTables {
     TAG("tag_data"),
     TAG_GROUP("tag_group_data"),
     ANALYSIS_RULE("analysis_rule_data"),
+    RULE_ACCOUNT("rule_account_data"),
     PICTURE("picture");
 
     private final String value;

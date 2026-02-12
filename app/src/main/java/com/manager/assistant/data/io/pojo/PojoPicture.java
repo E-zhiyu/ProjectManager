@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.setting.data_io.pojo;
+package com.manager.assistant.data.io.pojo;
 
 public class PojoPicture {
     private long pno;   //图片编号

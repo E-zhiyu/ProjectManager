@@ -1,14 +1,16 @@
-package com.manager.assistant.ui.pages.setting.data_io.maps;
+package com.manager.assistant.data.io.maps;
 
-import com.manager.assistant.ui.pages.setting.data_io.pojo.PojoBasicRunningAccount;
-import com.manager.assistant.ui.pages.setting.data_io.pojo.PojoPicture;
-import com.manager.assistant.ui.pages.setting.data_io.pojo.PojoTag;
-import com.manager.assistant.ui.pages.setting.data_io.pojo.PojoTagGroup;
-import com.manager.assistant.ui.pages.setting.data_io.pojo.PojoTransferRunningAccount;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.manager.assistant.data.io.pojo.PojoBasicRunningAccount;
+import com.manager.assistant.data.io.pojo.PojoPicture;
+import com.manager.assistant.data.io.pojo.PojoTag;
+import com.manager.assistant.data.io.pojo.PojoTagGroup;
+import com.manager.assistant.data.io.pojo.PojoTransferRunningAccount;
 
 import java.util.List;
 
 //数据最外层Map结构（该POJO类被序列化后成为最外层的JSON字典）
+@JsonIgnoreProperties(ignoreUnknown = true) // 忽略JSON中多余字段
 public class TotalAccountDataMap {
     private List<PojoBasicRunningAccount> basic_data;           //基本流水数据
     private List<PojoTransferRunningAccount> transfer_data;     //转账特有的数据

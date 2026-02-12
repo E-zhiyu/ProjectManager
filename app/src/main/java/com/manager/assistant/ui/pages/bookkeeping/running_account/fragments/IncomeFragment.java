@@ -19,7 +19,8 @@ import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.data_communication.account_picture.AccountPictureViewModel;
 
-import java.util.Calendar;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
@@ -43,16 +44,9 @@ public class IncomeFragment extends RunningAccountFragmentBase<FragmentIncomeBin
         pictureDeleteBtn = binding.pictureDeleteBtn;
 
         //初始化日期内容(必须在接收初始化数据之前)
-        Calendar calendar = Calendar.getInstance();
-        String dtString = String.format(
-                Locale.getDefault(),
-                "%04d-%02d-%02d %02d:%02d",
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH) + 1,
-                calendar.get(Calendar.DAY_OF_MONTH),
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE));
-        binding.datetimeInput.setText(dtString);
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        binding.datetimeInput.setText(formatter.format(now));
 
         receiveInitData();  //获取组件的引用后接收初始化数据
 

@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.setting.data_io.pojo;
+package com.manager.assistant.data.io.pojo;
 
 //流水基本数据POJO类
 public class PojoBasicRunningAccount {

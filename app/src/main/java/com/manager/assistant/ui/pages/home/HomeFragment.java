@@ -32,8 +32,8 @@ import java.net.ProtocolException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
 import java.util.Locale;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -98,21 +98,21 @@ public class HomeFragment extends Fragment {
 
         //初始化记账日期
         String startDateStr = getBookKeepingStartDate();  //获取开始记账的日期
-        long bookkeeping_day_count;
+        long days_count;
         if (!startDateStr.isEmpty()) {
             LocalDate startDate = LocalDate.parse(startDateStr);
             LocalDate currentDate = LocalDate.now();
 
-            bookkeeping_day_count = ChronoUnit.DAYS.between(startDate, currentDate);    //计算相差的天数
+            days_count = ChronoUnit.DAYS.between(startDate, currentDate);    //计算相差的天数
         } else {
-            bookkeeping_day_count = 0;   //无法获取则说明是第一天记账
+            days_count = 0;   //无法获取则说明是第一天记账
         }
-        if (bookkeeping_day_count != 0) {
+        if (days_count != 0) {
             binding.bookkeepingDaysText.setText(
                     String.format(
                             Locale.getDefault(),
                             "您已累计记账%d天",
-                            bookkeeping_day_count
+                            days_count
                     )
             );
         } else {
@@ -159,10 +159,9 @@ public class HomeFragment extends Fragment {
         SQLiteDatabase db = db_helper.openReadLink();
 
         //获取当前日期
-        Calendar now = Calendar.getInstance();
-        int year = now.get(Calendar.YEAR);
-        int month = now.get(Calendar.MONTH) + 1;
-        int day = now.get(Calendar.DAY_OF_MONTH);
+        LocalDate today = LocalDate.now();
+        LocalDate tomorrow = today.plusDays(1);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         //创建数据库游标
         String[] columns = new String[]{
@@ -171,8 +170,8 @@ public class HomeFragment extends Fragment {
         };
         String selection = BookkeepingColumns.DATETIME + ">=? AND " + BookkeepingColumns.DATETIME + "<?";
         String[] selectionArgs = {
-                String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month, day),
-                String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month, day + 1)
+                formatter.format(today),
+                formatter.format(tomorrow)
         };
         Cursor basic_cursor = db.query(
                 BookkeepingTables.BASIC.toString(),
@@ -195,7 +194,7 @@ public class HomeFragment extends Fragment {
             if (type.isExpenseType()) {
                 day_balance -= amount;
                 day_expense += amount;
-            } else {
+            } else if (type.isIncomeType()) {
                 day_balance += amount;
                 day_income += amount;
             }

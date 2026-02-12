@@ -24,8 +24,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 public class PictureHelper {
@@ -51,7 +51,7 @@ public class PictureHelper {
                 }
 
                 if (!isAllTempFileDeleted) {
-                    Log.w(LogTags.PICTURE_HELPER.getV(), "临时图片删除失败");
+                    Log.w(LogTags.PICTURE_HELPER.getV(), "临时图片未完全删除");
                 }
             }
         }
@@ -161,12 +161,13 @@ public class PictureHelper {
      */
     @NonNull
     private static String generateFileName(Context context) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd(HHmmss)", Locale.getDefault());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd(HHmmss)");
+        LocalDateTime now = LocalDateTime.now();
         return String.format(
                 Locale.getDefault(),
                 "%s_%s.jpg",
                 AboutHelper.getAppName(context),
-                sdf.format(new Date())
+                formatter.format(now)
         );
     }
 

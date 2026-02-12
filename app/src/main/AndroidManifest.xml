@@ -11,7 +11,7 @@
         tools:ignore="ProtectedPermissions" />  <!-- 通知使用权限 -->
     <uses-permission
         android:name="android.permission.REQUEST_INSTALL_PACKAGES"
-        tools:ignore="RequestInstallPackagesPolicy" />  <!-- 应用列表读取权限 -->
+        tools:ignore="RequestInstallPackagesPolicy" />  <!-- 安装APK权限 -->
     <uses-permission android:name="android.permission.INTERNET" />  <!-- 网络权限 -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"

@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.setting.data_io.pojo;
+package com.manager.assistant.data.io.pojo;
 
 //转账流水数据POJO类
 public class PojoTransferRunningAccount {

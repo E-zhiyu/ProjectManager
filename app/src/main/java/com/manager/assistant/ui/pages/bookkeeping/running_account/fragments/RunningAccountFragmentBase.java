@@ -51,12 +51,12 @@ import com.manager.assistant.ui.pages.picture.PictureAdapter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -268,23 +268,19 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
         dateBuilder.setTitleText("选择日期");
 
         //初始化日期格式化器
-        String input_datetime = String.valueOf(datetimeInput.getText());
-        String pattern = "yyyy-MM-dd HH:mm";    //日期字符串格式
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-        LocalDateTime localDateTime = LocalDateTime.parse(input_datetime, formatter);
+        String datetimeStr = String.valueOf(datetimeInput.getText());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime inputDatetime = LocalDateTime.parse(datetimeStr, formatter);
 
-        // 转换为 java.util.Date
-        long epochMillis = localDateTime.atZone(java.time.ZoneId.systemDefault())
+        //获取时间戳供日期选择对话框初始化
+        LocalDate date = inputDatetime.toLocalDate();
+        long date_selection = date.atStartOfDay(ZoneOffset.UTC) //MaterialDateTimePicker使用UTC时区
                 .toInstant()
                 .toEpochMilli();
-        Date date = new Date(epochMillis);
-
-        Calendar initialCalendar = Calendar.getInstance();
-        initialCalendar.setTime(date);
 
         //显示日期选择器
         MaterialDatePicker<Long> datePicker = dateBuilder
-                .setSelection(initialCalendar.getTimeInMillis())    //默认选中输入的日期
+                .setSelection(date_selection)    //默认选中输入的日期
                 .setCalendarConstraints(
                         new CalendarConstraints.Builder()
                                 .setValidator(DateValidatorPointBackward.now()) //限制为过去日期
@@ -294,27 +290,29 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
         datePicker.show(getParentFragmentManager(), TagString.DATE_PICKER.getValue());
 
         datePicker.addOnPositiveButtonClickListener(selection -> {
-            Calendar selected_calendar = Calendar.getInstance();
-            selected_calendar.setTimeInMillis(selection);
+            //时间戳转换为LocalDateTime
+            LocalDateTime selectedDatetime = Instant.ofEpochMilli(selection)
+                    .atZone(ZoneOffset.UTC)
+                    .toLocalDateTime();
 
             //选择日期后，再弹出时间选择器
-            showMaterialTimePicker(selected_calendar, initialCalendar);
+            showMaterialTimePicker(selectedDatetime, inputDatetime);
         });
     }
 
     /**
      * 显示时间选择对话框
      *
-     * @param selectionCalendar 包含选择日期信息的日历对象
-     * @param initialCalendar   初始化用的日历对象
+     * @param selectedDatetime 日期选择对话框选择的日期
+     * @param initialDatetime  初始化日期
      */
-    protected void showMaterialTimePicker(@NonNull Calendar selectionCalendar, @NonNull Calendar initialCalendar) {
+    protected void showMaterialTimePicker(@NonNull LocalDateTime selectedDatetime, @NonNull LocalDateTime initialDatetime) {
         //创建时间选择器
         MaterialTimePicker.Builder timeBuilder = new MaterialTimePicker.Builder();
-        timeBuilder.setTimeFormat(TimeFormat.CLOCK_24H); // 24小时制
-        int init_hour = initialCalendar.get(Calendar.HOUR_OF_DAY);
+        timeBuilder.setTimeFormat(TimeFormat.CLOCK_24H);    //24小时制
+        int init_hour = initialDatetime.getHour();          //获取小时
         timeBuilder.setHour(init_hour);
-        int init_minute = initialCalendar.get(Calendar.MINUTE);
+        int init_minute = initialDatetime.getMinute();      //获取分钟
         timeBuilder.setMinute(init_minute);
         timeBuilder.setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK);  //默认使用时钟输入模式而不是键盘
         timeBuilder.setTitleText("选择时间");
@@ -325,23 +323,14 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
 
         //监听选择结果
         timePicker.addOnPositiveButtonClickListener(view -> {
+            //组合日期和时间
             int hour = timePicker.getHour();
             int minute = timePicker.getMinute();
-
-            //组合日期和时间
-            selectionCalendar.set(Calendar.HOUR_OF_DAY, hour);
-            selectionCalendar.set(Calendar.MINUTE, minute);
+            LocalDateTime finalDatetime = selectedDatetime.withHour(hour).withMinute(minute);
 
             //修改文本框的日期和时间
-            String datetime_str = String.format(
-                    Locale.getDefault(),
-                    "%04d-%02d-%02d %02d:%02d",
-                    selectionCalendar.get(Calendar.YEAR),
-                    selectionCalendar.get(Calendar.MONTH) + 1,
-                    selectionCalendar.get(Calendar.DAY_OF_MONTH),
-                    selectionCalendar.get(Calendar.HOUR_OF_DAY),
-                    selectionCalendar.get(Calendar.MINUTE));
-            datetimeInput.setText(datetime_str);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            datetimeInput.setText(formatter.format(finalDatetime));
         });
     }
 
@@ -520,9 +509,14 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
             if (inputStream == null) return null;
 
             // 生成唯一的文件名
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.getDefault())
-                    .format(new Date());
-            String fileName = String.format(Locale.getDefault(), "album_%s_%d.jpg", timeStamp, index);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd(HHmmss)");
+            LocalDateTime now = LocalDateTime.now();
+            String fileName = String.format(
+                    Locale.getDefault(),
+                    "album_%s_%d.jpg",
+                    formatter.format(now),
+                    index
+            );
 
             // 创建目标文件
             File destinationFile = new File(targetDir, fileName);

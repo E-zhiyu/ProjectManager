@@ -12,7 +12,7 @@ import com.manager.assistant.data.data_save.database.BookkeepingColumns;
 import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.data_save.database.BookkeepingTables;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
-import com.manager.assistant.ui.pages.setting.data_io.pojo.PojoTagGroup;
+import com.manager.assistant.data.io.pojo.PojoTagGroup;
 
 import java.util.ArrayList;
 import java.util.List;

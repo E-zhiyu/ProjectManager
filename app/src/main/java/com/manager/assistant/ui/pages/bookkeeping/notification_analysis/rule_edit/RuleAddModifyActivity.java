@@ -13,12 +13,12 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
+import com.manager.assistant.data.data_class.AnalysisRule;
 import com.manager.assistant.databinding.ActivityRuleAddModifyBinding;
 import com.manager.assistant.enums.RequestResultCode;
 import com.manager.assistant.helpers.AnimationHelper;
@@ -33,6 +33,10 @@ import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
 import com.manager.assistant.ui.data_communication.tag_modify.TagUpdateReason;
 import com.manager.assistant.ui.data_communication.tag_modify.TagRepository;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -55,10 +59,10 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         binding = ActivityRuleAddModifyBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        initViews();
-        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
         receiveInitData();
+        initViews();
         initLaunchers();
+        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
 
         startObserveTag();
     }
@@ -77,18 +81,59 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
 
         //流水种类
-        NoFilteringArrayAdapter<String> adapter = new NoFilteringArrayAdapter<>(
+        NoFilteringArrayAdapter<String> typeAdapter = new NoFilteringArrayAdapter<>(
                 this,
-                new String[]{
-                        RunningAccountType.EXPENSE.getTitle(),
-                        RunningAccountType.INCOME.getTitle()
+                Arrays.stream(RunningAccountType.values())
+                        .map(RunningAccountType::getTitle)
+                        .toArray(String[]::new)
+        );
+        binding.typeInput.setText(type.getTitle());
+        binding.typeInput.setAdapter(typeAdapter);
+        binding.typeInput.setOnItemClickListener(
+                (parent, view, position, id) -> {
+                    if (position == RunningAccountType.TRANSFER.ordinal() && type != RunningAccountType.TRANSFER) {
+                        AnimationHelper.switchViewFoldOrExpanded(true, binding.transferInputLayout);
+                    } else if (position != RunningAccountType.TRANSFER.ordinal() && type == RunningAccountType.TRANSFER) {
+                        AnimationHelper.switchViewFoldOrExpanded(false, binding.transferInputLayout);
+                    }
+
+                    type = RunningAccountType.values()[position];
                 }
         );
-        binding.typeInput.setAdapter(adapter);
-        binding.typeInput.setText(RunningAccountType.EXPENSE.getTitle());
-        binding.typeInput.setOnItemClickListener(
-                (parent, view, position, id) -> type = RunningAccountType.values()[position]
-        );
+
+        //转出账户和转入账户添加适配器
+        HashSet<String> accountSet = AnalysisRule.getAllExportOrImportAccounts(this);
+        NoFilteringArrayAdapter<String> accountAdapter = new NoFilteringArrayAdapter<>(this, new ArrayList<>(accountSet));
+        binding.exportAccountInput.setAdapter(accountAdapter);
+        binding.importAccountInput.setAdapter(accountAdapter);
+
+        //转出账户
+        binding.exportAccountInput.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                String exportAccount = String.valueOf(binding.exportAccountInput.getText());
+                if (exportAccount.isEmpty()) {
+                    binding.exportAccountLayout.setErrorEnabled(true);
+                    binding.exportAccountLayout.setError("转出账户不能为空");
+                }
+            } else {
+                binding.exportAccountLayout.setError(null);
+            }
+        });
+        binding.exportAccountInput.setOnClickListener(v -> binding.exportAccountLayout.setError(null));
+
+        //转入账户
+        binding.importAccountInput.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                String importAccount = String.valueOf(binding.importAccountInput.getText());
+                if (importAccount.isEmpty()) {
+                    binding.importAccountLayout.setErrorEnabled(true);
+                    binding.importAccountLayout.setError("转入账户不能为空");
+                }
+            } else {
+                binding.importAccountLayout.setError(null);
+            }
+        });
+        binding.importAccountInput.setOnClickListener(v -> binding.importAccountLayout.setError(null));
 
         //标签名称
         binding.tagNameInput.setOnFocusChangeListener((v, hasFocus) -> {
@@ -188,7 +233,9 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         });
     }
 
-    //接收编辑模式下的初始化数据
+    /**
+     * 编辑模式接收初始化数据
+     */
     private void receiveInitData() {
         Bundle initData = getIntent().getExtras();
         isModifyMode = getIntent().getBooleanExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), false);
@@ -211,26 +258,34 @@ public class RuleAddModifyActivity extends AppCompatActivity {
                     })
                     .show());
 
-            MaterialToolbar toolbar = binding.toolbar;
-            toolbar.setTitle(R.string.modify_rule);
+            binding.toolbar.setTitle(R.string.modify_rule);
 
             //解析数据
-            String rule_name = initData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());               //规则名称
+            String ruleName = initData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());                //规则名称
             rule_no = initData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());                            //规则编号
             viewHolderPosition = initData.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());              //视图下标
             type = RunningAccountType.valueOf(initData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));     //流水种类
-            Tag rule_tag = Tag.getTagByRuleNo(rule_no, this);                                     //标签
-            tag_no = rule_tag.getTno();
-            String package_name = initData.getString(KeyValueStrings.PACKAGE_NAME.getValue());                  //包名
-            String notification_title = initData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());      //通知标题
-            String notification_content = initData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());  //通知内容
+            Tag ruleTag = Tag.getTagByRuleNo(rule_no, this);                                            //标签
+            tag_no = ruleTag.getTno();
+            String packageName = initData.getString(KeyValueStrings.PACKAGE_NAME.getValue());                   //包名
+            String notificationTitle = initData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());       //通知标题
+            String notificationContent = initData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());   //通知内容
+            if (type == RunningAccountType.TRANSFER) {                                                          //转账账户信息
+                binding.transferInputLayout.setVisibility(View.VISIBLE);
+                List<String> transferAccountInfo = AnalysisRule.getTransferAccounts(rule_no, this);
+                if (!transferAccountInfo.isEmpty()) {
+                    String exportAccount = transferAccountInfo.get(0);
+                    String importAccount = transferAccountInfo.get(1);
+                    binding.exportAccountInput.setText(exportAccount);
+                    binding.importAccountInput.setText(importAccount);
+                }
+            }
 
-            binding.ruleNameInput.setText(rule_name);
-            binding.typeInput.setText(type.getTitle());
-            binding.tagNameInput.setText(rule_tag.getName());
-            binding.packageNameInput.setText(package_name);
-            binding.notificationTitleInput.setText(notification_title);
-            binding.notificationContentInput.setText(notification_content);
+            binding.ruleNameInput.setText(ruleName);
+            binding.tagNameInput.setText(ruleTag.getName());
+            binding.packageNameInput.setText(packageName);
+            binding.notificationTitleInput.setText(notificationTitle);
+            binding.notificationContentInput.setText(notificationContent);
         }
     }
 
@@ -309,6 +364,12 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         if (String.valueOf(binding.ruleNameInput.getText()).isEmpty()) {
             errLayout = binding.ruleNameLayout;
             err = "规则名称不能为空";
+        } else if (String.valueOf(binding.exportAccountInput.getText()).isEmpty() && type == RunningAccountType.TRANSFER) {
+            errLayout = binding.exportAccountLayout;
+            err = "转出账户不能为空";
+        } else if (String.valueOf(binding.importAccountInput.getText()).isEmpty() && type == RunningAccountType.TRANSFER) {
+            errLayout = binding.importAccountLayout;
+            err = "转入账户不能为空";
         } else if (String.valueOf(binding.packageNameInput.getText()).isEmpty()) {
             errLayout = binding.packageNameLayout;
             err = "包名不能为空";
@@ -351,17 +412,25 @@ public class RuleAddModifyActivity extends AppCompatActivity {
     private Bundle getInputData() {
         Bundle dataBundle = new Bundle();
 
-        String rule_name = String.valueOf(binding.ruleNameInput.getText());
-        String package_name = String.valueOf(binding.packageNameInput.getText());
-        String notification_title = String.valueOf(binding.notificationTitleInput.getText());
-        String notification_content = String.valueOf(binding.notificationContentInput.getText());
+        String ruleName = String.valueOf(binding.ruleNameInput.getText());
+        String packageName = String.valueOf(binding.packageNameInput.getText());
+        String notificationTitle = String.valueOf(binding.notificationTitleInput.getText());
+        String notificationContent = String.valueOf(binding.notificationContentInput.getText());
 
-        dataBundle.putString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue(), rule_name);
+        dataBundle.putString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue(), ruleName);
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());
         dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
-        dataBundle.putString(KeyValueStrings.PACKAGE_NAME.getValue(), package_name);
-        dataBundle.putString(KeyValueStrings.NOTIFICATION_TITLE.getValue(), notification_title);
-        dataBundle.putString(KeyValueStrings.NOTIFICATION_CONTENT.getValue(), notification_content);
+        dataBundle.putString(KeyValueStrings.PACKAGE_NAME.getValue(), packageName);
+        dataBundle.putString(KeyValueStrings.NOTIFICATION_TITLE.getValue(), notificationTitle);
+        dataBundle.putString(KeyValueStrings.NOTIFICATION_CONTENT.getValue(), notificationContent);
+
+        //写入转账相关的数据
+        if (type == RunningAccountType.TRANSFER) {
+            String exportAccount = String.valueOf(binding.exportAccountInput.getText());
+            String importAccount = String.valueOf(binding.importAccountInput.getText());
+            dataBundle.putString(KeyValueStrings.ACCOUNT_EXPORT.getValue(), exportAccount);
+            dataBundle.putString(KeyValueStrings.ACCOUNT_IMPORT.getValue(), importAccount);
+        }
 
         if (isModifyMode) {
             dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), viewHolderPosition);
@@ -371,15 +440,19 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         return dataBundle;
     }
 
-    //显示输入说明对话框
+    /**
+     * 显示输入说明对话框
+     */
     private void showInputInstructionDialog() {
         String instruction = "- 规则名称：该通知解析规则的名称  \n" +
                 "- 流水类型：通过该规则解析得到的流水记录的类型  \n" +
+                "- 转出账户(仅转账类型)：转出财产的金融账户名称  \n" +
+                "- 转入账户(仅转账类型)：转入财产的进入账户名称  \n" +
                 "- 标签(可选)：通过该规则解析得到的流水记录的标签  \n" +
                 "- 应用包名：发送通知的APP包名  \n" +
                 "- 通知标题：通知的标题(如“微信支付”)  \n" +
                 "- 通知内容(正则表达式)：使用正则表达式匹配通知内容，若成功匹配则按照该规则添加新的流水记录。(注意：第一个捕获组务必为金额信息)  \n\n" +
-                "**提示：如果您不会使用正则表达式，请尝试询问AI，并在[regex101](https://regex101.com/)中测试您的正则表达式**";
+                "**提示：如果您不会使用正则表达式，请尝试询问AI，跟AI说明哪个数字为金额数据并让其编写使用捕获组捕获该数字的正则表达式，并在[regex101](https://regex101.com/)中测试您得到的正则表达式是否符合要求**";
 
         View update_dialog_view = LayoutInflater.from(this)
                 .inflate(R.layout.view_markdown_text, null);

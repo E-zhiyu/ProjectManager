@@ -16,6 +16,7 @@ import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class AnalysisRule {
@@ -99,60 +100,104 @@ public class AnalysisRule {
         return ruleList;
     }
 
+    /**
+     * 保存新规则
+     *
+     * @param newRuleData 新规则的数据包
+     * @param context     上下文
+     * @return 新规则的编号
+     * @throws SQLiteException 写入失败时引发的异常
+     */
     public static long saveNewRule(@NonNull Bundle newRuleData, Context context) throws SQLiteException {
         BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //解析规则数据
-        String rule_name = newRuleData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());
+        String ruleName = newRuleData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());
         String type = newRuleData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue());
         long tag_no = newRuleData.getLong(KeyValueStrings.TAG_NO.getValue());
-        String package_name = newRuleData.getString(KeyValueStrings.PACKAGE_NAME.getValue());
-        String notification_title = newRuleData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
-        String notification_content = newRuleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
+        String packageName = newRuleData.getString(KeyValueStrings.PACKAGE_NAME.getValue());
+        String notificationTitle = newRuleData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
+        String notificationContent = newRuleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
 
         //将数据写入数据库
-        ContentValues rule_values = new ContentValues();
-        rule_values.put(BookkeepingColumns.RULE_NAME.toString(), rule_name);
-        rule_values.put(BookkeepingColumns.TYPE.toString(), type);
-        rule_values.put(BookkeepingColumns.TAG_NO.toString(), tag_no);
-        rule_values.put(BookkeepingColumns.PACKAGE_NAME.toString(), package_name);
-        rule_values.put(BookkeepingColumns.NOTIFICATION_TITLE.toString(), notification_title);
-        rule_values.put(BookkeepingColumns.NOTIFICATION_CONTENT.toString(), notification_content);
-        long rule_no = db.insert(BookkeepingTables.ANALYSIS_RULE.toString(), null, rule_values);    //获取自增主键值
+        ContentValues ruleValues = new ContentValues();
+        ruleValues.put(BookkeepingColumns.RULE_NAME.toString(), ruleName);
+        ruleValues.put(BookkeepingColumns.TYPE.toString(), type);
+        ruleValues.put(BookkeepingColumns.TAG_NO.toString(), tag_no);
+        ruleValues.put(BookkeepingColumns.PACKAGE_NAME.toString(), packageName);
+        ruleValues.put(BookkeepingColumns.NOTIFICATION_TITLE.toString(), notificationTitle);
+        ruleValues.put(BookkeepingColumns.NOTIFICATION_CONTENT.toString(), notificationContent);
+        long rule_no = db.insert(BookkeepingTables.ANALYSIS_RULE.toString(), null, ruleValues);    //获取自增主键值
+
+        //写入转账类型特有的数据
+        if (type != null && type.equals(RunningAccountType.TRANSFER.toString())) {
+            String exportAccount = newRuleData.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());
+            String importAccount = newRuleData.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());
+
+            ContentValues accountValues = new ContentValues();
+            accountValues.put(BookkeepingColumns.EXPORT.toString(), exportAccount);
+            accountValues.put(BookkeepingColumns.IMPORT.toString(), importAccount);
+            accountValues.put(BookkeepingColumns.RULE_NO.toString(), rule_no);
+            db.insert(BookkeepingTables.RULE_ACCOUNT.toString(), null, accountValues);
+        }
 
         db.close();
         return rule_no;
     }
 
+    /**
+     * 修改规则
+     *
+     * @param ruleData 包含修改后规则数据的数据包
+     * @param context  上下文
+     * @throws SQLiteException 写入失败引发的异常
+     */
     public static void modifyRule(@NonNull Bundle ruleData, Context context) throws SQLiteException {
         BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //解析规则数据
-        String rule_name = ruleData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());
+        String ruleName = ruleData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());
         long rule_no = ruleData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());
         String type = ruleData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue());
         long tag_no = ruleData.getLong(KeyValueStrings.TAG_NO.getValue());
-        String package_name = ruleData.getString(KeyValueStrings.PACKAGE_NAME.getValue());
-        String notification_title = ruleData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
-        String notification_content = ruleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
+        String packageName = ruleData.getString(KeyValueStrings.PACKAGE_NAME.getValue());
+        String notificationTitle = ruleData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
+        String notificationContent = ruleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
 
         String where = BookkeepingColumns.RULE_NO + "=?";
         String[] whereArgs = {String.valueOf(rule_no)};
-        ContentValues rule_values = new ContentValues();
-        rule_values.put(BookkeepingColumns.RULE_NAME.toString(), rule_name);
-        rule_values.put(BookkeepingColumns.TYPE.toString(), type);
-        rule_values.put(BookkeepingColumns.TAG_NO.toString(), tag_no);
-        rule_values.put(BookkeepingColumns.PACKAGE_NAME.toString(), package_name);
-        rule_values.put(BookkeepingColumns.NOTIFICATION_TITLE.toString(), notification_title);
-        rule_values.put(BookkeepingColumns.NOTIFICATION_CONTENT.toString(), notification_content);
+        ContentValues ruleValues = new ContentValues();
+        ruleValues.put(BookkeepingColumns.RULE_NAME.toString(), ruleName);
+        ruleValues.put(BookkeepingColumns.TYPE.toString(), type);
+        ruleValues.put(BookkeepingColumns.TAG_NO.toString(), tag_no);
+        ruleValues.put(BookkeepingColumns.PACKAGE_NAME.toString(), packageName);
+        ruleValues.put(BookkeepingColumns.NOTIFICATION_TITLE.toString(), notificationTitle);
+        ruleValues.put(BookkeepingColumns.NOTIFICATION_CONTENT.toString(), notificationContent);
+        db.update(BookkeepingTables.ANALYSIS_RULE.toString(), ruleValues, where, whereArgs);
 
-        db.update(BookkeepingTables.ANALYSIS_RULE.toString(), rule_values, where, whereArgs);
+        //修改记账类型专有的数据
+        if (type != null && type.equals(RunningAccountType.TRANSFER.toString())) {
+            String exportAccount = ruleData.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());
+            String importAccount = ruleData.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());
+
+            ContentValues accountValues = new ContentValues();
+            accountValues.put(BookkeepingColumns.EXPORT.toString(), exportAccount);
+            accountValues.put(BookkeepingColumns.IMPORT.toString(), importAccount);
+            db.update(BookkeepingTables.RULE_ACCOUNT.toString(), accountValues, where, whereArgs);
+        }
 
         db.close();
     }
 
+    /**
+     * 删除规则
+     *
+     * @param rule_no 需要删除的规则的编号
+     * @param context 上下文
+     * @throws SQLiteException 写入失败引发的异常
+     */
     public static void deleteRule(long rule_no, Context context) throws SQLiteException {
         BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
@@ -160,6 +205,7 @@ public class AnalysisRule {
         String where = BookkeepingColumns.RULE_NO + "=?";
         String[] whereArgs = {String.valueOf(rule_no)};
         db.delete(BookkeepingTables.ANALYSIS_RULE.toString(), where, whereArgs);
+        db.delete(BookkeepingTables.RULE_ACCOUNT.toString(), where, whereArgs);
 
         db.close();
     }
@@ -183,5 +229,85 @@ public class AnalysisRule {
                 where,
                 whereArgs
         );
+    }
+
+    /**
+     * 获取转账账户
+     *
+     * @param ruleNo  通知解析规则编号
+     * @param context 上下文
+     * @return 带有转出账户和转入账户名称的列表
+     */
+    @NonNull
+    public static List<String> getTransferAccounts(long ruleNo, Context context) {
+        List<String> accountList = new ArrayList<>();
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
+        SQLiteDatabase db = dbHelper.openReadLink();
+
+        String[] columns = {
+                BookkeepingColumns.EXPORT.toString(),
+                BookkeepingColumns.IMPORT.toString()
+        };
+        String selection = BookkeepingColumns.RULE_NO + "=?";
+        String[] selectionArgs = {String.valueOf(ruleNo)};
+        Cursor accountCursor = db.query(
+                BookkeepingTables.RULE_ACCOUNT.toString(),
+                columns,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null,
+                "1"
+        );
+
+        if (accountCursor.moveToNext()) {
+            String exportAccount = accountCursor.getString(accountCursor.getColumnIndexOrThrow(BookkeepingColumns.EXPORT.toString()));
+            String importAccount = accountCursor.getString(accountCursor.getColumnIndexOrThrow(BookkeepingColumns.IMPORT.toString()));
+            accountList.add(exportAccount);
+            accountList.add(importAccount);
+        }
+
+        accountCursor.close();
+        db.close();
+        return accountList;
+    }
+
+    /**
+     * 获取所有转出和转入账户
+     *
+     * @param context 上下文
+     * @return 包含所有转出和转入账户名称的哈希集合
+     */
+    @NonNull
+    public static HashSet<String> getAllExportOrImportAccounts(Context context) {
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
+        SQLiteDatabase db = dbHelper.openReadLink();
+
+        String[] columns = {
+                BookkeepingColumns.EXPORT.toString(),
+                BookkeepingColumns.IMPORT.toString()
+        };
+        Cursor accountCursor = db.query(
+                BookkeepingTables.RULE_ACCOUNT.toString(),
+                columns,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        HashSet<String> accountSet = new HashSet<>();
+        while (accountCursor.moveToNext()) {
+            String exportAccount = accountCursor.getString(accountCursor.getColumnIndexOrThrow(BookkeepingColumns.EXPORT.toString()));
+            String importAccount = accountCursor.getString(accountCursor.getColumnIndexOrThrow(BookkeepingColumns.IMPORT.toString()));
+            accountSet.add(exportAccount);
+            accountSet.add(importAccount);
+        }
+
+        accountCursor.close();
+        db.close();
+        return accountSet;
     }
 }

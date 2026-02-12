@@ -11,7 +11,17 @@ import com.manager.assistant.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.7.9  \n" +
+    private static final String update_log_md = "# v1.7.10  \n" +
+            "**BUG修复**  \n" +
+            "- 修复在流水输入界面添加图片后强行停止应用，下一次进入流水输入界面并点击确定会意外添加残留图片的BUG  \n" +
+            "- 修复备份文件月份从0开始的BUG  \n" +
+            "- 修复转出/转入账户输入框没有文本计数器的BUG  \n\n" +
+            "**修改内容**  \n" +
+            "- 优化通知解析时的规则查询与匹配性能  \n" +
+            "- 支持过滤没有标签的流水记录  \n" +
+            "- 修改卡片容器和浮动按钮的颜色  \n" +
+            "- 若同一应用在1500ms内发送相同标题的通知则不会执行自动记账操作  \n\n" +
+            "# v1.7.9  \n" +
             "**BUG修复**  \n" +
             "- 修复自动备份目录显示不正确的BUG  \n\n" +
             "**修改内容**  \n" +

@@ -1,13 +1,11 @@
 package com.manager.assistant.ui.pages.home.report;
 
-import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -30,14 +28,15 @@ import com.manager.assistant.enums.TagString;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.data.data_class.Tag;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 
 public class ReportActivity extends AppCompatActivity {
     private final List<AccountSourceInfo> expenseSourceInfoList = new ArrayList<>();        //支出来源列表
@@ -121,14 +120,16 @@ public class ReportActivity extends AppCompatActivity {
         //设置标题栏的图标点击监听器
         binding.toolbar.setNavigationOnClickListener(v -> finish());
 
-        Calendar now = Calendar.getInstance();
-        year = now.get(Calendar.YEAR);
-        month = now.get(Calendar.MONTH) + 1;
-        day = now.get(Calendar.DAY_OF_MONTH);
-        String date_str = String.format(Locale.getDefault(), "%04d年%02d月%02d日", year, month, day);
+        //初始化当前日期
+        LocalDate now = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
+        String dateStr = formatter.format(now);
+        year = now.getYear();
+        month = now.getMonthValue();
+        day = now.getDayOfMonth();
 
         //设置点击监听器
-        binding.reportDateSelectBtn.setText(date_str);
+        binding.reportDateSelectBtn.setText(dateStr);
         binding.reportDateSelectBtn.setOnClickListener(v -> showDatePickerDialog());
         binding.dateRangeSelectBtn.addOnCheckedChangeListener((materialButton, b) -> {
             if (b) {
@@ -207,7 +208,7 @@ public class ReportActivity extends AppCompatActivity {
                 return dataList;
         }
 
-        Cursor basic_cursor = db.query(
+        Cursor basicCursor = db.query(
                 BookkeepingTables.BASIC.toString(),
                 columns,
                 selection,
@@ -217,22 +218,22 @@ public class ReportActivity extends AppCompatActivity {
                 BookkeepingColumns.DATETIME + " DESC"
         );
 
-        while (basic_cursor.moveToNext()) {
-            RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.TYPE.toString())));
-            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.AMOUNT.toString()));
-            long tag_no = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NO.toString()));
-            String date_time = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.DATETIME.toString()));
+        while (basicCursor.moveToNext()) {
+            RunningAccountType type = RunningAccountType.valueOf(basicCursor.getString(basicCursor.getColumnIndexOrThrow(BookkeepingColumns.TYPE.toString())));
+            double amount = basicCursor.getDouble(basicCursor.getColumnIndexOrThrow(BookkeepingColumns.AMOUNT.toString()));
+            long tag_no = basicCursor.getLong(basicCursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NO.toString()));
+            String datetime = basicCursor.getString(basicCursor.getColumnIndexOrThrow(BookkeepingColumns.DATETIME.toString()));
 
             //获取月份
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            LocalDateTime localDateTime = LocalDateTime.parse(date_time, formatter);
+            LocalDateTime localDateTime = LocalDateTime.parse(datetime, formatter);
             int month = localDateTime.getMonthValue();
 
             ReportRunningAccountData oneRecordedData = new ReportRunningAccountData(type, amount, tag_no, month);
             dataList.add(oneRecordedData);
         }
 
-        basic_cursor.close();
+        basicCursor.close();
         db.close();
         return dataList;
     }
@@ -242,7 +243,6 @@ public class ReportActivity extends AppCompatActivity {
      *
      * @param dataList 更新视图所需的数据
      */
-    @SuppressLint({"NotifyDataSetChanged", "DefaultLocale"})
     private void updateAccountSource(@NonNull List<ReportRunningAccountData> dataList) {
         double expense = 0, income = 0; //总支出和总收入
         double balance = 0;             //结余
@@ -285,8 +285,12 @@ public class ReportActivity extends AppCompatActivity {
         }
 
         //更新文本视图
-        binding.balanceText.setText(String.format("%.2f", balance));
-        binding.expenseIncomeText.setText(String.format("支出：%.2f | 收入：%.2f", expense, income));
+        binding.balanceText.setText(String.format(Locale.getDefault(), "%.2f", balance));
+        binding.expenseIncomeText.setText(String.format(
+                Locale.getDefault(),
+                "支出：%.2f | 收入：%.2f",
+                expense, income
+        ));
 
         //计算各来源的收支占比
         for (AccountSourceInfo expenseSourceCard : expenseSourceInfoList) {
@@ -524,16 +528,18 @@ public class ReportActivity extends AppCompatActivity {
      */
     private void showDatePickerDialog() {
         //实例化一个日期对象用于存放选中的日期
-        Calendar selectedCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));  //指定UTC时区以确保早晨不会选择到昨天
-        selectedCalendar.set(year, month - 1, day);
+        LocalDate date = LocalDate.now(ZoneOffset.UTC).withYear(year).withMonth(month).withDayOfMonth(day);
 
         //创建日期选择器
         MaterialDatePicker.Builder<Long> dateBuilder = MaterialDatePicker.Builder.datePicker();
         dateBuilder.setTitleText("选择日期");
 
         //显示日期选择器
+        long date_selection = date.atStartOfDay()
+                .toInstant(ZoneOffset.UTC)
+                .toEpochMilli();
         MaterialDatePicker<Long> datePicker = dateBuilder
-                .setSelection(selectedCalendar.getTimeInMillis())
+                .setSelection(date_selection)
                 .setCalendarConstraints(
                         new CalendarConstraints.Builder()
                                 .setValidator(DateValidatorPointBackward.now()) //限制为过去日期
@@ -543,21 +549,21 @@ public class ReportActivity extends AppCompatActivity {
         datePicker.show(getSupportFragmentManager(), TagString.DATE_PICKER.getValue());
 
         datePicker.addOnPositiveButtonClickListener(selection -> {
-            Calendar selected_calendar = Calendar.getInstance();
-            selected_calendar.setTimeInMillis(selection);
+            LocalDate selectedDate = Instant.ofEpochMilli(selection)
+                    .atZone(ZoneOffset.UTC)
+                    .toLocalDate();
 
             //更新日期文本视图
             int old_year = this.year;
-            this.year = selected_calendar.get(Calendar.YEAR);
-            this.month = selected_calendar.get(Calendar.MONTH) + 1;
-            this.day = selected_calendar.get(Calendar.DAY_OF_MONTH);
-            TextView date_textview = binding.reportDateSelectBtn;
-            date_textview.setText(String.format(Locale.getDefault(), "%04d年%02d月%02d日", year, month, day));
+            this.year = selectedDate.getYear();
+            this.month = selectedDate.getMonthValue();
+            this.day = selectedDate.getDayOfMonth();
+            binding.reportDateSelectBtn.setText(String.format(Locale.getDefault(), "%04d年%02d月%02d日", year, month, day));
 
             //重新加载报表信息
             List<ReportRunningAccountData> dataList = loadReportData(dateRangeType);
             updateAccountSource(dataList);
-            if (old_year != selected_calendar.get(Calendar.YEAR)) {
+            if (old_year != this.year) {
                 dataList = loadReportData(DateRangeType.THIS_YEAR);
                 updateMonthAccountData(dataList);
                 refreshMonthAccountInfoViews();

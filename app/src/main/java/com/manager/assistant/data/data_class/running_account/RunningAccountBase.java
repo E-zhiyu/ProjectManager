@@ -18,11 +18,11 @@ import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.ui.others.bottom_sheets.filter.AccountFilterBottomSheet;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 public abstract class RunningAccountBase {
@@ -89,8 +89,8 @@ public abstract class RunningAccountBase {
         List<String> selectionArgList = new ArrayList<>();
         List<Long> selectedTagList = setting.getSelectedTagList();
         List<Integer> selectedTypeList = setting.getSelectedTypeList();
-        Calendar startCalendar = setting.getStartCalendar();
-        Calendar endCalendar = setting.getEndCalendar();
+        LocalDate startDate = setting.getStartDate();
+        LocalDate endDate = setting.getEndDate();
 
         //生成流水种类条件
         if (!selectedTypeList.isEmpty()) {
@@ -122,7 +122,7 @@ public abstract class RunningAccountBase {
         }
 
         //生成日期条件
-        if (startCalendar != null && endCalendar != null) {
+        if (startDate != null && endDate != null) {
             selection.append(" AND ");
             selection.append(BookkeepingColumns.DATETIME);
             selection.append(">=?");
@@ -130,14 +130,11 @@ public abstract class RunningAccountBase {
             selection.append(BookkeepingColumns.DATETIME);
             selection.append("<?");
 
-            int sy = startCalendar.get(Calendar.YEAR);
-            int sm = startCalendar.get(Calendar.MONTH) + 1;
-            int sd = startCalendar.get(Calendar.DAY_OF_MONTH);
-            int ey = endCalendar.get(Calendar.YEAR);
-            int em = endCalendar.get(Calendar.MONTH) + 1;
-            int ed = endCalendar.get(Calendar.DAY_OF_MONTH) + 1;    //包含最后一天，所以加一
-            selectionArgList.add(String.format(Locale.getDefault(), "%04d-%02d-%02d", sy, sm, sd));
-            selectionArgList.add(String.format(Locale.getDefault(), "%04d-%02d-%02d", ey, em, ed));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String start = formatter.format(startDate);
+            String end = formatter.format(endDate.plusDays(1)); //包括最后一天，所以需要第二天的日期
+            selectionArgList.add(start);
+            selectionArgList.add(end);
         }
 
         //查询流水记录
@@ -259,28 +256,28 @@ public abstract class RunningAccountBase {
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
         if (remark == null) remark = "";
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
-        String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
+        String datetime = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
         long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
 
-        ContentValues basic_values = new ContentValues();
-        basic_values.put(BookkeepingColumns.TYPE.toString(), type);                                 //种类
-        basic_values.put(BookkeepingColumns.AMOUNT.toString(), amount);                             //金额
-        basic_values.put(BookkeepingColumns.REMARK.toString(), remark);                             //备注
-        basic_values.put(BookkeepingColumns.DATETIME.toString(), date_time);                        //日期
-        basic_values.put(BookkeepingColumns.TAG_NO.toString(), tag_no);                             //标签编号
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(BookkeepingColumns.TYPE.toString(), type);                                //种类
+        contentValues.put(BookkeepingColumns.AMOUNT.toString(), amount);                            //金额
+        contentValues.put(BookkeepingColumns.REMARK.toString(), remark);                            //备注
+        contentValues.put(BookkeepingColumns.DATETIME.toString(), datetime);                        //日期
+        contentValues.put(BookkeepingColumns.TAG_NO.toString(), tag_no);                            //标签编号
 
-        long rno = db.insert(BookkeepingTables.BASIC.toString(), null, basic_values);
+        long rno = db.insert(BookkeepingTables.BASIC.toString(), null, contentValues);
 
         //判断是否为特殊类型
-        ContentValues special_values = new ContentValues();
         if (type != null && type.equals(RunningAccountType.TRANSFER.toString())) {
-            String export_account = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());
-            String import_account = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());
+            String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());
+            String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());
 
-            special_values.put(BookkeepingColumns.EXPORT.toString(), export_account);
-            special_values.put(BookkeepingColumns.IMPORT.toString(), import_account);
-            special_values.put(BookkeepingColumns.RNO.toString(), rno);
-            db.insert(BookkeepingTables.TRANSFER.toString(), null, special_values);
+            ContentValues specialValues = new ContentValues();
+            specialValues.put(BookkeepingColumns.EXPORT.toString(), exportAccount);
+            specialValues.put(BookkeepingColumns.IMPORT.toString(), importAccount);
+            specialValues.put(BookkeepingColumns.RNO.toString(), rno);
+            db.insert(BookkeepingTables.TRANSFER.toString(), null, specialValues);
         }
 
         db.close();

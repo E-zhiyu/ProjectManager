@@ -78,6 +78,9 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         disposables.dispose();
     }
 
+    /**
+     * 初始化视图
+     */
     private void initViews() {
         //设置标题栏的图标点击监听器
         binding.toolbar.setNavigationOnClickListener(v -> finish());
@@ -126,6 +129,9 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         binding.refreshLayout.setOnRefreshListener(this::refreshUI);
     }
 
+    /**
+     * 初始化启动器
+     */
     private void initLaunchers() {
         ruleAddLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -162,7 +168,12 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         );
     }
 
-    //规则点击处理方法
+    /**
+     * 规则视图被点击的回调
+     *
+     * @param position 被点击的视图的下标
+     * @param rule     规则实例
+     */
     private void onRuleClicked(int position, @NonNull AnalysisRule rule) {
         Intent skip2RuleModify = new Intent(this, RuleAddModifyActivity.class);
         Bundle dataBundle = new Bundle();
@@ -187,8 +198,13 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         ruleModifyLauncher.launch(skip2RuleModify);
     }
 
-    private void onAnalysisRuleAdded(@NonNull Intent resuleIntent) {
-        Bundle dataBundle = resuleIntent.getExtras();
+    /**
+     * 新规则添加的回调
+     *
+     * @param resultIntent 带有新规则数据包的意图
+     */
+    private void onAnalysisRuleAdded(@NonNull Intent resultIntent) {
+        Bundle dataBundle = resultIntent.getExtras();
         if (dataBundle == null) {
             NullPointerException e = new NullPointerException("无法获取新增解析规则的数据");
             ExceptionHelper.showExceptionDialog(this, e);
@@ -198,8 +214,14 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         ruleAdapter.addRule(dataBundle);
     }
 
-    private void onAnalysisRuleModified(@NonNull Intent resuleIntent, int resultCode) {
-        Bundle dataBundle = resuleIntent.getExtras();
+    /**
+     * 规则编辑完成的回调
+     *
+     * @param resultIntent 带有编辑完成的数据包的意图
+     * @param resultCode   标识结果的代码
+     */
+    private void onAnalysisRuleModified(@NonNull Intent resultIntent, int resultCode) {
+        Bundle dataBundle = resultIntent.getExtras();
         if (dataBundle == null) {
             NullPointerException e = new NullPointerException("无法获取新增解析规则的数据");
             ExceptionHelper.showExceptionDialog(this, e);
@@ -214,6 +236,9 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * 刷新UI方法
+     */
     private void refreshUI() {
         binding.refreshLayout.setRefreshing(true);
         disposables.add(
