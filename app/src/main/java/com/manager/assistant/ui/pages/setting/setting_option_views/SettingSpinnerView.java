@@ -3,6 +3,7 @@ package com.manager.assistant.ui.pages.setting.setting_option_views;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -40,6 +41,7 @@ public class SettingSpinnerView extends SettingOptionViewBase<MaterialTextView, 
                 ViewGroup.LayoutParams.WRAP_CONTENT
         ));
         functionComponent.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, endDrawable, null);
+        functionComponent.setGravity(Gravity.CENTER_VERTICAL);
         TextViewCompat.setCompoundDrawableTintList(functionComponent, ColorStateList.valueOf(ColorHelper.getPrimaryColor(context)));
         functionComponent.setPadding(10, 10, 25, 10);
         binding.freeLayout.addView(functionComponent);

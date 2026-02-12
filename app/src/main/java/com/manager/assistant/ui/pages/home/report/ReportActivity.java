@@ -1,6 +1,5 @@
 package com.manager.assistant.ui.pages.home.report;
 
-import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -242,7 +241,6 @@ public class ReportActivity extends AppCompatActivity {
      *
      * @param dataList 更新视图所需的数据
      */
-    @SuppressLint({"NotifyDataSetChanged", "DefaultLocale"})
     private void updateAccountSource(@NonNull List<ReportRunningAccountData> dataList) {
         double expense = 0, income = 0; //总支出和总收入
         double balance = 0;             //结余
@@ -285,8 +283,12 @@ public class ReportActivity extends AppCompatActivity {
         }
 
         //更新文本视图
-        binding.balanceText.setText(String.format("%.2f", balance));
-        binding.expenseIncomeText.setText(String.format("支出：%.2f | 收入：%.2f", expense, income));
+        binding.balanceText.setText(String.format(Locale.getDefault(), "%.2f", balance));
+        binding.expenseIncomeText.setText(String.format(
+                Locale.getDefault(),
+                "支出：%.2f | 收入：%.2f",
+                expense, income
+        ));
 
         //计算各来源的收支占比
         for (AccountSourceInfo expenseSourceCard : expenseSourceInfoList) {
