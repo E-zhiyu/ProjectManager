@@ -24,10 +24,10 @@ import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.data.data_class.Tag;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -43,7 +43,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
     private boolean isFunctionOpened;                                   //通知解析功能是否开启
     private String lastPackageName = "";                                //上一次接收通知的包名
     private String lastTitle = "";                                      //上一次通知的标题
-    private long lastReceiveTimeMillis = 0;                             //上一次接收消息的时间（毫秒）
+    private long lastReceiveEpochMilli = 0;                             //上一次接收消息的时间（毫秒）
 
     private static class RuleKey {
         private final String title;                                     //通知标题
@@ -162,9 +162,12 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         if (text == null || title == null) return;
 
         //同一应用发送太频繁直接不运行
-        long currentTimeMillis = Calendar.getInstance().getTimeInMillis();
-        long difference = currentTimeMillis - lastReceiveTimeMillis;        //求时间差
-        lastReceiveTimeMillis = currentTimeMillis;
+        LocalDateTime now = LocalDateTime.now();
+        long currentEpochMilli = now.atZone(ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli();
+        long difference = currentEpochMilli - lastReceiveEpochMilli;        //求时间差
+        lastReceiveEpochMilli = currentEpochMilli;
         boolean isSamePackageName = packageName.equals(lastPackageName);    //判断是否包名相同
         lastPackageName = packageName;
         boolean isSameTitle = title.equals(lastTitle);                      //判断标题是否相同
@@ -306,9 +309,8 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         }
 
         //获取当前的时间
-        long currentTimeMillis = System.currentTimeMillis();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-        Date now = new Date(currentTimeMillis);
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime now = LocalDateTime.now();
         String timeStr = dateFormat.format(now);
 
         //生成备注

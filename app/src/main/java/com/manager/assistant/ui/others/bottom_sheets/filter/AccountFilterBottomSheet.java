@@ -25,9 +25,12 @@ import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.BaseBottomSheetDialogFragment;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -45,7 +48,7 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
     public static class FilterSetting {
         private final List<Long> selectedTagList = new ArrayList<>();       //选择的标签列表
         private final List<Integer> selectedTypeList = new ArrayList<>();   //选择的种类列表
-        private Calendar startCalendar, endCalendar;                        //起止日期
+        private LocalDate startDate, endDate;                               //起止日期
 
         public List<Long> getSelectedTagList() {
             return selectedTagList;
@@ -55,12 +58,12 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
             return selectedTypeList;
         }
 
-        public Calendar getStartCalendar() {
-            return startCalendar;
+        public LocalDate getStartDate() {
+            return startDate;
         }
 
-        public Calendar getEndCalendar() {
-            return endCalendar;
+        public LocalDate getEndDate() {
+            return endDate;
         }
 
         public void addType(Integer type) {
@@ -83,17 +86,17 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
             selectedTagList.clear();
         }
 
-        public void setStartCalendar(Calendar startCalendar) {
-            this.startCalendar = startCalendar;
+        public void setStartDate(LocalDate startDate) {
+            this.startDate = startDate;
         }
 
-        public void setEndCalendar(Calendar endCalendar) {
-            this.endCalendar = endCalendar;
+        public void setEndDate(LocalDate endDate) {
+            this.endDate = endDate;
         }
 
         public void clearCalendar() {
-            this.startCalendar = null;
-            this.endCalendar = null;
+            this.startDate = null;
+            this.endDate = null;
         }
     }
 
@@ -138,19 +141,17 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
             binding.dateRangeInput.setText("");
             setting.clearCalendar();
         });
-        Calendar startCalendar = setting.getStartCalendar();
-        Calendar endCalendar = setting.getEndCalendar();
-        if (startCalendar != null && endCalendar != null) {
-            int sy = startCalendar.get(Calendar.YEAR);
-            int sm = startCalendar.get(Calendar.MONTH) + 1;
-            int sd = startCalendar.get(Calendar.DAY_OF_MONTH);
-            int ey = endCalendar.get(Calendar.YEAR);
-            int em = endCalendar.get(Calendar.MONTH) + 1;
-            int ed = endCalendar.get(Calendar.DAY_OF_MONTH);
+        LocalDate startDate = setting.getStartDate();
+        LocalDate endDate = setting.getEndDate();
+        if (startDate != null && endDate != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
+            String start = formatter.format(startDate);
+            String end = formatter.format(endDate);
             String selectedDateRange = String.format(
                     Locale.getDefault(),
-                    "%04d年%02d月%02d日 - %04d年%02d月%02d日",
-                    sy, sm, sd, ey, em, ed
+                    "%s - %s",
+                    start,
+                    end
             );
             binding.dateRangeInput.setText(selectedDateRange);
         }
@@ -281,26 +282,26 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
                 )
                 .build();
         dateRangePicker.addOnPositiveButtonClickListener(selection -> {
-            long start = selection.first;
-            Calendar startSelected = Calendar.getInstance();
-            startSelected.setTimeInMillis(start);
-            setting.setStartCalendar(startSelected);
+            long first_selection = selection.first;
+            LocalDate startDate = Instant.ofEpochMilli(first_selection)
+                    .atZone(ZoneOffset.UTC)
+                    .toLocalDate();
+            setting.setStartDate(startDate);
 
-            long end = selection.second;
-            Calendar endSelected = Calendar.getInstance();
-            endSelected.setTimeInMillis(end);
-            setting.setEndCalendar(endSelected);
+            long second_selection = selection.second;
+            LocalDate endDate = Instant.ofEpochMilli(second_selection)
+                    .atZone(ZoneOffset.UTC)
+                    .toLocalDate();
+            setting.setEndDate(endDate);
 
-            int sy = startSelected.get(Calendar.YEAR);
-            int sm = startSelected.get(Calendar.MONTH) + 1;
-            int sd = startSelected.get(Calendar.DAY_OF_MONTH);
-            int ey = endSelected.get(Calendar.YEAR);
-            int em = endSelected.get(Calendar.MONTH) + 1;
-            int ed = endSelected.get(Calendar.DAY_OF_MONTH);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
+            String start = formatter.format(startDate);
+            String end = formatter.format(endDate);
             String selectedDateRange = String.format(
                     Locale.getDefault(),
-                    "%04d年%02d月%02d日 - %04d年%02d月%02d日",
-                    sy, sm, sd, ey, em, ed
+                    "%s - %s",
+                    start,
+                    end
             );
             binding.dateRangeInput.setText(selectedDateRange);
         });
@@ -313,12 +314,15 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
         MaterialDatePicker.Builder<Pair<Long, Long>> dateBuilder = MaterialDatePicker.Builder.dateRangePicker();
         dateBuilder.setTitleText("选择日期范围");
 
-        Calendar startCalendar = setting.getStartCalendar();
-        Calendar endCalendar = setting.getEndCalendar();
-        long startTimeMilli, endTimeMilli;
-        if (startCalendar != null && endCalendar != null) {
-            startTimeMilli = startCalendar.getTimeInMillis();
-            endTimeMilli = endCalendar.getTimeInMillis();
+        LocalDate startDate = setting.getStartDate();
+        LocalDate endDate = setting.getEndDate();
+        if (startDate != null && endDate != null) {
+            long startTimeMilli = startDate.atStartOfDay()
+                    .toInstant(ZoneOffset.UTC)
+                    .toEpochMilli();
+            long endTimeMilli = endDate.atStartOfDay()
+                    .toInstant(ZoneOffset.UTC)
+                    .toEpochMilli();
             dateBuilder.setSelection(new Pair<>(startTimeMilli, endTimeMilli));
         }
         return dateBuilder;
