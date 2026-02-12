@@ -10,8 +10,8 @@ android {
         applicationId "com.manager.assitant"
         minSdk 26
         targetSdk 36
-        versionCode 40
-        versionName "1.7.9"
+        versionCode 41
+        versionName "1.7.10"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
