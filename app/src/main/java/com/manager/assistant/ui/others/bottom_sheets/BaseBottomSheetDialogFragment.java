@@ -1,6 +1,7 @@
 package com.manager.assistant.ui.others.bottom_sheets;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -24,6 +25,20 @@ abstract public class BaseBottomSheetDialogFragment extends BottomSheetDialogFra
     protected View bottomSheetView;                 //底部对话框视图实例
     protected BottomSheetBehavior<View> behavior;   //对话框行为管理器
     private PredictiveBackCallback backCallback;    //返回回调
+    private OnDismissListener onDismissListener;    //消失监听器
+
+    public interface OnDismissListener {
+        void onDismiss();
+    }
+
+    /**
+     * 设置消失监听器
+     *
+     * @param listener 监听器实例
+     */
+    public void setOnDismissListener(OnDismissListener listener) {
+        onDismissListener = listener;
+    }
 
     /**
      * 返回回调内部类
@@ -100,6 +115,14 @@ abstract public class BaseBottomSheetDialogFragment extends BottomSheetDialogFra
 
         bottomSheetView = null;
         behavior = null;
+    }
+
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        super.onDismiss(dialog);
+        if (onDismissListener != null) {
+            onDismissListener.onDismiss();
+        }
     }
 
     /**

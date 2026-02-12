@@ -161,7 +161,6 @@ public class BookKeepingFragment extends Fragment {
         AnimationHelper.attachMorphAnimation(binding.addFloatingBtn);
 
         //绑定过滤器按钮的点击监听器
-        binding.filterSelectBtn.setCheckable(false);
         binding.filterSelectBtn.setOnClickListener(v -> {
             AccountFilterBottomSheet filterBottomSheet = new AccountFilterBottomSheet(
                     filterSetting,
@@ -170,6 +169,7 @@ public class BookKeepingFragment extends Fragment {
                         refreshUI();
                     });
             filterBottomSheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
+            filterBottomSheet.setOnDismissListener(() -> binding.filterSelectBtn.setChecked(false));
         });
 
         //获取颜色资源并设置下拉刷新布局的颜色

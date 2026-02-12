@@ -77,9 +77,8 @@
         <item name="drawableTint">?attr/colorOnSurfaceVariant</item>
     </style>
 
-    <style name="CardStyleBase">
+    <style name="CardStyleBase" parent="Widget.Material3.CardView.Filled">
         <item name="cardBackgroundColor">@color/card_background_color</item>
-        <item name="strokeColor">@android:color/transparent</item>
     </style>
 
     <!-- 圆角卡片容器器样式 -->
