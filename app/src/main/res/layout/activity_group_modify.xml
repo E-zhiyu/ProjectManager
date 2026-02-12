@@ -30,6 +30,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:scrollbars="none"
         app:layout_constraintBottom_toTopOf="@+id/btn_card_view"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
@@ -42,9 +43,9 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/group_name_layout"
                 style="@style/CommonTextInputLayoutStyle"
-                app:counterMaxLength="20"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:counterMaxLength="20"
                 app:endIconDrawable="@drawable/baseline_clear_24"
                 app:endIconMode="clear_text">
 
