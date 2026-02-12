@@ -88,6 +88,8 @@ public class BookKeepingFragment extends Fragment {
      * @param runningAccount 点击的流水数据实例
      */
     public void onRunningAccountViewClick(@NonNull RunningAccountBase runningAccount) {
+        PictureHelper.clearTempPictureDir(requireContext());    //清理临时图片目录防止残留干扰
+
         Intent skip2RunningAccountModify = new Intent(requireContext(), RunningAccountModifyActivity.class);
         Bundle dataBundle = new Bundle();
 
@@ -98,7 +100,7 @@ public class BookKeepingFragment extends Fragment {
         dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
         String remark = runningAccount.getRemark();                 //备注
         dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
-        String datetime = runningAccount.getDatetime();           //日期
+        String datetime = runningAccount.getDatetime();             //日期
         dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), datetime);
         long rno = runningAccount.getRno();                         //流水编号
         dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
@@ -128,9 +130,6 @@ public class BookKeepingFragment extends Fragment {
                     if (resultCode == RequestResultCode.RESULT_OK.ordinal() && data != null) {
                         onNewAccountAdded(data);
                     }
-
-                    //最后清理临时图片目录
-                    PictureHelper.clearTempPictureDir(requireContext());
                 }
         );
 
@@ -145,9 +144,6 @@ public class BookKeepingFragment extends Fragment {
                     } else if (resultCode == RequestResultCode.RESULT_OK.ordinal() && data != null) {
                         onAccountModified(data);
                     }
-
-                    //最后清理临时图片目录
-                    PictureHelper.clearTempPictureDir(requireContext());
                 }
         );
     }
@@ -158,6 +154,7 @@ public class BookKeepingFragment extends Fragment {
     private void initViews() {
         //绑定单击按钮监听器
         binding.addFloatingBtn.setOnClickListener(v -> {
+            PictureHelper.clearTempPictureDir(requireContext());    //清理临时图片目录防止残留干扰
             Intent skip2NewRunningAccount = new Intent(requireContext(), RunningAccountAddActivity.class);
             accountAddLauncher.launch(skip2NewRunningAccount);
         });

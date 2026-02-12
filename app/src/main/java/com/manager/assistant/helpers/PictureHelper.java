@@ -51,7 +51,7 @@ public class PictureHelper {
                 }
 
                 if (!isAllTempFileDeleted) {
-                    Log.w(LogTags.PICTURE_HELPER.getV(), "临时图片删除失败");
+                    Log.w(LogTags.PICTURE_HELPER.getV(), "临时图片未完全删除");
                 }
             }
         }
