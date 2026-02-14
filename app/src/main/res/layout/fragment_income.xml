@@ -96,7 +96,7 @@
                 android:layout_marginEnd="0dp"
                 android:layout_weight="1"
                 android:text="@string/add_picture"
-                app:icon="@drawable/baseline_add_a_photo_24"
+                app:icon="@drawable/outline_add_photo_alternate_24"
                 app:iconGravity="textStart" />
 
             <com.google.android.material.button.MaterialButton

@@ -13,7 +13,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@drawable/baseline_arrow_back_ios_new_24"
         app:title="标签分组修改">
 
         <com.google.android.material.button.MaterialButton
@@ -23,7 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:text="@string/group_merge"
-            app:icon="@drawable/baseline_call_merge_24"
+            app:icon="@drawable/outline_call_merge_24"
             app:iconGravity="textStart" />
     </com.google.android.material.appbar.MaterialToolbar>
 

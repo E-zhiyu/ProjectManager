@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
             android:contentDescription="@string/container_of_account_picture"
-            android:src="@drawable/baseline_error_outline_24" />
+            android:src="@drawable/outline_error_24" />
     </com.google.android.material.card.MaterialCardView>
 
     <androidx.appcompat.widget.AppCompatCheckedTextView

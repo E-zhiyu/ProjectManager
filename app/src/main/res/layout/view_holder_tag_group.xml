@@ -31,7 +31,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/expand_fold_btn"
-                android:src="@drawable/baseline_keyboard_arrow_down_24"
+                android:src="@drawable/outline_keyboard_arrow_down_24"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@+id/tag_group_name_view"
                 app:layout_constraintTop_toTopOf="parent" />

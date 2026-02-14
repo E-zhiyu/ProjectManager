@@ -177,17 +177,17 @@ public class SettingFragment extends Fragment {
                     AppSettingsPreference.setDynamicColorStat(requireContext(), isChecked);
 
                     ManagerAssistant app = (ManagerAssistant) requireActivity().getApplication();
+                    DynamicColorsOptions options;
                     if (isChecked) {
-                        DynamicColorsOptions options = new DynamicColorsOptions.Builder()
+                        options = new DynamicColorsOptions.Builder()
                                 .setThemeOverlay(R.style.Theme_ManagerAssistant_Dynamic)
                                 .build();
-                        DynamicColors.applyToActivitiesIfAvailable(app, options);
                     } else {
-                        DynamicColorsOptions options = new DynamicColorsOptions.Builder()
+                        options = new DynamicColorsOptions.Builder()
                                 .setThemeOverlay(R.style.Theme_ManagerAssistant_Static)
                                 .build();
-                        DynamicColors.applyToActivitiesIfAvailable(app, options);
                     }
+                    DynamicColors.applyToActivitiesIfAvailable(app, options);
                     requireActivity().recreate();
                 }
         );
@@ -490,7 +490,7 @@ public class SettingFragment extends Fragment {
                 binding.resetRuleOption,
                 R.string.reset_rule,
                 "将现有规则重置为默认状态",
-                R.drawable.baseline_restart_alt_24
+                R.drawable.outline_reset_settings_24
         );
         resetRuleOption.setFunctionListener(
                 v -> new MaterialAlertDialogBuilder(requireContext())

@@ -89,7 +89,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/check_more_data"
-            app:icon="@drawable/baseline_menu_24"
+            app:icon="@drawable/outline_menu_open_24"
             app:iconGravity="textStart" />
 
         <!-- 超链接布局 -->

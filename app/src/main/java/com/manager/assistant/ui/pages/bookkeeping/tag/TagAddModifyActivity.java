@@ -162,7 +162,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
             Chip scopeChip = new Chip(this);
             scopeChip.setCheckable(true);
             scopeChip.setCheckedIconVisible(true);
-            scopeChip.setCheckedIcon(ContextCompat.getDrawable(this, R.drawable.baseline_check_24));
+            scopeChip.setCheckedIcon(ContextCompat.getDrawable(this, R.drawable.outline_check_24));
             scopeChip.setText(type.getTitle());
 
             //设置初始选择状态

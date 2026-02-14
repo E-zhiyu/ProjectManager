@@ -131,7 +131,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             tagTextView.setClickable(true);
 
             //添加右侧箭头图标
-            Drawable right_arrow = AppCompatResources.getDrawable(context, R.drawable.baseline_keyboard_arrow_right_24);
+            Drawable right_arrow = AppCompatResources.getDrawable(context, R.drawable.outline_keyboard_arrow_right_24);
             tagTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(
                     null, null, right_arrow, null
             );
