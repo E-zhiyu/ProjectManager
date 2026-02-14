@@ -38,7 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/clear_input"
-            app:icon="@drawable/baseline_delete_forever_24"
+            app:icon="@drawable/outline_delete_24"
             app:iconGravity="textStart"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

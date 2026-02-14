@@ -142,7 +142,7 @@
                 android:layout_weight="1"
                 android:text="@string/delete_picture"
                 android:visibility="gone"
-                app:icon="@drawable/baseline_delete_forever_24"
+                app:icon="@drawable/outline_delete_24"
                 app:iconGravity="textStart" />
         </LinearLayout>
 

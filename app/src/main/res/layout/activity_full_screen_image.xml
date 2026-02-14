@@ -26,7 +26,7 @@
             android:layout_marginEnd="10dp"
             android:backgroundTint="@color/gray_translucent"
             android:contentDescription="@string/save_picture_btn"
-            app:icon="@drawable/baseline_file_download_24"
+            app:icon="@drawable/outline_download_24"
             app:iconTint="@color/mdtp_white" />
 
         <com.google.android.material.button.MaterialButton
@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/gray_translucent"
             android:contentDescription="@string/share_picture_btn"
-            app:icon="@drawable/baseline_share_24"
+            app:icon="@drawable/outline_share_24"
             app:iconTint="@color/mdtp_white" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

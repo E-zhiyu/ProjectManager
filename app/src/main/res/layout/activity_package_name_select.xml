@@ -33,7 +33,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:contentDescription="@string/btn_expands_list"
-                android:src="@drawable/baseline_tune_24" />
+                android:src="@drawable/outline_tune_24" />
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
