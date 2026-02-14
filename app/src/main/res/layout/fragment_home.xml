@@ -6,16 +6,17 @@
     tools:context=".ui.pages.home.HomeFragment">
 
     <!-- 主内容布局 -->
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/welcome_card"
             style="@style/RoundCardStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_scrollFlags="scroll|snap">
+            app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -46,7 +47,8 @@
             android:id="@+id/report_balance_cardview"
             style="@style/ContentCardStyle"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/welcome_card">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -88,23 +90,65 @@
             style="@style/OutlinedBtnStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:text="@string/check_more_data"
             app:icon="@drawable/outline_menu_open_24"
-            app:iconGravity="textStart" />
+            app:iconGravity="textStart"
+            app:layout_constraintTop_toBottomOf="@id/report_balance_cardview" />
+
+        <!-- 标签卡片 -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/tag_card"
+            style="@style/ContentCardStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/report_btn">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/LargeTitleTextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tag" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/tag_recycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/tag_manage_btn"
+            style="@style/OutlinedBtnStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/into_tag_manage_page"
+            app:icon="@drawable/outline_label_24"
+            app:layout_constraintTop_toBottomOf="@+id/tag_card" />
 
         <!-- 超链接布局 -->
         <com.google.android.material.loadingindicator.LoadingIndicator
             android:id="@+id/link_loading_indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal" />
+            android:layout_gravity="center_horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/web_link_card" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/web_link_card"
             style="@style/ContentCardStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone">
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/tag_manage_btn">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -132,5 +176,5 @@
                     app:layout_constraintTop_toBottomOf="@+id/web_link_title_text" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

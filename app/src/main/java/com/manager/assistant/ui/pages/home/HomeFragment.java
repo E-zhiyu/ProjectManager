@@ -24,6 +24,7 @@ import com.manager.assistant.databinding.FragmentHomeBinding;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.WebsiteLinkFetchHelper;
+import com.manager.assistant.ui.pages.bookkeeping.tag.TagManageActivity;
 import com.manager.assistant.ui.pages.home.report.ReportActivity;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
@@ -95,6 +96,10 @@ public class HomeFragment extends Fragment {
             Intent skip2Report = new Intent(requireContext(), ReportActivity.class);
             startActivity(skip2Report);
         });
+        binding.tagManageBtn.setOnClickListener(v -> {
+            Intent skip2TagManage = new Intent(requireContext(), TagManageActivity.class);
+            startActivity(skip2TagManage);
+        });
 
         //初始化记账日期
         String startDateStr = getBookKeepingStartDate();  //获取开始记账的日期
@@ -155,8 +160,8 @@ public class HomeFragment extends Fragment {
      * 加载今日相关的流水数据
      */
     private void getTodayBalanceInfo() throws SQLiteException {
-        BookkeepingDbHelper db_helper = new BookkeepingDbHelper(requireContext());
-        SQLiteDatabase db = db_helper.openReadLink();
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(requireContext());
+        SQLiteDatabase db = dbHelper.openReadLink();
 
         //获取当前日期
         LocalDate today = LocalDate.now();
@@ -230,14 +235,15 @@ public class HomeFragment extends Fragment {
      * 刷新UI的方法
      */
     private void refreshUI() {
+        //获取报表数据
         disposables.add(
                 Observable.fromCallable(() -> {
                             getTodayBalanceInfo();
-                            return getBookKeepingStartDate();
+                            return true;
                         })
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe(startDateStr -> {
+                        .subscribeOn(Schedulers.newThread())
+                        .subscribe(b -> {
                             //更新今日结余统计
                             binding.balanceText.setText(String.format(Locale.getDefault(), "%.2f", day_balance));
                             binding.expenseIncomeText.setText(
@@ -247,7 +253,18 @@ public class HomeFragment extends Fragment {
                                             day_expense, day_income
                                     )
                             );
+                        }, e -> {
+                            ExceptionHelper.showExceptionDialog(requireContext(), e);
+                            Toast.makeText(requireContext(), "无法刷新报表信息", Toast.LENGTH_SHORT).show();
+                        })
+        );
 
+        //更新记账天数
+        disposables.add(
+                Observable.fromCallable(this::getBookKeepingStartDate)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.newThread())
+                        .subscribe(startDateStr -> {
                             //更新记账累计日期
                             long bookkeeping_day_num;
                             if (!startDateStr.isEmpty()) {
@@ -269,9 +286,6 @@ public class HomeFragment extends Fragment {
                             } else {
                                 binding.bookkeepingDaysText.setText("这是您记账的第一天");
                             }
-                        }, e -> {
-                            ExceptionHelper.showExceptionDialog(requireContext(), e);
-                            Toast.makeText(requireContext(), "界面刷新出错", Toast.LENGTH_SHORT).show();
                         })
         );
     }
