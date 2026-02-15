@@ -46,8 +46,11 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/report_balance_cardview"
             style="@style/ContentCardStyle"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@id/tag_card"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/welcome_card">
 
             <LinearLayout
@@ -84,53 +87,72 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- 报表界面跳转按钮 -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/report_btn"
-            style="@style/OutlinedBtnStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="@string/check_more_data"
-            app:icon="@drawable/outline_menu_open_24"
-            app:iconGravity="textStart"
-            app:layout_constraintTop_toBottomOf="@id/report_balance_cardview" />
-
         <!-- 标签卡片 -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/tag_card"
             style="@style/ContentCardStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/report_btn">
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="0dp"
+            app:layout_constraintBottom_toBottomOf="@+id/report_balance_cardview"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@+id/report_balance_cardview"
+            app:layout_constraintTop_toTopOf="@+id/report_balance_cardview">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
                     style="@style/LargeTitleTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/tag" />
+                    android:text="@string/tag_count" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/tag_recycler"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tag_count_text"
+                    style="@style/TextAppearance.Material3.HeadlineLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="@string/count_infinity" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/tag_manage_btn"
-            style="@style/OutlinedBtnStyle"
-            android:layout_width="match_parent"
+        <!-- 按钮组 -->
+        <com.google.android.material.button.MaterialButtonGroup
+            android:id="@+id/btn_group_1"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="@string/into_tag_manage_page"
-            app:icon="@drawable/outline_label_24"
-            app:layout_constraintTop_toBottomOf="@+id/tag_card" />
+            app:layout_constraintEnd_toEndOf="@+id/tag_card"
+            app:layout_constraintStart_toStartOf="@+id/report_balance_cardview"
+            app:layout_constraintTop_toBottomOf="@+id/report_balance_cardview">
+
+            <!-- 报表界面跳转按钮 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/report_btn"
+                style="@style/OutlinedBtnStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/check_report_data"
+                app:icon="@drawable/outline_menu_open_24"
+                app:iconGravity="textStart" />
+
+            <!-- 标签管理界面跳转按钮 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/tag_manage_btn"
+                style="@style/OutlinedBtnStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/manage_tag"
+                app:icon="@drawable/outline_label_24" />
+        </com.google.android.material.button.MaterialButtonGroup>
 
         <!-- 超链接布局 -->
         <com.google.android.material.loadingindicator.LoadingIndicator
@@ -148,7 +170,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/tag_manage_btn">
+            app:layout_constraintTop_toBottomOf="@id/btn_group_1">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"

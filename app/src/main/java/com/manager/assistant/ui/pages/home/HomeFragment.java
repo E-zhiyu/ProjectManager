@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
 import com.manager.assistant.data.data_save.database.BookkeepingColumns;
 import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
@@ -124,6 +125,15 @@ public class HomeFragment extends Fragment {
             binding.bookkeepingDaysText.setText("这是您记账的第一天");
         }
 
+        //标签数据
+        try {
+            int tag_count = Tag.getTagCount(requireContext());
+            binding.tagCountText.setText(String.valueOf(tag_count));
+        } catch (SQLiteException e) {
+            Toast.makeText(requireContext(), "无法获取标签数量", Toast.LENGTH_SHORT).show();
+        }
+
+        //初始化链接数据
         linkAdapter = new LinkAdapter(requireContext());
         binding.webLinkRecycler.setAdapter(linkAdapter);
         if (AppSettingsPreference.getHomeLinks(requireContext())) {
