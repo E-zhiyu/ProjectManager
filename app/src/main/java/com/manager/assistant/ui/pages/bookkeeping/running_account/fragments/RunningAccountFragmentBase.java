@@ -211,6 +211,8 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
                                 this.tno = Tag.nameTransToTno(tag_name, requireContext());
                                 tagInput.setText(tag_name);
                                 break;
+                            default:
+                                break;
                         }
                     }
                 }

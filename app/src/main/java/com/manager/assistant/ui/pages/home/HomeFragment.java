@@ -25,6 +25,8 @@ import com.manager.assistant.databinding.FragmentHomeBinding;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.WebsiteLinkFetchHelper;
+import com.manager.assistant.ui.data_communication.tag_modify.TagRepository;
+import com.manager.assistant.ui.data_communication.tag_modify.TagUpdateReason;
 import com.manager.assistant.ui.pages.bookkeeping.tag.TagManageActivity;
 import com.manager.assistant.ui.pages.home.report.ReportActivity;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
@@ -57,6 +59,7 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
 
         initViews();
+        startObserveLiveData();
         AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
         initBalanceView();
 
@@ -297,6 +300,37 @@ public class HomeFragment extends Fragment {
                                 binding.bookkeepingDaysText.setText("这是您记账的第一天");
                             }
                         })
+        );
+    }
+
+    /**
+     * 开始观察LiveData
+     */
+    private void startObserveLiveData() {
+        TagRepository tagRepository = TagRepository.getInstance();
+        tagRepository.getChangedTagList().observe(
+                requireActivity(),
+                tags -> {
+                    TagUpdateReason reason = tagRepository.getUpdateReason();
+                    String countStr = String.valueOf(binding.tagCountText.getText());
+                    try {
+                        int tag_count = Integer.parseInt(countStr);
+                        switch (reason) {
+                            case DELETE:
+                            case MERGE:
+                                tag_count--;
+                                binding.tagCountText.setText(String.valueOf(tag_count));
+                                break;
+                            case ADD:
+                                tag_count++;
+                                binding.tagCountText.setText(String.valueOf(tag_count));
+                                break;
+                            default:
+                                break;
+                        }
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
         );
     }
 

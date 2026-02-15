@@ -345,6 +345,8 @@ public class RuleAddModifyActivity extends AppCompatActivity {
                                 this.tag_no = Tag.nameTransToTno(tag_name, this);
                                 binding.tagNameInput.setText(tag_name);
                                 break;
+                            default:
+                                break;
                         }
                     }
                 }

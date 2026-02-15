@@ -76,6 +76,9 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
                 if (isModifyMode) {
                     TagRepository repository = TagRepository.getInstance();
                     repository.updateTag(tag_name, tag_no, TagUpdateReason.RENAME);    //更新ViewModel中的标签数据
+                } else {
+                    TagRepository repository = TagRepository.getInstance();
+                    repository.updateTag(tag_name, tag_no, TagUpdateReason.ADD);
                 }
 
                 result2TagManage.putExtras(dataBundle);
