@@ -67,7 +67,6 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         repository.getChangedTagList().observe(this, tagList -> {
             if (tagList != null) {
                 refreshRuleRecycler();
-                repository.resetValue();
             }
         });
     }

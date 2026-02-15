@@ -5,8 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabaseLockedException;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -444,11 +442,8 @@ public class RunningAccountDataHelper extends DataHelperBase<BookkeepingDbHelper
             Toast.makeText(context, tipStr, Toast.LENGTH_SHORT).show();
 
             //更新主页标签数量
-            new Handler(Looper.getMainLooper()).post(() -> {
-                        TagRepository tagRepository = TagRepository.getInstance();
-                        tagRepository.updateTag(TagUpdateReason.CLEAR);
-                    }
-            );
+            TagRepository tagRepository = TagRepository.getInstance();
+            tagRepository.updateTag(TagUpdateReason.CLEAR);
         }
     }
 }

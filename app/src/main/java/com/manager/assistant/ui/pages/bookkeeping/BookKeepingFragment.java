@@ -78,7 +78,6 @@ public class BookKeepingFragment extends Fragment {
                             refreshAccountRecycler();
                             break;
                     }
-                    viewModel.resetValue();
                 }
         );
 

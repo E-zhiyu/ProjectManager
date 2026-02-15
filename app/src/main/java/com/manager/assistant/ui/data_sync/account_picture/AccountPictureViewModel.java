@@ -50,6 +50,9 @@ public class AccountPictureViewModel extends ViewModel {
         List<Picture> pictureList = new ArrayList<>();
         pictureList.add(newPicture);
         newPictureData.postValue(pictureList);
+
+        //重置值防止重复刷新
+        newPictureData.postValue(null);
     }
 
     /**
@@ -60,6 +63,9 @@ public class AccountPictureViewModel extends ViewModel {
     public void addPicture(List<Picture> newPictureList) {
         List<Picture> pictureList = new ArrayList<>(newPictureList);
         newPictureData.postValue(pictureList);
+
+        //重置值防止重复刷新
+        newPictureData.postValue(null);
     }
 
     /**
@@ -70,6 +76,9 @@ public class AccountPictureViewModel extends ViewModel {
     public void deletePicture(List<Boolean> pictureSelectList) {
         List<Boolean> pictureList = new ArrayList<>(pictureSelectList);
         selectedPictureData.postValue(pictureList);
+
+        //重置值防止重复刷新
+        selectedPictureData.postValue(null);
     }
 
     /**
@@ -79,5 +88,8 @@ public class AccountPictureViewModel extends ViewModel {
      */
     public void updateAdapterStat(boolean isDeleteMode) {
         adapterStatData.postValue(isDeleteMode);
+
+        //重置值防止重复刷新
+        adapterStatData.postValue(null);
     }
 }

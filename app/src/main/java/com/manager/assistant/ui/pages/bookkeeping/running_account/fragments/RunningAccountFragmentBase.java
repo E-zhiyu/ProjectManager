@@ -219,7 +219,6 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
                     }
                 }
             }
-            repository.resetValue();
         });
     }
 
@@ -231,17 +230,30 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
 
         //观察适配器删除模式状态
         viewModel.getAdapterStatData().observe(
-                getViewLifecycleOwner(), isDeleteMode -> pictureAdapter.switchDeleteMode(isDeleteMode)
+                getViewLifecycleOwner(),
+                isDeleteMode -> {
+                    if (isDeleteMode != null) {
+                        pictureAdapter.switchDeleteMode(isDeleteMode);
+                    }
+                }
         );
 
         //观察新增图片
         viewModel.getNewPictureData().observe(
-                getViewLifecycleOwner(), pictureList -> pictureAdapter.addPicture(pictureList)
+                getViewLifecycleOwner(), pictureList -> {
+                    if (pictureList != null) {
+                        pictureAdapter.addPicture(pictureList);
+                    }
+                }
         );
 
         //观察图片删除
         viewModel.getPictureSelectData().observe(
-                getViewLifecycleOwner(), pictureSelectList -> pictureAdapter.deleteSelectedPicture(pictureSelectList)
+                getViewLifecycleOwner(), pictureSelectList -> {
+                    if (pictureSelectList != null) {
+                        pictureAdapter.deleteSelectedPicture(pictureSelectList);
+                    }
+                }
         );
     }
 

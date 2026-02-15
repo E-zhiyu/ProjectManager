@@ -360,7 +360,6 @@ public class HomeFragment extends Fragment {
                         }
                     } catch (NumberFormatException ignored) {
                     }
-                    tagRepository.resetValue();
                 }
         );
 
@@ -420,7 +419,6 @@ public class HomeFragment extends Fragment {
                             refreshReportView();
                             break;
                     }
-                    accountViewModel.resetValue();
                 }
         );
     }

@@ -51,6 +51,9 @@ public class TagRepository {
         Tag modifiedTag = new Tag(tagName, tag_no);
         tagList.add(modifiedTag);
         changedTagList.postValue(tagList);
+
+        //最后重置值，防止重复刷新视图
+        changedTagList.postValue(null);
     }
 
     /**
@@ -71,12 +74,5 @@ public class TagRepository {
     public void updateTag(List<Tag> tagList, TagUpdateReason updateReason) {
         this.updateReason = updateReason;
         changedTagList.postValue(tagList);
-    }
-
-    /**
-     * 重置数据值（用于防止重复刷新视图）
-     */
-    public void resetValue() {
-        changedTagList.postValue(null);
     }
 }

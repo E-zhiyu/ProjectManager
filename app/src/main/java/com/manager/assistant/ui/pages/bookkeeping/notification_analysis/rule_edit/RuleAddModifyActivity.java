@@ -353,7 +353,6 @@ public class RuleAddModifyActivity extends AppCompatActivity {
                     }
                 }
             }
-            repository.resetValue();
         });
     }
 
