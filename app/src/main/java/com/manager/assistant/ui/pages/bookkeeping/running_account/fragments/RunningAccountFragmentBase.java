@@ -154,12 +154,12 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
     /**
      * 标签选中弹窗的标签按钮点击回调
      *
-     * @param tag_no   点击的标签编号
-     * @param tag_name 点击的标签名称
+     * @param tag_no  点击的标签编号
+     * @param tagName 点击的标签名称
      */
-    public void onTagBtnClicked(long tag_no, String tag_name) {
+    public void onTagBtnClicked(long tag_no, String tagName) {
         this.tno = tag_no;   //更新全局变量中的标签编号
-        tagInput.setText(tag_name);
+        tagInput.setText(tagName);
         tagLayout.setError(null);
         tagSheet.dismiss();
     }
@@ -191,35 +191,38 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
      */
     private void startObserveTag() {
         TagRepository repository = TagRepository.getInstance();
-        repository.getChangedTagList().observe(getViewLifecycleOwner(), tagList -> {
-            if (tagList == null) {
-                return;
-            }
+        repository.getChangedTagList().observe(
+                getViewLifecycleOwner(),
+                tagList -> {
+                    if (tagList == null) {
+                        return;
+                    }
 
-            TagUpdateReason updateReason = repository.getUpdateReason();
-            for (Tag tag : tagList) {
-                String tag_name = tag.getName();
-                long tag_no = tag.getTno();
+                    TagUpdateReason updateReason = repository.getUpdateReason();
+                    for (Tag tag : tagList) {
+                        String tagName = tag.getName();
+                        long tag_no = tag.getTno();
 
-                if (tag_no == this.tno) {    //只有找到匹配的标签编号才修改
-                    switch (updateReason) {
-                        case RENAME:
-                            tagInput.setText(tag_name);
-                            break;
-                        case DELETE:
-                            this.tno = 0;
-                            tagInput.setText("");
-                            break;
-                        case MERGE:
-                            this.tno = Tag.nameTransToTno(tag_name, requireContext());
-                            tagInput.setText(tag_name);
-                            break;
-                        default:
-                            break;
+                        if (tag_no == this.tno) {    //只有找到匹配的标签编号才修改
+                            switch (updateReason) {
+                                case RENAME:
+                                    tagInput.setText(tagName);
+                                    break;
+                                case DELETE:
+                                    this.tno = 0;
+                                    tagInput.setText("");
+                                    break;
+                                case MERGE:
+                                    this.tno = Tag.nameTransToTno(tagName, requireContext());
+                                    tagInput.setText(tagName);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
                     }
                 }
-            }
-        });
+        );
     }
 
     /**

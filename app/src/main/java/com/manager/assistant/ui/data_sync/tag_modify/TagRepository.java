@@ -1,9 +1,7 @@
 package com.manager.assistant.ui.data_sync.tag_modify;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-
 import com.manager.assistant.data.data_class.Tag;
+import com.manager.assistant.ui.data_sync.UnPeekLiveData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +9,7 @@ import java.util.List;
 public class TagRepository {
     private static TagRepository instance;  //自身类的实例，确保通过getInstance()获取到的是同一个实例
     private TagUpdateReason updateReason;   //标签更新的原因
-    private final MutableLiveData<List<Tag>> changedTagList = new MutableLiveData<>();  //修改的标签组成的列表(带有修改原因)
+    private final UnPeekLiveData<List<Tag>> changedTagList = new UnPeekLiveData<>();  //修改的标签组成的列表(带有修改原因)
 
     /**
      * 获取TagRepository实例
@@ -30,7 +28,7 @@ public class TagRepository {
      *
      * @return 带有修改原因的标签列表
      */
-    public LiveData<List<Tag>> getChangedTagList() {
+    public UnPeekLiveData<List<Tag>> getChangedTagList() {
         return changedTagList;
     }
 
@@ -51,9 +49,6 @@ public class TagRepository {
         Tag modifiedTag = new Tag(tagName, tag_no);
         tagList.add(modifiedTag);
         changedTagList.postValue(tagList);
-
-        //最后重置值，防止重复刷新视图
-        changedTagList.postValue(null);
     }
 
     /**
