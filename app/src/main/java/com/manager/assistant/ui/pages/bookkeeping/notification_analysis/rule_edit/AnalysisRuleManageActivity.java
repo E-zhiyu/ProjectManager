@@ -66,7 +66,8 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         TagRepository repository = TagRepository.getInstance();
         repository.getChangedTagList().observe(this, tagList -> {
             if (tagList != null) {
-                refreshUI();
+                refreshRuleRecycler();
+                repository.resetValue();
             }
         });
     }
@@ -126,7 +127,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         });
 
         //设置下拉刷新布局的刷新监听器
-        binding.refreshLayout.setOnRefreshListener(this::refreshUI);
+        binding.refreshLayout.setOnRefreshListener(this::refreshRuleRecycler);
     }
 
     /**
@@ -239,7 +240,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
     /**
      * 刷新UI方法
      */
-    private void refreshUI() {
+    private void refreshRuleRecycler() {
         binding.refreshLayout.setRefreshing(true);
         disposables.add(
                 Observable.fromCallable(() -> AnalysisRule.loadAnalysisRule(this))

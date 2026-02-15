@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
@@ -22,9 +24,12 @@ import com.manager.assistant.data.data_save.database.BookkeepingTables;
 import com.manager.assistant.data.data_save.preference.AppSettingsPreference;
 import com.manager.assistant.data.data_save.preference.BookKeepingStartDatePreference;
 import com.manager.assistant.databinding.FragmentHomeBinding;
+import com.manager.assistant.enums.LogTags;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.WebsiteLinkFetchHelper;
+import com.manager.assistant.ui.data_sync.runnning_account.AccountUpdateReason;
+import com.manager.assistant.ui.data_sync.runnning_account.RunningAccountViewModel;
 import com.manager.assistant.ui.data_sync.tag_modify.TagRepository;
 import com.manager.assistant.ui.data_sync.tag_modify.TagUpdateReason;
 import com.manager.assistant.ui.pages.bookkeeping.tag.TagManageActivity;
@@ -36,7 +41,9 @@ import java.net.ProtocolException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 
@@ -151,7 +158,7 @@ public class HomeFragment extends Fragment {
      */
     private void initBalanceView() {
         try {
-            getTodayBalanceInfo();
+            refreshTodayReport();
         } catch (SQLiteException e) {
             day_balance = 0;
             day_income = 0;
@@ -163,7 +170,7 @@ public class HomeFragment extends Fragment {
         binding.expenseIncomeText.setText(
                 String.format(
                         Locale.getDefault(),
-                        "支出：%.2f | 收入：%.2f",
+                        "支出:%.2f | 收入:%.2f",
                         day_expense, day_income
                 )
         );
@@ -172,7 +179,7 @@ public class HomeFragment extends Fragment {
     /**
      * 加载今日相关的流水数据
      */
-    private void getTodayBalanceInfo() throws SQLiteException {
+    private void refreshTodayReport() throws SQLiteException {
         BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(requireContext());
         SQLiteDatabase db = dbHelper.openReadLink();
 
@@ -191,7 +198,7 @@ public class HomeFragment extends Fragment {
                 formatter.format(today),
                 formatter.format(tomorrow)
         };
-        Cursor basic_cursor = db.query(
+        Cursor basicCursor = db.query(
                 BookkeepingTables.BASIC.toString(),
                 columns,
                 selection,
@@ -205,9 +212,9 @@ public class HomeFragment extends Fragment {
         day_balance = 0;
         day_expense = 0;
         day_income = 0;
-        while (basic_cursor.moveToNext()) {
-            RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.TYPE.toString())));
-            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.AMOUNT.toString()));
+        while (basicCursor.moveToNext()) {
+            RunningAccountType type = RunningAccountType.valueOf(basicCursor.getString(basicCursor.getColumnIndexOrThrow(BookkeepingColumns.TYPE.toString())));
+            double amount = basicCursor.getDouble(basicCursor.getColumnIndexOrThrow(BookkeepingColumns.AMOUNT.toString()));
 
             if (type.isExpenseType()) {
                 day_balance -= amount;
@@ -218,7 +225,7 @@ public class HomeFragment extends Fragment {
             }
         }
 
-        basic_cursor.close();
+        basicCursor.close();
         db.close();
     }
 
@@ -251,21 +258,14 @@ public class HomeFragment extends Fragment {
         //获取报表数据
         disposables.add(
                 Observable.fromCallable(() -> {
-                            getTodayBalanceInfo();
+                            refreshTodayReport();
                             return true;
                         })
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeOn(Schedulers.newThread())
                         .subscribe(b -> {
                             //更新今日结余统计
-                            binding.balanceText.setText(String.format(Locale.getDefault(), "%.2f", day_balance));
-                            binding.expenseIncomeText.setText(
-                                    String.format(
-                                            Locale.getDefault(),
-                                            "支出：%.2f | 收入：%.2f",
-                                            day_expense, day_income
-                                    )
-                            );
+                            refreshReportView();
                         }, e -> {
                             ExceptionHelper.showExceptionDialog(requireContext(), e);
                             Toast.makeText(requireContext(), "无法刷新报表信息", Toast.LENGTH_SHORT).show();
@@ -304,13 +304,32 @@ public class HomeFragment extends Fragment {
     }
 
     /**
+     * 刷新报表相关的视图
+     */
+    private void refreshReportView() {
+        binding.balanceText.setText(String.format(Locale.getDefault(), "%.2f", day_balance));
+        binding.expenseIncomeText.setText(
+                String.format(
+                        Locale.getDefault(),
+                        "支出:%.2f | 收入:%.2f",
+                        day_expense, day_income
+                )
+        );
+    }
+
+    /**
      * 开始观察LiveData
      */
     private void startObserveLiveData() {
+        //观察标签数据
         TagRepository tagRepository = TagRepository.getInstance();
         tagRepository.getChangedTagList().observe(
                 requireActivity(),
                 tags -> {
+                    if (tags == null) {
+                        return;
+                    }
+
                     TagUpdateReason reason = tagRepository.getUpdateReason();
                     String countStr = String.valueOf(binding.tagCountText.getText());
                     try {
@@ -341,6 +360,67 @@ public class HomeFragment extends Fragment {
                         }
                     } catch (NumberFormatException ignored) {
                     }
+                    tagRepository.resetValue();
+                }
+        );
+
+        //观察流水数据
+        RunningAccountViewModel accountViewModel = new ViewModelProvider(requireActivity()).get(RunningAccountViewModel.class);
+        accountViewModel.getAccountData().observe(
+                requireActivity(),
+                simpleRunningAccount -> {
+                    if (simpleRunningAccount == null) {
+                        return;
+                    }
+
+                    AccountUpdateReason reason = accountViewModel.getUpdateReason();
+                    double amount = simpleRunningAccount.amount;
+                    String datetime = simpleRunningAccount.datetime;
+                    RunningAccountType type = simpleRunningAccount.type;
+
+                    //判断这笔帐是否在这一天内
+                    try {
+                        LocalDateTime localDateTime = LocalDateTime.parse(datetime);
+                        LocalDateTime today = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
+                        if (!localDateTime.isAfter(today) || !localDateTime.isBefore(today.plusDays(1))) {
+                            Log.i(LogTags.HOME_PAGE.getV(), "日期不在当日，不执行任何操作");
+                            return;
+                        }
+                    } catch (DateTimeParseException ignored) {
+                        Log.w(LogTags.HOME_PAGE.getV(), "无法确定流水日期和时间");
+                    }
+
+                    switch (reason) {
+                        case ADD:
+                            if (type.isExpenseType()) {
+                                day_balance -= amount;
+                                day_expense += amount;
+                            } else if (type.isIncomeType()) {
+                                day_balance += amount;
+                                day_income += amount;
+                            }
+                            refreshReportView();
+                            break;
+                        case DELETE:
+                            if (type.isExpenseType()) {
+                                day_balance += amount;
+                                day_expense -= amount;
+                            } else if (type.isIncomeType()) {
+                                day_balance -= amount;
+                                day_income -= amount;
+                            }
+                            refreshReportView();
+                            break;
+                        case CLEAR:
+                            day_balance = day_expense = day_income = 0;
+                            refreshReportView();
+                            break;
+                        case REFRESH:
+                            refreshTodayReport();
+                            refreshReportView();
+                            break;
+                    }
+                    accountViewModel.resetValue();
                 }
         );
     }

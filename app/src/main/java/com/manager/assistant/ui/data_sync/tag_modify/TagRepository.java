@@ -34,6 +34,9 @@ public class TagRepository {
         return changedTagList;
     }
 
+    public TagUpdateReason getUpdateReason() {
+        return updateReason;
+    }
     /**
      * 更新单个标签数据
      *
@@ -47,7 +50,7 @@ public class TagRepository {
         List<Tag> tagList = new ArrayList<>();
         Tag modifiedTag = new Tag(tagName, tag_no);
         tagList.add(modifiedTag);
-        changedTagList.setValue(tagList);
+        changedTagList.postValue(tagList);
     }
 
     /**
@@ -67,10 +70,13 @@ public class TagRepository {
      */
     public void updateTag(List<Tag> tagList, TagUpdateReason updateReason) {
         this.updateReason = updateReason;
-        changedTagList.setValue(tagList);
+        changedTagList.postValue(tagList);
     }
 
-    public TagUpdateReason getUpdateReason() {
-        return updateReason;
+    /**
+     * 重置数据值（用于防止重复刷新视图）
+     */
+    public void resetValue() {
+        changedTagList.postValue(null);
     }
 }

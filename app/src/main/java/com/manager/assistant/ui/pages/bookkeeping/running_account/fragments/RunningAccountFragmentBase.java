@@ -192,31 +192,34 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
     private void startObserveTag() {
         TagRepository repository = TagRepository.getInstance();
         repository.getChangedTagList().observe(getViewLifecycleOwner(), tagList -> {
-            if (tagList != null) {
-                TagUpdateReason updateReason = repository.getUpdateReason();
-                for (Tag tag : tagList) {
-                    String tag_name = tag.getName();
-                    long tag_no = tag.getTno();
+            if (tagList == null) {
+                return;
+            }
 
-                    if (tag_no == this.tno) {    //只有找到匹配的标签编号才修改
-                        switch (updateReason) {
-                            case RENAME:
-                                tagInput.setText(tag_name);
-                                break;
-                            case DELETE:
-                                this.tno = 0;
-                                tagInput.setText("");
-                                break;
-                            case MERGE:
-                                this.tno = Tag.nameTransToTno(tag_name, requireContext());
-                                tagInput.setText(tag_name);
-                                break;
-                            default:
-                                break;
-                        }
+            TagUpdateReason updateReason = repository.getUpdateReason();
+            for (Tag tag : tagList) {
+                String tag_name = tag.getName();
+                long tag_no = tag.getTno();
+
+                if (tag_no == this.tno) {    //只有找到匹配的标签编号才修改
+                    switch (updateReason) {
+                        case RENAME:
+                            tagInput.setText(tag_name);
+                            break;
+                        case DELETE:
+                            this.tno = 0;
+                            tagInput.setText("");
+                            break;
+                        case MERGE:
+                            this.tno = Tag.nameTransToTno(tag_name, requireContext());
+                            tagInput.setText(tag_name);
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
+            repository.resetValue();
         });
     }
 

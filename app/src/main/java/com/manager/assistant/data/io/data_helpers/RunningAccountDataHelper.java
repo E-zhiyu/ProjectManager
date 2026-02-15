@@ -155,13 +155,6 @@ public class RunningAccountDataHelper extends DataHelperBase<BookkeepingDbHelper
             db.insert(BookkeepingTables.BASIC.toString(), null, basicValues);
         }
 
-        //更新主页标签数量
-        new Handler(Looper.getMainLooper()).post(() -> {
-                    TagRepository tagRepository = TagRepository.getInstance();
-                    tagRepository.updateTag(TagUpdateReason.REFRESH);
-                }
-        );
-
         db.close();
     }
 

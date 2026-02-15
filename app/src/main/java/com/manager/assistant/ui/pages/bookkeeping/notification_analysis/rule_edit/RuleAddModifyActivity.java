@@ -326,31 +326,34 @@ public class RuleAddModifyActivity extends AppCompatActivity {
     private void startObserveTag() {
         TagRepository repository = TagRepository.getInstance();
         repository.getChangedTagList().observe(this, tagList -> {
-            if (tagList != null) {
-                TagUpdateReason updateReason = repository.getUpdateReason();
-                for (Tag tag : tagList) {
-                    String tag_name = tag.getName();
-                    long tag_no = tag.getTno();
+            if (tagList == null) {
+                return;
+            }
 
-                    if (tag_no == this.tag_no) {    //只有找到匹配的标签编号才修改
-                        switch (updateReason) {
-                            case RENAME:
-                                binding.tagNameInput.setText(tag_name);
-                                break;
-                            case DELETE:
-                                this.tag_no = 0;
-                                binding.tagNameInput.setText("");
-                                break;
-                            case MERGE:
-                                this.tag_no = Tag.nameTransToTno(tag_name, this);
-                                binding.tagNameInput.setText(tag_name);
-                                break;
-                            default:
-                                break;
-                        }
+            TagUpdateReason updateReason = repository.getUpdateReason();
+            for (Tag tag : tagList) {
+                String tag_name = tag.getName();
+                long tag_no = tag.getTno();
+
+                if (tag_no == this.tag_no) {    //只有找到匹配的标签编号才修改
+                    switch (updateReason) {
+                        case RENAME:
+                            binding.tagNameInput.setText(tag_name);
+                            break;
+                        case DELETE:
+                            this.tag_no = 0;
+                            binding.tagNameInput.setText("");
+                            break;
+                        case MERGE:
+                            this.tag_no = Tag.nameTransToTno(tag_name, this);
+                            binding.tagNameInput.setText(tag_name);
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
+            repository.resetValue();
         });
     }
 

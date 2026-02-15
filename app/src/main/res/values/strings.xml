@@ -30,7 +30,7 @@
     <string name="date">日期</string>
     <string name="account_statistics">流水统计</string>
     <string name="balance">结余</string>
-    <string name="expense_and_income">支出：| 收入：</string>
+    <string name="expense_and_income">支出:∞ | 收入:∞</string>
     <string name="expenditure_income_source">收支来源</string>
     <string name="income">收入</string>
     <string name="expense">支出</string>

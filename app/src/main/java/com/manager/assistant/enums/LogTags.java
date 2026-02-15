@@ -1,6 +1,7 @@
 package com.manager.assistant.enums;
 
 public enum LogTags {
+    HOME_PAGE("HomePage"),
     NOTIFICATION_SERVICE("NotificationService"),
     RULE_UPDATE_RECEIVER("RuleUpdateReceiver"),
     DATA_IO_HELPER("DataIOHelper"),

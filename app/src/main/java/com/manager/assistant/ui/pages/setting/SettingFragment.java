@@ -41,6 +41,10 @@ import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.DataIOHelper;
 import com.manager.assistant.helpers.UpdateHelper;
 import com.manager.assistant.helpers.UriPathHelper;
+import com.manager.assistant.ui.data_sync.runnning_account.AccountUpdateReason;
+import com.manager.assistant.ui.data_sync.runnning_account.RunningAccountViewModel;
+import com.manager.assistant.ui.data_sync.tag_modify.TagRepository;
+import com.manager.assistant.ui.data_sync.tag_modify.TagUpdateReason;
 import com.manager.assistant.ui.others.dialogs.MultiChoiceDialog;
 import com.manager.assistant.ui.others.dialogs.ProgressDialog;
 import com.manager.assistant.ui.pages.bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
@@ -54,7 +58,6 @@ import com.manager.assistant.data.data_save.preference.AppSettingsPreference;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingClickableTextView;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingSpinnerView;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingSwitchView;
-import com.manager.assistant.ui.data_sync.account_recycler.AccountRecyclerViewModel;
 import com.manager.assistant.workers.BackupScheduler;
 
 import java.io.BufferedReader;
@@ -310,8 +313,9 @@ public class SettingFragment extends Fragment {
                             BookKeepingStartDatePreference.saveStartDate("", requireContext()); //清空已保存的开始记账的日期
 
                             //通过ViewModel提醒流水界面刷新数据
-                            AccountRecyclerViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountRecyclerViewModel.class);
-                            viewModel.triggerDataUpdate();
+                            RunningAccountViewModel viewModel = new ViewModelProvider(requireActivity())
+                                    .get(RunningAccountViewModel.class);
+                            viewModel.onAccountUpdated(0, "", null, AccountUpdateReason.CLEAR);
                         }))
                         .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
                         .show()
@@ -788,20 +792,20 @@ public class SettingFragment extends Fragment {
                         }
 
                         //根据文件内容判断数据类型
-                        String content_str = content_builder.toString();
-                        if (content_str.startsWith("{\"basic_data\"")) {
+                        String contentStr = content_builder.toString();
+                        if (contentStr.startsWith("{\"basic_data\"")) {
                             Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据类型：流水记录数据");
                             RunningAccountDataHelper dataHelper = new RunningAccountDataHelper(requireContext());
-                            if (dataHelper.saveJsonDataToDb(content_str)) {
+                            if (dataHelper.saveJsonDataToDb(contentStr)) {
                                 Toast.makeText(requireContext(), "流水记录数据导入成功", Toast.LENGTH_SHORT).show();
                                 Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据导入成功");
                             } else {
                                 Toast.makeText(requireContext(), "无法解析文件内容", Toast.LENGTH_SHORT).show();
                             }
-                        } else if (content_str.startsWith("{\"rule_data\"")) {
+                        } else if (contentStr.startsWith("{\"rule_data\"")) {
                             Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据类型：通知解析规则数据");
                             AnalysisRuleDataHelper dataHelper = new AnalysisRuleDataHelper(requireContext());
-                            if (dataHelper.saveJsonDataToDb(content_str)) {
+                            if (dataHelper.saveJsonDataToDb(contentStr)) {
                                 Toast.makeText(requireContext(), "通知解析规则数据导入成功", Toast.LENGTH_SHORT).show();
                                 Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据导入成功");
                             } else {
@@ -815,7 +819,6 @@ public class SettingFragment extends Fragment {
                         //清除临时文件
                         dataIOHelper.clearTempFile();
                     }
-
 
                     @Override
                     public void onError(String errMessage) {
@@ -983,9 +986,9 @@ public class SettingFragment extends Fragment {
                                 //重置通知解析数据
                                 AnalysisRuleDataHelper.resetRule(requireContext());
 
-                                //通过ViewModel提醒流水界面刷新数据
-                                AccountRecyclerViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountRecyclerViewModel.class);
-                                viewModel.triggerDataUpdate();
+                                RunningAccountViewModel accountViewModel = new ViewModelProvider(requireActivity())
+                                        .get(RunningAccountViewModel.class);
+                                accountViewModel.onAccountUpdated(0, "", null, AccountUpdateReason.CLEAR);
                             },
                             false);
                     progressDialog.show();
@@ -1011,10 +1014,6 @@ public class SettingFragment extends Fragment {
                                     }, () -> {
                                         progressDialog.dismiss();
                                         dataIOHelper.clearTempFile();
-
-                                        //通过ViewModel提醒流水界面刷新数据
-                                        AccountRecyclerViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountRecyclerViewModel.class);
-                                        viewModel.triggerDataUpdate();
                                     })
                     );
                 } else {
@@ -1080,6 +1079,14 @@ public class SettingFragment extends Fragment {
                 }
             }
         }
+
+        //刷新标签
+        TagRepository tagRepository = TagRepository.getInstance();
+        tagRepository.updateTag(TagUpdateReason.REFRESH);
+
+        //刷新流水视图
+        RunningAccountViewModel accountViewModel = new ViewModelProvider(requireActivity()).get(RunningAccountViewModel.class);
+        accountViewModel.onAccountUpdated(0, "", null, AccountUpdateReason.REFRESH);
 
         if (isImportSuccessfully) {
             Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据已成功导入");
