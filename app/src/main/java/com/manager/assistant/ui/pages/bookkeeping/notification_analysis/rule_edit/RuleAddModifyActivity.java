@@ -30,8 +30,8 @@ import com.manager.assistant.ui.pages.bookkeeping.notification_analysis.package_
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
-import com.manager.assistant.ui.data_communication.tag_modify.TagUpdateReason;
-import com.manager.assistant.ui.data_communication.tag_modify.TagRepository;
+import com.manager.assistant.ui.data_sync.tag_modify.TagUpdateReason;
+import com.manager.assistant.ui.data_sync.tag_modify.TagRepository;
 
 import java.util.ArrayList;
 import java.util.Arrays;

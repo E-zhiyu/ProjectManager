@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.data_communication.package_name_search;
+package com.manager.assistant.ui.data_sync.package_name_search;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

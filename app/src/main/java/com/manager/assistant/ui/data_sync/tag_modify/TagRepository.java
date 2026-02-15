@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.data_communication.tag_modify;
+package com.manager.assistant.ui.data_sync.tag_modify;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -37,17 +37,26 @@ public class TagRepository {
     /**
      * 更新单个标签数据
      *
-     * @param tag_name     标签名称
+     * @param tagName      标签名称
      * @param tag_no       标签编号
      * @param updateReason 标签更新的原因
      */
-    public void updateTag(String tag_name, long tag_no, TagUpdateReason updateReason) {
+    public void updateTag(String tagName, long tag_no, TagUpdateReason updateReason) {
         this.updateReason = updateReason;
 
         List<Tag> tagList = new ArrayList<>();
-        Tag modifiedTag = new Tag(tag_name, tag_no);
+        Tag modifiedTag = new Tag(tagName, tag_no);
         tagList.add(modifiedTag);
         changedTagList.setValue(tagList);
+    }
+
+    /**
+     * 更新标签但是不传递标签数据
+     *
+     * @param reason 更新标签的原因（CLEAR或REFRESH）
+     */
+    public void updateTag(TagUpdateReason reason) {
+        updateTag("", 0, reason);
     }
 
     /**

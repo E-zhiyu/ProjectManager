@@ -54,7 +54,7 @@ import com.manager.assistant.data.data_save.preference.AppSettingsPreference;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingClickableTextView;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingSpinnerView;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingSwitchView;
-import com.manager.assistant.ui.data_communication.account_recycler.AccountRecyclerViewModel;
+import com.manager.assistant.ui.data_sync.account_recycler.AccountRecyclerViewModel;
 import com.manager.assistant.workers.BackupScheduler;
 
 import java.io.BufferedReader;

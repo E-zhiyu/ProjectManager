@@ -34,7 +34,7 @@ import com.manager.assistant.ui.pages.bookkeeping.running_account.RunningAccount
 import com.manager.assistant.ui.pages.bookkeeping.running_account.RunningAccountAddActivity;
 import com.manager.assistant.enums.RequestResultCode;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
-import com.manager.assistant.ui.data_communication.account_recycler.AccountRecyclerViewModel;
+import com.manager.assistant.ui.data_sync.account_recycler.AccountRecyclerViewModel;
 
 import java.util.Locale;
 

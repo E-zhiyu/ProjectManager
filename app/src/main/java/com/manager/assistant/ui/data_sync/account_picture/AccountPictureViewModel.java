@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.data_communication.account_picture;
+package com.manager.assistant.ui.data_sync.account_picture;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

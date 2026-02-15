@@ -25,7 +25,7 @@ import com.manager.assistant.enums.LogTags;
 import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.Picture;
 import com.manager.assistant.enums.KeyValueStrings;
-import com.manager.assistant.ui.data_communication.account_picture.AccountPictureViewModel;
+import com.manager.assistant.ui.data_sync.account_picture.AccountPictureViewModel;
 
 import java.io.File;
 import java.util.ArrayList;

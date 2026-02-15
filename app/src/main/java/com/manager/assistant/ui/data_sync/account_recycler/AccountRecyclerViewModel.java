@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.data_communication.account_recycler;
+package com.manager.assistant.ui.data_sync.account_recycler;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

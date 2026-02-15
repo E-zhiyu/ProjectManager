@@ -25,8 +25,8 @@ import com.manager.assistant.databinding.FragmentHomeBinding;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.WebsiteLinkFetchHelper;
-import com.manager.assistant.ui.data_communication.tag_modify.TagRepository;
-import com.manager.assistant.ui.data_communication.tag_modify.TagUpdateReason;
+import com.manager.assistant.ui.data_sync.tag_modify.TagRepository;
+import com.manager.assistant.ui.data_sync.tag_modify.TagUpdateReason;
 import com.manager.assistant.ui.pages.bookkeeping.tag.TagManageActivity;
 import com.manager.assistant.ui.pages.home.report.ReportActivity;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
@@ -325,6 +325,17 @@ public class HomeFragment extends Fragment {
                                 tag_count++;
                                 binding.tagCountText.setText(String.valueOf(tag_count));
                                 break;
+                            case CLEAR:
+                                tag_count = 0;
+                                binding.tagCountText.setText(String.valueOf(tag_count));
+                            case REFRESH:
+                                //标签数据
+                                try {
+                                    tag_count = Tag.getTagCount(requireContext());
+                                    binding.tagCountText.setText(String.valueOf(tag_count));
+                                } catch (SQLiteException e) {
+                                    Toast.makeText(requireContext(), "无法获取标签数量", Toast.LENGTH_SHORT).show();
+                                }
                             default:
                                 break;
                         }

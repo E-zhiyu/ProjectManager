@@ -20,7 +20,7 @@ import com.manager.assistant.data.data_class.running_account.TransferRunningAcco
 import com.manager.assistant.databinding.FragmentTransferBinding;
 import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.ui.data_communication.account_picture.AccountPictureViewModel;
+import com.manager.assistant.ui.data_sync.account_picture.AccountPictureViewModel;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
