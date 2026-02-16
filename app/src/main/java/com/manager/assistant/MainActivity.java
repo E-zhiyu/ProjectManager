@@ -105,6 +105,25 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         });
+
+        //设置滚动监听器
+        viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                switch (position) {
+                    case 0:
+                        binding.toolbar.setTitle(R.string.title_bookkeeping);
+                        break;
+                    case 1:
+                        binding.toolbar.setTitle(R.string.title_home);
+                        break;
+                    case 2:
+                        binding.toolbar.setTitle(R.string.title_setting);
+                        break;
+                }
+            }
+        });
     }
 
     @NonNull
