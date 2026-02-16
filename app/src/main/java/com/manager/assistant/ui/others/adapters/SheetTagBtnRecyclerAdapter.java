@@ -1,6 +1,7 @@
 package com.manager.assistant.ui.others.adapters;
 
 import android.content.Context;
+import android.os.Vibrator;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -8,9 +9,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
-import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.data.data_class.Tag;
+import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
 
 import java.util.List;
 
@@ -18,6 +19,27 @@ public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtn
     private final List<Tag> tagList;                                //标签数据源列表
     private final Context context;                                  //上下文
     private final OnTagBtnClickedListener tagBtnClickedListener;    //标签按钮点击监听器
+
+    //标签按钮点击监听接口
+    public interface OnTagBtnClickedListener {
+        void onTagBtnClicked(long tag_no, String tagName); //传递标签编号和名称
+    }
+
+    public static class BtnViewHolder extends RecyclerView.ViewHolder {
+        MaterialButton tagBtn;     //标签按钮
+        SpringAnimationOnTouchListener onTouchListener; //带有点击动画的监听器
+
+        public BtnViewHolder(@NonNull MaterialButton tagBtn) {
+            super(tagBtn);
+            this.tagBtn = tagBtn;
+
+            //设置触摸监听器
+            Vibrator vibrator = (Vibrator) tagBtn.getContext()
+                    .getSystemService(Context.VIBRATOR_SERVICE);
+            onTouchListener = new SpringAnimationOnTouchListener(tagBtn, vibrator);
+            tagBtn.setOnTouchListener(onTouchListener);
+        }
+    }
 
     public SheetTagBtnRecyclerAdapter(List<Tag> tagList, Context context, OnTagBtnClickedListener tagBtnClickedListener) {
         this.tagList = tagList;
@@ -36,7 +58,6 @@ public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtn
                 ViewGroup.LayoutParams.WRAP_CONTENT
         ));
         tagBtn.setPadding(16, 16, 16, 16);
-        AnimationHelper.attachMorphAnimation(tagBtn);
 
         return new BtnViewHolder(tagBtn);
     }
@@ -44,14 +65,14 @@ public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtn
     @Override
     public void onBindViewHolder(@NonNull BtnViewHolder holder, int position) {
         Tag oneTag = tagList.get(position);
-        String tag_name = oneTag.getName();
+        String tagName = oneTag.getName();
         long tag_no = oneTag.getTno();
 
-        holder.tagBtn.setText(tag_name);
+        holder.tagBtn.setText(tagName);
 
         holder.tagBtn.setOnClickListener(v -> {
             try {
-                tagBtnClickedListener.onTagBtnClicked(tag_no, tag_name);
+                tagBtnClickedListener.onTagBtnClicked(tag_no, tagName);
             } catch (NullPointerException e) {
                 ExceptionHelper.showExceptionDialog(context, e);
                 Toast.makeText(context, "标签按钮点击监听器初始化异常", Toast.LENGTH_SHORT).show();
@@ -62,19 +83,5 @@ public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtn
     @Override
     public int getItemCount() {
         return tagList.size();
-    }
-
-    //标签按钮点击监听接口
-    public interface OnTagBtnClickedListener {
-        void onTagBtnClicked(long tag_no, String tagName); //传递标签编号和名称
-    }
-
-    public static class BtnViewHolder extends RecyclerView.ViewHolder {
-        MaterialButton tagBtn;     //标签按钮
-
-        public BtnViewHolder(@NonNull MaterialButton tagBtn) {
-            super(tagBtn);
-            this.tagBtn = tagBtn;
-        }
     }
 }
