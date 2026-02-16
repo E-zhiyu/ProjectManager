@@ -146,7 +146,7 @@
             <!-- 标签管理界面跳转按钮 -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/tag_manage_btn"
-                style="@style/OutlinedBtnStyle"
+                style="@style/CommonBtnStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
