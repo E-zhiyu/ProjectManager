@@ -72,6 +72,8 @@ public class BookKeepingFragment extends Fragment {
                     AccountUpdateReason reason = viewModel.getUpdateReason();
                     switch (reason) {
                         case CLEAR:
+                            account_count = 0;
+                            refreshAccountNumText();
                             accountAdapter.refreshRunningAccount(new ArrayList<>());
                             break;
                         case REFRESH:

@@ -11,7 +11,10 @@ import com.manager.assistant.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.7.11  \n" +
+    private static final String update_log_md = "# v1.7.12  \n" +
+            "**BUG修复**  \n" +
+            "- 修复删除流水记录后流水列表不会同步更新的BUG  \n\n" +
+            "# v1.7.11  \n" +
             "**BUG修复**  \n" +
             "- 修复记账界面的过滤按钮无法切换是否选中状态的BUG  \n\n" +
             "**修改内容**  \n" +
