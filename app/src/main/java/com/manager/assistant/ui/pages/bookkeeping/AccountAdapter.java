@@ -3,6 +3,7 @@ package com.manager.assistant.ui.pages.bookkeeping;
 import android.content.Context;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
+import com.google.android.material.shape.Shapeable;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.enums.KeyValueStrings;
@@ -18,10 +20,10 @@ import com.manager.assistant.data.data_class.running_account.IncomeRunningAccoun
 import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
 import com.manager.assistant.data.data_class.running_account.TransferRunningAccount;
 import com.manager.assistant.enums.LogTags;
-import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.data_sync.runnning_account.AccountUpdateReason;
 import com.manager.assistant.ui.data_sync.runnning_account.RunningAccountViewModel;
+import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.xwray.groupie.GroupAdapter;
 import com.xwray.groupie.GroupieViewHolder;
@@ -67,6 +69,7 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
 
     public class ContentItem extends Item<GroupieViewHolder> {
         private final RunningAccountBase runningAccount;
+        SpringAnimationOnTouchListener onTouchListener;
 
         public ContentItem(@NonNull RunningAccountBase runningAccount) {
             this.runningAccount = runningAccount;
@@ -74,22 +77,28 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
 
         @Override
         public void bind(@NonNull GroupieViewHolder groupieViewHolder, int i) {
+            //设置触摸监听器
+            Shapeable shapeable = (Shapeable) groupieViewHolder.itemView;
+            Vibrator vibrator = (Vibrator) groupieViewHolder.itemView.getContext()
+                    .getSystemService(Context.VIBRATOR_SERVICE);
+            onTouchListener = new SpringAnimationOnTouchListener(shapeable, vibrator);
+            groupieViewHolder.itemView.setOnTouchListener(onTouchListener);
+
             MaterialTextView amountText = groupieViewHolder.itemView.findViewById(R.id.amount_text);
             MaterialTextView remarkText = groupieViewHolder.itemView.findViewById(R.id.remark_text);
             MaterialTextView typeDatetimeText = groupieViewHolder.itemView.findViewById(R.id.type_datetime_textview);
 
             String type = runningAccount.getType().getTitle();
             String datetime = runningAccount.getDatetime();
-            String type_and_datetime = String.format(Locale.getDefault(), "%s·%s", type, datetime);
+            String typeAndDatetime = String.format(Locale.getDefault(), "%s·%s", type, datetime);
             String remark = runningAccount.getRemark();
             double amount = runningAccount.getAmount();
 
             amountText.setText(String.format(Locale.getDefault(), "%.2f", amount));
             remarkText.setText(remark.isEmpty() ? runningAccount.getDefaultRemark() : remark);
-            typeDatetimeText.setText(type_and_datetime);
+            typeDatetimeText.setText(typeAndDatetime);
 
             groupieViewHolder.itemView.setOnClickListener(v -> listener.onRunningAccountClick(runningAccount));
-            AnimationHelper.attachMorphAnimation(groupieViewHolder.itemView);
         }
 
         @Override
