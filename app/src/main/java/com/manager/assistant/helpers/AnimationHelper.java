@@ -99,11 +99,20 @@ public class AnimationHelper {
      * @param view       需要执行动画的视图
      */
     public static void switchViewFoldOrExpanded(boolean isExpanded, @NonNull View view) {
+        //目标状态与当前状态相同则不执行动画
+        int originVisibility = view.getVisibility();
+        if (originVisibility == View.GONE && !isExpanded) {
+            return;
+        } else if (originVisibility == View.VISIBLE && isExpanded) {
+            return;
+        }
+
         //测量视图
         int widthSpec = View.MeasureSpec.makeMeasureSpec(((View) view.getParent()).getWidth(), View.MeasureSpec.AT_MOST);
         int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
         view.measure(widthSpec, heightSpec);
 
+        //执行动画
         view.post(() -> {
             int layout_height = view.getMeasuredHeight();   //获得测量的高度
             if (isExpanded) {
