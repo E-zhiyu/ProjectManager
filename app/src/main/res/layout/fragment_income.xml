@@ -82,18 +82,16 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- 图片操纵按钮布局 -->
-        <LinearLayout
+        <com.google.android.material.button.MaterialButtonGroup
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:spacing="10dp">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/picture_add"
                 style="@style/OutlinedBtnStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="0dp"
-                android:layout_marginEnd="0dp"
                 android:layout_weight="1"
                 android:text="@string/add_picture"
                 app:icon="@drawable/outline_add_photo_alternate_24"
@@ -103,13 +101,12 @@
                 android:id="@+id/picture_delete_btn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
                 android:layout_weight="1"
                 android:text="@string/delete_picture"
                 android:visibility="gone"
                 app:icon="@drawable/outline_delete_24"
                 app:iconGravity="textStart" />
-        </LinearLayout>
+        </com.google.android.material.button.MaterialButtonGroup>
 
         <com.google.android.material.loadingindicator.LoadingIndicator
             android:id="@+id/loading_indicator"
