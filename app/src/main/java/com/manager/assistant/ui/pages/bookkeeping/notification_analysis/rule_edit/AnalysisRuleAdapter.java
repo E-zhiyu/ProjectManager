@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,13 +13,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.shape.Shapeable;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.broadcast.BroadcastConstants;
-import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.data.data_class.AnalysisRule;
+import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.data.data_class.Tag;
 
@@ -31,6 +33,7 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
 
     public static class AnalysisRuleViewHolder extends RecyclerView.ViewHolder {
         MaterialTextView ruleNameText, tagNameText, typeText;
+        SpringAnimationOnTouchListener onTouchListener;
 
         public AnalysisRuleViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -38,6 +41,13 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
             ruleNameText = itemView.findViewById(R.id.rule_name_text);
             tagNameText = itemView.findViewById(R.id.tag_name_text);
             typeText = itemView.findViewById(R.id.type_text);
+
+            //设置触摸监听器
+            Shapeable shapeable = (Shapeable) itemView;
+            Vibrator vibrator = (Vibrator) itemView.getContext()
+                    .getSystemService(Context.VIBRATOR_SERVICE);
+            onTouchListener = new SpringAnimationOnTouchListener(shapeable, vibrator);
+            itemView.setOnTouchListener(onTouchListener);
         }
     }
 
@@ -79,7 +89,6 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
 
         holder.itemView.setOnClickListener(v ->
                 listener.onRuleClicked(holder.getBindingAdapterPosition(), rule));
-        AnimationHelper.attachMorphAnimation(holder.itemView.findViewById(R.id.root_layout));
     }
 
     @Override

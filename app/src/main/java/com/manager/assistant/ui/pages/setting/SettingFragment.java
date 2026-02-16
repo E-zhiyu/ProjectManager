@@ -41,6 +41,10 @@ import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.DataIOHelper;
 import com.manager.assistant.helpers.UpdateHelper;
 import com.manager.assistant.helpers.UriPathHelper;
+import com.manager.assistant.ui.data_sync.runnning_account.AccountUpdateReason;
+import com.manager.assistant.ui.data_sync.runnning_account.RunningAccountViewModel;
+import com.manager.assistant.ui.data_sync.tag_modify.TagRepository;
+import com.manager.assistant.ui.data_sync.tag_modify.TagUpdateReason;
 import com.manager.assistant.ui.others.dialogs.MultiChoiceDialog;
 import com.manager.assistant.ui.others.dialogs.ProgressDialog;
 import com.manager.assistant.ui.pages.bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
@@ -54,7 +58,6 @@ import com.manager.assistant.data.data_save.preference.AppSettingsPreference;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingClickableTextView;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingSpinnerView;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingSwitchView;
-import com.manager.assistant.ui.data_communication.account_recycler.AccountRecyclerViewModel;
 import com.manager.assistant.workers.BackupScheduler;
 
 import java.io.BufferedReader;
@@ -159,7 +162,7 @@ public class SettingFragment extends Fragment {
                 binding.themeModeOption,
                 R.string.theme_mode,
                 null,
-                R.drawable.baseline_dark_mode_24
+                R.drawable.outline_dark_mode_24
         );
         themeModeOption.setFunctionListener(v -> showThemeModeSelectDialog());
 
@@ -169,7 +172,7 @@ public class SettingFragment extends Fragment {
                 binding.dynamicColorOption,
                 R.string.dynamic_color,
                 "将壁纸颜色作为APP主题色",
-                R.drawable.baseline_color_lens_24
+                R.drawable.outline_colorize_24
         );
         dynamicColorOption.setChecked(AppSettingsPreference.getDynamicColorStat(requireContext()));
         dynamicColorOption.setFunctionListener(
@@ -177,17 +180,17 @@ public class SettingFragment extends Fragment {
                     AppSettingsPreference.setDynamicColorStat(requireContext(), isChecked);
 
                     ManagerAssistant app = (ManagerAssistant) requireActivity().getApplication();
+                    DynamicColorsOptions options;
                     if (isChecked) {
-                        DynamicColorsOptions options = new DynamicColorsOptions.Builder()
+                        options = new DynamicColorsOptions.Builder()
                                 .setThemeOverlay(R.style.Theme_ManagerAssistant_Dynamic)
                                 .build();
-                        DynamicColors.applyToActivitiesIfAvailable(app, options);
                     } else {
-                        DynamicColorsOptions options = new DynamicColorsOptions.Builder()
+                        options = new DynamicColorsOptions.Builder()
                                 .setThemeOverlay(R.style.Theme_ManagerAssistant_Static)
                                 .build();
-                        DynamicColors.applyToActivitiesIfAvailable(app, options);
                     }
+                    DynamicColors.applyToActivitiesIfAvailable(app, options);
                     requireActivity().recreate();
                 }
         );
@@ -198,7 +201,7 @@ public class SettingFragment extends Fragment {
                 binding.firstScreenOption,
                 R.string.select_first_screen,
                 "选择启动的第一屏",
-                R.drawable.baseline_add_to_home_screen_24
+                R.drawable.outline_mobile_24
         );
         String[] firstScreenTitles = {
                 requireContext().getString(R.string.title_bookkeeping),
@@ -239,7 +242,7 @@ public class SettingFragment extends Fragment {
                 binding.homeLinksOption,
                 R.string.purchase_bulletin,
                 "控制主页采购公告是否显示",
-                R.drawable.baseline_link_24
+                R.drawable.outline_link_2_24
         );
         if (!AppSettingsPreference.getLinkSwitchHide(requireContext())) {
             homeLinksSwitch.setChecked(AppSettingsPreference.getHomeLinks(requireContext()));
@@ -278,7 +281,7 @@ public class SettingFragment extends Fragment {
                 binding.exportDataOption,
                 R.string.export_data,
                 "将应用数据以文件形式保存",
-                R.drawable.round_file_uploade_24
+                R.drawable.outline_file_export_24
         );
         exportDataOption.setFunctionListener(v -> onExportDataClicked());
 
@@ -288,7 +291,7 @@ public class SettingFragment extends Fragment {
                 binding.importDataOption,
                 R.string.import_data,
                 "从外部文件导入数据",
-                R.drawable.baseline_file_download_24
+                R.drawable.outline_download_24
         );
         importDataOption.setFunctionListener(v -> importData());
 
@@ -298,7 +301,7 @@ public class SettingFragment extends Fragment {
                 binding.clearAccountDataOption,
                 R.string.clear_account_data,
                 "清除流水相关数据",
-                R.drawable.baseline_delete_forever_24
+                R.drawable.outline_delete_24
         );
         clearRunningAccountOption.setFunctionListener(
                 v -> new MaterialAlertDialogBuilder(requireContext())
@@ -310,8 +313,9 @@ public class SettingFragment extends Fragment {
                             BookKeepingStartDatePreference.saveStartDate("", requireContext()); //清空已保存的开始记账的日期
 
                             //通过ViewModel提醒流水界面刷新数据
-                            AccountRecyclerViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountRecyclerViewModel.class);
-                            viewModel.triggerDataUpdate();
+                            RunningAccountViewModel viewModel = new ViewModelProvider(requireActivity())
+                                    .get(RunningAccountViewModel.class);
+                            viewModel.onAccountUpdated(0, "", null, AccountUpdateReason.CLEAR);
                         }))
                         .setNegativeButton("取消", ((dialog, which) -> dialog.dismiss()))
                         .show()
@@ -323,7 +327,7 @@ public class SettingFragment extends Fragment {
                 binding.autoBackupOption,
                 R.string.auto_backup,
                 null,
-                R.drawable.baseline_settings_backup_restore_24
+                R.drawable.outline_settings_backup_restore_24
         );
         autoBackupHelper.setSwitchOptionView(autoBackupSwitch); //设置帮助器的开关视图，以便控制其状态
         String backupDir = AutoBackupPreference.getBackupDirectoryUri(requireContext());
@@ -371,7 +375,7 @@ public class SettingFragment extends Fragment {
                 binding.backupFrequencyOption,
                 R.string.backup_frequency,
                 "自动备份的时间间隔",
-                R.drawable.baseline_timer_24
+                R.drawable.outline_timer_24
         );
         int frequency_index = AutoBackupPreference.getBackupFrequency(requireContext());
         String frequencyName = AutoBackupHelper.BackupFrequency.values()[frequency_index].getName();
@@ -424,7 +428,7 @@ public class SettingFragment extends Fragment {
                 binding.backupDirectoryOption,
                 R.string.backup_directory,
                 "备份文件存储的位置",
-                R.drawable.baseline_folder_zip_24
+                R.drawable.outline_folder_data_24
         );
         backupDirectoryOption.setFunctionListener(
                 v -> autoBackupHelper.selectBackupDirectory(backupDirectorySetLauncher)
@@ -446,7 +450,7 @@ public class SettingFragment extends Fragment {
                 binding.notificationAnalysisSwitchOption,
                 R.string.notification_analysis_mode,
                 "解析通知实现自动记账",
-                R.drawable.baseline_notifications_24
+                R.drawable.outline_notifications_active_24
         );
         boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getSwitchStat(requireContext());
         if (isNotificationAnalysisOpened && PermissionHelper.isNotificationServiceEnabled(requireContext())) {
@@ -490,7 +494,7 @@ public class SettingFragment extends Fragment {
                 binding.resetRuleOption,
                 R.string.reset_rule,
                 "将现有规则重置为默认状态",
-                R.drawable.baseline_restart_alt_24
+                R.drawable.outline_reset_settings_24
         );
         resetRuleOption.setFunctionListener(
                 v -> new MaterialAlertDialogBuilder(requireContext())
@@ -515,7 +519,7 @@ public class SettingFragment extends Fragment {
                 binding.hideBackgroundOption,
                 R.string.hide_background,
                 "在最近任务列表隐藏",
-                R.drawable.baseline_recent_task_24
+                R.drawable.outline_visibility_off_24
         );
         hideBackgroundOption.setChecked(KeepAlivePreference.getHideRecents(requireContext()));
         hideBackgroundOption.setFunctionListener(
@@ -531,7 +535,7 @@ public class SettingFragment extends Fragment {
                 binding.autoStartOption,
                 R.string.auto_start_permission,
                 "点击跳转自启动设置界面",
-                R.drawable.baseline_autorenew_24
+                R.drawable.outline_autorenew_24
         );
         autoStartOption.setFunctionListener(
                 v -> PermissionHelper.requestAutoStartPermission(requireContext())
@@ -543,7 +547,7 @@ public class SettingFragment extends Fragment {
                 binding.batteryOptimizationOption,
                 R.string.battery_optimization,
                 "跳转至安卓原生电池优化界面",
-                R.drawable.baseline_battery_5_bar_24
+                R.drawable.outline_battery_android_frame_3_24
         );
         batteryOptimizationOption.setFunctionListener(
                 v -> PermissionHelper.openBatteryOptimizations(requireContext())
@@ -560,7 +564,7 @@ public class SettingFragment extends Fragment {
                 binding.aboutOption,
                 R.string.about_software,
                 null,
-                R.drawable.baseline_info_24
+                R.drawable.outline_info_24
         );
         aboutOption.setFunctionListener(
                 v -> AboutHelper.showAboutDialog(requireContext())
@@ -572,7 +576,7 @@ public class SettingFragment extends Fragment {
                 binding.updateLogOption,
                 R.string.update_log,
                 null,
-                R.drawable.baseline_insert_drive_file_24
+                R.drawable.outline_lab_profile_24
         );
         updateLogOption.setFunctionListener(
                 v -> UpdateLogHelper.showUpdateLogDialog(requireContext())
@@ -584,7 +588,7 @@ public class SettingFragment extends Fragment {
                 binding.updateCheckOption,
                 R.string.update_check,
                 null,
-                R.drawable.baseline_update_24
+                R.drawable.outline_update_24
         );
         updateCheckOption.setFunctionListener(
                 v -> {
@@ -788,20 +792,20 @@ public class SettingFragment extends Fragment {
                         }
 
                         //根据文件内容判断数据类型
-                        String content_str = content_builder.toString();
-                        if (content_str.startsWith("{\"basic_data\"")) {
+                        String contentStr = content_builder.toString();
+                        if (contentStr.startsWith("{\"basic_data\"")) {
                             Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据类型：流水记录数据");
                             RunningAccountDataHelper dataHelper = new RunningAccountDataHelper(requireContext());
-                            if (dataHelper.saveJsonDataToDb(content_str)) {
+                            if (dataHelper.saveJsonDataToDb(contentStr)) {
                                 Toast.makeText(requireContext(), "流水记录数据导入成功", Toast.LENGTH_SHORT).show();
                                 Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据导入成功");
                             } else {
                                 Toast.makeText(requireContext(), "无法解析文件内容", Toast.LENGTH_SHORT).show();
                             }
-                        } else if (content_str.startsWith("{\"rule_data\"")) {
+                        } else if (contentStr.startsWith("{\"rule_data\"")) {
                             Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据类型：通知解析规则数据");
                             AnalysisRuleDataHelper dataHelper = new AnalysisRuleDataHelper(requireContext());
-                            if (dataHelper.saveJsonDataToDb(content_str)) {
+                            if (dataHelper.saveJsonDataToDb(contentStr)) {
                                 Toast.makeText(requireContext(), "通知解析规则数据导入成功", Toast.LENGTH_SHORT).show();
                                 Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据导入成功");
                             } else {
@@ -815,7 +819,6 @@ public class SettingFragment extends Fragment {
                         //清除临时文件
                         dataIOHelper.clearTempFile();
                     }
-
 
                     @Override
                     public void onError(String errMessage) {
@@ -983,9 +986,9 @@ public class SettingFragment extends Fragment {
                                 //重置通知解析数据
                                 AnalysisRuleDataHelper.resetRule(requireContext());
 
-                                //通过ViewModel提醒流水界面刷新数据
-                                AccountRecyclerViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountRecyclerViewModel.class);
-                                viewModel.triggerDataUpdate();
+                                RunningAccountViewModel accountViewModel = new ViewModelProvider(requireActivity())
+                                        .get(RunningAccountViewModel.class);
+                                accountViewModel.onAccountUpdated(0, "", null, AccountUpdateReason.CLEAR);
                             },
                             false);
                     progressDialog.show();
@@ -1011,10 +1014,6 @@ public class SettingFragment extends Fragment {
                                     }, () -> {
                                         progressDialog.dismiss();
                                         dataIOHelper.clearTempFile();
-
-                                        //通过ViewModel提醒流水界面刷新数据
-                                        AccountRecyclerViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountRecyclerViewModel.class);
-                                        viewModel.triggerDataUpdate();
                                     })
                     );
                 } else {
@@ -1080,6 +1079,14 @@ public class SettingFragment extends Fragment {
                 }
             }
         }
+
+        //刷新标签
+        TagRepository tagRepository = TagRepository.getInstance();
+        tagRepository.updateTag(TagUpdateReason.REFRESH);
+
+        //刷新流水视图
+        RunningAccountViewModel accountViewModel = new ViewModelProvider(requireActivity()).get(RunningAccountViewModel.class);
+        accountViewModel.onAccountUpdated(0, "", null, AccountUpdateReason.REFRESH);
 
         if (isImportSuccessfully) {
             Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据已成功导入");

@@ -30,7 +30,7 @@
     <string name="date">日期</string>
     <string name="account_statistics">流水统计</string>
     <string name="balance">结余</string>
-    <string name="expense_and_income">支出：| 收入：</string>
+    <string name="expense_and_income">支出:∞ | 收入:∞</string>
     <string name="expenditure_income_source">收支来源</string>
     <string name="income">收入</string>
     <string name="expense">支出</string>
@@ -95,7 +95,7 @@
     <string name="title_home">主页</string>
     <string name="welcome_string">欢迎使用经理助手</string>
     <string name="today_balance">今日结余</string>
-    <string name="check_more_data">查看更多统计数据</string>
+    <string name="check_report_data">查看详细报表</string>
     <string name="num_of_shown">显示数量：∞</string>
     <string name="every_day">每天</string>
     <string name="every_week">每星期</string>
@@ -139,4 +139,6 @@
     <string name="date_range_help">选择流水日期范围，留空则不限制日期范围</string>
     <string name="tag_scope">标签作用域</string>
     <string name="no_tag_selection">添加“无标签”</string>
+    <string name="tag_count">标签数量</string>
+    <string name="count_infinity">∞</string>
 </resources>

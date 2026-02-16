@@ -1,6 +1,5 @@
 package com.manager.assistant.ui.pages.home;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.TypedValue;
 import android.view.ViewGroup;

@@ -51,7 +51,7 @@
                     style="?attr/materialSplitButtonIconFilledStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:icon="@drawable/baseline_unfold_more_24" />
+                    app:icon="@drawable/outline_unfold_more_24" />
             </com.google.android.material.button.MaterialSplitButton>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.appbar.AppBarLayout>

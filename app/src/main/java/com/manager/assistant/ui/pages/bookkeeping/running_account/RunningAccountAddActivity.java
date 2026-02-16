@@ -15,7 +15,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.manager.assistant.ui.data_communication.account_picture.AccountPictureViewModel;
+import com.manager.assistant.ui.data_sync.account_picture.AccountPictureViewModel;
 import com.manager.assistant.ui.others.adapters.FragmentPagerAdapter;
 import com.manager.assistant.data.data_class.Picture;
 import com.manager.assistant.data.data_class.running_account.RunningAccountBase;

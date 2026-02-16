@@ -33,7 +33,7 @@ public class SettingSpinnerView extends SettingOptionViewBase<MaterialTextView, 
 
     @Override
     protected void initView(Context context) {
-        Drawable endDrawable = AppCompatResources.getDrawable(context, R.drawable.baseline_unfold_more_24);
+        Drawable endDrawable = AppCompatResources.getDrawable(context, R.drawable.outline_unfold_more_24);
 
         functionComponent = new MaterialTextView(context);
         functionComponent.setLayoutParams(new ViewGroup.LayoutParams(

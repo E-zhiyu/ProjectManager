@@ -28,14 +28,16 @@ import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ColorHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.PictureHelper;
+import com.manager.assistant.ui.data_sync.runnning_account.AccountUpdateReason;
+import com.manager.assistant.ui.data_sync.runnning_account.RunningAccountViewModel;
 import com.manager.assistant.ui.others.bottom_sheets.filter.AccountFilterBottomSheet;
 import com.manager.assistant.ui.others.listeners.RecyclerScrollHideShowListener;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.RunningAccountModifyActivity;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.RunningAccountAddActivity;
 import com.manager.assistant.enums.RequestResultCode;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
-import com.manager.assistant.ui.data_communication.account_recycler.AccountRecyclerViewModel;
 
+import java.util.ArrayList;
 import java.util.Locale;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -59,12 +61,25 @@ public class BookKeepingFragment extends Fragment {
         initViews();
         setupBroadcastReceiver();
 
-        AccountRecyclerViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountRecyclerViewModel.class);
-        viewModel.getDataUpdateTrigger().observe(getViewLifecycleOwner(), trigger -> {
-            if (trigger != null && trigger) {
-                refreshUI();
-            }
-        });
+        RunningAccountViewModel viewModel = new ViewModelProvider(requireActivity()).get(RunningAccountViewModel.class);
+        viewModel.getAccountData().observe(
+                getViewLifecycleOwner(),
+                simpleRunningAccount -> {
+                    if (simpleRunningAccount == null) {
+                        return;
+                    }
+
+                    AccountUpdateReason reason = viewModel.getUpdateReason();
+                    switch (reason) {
+                        case CLEAR:
+                            accountAdapter.refreshRunningAccount(new ArrayList<>());
+                            break;
+                        case REFRESH:
+                            refreshAccountRecycler();
+                            break;
+                    }
+                }
+        );
 
         return binding.getRoot();
     }
@@ -161,15 +176,15 @@ public class BookKeepingFragment extends Fragment {
         AnimationHelper.attachMorphAnimation(binding.addFloatingBtn);
 
         //绑定过滤器按钮的点击监听器
-        binding.filterSelectBtn.setCheckable(false);
         binding.filterSelectBtn.setOnClickListener(v -> {
             AccountFilterBottomSheet filterBottomSheet = new AccountFilterBottomSheet(
                     filterSetting,
                     setting -> {
                         filterSetting = setting != null ? setting : new AccountFilterBottomSheet.FilterSetting();
-                        refreshUI();
+                        refreshAccountRecycler();
                     });
             filterBottomSheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
+            filterBottomSheet.setOnDismissListener(() -> binding.filterSelectBtn.setChecked(false));
         });
 
         //获取颜色资源并设置下拉刷新布局的颜色
@@ -183,7 +198,7 @@ public class BookKeepingFragment extends Fragment {
         setupAccountAdapter();
 
         //设置下拉刷新布局的监听器
-        binding.refreshLayout.setOnRefreshListener(this::refreshUI);
+        binding.refreshLayout.setOnRefreshListener(this::refreshAccountRecycler);
     }
 
     /**
@@ -222,16 +237,16 @@ public class BookKeepingFragment extends Fragment {
         });
 
         //加载流水记录
-        refreshUI();
+        refreshAccountRecycler();
     }
 
     /**
-     * 通过监听广播增加的流水账记录
+     * 通过监听广播增加的流水账记录（即通过自动记账方式）
      *
      * @param dataBundle 新增流水记录的数据
      */
     private void onNewAccountAdded(@NonNull Bundle dataBundle) {
-        accountAdapter.addNewRunningAccountByNotification(dataBundle);
+        accountAdapter.addNewRunningAccountByNotification(dataBundle, requireActivity());
         binding.accountRecycler.scrollToPosition(0);
         Toast.makeText(requireContext(), "成功添加一条流水记录（自动记账）", Toast.LENGTH_SHORT).show();
 
@@ -252,8 +267,8 @@ public class BookKeepingFragment extends Fragment {
             return;
         }
 
-        accountAdapter.addNewRunningAccount(dataBundle);            //将新建的流水视图添加至列表视图适配器
-        binding.accountRecycler.scrollToPosition(0);                //滚动到顶部（因为添加的新记录在顶部）
+        accountAdapter.addNewRunningAccount(dataBundle, requireActivity()); //将新建的流水视图添加至列表视图适配器
+        binding.accountRecycler.scrollToPosition(0);                        //滚动到顶部（因为添加的新记录在顶部）
         Toast.makeText(requireContext(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
 
         //更新记录数量
@@ -291,7 +306,7 @@ public class BookKeepingFragment extends Fragment {
         }
 
         long rno = dataBundle.getLong(KeyValueStrings.RNO.getValue(), -1);
-        accountAdapter.deleteRunningAccount(rno);
+        accountAdapter.deleteRunningAccount(rno, requireActivity());
         Toast.makeText(requireContext(), "流水记录已删除", Toast.LENGTH_SHORT).show();
 
         //更新流水记录数量文本
@@ -310,7 +325,7 @@ public class BookKeepingFragment extends Fragment {
     /**
      * 刷新UI方法
      */
-    private void refreshUI() {
+    private void refreshAccountRecycler() {
         binding.refreshLayout.setRefreshing(true);
         disposables.add(
                 Observable.fromCallable(() -> RunningAccountBase.loadRunningAccountData(filterSetting, requireContext()))

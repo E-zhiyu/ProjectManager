@@ -11,7 +11,15 @@ import com.manager.assistant.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.7.10  \n" +
+    private static final String update_log_md = "# v1.7.11  \n" +
+            "**BUG修复**  \n" +
+            "- 修复记账界面的过滤按钮无法切换是否选中状态的BUG  \n\n" +
+            "**修改内容**  \n" +
+            "- 开屏的三个界面可以通过左右滑动切换  \n" +
+            "- 优化可点击的视图按下的动画  \n" +
+            "- 主页布局修改，添加跳转标签管理界面的按钮  \n" +
+            "- 修改部分图标  \n\n" +
+            "# v1.7.10  \n" +
             "**BUG修复**  \n" +
             "- 修复在流水输入界面添加图片后强行停止应用，下一次进入流水输入界面并点击确定会意外添加残留图片的BUG  \n" +
             "- 修复备份文件月份从0开始的BUG  \n" +

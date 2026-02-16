@@ -167,7 +167,7 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
             Chip titleChip = new Chip(requireContext());
             titleChip.setCheckable(true);
             titleChip.setCheckedIconVisible(true);
-            titleChip.setCheckedIcon(ContextCompat.getDrawable(requireContext(), R.drawable.baseline_check_24));
+            titleChip.setCheckedIcon(ContextCompat.getDrawable(requireContext(), R.drawable.outline_check_24));
             titleChip.setText(title);
 
             if (selectedTypeList.contains(index)) {

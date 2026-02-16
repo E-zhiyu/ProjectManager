@@ -13,7 +13,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@drawable/baseline_arrow_back_ios_new_24"
         app:title="标签分组修改">
 
         <com.google.android.material.button.MaterialButton
@@ -23,14 +22,14 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:text="@string/group_merge"
-            app:icon="@drawable/baseline_call_merge_24"
+            app:icon="@drawable/outline_call_merge_24"
             app:iconGravity="textStart" />
     </com.google.android.material.appbar.MaterialToolbar>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/btn_card_view"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_btn_group"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
         <LinearLayout
@@ -42,9 +41,9 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/group_name_layout"
                 style="@style/CommonTextInputLayoutStyle"
-                app:counterMaxLength="20"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:counterMaxLength="20"
                 app:endIconDrawable="@drawable/baseline_clear_24"
                 app:endIconMode="clear_text">
 
@@ -58,39 +57,32 @@
         </LinearLayout>
     </ScrollView>
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/btn_card_view"
-        style="@style/BottomRightAngleCardStyle"
+    <com.google.android.material.button.MaterialButtonGroup
+        android:id="@+id/bottom_btn_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="horizontal">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/delete_btn"
+            style="@style/OutlinedBtnStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/delete" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/delete_btn"
-                style="@style/OutlinedBtnStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/delete" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/cancel_btn"
+            style="@style/OutlinedBtnStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/cancel_btn"
-                style="@style/OutlinedBtnStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/cancel" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/finish_btn"
-                style="@style/CommonBtnStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/finish" />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/finish_btn"
+            style="@style/CommonBtnStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/finish" />
+    </com.google.android.material.button.MaterialButtonGroup>
 </androidx.constraintlayout.widget.ConstraintLayout>

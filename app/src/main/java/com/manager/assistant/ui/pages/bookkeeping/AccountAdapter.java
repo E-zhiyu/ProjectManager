@@ -3,11 +3,15 @@ package com.manager.assistant.ui.pages.bookkeeping;
 import android.content.Context;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 
+import com.google.android.material.shape.Shapeable;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.enums.KeyValueStrings;
@@ -16,8 +20,10 @@ import com.manager.assistant.data.data_class.running_account.IncomeRunningAccoun
 import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
 import com.manager.assistant.data.data_class.running_account.TransferRunningAccount;
 import com.manager.assistant.enums.LogTags;
-import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
+import com.manager.assistant.ui.data_sync.runnning_account.AccountUpdateReason;
+import com.manager.assistant.ui.data_sync.runnning_account.RunningAccountViewModel;
+import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.xwray.groupie.GroupAdapter;
 import com.xwray.groupie.GroupieViewHolder;
@@ -63,6 +69,7 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
 
     public class ContentItem extends Item<GroupieViewHolder> {
         private final RunningAccountBase runningAccount;
+        SpringAnimationOnTouchListener onTouchListener;
 
         public ContentItem(@NonNull RunningAccountBase runningAccount) {
             this.runningAccount = runningAccount;
@@ -70,22 +77,28 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
 
         @Override
         public void bind(@NonNull GroupieViewHolder groupieViewHolder, int i) {
+            //设置触摸监听器
+            Shapeable shapeable = (Shapeable) groupieViewHolder.itemView;
+            Vibrator vibrator = (Vibrator) groupieViewHolder.itemView.getContext()
+                    .getSystemService(Context.VIBRATOR_SERVICE);
+            onTouchListener = new SpringAnimationOnTouchListener(shapeable, vibrator);
+            groupieViewHolder.itemView.setOnTouchListener(onTouchListener);
+
             MaterialTextView amountText = groupieViewHolder.itemView.findViewById(R.id.amount_text);
             MaterialTextView remarkText = groupieViewHolder.itemView.findViewById(R.id.remark_text);
             MaterialTextView typeDatetimeText = groupieViewHolder.itemView.findViewById(R.id.type_datetime_textview);
 
             String type = runningAccount.getType().getTitle();
             String datetime = runningAccount.getDatetime();
-            String type_and_datetime = String.format(Locale.getDefault(), "%s·%s", type, datetime);
+            String typeAndDatetime = String.format(Locale.getDefault(), "%s·%s", type, datetime);
             String remark = runningAccount.getRemark();
             double amount = runningAccount.getAmount();
 
             amountText.setText(String.format(Locale.getDefault(), "%.2f", amount));
             remarkText.setText(remark.isEmpty() ? runningAccount.getDefaultRemark() : remark);
-            typeDatetimeText.setText(type_and_datetime);
+            typeDatetimeText.setText(typeAndDatetime);
 
             groupieViewHolder.itemView.setOnClickListener(v -> listener.onRunningAccountClick(runningAccount));
-            AnimationHelper.attachMorphAnimation(groupieViewHolder.itemView);
         }
 
         @Override
@@ -115,26 +128,31 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
      * 添加新流水视图
      *
      * @param dataBundle 新建流水的数据包
+     * @param owner      ViewModel提供者
      */
-    public void addNewRunningAccount(@NonNull Bundle dataBundle) {
+    public void addNewRunningAccount(@NonNull Bundle dataBundle, ViewModelStoreOwner owner) {
         RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
         if (remark == null) remark = "";
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
-        String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
+        String datetime = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
         long rno = dataBundle.getLong(KeyValueStrings.RNO.getValue(), 0);
         if (rno == 0) return;   //如果为0则说明数据库保存失败，直接结束该方法
+
+        //使用ViewModel刷新UI（主页的简易报表）
+        RunningAccountViewModel viewModel = new ViewModelProvider(owner).get(RunningAccountViewModel.class);
+        viewModel.onAccountUpdated(amount, datetime, type, AccountUpdateReason.ADD);
 
         //获取特殊数据并实例化流水类
         RunningAccountBase runningAccount;
         if (type == RunningAccountType.EXPENSE) {
-            runningAccount = new ExpenseRunningAccount(remark, date_time, amount);
+            runningAccount = new ExpenseRunningAccount(remark, datetime, amount);
         } else if (type == RunningAccountType.INCOME) {
-            runningAccount = new IncomeRunningAccount(remark, date_time, amount);
+            runningAccount = new IncomeRunningAccount(remark, datetime, amount);
         } else if (type == RunningAccountType.TRANSFER) {
             String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
             String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
-            runningAccount = new TransferRunningAccount(remark, date_time, amount, exportAccount, importAccount);
+            runningAccount = new TransferRunningAccount(remark, datetime, amount, exportAccount, importAccount);
         } else {
             NullPointerException e = new NullPointerException("流水类型获取失败");
             ExceptionHelper.showExceptionDialog(context, e);
@@ -165,26 +183,31 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
      * 在界面中添加新流水记录视图但是不保存到数据库(用于自动记账防止重复保存)
      *
      * @param dataBundle 新流水记录数据包
+     * @param owner      ViewModel提供者
      */
-    public void addNewRunningAccountByNotification(@NonNull Bundle dataBundle) {
+    public void addNewRunningAccountByNotification(@NonNull Bundle dataBundle, ViewModelStoreOwner owner) {
         //解析数据
         long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
         RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
         if (remark == null) remark = "";
-        String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
+        String datetime = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
+
+        //使用ViewModel刷新UI（主页的简易报表）
+        RunningAccountViewModel viewModel = new ViewModelProvider(owner).get(RunningAccountViewModel.class);
+        viewModel.onAccountUpdated(amount, datetime, type, AccountUpdateReason.ADD);
 
         //实例化流水类
         RunningAccountBase runningAccount;
         if (type == RunningAccountType.EXPENSE) {
-            runningAccount = new ExpenseRunningAccount(remark, date_time, amount);
+            runningAccount = new ExpenseRunningAccount(remark, datetime, amount);
         } else if (type == RunningAccountType.INCOME) {
-            runningAccount = new IncomeRunningAccount(remark, date_time, amount);
+            runningAccount = new IncomeRunningAccount(remark, datetime, amount);
         } else if (type == RunningAccountType.TRANSFER) {
             String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());    //转出账户
             String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
-            runningAccount = new TransferRunningAccount(remark, date_time, amount, exportAccount, importAccount);
+            runningAccount = new TransferRunningAccount(remark, datetime, amount, exportAccount, importAccount);
         } else {
             NullPointerException e = new NullPointerException("流水类型获取失败");
             ExceptionHelper.showExceptionDialog(context, e);
@@ -312,8 +335,9 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
      * 删除指定下标的流水记录
      *
      * @param rno_delete 待删除的流水记录的编号
+     * @param owner      ViewModel的提供者
      */
-    public void deleteRunningAccount(long rno_delete) {
+    public void deleteRunningAccount(long rno_delete, ViewModelStoreOwner owner) {
         if (rno_delete == -1) {
             Log.e(LogTags.ACCOUNT_ADAPTER.getV(), "未获取到合法的流水编号，无法删除流水记录");
             return;
@@ -338,6 +362,14 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
             RunningAccountBase runningAccount = accountList.get(index);
             if (rno_delete == runningAccount.getRno()) {
                 Log.i(LogTags.ACCOUNT_ADAPTER.getV(), "成功在List中找到需要删除的数据类");
+
+                //使用ViewModel刷新UI（主页的简易报表）
+                double amount = runningAccount.getAmount();
+                String datetime = runningAccount.getDatetime();
+                RunningAccountType type = runningAccount.getType();
+                RunningAccountViewModel viewModel = new ViewModelProvider(owner).get(RunningAccountViewModel.class);
+                viewModel.onAccountUpdated(amount, datetime, type, AccountUpdateReason.DELETE);
+
                 date = runningAccount.getDatetime().substring(0, 10);
                 accountList.remove(index);
                 break;

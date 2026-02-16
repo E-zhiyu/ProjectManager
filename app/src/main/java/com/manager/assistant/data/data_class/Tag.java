@@ -492,4 +492,27 @@ public class Tag {
         db.close();
         return new Tag(tag_name, tag_no, scope);
     }
+
+    /**
+     * 获取标签数量
+     *
+     * @param context 上下文
+     * @return 标签数量
+     * @throws SQLiteException 读取失败引发的异常
+     */
+    public static int getTagCount(Context context) throws SQLiteException {
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
+        SQLiteDatabase db = dbHelper.openReadLink();
+
+        String sql = "SELECT COUNT(*) FROM " + BookkeepingTables.TAG;
+        int rowCount = 0;
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) {
+            rowCount = cursor.getInt(0);
+        }
+
+        cursor.close();
+        db.close();
+        return rowCount;
+    }
 }

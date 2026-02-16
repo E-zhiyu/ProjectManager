@@ -14,7 +14,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@drawable/baseline_arrow_back_ios_new_24"
         app:title="@string/title_report" />
 
     <com.google.android.material.button.MaterialSplitButton
@@ -31,20 +30,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/date"
-            app:icon="@drawable/baseline_calendar_month_24" />
+            app:icon="@drawable/outline_calendar_month_24" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/date_range_select_btn"
             style="?attr/materialSplitButtonIconFilledStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:icon="@drawable/baseline_unfold_more_24" />
+            app:icon="@drawable/outline_unfold_more_24" />
     </com.google.android.material.button.MaterialSplitButton>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/date_select_split_btn">
 
@@ -138,6 +136,7 @@
                             android:layout_height="wrap_content"
                             android:nestedScrollingEnabled="false"
                             android:orientation="vertical"
+                            android:paddingBottom="5dp"
                             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -165,6 +164,7 @@
                             android:layout_height="wrap_content"
                             android:nestedScrollingEnabled="false"
                             android:orientation="vertical"
+                            android:paddingBottom="5dp"
                             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -214,7 +214,7 @@
                             style="?attr/materialSplitButtonIconFilledStyle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            app:icon="@drawable/baseline_unfold_more_24"
+                            app:icon="@drawable/outline_unfold_more_24"
                             app:iconGravity="textStart" />
                     </com.google.android.material.button.MaterialSplitButton>
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -229,6 +229,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:nestedScrollingEnabled="false"
+                        android:paddingBottom="5dp"
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>

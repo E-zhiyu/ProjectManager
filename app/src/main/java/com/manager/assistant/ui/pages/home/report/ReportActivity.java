@@ -288,7 +288,7 @@ public class ReportActivity extends AppCompatActivity {
         binding.balanceText.setText(String.format(Locale.getDefault(), "%.2f", balance));
         binding.expenseIncomeText.setText(String.format(
                 Locale.getDefault(),
-                "支出：%.2f | 收入：%.2f",
+                "支出:%.2f | 收入:%.2f",
                 expense, income
         ));
 

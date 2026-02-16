@@ -22,6 +22,8 @@ import com.manager.assistant.data.io.pojo.PojoTag;
 import com.manager.assistant.data.io.pojo.PojoTagGroup;
 import com.manager.assistant.data.io.maps.TotalAccountDataMap;
 import com.manager.assistant.data.io.pojo.PojoTransferRunningAccount;
+import com.manager.assistant.ui.data_sync.tag_modify.TagRepository;
+import com.manager.assistant.ui.data_sync.tag_modify.TagUpdateReason;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -405,7 +407,7 @@ public class RunningAccountDataHelper extends DataHelperBase<BookkeepingDbHelper
      * @param context 用于打开数据库的上下文
      */
     public static void deleteAllData(@NonNull Context context) {
-        String tip_str = "数据清除失败，原因未知";
+        String tipStr = "数据清除失败，原因未知";
         try (BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context)) {
             SQLiteDatabase db = db_helper.openWriteLink();
 
@@ -433,11 +435,15 @@ public class RunningAccountDataHelper extends DataHelperBase<BookkeepingDbHelper
             rule_tag_value.put(BookkeepingColumns.TAG_NO.toString(), 0);
             db.update(BookkeepingTables.ANALYSIS_RULE.toString(), rule_tag_value, null, null);
 
-            tip_str = "数据清除成功";
+            tipStr = "数据清除成功";
         } catch (SQLiteDatabaseLockedException e) {
-            tip_str = "数据清除失败：数据库异常";
+            tipStr = "数据清除失败：数据库异常";
         } finally {
-            Toast.makeText(context, tip_str, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, tipStr, Toast.LENGTH_SHORT).show();
+
+            //更新主页标签数量
+            TagRepository tagRepository = TagRepository.getInstance();
+            tagRepository.updateTag(TagUpdateReason.CLEAR);
         }
     }
 }

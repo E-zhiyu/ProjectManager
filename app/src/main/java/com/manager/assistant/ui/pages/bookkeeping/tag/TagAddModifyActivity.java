@@ -22,8 +22,8 @@ import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
-import com.manager.assistant.ui.data_communication.tag_modify.TagUpdateReason;
-import com.manager.assistant.ui.data_communication.tag_modify.TagRepository;
+import com.manager.assistant.ui.data_sync.tag_modify.TagUpdateReason;
+import com.manager.assistant.ui.data_sync.tag_modify.TagRepository;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
 import java.util.ArrayList;
@@ -75,7 +75,10 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
 
                 if (isModifyMode) {
                     TagRepository repository = TagRepository.getInstance();
-                    repository.updateTag(tag_name, tag_no, TagUpdateReason.RENAME);    //更新ViewModel中的标签数据
+                    repository.updateTag(tag_name, tag_no, TagUpdateReason.RENAME);
+                } else {
+                    TagRepository repository = TagRepository.getInstance();
+                    repository.updateTag(tag_name, tag_no, TagUpdateReason.ADD);
                 }
 
                 result2TagManage.putExtras(dataBundle);
@@ -162,7 +165,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
             Chip scopeChip = new Chip(this);
             scopeChip.setCheckable(true);
             scopeChip.setCheckedIconVisible(true);
-            scopeChip.setCheckedIcon(ContextCompat.getDrawable(this, R.drawable.baseline_check_24));
+            scopeChip.setCheckedIcon(ContextCompat.getDrawable(this, R.drawable.outline_check_24));
             scopeChip.setText(type.getTitle());
 
             //设置初始选择状态

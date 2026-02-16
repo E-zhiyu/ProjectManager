@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 标题栏样式 -->
-    <style name="ToolBarStyle" parent="Widget.Material3.Toolbar">
+    <style name="ToolBarStyle" parent="Widget.Material3.Toolbar.OnSurface">
         <item name="android:backgroundTint">?attr/colorSurface</item>
         <item name="navigationIconTint">?attr/colorPrimary</item>
+        <item name="navigationIcon">@drawable/outline_arrow_back_ios_new_24</item>
         <item name="contentInsetStart">10dp</item>
         <item name="titleTextAppearance">?attr/textAppearanceHeadlineSmall</item>
     </style>
@@ -73,13 +74,12 @@
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
         <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
         <item name="android:drawablePadding">10dp</item>
-        <item name="android:drawableStart">@drawable/baseline_error_outline_24</item>
+        <item name="android:drawableStart">@drawable/outline_info_24</item>
         <item name="drawableTint">?attr/colorOnSurfaceVariant</item>
     </style>
 
-    <style name="CardStyleBase">
+    <style name="CardStyleBase" parent="Widget.Material3.CardView.Filled">
         <item name="cardBackgroundColor">@color/card_background_color</item>
-        <item name="strokeColor">@android:color/transparent</item>
     </style>
 
     <!-- 圆角卡片容器器样式 -->
@@ -100,12 +100,6 @@
         <item name="android:layout_marginStart">10dp</item>
         <item name="android:layout_marginEnd">10dp</item>
         <item name="android:layout_marginBottom">10dp</item>
-    </style>
-
-    <!-- 直角边框的卡片样式(专用于界面底部的按钮容器) -->
-    <style name="BottomRightAngleCardStyle" parent="CardStyleBase">
-        <item name="cardCornerRadius">0dp</item>
-        <item name="cardBackgroundColor">@android:color/transparent</item>
     </style>
 
     <!-- 设置项样式 -->
@@ -129,7 +123,7 @@
         <item name="layout_goneMarginEnd">5dp</item>
         <item name="layout_goneMarginTop">5dp</item>
         <item name="layout_goneMarginBottom">5dp</item>
-        <item name="iconTintMode">add</item>
+        <item name="iconGravity">textStart</item>
     </style>
 
     <!-- 透明背景按钮样式 -->
@@ -143,6 +137,7 @@
         <item name="android:textColor">?attr/colorPrimary</item>
         <item name="strokeColor">?attr/colorPrimary</item>
         <item name="strokeWidth">1dp</item>
+        <item name="iconGravity">textStart</item>
         <item name="android:layout_marginStart">10dp</item>
         <item name="android:layout_marginEnd">10dp</item>
     </style>
@@ -155,7 +150,7 @@
     </style>
 
     <style name="AddFloatingActionBtnStyle" parent="ThemeOverlay.Material3.FloatingActionButton.Primary">
-        <item name="android:src">@drawable/baseline_add_24</item>
+        <item name="android:src">@drawable/outline_add_24</item>
         <item name="backgroundTint">?attr/colorTertiaryContainer</item>
         <item name="android:layout_marginEnd">20dp</item>
         <item name="android:layout_marginBottom">20dp</item>

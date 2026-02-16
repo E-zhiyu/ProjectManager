@@ -25,7 +25,7 @@ import com.manager.assistant.enums.LogTags;
 import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.Picture;
 import com.manager.assistant.enums.KeyValueStrings;
-import com.manager.assistant.ui.data_communication.account_picture.AccountPictureViewModel;
+import com.manager.assistant.ui.data_sync.account_picture.AccountPictureViewModel;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -96,7 +96,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         int picture_size = screen_width * 5 / 18;               //图片宽高占屏幕宽度的5/18
         glideOptions = new RequestOptions()
                 .centerCrop()
-                .error(R.drawable.baseline_error_outline_24)    //错误图
+                .error(R.drawable.outline_error_24)             //错误图
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC) //缓存策略
                 .override(picture_size, picture_size);          //图片尺寸
     }

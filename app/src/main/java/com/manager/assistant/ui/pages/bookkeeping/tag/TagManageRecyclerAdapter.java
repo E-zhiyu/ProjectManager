@@ -19,8 +19,8 @@ import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.AnimationHelper;
-import com.manager.assistant.ui.data_communication.tag_modify.TagUpdateReason;
-import com.manager.assistant.ui.data_communication.tag_modify.TagRepository;
+import com.manager.assistant.ui.data_sync.tag_modify.TagUpdateReason;
+import com.manager.assistant.ui.data_sync.tag_modify.TagRepository;
 import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.data.data_class.TagGroup;
 
@@ -131,7 +131,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             tagTextView.setClickable(true);
 
             //添加右侧箭头图标
-            Drawable right_arrow = AppCompatResources.getDrawable(context, R.drawable.baseline_keyboard_arrow_right_24);
+            Drawable right_arrow = AppCompatResources.getDrawable(context, R.drawable.outline_keyboard_arrow_right_24);
             tagTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(
                     null, null, right_arrow, null
             );

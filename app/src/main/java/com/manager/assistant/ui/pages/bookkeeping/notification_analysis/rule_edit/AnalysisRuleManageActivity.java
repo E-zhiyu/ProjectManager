@@ -20,7 +20,7 @@ import com.manager.assistant.enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.enums.KeyValueStrings;
 import com.manager.assistant.data.data_class.AnalysisRule;
-import com.manager.assistant.ui.data_communication.tag_modify.TagRepository;
+import com.manager.assistant.ui.data_sync.tag_modify.TagRepository;
 import com.manager.assistant.ui.others.listeners.RecyclerScrollHideShowListener;
 
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         TagRepository repository = TagRepository.getInstance();
         repository.getChangedTagList().observe(this, tagList -> {
             if (tagList != null) {
-                refreshUI();
+                refreshRuleRecycler();
             }
         });
     }
@@ -126,7 +126,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         });
 
         //设置下拉刷新布局的刷新监听器
-        binding.refreshLayout.setOnRefreshListener(this::refreshUI);
+        binding.refreshLayout.setOnRefreshListener(this::refreshRuleRecycler);
     }
 
     /**
@@ -239,7 +239,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
     /**
      * 刷新UI方法
      */
-    private void refreshUI() {
+    private void refreshRuleRecycler() {
         binding.refreshLayout.setRefreshing(true);
         disposables.add(
                 Observable.fromCallable(() -> AnalysisRule.loadAnalysisRule(this))

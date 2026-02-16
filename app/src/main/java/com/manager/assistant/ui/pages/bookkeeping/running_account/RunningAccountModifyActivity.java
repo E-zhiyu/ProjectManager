@@ -22,7 +22,7 @@ import com.manager.assistant.enums.TagString;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.enums.KeyValueStrings;
-import com.manager.assistant.ui.data_communication.account_picture.AccountPictureViewModel;
+import com.manager.assistant.ui.data_sync.account_picture.AccountPictureViewModel;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.ExpenseFragment;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountFragmentBase;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;

@@ -39,9 +39,9 @@ import com.manager.assistant.enums.LogTags;
 import com.manager.assistant.enums.TagString;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.ui.data_communication.account_picture.AccountPictureViewModel;
-import com.manager.assistant.ui.data_communication.tag_modify.TagRepository;
-import com.manager.assistant.ui.data_communication.tag_modify.TagUpdateReason;
+import com.manager.assistant.ui.data_sync.account_picture.AccountPictureViewModel;
+import com.manager.assistant.ui.data_sync.tag_modify.TagRepository;
+import com.manager.assistant.ui.data_sync.tag_modify.TagUpdateReason;
 import com.manager.assistant.ui.others.bottom_sheets.picture.AddPictureOptionBottomSheet;
 import com.manager.assistant.ui.others.bottom_sheets.tag.GridSpacingItemDecoration;
 import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
@@ -154,12 +154,12 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
     /**
      * 标签选中弹窗的标签按钮点击回调
      *
-     * @param tag_no   点击的标签编号
-     * @param tag_name 点击的标签名称
+     * @param tag_no  点击的标签编号
+     * @param tagName 点击的标签名称
      */
-    public void onTagBtnClicked(long tag_no, String tag_name) {
+    public void onTagBtnClicked(long tag_no, String tagName) {
         this.tno = tag_no;   //更新全局变量中的标签编号
-        tagInput.setText(tag_name);
+        tagInput.setText(tagName);
         tagLayout.setError(null);
         tagSheet.dismiss();
     }
@@ -191,31 +191,38 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
      */
     private void startObserveTag() {
         TagRepository repository = TagRepository.getInstance();
-        repository.getChangedTagList().observe(getViewLifecycleOwner(), tagList -> {
-            if (tagList != null) {
-                TagUpdateReason updateReason = repository.getUpdateReason();
-                for (Tag tag : tagList) {
-                    String tag_name = tag.getName();
-                    long tag_no = tag.getTno();
+        repository.getChangedTagList().observe(
+                getViewLifecycleOwner(),
+                tagList -> {
+                    if (tagList == null) {
+                        return;
+                    }
 
-                    if (tag_no == this.tno) {    //只有找到匹配的标签编号才修改
-                        switch (updateReason) {
-                            case RENAME:
-                                tagInput.setText(tag_name);
-                                break;
-                            case DELETE:
-                                this.tno = 0;
-                                tagInput.setText("");
-                                break;
-                            case MERGE:
-                                this.tno = Tag.nameTransToTno(tag_name, requireContext());
-                                tagInput.setText(tag_name);
-                                break;
+                    TagUpdateReason updateReason = repository.getUpdateReason();
+                    for (Tag tag : tagList) {
+                        String tagName = tag.getName();
+                        long tag_no = tag.getTno();
+
+                        if (tag_no == this.tno) {    //只有找到匹配的标签编号才修改
+                            switch (updateReason) {
+                                case RENAME:
+                                    tagInput.setText(tagName);
+                                    break;
+                                case DELETE:
+                                    this.tno = 0;
+                                    tagInput.setText("");
+                                    break;
+                                case MERGE:
+                                    this.tno = Tag.nameTransToTno(tagName, requireContext());
+                                    tagInput.setText(tagName);
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
                     }
                 }
-            }
-        });
+        );
     }
 
     /**
@@ -226,17 +233,30 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
 
         //观察适配器删除模式状态
         viewModel.getAdapterStatData().observe(
-                getViewLifecycleOwner(), isDeleteMode -> pictureAdapter.switchDeleteMode(isDeleteMode)
+                getViewLifecycleOwner(),
+                isDeleteMode -> {
+                    if (isDeleteMode != null) {
+                        pictureAdapter.switchDeleteMode(isDeleteMode);
+                    }
+                }
         );
 
         //观察新增图片
         viewModel.getNewPictureData().observe(
-                getViewLifecycleOwner(), pictureList -> pictureAdapter.addPicture(pictureList)
+                getViewLifecycleOwner(), pictureList -> {
+                    if (pictureList != null) {
+                        pictureAdapter.addPicture(pictureList);
+                    }
+                }
         );
 
         //观察图片删除
         viewModel.getPictureSelectData().observe(
-                getViewLifecycleOwner(), pictureSelectList -> pictureAdapter.deleteSelectedPicture(pictureSelectList)
+                getViewLifecycleOwner(), pictureSelectList -> {
+                    if (pictureSelectList != null) {
+                        pictureAdapter.deleteSelectedPicture(pictureSelectList);
+                    }
+                }
         );
     }
 

@@ -30,8 +30,8 @@ import com.manager.assistant.ui.pages.bookkeeping.notification_analysis.package_
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
-import com.manager.assistant.ui.data_communication.tag_modify.TagUpdateReason;
-import com.manager.assistant.ui.data_communication.tag_modify.TagRepository;
+import com.manager.assistant.ui.data_sync.tag_modify.TagUpdateReason;
+import com.manager.assistant.ui.data_sync.tag_modify.TagRepository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -326,26 +326,30 @@ public class RuleAddModifyActivity extends AppCompatActivity {
     private void startObserveTag() {
         TagRepository repository = TagRepository.getInstance();
         repository.getChangedTagList().observe(this, tagList -> {
-            if (tagList != null) {
-                TagUpdateReason updateReason = repository.getUpdateReason();
-                for (Tag tag : tagList) {
-                    String tag_name = tag.getName();
-                    long tag_no = tag.getTno();
+            if (tagList == null) {
+                return;
+            }
 
-                    if (tag_no == this.tag_no) {    //只有找到匹配的标签编号才修改
-                        switch (updateReason) {
-                            case RENAME:
-                                binding.tagNameInput.setText(tag_name);
-                                break;
-                            case DELETE:
-                                this.tag_no = 0;
-                                binding.tagNameInput.setText("");
-                                break;
-                            case MERGE:
-                                this.tag_no = Tag.nameTransToTno(tag_name, this);
-                                binding.tagNameInput.setText(tag_name);
-                                break;
-                        }
+            TagUpdateReason updateReason = repository.getUpdateReason();
+            for (Tag tag : tagList) {
+                String tag_name = tag.getName();
+                long tag_no = tag.getTno();
+
+                if (tag_no == this.tag_no) {    //只有找到匹配的标签编号才修改
+                    switch (updateReason) {
+                        case RENAME:
+                            binding.tagNameInput.setText(tag_name);
+                            break;
+                        case DELETE:
+                            this.tag_no = 0;
+                            binding.tagNameInput.setText("");
+                            break;
+                        case MERGE:
+                            this.tag_no = Tag.nameTransToTno(tag_name, this);
+                            binding.tagNameInput.setText(tag_name);
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
