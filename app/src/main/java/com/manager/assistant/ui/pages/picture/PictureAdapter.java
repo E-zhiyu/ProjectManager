@@ -35,12 +35,13 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureViewHolder> {
-    private final AccountPictureViewModel viewModel; //ViewModel所有者
+    private final AccountPictureViewModel viewModel;        //ViewModel所有者
     private final List<Picture> pictureList;                //数据源列表
     private final List<Boolean> pictureSelectList;          //记录图片选择状态的列表
     private boolean isDeleteMode = false;                   //标记是否为删除图片模式
     private final RequestOptions glideOptions;
     private final DeleteModeSwitchListener listener;        //删除模式切换监听器
+    private int longClickPosition = -1;                     //长按的图片下标
 
     public interface DeleteModeSwitchListener {
         /**
@@ -185,7 +186,14 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
             //视图长按监听器
             holder.imageView.setOnLongClickListener(v -> {
                 if (!isDeleteMode) {
+                    //更新长按图片下标
+                    longClickPosition = holder.getBindingAdapterPosition();
+
+                    //显示复选框并选中
+                    holder.checkedTextView.setVisibility(View.VISIBLE);
+                    holder.checkedTextView.toggle();
                     pictureSelectList.set(holder.getBindingAdapterPosition(), true);
+                    holder.switchScale(true);
 
                     //使用ViewModel通知所有适配器更新状态
                     viewModel.updateAdapterStat(true);
@@ -224,8 +232,13 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         }
 
         for (int index = 0; index < pictureList.size(); index++) {
-            notifyItemChanged(index);
+            if (index != longClickPosition) {
+                notifyItemChanged(index);
+            }
         }
+
+        //复位长按图片下标
+        longClickPosition = -1;
     }
 
     /**
