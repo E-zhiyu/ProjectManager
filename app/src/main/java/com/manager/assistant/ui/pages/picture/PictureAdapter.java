@@ -14,6 +14,8 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.dynamicanimation.animation.SpringAnimation;
+import androidx.dynamicanimation.animation.SpringForce;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.RecyclerView;
@@ -53,13 +55,42 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     }
 
     public static class PictureViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageView;                    //图像容器视图
-        CheckedTextView checkedTextView;        //右上角复选框
+        ImageView imageView;                                //图像容器视图
+        CheckedTextView checkedTextView;                    //右上角复选框
+        private final SpringAnimation scaleXAnim;           //X轴缩放动画
+        private final SpringAnimation scaleYAnim;           //Y轴缩放动画
+        private static final float PRESSED_SCALE = 0.94f;   //按下时缩放程度
 
         public PictureViewHolder(@NonNull View view) {
             super(view);
             this.imageView = view.findViewById(R.id.image_view);
             this.checkedTextView = view.findViewById(R.id.checked_text);
+
+            //设置缩放动画
+            scaleXAnim = new SpringAnimation(view, SpringAnimation.SCALE_X);
+            scaleYAnim = new SpringAnimation(view, SpringAnimation.SCALE_Y);
+
+            SpringForce forceX = new SpringForce(1f);
+            SpringForce forceY = new SpringForce(1f);
+
+            forceX.setDampingRatio(SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+            forceY.setDampingRatio(SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+
+            forceX.setStiffness(SpringForce.STIFFNESS_LOW);
+            forceY.setStiffness(SpringForce.STIFFNESS_LOW);
+
+            scaleXAnim.setSpring(forceX);
+            scaleYAnim.setSpring(forceY);
+        }
+
+        public void switchScale(boolean isScaled) {
+            if (isScaled) {
+                scaleXAnim.animateToFinalPosition(PRESSED_SCALE);
+                scaleYAnim.animateToFinalPosition(PRESSED_SCALE);
+            } else {
+                scaleXAnim.animateToFinalPosition(1f);
+                scaleYAnim.animateToFinalPosition(1f);
+            }
         }
 
         /**
@@ -137,6 +168,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
             }
             boolean isChecked = pictureSelectList.get(position);
             holder.checkedTextView.setChecked(isChecked);
+            holder.switchScale(isChecked);
 
             //视图点击监听器
             holder.imageView.setOnClickListener(v -> {
@@ -148,6 +180,9 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
 
                     //同步图片选择状态数据
                     pictureSelectList.set(holder.getBindingAdapterPosition(), holder.checkedTextView.isChecked());
+
+                    //执行缩放动画
+                    holder.switchScale(holder.checkedTextView.isChecked());
                 }
             });
 
@@ -183,6 +218,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         this.isDeleteMode = isDeleteMode;
         listener.onDeleteModeSwitched(isDeleteMode);
 
+        //退出删除模式时重置图片选择状态
         if (!isDeleteMode) {
             pictureSelectList.clear();
             pictureSelectList.addAll(new ArrayList<>(Collections.nCopies(pictureList.size(), false)));
