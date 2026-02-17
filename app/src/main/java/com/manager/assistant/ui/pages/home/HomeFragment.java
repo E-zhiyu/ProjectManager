@@ -255,23 +255,6 @@ public class HomeFragment extends Fragment {
      * 刷新UI的方法
      */
     private void refreshUI() {
-        //获取报表数据
-        disposables.add(
-                Observable.fromCallable(() -> {
-                            refreshTodayReport();
-                            return true;
-                        })
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.newThread())
-                        .subscribe(b -> {
-                            //更新今日结余统计
-                            refreshReportView();
-                        }, e -> {
-                            ExceptionHelper.showExceptionDialog(requireContext(), e);
-                            Toast.makeText(requireContext(), "无法刷新报表信息", Toast.LENGTH_SHORT).show();
-                        })
-        );
-
         //更新记账天数
         disposables.add(
                 Observable.fromCallable(this::getBookKeepingStartDate)
