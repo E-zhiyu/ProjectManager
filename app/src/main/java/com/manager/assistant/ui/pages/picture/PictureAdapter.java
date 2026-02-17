@@ -186,6 +186,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
             holder.imageView.setOnLongClickListener(v -> {
                 if (!isDeleteMode) {
                     pictureSelectList.set(holder.getBindingAdapterPosition(), true);
+                    holder.switchScale(true);
 
                     //使用ViewModel通知所有适配器更新状态
                     viewModel.updateAdapterStat(true);
