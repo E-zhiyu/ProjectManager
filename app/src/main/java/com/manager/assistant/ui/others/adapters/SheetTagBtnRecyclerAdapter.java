@@ -2,6 +2,8 @@ package com.manager.assistant.ui.others.adapters;
 
 import android.content.Context;
 import android.os.Vibrator;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -9,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.shape.Shapeable;
+import com.manager.assistant.R;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
@@ -28,15 +32,15 @@ public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtn
         MaterialButton tagBtn;     //标签按钮
         SpringAnimationOnTouchListener onTouchListener; //带有点击动画的监听器
 
-        public BtnViewHolder(@NonNull MaterialButton tagBtn) {
-            super(tagBtn);
-            this.tagBtn = tagBtn;
+        public BtnViewHolder(@NonNull View view) {
+            super(view);
+            this.tagBtn = view.findViewById(R.id.tag_btn);
 
             //设置触摸监听器
-            Vibrator vibrator = (Vibrator) tagBtn.getContext()
+            Vibrator vibrator = (Vibrator) view.getContext()
                     .getSystemService(Context.VIBRATOR_SERVICE);
-            onTouchListener = new SpringAnimationOnTouchListener(tagBtn, vibrator);
-            tagBtn.setOnTouchListener(onTouchListener);
+            onTouchListener = new SpringAnimationOnTouchListener((Shapeable) view, vibrator);
+            view.setOnTouchListener(onTouchListener);
         }
     }
 
@@ -48,16 +52,9 @@ public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtn
     @NonNull
     @Override
     public BtnViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        MaterialButton tagBtn = new MaterialButton(parent.getContext());
-
-        //设置按钮的属性
-        tagBtn.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        ));
-        tagBtn.setPadding(16, 16, 16, 16);
-
-        return new BtnViewHolder(tagBtn);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.view_holder_tag_btn, parent, false);
+        return new BtnViewHolder(view);
     }
 
     @Override
