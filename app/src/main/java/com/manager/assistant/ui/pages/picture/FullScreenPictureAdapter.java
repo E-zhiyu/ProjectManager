@@ -14,9 +14,9 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.manager.assistant.R;
 
-public class FullScreenPictureAdapter extends RecyclerView.Adapter<FullScreenPictureAdapter.FullScreenPictureViewHolder> {
+public class FullScreenPictureAdapter
+        extends RecyclerView.Adapter<FullScreenPictureAdapter.FullScreenPictureViewHolder> {
     private final String[] pictureUris; //图片Uri字符串数组
-    private final Context context;      //上下文
 
     public static class FullScreenPictureViewHolder extends RecyclerView.ViewHolder {
         PhotoView photoView;
@@ -40,15 +40,14 @@ public class FullScreenPictureAdapter extends RecyclerView.Adapter<FullScreenPic
         }
     }
 
-    public FullScreenPictureAdapter(Context context, String[] pictureUris) {
-        this.context = context;
+    public FullScreenPictureAdapter(String[] pictureUris) {
         this.pictureUris = pictureUris;
     }
 
     @NonNull
     @Override
     public FullScreenPictureViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context)
+        View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.view_holder_full_screen_picture, parent, false);
         return new FullScreenPictureViewHolder(view);
     }
@@ -56,7 +55,7 @@ public class FullScreenPictureAdapter extends RecyclerView.Adapter<FullScreenPic
     @Override
     public void onBindViewHolder(@NonNull FullScreenPictureViewHolder holder, int position) {
         Uri pictureUri = Uri.parse(pictureUris[position]);
-        holder.setPicture(context, pictureUri);
+        holder.setPicture(holder.itemView.getContext(), pictureUri);
     }
 
     @Override

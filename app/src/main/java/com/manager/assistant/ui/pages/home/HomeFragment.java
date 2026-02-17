@@ -144,7 +144,7 @@ public class HomeFragment extends Fragment {
         }
 
         //初始化链接数据
-        linkAdapter = new LinkAdapter(requireContext());
+        linkAdapter = new LinkAdapter();
         binding.webLinkRecycler.setAdapter(linkAdapter);
         if (AppSettingsPreference.getHomeLinks(requireContext())) {
             fetchLinks(true);

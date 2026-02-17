@@ -103,12 +103,12 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         binding.refreshLayout.setRefreshing(true);
         List<AnalysisRule> ruleList;
         try {
-            ruleList = AnalysisRule.loadAnalysisRule(this);
+            ruleList = new ArrayList<>(AnalysisRule.loadAnalysisRule(this));
         } catch (SQLiteException e) {
             ruleList = new ArrayList<>();
             ExceptionHelper.showExceptionDialog(this, e);
         }
-        ruleAdapter = new AnalysisRuleAdapter(ruleList, this::onRuleClicked, this);
+        ruleAdapter = new AnalysisRuleAdapter(ruleList, this::onRuleClicked);
         binding.refreshLayout.setRefreshing(false);
         binding.ruleRecycler.setAdapter(ruleAdapter);
 
@@ -211,7 +211,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
             return;
         }
 
-        ruleAdapter.addRule(dataBundle);
+        ruleAdapter.addRule(dataBundle, this);
     }
 
     /**
@@ -229,10 +229,10 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         }
 
         if (resultCode == Activity.RESULT_OK) {
-            ruleAdapter.modifyRule(dataBundle);
+            ruleAdapter.modifyRule(dataBundle, this);
         } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
             int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
-            ruleAdapter.deleteRule(position);
+            ruleAdapter.deleteRule(position, this);
         }
     }
 

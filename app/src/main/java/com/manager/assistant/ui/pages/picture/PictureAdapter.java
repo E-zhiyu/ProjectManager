@@ -37,7 +37,6 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureViewHolder> {
-    private final Context context;                      //上下文
     private final ViewModelStoreOwner owner;            //ViewModel所有者
     private final List<Picture> pictureList;            //数据源列表
     private final List<Boolean> pictureSelectList;      //记录图片选择状态的列表
@@ -116,7 +115,6 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
      * @param listener 图片删除状态切换监听器
      */
     public PictureAdapter(Context context, ViewModelStoreOwner owner, DeleteModeSwitchListener listener) {
-        this.context = context;
         this.owner = owner;
         this.pictureList = new ArrayList<>();
         this.pictureSelectList = new ArrayList<>();
@@ -148,7 +146,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     @NonNull
     @Override
     public PictureViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context)
+        View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.view_holder_picture, parent, false);
         return new PictureViewHolder(view);
     }
@@ -158,7 +156,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         Picture picture = pictureList.get(position);
         Uri pictureUri = picture.getPictureUri();
         if (pictureUri != null) {
-            holder.setPictureRes(context, pictureUri, glideOptions);
+            holder.setPictureRes(holder.imageView.getContext(), pictureUri, glideOptions);
 
             //设置复选框属性
             if (isDeleteMode) {
@@ -173,7 +171,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
             //视图点击监听器
             holder.imageView.setOnClickListener(v -> {
                 if (!isDeleteMode) {
-                    openPictureCheckActivity(holder.getBindingAdapterPosition());
+                    openPictureCheckActivity(holder.getBindingAdapterPosition(), holder.imageView.getContext());
                 } else {
                     holder.checkedTextView.setVisibility(View.VISIBLE);
                     holder.checkedTextView.toggle();
@@ -195,7 +193,11 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
                     AccountPictureViewModel viewModel = new ViewModelProvider(owner).get(AccountPictureViewModel.class);
                     viewModel.updateAdapterStat(true);
 
-                    Toast.makeText(context, "返回即可退出图片删除模式", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(
+                            holder.imageView.getContext(),
+                            "返回即可退出图片删除模式",
+                            Toast.LENGTH_SHORT
+                    ).show();
                     return true;
                 } else {
                     return false;
@@ -249,8 +251,9 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
      * 打开图片查看Activity
      *
      * @param position 点击的图片的下标
+     * @param context  上下文
      */
-    private void openPictureCheckActivity(int position) {
+    private void openPictureCheckActivity(int position, Context context) {
         //判断文件是否存在
         Uri pictureUri = pictureList.get(position).getPictureUri();
         File pictureFile = new File(Objects.requireNonNull(pictureUri.getPath()));
@@ -336,8 +339,9 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
      * 删除被选中的图片
      *
      * @param pictureSelectList 图片选择状态列表
+     * @param context           上下文
      */
-    public void deleteSelectedPicture(@NonNull List<Boolean> pictureSelectList) {
+    public void deleteSelectedPicture(@NonNull List<Boolean> pictureSelectList, Context context) {
         //从尾部开始删除，避免影响下标值
         for (int index = pictureSelectList.size() - 1; index >= 0; index--) {
             boolean isSelected = pictureSelectList.get(index);

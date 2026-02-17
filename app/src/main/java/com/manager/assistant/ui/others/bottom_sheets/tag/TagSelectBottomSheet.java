@@ -91,7 +91,7 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
         }
 
         //设置标签列表视图适配器
-        SheetTagGroupRecyclerAdapter tagAdapter = new SheetTagGroupRecyclerAdapter(tagBtnClickedListener, requireContext());
+        SheetTagGroupRecyclerAdapter tagAdapter = new SheetTagGroupRecyclerAdapter(tagBtnClickedListener);
         binding.tagGroupRecycler.setAdapter(tagAdapter);
         loadTagGroupData(tagAdapter);
     }

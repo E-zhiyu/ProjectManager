@@ -17,7 +17,6 @@ import java.util.List;
 
 public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtnRecyclerAdapter.BtnViewHolder> {
     private final List<Tag> tagList;                                //标签数据源列表
-    private final Context context;                                  //上下文
     private final OnTagBtnClickedListener tagBtnClickedListener;    //标签按钮点击监听器
 
     //标签按钮点击监听接口
@@ -41,16 +40,15 @@ public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtn
         }
     }
 
-    public SheetTagBtnRecyclerAdapter(List<Tag> tagList, Context context, OnTagBtnClickedListener tagBtnClickedListener) {
+    public SheetTagBtnRecyclerAdapter(List<Tag> tagList, OnTagBtnClickedListener tagBtnClickedListener) {
         this.tagList = tagList;
-        this.context = context;
         this.tagBtnClickedListener = tagBtnClickedListener;
     }
 
     @NonNull
     @Override
     public BtnViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        MaterialButton tagBtn = new MaterialButton(context);
+        MaterialButton tagBtn = new MaterialButton(parent.getContext());
 
         //设置按钮的属性
         tagBtn.setLayoutParams(new ViewGroup.LayoutParams(
@@ -74,8 +72,8 @@ public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtn
             try {
                 tagBtnClickedListener.onTagBtnClicked(tag_no, tagName);
             } catch (NullPointerException e) {
-                ExceptionHelper.showExceptionDialog(context, e);
-                Toast.makeText(context, "标签按钮点击监听器初始化异常", Toast.LENGTH_SHORT).show();
+                ExceptionHelper.showExceptionDialog(holder.itemView.getContext(), e);
+                Toast.makeText(holder.itemView.getContext(), "标签按钮点击监听器初始化异常", Toast.LENGTH_SHORT).show();
             }
         });
     }

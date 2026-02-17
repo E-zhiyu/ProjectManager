@@ -1,6 +1,5 @@
 package com.manager.assistant.ui.pages.bookkeeping.notification_analysis.package_name_select;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppInfoViewHolder> {
-    private final Context context;              //上下文
     private final AppClickedListener listener;  //应用条目点击监听器
     private final List<AppInfo> appInfoList;    //应用列表
 
@@ -44,16 +42,15 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppInfoV
         void onAppClicked(String package_name);
     }
 
-    public AppListAdapter(AppClickedListener listener, Context context) {
+    public AppListAdapter(AppClickedListener listener) {
         this.appInfoList = new ArrayList<>();
         this.listener = listener;
-        this.context = context;
     }
 
     @NonNull
     @Override
     public AppInfoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context)
+        View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.view_holder_app_info, parent, false);
         return new AppInfoViewHolder(view);
     }

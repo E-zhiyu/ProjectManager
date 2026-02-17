@@ -29,7 +29,6 @@ import java.util.List;
 
 public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecyclerAdapter.TagEditViewHolder> {
     private final List<TagGroup> tagGroupList;                      //标签组列表
-    private final Context context;                                  //上下文
     private final OnTextViewClickedListener textClickedListener;    //标签文本点击事件监听器
 
     public interface OnTextViewClickedListener {
@@ -79,9 +78,8 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
         }
     }
 
-    public TagManageRecyclerAdapter(List<TagGroup> tagGroupList, Context context, OnTextViewClickedListener listener) {
+    public TagManageRecyclerAdapter(List<TagGroup> tagGroupList, OnTextViewClickedListener listener) {
         this.tagGroupList = tagGroupList;
-        this.context = context;
         this.textClickedListener = listener;
     }
 
@@ -95,6 +93,8 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
     @Override
     public void onBindViewHolder(@NonNull TagEditViewHolder holder, int position) {
+        Context context = holder.itemView.getContext();
+
         //设置分组名称文本
         TagGroup currentGroup = this.tagGroupList.get(position);
         long group_no = currentGroup.getGroup_no();
@@ -191,8 +191,9 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
      * @param tag_no     标签编号
      * @param tag_scope  标签作用域
      * @param group_no   该标签所属的分组编号
+     * @param context    上下文
      */
-    public void modifyTag(String newTagName, long tag_no, int tag_scope, long group_no) {
+    public void modifyTag(String newTagName, long tag_no, int tag_scope, long group_no, Context context) {
         //将数据保存至数据库
         try {
             Tag.modifyTag(newTagName, tag_no, tag_scope, context);
@@ -229,6 +230,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
      * @param newGroupName             新标签分组名称
      * @param origin_group_no          原标签分组编号
      * @param group_no_after_modifying 新标签分组编号
+     * @param context                  上下文
      */
     public void modifyTag(
             String newTagName,
@@ -236,7 +238,9 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             int tag_scope,
             String newGroupName,
             long origin_group_no,
-            long group_no_after_modifying) {
+            long group_no_after_modifying,
+            Context context
+    ) {
 
         //判断是否需要新建标签分组
         if (group_no_after_modifying == -1) {
@@ -304,8 +308,9 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
      *
      * @param tag_no   待删除标签的编号
      * @param group_no 待删除标签所属分组的编号
+     * @param context  上下文
      */
-    public void deleteTag(long tag_no, long group_no) {
+    public void deleteTag(long tag_no, long group_no, Context context) {
         int group_index = 0;        //待删除标签所属分组的下标
         for (TagGroup group : this.tagGroupList) {
             if (group.getGroup_no() == group_no) {
@@ -337,13 +342,14 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
     /**
      * 修改分组
      *
-     * @param group_no       分组编号
-     * @param new_group_name 分组名称
+     * @param group_no     分组编号
+     * @param newGroupName 分组名称
+     * @param context      上下文
      */
-    public void modifyGroup(long group_no, String new_group_name) {
+    public void modifyGroup(long group_no, String newGroupName, Context context) {
         //将数据保存至数据库
         try {
-            TagGroup.modifyGroupName(group_no, new_group_name, context);
+            TagGroup.modifyGroupName(group_no, newGroupName, context);
             Toast.makeText(context, "标签分组修改成功", Toast.LENGTH_SHORT).show();
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
@@ -354,7 +360,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
         int group_index = 0;
         for (TagGroup group : this.tagGroupList) {
             if (group.getGroup_no() == group_no) {
-                group.setGroup_name(new_group_name);
+                group.setGroup_name(newGroupName);
                 break;
             }
             group_index++;
@@ -367,8 +373,9 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
      * 删除分组
      *
      * @param group_no 分组编号
+     * @param context  上下文
      */
-    public void deleteGroup(long group_no) {
+    public void deleteGroup(long group_no, Context context) {
         //获取需要删除的标签列表
         int group_index = 0;
         List<Tag> tagsToBeDeleted = new ArrayList<>();  //待删除的标签的列表
@@ -417,8 +424,9 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
      *
      * @param old_group_no    被合并的分组编号
      * @param merge_target_no 合并到的分组的编号
+     * @param context         上下文
      */
-    public void mergeGroup(long old_group_no, long merge_target_no) {
+    public void mergeGroup(long old_group_no, long merge_target_no, Context context) {
         try {
             TagGroup.mergeGroup(old_group_no, merge_target_no, context);
         } catch (SQLiteException e) {
@@ -457,8 +465,9 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
      * @param merged_tag_no       被合并的标签编号
      * @param merge_target_tag_no 合并到的目标标签编号
      * @param group_no            被合并标签的分组编号
+     * @param context             上下文
      */
-    public void mergeTag(long merged_tag_no, long merge_target_tag_no, long group_no) {
+    public void mergeTag(long merged_tag_no, long merge_target_tag_no, long group_no, Context context) {
         try {
             Tag.mergeTag(merged_tag_no, merge_target_tag_no, context);
         } catch (SQLiteException e) {

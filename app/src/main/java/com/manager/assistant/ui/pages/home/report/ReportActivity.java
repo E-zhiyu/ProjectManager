@@ -147,7 +147,7 @@ public class ReportActivity extends AppCompatActivity {
         binding.expenseSourceRecycler.setAdapter(expenseAdapter);
         incomeAdapter = new AccountSourceAdapter(incomeSourceInfoList);
         binding.incomeSourceRecycler.setAdapter(incomeAdapter);
-        monthAccountAdapter = new MonthAccountAdapter(monthAccountInfoType, this);
+        monthAccountAdapter = new MonthAccountAdapter(monthAccountInfoType);
         binding.monthAccountRecycler.setAdapter(monthAccountAdapter);
     }
 

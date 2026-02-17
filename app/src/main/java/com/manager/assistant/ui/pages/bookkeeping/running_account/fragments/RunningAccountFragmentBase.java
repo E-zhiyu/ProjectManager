@@ -254,7 +254,7 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
         viewModel.getPictureSelectData().observe(
                 getViewLifecycleOwner(), pictureSelectList -> {
                     if (pictureSelectList != null) {
-                        pictureAdapter.deleteSelectedPicture(pictureSelectList);
+                        pictureAdapter.deleteSelectedPicture(pictureSelectList, requireContext());
                     }
                 }
         );
@@ -373,7 +373,10 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
         pictureRecycler.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing, true));
 
         //先设置适配器
-        pictureAdapter = new PictureAdapter(requireActivity(), requireActivity(), isDeleteMode -> {
+        pictureAdapter = new PictureAdapter(
+                requireActivity(),
+                requireActivity(),
+                isDeleteMode -> {
             if (isDeleteMode) {
                 pictureDeleteBtn.setVisibility(View.VISIBLE);
             } else {
