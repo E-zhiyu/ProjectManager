@@ -161,7 +161,7 @@ public class SettingFragment extends Fragment {
                 requireContext(),
                 binding.themeModeOption,
                 R.string.theme_mode,
-                null,
+                "切换深浅色模式",
                 R.drawable.outline_dark_mode_24
         );
         themeModeOption.setFunctionListener(v -> showThemeModeSelectDialog());
@@ -326,7 +326,7 @@ public class SettingFragment extends Fragment {
                 requireContext(),
                 binding.autoBackupOption,
                 R.string.auto_backup,
-                null,
+                "自动生成备份文件至指定位置",
                 R.drawable.outline_settings_backup_restore_24
         );
         autoBackupHelper.setSwitchOptionView(autoBackupSwitch); //设置帮助器的开关视图，以便控制其状态
