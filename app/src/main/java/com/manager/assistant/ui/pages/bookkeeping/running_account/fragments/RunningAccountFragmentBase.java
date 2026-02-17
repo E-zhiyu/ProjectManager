@@ -373,16 +373,17 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
         pictureRecycler.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing, true));
 
         //先设置适配器
+        AccountPictureViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountPictureViewModel.class);
         pictureAdapter = new PictureAdapter(
                 requireActivity(),
-                requireActivity(),
+                viewModel,
                 isDeleteMode -> {
-            if (isDeleteMode) {
-                pictureDeleteBtn.setVisibility(View.VISIBLE);
-            } else {
-                pictureDeleteBtn.setVisibility(View.GONE);
-            }
-        });
+                    if (isDeleteMode) {
+                        pictureDeleteBtn.setVisibility(View.VISIBLE);
+                    } else {
+                        pictureDeleteBtn.setVisibility(View.GONE);
+                    }
+                });
         pictureRecycler.setAdapter(pictureAdapter);
 
         //多线程刷新图片防止阻塞

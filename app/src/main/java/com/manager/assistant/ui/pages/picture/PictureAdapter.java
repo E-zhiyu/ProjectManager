@@ -16,8 +16,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.dynamicanimation.animation.SpringAnimation;
 import androidx.dynamicanimation.animation.SpringForce;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -37,12 +35,12 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureViewHolder> {
-    private final ViewModelStoreOwner owner;            //ViewModel所有者
-    private final List<Picture> pictureList;            //数据源列表
-    private final List<Boolean> pictureSelectList;      //记录图片选择状态的列表
-    private boolean isDeleteMode = false;               //标记是否为删除图片模式
+    private final AccountPictureViewModel viewModel; //ViewModel所有者
+    private final List<Picture> pictureList;                //数据源列表
+    private final List<Boolean> pictureSelectList;          //记录图片选择状态的列表
+    private boolean isDeleteMode = false;                   //标记是否为删除图片模式
     private final RequestOptions glideOptions;
-    private final DeleteModeSwitchListener listener;    //删除模式切换监听器
+    private final DeleteModeSwitchListener listener;        //删除模式切换监听器
 
     public interface DeleteModeSwitchListener {
         /**
@@ -110,12 +108,12 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     /**
      * 图片适配器构造方法
      *
-     * @param context  上下文
-     * @param owner    ViewModel的所有者
-     * @param listener 图片删除状态切换监听器
+     * @param context   上下文
+     * @param viewModel 流水图片ViewModel
+     * @param listener  图片删除状态切换监听器
      */
-    public PictureAdapter(Context context, ViewModelStoreOwner owner, DeleteModeSwitchListener listener) {
-        this.owner = owner;
+    public PictureAdapter(Context context, AccountPictureViewModel viewModel, DeleteModeSwitchListener listener) {
+        this.viewModel = viewModel;
         this.pictureList = new ArrayList<>();
         this.pictureSelectList = new ArrayList<>();
         this.listener = listener;
@@ -190,7 +188,6 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
                     pictureSelectList.set(holder.getBindingAdapterPosition(), true);
 
                     //使用ViewModel通知所有适配器更新状态
-                    AccountPictureViewModel viewModel = new ViewModelProvider(owner).get(AccountPictureViewModel.class);
                     viewModel.updateAdapterStat(true);
 
                     Toast.makeText(
