@@ -67,7 +67,6 @@ public class HomeFragment extends Fragment {
 
         initViews();
         startObserveLiveData();
-        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
         initBalanceView();
 
         return binding.getRoot();
@@ -100,11 +99,13 @@ public class HomeFragment extends Fragment {
      */
     private void initViews() {
         //设置按钮的点击监听器
-        binding.reportBtn.setOnClickListener(v -> {
+        AnimationHelper.attachMorphAnimation(binding.reportBalanceCardview);
+        binding.reportBalanceCardview.setOnClickListener(v -> {
             Intent skip2Report = new Intent(requireContext(), ReportActivity.class);
             startActivity(skip2Report);
         });
-        binding.tagManageBtn.setOnClickListener(v -> {
+        AnimationHelper.attachMorphAnimation(binding.tagCard);
+        binding.tagCard.setOnClickListener(v -> {
             Intent skip2TagManage = new Intent(requireContext(), TagManageActivity.class);
             startActivity(skip2TagManage);
         });
