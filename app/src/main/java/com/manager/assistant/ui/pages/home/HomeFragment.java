@@ -77,9 +77,6 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        //每次Fragment变为可见时刷新数据
-        refreshUI();
-
         if (!AppSettingsPreference.getHomeLinks(requireContext())) {
             binding.webLinkCard.setVisibility(View.GONE);
         } else {
@@ -158,7 +155,7 @@ public class HomeFragment extends Fragment {
      */
     private void initBalanceView() {
         try {
-            refreshTodayReport();
+            reloadTodayReport();
         } catch (SQLiteException e) {
             day_balance = 0;
             day_income = 0;
@@ -179,7 +176,7 @@ public class HomeFragment extends Fragment {
     /**
      * 加载今日相关的流水数据
      */
-    private void refreshTodayReport() throws SQLiteException {
+    private void reloadTodayReport() throws SQLiteException {
         BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(requireContext());
         SQLiteDatabase db = dbHelper.openReadLink();
 
@@ -252,9 +249,9 @@ public class HomeFragment extends Fragment {
     }
 
     /**
-     * 刷新UI的方法
+     * 刷新记账天数
      */
-    private void refreshUI() {
+    private void refreshDayCount() {
         //更新记账天数
         disposables.add(
                 Observable.fromCallable(this::getBookKeepingStartDate)
@@ -395,11 +392,13 @@ public class HomeFragment extends Fragment {
                             break;
                         case CLEAR:
                             day_balance = day_expense = day_income = 0;
+                            refreshDayCount();
                             refreshReportView();
                             break;
                         case REFRESH:
-                            refreshTodayReport();
+                            reloadTodayReport();
                             refreshReportView();
+                            refreshDayCount();
                             break;
                     }
                 }
