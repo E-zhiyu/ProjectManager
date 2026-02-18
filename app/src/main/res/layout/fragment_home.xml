@@ -47,9 +47,11 @@
             android:id="@+id/report_balance_cardview"
             style="@style/ContentCardStyle"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginBottom="0dp"
             android:clickable="true"
             android:focusable="true"
+            app:layout_constraintBottom_toBottomOf="@+id/budget_card"
             app:layout_constraintEnd_toStartOf="@id/tag_card"
             app:layout_constraintHorizontal_weight="4"
             app:layout_constraintStart_toStartOf="parent"
@@ -70,9 +72,10 @@
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/balance_text"
-                    style="@style/LargeTitleTextViewStyle"
+                    style="@style/TextAppearance.Material3.HeadlineLarge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
                     android:paddingTop="0dp"
                     android:paddingBottom="5dp"
                     android:text="@string/balance" />
@@ -94,12 +97,12 @@
             android:id="@+id/tag_card"
             style="@style/ContentCardStyle"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="0dp"
             android:layout_marginTop="0dp"
             android:layout_marginBottom="0dp"
             android:clickable="true"
             android:focusable="true"
-            app:layout_constraintBottom_toBottomOf="@+id/report_balance_cardview"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toEndOf="@+id/report_balance_cardview"
@@ -114,6 +117,7 @@
                     style="@style/LargeTitleTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingBottom="0dp"
                     android:text="@string/tag_count" />
 
                 <com.google.android.material.textview.MaterialTextView
@@ -122,6 +126,41 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
+                    android:paddingBottom="5dp"
+                    android:text="@string/count_infinity" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 预算卡片 -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/budget_card"
+            style="@style/ContentCardStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/report_balance_cardview"
+            app:layout_constraintTop_toBottomOf="@+id/tag_card">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/LargeTitleTextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="0dp"
+                    android:text="@string/budget_count" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/TextAppearance.Material3.HeadlineLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:paddingBottom="5dp"
                     android:text="@string/count_infinity" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
