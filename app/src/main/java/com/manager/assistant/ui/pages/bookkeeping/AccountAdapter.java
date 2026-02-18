@@ -37,7 +37,6 @@ import java.util.Locale;
 
 public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
     private final List<RunningAccountBase> accountList;         //数据源
-    private final Context context;                              //上下文
     private final OnRunningAccountViewClickListener listener;   //单击接口
     private final HashMap<String, Section> sectionHashMap;      //分组哈希表
 
@@ -48,7 +47,7 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
         void onRunningAccountClick(RunningAccountBase runningAccountBase);
     }
 
-    static class HeaderItem extends Item<GroupieViewHolder> {
+    private static class HeaderItem extends Item<GroupieViewHolder> {
         private final String date;
 
         public HeaderItem(String date) {
@@ -67,12 +66,20 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
         }
     }
 
-    public class ContentItem extends Item<GroupieViewHolder> {
+    private static class ContentItem extends Item<GroupieViewHolder> {
         private final RunningAccountBase runningAccount;
         SpringAnimationOnTouchListener onTouchListener;
+        OnRunningAccountViewClickListener onClickListener;
 
-        public ContentItem(@NonNull RunningAccountBase runningAccount) {
+        /**
+         * 内容Item构造方法
+         *
+         * @param runningAccount  流水记录实例
+         * @param onClickListener 视图点击监听器
+         */
+        public ContentItem(@NonNull RunningAccountBase runningAccount, OnRunningAccountViewClickListener onClickListener) {
             this.runningAccount = runningAccount;
+            this.onClickListener = onClickListener;
         }
 
         @Override
@@ -98,7 +105,7 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
             remarkText.setText(remark.isEmpty() ? runningAccount.getDefaultRemark() : remark);
             typeDatetimeText.setText(typeAndDatetime);
 
-            groupieViewHolder.itemView.setOnClickListener(v -> listener.onRunningAccountClick(runningAccount));
+            groupieViewHolder.itemView.setOnClickListener(v -> onClickListener.onRunningAccountClick(runningAccount));
         }
 
         @Override
@@ -115,12 +122,10 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
      * 构造方法
      *
      * @param listener 流水记录点击监听
-     * @param context  上下文
      */
-    public AccountAdapter(OnRunningAccountViewClickListener listener, Context context) {
+    public AccountAdapter(OnRunningAccountViewClickListener listener) {
         this.accountList = new ArrayList<>();
         this.listener = listener;
-        this.context = context;
         this.sectionHashMap = new HashMap<>();
     }
 
@@ -129,8 +134,13 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
      *
      * @param dataBundle 新建流水的数据包
      * @param owner      ViewModel提供者
+     * @param context    上下文
      */
-    public void addNewRunningAccount(@NonNull Bundle dataBundle, ViewModelStoreOwner owner) {
+    public void addNewRunningAccount(
+            @NonNull Bundle dataBundle,
+            ViewModelStoreOwner owner,
+            Context context
+    ) {
         RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
         if (remark == null) remark = "";
@@ -165,7 +175,7 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
         this.accountList.add(0, runningAccount);
         String date = runningAccount.getDatetime().substring(0, 10);
         Section section = sectionHashMap.get(date);
-        ContentItem contentItem = new ContentItem(runningAccount);
+        ContentItem contentItem = new ContentItem(runningAccount, listener);
         if (section == null) {
             Section newSection = new Section();
             sectionHashMap.put(date, newSection);
@@ -184,8 +194,13 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
      *
      * @param dataBundle 新流水记录数据包
      * @param owner      ViewModel提供者
+     * @param context    上下文
      */
-    public void addNewRunningAccountByNotification(@NonNull Bundle dataBundle, ViewModelStoreOwner owner) {
+    public void addNewRunningAccountByNotification(
+            @NonNull Bundle dataBundle,
+            ViewModelStoreOwner owner,
+            Context context
+    ) {
         //解析数据
         long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
         RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
@@ -220,7 +235,7 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
         this.accountList.add(0, runningAccount);
         String date = runningAccount.getDatetime().substring(0, 10);
         Section section = sectionHashMap.get(date);
-        ContentItem contentItem = new ContentItem(runningAccount);
+        ContentItem contentItem = new ContentItem(runningAccount, listener);
         if (section == null) {
             Section newSection = new Section();
             sectionHashMap.put(date, newSection);
@@ -238,8 +253,9 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
      * 修改指定下标的流水视图
      *
      * @param dataBundle 修改后的流水数据
+     * @param context    上下文
      */
-    public void modifyRunningAccount(@NonNull Bundle dataBundle) {
+    public void modifyRunningAccount(@NonNull Bundle dataBundle, Context context) {
         //解析数据
         long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
         RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
@@ -286,7 +302,7 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
                 for (int position = 0; position < section.getItemCount(); position++) {
                     Item<?> item = section.getItem(position);
                     if (item instanceof ContentItem && ((ContentItem) item).getRno() == rno) {
-                        contentItemList.add(new ContentItem(runningAccount));
+                        contentItemList.add(new ContentItem(runningAccount, listener));
                     } else if (item instanceof ContentItem) {
                         contentItemList.add((ContentItem) item);
                     }
@@ -316,7 +332,7 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
 
             //添加新的
             Section newSection = sectionHashMap.get(newDatetime);
-            ContentItem contentItem = new ContentItem(runningAccount);
+            ContentItem contentItem = new ContentItem(runningAccount, listener);
             if (newSection != null) {
                 newSection.add(contentItem);
             } else {
@@ -336,8 +352,9 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
      *
      * @param rno_delete 待删除的流水记录的编号
      * @param owner      ViewModel的提供者
+     * @param context    上下文
      */
-    public void deleteRunningAccount(long rno_delete, ViewModelStoreOwner owner) {
+    public void deleteRunningAccount(long rno_delete, ViewModelStoreOwner owner, Context context) {
         if (rno_delete == -1) {
             Log.e(LogTags.ACCOUNT_ADAPTER.getV(), "未获取到合法的流水编号，无法删除流水记录");
             return;
@@ -422,7 +439,7 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
             String date = datetime.substring(0, 10);
 
             Section dateSection = sectionHashMap.get(date);
-            ContentItem contentItem = new ContentItem(runningAccount);
+            ContentItem contentItem = new ContentItem(runningAccount, listener);
             if (dateSection == null) {
                 Section section = new Section();
                 sectionHashMap.put(date, section);

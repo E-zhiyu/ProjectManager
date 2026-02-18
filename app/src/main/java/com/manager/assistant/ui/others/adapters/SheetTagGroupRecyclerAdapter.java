@@ -1,6 +1,5 @@
 package com.manager.assistant.ui.others.adapters;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +18,6 @@ import java.util.List;
 
 public class SheetTagGroupRecyclerAdapter extends RecyclerView.Adapter<SheetTagGroupRecyclerAdapter.TagSelectHolder> {
     private List<TagGroup> tagGroupList;                                        //标签组列表
-    private final Context context;                                              //上下文
     private final SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener;  //标签按钮点击监听器
 
     public static class TagSelectHolder extends RecyclerView.ViewHolder {
@@ -34,9 +32,8 @@ public class SheetTagGroupRecyclerAdapter extends RecyclerView.Adapter<SheetTagG
         }
     }
 
-    public SheetTagGroupRecyclerAdapter(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener, Context context) {
+    public SheetTagGroupRecyclerAdapter(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener) {
         this.listener = listener;
-        this.context = context;
     }
 
     @NonNull
@@ -60,12 +57,12 @@ public class SheetTagGroupRecyclerAdapter extends RecyclerView.Adapter<SheetTagG
             holder.tagBtnRecycler.setVisibility(View.GONE);
         } else {
             holder.tag_group_name_view.setText(group_name);
-            SheetTagBtnRecyclerAdapter btn_layout_adapter = new SheetTagBtnRecyclerAdapter(tags, context, listener);
+            SheetTagBtnRecyclerAdapter btn_layout_adapter = new SheetTagBtnRecyclerAdapter(tags, listener);
             holder.tagBtnRecycler.setAdapter(btn_layout_adapter);
 
             //设置布局器
             int spanCount = 3;
-            GridLayoutManager layoutManager = new GridLayoutManager(context, spanCount);
+            GridLayoutManager layoutManager = new GridLayoutManager(holder.itemView.getContext(), spanCount);
             holder.tagBtnRecycler.setLayoutManager(layoutManager);
 
             //设置按钮间隔

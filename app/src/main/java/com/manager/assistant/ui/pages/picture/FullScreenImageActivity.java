@@ -42,7 +42,7 @@ public class FullScreenImageActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        FullScreenPictureAdapter adapter = new FullScreenPictureAdapter(this, pictureUriStrings);
+        FullScreenPictureAdapter adapter = new FullScreenPictureAdapter(pictureUriStrings);
         binding.viewPager2.setAdapter(adapter);
 
         int start_index = getIntent().getIntExtra(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), 0);

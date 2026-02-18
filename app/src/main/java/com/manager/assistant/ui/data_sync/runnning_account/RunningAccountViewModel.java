@@ -46,8 +46,5 @@ public class RunningAccountViewModel extends ViewModel {
         updateReason = reason;
         SimpleRunningAccount runningAccount = new SimpleRunningAccount(amount, datetime, type);
         accountData.postValue(runningAccount);
-
-        //重置值防止重复刷新
-        accountData.postValue(null);
     }
 }

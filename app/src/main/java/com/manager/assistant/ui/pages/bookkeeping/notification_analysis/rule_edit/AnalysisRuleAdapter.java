@@ -27,7 +27,6 @@ import com.manager.assistant.data.data_class.Tag;
 import java.util.List;
 
 public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapter.AnalysisRuleViewHolder> {
-    private final Context context;
     private final RuleClickedListener listener; //规则视图点击监听器
     private final List<AnalysisRule> ruleList;  //规则列表
 
@@ -61,10 +60,9 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         void onRuleClicked(int position, AnalysisRule rule);
     }
 
-    public AnalysisRuleAdapter(List<AnalysisRule> ruleList, RuleClickedListener listener, Context context) {
+    public AnalysisRuleAdapter(List<AnalysisRule> ruleList, RuleClickedListener listener) {
         this.ruleList = ruleList;
         this.listener = listener;
-        this.context = context;
     }
 
     @NonNull
@@ -80,7 +78,7 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         AnalysisRule rule = ruleList.get(position);
         String rule_name = rule.getRuleName();
         RunningAccountType type = rule.getType();
-        Tag rule_tag = Tag.getTagByRuleNo(rule.getRuleNo(), context);
+        Tag rule_tag = Tag.getTagByRuleNo(rule.getRuleNo(), holder.itemView.getContext());
 
         String typeStr = type.getTitle();
         holder.ruleNameText.setText(rule_name);
@@ -100,8 +98,9 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
      * 添加新规则
      *
      * @param newRuleData 新规则数据
+     * @param context     上下文
      */
-    public void addRule(Bundle newRuleData) {
+    public void addRule(Bundle newRuleData, Context context) {
         long rule_no;
         try {
             rule_no = AnalysisRule.saveNewRule(newRuleData, context);
@@ -124,15 +123,16 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         notifyItemInserted(ruleList.size() - 1);
         Toast.makeText(context, "解析规则添加成功", Toast.LENGTH_SHORT).show();
 
-        sendRuleUpdatedBroadcast();
+        sendRuleUpdatedBroadcast(context);
     }
 
     /**
      * 修改规则
      *
      * @param modifiedRuleData 修改后的规则数据
+     * @param context          上下文
      */
-    public void modifyRule(Bundle modifiedRuleData) {
+    public void modifyRule(Bundle modifiedRuleData, Context context) {
         try {
             AnalysisRule.modifyRule(modifiedRuleData, context);
         } catch (SQLiteException e) {
@@ -156,15 +156,16 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         notifyItemChanged(position);
         Toast.makeText(context, "解析规则修改成功", Toast.LENGTH_SHORT).show();
 
-        sendRuleUpdatedBroadcast();
+        sendRuleUpdatedBroadcast(context);
     }
 
     /**
      * 删除规则
      *
      * @param position 待删除标签的下标
+     * @param context  上下文
      */
-    public void deleteRule(int position) {
+    public void deleteRule(int position, Context context) {
         AnalysisRule rule = ruleList.get(position);
         long rule_no = rule.getRuleNo();
 
@@ -180,7 +181,7 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         notifyItemRemoved(position);
         Toast.makeText(context, "规则删除成功", Toast.LENGTH_SHORT).show();
 
-        sendRuleUpdatedBroadcast();
+        sendRuleUpdatedBroadcast(context);
     }
 
     /**
@@ -199,8 +200,10 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
 
     /**
      * 发送规则变更的广播
+     *
+     * @param context 上下文
      */
-    private void sendRuleUpdatedBroadcast() {
+    private void sendRuleUpdatedBroadcast(@NonNull Context context) {
         Intent ruleUpdated = new Intent(BroadcastConstants.ACTION_RULES_UPDATED.toString());
         context.sendBroadcast(ruleUpdated);
     }

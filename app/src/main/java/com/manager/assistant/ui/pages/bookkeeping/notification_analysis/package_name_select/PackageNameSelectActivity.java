@@ -152,10 +152,10 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         searchView = binding.searchView;
 
         RecyclerView full_app_list_recycler = binding.appListRecycler;         //打开页面时显示的完整应用列表视图
-        fullAppAdapter = new AppListAdapter(this::onAppClicked, this);
+        fullAppAdapter = new AppListAdapter(this::onAppClicked);
         full_app_list_recycler.setAdapter(fullAppAdapter);
         RecyclerView search_result_recycler = binding.searchResultRecycler;    //搜索结果列表视图
-        searchAdapter = new AppListAdapter(this::onAppClicked, this);
+        searchAdapter = new AppListAdapter(this::onAppClicked);
         search_result_recycler.setAdapter(searchAdapter);
 
         //开始加载应用列表

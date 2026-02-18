@@ -145,7 +145,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
             Toast.makeText(this, "标签数据读取失败", Toast.LENGTH_SHORT).show();
             tagGroupList = new ArrayList<>();
         }
-        adapter = new TagManageRecyclerAdapter(tagGroupList, this, this);
+        adapter = new TagManageRecyclerAdapter(tagGroupList, this);
         binding.tagGroupRecycler.setAdapter(adapter);
 
         //添加RecyclerView滚动监听器，用以控制添加按钮的显示与否
@@ -308,15 +308,22 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
             }
 
             if (origin_group_no == group_no_after_modifying) {
-                adapter.modifyTag(tag_name, tag_no, tag_scope, origin_group_no);
+                adapter.modifyTag(tag_name, tag_no, tag_scope, origin_group_no, this);
             } else {
-                adapter.modifyTag(tag_name, tag_no, tag_scope, group_name, origin_group_no, group_no_after_modifying);
+                adapter.modifyTag(
+                        tag_name,
+                        tag_no,
+                        tag_scope,
+                        group_name,
+                        origin_group_no,
+                        group_no_after_modifying,
+                        this);
             }
         } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
-            adapter.deleteTag(tag_no, origin_group_no);
+            adapter.deleteTag(tag_no, origin_group_no, this);
         } else if (resultCode == RequestResultCode.RESULT_MERGE.ordinal()) {
             long merge_target_tag_no = dataBundle.getLong(KeyValueStrings.MERGE_TARGET_NO.getValue());  //获取合并到的目标标签编号
-            adapter.mergeTag(tag_no, merge_target_tag_no, origin_group_no);
+            adapter.mergeTag(tag_no, merge_target_tag_no, origin_group_no, this);
         }
     }
 
@@ -334,15 +341,15 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
 
         long group_no = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());
         if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
-            String new_group_name = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
+            String newGroupName = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
 
             //修改视图中的分组并保存
-            adapter.modifyGroup(group_no, new_group_name);
+            adapter.modifyGroup(group_no, newGroupName, this);
         } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
-            adapter.deleteGroup(group_no);
+            adapter.deleteGroup(group_no, this);
         } else if (resultCode == RequestResultCode.RESULT_MERGE.ordinal()) {
             long merge_target_no = dataBundle.getLong(KeyValueStrings.MERGE_TARGET_NO.getValue());
-            adapter.mergeGroup(group_no, merge_target_no);
+            adapter.mergeGroup(group_no, merge_target_no, this);
         }
     }
 }

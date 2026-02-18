@@ -72,6 +72,8 @@ public class BookKeepingFragment extends Fragment {
                     AccountUpdateReason reason = viewModel.getUpdateReason();
                     switch (reason) {
                         case CLEAR:
+                            account_count = 0;
+                            refreshAccountNumText();
                             accountAdapter.refreshRunningAccount(new ArrayList<>());
                             break;
                         case REFRESH:
@@ -220,7 +222,7 @@ public class BookKeepingFragment extends Fragment {
      */
     private void setupAccountAdapter() {
         //设置适配器
-        accountAdapter = new AccountAdapter(this::onRunningAccountViewClick, requireContext());
+        accountAdapter = new AccountAdapter(this::onRunningAccountViewClick);
         binding.accountRecycler.setAdapter(accountAdapter);
 
         //设置滚动监听器
@@ -246,7 +248,7 @@ public class BookKeepingFragment extends Fragment {
      * @param dataBundle 新增流水记录的数据
      */
     private void onNewAccountAdded(@NonNull Bundle dataBundle) {
-        accountAdapter.addNewRunningAccountByNotification(dataBundle, requireActivity());
+        accountAdapter.addNewRunningAccountByNotification(dataBundle, requireActivity(), requireContext());
         binding.accountRecycler.scrollToPosition(0);
         Toast.makeText(requireContext(), "成功添加一条流水记录（自动记账）", Toast.LENGTH_SHORT).show();
 
@@ -267,8 +269,8 @@ public class BookKeepingFragment extends Fragment {
             return;
         }
 
-        accountAdapter.addNewRunningAccount(dataBundle, requireActivity()); //将新建的流水视图添加至列表视图适配器
-        binding.accountRecycler.scrollToPosition(0);                        //滚动到顶部（因为添加的新记录在顶部）
+        accountAdapter.addNewRunningAccount(dataBundle, requireActivity(), requireContext());
+        binding.accountRecycler.scrollToPosition(0);    //滚动到顶部
         Toast.makeText(requireContext(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
 
         //更新记录数量
@@ -289,7 +291,7 @@ public class BookKeepingFragment extends Fragment {
             return;
         }
 
-        accountAdapter.modifyRunningAccount(dataBundle);
+        accountAdapter.modifyRunningAccount(dataBundle, requireContext());
         Toast.makeText(requireContext(), "成功修改流水记录", Toast.LENGTH_SHORT).show();
     }
 
@@ -306,7 +308,7 @@ public class BookKeepingFragment extends Fragment {
         }
 
         long rno = dataBundle.getLong(KeyValueStrings.RNO.getValue(), -1);
-        accountAdapter.deleteRunningAccount(rno, requireActivity());
+        accountAdapter.deleteRunningAccount(rno, requireActivity(), requireContext());
         Toast.makeText(requireContext(), "流水记录已删除", Toast.LENGTH_SHORT).show();
 
         //更新流水记录数量文本

@@ -14,8 +14,8 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStoreOwner;
+import androidx.dynamicanimation.animation.SpringAnimation;
+import androidx.dynamicanimation.animation.SpringForce;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -35,13 +35,13 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureViewHolder> {
-    private final Context context;                      //上下文
-    private final ViewModelStoreOwner owner;            //ViewModel所有者
-    private final List<Picture> pictureList;            //数据源列表
-    private final List<Boolean> pictureSelectList;      //记录图片选择状态的列表
-    private boolean isDeleteMode = false;               //标记是否为删除图片模式
+    private final AccountPictureViewModel viewModel;        //ViewModel所有者
+    private final List<Picture> pictureList;                //数据源列表
+    private final List<Boolean> pictureSelectList;          //记录图片选择状态的列表
+    private boolean isDeleteMode = false;                   //标记是否为删除图片模式
     private final RequestOptions glideOptions;
-    private final DeleteModeSwitchListener listener;    //删除模式切换监听器
+    private final DeleteModeSwitchListener listener;        //删除模式切换监听器
+    private int longClickPosition = -1;                     //长按的图片下标
 
     public interface DeleteModeSwitchListener {
         /**
@@ -53,13 +53,42 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     }
 
     public static class PictureViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageView;                    //图像容器视图
-        CheckedTextView checkedTextView;        //右上角复选框
+        ImageView imageView;                                //图像容器视图
+        CheckedTextView checkedTextView;                    //右上角复选框
+        private final SpringAnimation scaleXAnim;           //X轴缩放动画
+        private final SpringAnimation scaleYAnim;           //Y轴缩放动画
+        private static final float PRESSED_SCALE = 0.94f;   //按下时缩放程度
 
         public PictureViewHolder(@NonNull View view) {
             super(view);
             this.imageView = view.findViewById(R.id.image_view);
             this.checkedTextView = view.findViewById(R.id.checked_text);
+
+            //设置缩放动画
+            scaleXAnim = new SpringAnimation(view, SpringAnimation.SCALE_X);
+            scaleYAnim = new SpringAnimation(view, SpringAnimation.SCALE_Y);
+
+            SpringForce forceX = new SpringForce(1f);
+            SpringForce forceY = new SpringForce(1f);
+
+            forceX.setDampingRatio(SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+            forceY.setDampingRatio(SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+
+            forceX.setStiffness(SpringForce.STIFFNESS_LOW);
+            forceY.setStiffness(SpringForce.STIFFNESS_LOW);
+
+            scaleXAnim.setSpring(forceX);
+            scaleYAnim.setSpring(forceY);
+        }
+
+        public void switchScale(boolean isScaled) {
+            if (isScaled) {
+                scaleXAnim.animateToFinalPosition(PRESSED_SCALE);
+                scaleYAnim.animateToFinalPosition(PRESSED_SCALE);
+            } else {
+                scaleXAnim.animateToFinalPosition(1f);
+                scaleYAnim.animateToFinalPosition(1f);
+            }
         }
 
         /**
@@ -80,13 +109,12 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     /**
      * 图片适配器构造方法
      *
-     * @param context  上下文
-     * @param owner    ViewModel的所有者
-     * @param listener 图片删除状态切换监听器
+     * @param context   上下文
+     * @param viewModel 流水图片ViewModel
+     * @param listener  图片删除状态切换监听器
      */
-    public PictureAdapter(Context context, ViewModelStoreOwner owner, DeleteModeSwitchListener listener) {
-        this.context = context;
-        this.owner = owner;
+    public PictureAdapter(Context context, AccountPictureViewModel viewModel, DeleteModeSwitchListener listener) {
+        this.viewModel = viewModel;
         this.pictureList = new ArrayList<>();
         this.pictureSelectList = new ArrayList<>();
         this.listener = listener;
@@ -117,7 +145,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     @NonNull
     @Override
     public PictureViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context)
+        View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.view_holder_picture, parent, false);
         return new PictureViewHolder(view);
     }
@@ -127,7 +155,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         Picture picture = pictureList.get(position);
         Uri pictureUri = picture.getPictureUri();
         if (pictureUri != null) {
-            holder.setPictureRes(context, pictureUri, glideOptions);
+            holder.setPictureRes(holder.imageView.getContext(), pictureUri, glideOptions);
 
             //设置复选框属性
             if (isDeleteMode) {
@@ -137,30 +165,44 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
             }
             boolean isChecked = pictureSelectList.get(position);
             holder.checkedTextView.setChecked(isChecked);
+            holder.switchScale(isChecked);
 
             //视图点击监听器
             holder.imageView.setOnClickListener(v -> {
                 if (!isDeleteMode) {
-                    openPictureCheckActivity(holder.getBindingAdapterPosition());
+                    openPictureCheckActivity(holder.getBindingAdapterPosition(), holder.imageView.getContext());
                 } else {
                     holder.checkedTextView.setVisibility(View.VISIBLE);
                     holder.checkedTextView.toggle();
 
                     //同步图片选择状态数据
                     pictureSelectList.set(holder.getBindingAdapterPosition(), holder.checkedTextView.isChecked());
+
+                    //执行缩放动画
+                    holder.switchScale(holder.checkedTextView.isChecked());
                 }
             });
 
             //视图长按监听器
             holder.imageView.setOnLongClickListener(v -> {
                 if (!isDeleteMode) {
+                    //更新长按图片下标
+                    longClickPosition = holder.getBindingAdapterPosition();
+
+                    //显示复选框并选中
+                    holder.checkedTextView.setVisibility(View.VISIBLE);
+                    holder.checkedTextView.toggle();
                     pictureSelectList.set(holder.getBindingAdapterPosition(), true);
+                    holder.switchScale(true);
 
                     //使用ViewModel通知所有适配器更新状态
-                    AccountPictureViewModel viewModel = new ViewModelProvider(owner).get(AccountPictureViewModel.class);
                     viewModel.updateAdapterStat(true);
 
-                    Toast.makeText(context, "返回即可退出图片删除模式", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(
+                            holder.imageView.getContext(),
+                            "返回即可退出图片删除模式",
+                            Toast.LENGTH_SHORT
+                    ).show();
                     return true;
                 } else {
                     return false;
@@ -183,14 +225,20 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         this.isDeleteMode = isDeleteMode;
         listener.onDeleteModeSwitched(isDeleteMode);
 
+        //退出删除模式时重置图片选择状态
         if (!isDeleteMode) {
             pictureSelectList.clear();
             pictureSelectList.addAll(new ArrayList<>(Collections.nCopies(pictureList.size(), false)));
         }
 
         for (int index = 0; index < pictureList.size(); index++) {
-            notifyItemChanged(index);
+            if (index != longClickPosition) {
+                notifyItemChanged(index);
+            }
         }
+
+        //复位长按图片下标
+        longClickPosition = -1;
     }
 
     /**
@@ -213,8 +261,9 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
      * 打开图片查看Activity
      *
      * @param position 点击的图片的下标
+     * @param context  上下文
      */
-    private void openPictureCheckActivity(int position) {
+    private void openPictureCheckActivity(int position, Context context) {
         //判断文件是否存在
         Uri pictureUri = pictureList.get(position).getPictureUri();
         File pictureFile = new File(Objects.requireNonNull(pictureUri.getPath()));
@@ -300,8 +349,9 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
      * 删除被选中的图片
      *
      * @param pictureSelectList 图片选择状态列表
+     * @param context           上下文
      */
-    public void deleteSelectedPicture(@NonNull List<Boolean> pictureSelectList) {
+    public void deleteSelectedPicture(@NonNull List<Boolean> pictureSelectList, Context context) {
         //从尾部开始删除，避免影响下标值
         for (int index = pictureSelectList.size() - 1; index >= 0; index--) {
             boolean isSelected = pictureSelectList.get(index);

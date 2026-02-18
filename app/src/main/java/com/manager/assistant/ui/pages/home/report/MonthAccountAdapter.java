@@ -1,7 +1,5 @@
 package com.manager.assistant.ui.pages.home.report;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +20,6 @@ import java.util.Locale;
 public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapter.MonthAccountViewHolder> {
     private final List<MonthAccountInfo> monthAccountInfoList = new ArrayList<>();  //每月流水数据列表
     private ReportActivity.MonthAccountInfoType monthAccountInfoType;               //显示的每月流水数据的种类
-    private final Context context;                                                  //上下文
 
     public static class MonthAccountViewHolder extends RecyclerView.ViewHolder {
         MaterialTextView monthNameText;         //月份文本
@@ -44,11 +41,9 @@ public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapte
      * 每月流水信息显示适配器
      *
      * @param monthAccountInfoType 显示的流水信息种类
-     * @param context              上下文
      */
-    public MonthAccountAdapter(ReportActivity.MonthAccountInfoType monthAccountInfoType, Context context) {
+    public MonthAccountAdapter(ReportActivity.MonthAccountInfoType monthAccountInfoType) {
         this.monthAccountInfoType = monthAccountInfoType;
-        this.context = context;
     }
 
     @NonNull
@@ -68,7 +63,10 @@ public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapte
                 amount = oneMonthInfo.getIncome() - oneMonthInfo.getExpense();
 
                 if (amount < 0) {   //如果结余为负数，则将进度条设置为红色
-                    holder.proportionBar.setIndicatorColor(ContextCompat.getColor(context, com.google.android.material.R.color.design_default_color_error));
+                    holder.proportionBar.setIndicatorColor(ContextCompat.getColor(
+                            holder.itemView.getContext(),
+                            com.google.android.material.R.color.design_default_color_error
+                    ));
                 }
                 break;
             case EXPENSE:

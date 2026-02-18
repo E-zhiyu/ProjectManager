@@ -219,9 +219,7 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
                         //添加至ChipGroup中
                         binding.tagChipGroup.addView(tagChip);
                     }
-                },
-                requireContext()
-        );
+                });
         binding.tagGroupRecycler.setAdapter(tagAdapter);
         loadTagGroup(tagAdapter);
 

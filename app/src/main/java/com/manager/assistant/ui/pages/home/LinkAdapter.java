@@ -1,6 +1,5 @@
 package com.manager.assistant.ui.pages.home;
 
-import android.content.Context;
 import android.util.TypedValue;
 import android.view.ViewGroup;
 
@@ -17,8 +16,7 @@ import java.util.Locale;
 import io.noties.markwon.Markwon;
 
 public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder> {
-    private final List<WebsiteLinkFetchHelper.WebLink> linkList; //链接列表
-    private final Context context;        //上下文
+    private final List<WebsiteLinkFetchHelper.WebLink> linkList = new ArrayList<>();    //链接列表
 
     public static class LinkViewHolder extends RecyclerView.ViewHolder {
         MaterialTextView textView;
@@ -29,15 +27,10 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
         }
     }
 
-    public LinkAdapter(Context context) {
-        this.linkList = new ArrayList<>();
-        this.context = context;
-    }
-
     @NonNull
     @Override
     public LinkViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        MaterialTextView textView = new MaterialTextView(context);
+        MaterialTextView textView = new MaterialTextView(parent.getContext());
 
         textView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -56,7 +49,7 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
         String url = webLink.getPageurl();
 
         //解析为Markdown格式
-        Markwon markwon = Markwon.create(context);
+        Markwon markwon = Markwon.create(holder.itemView.getContext());
         String markDownStr = String.format(Locale.getDefault(), "[%s](%s)", title, url);
         markwon.setMarkdown(holder.textView, markDownStr);
     }
