@@ -16,7 +16,7 @@ import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.Runn
 
 public class BookkeepingDbHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "running_account.db";   //数据库名称
-    private static final int DATABASE_VERSION = 7;                      //数据库版本
+    private static final int DATABASE_VERSION = 8;                      //数据库版本
     private final Context context;                                      //上下文
     public static final String defaultGroupName = "默认分组";           //默认分组名称
 
@@ -161,6 +161,35 @@ public class BookkeepingDbHelper extends SQLiteOpenHelper {
                     " ON DELETE CASCADE" +
                     ")";
             db.execSQL(create);
+
+            //创建预算基本表
+            err = "预算表创建失败";
+            create = "CREATE TABLE IF NOT EXISTS " + BookkeepingTables.BUDGET + "(" +
+                    BookkeepingColumns.BNO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    BookkeepingColumns.BUDGET_NAME + " VARCHAR(20) NOT NULL," +
+                    BookkeepingColumns.INIT_AMOUNT + " DECIMAL(20,2) NOT NULL," +
+                    BookkeepingColumns.LEFT_AMOUNT + " DECIMAL(20,2) NOT NULL," +
+                    BookkeepingColumns.START_DATE + " DATE NOT NULL," +
+                    BookkeepingColumns.RESET_FREQUENCY + " VARCHAR(20) NOT NULL" +
+                    ")";
+            db.execSQL(create);
+
+            //创建预算标签表
+            err = "预算标签表创建失败";
+            create = "CREATE TABLE IF NOT EXISTS " + BookkeepingTables.BUDGET_TAG + "(" +
+                    BookkeepingColumns.BNO + " INTEGER NOT NULL," +
+                    BookkeepingColumns.TAG_NO + " INTEGER NOT NULL," +
+
+                    "CONSTRAINT " + BookkeepingConstraints.FK_BUDGET_NO +
+                    " FOREIGN KEY (" + BookkeepingColumns.BNO + ")" +
+                    " REFERENCES " + BookkeepingTables.BUDGET + "(" + BookkeepingColumns.BNO + ")" +
+                    " ON DELETE CASCADE," +
+                    "CONSTRAINT " + BookkeepingConstraints.FK_TAG_NO +
+                    " FOREIGN KEY (" + BookkeepingColumns.TAG_NO + ")" +
+                    " REFERENCES " + BookkeepingTables.TAG + "(" + BookkeepingColumns.TAG_NO + ")" +
+                    " ON DELETE CASCADE" +
+                    ")";
+            db.execSQL(create);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             Toast.makeText(context, err, Toast.LENGTH_SHORT).show();
@@ -169,15 +198,21 @@ public class BookkeepingDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        while (oldVersion < newVersion) {
-            if (oldVersion == 1) up1To2(db);
-            else if (oldVersion == 2) up2To3(db);
-            else if (oldVersion == 3) up3To4(db);
-            else if (oldVersion == 4) up4To5(db);
-            else if (oldVersion == 5) up5To6(db);
-            else if (oldVersion == 6) up6To7(db);
-
-            oldVersion++;
+        switch (oldVersion) {
+            case 1:
+                up1To2(db);
+            case 2:
+                up2To3(db);
+            case 3:
+                up3To4(db);
+            case 4:
+                up4To5(db);
+            case 5:
+                up5To6(db);
+            case 6:
+                up6To7(db);
+            case 7:
+                up7To8(db);
         }
     }
 
@@ -297,6 +332,42 @@ public class BookkeepingDbHelper extends SQLiteOpenHelper {
                     ")";
             db.execSQL(create);
         } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+            Toast.makeText(context, err, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    //添加预算相关的表
+    private void up7To8(@NonNull SQLiteDatabase db) {
+        String err = "";
+        try {
+            err = "预算表创建失败";
+            String create = "CREATE TABLE IF NOT EXISTS " + BookkeepingTables.BUDGET + "(" +
+                    BookkeepingColumns.BNO + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    BookkeepingColumns.BUDGET_NAME + " VARCHAR(20) NOT NULL," +
+                    BookkeepingColumns.INIT_AMOUNT + " DECIMAL(20,2) NOT NULL," +
+                    BookkeepingColumns.LEFT_AMOUNT + " DECIMAL(20,2) NOT NULL," +
+                    BookkeepingColumns.START_DATE + " DATE NOT NULL," +
+                    BookkeepingColumns.RESET_FREQUENCY + " VARCHAR(20) NOT NULL" +
+                    ")";
+            db.execSQL(create);
+
+            err = "预算标签表创建失败";
+            create = "CREATE TABLE IF NOT EXISTS " + BookkeepingTables.BUDGET_TAG + "(" +
+                    BookkeepingColumns.BNO + " INTEGER NOT NULL," +
+                    BookkeepingColumns.TAG_NO + " INTEGER NOT NULL," +
+
+                    "CONSTRAINT " + BookkeepingConstraints.FK_BUDGET_NO +
+                    " FOREIGN KEY (" + BookkeepingColumns.BNO + ")" +
+                    " REFERENCES " + BookkeepingTables.BUDGET + "(" + BookkeepingColumns.BNO + ")" +
+                    " ON DELETE CASCADE," +
+                    "CONSTRAINT " + BookkeepingConstraints.FK_TAG_NO +
+                    " FOREIGN KEY (" + BookkeepingColumns.TAG_NO + ")" +
+                    " REFERENCES " + BookkeepingTables.TAG + "(" + BookkeepingColumns.TAG_NO + ")" +
+                    " ON DELETE CASCADE," +
+                    ")";
+            db.execSQL(create);
+        } catch (SQLException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             Toast.makeText(context, err, Toast.LENGTH_SHORT).show();
         }

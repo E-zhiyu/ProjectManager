@@ -21,7 +21,13 @@ public enum BookkeepingColumns {
     NOTIFICATION_TITLE("Notification_title"),   //通知标题
     NOTIFICATION_CONTENT("Notification_content"),   //通知内容（正则表达式）
     PICTURE_URI("picture_uri"), //图片文件Uri
-    PNO("pno");                 //图片编号
+    PNO("pno"),                 //图片编号
+    BNO("bno"),                 //预算编号
+    BUDGET_NAME("budget_name"), //预算名称
+    INIT_AMOUNT("init_amount"), //初始金额
+    LEFT_AMOUNT("left_amount"), //剩余金额
+    START_DATE("start_date"),   //预算起算日期
+    RESET_FREQUENCY("reset_frequency"); //预算重置频率
     private final String value;
 
     BookkeepingColumns(String value) {

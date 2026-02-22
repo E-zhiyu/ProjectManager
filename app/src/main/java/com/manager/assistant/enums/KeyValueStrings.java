@@ -29,6 +29,7 @@ public enum KeyValueStrings {
     INIT_AMOUNT("init_amount"),                             //预算初始金额
     LEFT_AMOUNT("left_amount"),                             //预算剩余金额
     START_DATE("start_date"),                               //预算起算日期
+    BNO("bno"),                                             //预算编号
     BUDGET_RESET_FREQUENCY("budget_reset_frequency");       //预算重置频率
 
     final String value;

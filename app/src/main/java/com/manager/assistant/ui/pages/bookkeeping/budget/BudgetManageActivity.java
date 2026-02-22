@@ -60,6 +60,8 @@ public class BudgetManageActivity extends AppCompatActivity {
             Intent skip2BudgetAdd = new Intent(this, BudgetAddModifyActivity.class);
             addLauncher.launch(skip2BudgetAdd);
         });
+
+        //TODO:添加RecyclerVIew的实际逻辑
     }
 
     /**

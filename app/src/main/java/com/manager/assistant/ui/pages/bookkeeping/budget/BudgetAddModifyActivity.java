@@ -35,6 +35,8 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
     private boolean isModifyMode = false;                               //是否为修改模式
     private final List<Long> tagNoList = new ArrayList<>();             //保存标签编号的列表
     private ResetFrequency resetFrequency = ResetFrequency.EVERY_DAY;   //预算重置频率
+    private long bno = 0;                                               //预算编号
+    private int viewHolderPosition = -1;                                //编辑模式下ViewHolder的下标
 
     public enum ResetFrequency {
         EVERY_DAY("每天", 1),
@@ -89,6 +91,7 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
         binding.leftAmountLayout.setVisibility(View.VISIBLE);   //显示剩余金额输入框
 
         //读取并应用数据包中的数据
+        bno = dataBundle.getLong(KeyValueStrings.BNO.getValue());
         String budgetName = dataBundle.getString(KeyValueStrings.BUDGET_NAME.getValue());
         binding.budgetNameInput.setText(budgetName);
         String frequencyStr = dataBundle.getString(KeyValueStrings.BUDGET_RESET_FREQUENCY.getValue());
@@ -99,6 +102,7 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
         binding.leftAmountInput.setText(String.valueOf(leftAmount));
         String startDate = dataBundle.getString(KeyValueStrings.START_DATE.getValue());
         binding.startDateInput.setText(startDate);
+        viewHolderPosition = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
     }
 
     /**
@@ -274,6 +278,10 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
         dataBundle.putString(KeyValueStrings.START_DATE.getValue(), startDate);
         dataBundle.putString(KeyValueStrings.BUDGET_RESET_FREQUENCY.getValue(), resetFrequency.toString());
         dataBundle.putLongArray(KeyValueStrings.TAG_NO.getValue(), tagNos);
+        if (isModifyMode) {
+            dataBundle.putLong(KeyValueStrings.BNO.getValue(), bno);
+            dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), viewHolderPosition);
+        }
 
         return dataBundle;
     }

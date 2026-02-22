@@ -9,7 +9,9 @@ public enum BookkeepingTables {
     TAG_GROUP("tag_group_data"),
     ANALYSIS_RULE("analysis_rule_data"),
     RULE_ACCOUNT("rule_account_data"),
-    PICTURE("picture");
+    PICTURE("picture"),
+    BUDGET("budget"),
+    BUDGET_TAG("budget_tag");
 
     private final String value;
 

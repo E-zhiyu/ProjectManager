@@ -6,7 +6,8 @@ public enum BookkeepingConstraints {
     FK_TAG_NO("fk_tag_no"),         //标签编号外键约束
     FK_RNO("fk_rno"),               //流水账编号外键约束
     FK_RULE_NO("fk_rule_no"),       //规则编号外键约束
-    FK_GROUP_NO("fk_group_no");     //分组编号外键约束
+    FK_GROUP_NO("fk_group_no"),     //分组编号外键约束
+    FK_BUDGET_NO("fk_budget_no");   //预算编号外键约束
 
     private final String value;
 
