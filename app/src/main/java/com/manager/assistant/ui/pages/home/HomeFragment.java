@@ -32,6 +32,7 @@ import com.manager.assistant.ui.data_sync.runnning_account.AccountUpdateReason;
 import com.manager.assistant.ui.data_sync.runnning_account.RunningAccountViewModel;
 import com.manager.assistant.ui.data_sync.tag_modify.TagRepository;
 import com.manager.assistant.ui.data_sync.tag_modify.TagUpdateReason;
+import com.manager.assistant.ui.pages.bookkeeping.budget.BudgetManageActivity;
 import com.manager.assistant.ui.pages.bookkeeping.tag.TagManageActivity;
 import com.manager.assistant.ui.pages.home.report.ReportActivity;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
@@ -109,6 +110,11 @@ public class HomeFragment extends Fragment {
             Intent skip2TagManage = new Intent(requireContext(), TagManageActivity.class);
             startActivity(skip2TagManage);
         });
+        binding.budgetCard.setOnClickListener(v -> {
+            Intent skip2BudgetManage = new Intent(requireContext(), BudgetManageActivity.class);
+            startActivity(skip2BudgetManage);
+        });
+        AnimationHelper.attachMorphAnimation(binding.budgetCard);
 
         //初始化记账日期
         String startDateStr = getBookKeepingStartDate();  //获取开始记账的日期

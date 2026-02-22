@@ -46,7 +46,6 @@
     <string name="recent_3_month">近三个月</string>
     <string name="this_year">这一年</string>
     <string name="percentage_100">100%</string>
-    <string name="check_report">查看报表</string>
     <string name="tag_add">新建标签</string>
     <string name="version_name">版本名称</string>
     <string name="setting">应用设置</string>
@@ -95,7 +94,6 @@
     <string name="title_home">主页</string>
     <string name="welcome_string">欢迎使用经理助手</string>
     <string name="today_balance">今日结余</string>
-    <string name="check_report_data">查看详细报表</string>
     <string name="num_of_shown">显示数量：∞</string>
     <string name="every_day">每天</string>
     <string name="every_week">每星期</string>
@@ -128,6 +126,11 @@
     <string name="account_tag_help">标记该流水记录的标签</string>
     <string name="account_export_help">您名下的转出账户名称</string>
     <string name="account_import_help">您名下的转入账户名称</string>
+    <string name="budget_name_help">预算的名称</string>
+    <string name="start_date_help">开始计入预算的流水日期</string>
+    <string name="init_amount_help">预算的初始金额</string>
+    <string name="left_amount_help">预算剩余的金额</string>
+    <string name="reset_frequency_help">重置金额的时间间隔</string>
     <string name="tag_name_help">该标签的名称</string>
     <string name="tag_group_name_help">该标签所属分组的名称</string>
     <string name="filter_running_account">流水记录过滤</string>
@@ -142,4 +145,12 @@
     <string name="tag_count">标签数量</string>
     <string name="count_infinity">∞</string>
     <string name="budget_count">预算数量</string>
+    <string name="budget_manage">预算管理</string>
+    <string name="create_budget">新建预算</string>
+    <string name="modify_budget">修改预算</string>
+    <string name="budget_name">预算名称</string>
+    <string name="start_date">起算日期</string>
+    <string name="init_amount">初始金额</string>
+    <string name="left_amount">剩余金额</string>
+    <string name="reset_frequency">重置频率</string>
 </resources>

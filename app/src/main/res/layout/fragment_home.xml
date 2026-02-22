@@ -66,8 +66,15 @@
                     style="@style/LargeTitleTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="5dp"
+                    android:paddingBottom="0dp"
+                    android:text="@string/title_report" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/MediumTitleTextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="0dp"
                     android:text="@string/today_balance" />
 
                 <com.google.android.material.textview.MaterialTextView
