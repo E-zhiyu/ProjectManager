@@ -18,7 +18,7 @@ import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.data.data_class.TagGroup;
 import com.manager.assistant.databinding.BottomSheetAccountFilterBinding;
-import com.manager.assistant.enums.TagString;
+import com.manager.assistant.isolated_enums.TagString;
 import com.manager.assistant.helpers.ResHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;

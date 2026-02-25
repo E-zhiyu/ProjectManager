@@ -17,8 +17,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.textview.MaterialTextView;
-import com.manager.assistant.enums.KeyValueStrings;
-import com.manager.assistant.enums.TagString;
+import com.manager.assistant.isolated_enums.KeyValueStrings;
+import com.manager.assistant.isolated_enums.TagString;
 import com.manager.assistant.broadcast.BroadcastConstants;
 import com.manager.assistant.broadcast.RunningAccountUpdatedBroadcastReceiver;
 import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
@@ -31,10 +31,9 @@ import com.manager.assistant.helpers.PictureHelper;
 import com.manager.assistant.ui.data_sync.runnning_account.AccountUpdateReason;
 import com.manager.assistant.ui.data_sync.runnning_account.RunningAccountViewModel;
 import com.manager.assistant.ui.others.bottom_sheets.filter.AccountFilterBottomSheet;
-import com.manager.assistant.ui.others.listeners.RecyclerScrollHideShowListener;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.RunningAccountModifyActivity;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.RunningAccountAddActivity;
-import com.manager.assistant.enums.RequestResultCode;
+import com.manager.assistant.isolated_enums.RequestResultCode;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
 import java.util.ArrayList;
@@ -196,11 +195,18 @@ public class BookKeepingFragment extends Fragment {
         int colorBackground = ColorHelper.getBackgroundColor(requireContext());
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
 
-        //创建列表视图的适配器
-        setupAccountAdapter();
+        //设置适配器
+        accountAdapter = new AccountAdapter(this::onRunningAccountViewClick);
+        binding.accountRecycler.setAdapter(accountAdapter);
+
+        //设置浮动按钮隐藏行为
+        AnimationHelper.setupFloatingBtnBehaviour(binding.accountRecycler, binding.addFloatingBtn);
 
         //设置下拉刷新布局的监听器
         binding.refreshLayout.setOnRefreshListener(this::refreshAccountRecycler);
+
+        //加载流水记录
+        refreshAccountRecycler();
     }
 
     /**
@@ -215,31 +221,6 @@ public class BookKeepingFragment extends Fragment {
         } else {
             requireContext().registerReceiver(accountUpdatedReceiver, filter);
         }
-    }
-
-    /**
-     * 初始化流水视图适配器
-     */
-    private void setupAccountAdapter() {
-        //设置适配器
-        accountAdapter = new AccountAdapter(this::onRunningAccountViewClick);
-        binding.accountRecycler.setAdapter(accountAdapter);
-
-        //设置滚动监听器
-        binding.accountRecycler.addOnScrollListener(new RecyclerScrollHideShowListener() {
-            @Override
-            public void onHide() {
-                binding.addFloatingBtn.hide();
-            }
-
-            @Override
-            public void onShow() {
-                binding.addFloatingBtn.show();
-            }
-        });
-
-        //加载流水记录
-        refreshAccountRecycler();
     }
 
     /**

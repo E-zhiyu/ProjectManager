@@ -27,14 +27,14 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import com.manager.assistant.enums.DirectoryPaths;
-import com.manager.assistant.enums.LogTags;
+import com.manager.assistant.isolated_enums.DirectoryPaths;
+import com.manager.assistant.isolated_enums.LogTags;
 import com.manager.assistant.databinding.ActivityCameraBinding;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.IconHelper;
 import com.manager.assistant.helpers.PermissionHelper;
-import com.manager.assistant.enums.KeyValueStrings;
+import com.manager.assistant.isolated_enums.KeyValueStrings;
 
 import java.io.File;
 import java.text.SimpleDateFormat;

@@ -7,20 +7,31 @@ import android.os.Bundle;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.manager.assistant.data.data_class.Budget;
 import com.manager.assistant.databinding.ActivityBudgetManageBinding;
-import com.manager.assistant.enums.RequestResultCode;
+import com.manager.assistant.helpers.ExceptionHelper;
+import com.manager.assistant.isolated_enums.KeyValueStrings;
+import com.manager.assistant.isolated_enums.RequestResultCode;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ColorHelper;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public class BudgetManageActivity extends AppCompatActivity {
     private ActivityBudgetManageBinding binding;            //绑定的XML视图
+    private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
     private ActivityResultLauncher<Intent> addLauncher;     //添加预算启动器
     private ActivityResultLauncher<Intent> modifyLauncher;  //修改预算启动器
+    private BudgetAdapter adapter;                          //预算列表适配器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +49,15 @@ public class BudgetManageActivity extends AppCompatActivity {
 
         initViews();
         initLaunchers();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        binding = null;
+
+        // 防止内存泄漏
+        disposables.dispose();
     }
 
     /**
@@ -61,7 +81,16 @@ public class BudgetManageActivity extends AppCompatActivity {
             addLauncher.launch(skip2BudgetAdd);
         });
 
-        //TODO:添加RecyclerVIew的实际逻辑
+        //设置RecyclerView
+        adapter = new BudgetAdapter(this::onBudgetClicked);
+        binding.budgetRecycler.setAdapter(adapter);
+        refreshBudget();
+
+        //设置刷新布局的功能
+        binding.refreshLayout.setOnRefreshListener(this::refreshBudget);
+
+        //设置浮动按钮隐藏行为
+        AnimationHelper.setupFloatingBtnBehaviour(binding.budgetRecycler, binding.addFloatingBtn);
     }
 
     /**
@@ -108,12 +137,63 @@ public class BudgetManageActivity extends AppCompatActivity {
     }
 
     /**
+     * 处理预算ViewHolder点击的回调
+     *
+     * @param budget   点击的预算实例
+     * @param position 点击的视图下标
+     */
+    private void onBudgetClicked(@NonNull Budget budget, int position) {
+        long bno = budget.getBno();
+        String name = budget.getName();
+        double initAmount = budget.getInitAmount();
+        double leftAmount = budget.getLeftAmount();
+        String startDate = budget.getStartDate();
+        ResetFrequency resetFrequency = budget.getResetFrequency();
+        long[] tagNos = budget.getTagNoList().stream()
+                .mapToLong(Long::longValue)
+                .toArray();
+
+        Bundle dataBundle = new Bundle();
+        dataBundle.putLong(KeyValueStrings.BNO.getValue(), bno);
+        dataBundle.putString(KeyValueStrings.BUDGET_NAME.getValue(), name);
+        dataBundle.putDouble(KeyValueStrings.INIT_AMOUNT.getValue(), initAmount);
+        dataBundle.putDouble(KeyValueStrings.LEFT_AMOUNT.getValue(), leftAmount);
+        dataBundle.putString(KeyValueStrings.START_DATE.getValue(), startDate);
+        dataBundle.putString(KeyValueStrings.BUDGET_RESET_FREQUENCY.getValue(), resetFrequency.toString());
+        dataBundle.putLongArray(KeyValueStrings.TAG_NO.getValue(), tagNos);
+
+        Intent skip2BudgetModify = new Intent(this, BudgetAddModifyActivity.class);
+        skip2BudgetModify.putExtras(dataBundle);
+        modifyLauncher.launch(skip2BudgetModify);
+    }
+
+    /**
+     * 刷新预算
+     */
+    private void refreshBudget() {
+        binding.refreshLayout.setRefreshing(true);
+        disposables.add(
+                Observable.fromCallable(() -> Budget.getAllBudgets(this))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                adapter::refreshBudget,
+                                e -> ExceptionHelper.showExceptionDialog(this, e),
+                                () -> {
+                                    binding.refreshLayout.setRefreshing(false);
+                                    binding.addFloatingBtn.show();
+                                }
+                        )
+        );
+    }
+
+    /**
      * 处理预算添加的回调
      *
      * @param dataBundle 新添加的预算的数据包
      */
     private void onBudgetAdded(Bundle dataBundle) {
-        //TODO:完成该方法
+        adapter.addBudget(dataBundle, this);
     }
 
     /**
@@ -122,7 +202,7 @@ public class BudgetManageActivity extends AppCompatActivity {
      * @param dataBundle 修改后的数据包
      */
     private void onBudgetModified(Bundle dataBundle) {
-        //TODO:完成该方法
+        adapter.modifyBudget(dataBundle, this);
     }
 
     /**
@@ -131,6 +211,6 @@ public class BudgetManageActivity extends AppCompatActivity {
      * @param dataBundle 删除预算的数据包
      */
     private void onBudgetDeleted(Bundle dataBundle) {
-        //TODO:完成该方法
+        adapter.deleteBudget(dataBundle, this);
     }
 }

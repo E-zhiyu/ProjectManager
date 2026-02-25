@@ -17,8 +17,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
 
-import com.manager.assistant.enums.DirectoryPaths;
-import com.manager.assistant.enums.LogTags;
+import com.manager.assistant.isolated_enums.DirectoryPaths;
+import com.manager.assistant.isolated_enums.LogTags;
 
 import java.io.File;
 import java.io.IOException;

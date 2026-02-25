@@ -14,7 +14,7 @@ import com.manager.assistant.data.data_class.Picture;
 import com.manager.assistant.data.data_save.database.BookkeepingColumns;
 import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.data_save.database.BookkeepingTables;
-import com.manager.assistant.enums.KeyValueStrings;
+import com.manager.assistant.isolated_enums.KeyValueStrings;
 import com.manager.assistant.ui.others.bottom_sheets.filter.AccountFilterBottomSheet;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 

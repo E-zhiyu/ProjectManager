@@ -24,10 +24,10 @@ import com.manager.assistant.R;
 import com.manager.assistant.databinding.ActivityPackageNameSelectBinding;
 import com.manager.assistant.helpers.ColorHelper;
 import com.manager.assistant.helpers.PermissionHelper;
-import com.manager.assistant.enums.RequestResultCode;
+import com.manager.assistant.isolated_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.PackageNameHelper;
-import com.manager.assistant.enums.KeyValueStrings;
+import com.manager.assistant.isolated_enums.KeyValueStrings;
 import com.manager.assistant.ui.data_sync.package_name_search.AppInfoSearchViewModel;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;

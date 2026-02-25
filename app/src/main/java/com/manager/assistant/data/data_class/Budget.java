@@ -1,19 +1,50 @@
 package com.manager.assistant.data.data_class;
 
-import com.manager.assistant.ui.pages.bookkeeping.budget.BudgetAddModifyActivity;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 
+import androidx.annotation.NonNull;
+
+import com.manager.assistant.data.data_save.database.BookkeepingColumns;
+import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
+import com.manager.assistant.data.data_save.database.BookkeepingTables;
+import com.manager.assistant.ui.pages.bookkeeping.budget.ResetFrequency;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class Budget {
-    private final long bno;                 //预算编号
+    private long bno;                       //预算编号
     private final String name;              //预算名称
     private final double initAmount;        //初始金额
     private final double leftAmount;        //剩余金额
     private final String startDate;         //起算日期
-    private final BudgetAddModifyActivity.ResetFrequency resetFrequency;    //重置频率
+    private final ResetFrequency resetFrequency;    //重置频率
     private final List<Long> tagNoList;     //监听的标签的编号
 
-    public Budget(long bno, String name, double initAmount, double leftAmount, String startDate, BudgetAddModifyActivity.ResetFrequency resetFrequency, List<Long> tagNoList) {
+    /**
+     * 完整的构造方法
+     *
+     * @param bno            预算编号
+     * @param name           预算名称
+     * @param initAmount     初始金额
+     * @param leftAmount     剩余金额
+     * @param startDate      起算日期
+     * @param resetFrequency 重置频率
+     * @param tagNoList      标签编号列表
+     */
+    public Budget(
+            long bno,
+            String name,
+            double initAmount,
+            double leftAmount,
+            String startDate,
+            ResetFrequency resetFrequency,
+            List<Long> tagNoList
+    ) {
         this.bno = bno;
         this.name = name;
         this.initAmount = initAmount;
@@ -23,8 +54,52 @@ public class Budget {
         this.tagNoList = tagNoList;
     }
 
+    /**
+     * 不指定编号的构造方法
+     *
+     * @param name           预算名称
+     * @param initAmount     初始金额
+     * @param leftAmount     剩余金额
+     * @param startDate      起算日期
+     * @param resetFrequency 重置频率
+     * @param tagNoList      标签编号列表
+     */
+    public Budget(
+            String name,
+            double initAmount,
+            double leftAmount,
+            String startDate,
+            ResetFrequency resetFrequency,
+            List<Long> tagNoList
+    ) {
+        this(0, name, initAmount, leftAmount, startDate, resetFrequency, tagNoList);
+    }
+
+    /**
+     * 不指定剩余金额的构造方法(剩余金额与初始金额相等
+     *
+     * @param name           预算名称
+     * @param initAmount     初始金额
+     * @param startDate      起算日期
+     * @param resetFrequency 重置频率
+     * @param tagNoList      标签编号列表
+     */
+    public Budget(
+            String name,
+            double initAmount,
+            String startDate,
+            ResetFrequency resetFrequency,
+            List<Long> tagNoList
+    ) {
+        this(name, initAmount, initAmount, startDate, resetFrequency, tagNoList);
+    }
+
     public long getBno() {
         return bno;
+    }
+
+    public void setBno(long bno) {
+        this.bno = bno;
     }
 
     public String getName() {
@@ -43,11 +118,139 @@ public class Budget {
         return startDate;
     }
 
-    public BudgetAddModifyActivity.ResetFrequency getResetFrequency() {
+    public ResetFrequency getResetFrequency() {
         return resetFrequency;
     }
 
     public List<Long> getTagNoList() {
         return tagNoList;
+    }
+
+    /**
+     * 读取所有预算
+     *
+     * @param context 上下文
+     * @return 包含所有预算的列表
+     * @throws SQLException 读取失败引发的异常
+     */
+    @NonNull
+    public static List<Budget> getAllBudgets(Context context) throws SQLException {
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
+        SQLiteDatabase db = dbHelper.openReadLink();
+
+        Cursor budgetCursor = db.query(
+                BookkeepingTables.BUDGET.toString(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        List<Budget> budgetList = new ArrayList<>();
+        while (budgetCursor.moveToNext()) {
+            long bno = budgetCursor.getLong(budgetCursor.getColumnIndexOrThrow(BookkeepingColumns.BNO.toString()));
+            String name = budgetCursor.getString(budgetCursor.getColumnIndexOrThrow(BookkeepingColumns.BUDGET_NAME.toString()));
+            double initAmount = budgetCursor.getDouble(budgetCursor.getColumnIndexOrThrow(BookkeepingColumns.INIT_AMOUNT.toString()));
+            double leftAmount = budgetCursor.getDouble(budgetCursor.getColumnIndexOrThrow(BookkeepingColumns.LEFT_AMOUNT.toString()));
+            String startDate = budgetCursor.getString(budgetCursor.getColumnIndexOrThrow(BookkeepingColumns.START_DATE.toString()));
+            String resetFrequencyStr = budgetCursor.getString(budgetCursor.getColumnIndexOrThrow(BookkeepingColumns.RESET_FREQUENCY.toString()));
+            ResetFrequency resetFrequency = ResetFrequency.valueOf(resetFrequencyStr);
+            List<Long> tagNoList = getTagNoByBno(db, bno);
+
+            Budget budget = new Budget(bno, name, initAmount, leftAmount, startDate, resetFrequency, tagNoList);
+            budgetList.add(budget);
+        }
+
+        budgetCursor.close();
+        db.close();
+        return budgetList;
+    }
+
+    /**
+     * 通过预算编号读取标签编号
+     *
+     * @param db  数据库实例
+     * @param bno 预算编号
+     * @return 该预算编号对应的所有标签编号的列表
+     * @throws SQLException 读取失败引发的异常
+     */
+    @NonNull
+    private static List<Long> getTagNoByBno(@NonNull SQLiteDatabase db, long bno) throws SQLException {
+        String[] columns = {
+                BookkeepingColumns.TAG_NO.toString()
+        };
+        String selection = BookkeepingColumns.BNO + "=?";
+        String[] selectionArgs = {String.valueOf(bno)};
+        Cursor cursor = db.query(
+                BookkeepingTables.BUDGET_TAG.toString(),
+                columns,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        List<Long> tagNoList = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            long tagNo = cursor.getLong(cursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NO.toString()));
+            tagNoList.add(tagNo);
+        }
+
+        cursor.close();
+        return tagNoList;
+    }
+
+    /**
+     * 将标签数据写入预算-标签表
+     *
+     * @param db        需要写入的数据库
+     * @param bno       预算编号
+     * @param tagNoList 标签编号列表
+     * @throws SQLException 写入失败引发的异常
+     */
+    private static void saveTagNoWithBno(SQLiteDatabase db, long bno, @NonNull List<Long> tagNoList) throws SQLException {
+        ContentValues values = new ContentValues();
+        for (long tagNo : tagNoList) {
+            values.put(BookkeepingColumns.TAG_NO.toString(), tagNo);
+            values.put(BookkeepingColumns.BNO.toString(), bno);
+            db.insert(BookkeepingTables.BUDGET_TAG.toString(), null, values);
+        }
+    }
+
+    /**
+     * 添加新的预算
+     *
+     * @param budget  预算实例
+     * @param context 上下文
+     * @return 为新预算分配的编号
+     * @throws SQLException 写入失败引发的异常
+     */
+    public static long saveNewBudget(@NonNull Budget budget, Context context) throws SQLException {
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
+        SQLiteDatabase db = dbHelper.openWriteLink();
+
+        //解析数据
+        String name = budget.getName();
+        double initAmount = budget.getInitAmount();
+        double leftAmount = budget.getLeftAmount();
+        String startDate = budget.getStartDate();
+        ResetFrequency resetFrequency = budget.getResetFrequency();
+        List<Long> tagNoList = budget.getTagNoList();
+
+        //写入数据
+        ContentValues budgetValues = new ContentValues();
+        budgetValues.put(BookkeepingColumns.BUDGET_NAME.toString(), name);
+        budgetValues.put(BookkeepingColumns.INIT_AMOUNT.toString(), initAmount);
+        budgetValues.put(BookkeepingColumns.LEFT_AMOUNT.toString(), leftAmount);
+        budgetValues.put(BookkeepingColumns.START_DATE.toString(), startDate);
+        budgetValues.put(BookkeepingColumns.RESET_FREQUENCY.toString(), resetFrequency.toString());
+        long bno = db.insert(BookkeepingTables.BUDGET.toString(), null, budgetValues);
+        saveTagNoWithBno(db, bno, tagNoList);
+
+        db.close();
+        return bno;
     }
 }

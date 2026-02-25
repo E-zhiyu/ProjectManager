@@ -1,4 +1,4 @@
-package com.manager.assistant.enums;
+package com.manager.assistant.isolated_enums;
 
 //用作视图Tag的枚举类
 public enum TagString {

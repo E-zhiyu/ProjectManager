@@ -24,7 +24,7 @@ import com.manager.assistant.data.data_save.database.BookkeepingTables;
 import com.manager.assistant.data.data_save.preference.AppSettingsPreference;
 import com.manager.assistant.data.data_save.preference.BookKeepingStartDatePreference;
 import com.manager.assistant.databinding.FragmentHomeBinding;
-import com.manager.assistant.enums.LogTags;
+import com.manager.assistant.isolated_enums.LogTags;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.WebsiteLinkFetchHelper;

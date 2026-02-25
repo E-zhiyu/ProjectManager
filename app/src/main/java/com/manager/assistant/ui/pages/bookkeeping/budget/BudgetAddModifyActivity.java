@@ -17,9 +17,9 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.chip.Chip;
 import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.databinding.ActivityBudgetAddModifyBinding;
-import com.manager.assistant.enums.KeyValueStrings;
-import com.manager.assistant.enums.RequestResultCode;
-import com.manager.assistant.enums.TagString;
+import com.manager.assistant.isolated_enums.KeyValueStrings;
+import com.manager.assistant.isolated_enums.RequestResultCode;
+import com.manager.assistant.isolated_enums.TagString;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.tag.MultiTagSelectBottomSheet;
@@ -29,6 +29,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BudgetAddModifyActivity extends AppCompatActivity {
     private ActivityBudgetAddModifyBinding binding;                     //绑定的XML视图
@@ -37,27 +38,6 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
     private ResetFrequency resetFrequency = ResetFrequency.EVERY_DAY;   //预算重置频率
     private long bno = 0;                                               //预算编号
     private int viewHolderPosition = -1;                                //编辑模式下ViewHolder的下标
-
-    public enum ResetFrequency {
-        EVERY_DAY("每天", 1),
-        EVERY_WEEK("每星期", 7),
-        EVERY_MONTH("每个月", -1);
-        private final String title;     //显示名称
-        private final int intervalDays; //间隔时间
-
-        ResetFrequency(String title, int intervalDays) {
-            this.title = title;
-            this.intervalDays = intervalDays;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public int getIntervalDays() {
-            return intervalDays;
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +57,12 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
         AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        binding = null;
+    }
+
     /**
      * 接收初始化数据
      */
@@ -90,19 +76,33 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
         isModifyMode = true;
         binding.leftAmountLayout.setVisibility(View.VISIBLE);   //显示剩余金额输入框
 
-        //读取并应用数据包中的数据
         bno = dataBundle.getLong(KeyValueStrings.BNO.getValue());
+
         String budgetName = dataBundle.getString(KeyValueStrings.BUDGET_NAME.getValue());
         binding.budgetNameInput.setText(budgetName);
+
         String frequencyStr = dataBundle.getString(KeyValueStrings.BUDGET_RESET_FREQUENCY.getValue());
         resetFrequency = ResetFrequency.valueOf(frequencyStr);
+
         double initAmount = dataBundle.getDouble(KeyValueStrings.INIT_AMOUNT.getValue());
         binding.initAmountInput.setText(String.valueOf(initAmount));
+
         double leftAmount = dataBundle.getDouble(KeyValueStrings.LEFT_AMOUNT.getValue());
         binding.leftAmountInput.setText(String.valueOf(leftAmount));
+
         String startDate = dataBundle.getString(KeyValueStrings.START_DATE.getValue());
         binding.startDateInput.setText(startDate);
+
         viewHolderPosition = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
+
+        long[] tagNos = dataBundle.getLongArray(KeyValueStrings.TAG_NO.getValue());
+        if (tagNos != null) {
+            List<Long> tagNoList = Arrays.stream(tagNos)
+                    .boxed()
+                    .collect(Collectors.toList());
+            this.tagNoList.addAll(tagNoList);
+        }
+        refreshTagChipGroup();
     }
 
     /**
@@ -274,11 +274,11 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
 
         dataBundle.putString(KeyValueStrings.BUDGET_NAME.getValue(), budgetName);
         dataBundle.putDouble(KeyValueStrings.INIT_AMOUNT.getValue(), initAmount);
-        dataBundle.putDouble(KeyValueStrings.LEFT_AMOUNT.getValue(), leftAmount);
         dataBundle.putString(KeyValueStrings.START_DATE.getValue(), startDate);
         dataBundle.putString(KeyValueStrings.BUDGET_RESET_FREQUENCY.getValue(), resetFrequency.toString());
         dataBundle.putLongArray(KeyValueStrings.TAG_NO.getValue(), tagNos);
         if (isModifyMode) {
+            dataBundle.putDouble(KeyValueStrings.LEFT_AMOUNT.getValue(), leftAmount);
             dataBundle.putLong(KeyValueStrings.BNO.getValue(), bno);
             dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), viewHolderPosition);
         }

@@ -20,15 +20,15 @@ import com.manager.assistant.ui.others.adapters.FragmentPagerAdapter;
 import com.manager.assistant.data.data_class.Picture;
 import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
 import com.manager.assistant.databinding.ActivityRunningAccountAddBinding;
-import com.manager.assistant.enums.DirectoryPaths;
+import com.manager.assistant.isolated_enums.DirectoryPaths;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.enums.KeyValueStrings;
+import com.manager.assistant.isolated_enums.KeyValueStrings;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.ExpenseFragment;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.IncomeFragment;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountFragmentBase;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.TransferFragment;
-import com.manager.assistant.enums.RequestResultCode;
+import com.manager.assistant.isolated_enums.RequestResultCode;
 import com.manager.assistant.ui.pages.picture.PictureAdapter;
 
 import java.io.File;

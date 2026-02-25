@@ -16,12 +16,11 @@ import com.manager.assistant.databinding.ActivityAnalysisRuleManageBinding;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ColorHelper;
 import com.manager.assistant.helpers.PermissionHelper;
-import com.manager.assistant.enums.RequestResultCode;
+import com.manager.assistant.isolated_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.enums.KeyValueStrings;
+import com.manager.assistant.isolated_enums.KeyValueStrings;
 import com.manager.assistant.data.data_class.AnalysisRule;
 import com.manager.assistant.ui.data_sync.tag_modify.TagRepository;
-import com.manager.assistant.ui.others.listeners.RecyclerScrollHideShowListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,17 +112,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         binding.ruleRecycler.setAdapter(ruleAdapter);
 
         //设置规则列表滚动监听器
-        binding.ruleRecycler.addOnScrollListener(new RecyclerScrollHideShowListener() {
-            @Override
-            public void onHide() {
-                binding.addFloatingBtn.hide();
-            }
-
-            @Override
-            public void onShow() {
-                binding.addFloatingBtn.show();
-            }
-        });
+        AnimationHelper.setupFloatingBtnBehaviour(binding.ruleRecycler, binding.addFloatingBtn);
 
         //设置下拉刷新布局的刷新监听器
         binding.refreshLayout.setOnRefreshListener(this::refreshRuleRecycler);

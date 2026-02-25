@@ -15,8 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 
-import com.manager.assistant.enums.DirectoryPaths;
-import com.manager.assistant.enums.LogTags;
+import com.manager.assistant.isolated_enums.DirectoryPaths;
+import com.manager.assistant.isolated_enums.LogTags;
 import com.manager.assistant.data.data_save.preference.AutoBackupPreference;
 import com.manager.assistant.ui.pages.setting.SettingFragment;
 

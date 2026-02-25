@@ -10,7 +10,7 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
-import com.manager.assistant.enums.LogTags;
+import com.manager.assistant.isolated_enums.LogTags;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;

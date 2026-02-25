@@ -11,13 +11,34 @@ import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.shape.Shapeable;
+import com.manager.assistant.ui.others.listeners.RecyclerScrollHideShowListener;
 import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
 
 public class AnimationHelper {
+    /**
+     * 设置下滑隐藏浮动按钮
+     *
+     * @param recyclerView 待检测下滑行为的RecyclerView
+     * @param btn          需要隐藏的浮动按钮
+     */
+    public static void setupFloatingBtnBehaviour(@NonNull RecyclerView recyclerView, FloatingActionButton btn) {
+        recyclerView.addOnScrollListener(new RecyclerScrollHideShowListener() {
+            @Override
+            public void onHide() {
+                btn.hide();
+            }
+
+            @Override
+            public void onShow() {
+                btn.show();
+            }
+        });
+    }
 
     /**
      * 将根布局内的所有MaterialButton和FAB组件添加点击时的圆角变化动画

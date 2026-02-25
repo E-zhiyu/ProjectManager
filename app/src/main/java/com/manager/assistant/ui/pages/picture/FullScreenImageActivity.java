@@ -11,7 +11,7 @@ import androidx.core.content.ContextCompat;
 import com.manager.assistant.databinding.ActivityFullScreenImageBinding;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.PictureHelper;
-import com.manager.assistant.enums.KeyValueStrings;
+import com.manager.assistant.isolated_enums.KeyValueStrings;
 
 import java.io.File;
 import java.util.Locale;

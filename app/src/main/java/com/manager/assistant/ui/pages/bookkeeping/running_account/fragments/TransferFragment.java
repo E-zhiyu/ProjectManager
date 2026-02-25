@@ -18,7 +18,7 @@ import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.data.data_class.running_account.TransferRunningAccount;
 import com.manager.assistant.databinding.FragmentTransferBinding;
-import com.manager.assistant.enums.KeyValueStrings;
+import com.manager.assistant.isolated_enums.KeyValueStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.data_sync.account_picture.AccountPictureViewModel;
 

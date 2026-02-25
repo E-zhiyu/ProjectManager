@@ -13,12 +13,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.manager.assistant.databinding.ActivityTagManageBinding;
 import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.helpers.ColorHelper;
-import com.manager.assistant.enums.RequestResultCode;
+import com.manager.assistant.isolated_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.enums.KeyValueStrings;
+import com.manager.assistant.isolated_enums.KeyValueStrings;
 import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.data.data_class.TagGroup;
-import com.manager.assistant.ui.others.listeners.RecyclerScrollHideShowListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -149,17 +148,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         binding.tagGroupRecycler.setAdapter(adapter);
 
         //添加RecyclerView滚动监听器，用以控制添加按钮的显示与否
-        binding.tagGroupRecycler.addOnScrollListener(new RecyclerScrollHideShowListener() {
-            @Override
-            public void onHide() {
-                binding.addFloatingBtn.hide();
-            }
-
-            @Override
-            public void onShow() {
-                binding.addFloatingBtn.show();
-            }
-        });
+        AnimationHelper.setupFloatingBtnBehaviour(binding.tagGroupRecycler, binding.addFloatingBtn);
     }
 
     //初始化活动启动器

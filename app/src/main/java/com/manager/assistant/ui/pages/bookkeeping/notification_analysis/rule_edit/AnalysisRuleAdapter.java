@@ -18,7 +18,7 @@ import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.broadcast.BroadcastConstants;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.enums.KeyValueStrings;
+import com.manager.assistant.isolated_enums.KeyValueStrings;
 import com.manager.assistant.data.data_class.AnalysisRule;
 import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;

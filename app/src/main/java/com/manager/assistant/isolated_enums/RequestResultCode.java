@@ -1,4 +1,4 @@
-package com.manager.assistant.enums;
+package com.manager.assistant.isolated_enums;
 
 public enum RequestResultCode {
     RESULT_CANCEL,          //应答拒绝
