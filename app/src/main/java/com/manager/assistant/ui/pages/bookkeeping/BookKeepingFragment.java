@@ -272,7 +272,7 @@ public class BookKeepingFragment extends Fragment {
             return;
         }
 
-        accountAdapter.modifyRunningAccount(dataBundle, requireContext());
+        accountAdapter.modifyRunningAccount(dataBundle, requireActivity(), requireContext());
         Toast.makeText(requireContext(), "成功修改流水记录", Toast.LENGTH_SHORT).show();
     }
 

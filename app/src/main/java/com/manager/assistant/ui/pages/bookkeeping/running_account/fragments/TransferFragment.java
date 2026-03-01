@@ -69,10 +69,10 @@ public class TransferFragment extends RunningAccountFragmentBase<FragmentTransfe
         });
         binding.amountInput.setOnClickListener(v -> binding.amountLayout.setError(null));
 
-        binding.datetimeInput.setOnClickListener(v -> showMaterialDateTimePicker());
+        binding.datetimeInput.setOnClickListener(v -> showMaterialDatePicker());
         binding.datetimeInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
-                showMaterialDateTimePicker();
+                showMaterialDatePicker();
             }
         });
         binding.runningAccountTagInput.setOnClickListener(v -> showTagSelectSheet());

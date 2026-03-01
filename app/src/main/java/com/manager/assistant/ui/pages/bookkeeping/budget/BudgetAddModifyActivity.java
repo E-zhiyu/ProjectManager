@@ -15,6 +15,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.chip.Chip;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointBackward;
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.databinding.ActivityBudgetAddModifyBinding;
@@ -25,7 +28,9 @@ import com.manager.assistant.helpers.AnimationHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.tag.MultiTagSelectBottomSheet;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -142,6 +147,14 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
             }
         });
 
+        //日期选择
+        binding.startDateInput.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                showDateSelectDialog();
+            }
+        });
+        binding.startDateInput.setOnClickListener(v -> showDateSelectDialog());
+
         //重置频率
         binding.resetFrequencyInput.setText(resetFrequency.getTitle());
         String[] frequencyTitles = Arrays.stream(ResetFrequency.values())
@@ -208,6 +221,42 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
                 tagNoList
         );
         bottomSheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
+    }
+
+    /**
+     * 显示日期选择对话框
+     */
+    private void showDateSelectDialog() {
+        //初始化日期格式化器
+        String datetimeStr = String.valueOf(binding.startDateInput.getText());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(datetimeStr, formatter);
+
+        long dateSelection = date.atStartOfDay(ZoneOffset.UTC)  //MaterialDateTimePicker使用UTC时区
+                .toInstant()
+                .toEpochMilli();
+
+        //显示日期选择器
+        MaterialDatePicker.Builder<Long> dateBuilder = MaterialDatePicker.Builder.datePicker();
+        dateBuilder.setTitleText("选择日期");
+        MaterialDatePicker<Long> datePicker = dateBuilder
+                .setSelection(dateSelection)    //默认选中输入的日期
+                .setCalendarConstraints(
+                        new CalendarConstraints.Builder()
+                                .setValidator(DateValidatorPointBackward.now()) //限制为过去日期
+                                .build()
+                )
+                .build();
+        datePicker.show(getSupportFragmentManager(), TagString.DATE_PICKER.getValue());
+
+        datePicker.addOnPositiveButtonClickListener(selection -> {
+            //时间戳转换为LocalDate
+            LocalDate selectedDate = Instant.ofEpochMilli(selection)
+                    .atZone(ZoneOffset.UTC)
+                    .toLocalDate();
+            String dateStr = selectedDate.format(formatter);
+            binding.startDateInput.setText(dateStr);
+        });
     }
 
     /**

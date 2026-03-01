@@ -73,7 +73,7 @@ public class AnalysisRule {
         SQLiteDatabase db = db_helper.openReadLink();
         List<AnalysisRule> ruleList = new ArrayList<>();
 
-        Cursor rule_cursor = db.query(
+        Cursor ruleCursor = db.query(
                 BookkeepingTables.ANALYSIS_RULE.toString(),
                 null,
                 null,
@@ -83,19 +83,19 @@ public class AnalysisRule {
                 BookkeepingColumns.RULE_NO.toString()
         );
 
-        while (rule_cursor.moveToNext()) {
-            String rule_name = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookkeepingColumns.RULE_NAME.toString()));
-            long rule_no = rule_cursor.getLong(rule_cursor.getColumnIndexOrThrow(BookkeepingColumns.RULE_NO.toString()));
-            RunningAccountType type = RunningAccountType.valueOf(rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookkeepingColumns.TYPE.toString())));
-            String package_name = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookkeepingColumns.PACKAGE_NAME.toString()));
-            String notification_title = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookkeepingColumns.NOTIFICATION_TITLE.toString()));
-            String notification_content = rule_cursor.getString(rule_cursor.getColumnIndexOrThrow(BookkeepingColumns.NOTIFICATION_CONTENT.toString()));
+        while (ruleCursor.moveToNext()) {
+            String name = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(BookkeepingColumns.RULE_NAME.toString()));
+            long ruleNo = ruleCursor.getLong(ruleCursor.getColumnIndexOrThrow(BookkeepingColumns.RULE_NO.toString()));
+            RunningAccountType type = RunningAccountType.valueOf(ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(BookkeepingColumns.TYPE.toString())));
+            String packageName = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(BookkeepingColumns.PACKAGE_NAME.toString()));
+            String title = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(BookkeepingColumns.NOTIFICATION_TITLE.toString()));
+            String content = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(BookkeepingColumns.NOTIFICATION_CONTENT.toString()));
 
-            AnalysisRule rule = new AnalysisRule(rule_name, rule_no, type, package_name, notification_title, notification_content);
+            AnalysisRule rule = new AnalysisRule(name, ruleNo, type, packageName, title, content);
             ruleList.add(rule);
         }
 
-        rule_cursor.close();
+        ruleCursor.close();
         db.close();
         return ruleList;
     }
@@ -115,7 +115,7 @@ public class AnalysisRule {
         //解析规则数据
         String ruleName = newRuleData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());
         String type = newRuleData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue());
-        long tag_no = newRuleData.getLong(KeyValueStrings.TAG_NO.getValue());
+        long tagNo = newRuleData.getLong(KeyValueStrings.TAG_NO.getValue());
         String packageName = newRuleData.getString(KeyValueStrings.PACKAGE_NAME.getValue());
         String notificationTitle = newRuleData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
         String notificationContent = newRuleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
@@ -124,7 +124,7 @@ public class AnalysisRule {
         ContentValues ruleValues = new ContentValues();
         ruleValues.put(BookkeepingColumns.RULE_NAME.toString(), ruleName);
         ruleValues.put(BookkeepingColumns.TYPE.toString(), type);
-        ruleValues.put(BookkeepingColumns.TAG_NO.toString(), tag_no);
+        ruleValues.put(BookkeepingColumns.TAG_NO.toString(), tagNo);
         ruleValues.put(BookkeepingColumns.PACKAGE_NAME.toString(), packageName);
         ruleValues.put(BookkeepingColumns.NOTIFICATION_TITLE.toString(), notificationTitle);
         ruleValues.put(BookkeepingColumns.NOTIFICATION_CONTENT.toString(), notificationContent);
@@ -154,24 +154,24 @@ public class AnalysisRule {
      * @throws SQLiteException 写入失败引发的异常
      */
     public static void modifyRule(@NonNull Bundle ruleData, Context context) throws SQLiteException {
-        BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = db_helper.openWriteLink();
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
+        SQLiteDatabase db = dbHelper.openWriteLink();
 
         //解析规则数据
         String ruleName = ruleData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());
-        long rule_no = ruleData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());
+        long ruleNo = ruleData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());
         String type = ruleData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue());
-        long tag_no = ruleData.getLong(KeyValueStrings.TAG_NO.getValue());
+        long tagNo = ruleData.getLong(KeyValueStrings.TAG_NO.getValue());
         String packageName = ruleData.getString(KeyValueStrings.PACKAGE_NAME.getValue());
         String notificationTitle = ruleData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
         String notificationContent = ruleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
 
         String where = BookkeepingColumns.RULE_NO + "=?";
-        String[] whereArgs = {String.valueOf(rule_no)};
+        String[] whereArgs = {String.valueOf(ruleNo)};
         ContentValues ruleValues = new ContentValues();
         ruleValues.put(BookkeepingColumns.RULE_NAME.toString(), ruleName);
         ruleValues.put(BookkeepingColumns.TYPE.toString(), type);
-        ruleValues.put(BookkeepingColumns.TAG_NO.toString(), tag_no);
+        ruleValues.put(BookkeepingColumns.TAG_NO.toString(), tagNo);
         ruleValues.put(BookkeepingColumns.PACKAGE_NAME.toString(), packageName);
         ruleValues.put(BookkeepingColumns.NOTIFICATION_TITLE.toString(), notificationTitle);
         ruleValues.put(BookkeepingColumns.NOTIFICATION_CONTENT.toString(), notificationContent);
@@ -199,8 +199,8 @@ public class AnalysisRule {
      * @throws SQLiteException 写入失败引发的异常
      */
     public static void deleteRule(long rule_no, Context context) throws SQLiteException {
-        BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = db_helper.openWriteLink();
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
+        SQLiteDatabase db = dbHelper.openWriteLink();
 
         String where = BookkeepingColumns.RULE_NO + "=?";
         String[] whereArgs = {String.valueOf(rule_no)};

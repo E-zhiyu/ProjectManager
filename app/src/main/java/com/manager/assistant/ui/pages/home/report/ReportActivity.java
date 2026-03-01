@@ -535,11 +535,11 @@ public class ReportActivity extends AppCompatActivity {
         dateBuilder.setTitleText("选择日期");
 
         //显示日期选择器
-        long date_selection = date.atStartOfDay()
+        long dateSelection = date.atStartOfDay()
                 .toInstant(ZoneOffset.UTC)
                 .toEpochMilli();
         MaterialDatePicker<Long> datePicker = dateBuilder
-                .setSelection(date_selection)
+                .setSelection(dateSelection)
                 .setCalendarConstraints(
                         new CalendarConstraints.Builder()
                                 .setValidator(DateValidatorPointBackward.now()) //限制为过去日期

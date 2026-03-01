@@ -12,6 +12,7 @@ import com.manager.assistant.data.data_save.database.BookkeepingColumns;
 import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.data_save.database.BookkeepingTables;
 import com.manager.assistant.ui.pages.bookkeeping.budget.ResetFrequency;
+import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,6 +125,41 @@ public class Budget {
 
     public List<Long> getTagNoList() {
         return tagNoList;
+    }
+
+    /**
+     * 通过标签编号获取预算编号
+     *
+     * @param db       数据库实例
+     * @param tagNo    标签编号
+     * @return 包含传入的标签编号的预算编号列表
+     * @throws SQLiteException 数据读取失败引发的异常
+     */
+    @NonNull
+    private static List<Long> getBnoByTagNo(@NonNull SQLiteDatabase db, long tagNo) throws SQLiteException {
+        String selection = BookkeepingColumns.TAG_NO + "=?";
+        String[] selectionArgs = {String.valueOf(tagNo)};
+        String[] columns = {
+                BookkeepingColumns.BNO.toString()
+        };
+        Cursor budgetCursor = db.query(
+                BookkeepingTables.BUDGET_TAG.toString(),
+                columns,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        List<Long> bnoList = new ArrayList<>();
+        while (budgetCursor.moveToNext()) {
+            long bno = budgetCursor.getLong(budgetCursor.getColumnIndexOrThrow(BookkeepingColumns.BNO.toString()));
+            bnoList.add(bno);
+        }
+
+        budgetCursor.close();
+        return bnoList;
     }
 
     /**
@@ -352,5 +388,144 @@ public class Budget {
         db.delete(BookkeepingTables.BUDGET.toString(), where, whereArgs);
 
         db.close();
+    }
+
+    /**
+     * 增加剩余金额
+     *
+     * @param tagNo    流水记录的标签编号
+     * @param amount   剩余金额增加的值(可以为负数)
+     * @param datetime 流水记录的日期
+     * @param db       需要写入数据的数据库实例
+     * @throws SQLiteException 数据写入失败引发的异常
+     */
+    private static void increaseLeftAmount(
+            long tagNo,
+            double amount,
+            @NonNull String datetime,
+            SQLiteDatabase db
+    ) throws SQLiteException {
+        //将datetime转换为date
+        if (datetime.length() > 10) {
+            datetime = datetime.substring(0, 10);
+        }
+
+        //TODO:使用SQL语句嵌套查询优化该逻辑
+        //获取需要更改的预算编号列表
+        List<Long> bnoList = getBnoByTagNo(db, tagNo);
+
+        //写入数据
+        ContentValues values = new ContentValues();
+        for (long bno : bnoList) {
+            String selection = BookkeepingColumns.BNO + "=? AND " + BookkeepingColumns.START_DATE + "<?";
+            String[] selectionArgs = {
+                    String.valueOf(bno),
+                    datetime
+            };
+            String[] columns = {
+                    BookkeepingColumns.LEFT_AMOUNT.toString()
+            };
+            Cursor cursor = db.query(
+                    BookkeepingTables.BUDGET.toString(),
+                    columns,
+                    selection,
+                    selectionArgs,
+                    null,
+                    null,
+                    null,
+                    "1"
+            );
+
+            if (cursor.moveToNext()) {
+                double oldAmount = cursor.getDouble(cursor.getColumnIndexOrThrow(BookkeepingColumns.LEFT_AMOUNT.toString()));
+                values.put(BookkeepingColumns.LEFT_AMOUNT.toString(), amount + oldAmount);
+                db.update(BookkeepingTables.BUDGET.toString(), values, selection, selectionArgs);
+            }
+
+            cursor.close();
+        }
+    }
+
+    /**
+     * 减少剩余金额
+     *
+     * @param tagNo    流水记录的标签编号
+     * @param amount   剩余金额减少的值(可以为负数)
+     * @param datetime 流水记录的日期
+     * @param db       需要写入数据的数据库实例
+     * @throws SQLiteException 数据写入失败引发的异常
+     */
+    private static void decreaseLeftAmount(
+            long tagNo,
+            double amount,
+            String datetime,
+            SQLiteDatabase db
+    ) throws SQLiteException {
+        increaseLeftAmount(tagNo, -amount, datetime, db);
+    }
+
+    /**
+     * 处理新旧日期差别的方法
+     *
+     * @param tagNo       当前的流水记录标签编号
+     * @param amount      流水记录金额变化量(新减旧)
+     * @param type        流水记录种类
+     * @param oldDatetime 原本的流水记录日期
+     * @param datetime    当前的流水记录日期
+     * @param db          能够写入数据的数据库实例
+     * @throws SQLiteException 数据写入失败引发的异常
+     */
+    private static void processDatetimeDifference(
+            long tagNo,
+            double amount,
+            RunningAccountType type,
+            @NonNull String oldDatetime,
+            @NonNull String datetime,
+            SQLiteDatabase db
+    ) throws SQLiteException {
+        if (oldDatetime.substring(0, 10).equals(datetime.substring(0, 10))) {
+            if (type.isExpenseType()) {
+                decreaseLeftAmount(tagNo, amount, datetime, db);
+            } else if (type.isIncomeType()) {
+                increaseLeftAmount(tagNo, amount, datetime, db);
+            }
+        } else {
+            if (type.isExpenseType()) {
+                increaseLeftAmount(tagNo, amount, oldDatetime, db);
+                decreaseLeftAmount(tagNo, amount, datetime, db);
+            } else if (type.isIncomeType()) {
+                decreaseLeftAmount(tagNo, amount, oldDatetime, db);
+                increaseLeftAmount(tagNo, amount, datetime, db);
+            }
+        }
+    }
+
+    /**
+     * 处理流水记录更新的方法
+     *
+     * @param oldTagNo    原本的流水记录标签编号
+     * @param tagNo       当前的流水记录标签编号
+     * @param amount      流水记录金额变化量(新减旧)
+     * @param type        流水记录种类
+     * @param oldDatetime 原本的流水记录日期
+     * @param datetime    当前的流水记录日期
+     * @param db          能够写入数据的数据库实例
+     * @throws SQLiteException 数据写入失败引发的异常
+     */
+    public static void onAccountUpdated(
+            long oldTagNo,
+            long tagNo,
+            double amount,
+            RunningAccountType type,
+            String oldDatetime,
+            String datetime,
+            SQLiteDatabase db
+    ) throws SQLiteException {
+        if (oldTagNo == tagNo) {
+            processDatetimeDifference(tagNo, amount, type, oldDatetime, datetime, db);
+        } else {
+            processDatetimeDifference(oldTagNo, amount, type, oldDatetime, datetime, db);
+            processDatetimeDifference(tagNo, amount, type, oldDatetime, datetime, db);
+        }
     }
 }

@@ -142,14 +142,13 @@ public class Tag {
      * @throws SQLiteException 读取失败引发的数据库异常
      */
     @NonNull
-    @Contract("_, _ -> new")
     public static List<Tag> getTagByTagNo(@NonNull List<Long> tagNoList, Context context) throws SQLiteException {
         if (tagNoList.isEmpty()) {
             return new ArrayList<>();
         }
 
-        BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = db_helper.openReadLink();
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
+        SQLiteDatabase db = dbHelper.openReadLink();
 
         //生成选择条件
         StringBuilder selection;
