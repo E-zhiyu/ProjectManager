@@ -387,6 +387,10 @@ public class HomeFragment extends Fragment {
                             }
                             refreshReportView();
                             break;
+                        case MODIFIED:
+                            reloadTodayReport();
+                            refreshReportView();
+                            break;
                         case DELETE:
                             if (type.isExpenseType()) {
                                 day_balance += amount;
