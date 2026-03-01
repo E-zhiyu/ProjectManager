@@ -2,6 +2,7 @@ package com.manager.assistant.ui.pages.bookkeeping.budget;
 
 import android.content.Context;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.view.LayoutInflater;
@@ -141,8 +142,33 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
      * @param dataBundle 修改后的预算的数据包
      * @param context    上下文
      */
-    public void modifyBudget(Bundle dataBundle, Context context) {
-        //TODO:完成该方法
+    public void modifyBudget(@NonNull Bundle dataBundle, Context context) {
+        long bno = dataBundle.getLong(KeyValueStrings.BNO.getValue());
+        String name = dataBundle.getString(KeyValueStrings.BUDGET_NAME.getValue());
+        double initAmount = dataBundle.getDouble(KeyValueStrings.INIT_AMOUNT.getValue());
+        double leftAmount = dataBundle.getDouble(KeyValueStrings.LEFT_AMOUNT.getValue());
+        String startDate = dataBundle.getString(KeyValueStrings.START_DATE.getValue());
+        String resetFrequencyStr = dataBundle.getString(KeyValueStrings.BUDGET_RESET_FREQUENCY.getValue());
+        ResetFrequency resetFrequency = ResetFrequency.valueOf(resetFrequencyStr);
+        long[] tagNos = dataBundle.getLongArray(KeyValueStrings.TAG_NO.getValue());
+        if (tagNos == null) return;
+        List<Long> tagNoList = Arrays.stream(tagNos)
+                .boxed()
+                .collect(Collectors.toList());
+
+        //写入数据
+        Budget budget = new Budget(bno, name, initAmount, leftAmount, startDate, resetFrequency, tagNoList);
+        try {
+            Budget.modifyBudget(budget, context);
+        } catch (SQLException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+            return;
+        }
+
+        //更新UI
+        int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
+        budgetList.set(position, budget);
+        notifyItemChanged(position);
     }
 
     /**
@@ -151,7 +177,18 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
      * @param dataBundle 待删除的预算的数据包
      * @param context    上下文
      */
-    public void deleteBudget(Bundle dataBundle, Context context) {
-        //TODO:完成该方法
+    public void deleteBudget(@NonNull Bundle dataBundle, Context context) {
+        long bno = dataBundle.getLong(KeyValueStrings.BNO.getValue());
+        try {
+            Budget.deleteBudget(bno, context);
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+            return;
+        }
+
+        //更新UI
+        int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
+        budgetList.remove(position);
+        notifyItemRemoved(position);
     }
 }

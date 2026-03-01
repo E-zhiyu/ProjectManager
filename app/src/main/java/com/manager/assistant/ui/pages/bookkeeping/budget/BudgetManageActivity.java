@@ -3,6 +3,7 @@ package com.manager.assistant.ui.pages.bookkeeping.budget;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -127,7 +128,7 @@ public class BudgetManageActivity extends AppCompatActivity {
                         return;
                     }
 
-                    if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
+                    if (resultCode == Activity.RESULT_OK) {
                         onBudgetModified(dataBundle);
                     } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
                         onBudgetDeleted(dataBundle);
@@ -161,6 +162,7 @@ public class BudgetManageActivity extends AppCompatActivity {
         dataBundle.putString(KeyValueStrings.START_DATE.getValue(), startDate);
         dataBundle.putString(KeyValueStrings.BUDGET_RESET_FREQUENCY.getValue(), resetFrequency.toString());
         dataBundle.putLongArray(KeyValueStrings.TAG_NO.getValue(), tagNos);
+        dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), position);
 
         Intent skip2BudgetModify = new Intent(this, BudgetAddModifyActivity.class);
         skip2BudgetModify.putExtras(dataBundle);
@@ -194,6 +196,7 @@ public class BudgetManageActivity extends AppCompatActivity {
      */
     private void onBudgetAdded(Bundle dataBundle) {
         adapter.addBudget(dataBundle, this);
+        Toast.makeText(this, "预算添加成功", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -203,6 +206,7 @@ public class BudgetManageActivity extends AppCompatActivity {
      */
     private void onBudgetModified(Bundle dataBundle) {
         adapter.modifyBudget(dataBundle, this);
+        Toast.makeText(this, "预算修改成功", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -212,5 +216,6 @@ public class BudgetManageActivity extends AppCompatActivity {
      */
     private void onBudgetDeleted(Bundle dataBundle) {
         adapter.deleteBudget(dataBundle, this);
+        Toast.makeText(this, "预算删除成功", Toast.LENGTH_SHORT).show();
     }
 }

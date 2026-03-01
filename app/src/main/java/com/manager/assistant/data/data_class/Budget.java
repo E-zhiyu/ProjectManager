@@ -3,8 +3,8 @@ package com.manager.assistant.data.data_class;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 
 import androidx.annotation.NonNull;
 
@@ -127,14 +127,112 @@ public class Budget {
     }
 
     /**
+     * 通过预算编号读取标签编号
+     *
+     * @param db  数据库实例
+     * @param bno 预算编号
+     * @return 该预算编号对应的所有标签编号的列表
+     * @throws SQLiteException 读取失败引发的异常
+     */
+    @NonNull
+    private static List<Long> getTagNoByBno(
+            @NonNull SQLiteDatabase db,
+            long bno
+    ) throws SQLiteException {
+        String[] columns = {
+                BookkeepingColumns.TAG_NO.toString()
+        };
+        String selection = BookkeepingColumns.BNO + "=?";
+        String[] selectionArgs = {String.valueOf(bno)};
+        Cursor cursor = db.query(
+                BookkeepingTables.BUDGET_TAG.toString(),
+                columns,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        List<Long> tagNoList = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            long tagNo = cursor.getLong(cursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NO.toString()));
+            tagNoList.add(tagNo);
+        }
+
+        cursor.close();
+        return tagNoList;
+    }
+
+    /**
+     * 将标签数据写入预算-标签表
+     *
+     * @param db        需要写入的数据库
+     * @param bno       预算编号
+     * @param tagNoList 标签编号列表
+     * @throws SQLiteException 写入失败引发的异常
+     */
+    private static void saveTagNoWithBno(
+            SQLiteDatabase db,
+            long bno,
+            @NonNull List<Long> tagNoList
+    ) throws SQLiteException {
+        ContentValues values = new ContentValues();
+        for (long tagNo : tagNoList) {
+            values.put(BookkeepingColumns.TAG_NO.toString(), tagNo);
+            values.put(BookkeepingColumns.BNO.toString(), bno);
+            db.insert(BookkeepingTables.BUDGET_TAG.toString(), null, values);
+
+            values.clear();
+        }
+    }
+
+    /**
+     * 通过预算编号修改标签数据
+     *
+     * @param db        需要写入数据的数据库
+     * @param bno       预算编号
+     * @param tagNoList 修改后的标签编号列表
+     * @throws SQLiteException 写入失败引发的异常
+     */
+    private static void modifyTagNoWithBno(
+            @NonNull SQLiteDatabase db,
+            long bno,
+            @NonNull List<Long> tagNoList
+    ) throws SQLiteException {
+        //移除旧数据
+        deleteTagNoWithBno(db, bno);
+
+        //写入新数据
+        saveTagNoWithBno(db, bno, tagNoList);
+    }
+
+    /**
+     * 通过预算编号删除标签数据
+     *
+     * @param db  写入数据的数据库
+     * @param bno 需要删除的预算编号
+     * @throws SQLiteException 写入失败引发的异常
+     */
+    private static void deleteTagNoWithBno(
+            @NonNull SQLiteDatabase db,
+            long bno
+    ) throws SQLiteException {
+        String where = BookkeepingColumns.BNO + "=?";
+        String[] whereArgs = {String.valueOf(bno)};
+
+        db.delete(BookkeepingTables.BUDGET_TAG.toString(), where, whereArgs);
+    }
+
+    /**
      * 读取所有预算
      *
      * @param context 上下文
      * @return 包含所有预算的列表
-     * @throws SQLException 读取失败引发的异常
+     * @throws SQLiteException 读取失败引发的异常
      */
     @NonNull
-    public static List<Budget> getAllBudgets(Context context) throws SQLException {
+    public static List<Budget> getAllBudgets(Context context) throws SQLiteException {
         BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openReadLink();
 
@@ -169,66 +267,14 @@ public class Budget {
     }
 
     /**
-     * 通过预算编号读取标签编号
-     *
-     * @param db  数据库实例
-     * @param bno 预算编号
-     * @return 该预算编号对应的所有标签编号的列表
-     * @throws SQLException 读取失败引发的异常
-     */
-    @NonNull
-    private static List<Long> getTagNoByBno(@NonNull SQLiteDatabase db, long bno) throws SQLException {
-        String[] columns = {
-                BookkeepingColumns.TAG_NO.toString()
-        };
-        String selection = BookkeepingColumns.BNO + "=?";
-        String[] selectionArgs = {String.valueOf(bno)};
-        Cursor cursor = db.query(
-                BookkeepingTables.BUDGET_TAG.toString(),
-                columns,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                null
-        );
-
-        List<Long> tagNoList = new ArrayList<>();
-        while (cursor.moveToNext()) {
-            long tagNo = cursor.getLong(cursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NO.toString()));
-            tagNoList.add(tagNo);
-        }
-
-        cursor.close();
-        return tagNoList;
-    }
-
-    /**
-     * 将标签数据写入预算-标签表
-     *
-     * @param db        需要写入的数据库
-     * @param bno       预算编号
-     * @param tagNoList 标签编号列表
-     * @throws SQLException 写入失败引发的异常
-     */
-    private static void saveTagNoWithBno(SQLiteDatabase db, long bno, @NonNull List<Long> tagNoList) throws SQLException {
-        ContentValues values = new ContentValues();
-        for (long tagNo : tagNoList) {
-            values.put(BookkeepingColumns.TAG_NO.toString(), tagNo);
-            values.put(BookkeepingColumns.BNO.toString(), bno);
-            db.insert(BookkeepingTables.BUDGET_TAG.toString(), null, values);
-        }
-    }
-
-    /**
      * 添加新的预算
      *
      * @param budget  预算实例
      * @param context 上下文
      * @return 为新预算分配的编号
-     * @throws SQLException 写入失败引发的异常
+     * @throws SQLiteException 写入失败引发的异常
      */
-    public static long saveNewBudget(@NonNull Budget budget, Context context) throws SQLException {
+    public static long saveNewBudget(@NonNull Budget budget, Context context) throws SQLiteException {
         BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openWriteLink();
 
@@ -252,5 +298,59 @@ public class Budget {
 
         db.close();
         return bno;
+    }
+
+    /**
+     * 修改预算
+     *
+     * @param budget  修改后的预算实例
+     * @param context 上下文
+     * @throws SQLiteException 写入失败引发的异常
+     */
+    public static void modifyBudget(@NonNull Budget budget, Context context) throws SQLiteException {
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
+        SQLiteDatabase db = dbHelper.openWriteLink();
+
+        //解析数据
+        long bno = budget.getBno();
+        String name = budget.getName();
+        double initAmount = budget.getInitAmount();
+        double leftAmount = budget.getLeftAmount();
+        String startDate = budget.getStartDate();
+        ResetFrequency resetFrequency = budget.getResetFrequency();
+        List<Long> tagNoList = budget.getTagNoList();
+
+        //写入数据
+        String where = BookkeepingColumns.BNO + "=?";
+        String[] whereArgs = {String.valueOf(bno)};
+        ContentValues budgetValues = new ContentValues();
+        budgetValues.put(BookkeepingColumns.BUDGET_NAME.toString(), name);
+        budgetValues.put(BookkeepingColumns.INIT_AMOUNT.toString(), initAmount);
+        budgetValues.put(BookkeepingColumns.LEFT_AMOUNT.toString(), leftAmount);
+        budgetValues.put(BookkeepingColumns.START_DATE.toString(), startDate);
+        budgetValues.put(BookkeepingColumns.RESET_FREQUENCY.toString(), resetFrequency.toString());
+        db.update(BookkeepingTables.BUDGET.toString(), budgetValues, where, whereArgs);
+        modifyTagNoWithBno(db, bno, tagNoList);
+
+        db.close();
+    }
+
+    /**
+     * 删除预算
+     *
+     * @param bno     待删除的预算的编号
+     * @param context 上下文
+     * @throws SQLiteException 写入数据失败引发的异常
+     */
+    public static void deleteBudget(long bno, Context context) throws SQLiteException {
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
+        SQLiteDatabase db = dbHelper.openWriteLink();
+
+        String where = BookkeepingColumns.BNO + "=?";
+        String[] whereArgs = {String.valueOf(bno)};
+        deleteTagNoWithBno(db, bno);
+        db.delete(BookkeepingTables.BUDGET.toString(), where, whereArgs);
+
+        db.close();
     }
 }

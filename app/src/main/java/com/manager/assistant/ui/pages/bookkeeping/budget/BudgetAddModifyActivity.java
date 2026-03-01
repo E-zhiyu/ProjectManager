@@ -15,6 +15,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.chip.Chip;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.databinding.ActivityBudgetAddModifyBinding;
 import com.manager.assistant.isolated_enums.KeyValueStrings;
@@ -103,6 +104,9 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
             this.tagNoList.addAll(tagNoList);
         }
         refreshTagChipGroup();
+
+        //显示删除按钮
+        binding.deleteBtn.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -177,13 +181,18 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
         binding.cancelBtn.setOnClickListener(v -> finish());
 
         //删除按钮
-        binding.deleteBtn.setOnClickListener(v -> {
-            Intent result2BudgetManage = new Intent();
-            Bundle inputData = getInputData();
-            result2BudgetManage.putExtras(inputData);
-            setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2BudgetManage);
-            finish();
-        });
+        binding.deleteBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(this)
+                .setTitle("删除预算")
+                .setMessage("确认要删除该预算吗？")
+                .setPositiveButton("确定", (dialog, which) -> {
+                    Intent result2BudgetManage = new Intent();
+                    Bundle inputData = getInputData();
+                    result2BudgetManage.putExtras(inputData);
+                    setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2BudgetManage);
+                    finish();
+                })
+                .setNegativeButton("取消", null)
+                .show());
     }
 
     /**
@@ -224,17 +233,38 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
     @Nullable
     private String verifyInput() {
         String err = null;
-        String initAmountStr = String.valueOf(binding.initAmountInput.getText());
 
+        //提取部分输入数据
+        String initAmountStr = String.valueOf(binding.initAmountInput.getText());
+        String leftAmountStr = String.valueOf(binding.leftAmountInput.getText());
+        double initAmount, leftAmount;
+        try {
+            initAmount = Double.parseDouble(initAmountStr);
+        } catch (NumberFormatException e) {
+            initAmount = 0;
+        }
+        try {
+            leftAmount = Double.parseDouble(leftAmountStr);
+        } catch (NumberFormatException e) {
+            leftAmount = 0;
+        }
+
+        //进行校验
         if (String.valueOf(binding.budgetNameInput.getText()).isEmpty()) {
             err = "预算名称不能为空";
             binding.budgetNameLayout.setError(err);
         } else if (initAmountStr.isEmpty()) {
             err = "初始金额不能为空";
             binding.initAmountLayout.setError(err);
-        } else if (Double.parseDouble(initAmountStr) == 0) {
+        } else if (initAmount == 0) {
             err = "初始金额不能为0";
             binding.initAmountLayout.setError(err);
+        } else if (leftAmountStr.isEmpty() && isModifyMode) {
+            err = "剩余金额不能为空";
+            binding.leftAmountLayout.setError(err);
+        } else if (leftAmount == 0 && isModifyMode) {
+            err = "剩余金额不能为0";
+            binding.leftAmountLayout.setError(err);
         } else if (tagNoList.isEmpty()) {
             err = "请选择至少一个标签";
         }
