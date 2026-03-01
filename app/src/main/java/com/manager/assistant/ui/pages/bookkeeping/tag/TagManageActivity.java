@@ -220,7 +220,6 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
                         needNewGroup = false;
                         try {
                             group_no = TagGroup.nameTransToGno(groupName, this);
-                            Toast.makeText(this, "标签已成功添加", Toast.LENGTH_SHORT).show();
                         } catch (SQLiteException e) {
                             ExceptionHelper.showExceptionDialog(this, e);
                         }

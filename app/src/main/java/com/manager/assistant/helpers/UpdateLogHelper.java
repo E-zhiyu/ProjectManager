@@ -11,7 +11,12 @@ import com.manager.assistant.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.7.12  \n" +
+    private static final String update_log_md = "# v1.8.0  \n" +
+            "**新增内容**  \n" +
+            "- 新增预算管理功能，能够在预算不足时发送通知提醒用户  \n\n" +
+            "**BUG修复**  \n" +
+            "- 修复不新增标签分组前提下添加标签会重复弹出提示的BUG  \n\n" +
+            "# v1.7.12  \n" +
             "**BUG修复**  \n" +
             "- 修复手动翻页后标题栏不会更新标题的BUG  \n" +
             "- 修复删除流水记录后流水列表不会同步更新的BUG  \n\n" +
