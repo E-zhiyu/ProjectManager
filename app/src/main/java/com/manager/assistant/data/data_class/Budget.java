@@ -405,18 +405,20 @@ public class Budget {
     /**
      * 增加剩余金额
      *
-     * @param tagNo    流水记录的标签编号
-     * @param amount   剩余金额增加的值(可以为负数)
-     * @param datetime 流水记录的日期
-     * @param db       需要写入数据的数据库实例
+     * @param tagNo        流水记录的标签编号
+     * @param amountChange 剩余金额增加的值(可以为负数)
+     * @param datetime     流水记录的日期
+     * @param db           需要写入数据的数据库实例
      * @throws SQLiteException 数据写入失败引发的异常
      */
     private static void increaseLeftAmount(
             long tagNo,
-            double amount,
+            double amountChange,
             @NonNull String datetime,
             SQLiteDatabase db
     ) throws SQLiteException {
+        if (amountChange == 0) return;
+
         //获取需要更新的预算编号列表
         List<Long> bnoList = getBudgetsNeedToUpdate(db, tagNo, datetime);
 
@@ -428,7 +430,7 @@ public class Budget {
         SQLiteStatement statement = db.compileStatement(sql);
 
         //绑定SQL语句的变量
-        statement.bindDouble(1, amount);
+        statement.bindDouble(1, amountChange);
         for (int index = 0; index < bnoList.size(); index++) {
             statement.bindLong(index + 2, bnoList.get(index));
         }
@@ -440,55 +442,19 @@ public class Budget {
     /**
      * 减少剩余金额
      *
-     * @param tagNo    流水记录的标签编号
-     * @param amount   剩余金额减少的值(可以为负数)
-     * @param datetime 流水记录的日期
-     * @param db       需要写入数据的数据库实例
+     * @param tagNo        流水记录的标签编号
+     * @param amountChange 剩余金额减少的值(可以为负数)
+     * @param datetime     流水记录的日期
+     * @param db           需要写入数据的数据库实例
      * @throws SQLiteException 数据写入失败引发的异常
      */
     private static void decreaseLeftAmount(
             long tagNo,
-            double amount,
+            double amountChange,
             String datetime,
             SQLiteDatabase db
     ) throws SQLiteException {
-        increaseLeftAmount(tagNo, -amount, datetime, db);
-    }
-
-    /**
-     * 处理新旧日期差别的方法
-     *
-     * @param tagNo       当前的流水记录标签编号
-     * @param amount      流水记录金额变化量(新减旧)
-     * @param type        流水记录种类
-     * @param oldDatetime 原本的流水记录日期
-     * @param datetime    当前的流水记录日期
-     * @param db          能够写入数据的数据库实例
-     * @throws SQLiteException 数据写入失败引发的异常
-     */
-    private static void processDatetimeDifference(
-            long tagNo,
-            double amount,
-            RunningAccountType type,
-            @NonNull String oldDatetime,
-            @NonNull String datetime,
-            SQLiteDatabase db
-    ) throws SQLiteException {
-        if (oldDatetime.substring(0, 10).equals(datetime.substring(0, 10))) {
-            if (type.isExpenseType()) {
-                decreaseLeftAmount(tagNo, amount, datetime, db);
-            } else if (type.isIncomeType()) {
-                increaseLeftAmount(tagNo, amount, datetime, db);
-            }
-        } else {
-            if (type.isExpenseType()) {
-                increaseLeftAmount(tagNo, amount, oldDatetime, db);
-                decreaseLeftAmount(tagNo, amount, datetime, db);
-            } else if (type.isIncomeType()) {
-                decreaseLeftAmount(tagNo, amount, oldDatetime, db);
-                increaseLeftAmount(tagNo, amount, datetime, db);
-            }
-        }
+        increaseLeftAmount(tagNo, -amountChange, datetime, db);
     }
 
     /**
@@ -496,7 +462,8 @@ public class Budget {
      *
      * @param oldTagNo    原本的流水记录标签编号
      * @param tagNo       当前的流水记录标签编号
-     * @param amount      流水记录金额变化量(新减旧)
+     * @param oldAmount   流水记录原本的金额
+     * @param amount      流水记录当前的金额
      * @param type        流水记录种类
      * @param oldDatetime 原本的流水记录日期
      * @param datetime    当前的流水记录日期
@@ -506,17 +473,29 @@ public class Budget {
     public static void onAccountUpdated(
             long oldTagNo,
             long tagNo,
+            double oldAmount,
             double amount,
             RunningAccountType type,
             String oldDatetime,
             String datetime,
             SQLiteDatabase db
     ) throws SQLiteException {
-        if (oldTagNo == tagNo) {
-            processDatetimeDifference(tagNo, amount, type, oldDatetime, datetime, db);
+        if (oldTagNo == tagNo && oldDatetime.substring(0, 10).equals(datetime.substring(0, 10))) {
+            //如果新旧标签编号和日期相同，则直接用新余额减旧余额
+            if (type.isExpenseType()) {
+                decreaseLeftAmount(tagNo, amount - oldAmount, datetime, db);
+            } else if (type.isIncomeType()) {
+                increaseLeftAmount(tagNo, amount - oldAmount, datetime, db);
+            }
         } else {
-            processDatetimeDifference(oldTagNo, amount, type, oldDatetime, datetime, db);
-            processDatetimeDifference(tagNo, amount, type, oldDatetime, datetime, db);
+            //否则，先撤销旧流水记录的影响，然后再应用新流水记录的影响
+            if (type.isExpenseType()) {
+                increaseLeftAmount(oldTagNo, oldAmount, oldDatetime, db);
+                decreaseLeftAmount(tagNo, amount, datetime, db);
+            } else if (type.isIncomeType()) {
+                decreaseLeftAmount(oldTagNo, oldAmount, oldDatetime, db);
+                increaseLeftAmount(tagNo, amount, datetime, db);
+            }
         }
     }
 }

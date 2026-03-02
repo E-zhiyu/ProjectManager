@@ -285,7 +285,7 @@ public abstract class RunningAccountBase {
         }
 
         //更新预算数据
-        Budget.onAccountUpdated(tagNo, tagNo, amount, type, datetime, datetime, db);
+        Budget.onAccountUpdated(tagNo, tagNo, 0, amount, type, datetime, datetime, db);
 
         db.close();
         return rno;
@@ -372,12 +372,7 @@ public abstract class RunningAccountBase {
         }
 
         //修改预算数据
-        double difference = amount - oldAmount;
-        if (type.isExpenseType()) {
-            Budget.onAccountUpdated(oldTagNo, tagNo, difference, type, oldDatetime, datetime, db);
-        } else if (type.isIncomeType()) {
-            Budget.onAccountUpdated(oldTagNo, tagNo, -difference, type, oldDatetime, datetime, db);
-        }
+        Budget.onAccountUpdated(oldTagNo, tagNo, oldAmount, amount, type, oldDatetime, datetime, db);
 
         db.close();
     }
@@ -404,6 +399,7 @@ public abstract class RunningAccountBase {
                 selectionArgs
         );
 
+        //TODO:加上修改预算数据的逻辑
         db.close();
     }
 
