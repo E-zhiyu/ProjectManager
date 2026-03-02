@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public abstract class RunningAccountBase {
-    protected String title;              //名称
+    protected String title;             //名称
     protected RunningAccountType type;  //种类
     protected String remark;            //备注
     protected String defaultRemark;     //默认备注
@@ -217,28 +217,27 @@ public abstract class RunningAccountBase {
         SQLiteDatabase db = db_helper.openReadLink();
 
         String[] columns = {Columns.DATETIME.toString()};
-        Cursor basic_cursor = db.query(
+        Cursor basicCursor = db.query(
                 Tables.BASIC.toString(),
                 columns,
                 null,
                 null,
                 null,
                 null,
-                Columns.DATETIME.toString(),
-                "1"
+                Columns.DATETIME.toString()
         );
 
-        String earliest_date_str = "";
-        if (basic_cursor.moveToNext()) {
-            earliest_date_str = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(Columns.DATETIME.toString()));
+        String earliestDateStr = "";
+        if (basicCursor.moveToFirst()) {
+            earliestDateStr = basicCursor.getString(basicCursor.getColumnIndexOrThrow(Columns.DATETIME.toString()));
 
             //去除后面的时间部分
-            earliest_date_str = earliest_date_str.substring(0, 10);
+            earliestDateStr = earliestDateStr.substring(0, 10);
         }
 
-        basic_cursor.close();
+        basicCursor.close();
         db.close();
-        return earliest_date_str;
+        return earliestDateStr;
     }
 
     /**
@@ -326,13 +325,12 @@ public abstract class RunningAccountBase {
                 oldSelectionArgs,
                 null,
                 null,
-                null,
-                "1"
+                null
         );
         long oldTagNo = tagNo;
         double oldAmount = amount;
         String oldDatetime = datetime;
-        if (oldDataCursor.moveToNext()) {
+        if (oldDataCursor.moveToFirst()) {
             oldTagNo = oldDataCursor.getLong(oldDataCursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
             oldAmount = oldDataCursor.getDouble(oldDataCursor.getColumnIndexOrThrow(Columns.AMOUNT.toString()));
             oldDatetime = oldDataCursor.getString(oldDataCursor.getColumnIndexOrThrow(Columns.DATETIME.toString()));
@@ -388,6 +386,36 @@ public abstract class RunningAccountBase {
         BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openWriteLink();
 
+        //读取旧数据以便修改预算数据
+        String[] columns = {
+                Columns.AMOUNT.toString(),
+                Columns.TAG_NO.toString(),
+                Columns.DATETIME.toString(),
+                Columns.TYPE.toString()
+        };
+        String oldSelection = Columns.RNO + "=?";
+        String[] oldSelectionArgs = {String.valueOf(rno)};
+        Cursor oldDataCursor = db.query(
+                Tables.BASIC.toString(),
+                columns,
+                oldSelection,
+                oldSelectionArgs,
+                null,
+                null,
+                null
+        );
+        long tagNo = 0;
+        double amount = 0;
+        String datetime = "1970-01-01 00:00";
+        RunningAccountType type = RunningAccountType.TRANSFER;
+        if (oldDataCursor.moveToFirst()) {
+            tagNo = oldDataCursor.getLong(oldDataCursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
+            amount = oldDataCursor.getDouble(oldDataCursor.getColumnIndexOrThrow(Columns.AMOUNT.toString()));
+            datetime = oldDataCursor.getString(oldDataCursor.getColumnIndexOrThrow(Columns.DATETIME.toString()));
+            type = RunningAccountType.valueOf(oldDataCursor.getString(oldDataCursor.getColumnIndexOrThrow(Columns.TYPE.toString())));
+        }
+        oldDataCursor.close();
+
         Picture.deletePicture(rno, db); //删除图片
         TransferRunningAccount.deleteTransferAccount(rno, db);  //删除转账数据(如果是转账类型)
 
@@ -399,7 +427,9 @@ public abstract class RunningAccountBase {
                 selectionArgs
         );
 
-        //TODO:加上修改预算数据的逻辑
+        //更新预算数据
+        Budget.onAccountUpdated(tagNo, tagNo, amount, 0, type, datetime, datetime, db);
+
         db.close();
     }
 
