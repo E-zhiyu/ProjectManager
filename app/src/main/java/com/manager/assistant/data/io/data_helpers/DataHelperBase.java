@@ -13,19 +13,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @param <M> 数据字典类型
  */
 abstract public class DataHelperBase<H extends SQLiteOpenHelper, M> {
-    protected Context context;          //上下文
     protected H dbHelper;              //数据库帮助器
     protected Class<M> mapClass;        //数据字典类型
 
     public DataHelperBase(Context context) {
-        this.context = context;
-        dbHelper = createHelper();
+        dbHelper = createHelper(context);
         mapClass = getMapClass();
     }
 
     protected abstract Class<M> getMapClass();
 
-    protected abstract H createHelper();                //子类需要实现的生成helper类的方法
+    protected abstract H createHelper(Context context); //子类需要实现的生成helper类的方法
 
     protected abstract M getAllDataInMap();             //获取数据字典的方法
 

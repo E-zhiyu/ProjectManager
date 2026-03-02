@@ -1,6 +1,9 @@
 package com.manager.assistant.data.io.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 //标签数据POJO类
+@JsonIgnoreProperties(ignoreUnknown = true) // 忽略JSON中多余字段
 public class PojoTag {
     private String name;    //名称
     private long tno;       //编号

@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.DynamicColorsOptions;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.manager.assistant.data.io.data_helpers.BudgetDataHelper;
 import com.manager.assistant.isolated_enums.LogTags;
 import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.R;
@@ -95,6 +96,11 @@ public class SettingFragment extends Fragment {
                 "通知解析规则数据",
                 "AnalysisRule.json",
                 AnalysisRuleDataHelper::new
+        ),
+        BUDGET_DATA(
+                "预算数据",
+                "Budget.json",
+                BudgetDataHelper::new
         );
         private final String name;              //选项名称
         private final String defaultFileName;   //默认文件名称
@@ -306,10 +312,11 @@ public class SettingFragment extends Fragment {
         clearRunningAccountOption.setFunctionListener(
                 v -> new MaterialAlertDialogBuilder(requireContext())
                         .setTitle("清除数据")
-                        .setMessage("此操作将清除所有流水记录、标签和标签分组数据，确认继续吗？")
+                        .setMessage("此操作将清除所有流水记录、标签、标签分组和预算数据，确认继续吗？")
                         .setPositiveButton("确认", ((dialog, which) -> {
                             dialog.dismiss();
                             RunningAccountDataHelper.deleteAllData(requireContext());
+                            BudgetDataHelper.deleteAllData(requireContext());
                             BookKeepingStartDatePreference.saveStartDate("", requireContext()); //清空已保存的开始记账的日期
 
                             //通过ViewModel提醒流水界面刷新数据
@@ -797,6 +804,9 @@ public class SettingFragment extends Fragment {
                             Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据类型：流水记录数据");
                             RunningAccountDataHelper dataHelper = new RunningAccountDataHelper(requireContext());
                             if (dataHelper.saveJsonDataToDb(contentStr)) {
+                                //清空已保存的开始记账的日期
+                                BookKeepingStartDatePreference.saveStartDate("", requireContext());
+
                                 Toast.makeText(requireContext(), "流水记录数据导入成功", Toast.LENGTH_SHORT).show();
                                 Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据导入成功");
                             } else {
@@ -806,6 +816,9 @@ public class SettingFragment extends Fragment {
                             Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据类型：通知解析规则数据");
                             AnalysisRuleDataHelper dataHelper = new AnalysisRuleDataHelper(requireContext());
                             if (dataHelper.saveJsonDataToDb(contentStr)) {
+                                //清空已保存的开始记账的日期
+                                BookKeepingStartDatePreference.saveStartDate("", requireContext());
+
                                 Toast.makeText(requireContext(), "通知解析规则数据导入成功", Toast.LENGTH_SHORT).show();
                                 Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据导入成功");
                             } else {
@@ -1089,6 +1102,9 @@ public class SettingFragment extends Fragment {
         accountViewModel.onAccountUpdated(0, "", null, AccountUpdateReason.REFRESH);
 
         if (isImportSuccessfully) {
+            //清空已保存的开始记账的日期
+            BookKeepingStartDatePreference.saveStartDate("", requireContext());
+
             Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据已成功导入");
             return true;
         } else {

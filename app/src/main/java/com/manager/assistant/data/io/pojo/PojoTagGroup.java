@@ -1,5 +1,8 @@
 package com.manager.assistant.data.io.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true) // 忽略JSON中多余字段
 public class PojoTagGroup {
     private String group_name;      //标签组名称
     private long group_no;          //标签组编号

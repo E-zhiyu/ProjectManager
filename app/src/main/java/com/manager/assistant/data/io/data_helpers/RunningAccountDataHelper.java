@@ -15,7 +15,6 @@ import com.manager.assistant.isolated_enums.LogTags;
 import com.manager.assistant.data.data_save.database.Columns;
 import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.data_save.database.Tables;
-import com.manager.assistant.data.data_save.preference.BookKeepingStartDatePreference;
 import com.manager.assistant.data.io.pojo.PojoBasicRunningAccount;
 import com.manager.assistant.data.io.pojo.PojoPicture;
 import com.manager.assistant.data.io.pojo.PojoTag;
@@ -36,7 +35,7 @@ public class RunningAccountDataHelper extends DataHelperBase<BookkeepingDbHelper
     }
 
     @Override
-    protected BookkeepingDbHelper createHelper() {
+    protected BookkeepingDbHelper createHelper(Context context) {
         return new BookkeepingDbHelper(context);
     }
 
@@ -59,8 +58,6 @@ public class RunningAccountDataHelper extends DataHelperBase<BookkeepingDbHelper
         setBasicData(pojoBasicRunningAccountList);
         setTransferData(pojoTransferRunningAccountList);
         setPictureData(pojoPictureList == null ? new ArrayList<>() : pojoPictureList);
-
-        BookKeepingStartDatePreference.saveStartDate("", context);  //清空已保存的开始记账的日期
     }
 
     @Override
@@ -408,8 +405,8 @@ public class RunningAccountDataHelper extends DataHelperBase<BookkeepingDbHelper
      */
     public static void deleteAllData(@NonNull Context context) {
         String tipStr = "数据清除失败，原因未知";
-        try (BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context)) {
-            SQLiteDatabase db = db_helper.openWriteLink();
+        try (BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context)) {
+            SQLiteDatabase db = dbHelper.openWriteLink();
 
             db.delete(Tables.TRANSFER.toString(), null, null);
             db.delete(Tables.BASIC.toString(), null, null);
@@ -431,11 +428,15 @@ public class RunningAccountDataHelper extends DataHelperBase<BookkeepingDbHelper
             }
 
             //删除通知解析规则的标签数据
-            ContentValues rule_tag_value = new ContentValues();
-            rule_tag_value.put(Columns.TAG_NO.toString(), 0);
-            db.update(Tables.ANALYSIS_RULE.toString(), rule_tag_value, null, null);
+            ContentValues ruleTagValues = new ContentValues();
+            ruleTagValues.put(Columns.TAG_NO.toString(), 0);
+            db.update(Tables.ANALYSIS_RULE.toString(), ruleTagValues, null, null);
+
+            //删除预算的标签数据
+            db.delete(Tables.BUDGET_TAG.toString(), null, null);
 
             tipStr = "数据清除成功";
+            db.close();
         } catch (SQLiteDatabaseLockedException e) {
             tipStr = "数据清除失败：数据库异常";
         } finally {

@@ -1,6 +1,9 @@
 package com.manager.assistant.data.io.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 //转账流水数据POJO类
+@JsonIgnoreProperties(ignoreUnknown = true) // 忽略JSON中多余字段
 public class PojoTransferRunningAccount {
     private String export_account, import_account;
     private long rno;

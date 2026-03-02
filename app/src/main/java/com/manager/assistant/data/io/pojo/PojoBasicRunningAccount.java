@@ -1,6 +1,9 @@
 package com.manager.assistant.data.io.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 //流水基本数据POJO类
+@JsonIgnoreProperties(ignoreUnknown = true) // 忽略JSON中多余字段
 public class PojoBasicRunningAccount {
     private String type;        //种类
     private String remark;      //备注

@@ -44,7 +44,7 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookkeepingDbHelper, 
     }
 
     @Override
-    protected BookkeepingDbHelper createHelper() {
+    protected BookkeepingDbHelper createHelper(Context context) {
         return new BookkeepingDbHelper(context);
     }
 

@@ -1,5 +1,8 @@
 package com.manager.assistant.data.io.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true) // 忽略JSON中多余字段
 public class PojoPicture {
     private long pno;   //图片编号
     private long rno;   //所属流水编号
