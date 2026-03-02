@@ -273,21 +273,22 @@ public class Tag {
     /**
      * 删除标签
      *
-     * @param tag_no  待删除标签的编号
+     * @param tagNo   待删除标签的编号
      * @param context 打开数据库所需的上下文
      * @throws SQLiteException 无法修改数据库时引发的异常
      */
-    public static void deleteTag(long tag_no, Context context) throws SQLiteException {
+    public static void deleteTag(long tagNo, Context context) throws SQLiteException {
         BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         ContentValues nonTagValues = new ContentValues();
         nonTagValues.put(Columns.TAG_NO.toString(), 0);
         String whereStr = Columns.TAG_NO + "=?";
-        String[] whereStrArgs = {String.valueOf(tag_no)};
+        String[] whereStrArgs = {String.valueOf(tagNo)};
 
-        RunningAccountBase.setDefaultTagNo(tag_no, db); //清除流水记录里面的标签编号
-        AnalysisRule.setDefaultTagNo(tag_no, db);       //清除通知解析规则中的标签编号
+        RunningAccountBase.onTagDeleted(tagNo, db); //清除流水记录里面的标签编号
+        AnalysisRule.onTagDeleted(tagNo, db);       //清除通知解析规则中的标签编号
+        Budget.onTagDeleted(tagNo, db);             //删除预算中的标签编号数据
 
         //再删除对应标签
         db.delete(
@@ -324,8 +325,8 @@ public class Tag {
         //清空引用了标签编号的数据
         while (tagCursor.moveToNext()) {
             long tag_no = tagCursor.getLong(tagCursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
-            RunningAccountBase.setDefaultTagNo(tag_no, db); //清除流水记录里面的标签编号
-            AnalysisRule.setDefaultTagNo(tag_no, db);       //清除通知解析规则中的标签编号
+            RunningAccountBase.onTagDeleted(tag_no, db); //清除流水记录里面的标签编号
+            AnalysisRule.onTagDeleted(tag_no, db);       //清除通知解析规则中的标签编号
         }
         tagCursor.close();
 

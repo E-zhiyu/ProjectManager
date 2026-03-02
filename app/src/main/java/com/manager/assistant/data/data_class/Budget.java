@@ -498,4 +498,17 @@ public class Budget {
             }
         }
     }
+
+    /**
+     * 删除一个标签记录
+     *
+     * @param tagNo 待被删除的标签的编号
+     * @param db    可写的数据库实例
+     * @throws SQLiteException 数据写入失败引发的异常
+     */
+    public static void onTagDeleted(long tagNo, @NonNull SQLiteDatabase db) throws SQLiteException {
+        String where = Columns.TAG_NO + "=?";
+        String[] whereArgs = {String.valueOf(tagNo)};
+        db.delete(Tables.BUDGET_TAG.toString(), where, whereArgs);
+    }
 }
