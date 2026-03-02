@@ -8,9 +8,9 @@ import android.database.sqlite.SQLiteException;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.data.data_save.database.BookkeepingColumns;
+import com.manager.assistant.data.data_save.database.Columns;
 import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
-import com.manager.assistant.data.data_save.database.BookkeepingTables;
+import com.manager.assistant.data.data_save.database.Tables;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.data.io.pojo.PojoTagGroup;
 
@@ -81,11 +81,11 @@ public class TagGroup {
         BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
 
-        String[] columns = {BookkeepingColumns.GROUP_NO.toString()};
-        String selection = BookkeepingColumns.GROUP_NAME + "=?";
+        String[] columns = {Columns.GROUP_NO.toString()};
+        String selection = Columns.GROUP_NAME + "=?";
         String[] selectionArgs = {group_name};
         Cursor cursor = db.query(
-                BookkeepingTables.TAG_GROUP.toString(),
+                Tables.TAG_GROUP.toString(),
                 columns,
                 selection,
                 selectionArgs,
@@ -97,7 +97,7 @@ public class TagGroup {
 
         long group_no;
         if (cursor.moveToNext()) {
-            group_no = cursor.getLong(cursor.getColumnIndexOrThrow(BookkeepingColumns.GROUP_NO.toString()));
+            group_no = cursor.getLong(cursor.getColumnIndexOrThrow(Columns.GROUP_NO.toString()));
         } else {
             group_no = -1;
         }
@@ -120,8 +120,8 @@ public class TagGroup {
         SQLiteDatabase db = db_helper.openWriteLink();
 
         ContentValues group_values = new ContentValues();
-        group_values.put(BookkeepingColumns.GROUP_NAME.toString(), group_name);
-        long group_no = db.insert(BookkeepingTables.TAG_GROUP.toString(), null, group_values);
+        group_values.put(Columns.GROUP_NAME.toString(), group_name);
+        long group_no = db.insert(Tables.TAG_GROUP.toString(), null, group_values);
 
         db.close();
         return group_no;
@@ -156,17 +156,17 @@ public class TagGroup {
 
         //先查询分组表
         Cursor group_cursor = db.query(
-                BookkeepingTables.TAG_GROUP.toString(),
+                Tables.TAG_GROUP.toString(),
                 null,
                 null,
                 null,
                 null,
                 null,
-                BookkeepingColumns.GROUP_NO.toString()
+                Columns.GROUP_NO.toString()
         );
         while (group_cursor.moveToNext()) {
-            String group_name = group_cursor.getString(group_cursor.getColumnIndexOrThrow(BookkeepingColumns.GROUP_NAME.toString()));
-            long group_no = group_cursor.getLong(group_cursor.getColumnIndexOrThrow(BookkeepingColumns.GROUP_NO.toString()));
+            String group_name = group_cursor.getString(group_cursor.getColumnIndexOrThrow(Columns.GROUP_NAME.toString()));
+            long group_no = group_cursor.getLong(group_cursor.getColumnIndexOrThrow(Columns.GROUP_NO.toString()));
             tagGroupList.add(new TagGroup(group_name, group_no));
         }
 
@@ -177,26 +177,26 @@ public class TagGroup {
             selection = String.format(
                     Locale.getDefault(),
                     "%s&%d==0",     //某一位为0表示这个标签对于该位数对应的序列数的种类可见
-                    BookkeepingColumns.TAG_SCOPE,
+                    Columns.TAG_SCOPE,
                     binary
             );
         }
 
         //再查询标签表
         Cursor tagCursor = db.query(
-                BookkeepingTables.TAG.toString(),
+                Tables.TAG.toString(),
                 null,
                 selection,
                 null,
                 null,
                 null,
-                BookkeepingColumns.TAG_NO.toString()
+                Columns.TAG_NO.toString()
         );
         while (tagCursor.moveToNext()) {
-            String tag_name = tagCursor.getString(tagCursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NAME.toString()));    //标签名称
-            long tag_no = tagCursor.getLong(tagCursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NO.toString()));            //标签编号
-            long group_no = tagCursor.getLong(tagCursor.getColumnIndexOrThrow(BookkeepingColumns.GROUP_NO.toString()));        //分组编号
-            int tag_scope = tagCursor.getInt(tagCursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_SCOPE.toString()));
+            String tag_name = tagCursor.getString(tagCursor.getColumnIndexOrThrow(Columns.TAG_NAME.toString()));    //标签名称
+            long tag_no = tagCursor.getLong(tagCursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));            //标签编号
+            long group_no = tagCursor.getLong(tagCursor.getColumnIndexOrThrow(Columns.GROUP_NO.toString()));        //分组编号
+            int tag_scope = tagCursor.getInt(tagCursor.getColumnIndexOrThrow(Columns.TAG_SCOPE.toString()));
             Tag oneTag = new Tag(tag_name, tag_no, tag_scope);
 
             if (tag_no == excepted_tno) continue;   //不添加被排除的标签
@@ -228,9 +228,9 @@ public class TagGroup {
         SQLiteDatabase db = db_helper.openReadLink();
         List<PojoTagGroup> tagGroupList = new ArrayList<>();
 
-        String[] columns = {BookkeepingColumns.GROUP_NO.toString(), BookkeepingColumns.GROUP_NAME.toString()};
+        String[] columns = {Columns.GROUP_NO.toString(), Columns.GROUP_NAME.toString()};
         Cursor group_cursor = db.query(
-                BookkeepingTables.TAG_GROUP.toString(),
+                Tables.TAG_GROUP.toString(),
                 columns,
                 null,
                 null,
@@ -240,8 +240,8 @@ public class TagGroup {
         );
 
         while (group_cursor.moveToNext()) {
-            String group_name = group_cursor.getString(group_cursor.getColumnIndexOrThrow(BookkeepingColumns.GROUP_NAME.toString()));
-            long group_no = group_cursor.getLong(group_cursor.getColumnIndexOrThrow(BookkeepingColumns.GROUP_NO.toString()));
+            String group_name = group_cursor.getString(group_cursor.getColumnIndexOrThrow(Columns.GROUP_NAME.toString()));
+            long group_no = group_cursor.getLong(group_cursor.getColumnIndexOrThrow(Columns.GROUP_NO.toString()));
 
             PojoTagGroup oneGroup = new PojoTagGroup(group_name, group_no);
             tagGroupList.add(oneGroup);
@@ -265,11 +265,11 @@ public class TagGroup {
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //修改分组名称
-        String where = BookkeepingColumns.GROUP_NO + "=?";
+        String where = Columns.GROUP_NO + "=?";
         String[] whereArgs = {String.valueOf(group_no)};
         ContentValues group_values = new ContentValues();
-        group_values.put(BookkeepingColumns.GROUP_NAME.toString(), group_name);
-        db.update(BookkeepingTables.TAG_GROUP.toString(), group_values, where, whereArgs);
+        group_values.put(Columns.GROUP_NAME.toString(), group_name);
+        db.update(Tables.TAG_GROUP.toString(), group_values, where, whereArgs);
 
         db.close();
     }
@@ -287,9 +287,9 @@ public class TagGroup {
 
         Tag.deleteTag(group_no, db);    //删除分组内的标签
 
-        String where = BookkeepingColumns.GROUP_NO + "=?";
+        String where = Columns.GROUP_NO + "=?";
         String[] whereArgs = {String.valueOf(group_no)};
-        db.delete(BookkeepingTables.TAG_GROUP.toString(), where, whereArgs);
+        db.delete(Tables.TAG_GROUP.toString(), where, whereArgs);
 
         db.close();
     }
@@ -307,14 +307,14 @@ public class TagGroup {
         SQLiteDatabase db = db_helper.openWriteLink();
 
         //更改对应标签的分组编号
-        String where = BookkeepingColumns.GROUP_NO + "=?";
+        String where = Columns.GROUP_NO + "=?";
         String[] whereArgs = {String.valueOf(merged_group_no)};
         ContentValues new_group_no_values = new ContentValues();
-        new_group_no_values.put(BookkeepingColumns.GROUP_NO.toString(), merge_target_no);
-        db.update(BookkeepingTables.TAG.toString(), new_group_no_values, where, whereArgs);
+        new_group_no_values.put(Columns.GROUP_NO.toString(), merge_target_no);
+        db.update(Tables.TAG.toString(), new_group_no_values, where, whereArgs);
 
         //删除被合并的分组
-        db.delete(BookkeepingTables.TAG_GROUP.toString(), where, whereArgs);
+        db.delete(Tables.TAG_GROUP.toString(), where, whereArgs);
 
         db.close();
     }

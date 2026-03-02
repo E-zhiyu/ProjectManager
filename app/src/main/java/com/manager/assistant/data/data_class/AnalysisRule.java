@@ -9,9 +9,9 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.data.data_save.database.BookkeepingColumns;
+import com.manager.assistant.data.data_save.database.Columns;
 import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
-import com.manager.assistant.data.data_save.database.BookkeepingTables;
+import com.manager.assistant.data.data_save.database.Tables;
 import com.manager.assistant.isolated_enums.KeyValueStrings;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
@@ -74,22 +74,22 @@ public class AnalysisRule {
         List<AnalysisRule> ruleList = new ArrayList<>();
 
         Cursor ruleCursor = db.query(
-                BookkeepingTables.ANALYSIS_RULE.toString(),
+                Tables.ANALYSIS_RULE.toString(),
                 null,
                 null,
                 null,
                 null,
                 null,
-                BookkeepingColumns.RULE_NO.toString()
+                Columns.RULE_NO.toString()
         );
 
         while (ruleCursor.moveToNext()) {
-            String name = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(BookkeepingColumns.RULE_NAME.toString()));
-            long ruleNo = ruleCursor.getLong(ruleCursor.getColumnIndexOrThrow(BookkeepingColumns.RULE_NO.toString()));
-            RunningAccountType type = RunningAccountType.valueOf(ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(BookkeepingColumns.TYPE.toString())));
-            String packageName = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(BookkeepingColumns.PACKAGE_NAME.toString()));
-            String title = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(BookkeepingColumns.NOTIFICATION_TITLE.toString()));
-            String content = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(BookkeepingColumns.NOTIFICATION_CONTENT.toString()));
+            String name = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(Columns.RULE_NAME.toString()));
+            long ruleNo = ruleCursor.getLong(ruleCursor.getColumnIndexOrThrow(Columns.RULE_NO.toString()));
+            RunningAccountType type = RunningAccountType.valueOf(ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(Columns.TYPE.toString())));
+            String packageName = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(Columns.PACKAGE_NAME.toString()));
+            String title = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(Columns.NOTIFICATION_TITLE.toString()));
+            String content = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(Columns.NOTIFICATION_CONTENT.toString()));
 
             AnalysisRule rule = new AnalysisRule(name, ruleNo, type, packageName, title, content);
             ruleList.add(rule);
@@ -122,13 +122,13 @@ public class AnalysisRule {
 
         //将数据写入数据库
         ContentValues ruleValues = new ContentValues();
-        ruleValues.put(BookkeepingColumns.RULE_NAME.toString(), ruleName);
-        ruleValues.put(BookkeepingColumns.TYPE.toString(), type);
-        ruleValues.put(BookkeepingColumns.TAG_NO.toString(), tagNo);
-        ruleValues.put(BookkeepingColumns.PACKAGE_NAME.toString(), packageName);
-        ruleValues.put(BookkeepingColumns.NOTIFICATION_TITLE.toString(), notificationTitle);
-        ruleValues.put(BookkeepingColumns.NOTIFICATION_CONTENT.toString(), notificationContent);
-        long rule_no = db.insert(BookkeepingTables.ANALYSIS_RULE.toString(), null, ruleValues);    //获取自增主键值
+        ruleValues.put(Columns.RULE_NAME.toString(), ruleName);
+        ruleValues.put(Columns.TYPE.toString(), type);
+        ruleValues.put(Columns.TAG_NO.toString(), tagNo);
+        ruleValues.put(Columns.PACKAGE_NAME.toString(), packageName);
+        ruleValues.put(Columns.NOTIFICATION_TITLE.toString(), notificationTitle);
+        ruleValues.put(Columns.NOTIFICATION_CONTENT.toString(), notificationContent);
+        long rule_no = db.insert(Tables.ANALYSIS_RULE.toString(), null, ruleValues);    //获取自增主键值
 
         //写入转账类型特有的数据
         if (type != null && type.equals(RunningAccountType.TRANSFER.toString())) {
@@ -136,10 +136,10 @@ public class AnalysisRule {
             String importAccount = newRuleData.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());
 
             ContentValues accountValues = new ContentValues();
-            accountValues.put(BookkeepingColumns.EXPORT.toString(), exportAccount);
-            accountValues.put(BookkeepingColumns.IMPORT.toString(), importAccount);
-            accountValues.put(BookkeepingColumns.RULE_NO.toString(), rule_no);
-            db.insert(BookkeepingTables.RULE_ACCOUNT.toString(), null, accountValues);
+            accountValues.put(Columns.EXPORT.toString(), exportAccount);
+            accountValues.put(Columns.IMPORT.toString(), importAccount);
+            accountValues.put(Columns.RULE_NO.toString(), rule_no);
+            db.insert(Tables.RULE_ACCOUNT.toString(), null, accountValues);
         }
 
         db.close();
@@ -166,16 +166,16 @@ public class AnalysisRule {
         String notificationTitle = ruleData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
         String notificationContent = ruleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
 
-        String where = BookkeepingColumns.RULE_NO + "=?";
+        String where = Columns.RULE_NO + "=?";
         String[] whereArgs = {String.valueOf(ruleNo)};
         ContentValues ruleValues = new ContentValues();
-        ruleValues.put(BookkeepingColumns.RULE_NAME.toString(), ruleName);
-        ruleValues.put(BookkeepingColumns.TYPE.toString(), type);
-        ruleValues.put(BookkeepingColumns.TAG_NO.toString(), tagNo);
-        ruleValues.put(BookkeepingColumns.PACKAGE_NAME.toString(), packageName);
-        ruleValues.put(BookkeepingColumns.NOTIFICATION_TITLE.toString(), notificationTitle);
-        ruleValues.put(BookkeepingColumns.NOTIFICATION_CONTENT.toString(), notificationContent);
-        db.update(BookkeepingTables.ANALYSIS_RULE.toString(), ruleValues, where, whereArgs);
+        ruleValues.put(Columns.RULE_NAME.toString(), ruleName);
+        ruleValues.put(Columns.TYPE.toString(), type);
+        ruleValues.put(Columns.TAG_NO.toString(), tagNo);
+        ruleValues.put(Columns.PACKAGE_NAME.toString(), packageName);
+        ruleValues.put(Columns.NOTIFICATION_TITLE.toString(), notificationTitle);
+        ruleValues.put(Columns.NOTIFICATION_CONTENT.toString(), notificationContent);
+        db.update(Tables.ANALYSIS_RULE.toString(), ruleValues, where, whereArgs);
 
         //修改记账类型专有的数据
         if (type != null && type.equals(RunningAccountType.TRANSFER.toString())) {
@@ -183,9 +183,9 @@ public class AnalysisRule {
             String importAccount = ruleData.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());
 
             ContentValues accountValues = new ContentValues();
-            accountValues.put(BookkeepingColumns.EXPORT.toString(), exportAccount);
-            accountValues.put(BookkeepingColumns.IMPORT.toString(), importAccount);
-            db.update(BookkeepingTables.RULE_ACCOUNT.toString(), accountValues, where, whereArgs);
+            accountValues.put(Columns.EXPORT.toString(), exportAccount);
+            accountValues.put(Columns.IMPORT.toString(), importAccount);
+            db.update(Tables.RULE_ACCOUNT.toString(), accountValues, where, whereArgs);
         }
 
         db.close();
@@ -202,10 +202,10 @@ public class AnalysisRule {
         BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openWriteLink();
 
-        String where = BookkeepingColumns.RULE_NO + "=?";
+        String where = Columns.RULE_NO + "=?";
         String[] whereArgs = {String.valueOf(rule_no)};
-        db.delete(BookkeepingTables.ANALYSIS_RULE.toString(), where, whereArgs);
-        db.delete(BookkeepingTables.RULE_ACCOUNT.toString(), where, whereArgs);
+        db.delete(Tables.ANALYSIS_RULE.toString(), where, whereArgs);
+        db.delete(Tables.RULE_ACCOUNT.toString(), where, whereArgs);
 
         db.close();
     }
@@ -218,13 +218,13 @@ public class AnalysisRule {
      * @throws SQLiteException 数据库修改失败引发的异常
      */
     public static void setDefaultTagNo(long tag_no, @NonNull SQLiteDatabase db) throws SQLiteException {
-        String where = BookkeepingColumns.TAG_NO + "=?";
+        String where = Columns.TAG_NO + "=?";
         String[] whereArgs = {String.valueOf(tag_no)};
 
         ContentValues ruleValues = new ContentValues();
-        ruleValues.put(BookkeepingColumns.TAG_NO.toString(), 0);
+        ruleValues.put(Columns.TAG_NO.toString(), 0);
         db.update(
-                BookkeepingTables.ANALYSIS_RULE.toString(),
+                Tables.ANALYSIS_RULE.toString(),
                 ruleValues,
                 where,
                 whereArgs
@@ -245,13 +245,13 @@ public class AnalysisRule {
         SQLiteDatabase db = dbHelper.openReadLink();
 
         String[] columns = {
-                BookkeepingColumns.EXPORT.toString(),
-                BookkeepingColumns.IMPORT.toString()
+                Columns.EXPORT.toString(),
+                Columns.IMPORT.toString()
         };
-        String selection = BookkeepingColumns.RULE_NO + "=?";
+        String selection = Columns.RULE_NO + "=?";
         String[] selectionArgs = {String.valueOf(ruleNo)};
         Cursor accountCursor = db.query(
-                BookkeepingTables.RULE_ACCOUNT.toString(),
+                Tables.RULE_ACCOUNT.toString(),
                 columns,
                 selection,
                 selectionArgs,
@@ -262,8 +262,8 @@ public class AnalysisRule {
         );
 
         if (accountCursor.moveToNext()) {
-            String exportAccount = accountCursor.getString(accountCursor.getColumnIndexOrThrow(BookkeepingColumns.EXPORT.toString()));
-            String importAccount = accountCursor.getString(accountCursor.getColumnIndexOrThrow(BookkeepingColumns.IMPORT.toString()));
+            String exportAccount = accountCursor.getString(accountCursor.getColumnIndexOrThrow(Columns.EXPORT.toString()));
+            String importAccount = accountCursor.getString(accountCursor.getColumnIndexOrThrow(Columns.IMPORT.toString()));
             accountList.add(exportAccount);
             accountList.add(importAccount);
         }
@@ -285,11 +285,11 @@ public class AnalysisRule {
         SQLiteDatabase db = dbHelper.openReadLink();
 
         String[] columns = {
-                BookkeepingColumns.EXPORT.toString(),
-                BookkeepingColumns.IMPORT.toString()
+                Columns.EXPORT.toString(),
+                Columns.IMPORT.toString()
         };
         Cursor accountCursor = db.query(
-                BookkeepingTables.RULE_ACCOUNT.toString(),
+                Tables.RULE_ACCOUNT.toString(),
                 columns,
                 null,
                 null,
@@ -300,8 +300,8 @@ public class AnalysisRule {
 
         HashSet<String> accountSet = new HashSet<>();
         while (accountCursor.moveToNext()) {
-            String exportAccount = accountCursor.getString(accountCursor.getColumnIndexOrThrow(BookkeepingColumns.EXPORT.toString()));
-            String importAccount = accountCursor.getString(accountCursor.getColumnIndexOrThrow(BookkeepingColumns.IMPORT.toString()));
+            String exportAccount = accountCursor.getString(accountCursor.getColumnIndexOrThrow(Columns.EXPORT.toString()));
+            String importAccount = accountCursor.getString(accountCursor.getColumnIndexOrThrow(Columns.IMPORT.toString()));
             accountSet.add(exportAccount);
             accountSet.add(importAccount);
         }

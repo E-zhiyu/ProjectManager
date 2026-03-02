@@ -11,9 +11,9 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.manager.assistant.isolated_enums.LogTags;
-import com.manager.assistant.data.data_save.database.BookkeepingColumns;
+import com.manager.assistant.data.data_save.database.Columns;
 import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
-import com.manager.assistant.data.data_save.database.BookkeepingTables;
+import com.manager.assistant.data.data_save.database.Tables;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -64,22 +64,22 @@ public class Picture {
         SQLiteDatabase db = db_helper.openReadLink();
         List<Picture> pictureList = new ArrayList<>();
 
-        String selection = BookkeepingColumns.RNO + "=?";
+        String selection = Columns.RNO + "=?";
         String[] selectionArgs = {String.valueOf(target_rno)};
         Cursor picture_cursor = db.query(
-                BookkeepingTables.PICTURE.toString(),
+                Tables.PICTURE.toString(),
                 null,
                 selection,
                 selectionArgs,
                 null,
                 null,
-                BookkeepingColumns.PNO.toString()
+                Columns.PNO.toString()
         );
 
         while (picture_cursor.moveToNext()) {
-            String pictureUri = picture_cursor.getString(picture_cursor.getColumnIndexOrThrow(BookkeepingColumns.PICTURE_URI.toString()));
-            long rno = picture_cursor.getLong(picture_cursor.getColumnIndexOrThrow(BookkeepingColumns.RNO.toString()));
-            long pno = picture_cursor.getLong(picture_cursor.getColumnIndexOrThrow(BookkeepingColumns.PNO.toString()));
+            String pictureUri = picture_cursor.getString(picture_cursor.getColumnIndexOrThrow(Columns.PICTURE_URI.toString()));
+            long rno = picture_cursor.getLong(picture_cursor.getColumnIndexOrThrow(Columns.RNO.toString()));
+            long pno = picture_cursor.getLong(picture_cursor.getColumnIndexOrThrow(Columns.PNO.toString()));
 
             Picture newPicture = new Picture(Uri.parse(pictureUri), rno);
             newPicture.setPno(pno);
@@ -107,9 +107,9 @@ public class Picture {
             String uriStr = picture.toURI().toString();
 
             ContentValues pictureValues = new ContentValues();
-            pictureValues.put(BookkeepingColumns.PICTURE_URI.toString(), uriStr);
-            pictureValues.put(BookkeepingColumns.RNO.toString(), rno);
-            db.insert(BookkeepingTables.PICTURE.toString(), null, pictureValues);
+            pictureValues.put(Columns.PICTURE_URI.toString(), uriStr);
+            pictureValues.put(Columns.RNO.toString(), rno);
+            db.insert(Tables.PICTURE.toString(), null, pictureValues);
         }
 
         db.close();
@@ -126,9 +126,9 @@ public class Picture {
         BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openWriteLink();
 
-        String where = BookkeepingColumns.PNO + "=?";
+        String where = Columns.PNO + "=?";
         String[] whereArgs = {String.valueOf(pno)};
-        db.delete(BookkeepingTables.PICTURE.toString(), where, whereArgs);
+        db.delete(Tables.PICTURE.toString(), where, whereArgs);
 
         db.close();
     }
@@ -142,11 +142,11 @@ public class Picture {
      */
     public static void deletePicture(long rno, @NonNull SQLiteDatabase db) throws SQLiteException {
         //查询图片Uri
-        String[] columns = {BookkeepingColumns.PICTURE_URI.toString()};
-        String selection = BookkeepingColumns.RNO + "=?";
+        String[] columns = {Columns.PICTURE_URI.toString()};
+        String selection = Columns.RNO + "=?";
         String[] selectionArgs = {String.valueOf(rno)};
         Cursor pictureCursor = db.query(
-                BookkeepingTables.PICTURE.toString(),
+                Tables.PICTURE.toString(),
                 columns,
                 selection,
                 selectionArgs,
@@ -157,7 +157,7 @@ public class Picture {
 
         //通过Uri删除图片文件
         while (pictureCursor.moveToNext()) {
-            String uriStr = pictureCursor.getString(pictureCursor.getColumnIndexOrThrow(BookkeepingColumns.PICTURE_URI.toString()));
+            String uriStr = pictureCursor.getString(pictureCursor.getColumnIndexOrThrow(Columns.PICTURE_URI.toString()));
             File pictureFile = new File(Objects.requireNonNull(Uri.parse(uriStr).getPath()));
 
             if (!pictureFile.exists() || !pictureFile.delete()) {
@@ -166,7 +166,7 @@ public class Picture {
         }
 
         //删除数据库中的条目
-        db.delete(BookkeepingTables.PICTURE.toString(), selection,selectionArgs);
+        db.delete(Tables.PICTURE.toString(), selection,selectionArgs);
 
         pictureCursor.close();
     }

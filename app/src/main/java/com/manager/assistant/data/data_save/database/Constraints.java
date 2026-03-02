@@ -2,7 +2,7 @@ package com.manager.assistant.data.data_save.database;
 
 import androidx.annotation.NonNull;
 
-public enum BookkeepingConstraints {
+public enum Constraints {
     FK_TAG_NO("fk_tag_no"),         //标签编号外键约束
     FK_RNO("fk_rno"),               //流水账编号外键约束
     FK_RULE_NO("fk_rule_no"),       //规则编号外键约束
@@ -11,7 +11,7 @@ public enum BookkeepingConstraints {
 
     private final String value;
 
-    BookkeepingConstraints(String value) {
+    Constraints(String value) {
         this.value = value;
     }
 

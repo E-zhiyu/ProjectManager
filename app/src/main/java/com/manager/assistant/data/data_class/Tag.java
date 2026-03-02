@@ -10,9 +10,9 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 
 import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
-import com.manager.assistant.data.data_save.database.BookkeepingColumns;
+import com.manager.assistant.data.data_save.database.Columns;
 import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
-import com.manager.assistant.data.data_save.database.BookkeepingTables;
+import com.manager.assistant.data.data_save.database.Tables;
 
 import org.jetbrains.annotations.Contract;
 
@@ -69,11 +69,11 @@ public class Tag {
         BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
 
-        String[] columns = {BookkeepingColumns.TAG_NO.toString()};
-        String selection = BookkeepingColumns.TAG_NAME + "=?";
+        String[] columns = {Columns.TAG_NO.toString()};
+        String selection = Columns.TAG_NAME + "=?";
         String[] selectionArgs = {name};
         Cursor cursor = db.query(
-                BookkeepingTables.TAG.toString(),
+                Tables.TAG.toString(),
                 columns,
                 selection,
                 selectionArgs,
@@ -85,7 +85,7 @@ public class Tag {
 
         int tag_no;
         if (cursor.moveToNext()) {
-            tag_no = cursor.getInt(cursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NO.toString()));
+            tag_no = cursor.getInt(cursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
         } else {
             tag_no = 0;
         }
@@ -107,11 +107,11 @@ public class Tag {
         BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
 
-        String[] columns = {BookkeepingColumns.TAG_NAME.toString()};
-        String selection = BookkeepingColumns.TAG_NO + "=?";
+        String[] columns = {Columns.TAG_NAME.toString()};
+        String selection = Columns.TAG_NO + "=?";
         String[] selectionArgs = {String.valueOf(tag_no)};
         Cursor cursor = db.query(
-                BookkeepingTables.TAG.toString(),
+                Tables.TAG.toString(),
                 columns,
                 selection,
                 selectionArgs,
@@ -123,7 +123,7 @@ public class Tag {
 
         String tag_name;
         if (cursor.moveToNext()) {
-            tag_name = cursor.getString(cursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NAME.toString()));
+            tag_name = cursor.getString(cursor.getColumnIndexOrThrow(Columns.TAG_NAME.toString()));
         } else {
             tag_name = "";
         }
@@ -152,17 +152,17 @@ public class Tag {
 
         //生成选择条件
         StringBuilder selection;
-        selection = new StringBuilder(BookkeepingColumns.TAG_NO + " IN (");
+        selection = new StringBuilder(Columns.TAG_NO + " IN (");
         selection.append(TextUtils.join(",", Collections.nCopies(tagNoList.size(), "?")));
         selection.append(")");
 
         String[] columns = {
-                BookkeepingColumns.TAG_NAME.toString(),
-                BookkeepingColumns.TAG_NO.toString(),
-                BookkeepingColumns.TAG_SCOPE.toString()
+                Columns.TAG_NAME.toString(),
+                Columns.TAG_NO.toString(),
+                Columns.TAG_SCOPE.toString()
         };
         Cursor cursor = db.query(
-                BookkeepingTables.TAG.toString(),
+                Tables.TAG.toString(),
                 columns,
                 selection.toString(),
                 tagNoList.stream().map(String::valueOf).toArray(String[]::new),
@@ -173,9 +173,9 @@ public class Tag {
 
         List<Tag> tagList = new ArrayList<>();
         while (cursor.moveToNext()) {
-            String tagName = cursor.getString(cursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NAME.toString()));
-            long tag_no = cursor.getLong(cursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NO.toString()));
-            int scope = cursor.getInt(cursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_SCOPE.toString()));
+            String tagName = cursor.getString(cursor.getColumnIndexOrThrow(Columns.TAG_NAME.toString()));
+            long tag_no = cursor.getLong(cursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
+            int scope = cursor.getInt(cursor.getColumnIndexOrThrow(Columns.TAG_SCOPE.toString()));
             tagList.add(new Tag(tagName, tag_no, scope));
         }
 
@@ -201,10 +201,10 @@ public class Tag {
         SQLiteDatabase db = db_helper.openWriteLink();
 
         ContentValues tagValues = new ContentValues();
-        tagValues.put(BookkeepingColumns.TAG_NAME.toString(), tagName);
-        tagValues.put(BookkeepingColumns.TAG_SCOPE.toString(), tag_scope);
-        tagValues.put(BookkeepingColumns.GROUP_NO.toString(), group_no);
-        tag_no = db.insert(BookkeepingTables.TAG.toString(), null, tagValues);
+        tagValues.put(Columns.TAG_NAME.toString(), tagName);
+        tagValues.put(Columns.TAG_SCOPE.toString(), tag_scope);
+        tagValues.put(Columns.GROUP_NO.toString(), group_no);
+        tag_no = db.insert(Tables.TAG.toString(), null, tagValues);
 
         db.close();
         return tag_no;
@@ -221,16 +221,16 @@ public class Tag {
      */
     public static void modifyTag(String new_name, long tag_no, int tag_scope, Context context) throws SQLiteException {
         ContentValues tagValues = new ContentValues();
-        tagValues.put(BookkeepingColumns.TAG_NAME.toString(), new_name);
-        tagValues.put(BookkeepingColumns.TAG_SCOPE.toString(), tag_scope);
-        String whereStr = BookkeepingColumns.TAG_NO + "=?";
+        tagValues.put(Columns.TAG_NAME.toString(), new_name);
+        tagValues.put(Columns.TAG_SCOPE.toString(), tag_scope);
+        String whereStr = Columns.TAG_NO + "=?";
         String[] whereStrArgs = {String.valueOf(tag_no)};
 
         BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         db.update(
-                BookkeepingTables.TAG.toString(),
+                Tables.TAG.toString(),
                 tagValues,
                 whereStr,
                 whereStrArgs
@@ -251,17 +251,17 @@ public class Tag {
      */
     public static void modifyTag(String new_tag_name, long tag_no, int tag_scope, long new_group_no, Context context) throws SQLiteException {
         ContentValues tagValues = new ContentValues();
-        tagValues.put(BookkeepingColumns.TAG_NAME.toString(), new_tag_name);
-        tagValues.put(BookkeepingColumns.TAG_SCOPE.toString(), tag_scope);
-        tagValues.put(BookkeepingColumns.GROUP_NO.toString(), new_group_no);
-        String whereStr = BookkeepingColumns.TAG_NO + "=?";
+        tagValues.put(Columns.TAG_NAME.toString(), new_tag_name);
+        tagValues.put(Columns.TAG_SCOPE.toString(), tag_scope);
+        tagValues.put(Columns.GROUP_NO.toString(), new_group_no);
+        String whereStr = Columns.TAG_NO + "=?";
         String[] whereStrArgs = {String.valueOf(tag_no)};
 
         BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
         db.update(
-                BookkeepingTables.TAG.toString(),
+                Tables.TAG.toString(),
                 tagValues,
                 whereStr,
                 whereStrArgs
@@ -282,8 +282,8 @@ public class Tag {
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         ContentValues nonTagValues = new ContentValues();
-        nonTagValues.put(BookkeepingColumns.TAG_NO.toString(), 0);
-        String whereStr = BookkeepingColumns.TAG_NO + "=?";
+        nonTagValues.put(Columns.TAG_NO.toString(), 0);
+        String whereStr = Columns.TAG_NO + "=?";
         String[] whereStrArgs = {String.valueOf(tag_no)};
 
         RunningAccountBase.setDefaultTagNo(tag_no, db); //清除流水记录里面的标签编号
@@ -291,7 +291,7 @@ public class Tag {
 
         //再删除对应标签
         db.delete(
-                BookkeepingTables.TAG.toString(),
+                Tables.TAG.toString(),
                 whereStr,
                 whereStrArgs
         );
@@ -308,11 +308,11 @@ public class Tag {
      */
     public static void deleteTag(long group_no, @NonNull SQLiteDatabase db) throws SQLiteException {
         //查询标签编号
-        String[] columns = {BookkeepingColumns.TAG_NO.toString()};
-        String selection = BookkeepingColumns.GROUP_NO + "=?";
+        String[] columns = {Columns.TAG_NO.toString()};
+        String selection = Columns.GROUP_NO + "=?";
         String[] selectionArgs = {String.valueOf(group_no)};
         Cursor tagCursor = db.query(
-                BookkeepingTables.TAG.toString(),
+                Tables.TAG.toString(),
                 columns,
                 selection,
                 selectionArgs,
@@ -323,15 +323,15 @@ public class Tag {
 
         //清空引用了标签编号的数据
         while (tagCursor.moveToNext()) {
-            long tag_no = tagCursor.getLong(tagCursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NO.toString()));
+            long tag_no = tagCursor.getLong(tagCursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
             RunningAccountBase.setDefaultTagNo(tag_no, db); //清除流水记录里面的标签编号
             AnalysisRule.setDefaultTagNo(tag_no, db);       //清除通知解析规则中的标签编号
         }
         tagCursor.close();
 
-        String where = BookkeepingColumns.GROUP_NO + "=?";
+        String where = Columns.GROUP_NO + "=?";
         String[] whereArgs = {String.valueOf(group_no)};
-        db.delete(BookkeepingTables.TAG.toString(), where, whereArgs);
+        db.delete(Tables.TAG.toString(), where, whereArgs);
     }
 
     /**
@@ -347,14 +347,14 @@ public class Tag {
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         //更改对应流水记录的标签
-        String where = BookkeepingColumns.TAG_NO + "=?";
+        String where = Columns.TAG_NO + "=?";
         String[] whereArgs = {String.valueOf(merged_tag_no)};
         ContentValues targetTagNoValues = new ContentValues();
-        targetTagNoValues.put(BookkeepingColumns.TAG_NO.toString(), merge_target_tag_no);
-        db.update(BookkeepingTables.BASIC.toString(), targetTagNoValues, where, whereArgs);
+        targetTagNoValues.put(Columns.TAG_NO.toString(), merge_target_tag_no);
+        db.update(Tables.BASIC.toString(), targetTagNoValues, where, whereArgs);
 
         //删除被合并的标签
-        db.delete(BookkeepingTables.TAG.toString(), where, whereArgs);
+        db.delete(Tables.TAG.toString(), where, whereArgs);
 
         db.close();
     }
@@ -374,11 +374,11 @@ public class Tag {
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         //查询标签编号
-        String[] columns = {BookkeepingColumns.TAG_NO.toString()};
-        String selection = BookkeepingColumns.RNO + "=?";
+        String[] columns = {Columns.TAG_NO.toString()};
+        String selection = Columns.RNO + "=?";
         String[] selectionArgs = {String.valueOf(rno)};
         Cursor basicCursor = db.query(
-                BookkeepingTables.BASIC.toString(),
+                Tables.BASIC.toString(),
                 columns,
                 selection,
                 selectionArgs,
@@ -391,20 +391,20 @@ public class Tag {
         //判断该流水记录是否有标签，如果没有则返回空标签对象
         long tag_no = 0;
         if (basicCursor.moveToNext()) {
-            tag_no = basicCursor.getLong(basicCursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NO.toString()));
+            tag_no = basicCursor.getLong(basicCursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
             if (tag_no == 0)
                 return new Tag("", 0, 0);
         }
 
         //查询标签名称
         String[] tagColumns = {
-                BookkeepingColumns.TAG_NAME.toString(),
-                BookkeepingColumns.TAG_SCOPE.toString()
+                Columns.TAG_NAME.toString(),
+                Columns.TAG_SCOPE.toString()
         };
-        String tagSelection = BookkeepingColumns.TAG_NO + "=?";
+        String tagSelection = Columns.TAG_NO + "=?";
         String[] tagSelectionArgs = {String.valueOf(tag_no)};
         Cursor tagCursor = db.query(
-                BookkeepingTables.TAG.toString(),
+                Tables.TAG.toString(),
                 tagColumns,
                 tagSelection, tagSelectionArgs,
                 null,
@@ -416,8 +416,8 @@ public class Tag {
         String tagName = "";
         int scope = 0;
         if (tagCursor.moveToNext()) {
-            tagName = tagCursor.getString(tagCursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NAME.toString()));
-            scope = tagCursor.getInt(tagCursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_SCOPE.toString()));
+            tagName = tagCursor.getString(tagCursor.getColumnIndexOrThrow(Columns.TAG_NAME.toString()));
+            scope = tagCursor.getInt(tagCursor.getColumnIndexOrThrow(Columns.TAG_SCOPE.toString()));
         }
 
         basicCursor.close();
@@ -441,11 +441,11 @@ public class Tag {
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         //查询标签编号
-        String[] columns = {BookkeepingColumns.TAG_NO.toString()};
-        String selection = BookkeepingColumns.RULE_NO + "=?";
+        String[] columns = {Columns.TAG_NO.toString()};
+        String selection = Columns.RULE_NO + "=?";
         String[] selectionArgs = {String.valueOf(rule_no)};
         Cursor ruleCursor = db.query(
-                BookkeepingTables.ANALYSIS_RULE.toString(),
+                Tables.ANALYSIS_RULE.toString(),
                 columns,
                 selection,
                 selectionArgs,
@@ -457,20 +457,20 @@ public class Tag {
 
         long tag_no = 0;
         if (ruleCursor.moveToNext()) {
-            tag_no = ruleCursor.getLong(ruleCursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NO.toString()));
+            tag_no = ruleCursor.getLong(ruleCursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
             if (tag_no == 0)
                 return new Tag("", 0, 0);
         }
 
         //查询标签名称
         String[] tagColumns = {
-                BookkeepingColumns.TAG_NAME.toString(),
-                BookkeepingColumns.TAG_SCOPE.toString()
+                Columns.TAG_NAME.toString(),
+                Columns.TAG_SCOPE.toString()
         };
-        String tagSelection = BookkeepingColumns.TAG_NO + "=?";
+        String tagSelection = Columns.TAG_NO + "=?";
         String[] tagSelectionArgs = {String.valueOf(tag_no)};
         Cursor tagCursor = db.query(
-                BookkeepingTables.TAG.toString(),
+                Tables.TAG.toString(),
                 tagColumns,
                 tagSelection, tagSelectionArgs,
                 null,
@@ -482,8 +482,8 @@ public class Tag {
         String tagName = "";
         int scope = 0;
         if (tagCursor.moveToNext()) {
-            tagName = tagCursor.getString(tagCursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NAME.toString()));
-            scope = tagCursor.getInt(tagCursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_SCOPE.toString()));
+            tagName = tagCursor.getString(tagCursor.getColumnIndexOrThrow(Columns.TAG_NAME.toString()));
+            scope = tagCursor.getInt(tagCursor.getColumnIndexOrThrow(Columns.TAG_SCOPE.toString()));
         }
 
         ruleCursor.close();
@@ -503,7 +503,7 @@ public class Tag {
         BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openReadLink();
 
-        String sql = "SELECT COUNT(*) FROM " + BookkeepingTables.TAG;
+        String sql = "SELECT COUNT(*) FROM " + Tables.TAG;
         int rowCount = 0;
         Cursor cursor = db.rawQuery(sql, null);
         if (cursor.moveToFirst()) {

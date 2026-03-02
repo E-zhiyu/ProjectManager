@@ -5,17 +5,21 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteStatement;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.data.data_save.database.BookkeepingColumns;
+import com.manager.assistant.data.data_save.database.Columns;
 import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
-import com.manager.assistant.data.data_save.database.BookkeepingTables;
+import com.manager.assistant.data.data_save.database.Tables;
 import com.manager.assistant.ui.pages.bookkeeping.budget.ResetFrequency;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 public class Budget {
     private long bno;                       //预算编号
@@ -128,33 +132,41 @@ public class Budget {
     }
 
     /**
-     * 通过标签编号获取预算编号
+     * 获取待更新的预算的编号
      *
      * @param db       数据库实例
-     * @param tagNo    标签编号
-     * @return 包含传入的标签编号的预算编号列表
-     * @throws SQLiteException 数据读取失败引发的异常
+     * @param tagNo    流水记录对应的标签编号
+     * @param datetime 流水记录的日期
+     * @return 预算编号列表
+     * @throws SQLiteException 读取失败引发的异常
      */
     @NonNull
-    private static List<Long> getBnoByTagNo(@NonNull SQLiteDatabase db, long tagNo) throws SQLiteException {
-        String selection = BookkeepingColumns.TAG_NO + "=?";
-        String[] selectionArgs = {String.valueOf(tagNo)};
-        String[] columns = {
-                BookkeepingColumns.BNO.toString()
+    private static List<Long> getBudgetsNeedToUpdate(
+            SQLiteDatabase db,
+            long tagNo,
+            @NonNull String datetime
+    ) throws SQLiteException {
+        //将datetime转换为date
+        if (datetime.length() > 10) {
+            datetime = datetime.substring(0, 10);
+        }
+
+        String sql = "SELECT " + String.format(Locale.getDefault(), "%s.%s", Tables.BUDGET_TAG, Columns.BNO) +
+                " FROM " + Tables.BUDGET_TAG +
+                " INNER JOIN " + Tables.BUDGET +
+                " ON " + String.format(Locale.getDefault(), "%s.%s", Tables.BUDGET_TAG, Columns.BNO) +
+                "=" + String.format(Locale.getDefault(), "%s.%s", Tables.BUDGET, Columns.BNO) +
+                " WHERE " + Columns.START_DATE + "<?" +
+                " AND " + Columns.TAG_NO + "=?";
+        String[] sqlArgs = {
+                datetime,
+                String.valueOf(tagNo)
         };
-        Cursor budgetCursor = db.query(
-                BookkeepingTables.BUDGET_TAG.toString(),
-                columns,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                null
-        );
 
         List<Long> bnoList = new ArrayList<>();
+        Cursor budgetCursor = db.rawQuery(sql, sqlArgs);
         while (budgetCursor.moveToNext()) {
-            long bno = budgetCursor.getLong(budgetCursor.getColumnIndexOrThrow(BookkeepingColumns.BNO.toString()));
+            long bno = budgetCursor.getLong(budgetCursor.getColumnIndexOrThrow(String.format(Locale.getDefault(), "%s.%s", Tables.BUDGET_TAG, Columns.BNO)));
             bnoList.add(bno);
         }
 
@@ -176,12 +188,12 @@ public class Budget {
             long bno
     ) throws SQLiteException {
         String[] columns = {
-                BookkeepingColumns.TAG_NO.toString()
+                Columns.TAG_NO.toString()
         };
-        String selection = BookkeepingColumns.BNO + "=?";
+        String selection = Columns.BNO + "=?";
         String[] selectionArgs = {String.valueOf(bno)};
         Cursor cursor = db.query(
-                BookkeepingTables.BUDGET_TAG.toString(),
+                Tables.BUDGET_TAG.toString(),
                 columns,
                 selection,
                 selectionArgs,
@@ -192,7 +204,7 @@ public class Budget {
 
         List<Long> tagNoList = new ArrayList<>();
         while (cursor.moveToNext()) {
-            long tagNo = cursor.getLong(cursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NO.toString()));
+            long tagNo = cursor.getLong(cursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
             tagNoList.add(tagNo);
         }
 
@@ -215,9 +227,9 @@ public class Budget {
     ) throws SQLiteException {
         ContentValues values = new ContentValues();
         for (long tagNo : tagNoList) {
-            values.put(BookkeepingColumns.TAG_NO.toString(), tagNo);
-            values.put(BookkeepingColumns.BNO.toString(), bno);
-            db.insert(BookkeepingTables.BUDGET_TAG.toString(), null, values);
+            values.put(Columns.TAG_NO.toString(), tagNo);
+            values.put(Columns.BNO.toString(), bno);
+            db.insert(Tables.BUDGET_TAG.toString(), null, values);
 
             values.clear();
         }
@@ -254,10 +266,10 @@ public class Budget {
             @NonNull SQLiteDatabase db,
             long bno
     ) throws SQLiteException {
-        String where = BookkeepingColumns.BNO + "=?";
+        String where = Columns.BNO + "=?";
         String[] whereArgs = {String.valueOf(bno)};
 
-        db.delete(BookkeepingTables.BUDGET_TAG.toString(), where, whereArgs);
+        db.delete(Tables.BUDGET_TAG.toString(), where, whereArgs);
     }
 
     /**
@@ -273,7 +285,7 @@ public class Budget {
         SQLiteDatabase db = dbHelper.openReadLink();
 
         Cursor budgetCursor = db.query(
-                BookkeepingTables.BUDGET.toString(),
+                Tables.BUDGET.toString(),
                 null,
                 null,
                 null,
@@ -284,12 +296,12 @@ public class Budget {
 
         List<Budget> budgetList = new ArrayList<>();
         while (budgetCursor.moveToNext()) {
-            long bno = budgetCursor.getLong(budgetCursor.getColumnIndexOrThrow(BookkeepingColumns.BNO.toString()));
-            String name = budgetCursor.getString(budgetCursor.getColumnIndexOrThrow(BookkeepingColumns.BUDGET_NAME.toString()));
-            double initAmount = budgetCursor.getDouble(budgetCursor.getColumnIndexOrThrow(BookkeepingColumns.INIT_AMOUNT.toString()));
-            double leftAmount = budgetCursor.getDouble(budgetCursor.getColumnIndexOrThrow(BookkeepingColumns.LEFT_AMOUNT.toString()));
-            String startDate = budgetCursor.getString(budgetCursor.getColumnIndexOrThrow(BookkeepingColumns.START_DATE.toString()));
-            String resetFrequencyStr = budgetCursor.getString(budgetCursor.getColumnIndexOrThrow(BookkeepingColumns.RESET_FREQUENCY.toString()));
+            long bno = budgetCursor.getLong(budgetCursor.getColumnIndexOrThrow(Columns.BNO.toString()));
+            String name = budgetCursor.getString(budgetCursor.getColumnIndexOrThrow(Columns.BUDGET_NAME.toString()));
+            double initAmount = budgetCursor.getDouble(budgetCursor.getColumnIndexOrThrow(Columns.INIT_AMOUNT.toString()));
+            double leftAmount = budgetCursor.getDouble(budgetCursor.getColumnIndexOrThrow(Columns.LEFT_AMOUNT.toString()));
+            String startDate = budgetCursor.getString(budgetCursor.getColumnIndexOrThrow(Columns.START_DATE.toString()));
+            String resetFrequencyStr = budgetCursor.getString(budgetCursor.getColumnIndexOrThrow(Columns.RESET_FREQUENCY.toString()));
             ResetFrequency resetFrequency = ResetFrequency.valueOf(resetFrequencyStr);
             List<Long> tagNoList = getTagNoByBno(db, bno);
 
@@ -324,12 +336,12 @@ public class Budget {
 
         //写入数据
         ContentValues budgetValues = new ContentValues();
-        budgetValues.put(BookkeepingColumns.BUDGET_NAME.toString(), name);
-        budgetValues.put(BookkeepingColumns.INIT_AMOUNT.toString(), initAmount);
-        budgetValues.put(BookkeepingColumns.LEFT_AMOUNT.toString(), leftAmount);
-        budgetValues.put(BookkeepingColumns.START_DATE.toString(), startDate);
-        budgetValues.put(BookkeepingColumns.RESET_FREQUENCY.toString(), resetFrequency.toString());
-        long bno = db.insert(BookkeepingTables.BUDGET.toString(), null, budgetValues);
+        budgetValues.put(Columns.BUDGET_NAME.toString(), name);
+        budgetValues.put(Columns.INIT_AMOUNT.toString(), initAmount);
+        budgetValues.put(Columns.LEFT_AMOUNT.toString(), leftAmount);
+        budgetValues.put(Columns.START_DATE.toString(), startDate);
+        budgetValues.put(Columns.RESET_FREQUENCY.toString(), resetFrequency.toString());
+        long bno = db.insert(Tables.BUDGET.toString(), null, budgetValues);
         saveTagNoWithBno(db, bno, tagNoList);
 
         db.close();
@@ -357,15 +369,15 @@ public class Budget {
         List<Long> tagNoList = budget.getTagNoList();
 
         //写入数据
-        String where = BookkeepingColumns.BNO + "=?";
+        String where = Columns.BNO + "=?";
         String[] whereArgs = {String.valueOf(bno)};
         ContentValues budgetValues = new ContentValues();
-        budgetValues.put(BookkeepingColumns.BUDGET_NAME.toString(), name);
-        budgetValues.put(BookkeepingColumns.INIT_AMOUNT.toString(), initAmount);
-        budgetValues.put(BookkeepingColumns.LEFT_AMOUNT.toString(), leftAmount);
-        budgetValues.put(BookkeepingColumns.START_DATE.toString(), startDate);
-        budgetValues.put(BookkeepingColumns.RESET_FREQUENCY.toString(), resetFrequency.toString());
-        db.update(BookkeepingTables.BUDGET.toString(), budgetValues, where, whereArgs);
+        budgetValues.put(Columns.BUDGET_NAME.toString(), name);
+        budgetValues.put(Columns.INIT_AMOUNT.toString(), initAmount);
+        budgetValues.put(Columns.LEFT_AMOUNT.toString(), leftAmount);
+        budgetValues.put(Columns.START_DATE.toString(), startDate);
+        budgetValues.put(Columns.RESET_FREQUENCY.toString(), resetFrequency.toString());
+        db.update(Tables.BUDGET.toString(), budgetValues, where, whereArgs);
         modifyTagNoWithBno(db, bno, tagNoList);
 
         db.close();
@@ -382,10 +394,10 @@ public class Budget {
         BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openWriteLink();
 
-        String where = BookkeepingColumns.BNO + "=?";
+        String where = Columns.BNO + "=?";
         String[] whereArgs = {String.valueOf(bno)};
         deleteTagNoWithBno(db, bno);
-        db.delete(BookkeepingTables.BUDGET.toString(), where, whereArgs);
+        db.delete(Tables.BUDGET.toString(), where, whereArgs);
 
         db.close();
     }
@@ -405,45 +417,24 @@ public class Budget {
             @NonNull String datetime,
             SQLiteDatabase db
     ) throws SQLiteException {
-        //将datetime转换为date
-        if (datetime.length() > 10) {
-            datetime = datetime.substring(0, 10);
+        //获取需要更新的预算编号列表
+        List<Long> bnoList = getBudgetsNeedToUpdate(db, tagNo, datetime);
+
+        //生成SQL语句
+        String sql = "UPDATE " + Tables.BUDGET + " SET " + Columns.LEFT_AMOUNT + "=" + Columns.LEFT_AMOUNT + "+?" +
+                " WHERE " + Columns.BNO + " IN (" +
+                TextUtils.join(",", Collections.nCopies(bnoList.size(), "?")) +
+                ")";
+        SQLiteStatement statement = db.compileStatement(sql);
+
+        //绑定SQL语句的变量
+        statement.bindDouble(1, amount);
+        for (int index = 0; index < bnoList.size(); index++) {
+            statement.bindLong(index + 2, bnoList.get(index));
         }
 
-        //TODO:使用SQL语句嵌套查询优化该逻辑
-        //获取需要更改的预算编号列表
-        List<Long> bnoList = getBnoByTagNo(db, tagNo);
-
-        //写入数据
-        ContentValues values = new ContentValues();
-        for (long bno : bnoList) {
-            String selection = BookkeepingColumns.BNO + "=? AND " + BookkeepingColumns.START_DATE + "<?";
-            String[] selectionArgs = {
-                    String.valueOf(bno),
-                    datetime
-            };
-            String[] columns = {
-                    BookkeepingColumns.LEFT_AMOUNT.toString()
-            };
-            Cursor cursor = db.query(
-                    BookkeepingTables.BUDGET.toString(),
-                    columns,
-                    selection,
-                    selectionArgs,
-                    null,
-                    null,
-                    null,
-                    "1"
-            );
-
-            if (cursor.moveToNext()) {
-                double oldAmount = cursor.getDouble(cursor.getColumnIndexOrThrow(BookkeepingColumns.LEFT_AMOUNT.toString()));
-                values.put(BookkeepingColumns.LEFT_AMOUNT.toString(), amount + oldAmount);
-                db.update(BookkeepingTables.BUDGET.toString(), values, selection, selectionArgs);
-            }
-
-            cursor.close();
-        }
+        //执行SQL语句
+        statement.executeUpdateDelete();
     }
 
     /**

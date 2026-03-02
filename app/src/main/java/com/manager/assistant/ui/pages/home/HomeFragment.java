@@ -18,9 +18,9 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
-import com.manager.assistant.data.data_save.database.BookkeepingColumns;
+import com.manager.assistant.data.data_save.database.Columns;
 import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
-import com.manager.assistant.data.data_save.database.BookkeepingTables;
+import com.manager.assistant.data.data_save.database.Tables;
 import com.manager.assistant.data.data_save.preference.AppSettingsPreference;
 import com.manager.assistant.data.data_save.preference.BookKeepingStartDatePreference;
 import com.manager.assistant.databinding.FragmentHomeBinding;
@@ -194,16 +194,16 @@ public class HomeFragment extends Fragment {
 
         //创建数据库游标
         String[] columns = new String[]{
-                BookkeepingColumns.AMOUNT.toString(),
-                BookkeepingColumns.TYPE.toString()
+                Columns.AMOUNT.toString(),
+                Columns.TYPE.toString()
         };
-        String selection = BookkeepingColumns.DATETIME + ">=? AND " + BookkeepingColumns.DATETIME + "<?";
+        String selection = Columns.DATETIME + ">=? AND " + Columns.DATETIME + "<?";
         String[] selectionArgs = {
                 formatter.format(today),
                 formatter.format(tomorrow)
         };
         Cursor basicCursor = db.query(
-                BookkeepingTables.BASIC.toString(),
+                Tables.BASIC.toString(),
                 columns,
                 selection,
                 selectionArgs,
@@ -217,8 +217,8 @@ public class HomeFragment extends Fragment {
         day_expense = 0;
         day_income = 0;
         while (basicCursor.moveToNext()) {
-            RunningAccountType type = RunningAccountType.valueOf(basicCursor.getString(basicCursor.getColumnIndexOrThrow(BookkeepingColumns.TYPE.toString())));
-            double amount = basicCursor.getDouble(basicCursor.getColumnIndexOrThrow(BookkeepingColumns.AMOUNT.toString()));
+            RunningAccountType type = RunningAccountType.valueOf(basicCursor.getString(basicCursor.getColumnIndexOrThrow(Columns.TYPE.toString())));
+            double amount = basicCursor.getDouble(basicCursor.getColumnIndexOrThrow(Columns.AMOUNT.toString()));
 
             if (type.isExpenseType()) {
                 day_balance -= amount;

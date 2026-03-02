@@ -19,6 +19,7 @@ import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.databinding.ActivityBudgetAddModifyBinding;
 import com.manager.assistant.isolated_enums.KeyValueStrings;
@@ -78,6 +79,8 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
         if (dataBundle == null) {
             return;
         }
+
+        binding.toolbar.setTitle(R.string.modify_budget);   //修改标题
 
         isModifyMode = true;
         binding.leftAmountLayout.setVisibility(View.VISIBLE);   //显示剩余金额输入框

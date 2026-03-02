@@ -2,7 +2,7 @@ package com.manager.assistant.data.data_save.database;
 
 import androidx.annotation.NonNull;
 
-public enum BookkeepingColumns {
+public enum Columns {
     RNO("Rno"),                 //流水编号
     AMOUNT("Amount"),           //金额
     TYPE("Type"),               //种类
@@ -30,7 +30,7 @@ public enum BookkeepingColumns {
     RESET_FREQUENCY("reset_frequency"); //预算重置频率
     private final String value;
 
-    BookkeepingColumns(String value) {
+    Columns(String value) {
         this.value = value;
     }
 

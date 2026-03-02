@@ -9,9 +9,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.data.data_save.database.BookkeepingColumns;
+import com.manager.assistant.data.data_save.database.Columns;
 import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
-import com.manager.assistant.data.data_save.database.BookkeepingTables;
+import com.manager.assistant.data.data_save.database.Tables;
 import com.manager.assistant.data.io.pojo.PojoAnalysisRule;
 import com.manager.assistant.data.io.maps.TotalRuleDataMap;
 import com.manager.assistant.data.io.pojo.PojoRuleAccount;
@@ -81,7 +81,7 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookkeepingDbHelper, 
         SQLiteDatabase db = dbHelper.openReadLink();
 
         Cursor ruleCursor = db.query(
-                BookkeepingTables.ANALYSIS_RULE.toString(),
+                Tables.ANALYSIS_RULE.toString(),
                 null,
                 null,
                 null,
@@ -91,13 +91,13 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookkeepingDbHelper, 
         );
 
         while (ruleCursor.moveToNext()) {
-            String ruleName = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(BookkeepingColumns.RULE_NAME.toString()));
-            long rule_no = ruleCursor.getLong(ruleCursor.getColumnIndexOrThrow(BookkeepingColumns.RULE_NO.toString()));
-            long tag_no = ruleCursor.getLong(ruleCursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NO.toString()));
-            String type = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(BookkeepingColumns.TYPE.toString()));
-            String packageName = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(BookkeepingColumns.PACKAGE_NAME.toString()));
-            String title = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(BookkeepingColumns.NOTIFICATION_TITLE.toString()));
-            String content = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(BookkeepingColumns.NOTIFICATION_CONTENT.toString()));
+            String ruleName = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(Columns.RULE_NAME.toString()));
+            long rule_no = ruleCursor.getLong(ruleCursor.getColumnIndexOrThrow(Columns.RULE_NO.toString()));
+            long tag_no = ruleCursor.getLong(ruleCursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
+            String type = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(Columns.TYPE.toString()));
+            String packageName = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(Columns.PACKAGE_NAME.toString()));
+            String title = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(Columns.NOTIFICATION_TITLE.toString()));
+            String content = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(Columns.NOTIFICATION_CONTENT.toString()));
 
             PojoAnalysisRule rule = new PojoAnalysisRule(ruleName, rule_no, tag_no, type, packageName, title, content);
             ruleList.add(rule);
@@ -112,7 +112,7 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookkeepingDbHelper, 
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         //清空之前表的内容
-        db.delete(BookkeepingTables.ANALYSIS_RULE.toString(), null, null);
+        db.delete(Tables.ANALYSIS_RULE.toString(), null, null);
 
         if (ruleList == null) {
             return;
@@ -128,16 +128,16 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookkeepingDbHelper, 
             String content = rule.getContent();
 
             ContentValues ruleValues = new ContentValues();
-            ruleValues.put(BookkeepingColumns.RULE_NAME.toString(), ruleName);
-            ruleValues.put(BookkeepingColumns.RULE_NO.toString(), rule_no);
+            ruleValues.put(Columns.RULE_NAME.toString(), ruleName);
+            ruleValues.put(Columns.RULE_NO.toString(), rule_no);
             if (isTagNoShouldWrite) {
-                ruleValues.put(BookkeepingColumns.TAG_NO.toString(), tag_no);
+                ruleValues.put(Columns.TAG_NO.toString(), tag_no);
             }
-            ruleValues.put(BookkeepingColumns.TYPE.toString(), type);
-            ruleValues.put(BookkeepingColumns.PACKAGE_NAME.toString(), packageName);
-            ruleValues.put(BookkeepingColumns.NOTIFICATION_TITLE.toString(), title);
-            ruleValues.put(BookkeepingColumns.NOTIFICATION_CONTENT.toString(), content);
-            db.insert(BookkeepingTables.ANALYSIS_RULE.toString(), null, ruleValues);
+            ruleValues.put(Columns.TYPE.toString(), type);
+            ruleValues.put(Columns.PACKAGE_NAME.toString(), packageName);
+            ruleValues.put(Columns.NOTIFICATION_TITLE.toString(), title);
+            ruleValues.put(Columns.NOTIFICATION_CONTENT.toString(), content);
+            db.insert(Tables.ANALYSIS_RULE.toString(), null, ruleValues);
         }
 
         db.close();
@@ -149,7 +149,7 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookkeepingDbHelper, 
         SQLiteDatabase db = dbHelper.openReadLink();
 
         Cursor ruleAccountCursor = db.query(
-                BookkeepingTables.RULE_ACCOUNT.toString(),
+                Tables.RULE_ACCOUNT.toString(),
                 null,
                 null,
                 null,
@@ -159,9 +159,9 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookkeepingDbHelper, 
         );
 
         while (ruleAccountCursor.moveToNext()) {
-            long rule_no = ruleAccountCursor.getLong(ruleAccountCursor.getColumnIndexOrThrow(BookkeepingColumns.RULE_NO.toString()));
-            String exportAccount = ruleAccountCursor.getString(ruleAccountCursor.getColumnIndexOrThrow(BookkeepingColumns.EXPORT.toString()));
-            String importAccount = ruleAccountCursor.getString(ruleAccountCursor.getColumnIndexOrThrow(BookkeepingColumns.IMPORT.toString()));
+            long rule_no = ruleAccountCursor.getLong(ruleAccountCursor.getColumnIndexOrThrow(Columns.RULE_NO.toString()));
+            String exportAccount = ruleAccountCursor.getString(ruleAccountCursor.getColumnIndexOrThrow(Columns.EXPORT.toString()));
+            String importAccount = ruleAccountCursor.getString(ruleAccountCursor.getColumnIndexOrThrow(Columns.IMPORT.toString()));
             PojoRuleAccount ruleAccount = new PojoRuleAccount();
             ruleAccount.setRuleNo(rule_no);
             ruleAccount.setExportAccount(exportAccount);
@@ -176,7 +176,7 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookkeepingDbHelper, 
 
     private void setRuleAccount(List<PojoRuleAccount> ruleAccountList) {
         SQLiteDatabase db = dbHelper.openWriteLink();
-        db.delete(BookkeepingTables.RULE_ACCOUNT.toString(), null, null);
+        db.delete(Tables.RULE_ACCOUNT.toString(), null, null);
 
         if (ruleAccountList == null) {
             return;
@@ -188,10 +188,10 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookkeepingDbHelper, 
             String importAccount = ruleAccount.getImportAccount();
 
             ContentValues values = new ContentValues();
-            values.put(BookkeepingColumns.RULE_NO.toString(), rule_no);
-            values.put(BookkeepingColumns.EXPORT.toString(), exportAccount);
-            values.put(BookkeepingColumns.IMPORT.toString(), importAccount);
-            db.insert(BookkeepingTables.RULE_ACCOUNT.toString(), null, values);
+            values.put(Columns.RULE_NO.toString(), rule_no);
+            values.put(Columns.EXPORT.toString(), exportAccount);
+            values.put(Columns.IMPORT.toString(), importAccount);
+            db.insert(Tables.RULE_ACCOUNT.toString(), null, values);
         }
     }
 
@@ -201,7 +201,7 @@ public class AnalysisRuleDataHelper extends DataHelperBase<BookkeepingDbHelper, 
             BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
             SQLiteDatabase db = db_helper.openWriteLink();
 
-            db.delete(BookkeepingTables.ANALYSIS_RULE.toString(), null, null);
+            db.delete(Tables.ANALYSIS_RULE.toString(), null, null);
 
             //恢复默认规则
             BookkeepingDbHelper.addDefaultRule(db);

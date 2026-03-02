@@ -12,9 +12,9 @@ import androidx.annotation.NonNull;
 
 import com.manager.assistant.data.data_class.Budget;
 import com.manager.assistant.data.data_class.Picture;
-import com.manager.assistant.data.data_save.database.BookkeepingColumns;
+import com.manager.assistant.data.data_save.database.Columns;
 import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
-import com.manager.assistant.data.data_save.database.BookkeepingTables;
+import com.manager.assistant.data.data_save.database.Tables;
 import com.manager.assistant.isolated_enums.KeyValueStrings;
 import com.manager.assistant.ui.others.bottom_sheets.filter.AccountFilterBottomSheet;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
@@ -96,7 +96,7 @@ public abstract class RunningAccountBase {
         //生成流水种类条件
         if (!selectedTypeList.isEmpty()) {
             selection.append(" AND ");
-            selection.append(BookkeepingColumns.TYPE);
+            selection.append(Columns.TYPE);
             selection.append(" IN (");
             selection.append(TextUtils.join(",", Collections.nCopies(selectedTypeList.size(), "?")));
             selection.append(")");
@@ -111,7 +111,7 @@ public abstract class RunningAccountBase {
         //生成标签条件
         if (!selectedTagList.isEmpty()) {
             selection.append(" AND ");
-            selection.append(BookkeepingColumns.TAG_NO);
+            selection.append(Columns.TAG_NO);
             selection.append(" IN (");
             selection.append(TextUtils.join(",", Collections.nCopies(selectedTagList.size(), "?")));
             selection.append(")");
@@ -125,10 +125,10 @@ public abstract class RunningAccountBase {
         //生成日期条件
         if (startDate != null && endDate != null) {
             selection.append(" AND ");
-            selection.append(BookkeepingColumns.DATETIME);
+            selection.append(Columns.DATETIME);
             selection.append(">=?");
             selection.append(" AND ");
-            selection.append(BookkeepingColumns.DATETIME);
+            selection.append(Columns.DATETIME);
             selection.append("<?");
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -140,29 +140,29 @@ public abstract class RunningAccountBase {
 
         //查询流水记录
         Cursor basic_cursor = db.query(
-                BookkeepingTables.BASIC.toString(),
+                Tables.BASIC.toString(),
                 null,
                 selection.toString(),
                 selectionArgList.toArray(new String[0]),
                 null,
                 null,
-                BookkeepingColumns.DATETIME + " DESC," + BookkeepingColumns.RNO + " DESC"
+                Columns.DATETIME + " DESC," + Columns.RNO + " DESC"
         );
 
         //查询数据
         List<RunningAccountBase> runningAccountList = new ArrayList<>();
         while (basic_cursor.moveToNext()) {
             //流水编号
-            long rno = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.RNO.toString()));
+            long rno = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(Columns.RNO.toString()));
             //金额
-            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.AMOUNT.toString()));
+            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(Columns.AMOUNT.toString()));
             //种类
-            RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.TYPE.toString())));
+            RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(Columns.TYPE.toString())));
             //备注
-            String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.REMARK.toString()));
+            String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(Columns.REMARK.toString()));
             if (remark == null) remark = "";
             //日期和时间
-            String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.DATETIME.toString()));
+            String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(Columns.DATETIME.toString()));
 
             RunningAccountBase runningAccountView = null;
             switch (type) {
@@ -173,12 +173,12 @@ public abstract class RunningAccountBase {
                     runningAccountView = new IncomeRunningAccount(rno, remark, datetime, amount);
                     break;
                 case TRANSFER:
-                    String[] columns = {BookkeepingColumns.EXPORT.toString(), BookkeepingColumns.IMPORT.toString()};
-                    String transfer_selection = BookkeepingColumns.RNO + "=?";
+                    String[] columns = {Columns.EXPORT.toString(), Columns.IMPORT.toString()};
+                    String transfer_selection = Columns.RNO + "=?";
                     String[] transfer_selectionArgs = {String.valueOf(rno)};
 
                     Cursor transfer_cursor = db.query(
-                            BookkeepingTables.TRANSFER.toString(),
+                            Tables.TRANSFER.toString(),
                             columns,
                             transfer_selection,
                             transfer_selectionArgs,
@@ -188,8 +188,8 @@ public abstract class RunningAccountBase {
                     );
 
                     while (transfer_cursor.moveToNext()) {
-                        String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(BookkeepingColumns.EXPORT.toString()));
-                        String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(BookkeepingColumns.IMPORT.toString()));
+                        String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(Columns.EXPORT.toString()));
+                        String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(Columns.IMPORT.toString()));
                         transfer_cursor.close();
                         runningAccountView = new TransferRunningAccount(rno, remark, datetime, amount, exportAccount, importAccount);
                     }
@@ -216,21 +216,21 @@ public abstract class RunningAccountBase {
         BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openReadLink();
 
-        String[] columns = {BookkeepingColumns.DATETIME.toString()};
+        String[] columns = {Columns.DATETIME.toString()};
         Cursor basic_cursor = db.query(
-                BookkeepingTables.BASIC.toString(),
+                Tables.BASIC.toString(),
                 columns,
                 null,
                 null,
                 null,
                 null,
-                BookkeepingColumns.DATETIME.toString(),
+                Columns.DATETIME.toString(),
                 "1"
         );
 
         String earliest_date_str = "";
         if (basic_cursor.moveToNext()) {
-            earliest_date_str = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(BookkeepingColumns.DATETIME.toString()));
+            earliest_date_str = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(Columns.DATETIME.toString()));
 
             //去除后面的时间部分
             earliest_date_str = earliest_date_str.substring(0, 10);
@@ -263,14 +263,14 @@ public abstract class RunningAccountBase {
 
         //生成ContentValues
         ContentValues basicValues = new ContentValues();
-        basicValues.put(BookkeepingColumns.TYPE.toString(), type.toString());                     //种类
-        basicValues.put(BookkeepingColumns.AMOUNT.toString(), amount);                            //金额
-        basicValues.put(BookkeepingColumns.REMARK.toString(), remark);                            //备注
-        basicValues.put(BookkeepingColumns.DATETIME.toString(), datetime);                        //日期
-        basicValues.put(BookkeepingColumns.TAG_NO.toString(), tagNo);                            //标签编号
+        basicValues.put(Columns.TYPE.toString(), type.toString());                     //种类
+        basicValues.put(Columns.AMOUNT.toString(), amount);                            //金额
+        basicValues.put(Columns.REMARK.toString(), remark);                            //备注
+        basicValues.put(Columns.DATETIME.toString(), datetime);                        //日期
+        basicValues.put(Columns.TAG_NO.toString(), tagNo);                            //标签编号
 
         //写入数据
-        long rno = db.insert(BookkeepingTables.BASIC.toString(), null, basicValues);
+        long rno = db.insert(Tables.BASIC.toString(), null, basicValues);
 
         //判断是否为特殊类型
         if (type == RunningAccountType.TRANSFER) {
@@ -278,10 +278,10 @@ public abstract class RunningAccountBase {
             String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());
 
             ContentValues specialValues = new ContentValues();
-            specialValues.put(BookkeepingColumns.EXPORT.toString(), exportAccount);
-            specialValues.put(BookkeepingColumns.IMPORT.toString(), importAccount);
-            specialValues.put(BookkeepingColumns.RNO.toString(), rno);
-            db.insert(BookkeepingTables.TRANSFER.toString(), null, specialValues);
+            specialValues.put(Columns.EXPORT.toString(), exportAccount);
+            specialValues.put(Columns.IMPORT.toString(), importAccount);
+            specialValues.put(Columns.RNO.toString(), rno);
+            db.insert(Tables.TRANSFER.toString(), null, specialValues);
         }
 
         //更新预算数据
@@ -313,14 +313,14 @@ public abstract class RunningAccountBase {
 
         //读取旧数据以便修改预算数据
         String[] columns = {
-                BookkeepingColumns.AMOUNT.toString(),
-                BookkeepingColumns.TAG_NO.toString(),
-                BookkeepingColumns.DATETIME.toString()
+                Columns.AMOUNT.toString(),
+                Columns.TAG_NO.toString(),
+                Columns.DATETIME.toString()
         };
-        String oldSelection = BookkeepingColumns.RNO + "=?";
+        String oldSelection = Columns.RNO + "=?";
         String[] oldSelectionArgs = {String.valueOf(rno)};
         Cursor oldDataCursor = db.query(
-                BookkeepingTables.BASIC.toString(),
+                Tables.BASIC.toString(),
                 columns,
                 oldSelection,
                 oldSelectionArgs,
@@ -333,23 +333,23 @@ public abstract class RunningAccountBase {
         double oldAmount = amount;
         String oldDatetime = datetime;
         if (oldDataCursor.moveToNext()) {
-            oldTagNo = oldDataCursor.getLong(oldDataCursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NO.toString()));
-            oldAmount = oldDataCursor.getDouble(oldDataCursor.getColumnIndexOrThrow(BookkeepingColumns.AMOUNT.toString()));
-            oldDatetime = oldDataCursor.getString(oldDataCursor.getColumnIndexOrThrow(BookkeepingColumns.DATETIME.toString()));
+            oldTagNo = oldDataCursor.getLong(oldDataCursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
+            oldAmount = oldDataCursor.getDouble(oldDataCursor.getColumnIndexOrThrow(Columns.AMOUNT.toString()));
+            oldDatetime = oldDataCursor.getString(oldDataCursor.getColumnIndexOrThrow(Columns.DATETIME.toString()));
         }
         oldDataCursor.close();
 
         //修改基本数据
         ContentValues basicValues = new ContentValues();
-        basicValues.put(BookkeepingColumns.TYPE.toString(), type.toString());  //种类
-        basicValues.put(BookkeepingColumns.AMOUNT.toString(), amount);         //金额
-        basicValues.put(BookkeepingColumns.REMARK.toString(), remark);         //备注
-        basicValues.put(BookkeepingColumns.DATETIME.toString(), datetime);    //日期
-        basicValues.put(BookkeepingColumns.TAG_NO.toString(), tagNo);         //标签编号
-        String selection = BookkeepingColumns.RNO + "=?";
+        basicValues.put(Columns.TYPE.toString(), type.toString());  //种类
+        basicValues.put(Columns.AMOUNT.toString(), amount);         //金额
+        basicValues.put(Columns.REMARK.toString(), remark);         //备注
+        basicValues.put(Columns.DATETIME.toString(), datetime);    //日期
+        basicValues.put(Columns.TAG_NO.toString(), tagNo);         //标签编号
+        String selection = Columns.RNO + "=?";
         String[] selectionArgs = new String[]{String.valueOf(rno)};
         db.update(
-                BookkeepingTables.BASIC.toString(),
+                Tables.BASIC.toString(),
                 basicValues,
                 selection,
                 selectionArgs
@@ -361,10 +361,10 @@ public abstract class RunningAccountBase {
             String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());
             String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());
 
-            specialValues.put(BookkeepingColumns.EXPORT.toString(), exportAccount);
-            specialValues.put(BookkeepingColumns.IMPORT.toString(), importAccount);
+            specialValues.put(Columns.EXPORT.toString(), exportAccount);
+            specialValues.put(Columns.IMPORT.toString(), importAccount);
             db.update(
-                    BookkeepingTables.TRANSFER.toString(),
+                    Tables.TRANSFER.toString(),
                     specialValues,
                     selection,
                     selectionArgs
@@ -396,10 +396,10 @@ public abstract class RunningAccountBase {
         Picture.deletePicture(rno, db); //删除图片
         TransferRunningAccount.deleteTransferAccount(rno, db);  //删除转账数据(如果是转账类型)
 
-        String selection = BookkeepingColumns.RNO + "=?";
+        String selection = Columns.RNO + "=?";
         String[] selectionArgs = {String.valueOf(rno)};
         db.delete(
-                BookkeepingTables.BASIC.toString(),
+                Tables.BASIC.toString(),
                 selection,
                 selectionArgs
         );
@@ -415,13 +415,13 @@ public abstract class RunningAccountBase {
      * @throws SQLiteException 数据库修改失败引发的异常
      */
     public static void setDefaultTagNo(long tag_no, @NonNull SQLiteDatabase db) throws SQLiteException {
-        String where = BookkeepingColumns.TAG_NO + "=?";
+        String where = Columns.TAG_NO + "=?";
         String[] whereArgs = {String.valueOf(tag_no)};
 
         ContentValues accountValues = new ContentValues();
-        accountValues.put(BookkeepingColumns.TAG_NO.toString(), 0);
+        accountValues.put(Columns.TAG_NO.toString(), 0);
         db.update(
-                BookkeepingTables.BASIC.toString(),
+                Tables.BASIC.toString(),
                 accountValues,
                 where,
                 whereArgs

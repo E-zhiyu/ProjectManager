@@ -7,9 +7,9 @@ import android.database.sqlite.SQLiteException;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.data.data_save.database.BookkeepingColumns;
+import com.manager.assistant.data.data_save.database.Columns;
 import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
-import com.manager.assistant.data.data_save.database.BookkeepingTables;
+import com.manager.assistant.data.data_save.database.Tables;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
 import java.util.HashSet;
@@ -80,9 +80,9 @@ public class TransferRunningAccount extends RunningAccountBase {
      * @throws SQLiteException 数据库修改失败引发的异常
      */
     public static void deleteTransferAccount(long rno, @NonNull SQLiteDatabase db) throws SQLiteException {
-        String where = BookkeepingColumns.RNO + "=?";
+        String where = Columns.RNO + "=?";
         String[] whereArgs = {String.valueOf(rno)};
-        db.delete(BookkeepingTables.TRANSFER.toString(), where, whereArgs);
+        db.delete(Tables.TRANSFER.toString(), where, whereArgs);
     }
 
     /**
@@ -98,11 +98,11 @@ public class TransferRunningAccount extends RunningAccountBase {
         SQLiteDatabase db = dbHelper.openReadLink();
 
         String[] columns = {
-                BookkeepingColumns.EXPORT.toString(),
-                BookkeepingColumns.IMPORT.toString()
+                Columns.EXPORT.toString(),
+                Columns.IMPORT.toString()
         };
         Cursor transferCursor = db.query(
-                BookkeepingTables.TRANSFER.toString(),
+                Tables.TRANSFER.toString(),
                 columns,
                 null,
                 null,
@@ -114,8 +114,8 @@ public class TransferRunningAccount extends RunningAccountBase {
 
         HashSet<String> nameSet = new HashSet<>();
         while (transferCursor.moveToNext()) {
-            String exportAccountName = transferCursor.getString(transferCursor.getColumnIndexOrThrow(BookkeepingColumns.EXPORT.toString()));
-            String importAccountName = transferCursor.getString(transferCursor.getColumnIndexOrThrow(BookkeepingColumns.IMPORT.toString()));
+            String exportAccountName = transferCursor.getString(transferCursor.getColumnIndexOrThrow(Columns.EXPORT.toString()));
+            String importAccountName = transferCursor.getString(transferCursor.getColumnIndexOrThrow(Columns.IMPORT.toString()));
 
             nameSet.add(exportAccountName);
             nameSet.add(importAccountName);

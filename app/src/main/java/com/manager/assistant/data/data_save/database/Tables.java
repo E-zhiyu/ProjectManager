@@ -2,7 +2,7 @@ package com.manager.assistant.data.data_save.database;
 
 import androidx.annotation.NonNull;
 
-public enum BookkeepingTables {
+public enum Tables {
     BASIC("basic_data"),
     TRANSFER("transfer_data"),
     TAG("tag_data"),
@@ -15,7 +15,7 @@ public enum BookkeepingTables {
 
     private final String value;
 
-    BookkeepingTables(String value) {
+    Tables(String value) {
         this.value = value;
     }
 
