@@ -9,44 +9,69 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp">
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/name_text"
-            style="@style/LargeBodyTextViewStyle"
+        <ImageButton
+            android:id="@+id/reset_btn"
+            style="@style/ImageButtonStyle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/budget_name"
+            android:layout_height="0dp"
+            android:background="@drawable/ripple_rectangle"
+            android:contentDescription="@string/budget_reset_description"
+            android:src="@drawable/outline_refresh_24"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/start_date_text"
-            style="@style/MediumBodyTextViewStyle"
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/start_date"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/name_text" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/amount_text"
-            android:layout_width="wrap_content"
-            style="@style/LargeBodyTextViewStyle"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="@string/amount"
+            android:paddingStart="0dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toEndOf="@+id/reset_btn"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/reset_frequency_text"
-            android:layout_width="wrap_content"
-            style="@style/MediumBodyTextViewStyle"
-            android:layout_height="wrap_content"
-            android:text="@string/reset_frequency"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/amount_text" />
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/name_text"
+                style="@style/LargeBodyTextViewStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/budget_name"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/start_date_text"
+                style="@style/MediumBodyTextViewStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/start_date"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/name_text" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/amount_text"
+                style="@style/LargeBodyTextViewStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="@string/amount"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/reset_frequency_text"
+                style="@style/MediumBodyTextViewStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/reset_frequency"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/amount_text" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

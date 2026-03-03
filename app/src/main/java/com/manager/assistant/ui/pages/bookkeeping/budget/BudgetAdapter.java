@@ -8,10 +8,12 @@ import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.shape.Shapeable;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
@@ -36,6 +38,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
 
     public static class BudgetViewHolder extends RecyclerView.ViewHolder {
         MaterialTextView nameText, startDateText, amountText, resetFrequencyText;
+        ImageButton resetBtn;
         SpringAnimationOnTouchListener onTouchListener;
 
         public BudgetViewHolder(@NonNull View itemView) {
@@ -44,6 +47,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
             startDateText = itemView.findViewById(R.id.start_date_text);
             amountText = itemView.findViewById(R.id.amount_text);
             resetFrequencyText = itemView.findViewById(R.id.reset_frequency_text);
+            resetBtn = itemView.findViewById(R.id.reset_btn);
 
             //设置触摸监听器
             Shapeable shapeable = (Shapeable) itemView;
@@ -75,18 +79,45 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
         double leftAmount = budget.getLeftAmount();
         ResetFrequency resetFrequency = budget.getResetFrequency();
 
+        //填充各种信息文本
         holder.nameText.setText(name);
         holder.startDateText.setText(startDate);
         String amountStr = String.format(Locale.getDefault(), "%.2f/%.2f", leftAmount, initAmount);
         holder.amountText.setText(amountStr);
         holder.resetFrequencyText.setText(resetFrequency.getTitle());
 
+        //设置点击监听
         holder.itemView.setOnClickListener(v -> listener.onClicked(budget, position));
+
+        //设置重置按钮点击监听
+        Context context = holder.itemView.getContext();
+        holder.resetBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(context)
+                .setTitle("重置预算")
+                .setMessage("此操作将重置预算的余额并将起算日期设置为今天，确认继续吗？")
+                .setPositiveButton("确定", (dialog, which) -> onResetDialogConfirmed(position, context))
+                .setNegativeButton("取消", null)
+                .show());
     }
 
     @Override
     public int getItemCount() {
         return budgetList.size();
+    }
+
+    /**
+     * 确认重置回调
+     *
+     * @param position 重置的预算所在的下标
+     * @param context  上下文
+     */
+    private void onResetDialogConfirmed(int position, Context context) {
+        Budget budget = budgetList.get(position);
+        try {
+            budget.resetBudget(context);
+            notifyItemChanged(position);
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(context, e);
+        }
     }
 
     /**

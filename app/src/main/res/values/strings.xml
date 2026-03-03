@@ -153,4 +153,5 @@
     <string name="init_amount">初始金额</string>
     <string name="left_amount">剩余金额</string>
     <string name="reset_frequency">重置频率</string>
+    <string name="budget_reset_description">预算重置按钮</string>
 </resources>

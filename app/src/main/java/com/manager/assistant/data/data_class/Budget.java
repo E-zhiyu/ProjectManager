@@ -16,6 +16,8 @@ import com.manager.assistant.data.data_save.database.Tables;
 import com.manager.assistant.ui.pages.bookkeeping.budget.ResetFrequency;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,8 +27,8 @@ public class Budget {
     private long bno;                       //预算编号
     private final String name;              //预算名称
     private final double initAmount;        //初始金额
-    private final double leftAmount;        //剩余金额
-    private final String startDate;         //起算日期
+    private double leftAmount;              //剩余金额
+    private String startDate;               //起算日期
     private final ResetFrequency resetFrequency;    //重置频率
     private final List<Long> tagNoList;     //监听的标签的编号
 
@@ -510,5 +512,35 @@ public class Budget {
         String where = Columns.TAG_NO + "=?";
         String[] whereArgs = {String.valueOf(tagNo)};
         db.delete(Tables.BUDGET_TAG.toString(), where, whereArgs);
+    }
+
+    /**
+     * 重置预算
+     *
+     * @param context 上下文
+     * @throws SQLiteException 数据写入失败引发的异常
+     */
+    public void resetBudget(Context context) throws SQLiteException {
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
+        SQLiteDatabase db = dbHelper.openWriteLink();
+
+        //获取当前日期
+        LocalDate now = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String nowStr = now.format(formatter);
+
+        //写入数据
+        String where = Columns.BNO + "=?";
+        String[] whereArgs = {String.valueOf(bno)};
+        ContentValues budgetValues = new ContentValues();
+        budgetValues.put(Columns.LEFT_AMOUNT.toString(), initAmount);
+        budgetValues.put(Columns.START_DATE.toString(), nowStr);
+        db.update(Tables.BUDGET.toString(), budgetValues, where, whereArgs);
+
+        //更新实例属性
+        leftAmount = initAmount;
+        startDate = nowStr;
+
+        db.close();
     }
 }
