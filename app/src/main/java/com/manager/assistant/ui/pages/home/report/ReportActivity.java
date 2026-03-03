@@ -528,7 +528,7 @@ public class ReportActivity extends AppCompatActivity {
      */
     private void showDatePickerDialog() {
         //实例化一个日期对象用于存放选中的日期
-        LocalDate date = LocalDate.now(ZoneOffset.UTC).withYear(year).withMonth(month).withDayOfMonth(day);
+        LocalDate date = LocalDate.of(year, month, day);
 
         //创建日期选择器
         MaterialDatePicker.Builder<Long> dateBuilder = MaterialDatePicker.Builder.datePicker();
