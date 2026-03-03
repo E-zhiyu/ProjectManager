@@ -1,4 +1,4 @@
-package com.manager.assistant.broadcast;
+package com.manager.assistant.automation.broadcast;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,7 +7,10 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
-public class RunningAccountUpdatedBroadcastReceiver extends BroadcastReceiver {
+/**
+ * 自动记账成功添加流水记录的广播接收器
+ */
+public class AccountUpdatedReceiver extends BroadcastReceiver {
     private final OnAccountUpdatedListener listener;
 
     public interface OnAccountUpdatedListener {
@@ -19,7 +22,7 @@ public class RunningAccountUpdatedBroadcastReceiver extends BroadcastReceiver {
         void onAccountAdded(Bundle dataBundle);
     }
 
-    public RunningAccountUpdatedBroadcastReceiver(OnAccountUpdatedListener listener) {
+    public AccountUpdatedReceiver(OnAccountUpdatedListener listener) {
         this.listener = listener;
     }
 

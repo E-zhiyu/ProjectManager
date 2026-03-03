@@ -1,4 +1,4 @@
-package com.manager.assistant.broadcast;
+package com.manager.assistant.automation.broadcast;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,7 +12,7 @@ import com.manager.assistant.isolated_enums.LogTags;
 /**
  * 自动记账相关的广播接收器
  */
-public class NotificationAnalysisBroadcastReceiver extends BroadcastReceiver {
+public class RuleUpdateReceiver extends BroadcastReceiver {
     private final BroadcastListener listener;
 
     public interface BroadcastListener {
@@ -28,7 +28,7 @@ public class NotificationAnalysisBroadcastReceiver extends BroadcastReceiver {
      *
      * @param listener 接收广播后执行动作的监听器
      */
-    public NotificationAnalysisBroadcastReceiver(BroadcastListener listener) {
+    public RuleUpdateReceiver(BroadcastListener listener) {
         this.listener = listener;
     }
 

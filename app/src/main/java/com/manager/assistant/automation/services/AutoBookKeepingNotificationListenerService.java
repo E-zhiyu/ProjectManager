@@ -1,4 +1,4 @@
-package com.manager.assistant.services;
+package com.manager.assistant.automation.services;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,8 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.manager.assistant.isolated_enums.LogTags;
-import com.manager.assistant.broadcast.NotificationAnalysisBroadcastReceiver;
-import com.manager.assistant.broadcast.BroadcastConstants;
+import com.manager.assistant.automation.broadcast.RuleUpdateReceiver;
+import com.manager.assistant.automation.broadcast.BroadcastConstants;
 import com.manager.assistant.data.data_save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.isolated_enums.KeyValueStrings;
 import com.manager.assistant.data.data_class.AnalysisRule;
@@ -37,9 +37,9 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 public class AutoBookKeepingNotificationListenerService extends NotificationListenerService
-        implements NotificationAnalysisBroadcastReceiver.BroadcastListener {
+        implements RuleUpdateReceiver.BroadcastListener {
     private final HashMap<RuleKey, List<RuleValue>> ruleHashMap = new HashMap<>();    //解析规则哈希表
-    private NotificationAnalysisBroadcastReceiver ruleUpdateReceiver;   //规则更新的广播接收器
+    private RuleUpdateReceiver ruleUpdateReceiver;   //规则更新的广播接收器
     private boolean isFunctionOpened;                                   //通知解析功能是否开启
     private String lastPackageName = "";                                //上一次接收通知的包名
     private String lastTitle = "";                                      //上一次通知的标题
@@ -121,7 +121,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         isFunctionOpened = AutoBookKeepingPreference.getSwitchStat(getApplicationContext());   //启动时加载功能开关状态
 
         //注册规则更新和开关状态更新的广播接收器
-        ruleUpdateReceiver = new NotificationAnalysisBroadcastReceiver(this);
+        ruleUpdateReceiver = new RuleUpdateReceiver(this);
         IntentFilter filter = new IntentFilter();
         filter.addAction(BroadcastConstants.ACTION_RULES_UPDATED.toString());       //过滤规则更新动作
         filter.addAction(BroadcastConstants.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString()); //过滤通知解析功能开关状态变化

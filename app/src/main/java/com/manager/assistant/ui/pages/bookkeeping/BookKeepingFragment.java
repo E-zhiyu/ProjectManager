@@ -19,8 +19,8 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.isolated_enums.KeyValueStrings;
 import com.manager.assistant.isolated_enums.TagString;
-import com.manager.assistant.broadcast.BroadcastConstants;
-import com.manager.assistant.broadcast.RunningAccountUpdatedBroadcastReceiver;
+import com.manager.assistant.automation.broadcast.BroadcastConstants;
+import com.manager.assistant.automation.broadcast.AccountUpdatedReceiver;
 import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
 import com.manager.assistant.data.data_class.running_account.TransferRunningAccount;
 import com.manager.assistant.databinding.FragmentBookkeepingBinding;
@@ -49,7 +49,7 @@ public class BookKeepingFragment extends Fragment {
     private ActivityResultLauncher<Intent> accountAddLauncher, accountModifyLauncher;   //子活动启动器
     private int account_count;                                              //流水记录数量
     private FragmentBookkeepingBinding binding;                             //绑定的XML视图
-    private RunningAccountUpdatedBroadcastReceiver accountUpdatedReceiver;  //流水数据更新的广播接收器
+    private AccountUpdatedReceiver accountUpdatedReceiver;  //流水数据更新的广播接收器
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
     private AccountFilterBottomSheet.FilterSetting filterSetting = new AccountFilterBottomSheet.FilterSetting();    //过滤器设置
 
@@ -213,7 +213,7 @@ public class BookKeepingFragment extends Fragment {
      * 初始化广播接收器
      */
     private void setupBroadcastReceiver() {
-        accountUpdatedReceiver = new RunningAccountUpdatedBroadcastReceiver(this::onNewAccountAdded);
+        accountUpdatedReceiver = new AccountUpdatedReceiver(this::onNewAccountAdded);
         IntentFilter filter = new IntentFilter();
         filter.addAction(BroadcastConstants.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

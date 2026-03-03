@@ -15,7 +15,7 @@ import com.manager.assistant.data.data_save.preference.AppSettingsPreference;
 import com.manager.assistant.data.data_save.preference.VersionPreference;
 import com.manager.assistant.isolated_enums.LogTags;
 import com.manager.assistant.helpers.AutoBackupHelper;
-import com.manager.assistant.workers.BackupScheduler;
+import com.manager.assistant.automation.workers.BackupScheduler;
 
 import java.io.File;
 import java.util.Locale;

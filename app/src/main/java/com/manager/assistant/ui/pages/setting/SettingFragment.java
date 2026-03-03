@@ -28,7 +28,7 @@ import com.manager.assistant.data.io.data_helpers.BudgetDataHelper;
 import com.manager.assistant.isolated_enums.LogTags;
 import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.R;
-import com.manager.assistant.broadcast.BroadcastConstants;
+import com.manager.assistant.automation.broadcast.BroadcastConstants;
 import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.data_save.preference.AutoBackupPreference;
 import com.manager.assistant.data.data_save.preference.KeepAlivePreference;
@@ -59,7 +59,7 @@ import com.manager.assistant.data.data_save.preference.AppSettingsPreference;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingClickableTextView;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingSpinnerView;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingSwitchView;
-import com.manager.assistant.workers.BackupScheduler;
+import com.manager.assistant.automation.workers.BackupScheduler;
 
 import java.io.BufferedReader;
 import java.io.File;

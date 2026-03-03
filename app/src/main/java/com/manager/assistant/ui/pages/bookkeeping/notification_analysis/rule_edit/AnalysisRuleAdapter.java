@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.shape.Shapeable;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
-import com.manager.assistant.broadcast.BroadcastConstants;
+import com.manager.assistant.automation.broadcast.BroadcastConstants;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.isolated_enums.KeyValueStrings;
 import com.manager.assistant.data.data_class.AnalysisRule;

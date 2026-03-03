@@ -1,4 +1,4 @@
-package com.manager.assistant.workers;
+package com.manager.assistant.automation.workers;
 
 import android.content.Context;
 import android.util.Log;

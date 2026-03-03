@@ -24,7 +24,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.data.data_save.preference.VersionPreference;
-import com.manager.assistant.workers.BackupScheduler;
+import com.manager.assistant.automation.workers.BackupScheduler;
 
 import java.io.BufferedReader;
 import java.io.File;

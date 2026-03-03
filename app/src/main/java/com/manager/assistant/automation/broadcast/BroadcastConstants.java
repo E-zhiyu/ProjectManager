@@ -1,5 +1,8 @@
-package com.manager.assistant.broadcast;
+package com.manager.assistant.automation.broadcast;
 
+/**
+ * 广播标识
+ */
 public enum BroadcastConstants {
     ACTION_RULES_UPDATED,                           //通知解析规则更新
     ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED, //通知解析功能开关状态变化
