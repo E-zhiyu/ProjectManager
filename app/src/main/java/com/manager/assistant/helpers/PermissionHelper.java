@@ -1,6 +1,7 @@
 package com.manager.assistant.helpers;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.isolated_enums.RequestResultCode;
 
 /**
@@ -24,13 +26,47 @@ import com.manager.assistant.isolated_enums.RequestResultCode;
  */
 public class PermissionHelper {
     /**
+     * 检查是否有精确闹钟权限
+     */
+    public static boolean hasExactAlarmPermission(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            return alarmManager.canScheduleExactAlarms();
+        }
+        // Android 12 以下不需要特殊权限
+        return true;
+    }
+
+    /**
+     * 请求精确闹钟权限（跳转到系统设置页面）
+     */
+    public static void requestExactAlarmPermission(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (!hasExactAlarmPermission(context)) {
+                new MaterialAlertDialogBuilder(context)
+                        .setTitle("权限提示")
+                        .setMessage("预算管理功能需要精确闹钟权限以实现自动重置预算，请点击“确定”后授予该权限")
+                        .setPositiveButton("确定", (dialog, which) -> {
+                            Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                            intent.setData(Uri.parse("package:" + context.getPackageName()));
+                            if (intent.resolveActivity(context.getPackageManager()) != null) {
+                                context.startActivity(intent);
+                            }
+                        })
+                        .setNegativeButton("取消", null)
+                        .show();
+            }
+        }
+    }
+
+    /**
      * 动态申请应用列表权限（此方法只能在主线程调用）
      *
      * @param activity 申请权限的Activity，申请结果通过onRequestPermissionsResult()方法获取
      */
-    public static void tryGetAppListPermission(@NonNull Activity activity) {
+    public static void requestAppListPermission(@NonNull Activity activity) {
         try {
-            if (ContextCompat.checkSelfPermission(activity, "com.android.permission.GET_INSTALLED_APPS") == PackageManager.PERMISSION_GRANTED) {
+            if (isPermissionsGranted(activity, "com.android.permission.GET_INSTALLED_APPS")) {
                 return;
             }
 
@@ -160,7 +196,7 @@ public class PermissionHelper {
      *
      * @param context 上下文
      */
-    public static void openBatteryOptimizations(@NonNull Context context) {
+    public static void requestIgnoringBatteryOptimizations(@NonNull Context context) {
         boolean hasIgnored = isIgnoringBatteryOptimizations(context);
         Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
         context.startActivity(intent);

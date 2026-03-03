@@ -10,12 +10,13 @@ import androidx.work.WorkManager;
 
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.DynamicColorsOptions;
+import com.manager.assistant.automation.schedulers.BudgetResetScheduler;
 import com.manager.assistant.data.data_save.preference.AutoBackupPreference;
 import com.manager.assistant.data.data_save.preference.AppSettingsPreference;
 import com.manager.assistant.data.data_save.preference.VersionPreference;
 import com.manager.assistant.isolated_enums.LogTags;
 import com.manager.assistant.helpers.AutoBackupHelper;
-import com.manager.assistant.automation.workers.BackupScheduler;
+import com.manager.assistant.automation.schedulers.BackupScheduler;
 
 import java.io.File;
 import java.util.Locale;
@@ -26,6 +27,9 @@ public class ManagerAssistant extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        //注册预算重置检查闹钟
+        BudgetResetScheduler.scheduleNextMidnight(this);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && getProcessName().equals(getPackageName())) {
             //初始化动态配色

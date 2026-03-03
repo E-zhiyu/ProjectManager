@@ -17,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.manager.assistant.data.data_class.Budget;
 import com.manager.assistant.databinding.ActivityBudgetManageBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
+import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.isolated_enums.KeyValueStrings;
 import com.manager.assistant.isolated_enums.RequestResultCode;
 import com.manager.assistant.helpers.AnimationHelper;
@@ -50,6 +51,9 @@ public class BudgetManageActivity extends AppCompatActivity {
 
         initViews();
         initLaunchers();
+
+        //申请闹钟权限
+        PermissionHelper.requestExactAlarmPermission(this);
     }
 
     @Override

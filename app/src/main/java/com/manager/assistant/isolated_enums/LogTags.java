@@ -15,7 +15,9 @@ public enum LogTags {
     ACCOUNT_DATA_HELPER("AccountDataHelper"),
     DB("Database"),
     APPLICATION("Application"),
-    ACCOUNT_ADAPTER("AccountRecyclerAdapter");
+    ACCOUNT_ADAPTER("AccountRecyclerAdapter"),
+    BUDGET_RESET_RECEIVER("BudgetResetReceiver"),
+    BOOT_RECEIVER("BootReceiver");
     private final String v;
 
     LogTags(String v) {

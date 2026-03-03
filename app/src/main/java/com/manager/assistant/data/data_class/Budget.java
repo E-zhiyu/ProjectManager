@@ -18,6 +18,7 @@ import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.Runn
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -424,20 +425,20 @@ public class Budget {
         //获取需要更新的预算编号列表
         List<Long> bnoList = getBudgetsNeedToUpdate(db, tagNo, datetime);
 
-        //生成SQL语句
+        //生成 SQL 语句
         String sql = "UPDATE " + Tables.BUDGET + " SET " + Columns.LEFT_AMOUNT + "=" + Columns.LEFT_AMOUNT + "+?" +
                 " WHERE " + Columns.BNO + " IN (" +
                 TextUtils.join(",", Collections.nCopies(bnoList.size(), "?")) +
                 ")";
         SQLiteStatement statement = db.compileStatement(sql);
 
-        //绑定SQL语句的变量
+        //绑定 SQL 语句的变量
         statement.bindDouble(1, amountChange);
         for (int index = 0; index < bnoList.size(); index++) {
             statement.bindLong(index + 2, bnoList.get(index));
         }
 
-        //执行SQL语句
+        //执行 SQL 语句
         statement.executeUpdateDelete();
     }
 
@@ -542,5 +543,96 @@ public class Budget {
         startDate = nowStr;
 
         db.close();
+    }
+
+    /**
+     * 自动重置预算，如果需要
+     *
+     * @param context 上下文
+     * @throws SQLiteException 数据写入失败引发的异常
+     */
+    public static void resetAutomaticallyIfNeed(Context context) throws SQLiteException {
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
+        SQLiteDatabase db = dbHelper.openWriteLink();
+
+        //获取需要重置的预算编号
+        List<Long> bnoList = getBnoNeedReset(db);
+
+        //生成 SQL 语句
+        String sql = "UPDATE " + Tables.BUDGET +
+                " SET " + Columns.LEFT_AMOUNT + "=" + Columns.INIT_AMOUNT + "," +
+                Columns.START_DATE + "=?" +
+                " WHERE " + Columns.BNO + " IN (" + TextUtils.join(",", Collections.nCopies(bnoList.size(), "?")) +
+                ")";
+        SQLiteStatement statement = db.compileStatement(sql);
+
+        //绑定 SQL 中的数据
+        LocalDate today = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String todayStr = today.format(formatter);
+        statement.bindString(1, todayStr);
+        for (int i = 0; i < bnoList.size(); i++) {
+            statement.bindLong(i + 2, bnoList.get(i));
+        }
+
+        //执行 SQL 语句
+        statement.executeUpdateDelete();
+
+        db.close();
+    }
+
+    /**
+     * 获取需要重置的预算编号
+     *
+     * @param db 可读数据库实例
+     * @return 需要重置的预算编号的列表
+     * @throws SQLiteException 读取失败引发的异常
+     */
+    @NonNull
+    private static List<Long> getBnoNeedReset(@NonNull SQLiteDatabase db) throws SQLiteException {
+        //获取当前日期
+        LocalDate today = LocalDate.now();
+
+        //查询数据
+        String[] columns = {
+                Columns.START_DATE.toString(),
+                Columns.RESET_FREQUENCY.toString(),
+                Columns.BNO.toString()
+        };
+        Cursor budgetCursor = db.query(
+                Tables.BUDGET.toString(),
+                columns,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        //将需要重置的预算编号添加至列表
+        List<Long> bnoList = new ArrayList<>();
+        while (budgetCursor.moveToNext()) {
+            long bno = budgetCursor.getLong(budgetCursor.getColumnIndexOrThrow(Columns.BNO.toString()));
+            ResetFrequency frequency = ResetFrequency.valueOf(budgetCursor.getString(budgetCursor.getColumnIndexOrThrow(Columns.RESET_FREQUENCY.toString())));
+            LocalDate startDate = LocalDate.parse(budgetCursor.getString(budgetCursor.getColumnIndexOrThrow(Columns.START_DATE.toString())));
+
+            switch (frequency) {
+                case EVERY_DAY:
+                    bnoList.add(bno);
+                    break;
+                case EVERY_WEEK:
+                    if (ChronoUnit.DAYS.between(today, startDate) >= 7) {
+                        bnoList.add(bno);
+                    }
+                    break;
+                case EVERY_MONTH:
+                    if (today.getDayOfMonth() == 1) {
+                        bnoList.add(bno);
+                    }
+            }
+        }
+
+        budgetCursor.close();
+        return bnoList;
     }
 }

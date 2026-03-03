@@ -105,7 +105,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         startObserveSearchResult();
 
         //进入该界面时尝试申请权限
-        PermissionHelper.tryGetAppListPermission(this);
+        PermissionHelper.requestAppListPermission(this);
 
         //拦截返回键功能：先关闭搜索界面再返回上一级
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {

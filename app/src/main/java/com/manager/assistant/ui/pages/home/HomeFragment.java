@@ -266,21 +266,21 @@ public class HomeFragment extends Fragment {
                         .subscribeOn(Schedulers.newThread())
                         .subscribe(startDateStr -> {
                             //更新记账累计日期
-                            long bookkeeping_day_num;
+                            long bookkeepingDayCount;
                             if (!startDateStr.isEmpty()) {
                                 LocalDate startDate = LocalDate.parse(startDateStr);
                                 LocalDate currentDate = LocalDate.now();
 
-                                bookkeeping_day_num = ChronoUnit.DAYS.between(startDate, currentDate);  //计算相差的天数
+                                bookkeepingDayCount = ChronoUnit.DAYS.between(startDate, currentDate);  //计算相差的天数
                             } else {
-                                bookkeeping_day_num = 0;   //无法获取则说明是第一天记账
+                                bookkeepingDayCount = 0;   //无法获取则说明是第一天记账
                             }
-                            if (bookkeeping_day_num != 0) {
+                            if (bookkeepingDayCount != 0) {
                                 binding.bookkeepingDaysText.setText(
                                         String.format(
                                                 Locale.getDefault(),
                                                 "您已累计记账%d天",
-                                                bookkeeping_day_num
+                                                bookkeepingDayCount
                                         )
                                 );
                             } else {

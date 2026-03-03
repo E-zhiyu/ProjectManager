@@ -59,7 +59,7 @@ import com.manager.assistant.data.data_save.preference.AppSettingsPreference;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingClickableTextView;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingSpinnerView;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingSwitchView;
-import com.manager.assistant.automation.workers.BackupScheduler;
+import com.manager.assistant.automation.schedulers.BackupScheduler;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -557,7 +557,7 @@ public class SettingFragment extends Fragment {
                 R.drawable.outline_battery_android_frame_3_24
         );
         batteryOptimizationOption.setFunctionListener(
-                v -> PermissionHelper.openBatteryOptimizations(requireContext())
+                v -> PermissionHelper.requestIgnoringBatteryOptimizations(requireContext())
         );
     }
 
