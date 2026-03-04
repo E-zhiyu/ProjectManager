@@ -5,7 +5,7 @@ import android.app.NotificationManager;
 public enum ChannelInfo {
     BUDGET_AMOUNT(
             "budget_amount_channel",
-            "预算余额提醒通道",
+            "预算提醒",
             "当预算余额过低时发送通知提醒",
             NotificationManager.IMPORTANCE_DEFAULT,
             true

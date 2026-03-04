@@ -1,7 +1,9 @@
 package com.manager.assistant.data.data_class;
 
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -9,10 +11,16 @@ import android.database.sqlite.SQLiteStatement;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
 
+import com.manager.assistant.R;
 import com.manager.assistant.data.data_save.database.Columns;
 import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.data_save.database.Tables;
+import com.manager.assistant.generic_enums.ChannelInfo;
+import com.manager.assistant.generic_enums.RequestResultCode;
+import com.manager.assistant.helpers.NotificationHelper;
+import com.manager.assistant.ui.pages.bookkeeping.budget.BudgetManageActivity;
 import com.manager.assistant.ui.pages.bookkeeping.budget.ResetFrequency;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
@@ -406,24 +414,130 @@ public class Budget {
     }
 
     /**
+     * 预算余额更新后检查余额是否低于初始金额的10%，若低于10%则发送通知提醒用户
+     *
+     * @param bnoList 更新了余额的预算编号
+     * @param db      可读数据库实例
+     * @param context 上下文
+     * @throws SQLiteException 数据读取失败引发的异常
+     */
+    private static void checkLeftAmountThreshold(@NonNull List<Long> bnoList, SQLiteDatabase db, Context context) throws SQLiteException {
+        //生成查询条件
+        String selection = Columns.BNO + " IN (" +
+                TextUtils.join(",", Collections.nCopies(bnoList.size(), "?")) +
+                ")";
+        String[] selectionArgs = bnoList.stream()
+                .map(String::valueOf)
+                .toArray(String[]::new);
+        String[] columns = {
+                Columns.BUDGET_NAME.toString(),
+                Columns.INIT_AMOUNT.toString(),
+                Columns.LEFT_AMOUNT.toString()
+        };
+
+        //获取游标
+        Cursor budgetCursor = db.query(
+                Tables.BUDGET.toString(),
+                columns,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        //读取数据
+        List<String> budgetNameList = new ArrayList<>();
+        while (budgetCursor.moveToNext()) {
+            String name = budgetCursor.getString(budgetCursor.getColumnIndexOrThrow(Columns.BUDGET_NAME.toString()));
+            double initAmount = budgetCursor.getDouble(budgetCursor.getColumnIndexOrThrow(Columns.INIT_AMOUNT.toString()));
+            double leftAmount = budgetCursor.getDouble(budgetCursor.getColumnIndexOrThrow(Columns.LEFT_AMOUNT.toString()));
+
+            if (leftAmount <= initAmount * 0.1) {
+                budgetNameList.add(name);
+            }
+        }
+        budgetCursor.close();
+
+        //生成通知内容并发送通知
+        StringBuilder content = new StringBuilder();
+        if (budgetNameList.size() == 1) {
+            content.append(budgetNameList.get(0));
+        } else if (budgetNameList.size() == 2) {
+            content.append(String.format(
+                    Locale.getDefault(),
+                    "%s和%s",
+                    budgetNameList.get(0),
+                    budgetNameList.get(1)
+            ));
+        } else if (budgetNameList.size() == 3) {
+            content.append(String.format(
+                    Locale.getDefault(),
+                    "%s、%s和%s",
+                    budgetNameList.get(0),
+                    budgetNameList.get(1),
+                    budgetNameList.get(2)
+            ));
+        } else if (budgetNameList.size() > 3) {
+            content.append(String.format(
+                    Locale.getDefault(),
+                    "%s、%s、%s……共计%d个预算",
+                    budgetNameList.get(0),
+                    budgetNameList.get(1),
+                    budgetNameList.get(2),
+                    budgetNameList.size()
+            ));
+        }
+        if (content.length() > 0) {
+            content.append("的余额已不足10%，请注意查看。");
+
+            //设置点击意图
+            Intent intent = new Intent(context, BudgetManageActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            PendingIntent pendingIntent = PendingIntent.getActivity(
+                    context,
+                    RequestResultCode.REQUEST_BUDGET_NOTIFICATION.ordinal(),
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+            );
+
+            //发送通知
+            String channelID = ChannelInfo.BUDGET_AMOUNT.getId();
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle("预算余额提醒")
+                    .setContentText(content.toString())
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+            NotificationHelper.sendNotification(builder, context);
+        }
+    }
+
+    /**
      * 增加剩余金额
      *
      * @param tagNo        流水记录的标签编号
      * @param amountChange 剩余金额增加的值(可以为负数)
      * @param datetime     流水记录的日期
      * @param db           需要写入数据的数据库实例
+     * @param context      上下文
      * @throws SQLiteException 数据写入失败引发的异常
      */
     private static void increaseLeftAmount(
             long tagNo,
             double amountChange,
             @NonNull String datetime,
-            SQLiteDatabase db
+            SQLiteDatabase db,
+            Context context
     ) throws SQLiteException {
         if (amountChange == 0) return;
 
         //获取需要更新的预算编号列表
         List<Long> bnoList = getBudgetsNeedToUpdate(db, tagNo, datetime);
+        if (bnoList.isEmpty()) {
+            return;
+        }
 
         //生成 SQL 语句
         String sql = "UPDATE " + Tables.BUDGET + " SET " + Columns.LEFT_AMOUNT + "=" + Columns.LEFT_AMOUNT + "+?" +
@@ -440,6 +554,9 @@ public class Budget {
 
         //执行 SQL 语句
         statement.executeUpdateDelete();
+
+        //余额修改完成后检查是否低于阈值
+        checkLeftAmountThreshold(bnoList, db, context);
     }
 
     /**
@@ -449,15 +566,17 @@ public class Budget {
      * @param amountChange 剩余金额减少的值(可以为负数)
      * @param datetime     流水记录的日期
      * @param db           需要写入数据的数据库实例
+     * @param context      上下文
      * @throws SQLiteException 数据写入失败引发的异常
      */
     private static void decreaseLeftAmount(
             long tagNo,
             double amountChange,
             String datetime,
-            SQLiteDatabase db
+            SQLiteDatabase db,
+            Context context
     ) throws SQLiteException {
-        increaseLeftAmount(tagNo, -amountChange, datetime, db);
+        increaseLeftAmount(tagNo, -amountChange, datetime, db, context);
     }
 
     /**
@@ -481,23 +600,24 @@ public class Budget {
             RunningAccountType type,
             String oldDatetime,
             String datetime,
-            SQLiteDatabase db
+            SQLiteDatabase db,
+            Context context
     ) throws SQLiteException {
         if (oldTagNo == tagNo && oldDatetime.substring(0, 10).equals(datetime.substring(0, 10))) {
             //如果新旧标签编号和日期相同，则直接用新余额减旧余额
             if (type.isExpenseType()) {
-                decreaseLeftAmount(tagNo, amount - oldAmount, datetime, db);
+                decreaseLeftAmount(tagNo, amount - oldAmount, datetime, db, context);
             } else if (type.isIncomeType()) {
-                increaseLeftAmount(tagNo, amount - oldAmount, datetime, db);
+                increaseLeftAmount(tagNo, amount - oldAmount, datetime, db, context);
             }
         } else {
             //否则，先撤销旧流水记录的影响，然后再应用新流水记录的影响
             if (type.isExpenseType()) {
-                increaseLeftAmount(oldTagNo, oldAmount, oldDatetime, db);
-                decreaseLeftAmount(tagNo, amount, datetime, db);
+                increaseLeftAmount(oldTagNo, oldAmount, oldDatetime, db, context);
+                decreaseLeftAmount(tagNo, amount, datetime, db, context);
             } else if (type.isIncomeType()) {
-                decreaseLeftAmount(oldTagNo, oldAmount, oldDatetime, db);
-                increaseLeftAmount(tagNo, amount, datetime, db);
+                decreaseLeftAmount(oldTagNo, oldAmount, oldDatetime, db, context);
+                increaseLeftAmount(tagNo, amount, datetime, db, context);
             }
         }
     }

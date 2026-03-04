@@ -7,5 +7,6 @@ public enum RequestResultCode {
     RESULT_MERGE,                       //合并（分组或标签）
     REQUEST_APP_LIST_PERMISSION,        //申请应用列表权限
     REQUEST_NOTIFICATION_PERMISSION,    //申请通知权限
-    REQUEST_BUDGET_RESET_ALARM          //设置预算重置闹钟
+    REQUEST_BUDGET_RESET_ALARM,         //设置预算重置闹钟
+    REQUEST_BUDGET_NOTIFICATION         //预算余额提醒通知发送
 }

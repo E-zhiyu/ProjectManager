@@ -5,15 +5,15 @@ import android.app.NotificationManager;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
 
 import com.manager.assistant.generic_enums.ChannelInfo;
+import com.manager.assistant.generic_enums.NotificationID;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class NotificationHelper {
-    //TODO:添加预算不足的通知发送逻辑
-
     /**
      * 创建通知渠道
      *
@@ -52,5 +52,16 @@ public class NotificationHelper {
         channel.setDescription(info.getDescription());
 
         return channel;
+    }
+
+    /**
+     * 发送通知
+     *
+     * @param builder 已经设置好的通知构建器
+     * @param context 上下文
+     */
+    public static void sendNotification(@NonNull NotificationCompat.Builder builder, @NonNull Context context) {
+        NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+        notificationManager.notify(NotificationID.BUDGET_AMOUNT.ordinal(), builder.build());
     }
 }
