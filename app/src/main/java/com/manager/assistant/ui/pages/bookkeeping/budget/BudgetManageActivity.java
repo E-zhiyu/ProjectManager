@@ -2,6 +2,7 @@ package com.manager.assistant.ui.pages.bookkeeping.budget;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -14,6 +15,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.data.data_class.Budget;
 import com.manager.assistant.databinding.ActivityBudgetManageBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
@@ -53,7 +55,15 @@ public class BudgetManageActivity extends AppCompatActivity {
         initLaunchers();
 
         //申请闹钟权限
-        PermissionHelper.requestExactAlarmPermission(this);
+        if (!PermissionHelper.hasExactAlarmPermission(this) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("权限提示")
+                    .setMessage("预算管理功能需要精确闹钟权限以实现自动重置预算，请点击“确定”后授予该权限")
+                    .setPositiveButton("确定", (dialog, which) -> PermissionHelper.requestExactAlarmPermission(this))
+                    .setNegativeButton("取消", null)
+                    .show()
+                    .setOnCancelListener(dialog -> BudgetManageActivity.this.finish());
+        }
     }
 
     @Override

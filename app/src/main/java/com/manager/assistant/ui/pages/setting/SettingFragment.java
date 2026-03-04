@@ -476,7 +476,7 @@ public class SettingFragment extends Fragment {
 
         //开关左侧文本长按功能
         notificationAnalysisSwitchOption.setOnLongClickListener(v -> {
-            PermissionHelper.requestNotificationPermission(requireContext());
+            PermissionHelper.requestNotificationListenerPermission(requireContext());
             return true;
         });
 
@@ -913,7 +913,7 @@ public class SettingFragment extends Fragment {
                     .setMessage("此功能需要使用“通知使用权”权限，该权限允许应用读取其他软件发送的通知内容。本应用不会也无法使用该权限获取用户隐私信息，仅用于解析通知中可能出现的流水账信息，请您放心使用。\n\n是否为本应用授权？")
                     .setPositiveButton("确认", (dialog, which) -> {
                         //申请通知监听权限
-                        PermissionHelper.requestNotificationPermission(requireContext());
+                        PermissionHelper.requestNotificationListenerPermission(requireContext());
                     })
                     .setNegativeButton("取消", null)
                     .show();

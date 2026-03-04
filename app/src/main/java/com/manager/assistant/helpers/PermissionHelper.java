@@ -1,5 +1,6 @@
 package com.manager.assistant.helpers;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.content.ComponentName;
@@ -18,13 +19,26 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.generic_enums.RequestResultCode;
 
 /**
  * 与应用权限有关的帮助器
  */
 public class PermissionHelper {
+    /**
+     * 申请通知权限
+     *
+     * @param activity 申请权限的活动界面
+     */
+    public static void requestNotificationPermission(Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            activity.requestPermissions(
+                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                    RequestResultCode.REQUEST_NOTIFICATION_PERMISSION.ordinal()
+            );
+        }
+    }
+
     /**
      * 检查是否有精确闹钟权限
      */
@@ -42,19 +56,10 @@ public class PermissionHelper {
      */
     public static void requestExactAlarmPermission(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (!hasExactAlarmPermission(context)) {
-                new MaterialAlertDialogBuilder(context)
-                        .setTitle("权限提示")
-                        .setMessage("预算管理功能需要精确闹钟权限以实现自动重置预算，请点击“确定”后授予该权限")
-                        .setPositiveButton("确定", (dialog, which) -> {
-                            Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
-                            intent.setData(Uri.parse("package:" + context.getPackageName()));
-                            if (intent.resolveActivity(context.getPackageManager()) != null) {
-                                context.startActivity(intent);
-                            }
-                        })
-                        .setNegativeButton("取消", null)
-                        .show();
+            Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+            intent.setData(Uri.parse("package:" + context.getPackageName()));
+            if (intent.resolveActivity(context.getPackageManager()) != null) {
+                context.startActivity(intent);
             }
         }
     }
@@ -73,10 +78,9 @@ public class PermissionHelper {
             PermissionInfo permissionInfo = activity.getPackageManager().getPermissionInfo("com.android.permission.GET_INSTALLED_APPS", 0);
             String permissionInfoPackageName = permissionInfo.packageName;
             if (permissionInfoPackageName.equals("com.lbe.security.miui") || permissionInfoPackageName.equals("oplus")) {
-                //MIUI 系统支持动态申请该权限
                 ActivityCompat.requestPermissions(activity,
                         new String[]{"com.android.permission.GET_INSTALLED_APPS"},
-                        RequestResultCode.REQUEST_GET_PERMISSION.ordinal()
+                        RequestResultCode.REQUEST_APP_LIST_PERMISSION.ordinal()
                 );
             } else {
                 //其他系统的动态申请逻辑
@@ -84,7 +88,7 @@ public class PermissionHelper {
                     //没有权限，需要申请
                     ActivityCompat.requestPermissions(activity,
                             new String[]{"com.android.permission.GET_INSTALLED_APPS"},
-                            RequestResultCode.REQUEST_GET_PERMISSION.ordinal()
+                            RequestResultCode.REQUEST_APP_LIST_PERMISSION.ordinal()
                     );
                 } else {
                     //不能动态申请则需要手动授权
@@ -103,11 +107,11 @@ public class PermissionHelper {
     /**
      * 判断是否支持动态应用列表权限申请
      *
-     * @param activity 活动类
+     * @param context 活动类
      * @return 是否支持动态应用列表权限申请
      */
-    private static boolean isRuntimeAppListPermissionEnable(@NonNull Activity activity) {
-        return Settings.Secure.getInt(activity.getContentResolver(),
+    private static boolean isRuntimeAppListPermissionEnable(@NonNull Context context) {
+        return Settings.Secure.getInt(context.getContentResolver(),
                 "oem_installed_apps_runtime_permission_enable", 0) > 0;
     }
 
@@ -140,7 +144,7 @@ public class PermissionHelper {
      *
      * @param context 上下文
      */
-    public static void requestNotificationPermission(@NonNull Context context) {
+    public static void requestNotificationListenerPermission(@NonNull Context context) {
         Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);

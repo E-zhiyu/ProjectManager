@@ -125,7 +125,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == RequestResultCode.REQUEST_GET_PERMISSION.ordinal()) {
+        if (requestCode == RequestResultCode.REQUEST_APP_LIST_PERMISSION.ordinal()) {
             if (grantResults[0] == 0) {
                 appListRefreshLayout.setRefreshing(true);
                 startLoadAppList();
