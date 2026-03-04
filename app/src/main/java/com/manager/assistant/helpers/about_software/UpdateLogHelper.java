@@ -1,4 +1,4 @@
-package com.manager.assistant.helpers;
+package com.manager.assistant.helpers.about_software;
 
 import android.content.Context;
 import android.view.LayoutInflater;

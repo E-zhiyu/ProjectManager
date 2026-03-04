@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.helpers.AnimationHelper;
+import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.ui.data_sync.tag_modify.TagUpdateReason;
 import com.manager.assistant.ui.data_sync.tag_modify.TagRepository;
 import com.manager.assistant.data.data_class.Tag;

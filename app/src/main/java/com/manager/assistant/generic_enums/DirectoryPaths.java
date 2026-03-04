@@ -1,4 +1,4 @@
-package com.manager.assistant.isolated_enums;
+package com.manager.assistant.generic_enums;
 
 import android.content.Context;
 

@@ -9,7 +9,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 
 import com.manager.assistant.automation.broadcast.BudgetResetReceiver;
-import com.manager.assistant.isolated_enums.RequestResultCode;
+import com.manager.assistant.generic_enums.RequestResultCode;
 
 import java.time.LocalDate;
 import java.time.ZoneId;

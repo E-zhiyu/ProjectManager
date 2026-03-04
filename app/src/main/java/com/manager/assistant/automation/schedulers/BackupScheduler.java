@@ -11,7 +11,7 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.manager.assistant.automation.workers.BackupWorker;
-import com.manager.assistant.isolated_enums.LogTags;
+import com.manager.assistant.generic_enums.LogTags;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;

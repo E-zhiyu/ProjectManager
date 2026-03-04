@@ -12,7 +12,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.manager.assistant.data.data_save.preference.KeepAlivePreference;
 import com.manager.assistant.data.data_save.preference.VersionPreference;
 import com.manager.assistant.databinding.ActivityMainBinding;
-import com.manager.assistant.helpers.ThemeModeHelper;
+import com.manager.assistant.helpers.appearence.ThemeModeHelper;
 import com.manager.assistant.data.data_save.preference.AppSettingsPreference;
 import com.manager.assistant.helpers.UpdateHelper;
 import com.manager.assistant.ui.others.adapters.FragmentPagerAdapter;

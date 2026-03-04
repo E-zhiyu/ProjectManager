@@ -14,11 +14,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.manager.assistant.isolated_enums.LogTags;
+import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.automation.broadcast.RuleUpdateReceiver;
 import com.manager.assistant.automation.broadcast.BroadcastConstants;
 import com.manager.assistant.data.data_save.preference.AutoBookKeepingPreference;
-import com.manager.assistant.isolated_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.data.data_class.AnalysisRule;
 import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;

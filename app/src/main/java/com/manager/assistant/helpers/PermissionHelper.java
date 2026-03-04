@@ -19,7 +19,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.manager.assistant.isolated_enums.RequestResultCode;
+import com.manager.assistant.generic_enums.RequestResultCode;
 
 /**
  * 与应用权限有关的帮助器

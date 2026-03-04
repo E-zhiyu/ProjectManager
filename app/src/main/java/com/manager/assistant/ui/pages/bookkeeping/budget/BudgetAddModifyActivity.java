@@ -19,10 +19,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.Tag;
 import com.manager.assistant.databinding.ActivityBudgetAddModifyBinding;
-import com.manager.assistant.isolated_enums.KeyValueStrings;
-import com.manager.assistant.isolated_enums.RequestResultCode;
-import com.manager.assistant.isolated_enums.TagString;
-import com.manager.assistant.helpers.AnimationHelper;
+import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.RequestResultCode;
+import com.manager.assistant.generic_enums.TagString;
+import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.tag.MultiTagSelectBottomSheet;
 

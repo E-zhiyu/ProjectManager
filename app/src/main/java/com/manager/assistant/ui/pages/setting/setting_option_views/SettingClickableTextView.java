@@ -10,7 +10,7 @@ import androidx.annotation.StringRes;
 
 import com.manager.assistant.R;
 import com.manager.assistant.databinding.ViewSettingOptionBinding;
-import com.manager.assistant.helpers.ColorHelper;
+import com.manager.assistant.helpers.resourse.ColorHelper;
 
 public class SettingClickableTextView extends SettingOptionViewBase<ImageView, View.OnClickListener> {
     /**

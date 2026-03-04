@@ -18,10 +18,10 @@ import com.manager.assistant.data.data_class.Budget;
 import com.manager.assistant.databinding.ActivityBudgetManageBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.PermissionHelper;
-import com.manager.assistant.isolated_enums.KeyValueStrings;
-import com.manager.assistant.isolated_enums.RequestResultCode;
-import com.manager.assistant.helpers.AnimationHelper;
-import com.manager.assistant.helpers.ColorHelper;
+import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.RequestResultCode;
+import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.helpers.resourse.ColorHelper;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;

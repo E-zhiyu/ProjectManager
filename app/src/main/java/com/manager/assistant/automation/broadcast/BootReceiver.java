@@ -8,7 +8,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.manager.assistant.automation.schedulers.BudgetResetScheduler;
-import com.manager.assistant.isolated_enums.LogTags;
+import com.manager.assistant.generic_enums.LogTags;
 
 public class BootReceiver extends BroadcastReceiver {
     @Override

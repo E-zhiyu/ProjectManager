@@ -7,7 +7,7 @@ import android.util.Log;
 
 import com.manager.assistant.automation.schedulers.BudgetResetScheduler;
 import com.manager.assistant.data.data_class.Budget;
-import com.manager.assistant.isolated_enums.LogTags;
+import com.manager.assistant.generic_enums.LogTags;
 
 public class BudgetResetReceiver extends BroadcastReceiver {
     @Override

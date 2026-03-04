@@ -12,10 +12,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
 import com.manager.assistant.databinding.ActivityGroupModifyBinding;
-import com.manager.assistant.isolated_enums.RequestResultCode;
-import com.manager.assistant.helpers.AnimationHelper;
+import com.manager.assistant.generic_enums.RequestResultCode;
+import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.isolated_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.data.data_class.TagGroup;
 import com.manager.assistant.data.io.pojo.PojoTagGroup;
 

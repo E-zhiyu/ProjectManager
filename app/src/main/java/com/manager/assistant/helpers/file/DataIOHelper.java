@@ -1,4 +1,4 @@
-package com.manager.assistant.helpers;
+package com.manager.assistant.helpers.file;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -15,8 +15,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 
-import com.manager.assistant.isolated_enums.DirectoryPaths;
-import com.manager.assistant.isolated_enums.LogTags;
+import com.manager.assistant.helpers.ExceptionHelper;
+import com.manager.assistant.helpers.about_software.AboutHelper;
+import com.manager.assistant.generic_enums.DirectoryPaths;
+import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.data.data_save.preference.AutoBackupPreference;
 import com.manager.assistant.ui.pages.setting.SettingFragment;
 

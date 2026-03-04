@@ -10,8 +10,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.isolated_enums.DirectoryPaths;
-import com.manager.assistant.isolated_enums.LogTags;
+import com.manager.assistant.generic_enums.DirectoryPaths;
+import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.data.data_save.database.Columns;
 import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.data_save.database.Tables;

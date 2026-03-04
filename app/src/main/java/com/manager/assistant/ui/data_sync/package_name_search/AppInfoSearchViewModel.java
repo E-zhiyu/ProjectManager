@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.manager.assistant.helpers.PackageNameHelper;
+import com.manager.assistant.helpers.resourse.PackageNameHelper;
 import com.manager.assistant.data.data_class.AppInfo;
 
 import java.util.ArrayList;

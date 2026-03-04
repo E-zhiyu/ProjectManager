@@ -1,4 +1,4 @@
-package com.manager.assistant.helpers;
+package com.manager.assistant.helpers.appearence;
 
 import androidx.appcompat.app.AppCompatDelegate;
 

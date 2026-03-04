@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.helpers.ThemeModeHelper;
+import com.manager.assistant.helpers.appearence.ThemeModeHelper;
 
 public class AppSettingsPreference {
     private static final String PREF_NAME = "ThemePreference";

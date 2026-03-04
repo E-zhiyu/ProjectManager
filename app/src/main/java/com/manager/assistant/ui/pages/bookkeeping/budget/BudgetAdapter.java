@@ -19,7 +19,7 @@ import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.data.data_class.Budget;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.isolated_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.manager.assistant.helpers;
+package com.manager.assistant.helpers.file;
 
 import android.content.ContentUris;
 import android.content.Context;

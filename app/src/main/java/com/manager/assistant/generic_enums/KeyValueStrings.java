@@ -1,4 +1,4 @@
-package com.manager.assistant.isolated_enums;
+package com.manager.assistant.generic_enums;
 
 //用作关键字的字符串枚举
 public enum KeyValueStrings {

@@ -24,7 +24,7 @@ import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.data_save.database.Tables;
 import com.manager.assistant.databinding.ActivityReportBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.isolated_enums.TagString;
+import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.data.data_class.Tag;
 
