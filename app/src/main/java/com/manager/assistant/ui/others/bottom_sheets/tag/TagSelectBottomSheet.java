@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
 
 import com.manager.assistant.databinding.BottomSheetTagSelectBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.data.data_class.TagGroup;
+import com.manager.assistant.data.classes.TagGroup;
 import com.manager.assistant.ui.others.adapters.SheetTagBtnRecyclerAdapter;
 import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.BaseBottomSheetDialogFragment;

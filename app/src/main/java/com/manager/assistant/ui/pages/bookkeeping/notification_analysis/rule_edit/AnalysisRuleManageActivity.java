@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.manager.assistant.data.data_save.preference.AutoBookKeepingPreference;
+import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.databinding.ActivityAnalysisRuleManageBinding;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.helpers.resourse.ColorHelper;
@@ -19,8 +19,8 @@ import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
-import com.manager.assistant.data.data_class.AnalysisRule;
-import com.manager.assistant.ui.data_sync.tag_modify.TagRepository;
+import com.manager.assistant.data.classes.AnalysisRule;
+import com.manager.assistant.ui.sync.tag.TagRepository;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -16,22 +16,25 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.manager.assistant.data.data_class.Tag;
-import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
-import com.manager.assistant.data.data_save.database.Columns;
-import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
-import com.manager.assistant.data.data_save.database.Tables;
-import com.manager.assistant.data.data_save.preference.AppSettingsPreference;
-import com.manager.assistant.data.data_save.preference.BookKeepingStartDatePreference;
+import com.manager.assistant.data.classes.Budget;
+import com.manager.assistant.data.classes.Tag;
+import com.manager.assistant.data.classes.running_account.RunningAccountBase;
+import com.manager.assistant.data.save.database.Columns;
+import com.manager.assistant.data.save.database.BookkeepingDbHelper;
+import com.manager.assistant.data.save.database.Tables;
+import com.manager.assistant.data.save.preference.AppSettingsPreference;
+import com.manager.assistant.data.save.preference.BookKeepingStartDatePreference;
 import com.manager.assistant.databinding.FragmentHomeBinding;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.WebsiteLinkFetchHelper;
-import com.manager.assistant.ui.data_sync.runnning_account.AccountUpdateReason;
-import com.manager.assistant.ui.data_sync.runnning_account.RunningAccountViewModel;
-import com.manager.assistant.ui.data_sync.tag_modify.TagRepository;
-import com.manager.assistant.ui.data_sync.tag_modify.TagUpdateReason;
+import com.manager.assistant.ui.sync.account.AccountUpdateReason;
+import com.manager.assistant.ui.sync.account.RunningAccountViewModel;
+import com.manager.assistant.ui.sync.budget.BudgetRepository;
+import com.manager.assistant.ui.sync.budget.BudgetUpdateReason;
+import com.manager.assistant.ui.sync.tag.TagRepository;
+import com.manager.assistant.ui.sync.tag.TagUpdateReason;
 import com.manager.assistant.ui.pages.bookkeeping.budget.BudgetManageActivity;
 import com.manager.assistant.ui.pages.bookkeeping.tag.TagManageActivity;
 import com.manager.assistant.ui.pages.home.report.ReportActivity;
@@ -55,7 +58,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class HomeFragment extends Fragment {
     private FragmentHomeBinding binding;                    //XML视图绑定引用
-    private double day_balance, day_expense, day_income;    //日结余、日支出、日收入
+    private double dayBalance, dayExpense, dayIncome;    //日结余、日支出、日收入
     private final CompositeDisposable disposables = new CompositeDisposable();
     private LinkAdapter linkAdapter;                        //链接列表适配器
 
@@ -139,12 +142,22 @@ public class HomeFragment extends Fragment {
             binding.bookkeepingDaysText.setText("这是您记账的第一天");
         }
 
-        //标签数据
+        //标签数量
         try {
-            int tag_count = Tag.getTagCount(requireContext());
-            binding.tagCountText.setText(String.valueOf(tag_count));
+            int tagCount = Tag.getDbCount(requireContext());
+            binding.tagCountText.setText(String.valueOf(tagCount));
         } catch (SQLiteException e) {
+            binding.tagCountText.setText(0);
             Toast.makeText(requireContext(), "无法获取标签数量", Toast.LENGTH_SHORT).show();
+        }
+
+        //预算数量
+        try {
+            int budgetCount = Budget.getDbCount(requireContext());
+            binding.budgetCountText.setText(String.valueOf(budgetCount));
+        } catch (SQLiteException e) {
+            binding.budgetCountText.setText(0);
+            Toast.makeText(requireContext(), "无法获取预算数量", Toast.LENGTH_SHORT).show();
         }
 
         //初始化链接数据
@@ -164,18 +177,18 @@ public class HomeFragment extends Fragment {
         try {
             reloadTodayReport();
         } catch (SQLiteException e) {
-            day_balance = 0;
-            day_income = 0;
-            day_expense = 0;
+            dayBalance = 0;
+            dayIncome = 0;
+            dayExpense = 0;
             ExceptionHelper.showExceptionDialog(requireContext(), e);
         }
 
-        binding.balanceText.setText(String.format(Locale.getDefault(), "%.2f", day_balance));
+        binding.balanceText.setText(String.format(Locale.getDefault(), "%.2f", dayBalance));
         binding.expenseIncomeText.setText(
                 String.format(
                         Locale.getDefault(),
                         "支出:%.2f | 收入:%.2f",
-                        day_expense, day_income
+                        dayExpense, dayIncome
                 )
         );
     }
@@ -213,19 +226,19 @@ public class HomeFragment extends Fragment {
         );
 
         //读取数据库内容
-        day_balance = 0;
-        day_expense = 0;
-        day_income = 0;
+        dayBalance = 0;
+        dayExpense = 0;
+        dayIncome = 0;
         while (basicCursor.moveToNext()) {
             RunningAccountType type = RunningAccountType.valueOf(basicCursor.getString(basicCursor.getColumnIndexOrThrow(Columns.TYPE.toString())));
             double amount = basicCursor.getDouble(basicCursor.getColumnIndexOrThrow(Columns.AMOUNT.toString()));
 
             if (type.isExpenseType()) {
-                day_balance -= amount;
-                day_expense += amount;
+                dayBalance -= amount;
+                dayExpense += amount;
             } else if (type.isIncomeType()) {
-                day_balance += amount;
-                day_income += amount;
+                dayBalance += amount;
+                dayIncome += amount;
             }
         }
 
@@ -294,12 +307,12 @@ public class HomeFragment extends Fragment {
      * 刷新报表相关的视图
      */
     private void refreshReportView() {
-        binding.balanceText.setText(String.format(Locale.getDefault(), "%.2f", day_balance));
+        binding.balanceText.setText(String.format(Locale.getDefault(), "%.2f", dayBalance));
         binding.expenseIncomeText.setText(
                 String.format(
                         Locale.getDefault(),
                         "支出:%.2f | 收入:%.2f",
-                        day_expense, day_income
+                        dayExpense, dayIncome
                 )
         );
     }
@@ -319,33 +332,36 @@ public class HomeFragment extends Fragment {
 
                     TagUpdateReason reason = tagRepository.getUpdateReason();
                     String countStr = String.valueOf(binding.tagCountText.getText());
+                    int tagCount;
                     try {
-                        int tag_count = Integer.parseInt(countStr);
-                        switch (reason) {
-                            case DELETE:
-                            case MERGE:
-                                tag_count--;
-                                binding.tagCountText.setText(String.valueOf(tag_count));
-                                break;
-                            case ADD:
-                                tag_count++;
-                                binding.tagCountText.setText(String.valueOf(tag_count));
-                                break;
-                            case CLEAR:
-                                tag_count = 0;
-                                binding.tagCountText.setText(String.valueOf(tag_count));
-                            case REFRESH:
-                                //标签数据
-                                try {
-                                    tag_count = Tag.getTagCount(requireContext());
-                                    binding.tagCountText.setText(String.valueOf(tag_count));
-                                } catch (SQLiteException e) {
-                                    Toast.makeText(requireContext(), "无法获取标签数量", Toast.LENGTH_SHORT).show();
-                                }
-                            default:
-                                break;
-                        }
-                    } catch (NumberFormatException ignored) {
+                        tagCount = Integer.parseInt(countStr);
+                    } catch (NumberFormatException e) {
+                        tagCount = 0;
+                    }
+
+                    switch (reason) {
+                        case DELETE:
+                        case MERGE:
+                            tagCount--;
+                            binding.tagCountText.setText(String.valueOf(tagCount));
+                            break;
+                        case ADD:
+                            tagCount++;
+                            binding.tagCountText.setText(String.valueOf(tagCount));
+                            break;
+                        case CLEAR:
+                            tagCount = 0;
+                            binding.tagCountText.setText(String.valueOf(tagCount));
+                        case REFRESH:
+                            try {
+                                tagCount = Tag.getDbCount(requireContext());
+                                binding.tagCountText.setText(String.valueOf(tagCount));
+                            } catch (SQLiteException e) {
+                                binding.tagCountText.setText(0);
+                                Toast.makeText(requireContext(), "无法获取标签数量", Toast.LENGTH_SHORT).show();
+                            }
+                        default:
+                            break;
                     }
                 }
         );
@@ -366,24 +382,24 @@ public class HomeFragment extends Fragment {
 
                     //判断这笔帐是否在这一天内
                     try {
-                        LocalDateTime localDateTime = LocalDateTime.parse(datetime);
-                        LocalDateTime today = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
-                        if (!localDateTime.isAfter(today) || !localDateTime.isBefore(today.plusDays(1))) {
+                        LocalDateTime accountDateTime = LocalDateTime.parse(datetime);
+                        LocalDate today = LocalDate.now();
+                        if (!accountDateTime.isAfter(today.atStartOfDay()) || !accountDateTime.isBefore(today.plusDays(1).atStartOfDay())) {
                             Log.i(LogTags.HOME_PAGE.getV(), "日期不在当日，不执行任何操作");
                             return;
                         }
-                    } catch (DateTimeParseException ignored) {
+                    } catch (DateTimeParseException e) {
                         Log.w(LogTags.HOME_PAGE.getV(), "无法确定流水日期和时间");
                     }
 
                     switch (reason) {
                         case ADD:
                             if (type.isExpenseType()) {
-                                day_balance -= amount;
-                                day_expense += amount;
+                                dayBalance -= amount;
+                                dayExpense += amount;
                             } else if (type.isIncomeType()) {
-                                day_balance += amount;
-                                day_income += amount;
+                                dayBalance += amount;
+                                dayIncome += amount;
                             }
                             refreshReportView();
                             break;
@@ -393,16 +409,16 @@ public class HomeFragment extends Fragment {
                             break;
                         case DELETE:
                             if (type.isExpenseType()) {
-                                day_balance += amount;
-                                day_expense -= amount;
+                                dayBalance += amount;
+                                dayExpense -= amount;
                             } else if (type.isIncomeType()) {
-                                day_balance -= amount;
-                                day_income -= amount;
+                                dayBalance -= amount;
+                                dayIncome -= amount;
                             }
                             refreshReportView();
                             break;
                         case CLEAR:
-                            day_balance = day_expense = day_income = 0;
+                            dayBalance = dayExpense = dayIncome = 0;
                             refreshDayCount();
                             refreshReportView();
                             break;
@@ -411,6 +427,43 @@ public class HomeFragment extends Fragment {
                             refreshReportView();
                             refreshDayCount();
                             break;
+                    }
+                }
+        );
+
+        //观察预算数据
+        BudgetRepository budgetRepository = BudgetRepository.getInstance();
+        budgetRepository.getChangedBudget().observe(
+                requireActivity(),
+                budget -> {
+                    BudgetUpdateReason reason = budgetRepository.getUpdateReason();
+                    int budgetCount;
+                    try {
+                        budgetCount = Integer.parseInt(String.valueOf(binding.budgetCountText.getText()));
+                    } catch (NumberFormatException e) {
+                        budgetCount = 0;
+                    }
+                    switch (reason) {
+                        case ADD:
+                            budgetCount++;
+                            binding.budgetCountText.setText(String.valueOf(budgetCount));
+                            break;
+                        case DELETED:
+                            budgetCount--;
+                            binding.budgetCountText.setText(String.valueOf(budgetCount));
+                            break;
+                        case CLEARED:
+                            budgetCount = 0;
+                            binding.budgetCountText.setText(String.valueOf(budgetCount));
+                            break;
+                        case REFRESHED:
+                            try {
+                                budgetCount = Budget.getDbCount(requireContext());
+                                binding.budgetCountText.setText(String.valueOf(budgetCount));
+                            } catch (SQLiteException e) {
+                                binding.budgetCountText.setText(0);
+                                Toast.makeText(requireContext(), "无法获取预算数量", Toast.LENGTH_SHORT).show();
+                            }
                     }
                 }
         );

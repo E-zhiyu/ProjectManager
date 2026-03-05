@@ -11,8 +11,8 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.chip.Chip;
 import com.manager.assistant.R;
-import com.manager.assistant.data.data_class.Tag;
-import com.manager.assistant.data.data_class.TagGroup;
+import com.manager.assistant.data.classes.Tag;
+import com.manager.assistant.data.classes.TagGroup;
 import com.manager.assistant.databinding.BottomSheetMultiTagSelectBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;

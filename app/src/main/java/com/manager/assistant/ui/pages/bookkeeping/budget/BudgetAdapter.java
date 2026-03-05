@@ -17,10 +17,12 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.shape.Shapeable;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
-import com.manager.assistant.data.data_class.Budget;
+import com.manager.assistant.data.classes.Budget;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
+import com.manager.assistant.ui.sync.budget.BudgetRepository;
+import com.manager.assistant.ui.sync.budget.BudgetUpdateReason;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -162,9 +164,11 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
             return;
         }
 
-        //更新UI
+        //更新 UI
         budgetList.add(budget);
         notifyItemInserted(budgetList.size() - 1);
+        BudgetRepository repository = BudgetRepository.getInstance();
+        repository.onUpdated(budget, BudgetUpdateReason.ADD);
     }
 
     /**
@@ -196,10 +200,12 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
             return;
         }
 
-        //更新UI
+        //更新 UI
         int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
         budgetList.set(position, budget);
         notifyItemChanged(position);
+        BudgetRepository repository = BudgetRepository.getInstance();
+        repository.onUpdated(budget,BudgetUpdateReason.MODIFIED);
     }
 
     /**
@@ -217,9 +223,11 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
             return;
         }
 
-        //更新UI
+        //更新 UI
         int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
         budgetList.remove(position);
         notifyItemRemoved(position);
+        BudgetRepository repository = BudgetRepository.getInstance();
+        repository.onUpdated(BudgetUpdateReason.DELETED);
     }
 }

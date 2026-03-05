@@ -1,7 +1,7 @@
 package com.manager.assistant.data.io.maps;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.manager.assistant.data.io.pojo.PojoBudget;
+import com.manager.assistant.data.io.pojos.PojoBudget;
 
 import java.util.List;
 

@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
-import com.manager.assistant.data.data_class.AccountSourceInfo;
+import com.manager.assistant.data.classes.AccountSourceInfo;
 
 import java.util.ArrayList;
 import java.util.List;

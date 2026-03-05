@@ -18,19 +18,19 @@ import com.manager.assistant.databinding.ActivityTagAddModifyBinding;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.TagString;
-import com.manager.assistant.data.data_class.Tag;
+import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
-import com.manager.assistant.ui.data_sync.tag_modify.TagUpdateReason;
-import com.manager.assistant.ui.data_sync.tag_modify.TagRepository;
+import com.manager.assistant.ui.sync.tag.TagUpdateReason;
+import com.manager.assistant.ui.sync.tag.TagRepository;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
 import java.util.ArrayList;
 
 public class TagAddModifyActivity extends AppCompatActivity implements View.OnClickListener {
     private boolean isModifyMode = false;                       //是否为标签编辑模式
-    private long tag_no = 0, group_no = 0;                      //标签和标签分组编号
+    private long tagNo = 0, groupNo = 0;                      //标签和标签分组编号
     private TagSelectBottomSheet tagSheet;                      //标签选择底部弹窗
     private ActivityTagAddModifyBinding binding;                //绑定的XML视图的引用
     private int scope = 0;                                      //标签作用域范围
@@ -57,8 +57,8 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
     public void onClick(@NonNull View v) {
         Intent result2TagManage = new Intent();
         Bundle dataBundle = new Bundle();
-        dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), group_no);      //分组编号
-        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);              //标签编号
+        dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), groupNo);      //分组编号
+        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tagNo);              //标签编号
 
         if (v.getId() == R.id.finish_btn) {
             String error = inputInfoVerify();
@@ -67,33 +67,30 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
             if (error != null) {
                 Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
             } else {
-                String tag_name = String.valueOf(binding.tagNameInput.getText());
-                dataBundle.putString(KeyValueStrings.TAG_NAME.getValue(), tag_name);            //标签名
-                String group_name = String.valueOf(binding.tagGroupInput.getText());
-                dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), group_name);    //分组名称
-                dataBundle.putInt(KeyValueStrings.TAG_SCOPE.getValue(), scope);                 //标签作用域
+                String tagName = String.valueOf(binding.tagNameInput.getText());
+                dataBundle.putString(KeyValueStrings.TAG_NAME.getValue(), tagName);            //标签名
+                String groupName = String.valueOf(binding.tagGroupInput.getText());
+                dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), groupName);    //分组名称
+                dataBundle.putInt(KeyValueStrings.TAG_SCOPE.getValue(), scope);                //标签作用域
 
+                TagRepository repository = TagRepository.getInstance();
                 if (isModifyMode) {
-                    TagRepository repository = TagRepository.getInstance();
-                    repository.updateTag(tag_name, tag_no, TagUpdateReason.RENAME);
+                    repository.updateTag(tagName, tagNo, TagUpdateReason.RENAME);
                 } else {
-                    TagRepository repository = TagRepository.getInstance();
-                    repository.updateTag(tag_name, tag_no, TagUpdateReason.ADD);
+                    repository.updateTag(tagName, tagNo, TagUpdateReason.ADD);
                 }
 
                 result2TagManage.putExtras(dataBundle);
                 setResult(RequestResultCode.RESULT_OK.ordinal(), result2TagManage);
                 finish();
             }
-        } else if (v.getId() == R.id.cancel_btn) {
-            finish();
         } else if (v.getId() == R.id.delete_btn) {
             new MaterialAlertDialogBuilder(this)
                     .setTitle("删除标签")
                     .setMessage("此操作将清空所有相应流水记录和通知解析规则的标签数据，确认继续吗？")
                     .setPositiveButton("确定", ((dialog, which) -> {
                         TagRepository repository = TagRepository.getInstance();
-                        repository.updateTag("", tag_no, TagUpdateReason.DELETE);    //更新ViewModel中的标签数据
+                        repository.updateTag("", tagNo, TagUpdateReason.DELETE);    //更新ViewModel中的标签数据
 
                         result2TagManage.putExtras(dataBundle);
                         setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2TagManage);
@@ -133,7 +130,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
                 if (tagName.isEmpty()) {
                     binding.tagNameLayout.setErrorEnabled(true);
                     binding.tagNameLayout.setError("标签名不能为空");
-                } else if (tno != 0 && tno != tag_no) {              //查询到数据库中存在同名编号并且编号不为自身时
+                } else if (tno != 0 && tno != tagNo) {              //查询到数据库中存在同名编号并且编号不为自身时
                     binding.tagNameLayout.setErrorEnabled(true);
                     binding.tagNameLayout.setError("已存在同名标签");
                 } else {
@@ -147,13 +144,13 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
 
         binding.deleteBtn.setOnClickListener(this);
         binding.finishBtn.setOnClickListener(this);
-        binding.cancelBtn.setOnClickListener(this);
+        binding.cancelBtn.setOnClickListener(v -> finish());
         binding.mergeBtn.setOnClickListener(this);
         binding.mergeBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(this)
                 .setTitle("合并标签")
                 .setMessage("此操作会将本标签与其他标签合并，使用本标签标记的流水记录将自动替换为用合并后的标签标记，并且本标签将被永久删除，确认继续吗？")
                 .setPositiveButton("确认", (dialog, which) -> {
-                    tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, tag_no);
+                    tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, tagNo);
                     tagSheet.show(getSupportFragmentManager(), TagString.TAG_MERGE_SHEET.getValue());
                 })
                 .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
@@ -200,8 +197,8 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
             binding.deleteBtn.setVisibility(View.VISIBLE);
             binding.mergeBtn.setVisibility(View.VISIBLE);
 
-            tag_no = tagData.getLong(KeyValueStrings.TAG_NO.getValue());                        //该标签编号
-            group_no = tagData.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());                //所属分组编号
+            tagNo = tagData.getLong(KeyValueStrings.TAG_NO.getValue());                        //该标签编号
+            groupNo = tagData.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());                //所属分组编号
             scope = tagData.getInt(KeyValueStrings.TAG_SCOPE.getValue());                       //标签作用域
             String tag_name = tagData.getString(KeyValueStrings.TAG_NAME.getValue());           //该标签名称
             String group_name = tagData.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());   //所属分组名称
@@ -227,8 +224,8 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
         //将数据传递给父界面
         Intent result2TagEdit = new Intent();
         Bundle dataBundle = new Bundle();
-        dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), this.group_no);     //被合并标签的分组编号
-        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), this.tag_no);             //被合并标签的编号
+        dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), this.groupNo);     //被合并标签的分组编号
+        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), this.tagNo);             //被合并标签的编号
         dataBundle.putLong(KeyValueStrings.MERGE_TARGET_NO.getValue(), tag_no);
         result2TagEdit.putExtras(dataBundle);
         setResult(RequestResultCode.RESULT_MERGE.ordinal(), result2TagEdit);
@@ -247,7 +244,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
         String error = null;
         if (tag_name.isEmpty()) {
             error = "标签名不能为空";
-        } else if (db_tno != 0 && db_tno != tag_no) {  //查询到数据库中存在同名编号并且编号不为自身时
+        } else if (db_tno != 0 && db_tno != tagNo) {  //查询到数据库中存在同名编号并且编号不为自身时
             error = "已存在同名标签";
         }
 

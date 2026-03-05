@@ -10,8 +10,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
-import com.manager.assistant.data.data_class.Tag;
-import com.manager.assistant.data.data_class.TagGroup;
+import com.manager.assistant.data.classes.Tag;
+import com.manager.assistant.data.classes.TagGroup;
 import com.manager.assistant.ui.others.bottom_sheets.tag.GridSpacingItemDecoration;
 
 import java.util.List;

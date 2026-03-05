@@ -16,8 +16,8 @@ import com.manager.assistant.helpers.resourse.ColorHelper;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
-import com.manager.assistant.data.data_class.Tag;
-import com.manager.assistant.data.data_class.TagGroup;
+import com.manager.assistant.data.classes.Tag;
+import com.manager.assistant.data.classes.TagGroup;
 
 import java.util.ArrayList;
 import java.util.List;

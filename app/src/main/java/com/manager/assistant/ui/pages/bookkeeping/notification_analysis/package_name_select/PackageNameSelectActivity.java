@@ -28,7 +28,7 @@ import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.resourse.PackageNameHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
-import com.manager.assistant.ui.data_sync.package_name_search.AppInfoSearchViewModel;
+import com.manager.assistant.ui.sync.package_name_search.AppInfoSearchViewModel;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;

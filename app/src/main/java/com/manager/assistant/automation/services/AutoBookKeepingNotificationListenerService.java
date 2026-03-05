@@ -17,12 +17,12 @@ import androidx.annotation.Nullable;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.automation.broadcast.RuleUpdateReceiver;
 import com.manager.assistant.automation.broadcast.BroadcastConstants;
-import com.manager.assistant.data.data_save.preference.AutoBookKeepingPreference;
+import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.generic_enums.KeyValueStrings;
-import com.manager.assistant.data.data_class.AnalysisRule;
-import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
+import com.manager.assistant.data.classes.AnalysisRule;
+import com.manager.assistant.data.classes.running_account.RunningAccountBase;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
-import com.manager.assistant.data.data_class.Tag;
+import com.manager.assistant.data.classes.Tag;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;

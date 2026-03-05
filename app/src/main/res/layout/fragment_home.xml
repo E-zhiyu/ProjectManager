@@ -163,6 +163,7 @@
                     android:text="@string/budget_count" />
 
                 <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/budget_count_text"
                     style="@style/TextAppearance.Material3.HeadlineLarge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

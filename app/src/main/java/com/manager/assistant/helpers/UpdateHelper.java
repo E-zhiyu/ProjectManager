@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
-import com.manager.assistant.data.data_save.preference.VersionPreference;
+import com.manager.assistant.data.save.preference.VersionPreference;
 import com.manager.assistant.automation.schedulers.BackupScheduler;
 import com.manager.assistant.helpers.about_software.AboutHelper;
 

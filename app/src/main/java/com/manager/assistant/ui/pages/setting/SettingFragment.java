@@ -24,38 +24,36 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.DynamicColorsOptions;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.manager.assistant.data.io.data_helpers.BudgetDataHelper;
+import com.manager.assistant.data.io.helpers.BudgetDataHelper;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.R;
 import com.manager.assistant.automation.broadcast.BroadcastConstants;
-import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
-import com.manager.assistant.data.data_save.preference.AutoBackupPreference;
-import com.manager.assistant.data.data_save.preference.KeepAlivePreference;
+import com.manager.assistant.data.save.database.BookkeepingDbHelper;
+import com.manager.assistant.data.save.preference.AutoBackupPreference;
+import com.manager.assistant.data.save.preference.KeepAlivePreference;
 import com.manager.assistant.databinding.FragmentSettingBinding;
 import com.manager.assistant.helpers.file.AutoBackupHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.PermissionHelper;
-import com.manager.assistant.data.data_save.preference.AutoBookKeepingPreference;
-import com.manager.assistant.data.data_save.preference.BookKeepingStartDatePreference;
+import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
+import com.manager.assistant.data.save.preference.BookKeepingStartDatePreference;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.helpers.file.DataIOHelper;
 import com.manager.assistant.helpers.UpdateHelper;
 import com.manager.assistant.helpers.file.UriPathHelper;
-import com.manager.assistant.ui.data_sync.runnning_account.AccountUpdateReason;
-import com.manager.assistant.ui.data_sync.runnning_account.RunningAccountViewModel;
-import com.manager.assistant.ui.data_sync.tag_modify.TagRepository;
-import com.manager.assistant.ui.data_sync.tag_modify.TagUpdateReason;
+import com.manager.assistant.ui.sync.account.AccountUpdateReason;
+import com.manager.assistant.ui.sync.account.RunningAccountViewModel;
 import com.manager.assistant.ui.others.dialogs.MultiChoiceDialog;
 import com.manager.assistant.ui.others.dialogs.ProgressDialog;
 import com.manager.assistant.ui.pages.bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
 import com.manager.assistant.helpers.about_software.AboutHelper;
 import com.manager.assistant.helpers.appearence.ThemeModeHelper;
 import com.manager.assistant.helpers.about_software.UpdateLogHelper;
-import com.manager.assistant.data.io.data_helpers.AnalysisRuleDataHelper;
-import com.manager.assistant.data.io.data_helpers.DataHelperBase;
-import com.manager.assistant.data.io.data_helpers.RunningAccountDataHelper;
-import com.manager.assistant.data.data_save.preference.AppSettingsPreference;
+import com.manager.assistant.data.io.helpers.AnalysisRuleDataHelper;
+import com.manager.assistant.data.io.helpers.DataHelperBase;
+import com.manager.assistant.data.io.helpers.RunningAccountDataHelper;
+import com.manager.assistant.data.save.preference.AppSettingsPreference;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingClickableTextView;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingSpinnerView;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingSwitchView;
@@ -1092,10 +1090,6 @@ public class SettingFragment extends Fragment {
                 }
             }
         }
-
-        //刷新标签
-        TagRepository tagRepository = TagRepository.getInstance();
-        tagRepository.updateTag(TagUpdateReason.REFRESH);
 
         //刷新流水视图
         RunningAccountViewModel accountViewModel = new ViewModelProvider(requireActivity()).get(RunningAccountViewModel.class);

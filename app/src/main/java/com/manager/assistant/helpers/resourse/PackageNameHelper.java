@@ -8,7 +8,7 @@ import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.data.data_class.AppInfo;
+import com.manager.assistant.data.classes.AppInfo;
 
 import java.util.ArrayList;
 import java.util.List;

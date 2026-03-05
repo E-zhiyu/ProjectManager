@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.manager.assistant.automation.schedulers.BudgetResetScheduler;
-import com.manager.assistant.data.data_class.Budget;
+import com.manager.assistant.data.classes.Budget;
 import com.manager.assistant.generic_enums.LogTags;
 
 public class BudgetResetReceiver extends BroadcastReceiver {

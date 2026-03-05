@@ -16,8 +16,8 @@ import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
-import com.manager.assistant.data.data_class.TagGroup;
-import com.manager.assistant.data.io.pojo.PojoTagGroup;
+import com.manager.assistant.data.classes.TagGroup;
+import com.manager.assistant.data.io.pojos.PojoTagGroup;
 
 import java.util.List;
 
