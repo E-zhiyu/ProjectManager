@@ -42,7 +42,7 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
     private ActivityBudgetAddModifyBinding binding;                     //绑定的XML视图
     private boolean isModifyMode = false;                               //是否为修改模式
     private final List<Long> tagNoList = new ArrayList<>();             //保存标签编号的列表
-    private ResetFrequency resetFrequency = ResetFrequency.EVERY_DAY;   //预算重置频率
+    private ResetFrequency resetFrequency = ResetFrequency.FOREVER;     //预算重置频率
     private long bno = 0;                                               //预算编号
     private int viewHolderPosition = -1;                                //编辑模式下ViewHolder的下标
 

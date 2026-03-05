@@ -130,7 +130,7 @@
     <string name="start_date_help">开始计入预算的流水日期</string>
     <string name="init_amount_help">预算的初始金额</string>
     <string name="left_amount_help">预算剩余的金额</string>
-    <string name="reset_frequency_help">重置金额的时间间隔</string>
+    <string name="reset_frequency_help">重置金额和起算日期的时间间隔</string>
     <string name="tag_name_help">该标签的名称</string>
     <string name="tag_group_name_help">该标签所属分组的名称</string>
     <string name="filter_running_account">流水记录过滤</string>
