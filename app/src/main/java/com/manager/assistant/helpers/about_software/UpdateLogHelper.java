@@ -14,6 +14,8 @@ public class UpdateLogHelper {
     private static final String update_log_md = "# v1.8.0  \n" +
             "**新增内容**  \n" +
             "- 新增预算管理功能，能够在预算不足时发送通知提醒用户  \n\n" +
+            "**修改内容**  \n" +
+            "- 报表界面默认的日期范围由“这一天”改为“这个月”  \n\n" +
             "**BUG修复**  \n" +
             "- 修复修改流水记录后主页报表不会自动更新的BUG  \n" +
             "- 修复不新增标签分组前提下添加标签会重复弹出提示的BUG  \n\n" +

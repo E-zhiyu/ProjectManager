@@ -42,7 +42,7 @@ public class ReportActivity extends AppCompatActivity {
     private final List<AccountSourceInfo> expenseSourceInfoList = new ArrayList<>();        //支出来源列表
     private final List<AccountSourceInfo> incomeSourceInfoList = new ArrayList<>();         //收入来源列表
     private final List<MonthAccountInfo> monthAccountInfoList = new ArrayList<>();          //月流水信息列表
-    private DateRangeType dateRangeType = DateRangeType.TODAY;                              //日期范围种类
+    private DateRangeType dateRangeType = DateRangeType.THIS_MONTH;                         //日期范围种类
     private AccountSourceAdapter expenseAdapter, incomeAdapter;                             //收支来源布局适配器
     private MonthAccountInfoType monthAccountInfoType = MonthAccountInfoType.BALANCE;       //月流水信息种类
     private MonthAccountAdapter monthAccountAdapter;                                        //月流水信息适配器
@@ -142,7 +142,7 @@ public class ReportActivity extends AppCompatActivity {
             }
         }));
 
-        //获取RecyclerView并设置适配器
+        //获取 RecyclerView 并设置适配器
         expenseAdapter = new AccountSourceAdapter(expenseSourceInfoList);
         binding.expenseSourceRecycler.setAdapter(expenseAdapter);
         incomeAdapter = new AccountSourceAdapter(incomeSourceInfoList);
