@@ -25,30 +25,33 @@ public class NotificationHelper {
         for (ChannelInfo info : ChannelInfo.values()) {
             int importance = info.getImportance();
 
-            if (importance == NotificationManager.IMPORTANCE_DEFAULT) {
-                channelList.add(getDefaultChannel(info));
+            if (importance == NotificationManager.IMPORTANCE_HIGH) {
+                channelList.add(getImportanceHighChannel(info));
             }
         }
 
         //创建通知渠道
-        NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.createNotificationChannels(channelList);
     }
 
     /**
-     * 生成一般重要性通知渠道
+     * 生成高重要性通知渠道
      *
      * @param info 通知渠道的相关数据
-     * @return 重要性为一般的通知渠道实例
+     * @return 重要性为高的通知渠道实例
      */
     @NonNull
-    private static NotificationChannel getDefaultChannel(@NonNull ChannelInfo info) {
-        NotificationChannel channel = new NotificationChannel(info.getId(),
+    private static NotificationChannel getImportanceHighChannel(@NonNull ChannelInfo info) {
+        NotificationChannel channel = new NotificationChannel(
+                info.getId(),
                 info.getName(),
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_HIGH
         );
 
-        channel.setShowBadge(info.isShowBadge());
+        //配置角标、描述
+        channel.setShowBadge(true);
         channel.setDescription(info.getDescription());
 
         return channel;

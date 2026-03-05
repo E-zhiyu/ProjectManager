@@ -7,22 +7,19 @@ public enum ChannelInfo {
             "budget_amount_channel",
             "预算提醒",
             "当预算余额过低时发送通知提醒",
-            NotificationManager.IMPORTANCE_DEFAULT,
-            true
+            NotificationManager.IMPORTANCE_HIGH
     );
 
     private final String id;            //通道标识符
     private final String name;          //通道名称
     private final String description;   //通道描述
     private final int importance;       //通知重要性
-    private final boolean showBadge;    //通知是否显示角标
 
-    ChannelInfo(String id, String name, String description, int importance, boolean showBadge) {
+    ChannelInfo(String id, String name, String description, int importance) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.importance = importance;
-        this.showBadge = showBadge;
     }
 
     public String getId() {
@@ -39,9 +36,5 @@ public enum ChannelInfo {
 
     public int getImportance() {
         return importance;
-    }
-
-    public boolean isShowBadge() {
-        return showBadge;
     }
 }

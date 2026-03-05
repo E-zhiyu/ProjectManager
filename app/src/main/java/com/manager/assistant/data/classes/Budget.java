@@ -509,7 +509,7 @@ public class Budget {
                     .setContentText(content.toString())
                     .setContentIntent(pendingIntent)
                     .setAutoCancel(true)
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                    .setPriority(NotificationCompat.PRIORITY_HIGH);
             NotificationHelper.sendNotification(builder, context);
         }
     }
