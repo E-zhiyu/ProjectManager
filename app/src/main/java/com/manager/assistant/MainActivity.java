@@ -23,8 +23,11 @@ import com.manager.assistant.ui.pages.setting.SettingFragment;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+
 public class MainActivity extends AppCompatActivity {
-    private ActivityMainBinding binding;
+    private ActivityMainBinding binding;                                            //绑定的 XML 视图
+    private final CompositeDisposable disposables = new CompositeDisposable();      //多线程任务列表
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         boolean isMandatoryUpdateFound = VersionPreference.getFindMandatoryUpdate(this);    //是否获取到强制更新
         if (!isMandatoryUpdateFound) {
             if (start_version_check_num % recycle_num == 0) {
-                UpdateHelper.checkUpdate(this, false);
+                UpdateHelper.checkUpdate(this, disposables, false);
             }
             VersionPreference.setStartVersionCheckNum(this, (start_version_check_num + 1) % recycle_num);
         } else {
@@ -65,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        disposables.dispose();
         binding = null;
     }
 
