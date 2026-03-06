@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -117,6 +118,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
         try {
             budget.resetBudget(context);
             notifyItemChanged(position);
+            Toast.makeText(context, String.format(Locale.getDefault(), "%s已成功重置", budget.getName()), Toast.LENGTH_SHORT).show();
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
         }
@@ -205,7 +207,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
         budgetList.set(position, budget);
         notifyItemChanged(position);
         BudgetRepository repository = BudgetRepository.getInstance();
-        repository.onUpdated(budget,BudgetUpdateReason.MODIFIED);
+        repository.onUpdated(budget, BudgetUpdateReason.MODIFIED);
     }
 
     /**
