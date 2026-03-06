@@ -367,8 +367,8 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
         } else if (leftAmountStr.isEmpty() && isModifyMode) {
             err = "剩余金额不能为空";
             binding.leftAmountLayout.setError(err);
-        } else if (leftAmount == 0 && isModifyMode) {
-            err = "剩余金额不能为0";
+        } else if (isModifyMode && leftAmount > initAmount) {
+            err = "剩余金额不能超过初始金额";
             binding.leftAmountLayout.setError(err);
         } else if (tagNoList.isEmpty()) {
             err = "请选择至少一个标签";

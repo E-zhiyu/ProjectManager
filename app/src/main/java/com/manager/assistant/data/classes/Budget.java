@@ -157,23 +157,25 @@ public class Budget {
             long tagNo,
             @NonNull String datetime
     ) throws SQLiteException {
-        //将datetime转换为date
+        //将 datetime 转换为 date
         if (datetime.length() > 10) {
             datetime = datetime.substring(0, 10);
         }
 
+        //生成 SQL 语句
         String sql = "SELECT " + String.format(Locale.getDefault(), "%s.%s", Tables.BUDGET_TAG, Columns.BNO) +
                 " FROM " + Tables.BUDGET_TAG +
                 " INNER JOIN " + Tables.BUDGET +
                 " ON " + String.format(Locale.getDefault(), "%s.%s", Tables.BUDGET_TAG, Columns.BNO) +
                 "=" + String.format(Locale.getDefault(), "%s.%s", Tables.BUDGET, Columns.BNO) +
-                " WHERE " + Columns.START_DATE + "<?" +
+                " WHERE " + Columns.START_DATE + "<=?" +
                 " AND " + Columns.TAG_NO + "=?";
         String[] sqlArgs = {
                 datetime,
                 String.valueOf(tagNo)
         };
 
+        //获取需要重置的预算编号
         List<Long> bnoList = new ArrayList<>();
         Cursor budgetCursor = db.rawQuery(sql, sqlArgs);
         while (budgetCursor.moveToNext()) {
@@ -540,7 +542,8 @@ public class Budget {
         }
 
         //生成 SQL 语句
-        String sql = "UPDATE " + Tables.BUDGET + " SET " + Columns.LEFT_AMOUNT + "=" + Columns.LEFT_AMOUNT + "+?" +
+        String sql = "UPDATE " + Tables.BUDGET + " SET " + Columns.LEFT_AMOUNT + "=" +
+                "MAX(0," + "MIN(" + Columns.LEFT_AMOUNT + "+?" + "," + Columns.INIT_AMOUNT + ")" + ")" +
                 " WHERE " + Columns.BNO + " IN (" +
                 TextUtils.join(",", Collections.nCopies(bnoList.size(), "?")) +
                 ")";
@@ -666,7 +669,7 @@ public class Budget {
     }
 
     /**
-     * 自动重置预算，如果需要
+     * 自动重置需要被重置的预算
      *
      * @param context 上下文
      * @throws SQLiteException 数据写入失败引发的异常
