@@ -1,11 +1,11 @@
 package com.manager.assistant.data.io.maps;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.manager.assistant.data.io.pojo.PojoBasicRunningAccount;
-import com.manager.assistant.data.io.pojo.PojoPicture;
-import com.manager.assistant.data.io.pojo.PojoTag;
-import com.manager.assistant.data.io.pojo.PojoTagGroup;
-import com.manager.assistant.data.io.pojo.PojoTransferRunningAccount;
+import com.manager.assistant.data.io.pojos.PojoBasicRunningAccount;
+import com.manager.assistant.data.io.pojos.PojoPicture;
+import com.manager.assistant.data.io.pojos.PojoTag;
+import com.manager.assistant.data.io.pojos.PojoTagGroup;
+import com.manager.assistant.data.io.pojos.PojoTransferRunningAccount;
 
 import java.util.List;
 

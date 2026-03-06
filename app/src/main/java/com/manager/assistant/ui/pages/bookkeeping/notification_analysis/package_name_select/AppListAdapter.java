@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
-import com.manager.assistant.data.data_class.AppInfo;
+import com.manager.assistant.data.classes.AppInfo;
 
 import java.util.ArrayList;
 import java.util.List;

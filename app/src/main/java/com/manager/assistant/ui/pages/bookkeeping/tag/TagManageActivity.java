@@ -11,14 +11,13 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.manager.assistant.databinding.ActivityTagManageBinding;
-import com.manager.assistant.helpers.AnimationHelper;
-import com.manager.assistant.helpers.ColorHelper;
-import com.manager.assistant.enums.RequestResultCode;
+import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.helpers.resourse.ColorHelper;
+import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.enums.KeyValueStrings;
-import com.manager.assistant.data.data_class.Tag;
-import com.manager.assistant.data.data_class.TagGroup;
-import com.manager.assistant.ui.others.listeners.RecyclerScrollHideShowListener;
+import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.data.classes.Tag;
+import com.manager.assistant.data.classes.TagGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -149,17 +148,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         binding.tagGroupRecycler.setAdapter(adapter);
 
         //添加RecyclerView滚动监听器，用以控制添加按钮的显示与否
-        binding.tagGroupRecycler.addOnScrollListener(new RecyclerScrollHideShowListener() {
-            @Override
-            public void onHide() {
-                binding.addFloatingBtn.hide();
-            }
-
-            @Override
-            public void onShow() {
-                binding.addFloatingBtn.show();
-            }
-        });
+        AnimationHelper.setupFloatingBtnBehaviour(binding.tagGroupRecycler, binding.addFloatingBtn);
     }
 
     //初始化活动启动器
@@ -231,7 +220,6 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
                         needNewGroup = false;
                         try {
                             group_no = TagGroup.nameTransToGno(groupName, this);
-                            Toast.makeText(this, "标签已成功添加", Toast.LENGTH_SHORT).show();
                         } catch (SQLiteException e) {
                             ExceptionHelper.showExceptionDialog(this, e);
                         }

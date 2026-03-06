@@ -24,41 +24,40 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.DynamicColorsOptions;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.manager.assistant.enums.LogTags;
+import com.manager.assistant.data.io.helpers.BudgetDataHelper;
+import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.R;
-import com.manager.assistant.broadcast.BroadcastConstants;
-import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
-import com.manager.assistant.data.data_save.preference.AutoBackupPreference;
-import com.manager.assistant.data.data_save.preference.KeepAlivePreference;
+import com.manager.assistant.automation.broadcast.BroadcastConstants;
+import com.manager.assistant.data.save.database.BookkeepingDbHelper;
+import com.manager.assistant.data.save.preference.AutoBackupPreference;
+import com.manager.assistant.data.save.preference.KeepAlivePreference;
 import com.manager.assistant.databinding.FragmentSettingBinding;
-import com.manager.assistant.helpers.AutoBackupHelper;
+import com.manager.assistant.helpers.file.AutoBackupHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.PermissionHelper;
-import com.manager.assistant.data.data_save.preference.AutoBookKeepingPreference;
-import com.manager.assistant.data.data_save.preference.BookKeepingStartDatePreference;
-import com.manager.assistant.helpers.AnimationHelper;
-import com.manager.assistant.helpers.DataIOHelper;
+import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
+import com.manager.assistant.data.save.preference.BookKeepingStartDatePreference;
+import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.helpers.file.DataIOHelper;
 import com.manager.assistant.helpers.UpdateHelper;
-import com.manager.assistant.helpers.UriPathHelper;
-import com.manager.assistant.ui.data_sync.runnning_account.AccountUpdateReason;
-import com.manager.assistant.ui.data_sync.runnning_account.RunningAccountViewModel;
-import com.manager.assistant.ui.data_sync.tag_modify.TagRepository;
-import com.manager.assistant.ui.data_sync.tag_modify.TagUpdateReason;
+import com.manager.assistant.helpers.file.UriPathHelper;
+import com.manager.assistant.ui.sync.account.AccountUpdateReason;
+import com.manager.assistant.ui.sync.account.RunningAccountViewModel;
 import com.manager.assistant.ui.others.dialogs.MultiChoiceDialog;
 import com.manager.assistant.ui.others.dialogs.ProgressDialog;
 import com.manager.assistant.ui.pages.bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
-import com.manager.assistant.helpers.AboutHelper;
-import com.manager.assistant.helpers.ThemeModeHelper;
-import com.manager.assistant.helpers.UpdateLogHelper;
-import com.manager.assistant.data.io.data_helpers.AnalysisRuleDataHelper;
-import com.manager.assistant.data.io.data_helpers.DataHelperBase;
-import com.manager.assistant.data.io.data_helpers.RunningAccountDataHelper;
-import com.manager.assistant.data.data_save.preference.AppSettingsPreference;
+import com.manager.assistant.helpers.about.AboutHelper;
+import com.manager.assistant.helpers.appearence.ThemeModeHelper;
+import com.manager.assistant.helpers.about.UpdateLogHelper;
+import com.manager.assistant.data.io.helpers.AnalysisRuleDataHelper;
+import com.manager.assistant.data.io.helpers.DataHelperBase;
+import com.manager.assistant.data.io.helpers.RunningAccountDataHelper;
+import com.manager.assistant.data.save.preference.AppSettingsPreference;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingClickableTextView;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingSpinnerView;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingSwitchView;
-import com.manager.assistant.workers.BackupScheduler;
+import com.manager.assistant.automation.schedulers.BackupScheduler;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -95,6 +94,11 @@ public class SettingFragment extends Fragment {
                 "通知解析规则数据",
                 "AnalysisRule.json",
                 AnalysisRuleDataHelper::new
+        ),
+        BUDGET_DATA(
+                "预算数据",
+                "Budget.json",
+                BudgetDataHelper::new
         );
         private final String name;              //选项名称
         private final String defaultFileName;   //默认文件名称
@@ -306,10 +310,11 @@ public class SettingFragment extends Fragment {
         clearRunningAccountOption.setFunctionListener(
                 v -> new MaterialAlertDialogBuilder(requireContext())
                         .setTitle("清除数据")
-                        .setMessage("此操作将清除所有流水记录、标签和标签分组数据，确认继续吗？")
+                        .setMessage("此操作将清除所有流水记录、标签、标签分组和预算数据，确认继续吗？")
                         .setPositiveButton("确认", ((dialog, which) -> {
                             dialog.dismiss();
                             RunningAccountDataHelper.deleteAllData(requireContext());
+                            BudgetDataHelper.deleteAllData(requireContext());
                             BookKeepingStartDatePreference.saveStartDate("", requireContext()); //清空已保存的开始记账的日期
 
                             //通过ViewModel提醒流水界面刷新数据
@@ -469,7 +474,7 @@ public class SettingFragment extends Fragment {
 
         //开关左侧文本长按功能
         notificationAnalysisSwitchOption.setOnLongClickListener(v -> {
-            PermissionHelper.requestNotificationPermission(requireContext());
+            PermissionHelper.requestNotificationListenerPermission(requireContext());
             return true;
         });
 
@@ -550,7 +555,7 @@ public class SettingFragment extends Fragment {
                 R.drawable.outline_battery_android_frame_3_24
         );
         batteryOptimizationOption.setFunctionListener(
-                v -> PermissionHelper.openBatteryOptimizations(requireContext())
+                v -> PermissionHelper.requestIgnoringBatteryOptimizations(requireContext())
         );
     }
 
@@ -593,7 +598,7 @@ public class SettingFragment extends Fragment {
         updateCheckOption.setFunctionListener(
                 v -> {
                     Toast.makeText(requireContext(), "正在检查更新……", Toast.LENGTH_SHORT).show();
-                    UpdateHelper.checkUpdate(requireContext(), true);
+                    UpdateHelper.checkUpdate(requireContext(),disposables, true);
                 }
         );
     }
@@ -797,6 +802,9 @@ public class SettingFragment extends Fragment {
                             Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据类型：流水记录数据");
                             RunningAccountDataHelper dataHelper = new RunningAccountDataHelper(requireContext());
                             if (dataHelper.saveJsonDataToDb(contentStr)) {
+                                //清空已保存的开始记账的日期
+                                BookKeepingStartDatePreference.saveStartDate("", requireContext());
+
                                 Toast.makeText(requireContext(), "流水记录数据导入成功", Toast.LENGTH_SHORT).show();
                                 Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据导入成功");
                             } else {
@@ -806,6 +814,9 @@ public class SettingFragment extends Fragment {
                             Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据类型：通知解析规则数据");
                             AnalysisRuleDataHelper dataHelper = new AnalysisRuleDataHelper(requireContext());
                             if (dataHelper.saveJsonDataToDb(contentStr)) {
+                                //清空已保存的开始记账的日期
+                                BookKeepingStartDatePreference.saveStartDate("", requireContext());
+
                                 Toast.makeText(requireContext(), "通知解析规则数据导入成功", Toast.LENGTH_SHORT).show();
                                 Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据导入成功");
                             } else {
@@ -900,7 +911,7 @@ public class SettingFragment extends Fragment {
                     .setMessage("此功能需要使用“通知使用权”权限，该权限允许应用读取其他软件发送的通知内容。本应用不会也无法使用该权限获取用户隐私信息，仅用于解析通知中可能出现的流水账信息，请您放心使用。\n\n是否为本应用授权？")
                     .setPositiveButton("确认", (dialog, which) -> {
                         //申请通知监听权限
-                        PermissionHelper.requestNotificationPermission(requireContext());
+                        PermissionHelper.requestNotificationListenerPermission(requireContext());
                     })
                     .setNegativeButton("取消", null)
                     .show();
@@ -1080,15 +1091,14 @@ public class SettingFragment extends Fragment {
             }
         }
 
-        //刷新标签
-        TagRepository tagRepository = TagRepository.getInstance();
-        tagRepository.updateTag(TagUpdateReason.REFRESH);
-
         //刷新流水视图
         RunningAccountViewModel accountViewModel = new ViewModelProvider(requireActivity()).get(RunningAccountViewModel.class);
         accountViewModel.onAccountUpdated(0, "", null, AccountUpdateReason.REFRESH);
 
         if (isImportSuccessfully) {
+            //清空已保存的开始记账的日期
+            BookKeepingStartDatePreference.saveStartDate("", requireContext());
+
             Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据已成功导入");
             return true;
         } else {

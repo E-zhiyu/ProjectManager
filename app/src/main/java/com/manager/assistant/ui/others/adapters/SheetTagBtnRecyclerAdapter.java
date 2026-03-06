@@ -14,7 +14,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.shape.Shapeable;
 import com.manager.assistant.R;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.data.data_class.Tag;
+import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
 
 import java.util.List;

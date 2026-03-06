@@ -17,24 +17,23 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.textview.MaterialTextView;
-import com.manager.assistant.enums.KeyValueStrings;
-import com.manager.assistant.enums.TagString;
-import com.manager.assistant.broadcast.BroadcastConstants;
-import com.manager.assistant.broadcast.RunningAccountUpdatedBroadcastReceiver;
-import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
-import com.manager.assistant.data.data_class.running_account.TransferRunningAccount;
+import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.TagString;
+import com.manager.assistant.automation.broadcast.BroadcastConstants;
+import com.manager.assistant.automation.broadcast.AccountUpdatedReceiver;
+import com.manager.assistant.data.classes.running_account.RunningAccountBase;
+import com.manager.assistant.data.classes.running_account.TransferRunningAccount;
 import com.manager.assistant.databinding.FragmentBookkeepingBinding;
-import com.manager.assistant.helpers.AnimationHelper;
-import com.manager.assistant.helpers.ColorHelper;
+import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.helpers.resourse.ColorHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.helpers.PictureHelper;
-import com.manager.assistant.ui.data_sync.runnning_account.AccountUpdateReason;
-import com.manager.assistant.ui.data_sync.runnning_account.RunningAccountViewModel;
+import com.manager.assistant.helpers.file.PictureHelper;
+import com.manager.assistant.ui.sync.account.AccountUpdateReason;
+import com.manager.assistant.ui.sync.account.RunningAccountViewModel;
 import com.manager.assistant.ui.others.bottom_sheets.filter.AccountFilterBottomSheet;
-import com.manager.assistant.ui.others.listeners.RecyclerScrollHideShowListener;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.RunningAccountModifyActivity;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.RunningAccountAddActivity;
-import com.manager.assistant.enums.RequestResultCode;
+import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
 import java.util.ArrayList;
@@ -50,7 +49,7 @@ public class BookKeepingFragment extends Fragment {
     private ActivityResultLauncher<Intent> accountAddLauncher, accountModifyLauncher;   //子活动启动器
     private int account_count;                                              //流水记录数量
     private FragmentBookkeepingBinding binding;                             //绑定的XML视图
-    private RunningAccountUpdatedBroadcastReceiver accountUpdatedReceiver;  //流水数据更新的广播接收器
+    private AccountUpdatedReceiver accountUpdatedReceiver;  //流水数据更新的广播接收器
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
     private AccountFilterBottomSheet.FilterSetting filterSetting = new AccountFilterBottomSheet.FilterSetting();    //过滤器设置
 
@@ -196,18 +195,25 @@ public class BookKeepingFragment extends Fragment {
         int colorBackground = ColorHelper.getBackgroundColor(requireContext());
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
 
-        //创建列表视图的适配器
-        setupAccountAdapter();
+        //设置适配器
+        accountAdapter = new AccountAdapter(this::onRunningAccountViewClick);
+        binding.accountRecycler.setAdapter(accountAdapter);
+
+        //设置浮动按钮隐藏行为
+        AnimationHelper.setupFloatingBtnBehaviour(binding.accountRecycler, binding.addFloatingBtn);
 
         //设置下拉刷新布局的监听器
         binding.refreshLayout.setOnRefreshListener(this::refreshAccountRecycler);
+
+        //加载流水记录
+        refreshAccountRecycler();
     }
 
     /**
      * 初始化广播接收器
      */
     private void setupBroadcastReceiver() {
-        accountUpdatedReceiver = new RunningAccountUpdatedBroadcastReceiver(this::onNewAccountAdded);
+        accountUpdatedReceiver = new AccountUpdatedReceiver(this::onNewAccountAdded);
         IntentFilter filter = new IntentFilter();
         filter.addAction(BroadcastConstants.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -215,31 +221,6 @@ public class BookKeepingFragment extends Fragment {
         } else {
             requireContext().registerReceiver(accountUpdatedReceiver, filter);
         }
-    }
-
-    /**
-     * 初始化流水视图适配器
-     */
-    private void setupAccountAdapter() {
-        //设置适配器
-        accountAdapter = new AccountAdapter(this::onRunningAccountViewClick);
-        binding.accountRecycler.setAdapter(accountAdapter);
-
-        //设置滚动监听器
-        binding.accountRecycler.addOnScrollListener(new RecyclerScrollHideShowListener() {
-            @Override
-            public void onHide() {
-                binding.addFloatingBtn.hide();
-            }
-
-            @Override
-            public void onShow() {
-                binding.addFloatingBtn.show();
-            }
-        });
-
-        //加载流水记录
-        refreshAccountRecycler();
     }
 
     /**
@@ -291,7 +272,7 @@ public class BookKeepingFragment extends Fragment {
             return;
         }
 
-        accountAdapter.modifyRunningAccount(dataBundle, requireContext());
+        accountAdapter.modifyRunningAccount(dataBundle, requireActivity(), requireContext());
         Toast.makeText(requireContext(), "成功修改流水记录", Toast.LENGTH_SHORT).show();
     }
 

@@ -1,8 +1,8 @@
 package com.manager.assistant.data.io.maps;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.manager.assistant.data.io.pojo.PojoAnalysisRule;
-import com.manager.assistant.data.io.pojo.PojoRuleAccount;
+import com.manager.assistant.data.io.pojos.PojoAnalysisRule;
+import com.manager.assistant.data.io.pojos.PojoRuleAccount;
 
 import java.util.List;
 

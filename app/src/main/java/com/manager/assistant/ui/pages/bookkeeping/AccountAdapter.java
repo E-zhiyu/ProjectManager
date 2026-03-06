@@ -14,15 +14,15 @@ import androidx.lifecycle.ViewModelStoreOwner;
 import com.google.android.material.shape.Shapeable;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
-import com.manager.assistant.enums.KeyValueStrings;
-import com.manager.assistant.data.data_class.running_account.ExpenseRunningAccount;
-import com.manager.assistant.data.data_class.running_account.IncomeRunningAccount;
-import com.manager.assistant.data.data_class.running_account.RunningAccountBase;
-import com.manager.assistant.data.data_class.running_account.TransferRunningAccount;
-import com.manager.assistant.enums.LogTags;
+import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.data.classes.running_account.ExpenseRunningAccount;
+import com.manager.assistant.data.classes.running_account.IncomeRunningAccount;
+import com.manager.assistant.data.classes.running_account.RunningAccountBase;
+import com.manager.assistant.data.classes.running_account.TransferRunningAccount;
+import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.ui.data_sync.runnning_account.AccountUpdateReason;
-import com.manager.assistant.ui.data_sync.runnning_account.RunningAccountViewModel;
+import com.manager.assistant.ui.sync.account.AccountUpdateReason;
+import com.manager.assistant.ui.sync.account.RunningAccountViewModel;
 import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.xwray.groupie.GroupAdapter;
@@ -253,9 +253,10 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
      * 修改指定下标的流水视图
      *
      * @param dataBundle 修改后的流水数据
+     * @param owner      ViewModel提供者
      * @param context    上下文
      */
-    public void modifyRunningAccount(@NonNull Bundle dataBundle, Context context) {
+    public void modifyRunningAccount(@NonNull Bundle dataBundle, ViewModelStoreOwner owner, Context context) {
         //解析数据
         long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
         RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
@@ -263,6 +264,10 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
         if (remark == null) remark = "";
         String datetime = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
+
+        //使用ViewModel刷新UI（主页的简易报表）
+        RunningAccountViewModel viewModel = new ViewModelProvider(owner).get(RunningAccountViewModel.class);
+        viewModel.onAccountUpdated(amount, datetime, type, AccountUpdateReason.MODIFIED);
 
         //实例化流水类
         RunningAccountBase runningAccount;

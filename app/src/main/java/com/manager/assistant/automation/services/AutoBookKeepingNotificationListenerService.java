@@ -1,0 +1,376 @@
+package com.manager.assistant.automation.services;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.sqlite.SQLiteException;
+import android.os.Build;
+import android.os.Bundle;
+import android.service.notification.NotificationListenerService;
+import android.service.notification.StatusBarNotification;
+import android.util.Log;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.manager.assistant.generic_enums.LogTags;
+import com.manager.assistant.automation.broadcast.RuleUpdateReceiver;
+import com.manager.assistant.automation.broadcast.BroadcastConstants;
+import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
+import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.data.classes.AnalysisRule;
+import com.manager.assistant.data.classes.running_account.RunningAccountBase;
+import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
+import com.manager.assistant.data.classes.Tag;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
+public class AutoBookKeepingNotificationListenerService extends NotificationListenerService
+        implements RuleUpdateReceiver.BroadcastListener {
+    private final HashMap<RuleKey, List<RuleValue>> ruleHashMap = new HashMap<>();    //解析规则哈希表
+    private RuleUpdateReceiver ruleUpdateReceiver;   //规则更新的广播接收器
+    private boolean isFunctionOpened;                                   //通知解析功能是否开启
+    private String lastPackageName = "";                                //上一次接收通知的包名
+    private String lastTitle = "";                                      //上一次通知的标题
+    private long lastReceiveEpochMilli = 0;                             //上一次接收消息的时间（毫秒）
+
+    private static class RuleKey {
+        private final String title;                                     //通知标题
+        private final String packageName;                               //通知发送者包名
+
+        public RuleKey(String packageName, String title) {
+            this.packageName = packageName;
+            this.title = title;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+
+            if (o == null || getClass() != o.getClass()) return false;
+
+            RuleKey key = (RuleKey) o;
+            return Objects.equals(title, key.title)
+                    && Objects.equals(packageName, key.packageName);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(title, packageName);
+        }
+    }
+
+    private static class RuleValue {
+        private final String ruleName;          //规则名称
+        private final String content;           //通知内容正则表达式
+        private final RunningAccountType type;  //通知种类
+        private final long rule_no;             //规则编号
+
+        public RuleValue(String ruleName, String content, RunningAccountType type, long rule_no) {
+            this.ruleName = ruleName;
+            this.content = content;
+            this.type = type;
+            this.rule_no = rule_no;
+        }
+
+        public String getRuleName() {
+            return ruleName;
+        }
+
+        public String getContent() {
+            return content;
+        }
+
+        public RunningAccountType getType() {
+            return type;
+        }
+
+        public long getRule_no() {
+            return rule_no;
+        }
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "服务已启动");
+        return START_STICKY;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        //启动时则加载规则
+        try {
+//            ruleList = AnalysisRule.loadAnalysisRule(getApplicationContext());
+            ruleHashMap.putAll(loadRulesInHashMap());
+        } catch (SQLiteException e) {
+            Toast.makeText(getApplicationContext(), "通知监听服务无法加载解析规则", Toast.LENGTH_SHORT).show();
+        }
+        isFunctionOpened = AutoBookKeepingPreference.getSwitchStat(getApplicationContext());   //启动时加载功能开关状态
+
+        //注册规则更新和开关状态更新的广播接收器
+        ruleUpdateReceiver = new RuleUpdateReceiver(this);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BroadcastConstants.ACTION_RULES_UPDATED.toString());       //过滤规则更新动作
+        filter.addAction(BroadcastConstants.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString()); //过滤通知解析功能开关状态变化
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(ruleUpdateReceiver, filter, Context.RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(ruleUpdateReceiver, filter);
+        }
+
+        //发送通知监听服务已运行的通知
+        sendBroadcast(new Intent(BroadcastConstants.ACTION_NOTIFICATION_LISTENER_ENABLED.toString()));
+        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "服务已创建");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "服务已关闭");
+        //注销广播接收器防止重复刷新UI
+        if (ruleUpdateReceiver != null) {
+            unregisterReceiver(ruleUpdateReceiver);
+        }
+    }
+
+    @Override
+    public void onNotificationPosted(@NonNull StatusBarNotification sbn) {
+        //未开启通知监听功能则不运行
+        if (!isFunctionOpened) {
+            Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "自动记账功能未启用");
+            return;
+        }
+
+        //获取通知数据
+        String packageName = sbn.getPackageName();
+        String title = sbn.getNotification().extras.getString("android.title");
+        String text = sbn.getNotification().extras.getString("android.text");
+        if (text == null || title == null) return;
+
+        //同一应用发送太频繁直接不运行
+        LocalDateTime now = LocalDateTime.now();
+        long currentEpochMilli = now.atZone(ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli();
+        long difference = currentEpochMilli - lastReceiveEpochMilli;        //求时间差
+        lastReceiveEpochMilli = currentEpochMilli;
+        boolean isSamePackageName = packageName.equals(lastPackageName);    //判断是否包名相同
+        lastPackageName = packageName;
+        boolean isSameTitle = title.equals(lastTitle);                      //判断标题是否相同
+        lastTitle = title;
+        if (difference <= 1500 && isSameTitle && isSamePackageName) {
+            Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "同一应用发送通知过于频繁，不执行任何操作");
+            return;
+        }
+
+        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), String.format("通知发送者包名：%s", packageName));
+        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), String.format("通知标题：%s", title));
+        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), String.format("通知内容：%s", text));
+
+        //处理通知内容
+        RuleKey key = new RuleKey(packageName, title);
+        List<RuleValue> valueList = ruleHashMap.get(key);
+        if (valueList != null) {
+            for (RuleValue value : valueList) {
+                String content = value.getContent();
+                String ruleName = value.getRuleName();
+                RunningAccountType type = value.getType();
+                long rule_no = value.getRule_no();
+
+                Matcher matcher;                                        //通知内容匹配器
+                try {
+                    Pattern pattern = Pattern.compile(content);         //编译为正则表达式
+                    matcher = pattern.matcher(text);
+                } catch (PatternSyntaxException e) {                    //处理无法编译为Matcher的情况
+                    Log.e(LogTags.NOTIFICATION_SERVICE.getV(), "正则表达式编译出错");
+                    Toast.makeText(
+                            getApplicationContext(),
+                            String.format(
+                                    Locale.getDefault(),
+                                    "规则“%s”的正则表达式编译出错",
+                                    ruleName
+                            ),
+                            Toast.LENGTH_SHORT
+                    ).show();
+                    continue;
+                }
+
+                if (matcher.find()) {
+                    Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "成功匹配正则表达式");
+                    Bundle dataBundle;
+                    try {
+                        //获取标签编号
+                        long tag_no = Tag.getTagByRuleNo(rule_no, getApplicationContext()).getTno();
+
+                        dataBundle = getNewAccountData(matcher, type, tag_no, ruleName, rule_no);
+                        Log.i(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据保存成功");
+                    } catch (SQLiteException e) {
+                        Log.e(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据保存失败或标签编号读取失败");
+                        Toast.makeText(getApplicationContext(), "自动记账出错：无法获取标签编号", Toast.LENGTH_SHORT).show();
+                        continue;
+                    }
+
+                    //发送流水账记录增加的广播
+                    if (dataBundle != null) {
+                        Intent accountAdded = new Intent(BroadcastConstants.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
+                        accountAdded.putExtras(dataBundle);
+                        getApplicationContext().sendBroadcast(accountAdded);
+                    }
+                } else {
+                    Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "正则表达式不匹配");
+                }
+            }
+        }
+    }
+
+    /**
+     * 处理规则更新的接口回调
+     */
+    @Override
+    public void onRuleUpdated() {
+        try {
+            Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "收到规则更新广播，正在更新规则……");
+            ruleHashMap.putAll(loadRulesInHashMap());
+            Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "规则更新成功");
+        } catch (SQLiteException e) {
+            Log.w(LogTags.NOTIFICATION_SERVICE.getV(), "规则更新失败");
+            Toast.makeText(getApplicationContext(), "自动记账出错：无法获取更新的规则", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * 处理功能开关状态变更的接口回调
+     */
+    @Override
+    public void onFunctionSwitched() {
+        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "收到功能开关状态变更广播");
+        isFunctionOpened = AutoBookKeepingPreference.getSwitchStat(getApplicationContext());
+        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "通知解析功能：" + isFunctionOpened);
+    }
+
+    /**
+     * 获得流水记录数据
+     *
+     * @param matcher  正则表达式的匹配对象
+     * @param type     解析规则中的流水种类
+     * @param tag_no   解析规则对应的标签编号
+     * @param ruleName 解析规则的名称
+     * @param rule_no  规则编号
+     * @return 解析通知内容后生成的流水数据包(正则表达式解析失败返回null)
+     * @throws SQLiteException 流水数据保存失败引发的异常
+     */
+    @Nullable
+    private Bundle getNewAccountData(
+            @NonNull Matcher matcher,
+            @NonNull RunningAccountType type,
+            long tag_no,
+            String ruleName,
+            long rule_no) throws SQLiteException {
+        //获取匹配到的金额数据
+        double amount;
+        try {
+            amount = Double.parseDouble(Objects.requireNonNull(matcher.group(1)));
+        } catch (IndexOutOfBoundsException e) { //处理没有捕获组的情况
+            Toast.makeText(
+                    getApplicationContext(),
+                    String.format(
+                            Locale.getDefault(),
+                            "规则“%s”没有金额捕获组",
+                            ruleName
+                    ),
+                    Toast.LENGTH_SHORT
+            ).show();
+            return null;
+        } catch (NumberFormatException e) {
+            Toast.makeText(
+                    getApplicationContext(),
+                    String.format(
+                            Locale.getDefault(),
+                            "规则“%s”的捕获组无法正确捕获金额数据",
+                            ruleName
+                    ),
+                    Toast.LENGTH_SHORT
+            ).show();
+            return null;
+        }
+
+        //获取当前的时间
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime now = LocalDateTime.now();
+        String timeStr = dateFormat.format(now);
+
+        //生成备注
+        String remark = "自动记账：" + ruleName;
+
+        //生成流水记录数据包
+        Bundle dataBundle = new Bundle();
+        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
+        dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), timeStr);
+        dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());
+        dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
+        dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
+        if (type == RunningAccountType.TRANSFER) {
+            List<String> transferAccountInfo = AnalysisRule.getTransferAccounts(rule_no, getApplicationContext());
+            if (!transferAccountInfo.isEmpty()) {
+                String exportAccount = transferAccountInfo.get(0);
+                String importAccount = transferAccountInfo.get(1);
+                dataBundle.putString(KeyValueStrings.ACCOUNT_EXPORT.getValue(), exportAccount);
+                dataBundle.putString(KeyValueStrings.ACCOUNT_IMPORT.getValue(), importAccount);
+            }
+        }
+
+        long rno = RunningAccountBase.saveNewAccount(dataBundle, getApplicationContext());
+        dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
+
+        return dataBundle;
+    }
+
+    /**
+     * 加载通知解析规则
+     *
+     * @return 规则哈希表
+     * @throws SQLiteException 规则读取失败引发的异常
+     */
+    @NonNull
+    private HashMap<RuleKey, List<RuleValue>> loadRulesInHashMap() throws SQLiteException {
+        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "开始加载通知解析规则");
+
+        HashMap<RuleKey, List<RuleValue>> ruleHashMap = new HashMap<>();
+        List<AnalysisRule> ruleList = AnalysisRule.loadAnalysisRule(getApplicationContext());
+        for (AnalysisRule rule : ruleList) {
+            String ruleName = rule.getRuleName();
+            long rule_no = rule.getRuleNo();
+            RunningAccountType type = rule.getType();
+            String packageName = rule.getPackageName();
+            String title = rule.getNotificationTitle();
+            String content = rule.getNotificationContent();
+
+            RuleKey key = new RuleKey(packageName, title);
+            RuleValue value = new RuleValue(ruleName, content, type, rule_no);
+            List<RuleValue> valueList = ruleHashMap.get(key);
+            if (valueList == null) {
+                valueList = new ArrayList<>();
+                valueList.add(value);
+                ruleHashMap.put(key, valueList);
+            } else {
+                valueList.add(value);
+            }
+        }
+
+        return ruleHashMap;
+    }
+}

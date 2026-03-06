@@ -23,8 +23,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
-import com.manager.assistant.data.data_save.preference.VersionPreference;
-import com.manager.assistant.workers.BackupScheduler;
+import com.manager.assistant.data.save.preference.VersionPreference;
+import com.manager.assistant.automation.schedulers.BackupScheduler;
+import com.manager.assistant.helpers.about.AboutHelper;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,7 +43,7 @@ import javax.net.ssl.HttpsURLConnection;
 import io.noties.markwon.Markwon;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class UpdateHelper {
@@ -52,13 +53,15 @@ public class UpdateHelper {
      * 检查更新
      *
      * @param context     上下文
+     * @param disposables 多线程任务订阅列表
      * @param isHaveToast 是否需要弹出提示
      */
-    public static void checkUpdate(Context context, boolean isHaveToast) {
-        Disposable disposable = Observable.fromCallable(() -> {
-                    URL versionInfoUrl = new URL(versionInfoUrL);
-                    return getVersionInfo(versionInfoUrl);
-                })
+    public static void checkUpdate(Context context, @NonNull CompositeDisposable disposables, boolean isHaveToast) {
+        disposables.add(Observable.fromCallable(
+                        () -> {
+                            URL versionInfoUrl = new URL(versionInfoUrL);
+                            return getVersionInfo(versionInfoUrl);
+                        })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(version_info_json -> analyseVersionInfo(context, version_info_json),
@@ -82,7 +85,9 @@ public class UpdateHelper {
                             } else {
                                 ExceptionHelper.showExceptionDialog(context, e);
                             }
-                        });
+                        }
+                )
+        );
     }
 
     /**

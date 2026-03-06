@@ -1,0 +1,9 @@
+package com.manager.assistant.ui.sync.account;
+
+public enum AccountUpdateReason {
+    ADD,        //添加
+    MODIFIED,   //修改
+    DELETE,     //删除
+    CLEAR,      //清除
+    REFRESH     //刷新（导入数据时）
+}

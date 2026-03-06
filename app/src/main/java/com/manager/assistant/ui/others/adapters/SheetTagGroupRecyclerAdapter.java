@@ -10,8 +10,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
-import com.manager.assistant.data.data_class.Tag;
-import com.manager.assistant.data.data_class.TagGroup;
+import com.manager.assistant.data.classes.Tag;
+import com.manager.assistant.data.classes.TagGroup;
 import com.manager.assistant.ui.others.bottom_sheets.tag.GridSpacingItemDecoration;
 
 import java.util.List;
@@ -22,13 +22,13 @@ public class SheetTagGroupRecyclerAdapter extends RecyclerView.Adapter<SheetTagG
 
     public static class TagSelectHolder extends RecyclerView.ViewHolder {
         RecyclerView tagBtnRecycler;                    //标签按钮布局
-        MaterialTextView tag_group_name_view;           //标签分组名称
+        MaterialTextView tagGroupNameText;              //标签分组名称
 
         public TagSelectHolder(@NonNull View itemView) {
             super(itemView);
 
             tagBtnRecycler = itemView.findViewById(R.id.tag_btn_recycler_view);
-            tag_group_name_view = itemView.findViewById(R.id.tag_group_name_view);
+            tagGroupNameText = itemView.findViewById(R.id.tag_group_name_view);
         }
     }
 
@@ -53,10 +53,10 @@ public class SheetTagGroupRecyclerAdapter extends RecyclerView.Adapter<SheetTagG
 
         //根据当前的标签列表是否为空设置视图内容
         if (tags.isEmpty()) {
-            holder.tag_group_name_view.setVisibility(View.GONE);
+            holder.tagGroupNameText.setVisibility(View.GONE);
             holder.tagBtnRecycler.setVisibility(View.GONE);
         } else {
-            holder.tag_group_name_view.setText(group_name);
+            holder.tagGroupNameText.setText(group_name);
             SheetTagBtnRecyclerAdapter btn_layout_adapter = new SheetTagBtnRecyclerAdapter(tags, listener);
             holder.tagBtnRecycler.setAdapter(btn_layout_adapter);
 

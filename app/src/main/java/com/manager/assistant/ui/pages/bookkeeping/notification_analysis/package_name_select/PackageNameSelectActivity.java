@@ -22,13 +22,13 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.search.SearchView;
 import com.manager.assistant.R;
 import com.manager.assistant.databinding.ActivityPackageNameSelectBinding;
-import com.manager.assistant.helpers.ColorHelper;
+import com.manager.assistant.helpers.resourse.ColorHelper;
 import com.manager.assistant.helpers.PermissionHelper;
-import com.manager.assistant.enums.RequestResultCode;
+import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.helpers.PackageNameHelper;
-import com.manager.assistant.enums.KeyValueStrings;
-import com.manager.assistant.ui.data_sync.package_name_search.AppInfoSearchViewModel;
+import com.manager.assistant.helpers.resourse.PackageNameHelper;
+import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.ui.sync.package_name_search.AppInfoSearchViewModel;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -105,7 +105,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         startObserveSearchResult();
 
         //进入该界面时尝试申请权限
-        PermissionHelper.tryGetAppListPermission(this);
+        PermissionHelper.requestAppListPermission(this);
 
         //拦截返回键功能：先关闭搜索界面再返回上一级
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -125,7 +125,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == RequestResultCode.REQUEST_GET_PERMISSION.ordinal()) {
+        if (requestCode == RequestResultCode.REQUEST_APP_LIST_PERMISSION.ordinal()) {
             if (grantResults[0] == 0) {
                 appListRefreshLayout.setRefreshing(true);
                 startLoadAppList();

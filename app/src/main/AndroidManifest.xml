@@ -4,22 +4,26 @@
 
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
-        tools:ignore="PackageVisibilityPolicy,QueryAllPackagesPermission" />    <!-- 读取应用列表权限 -->
-    <uses-permission android:name="com.android.permission.GET_INSTALLED_APPS" />    <!-- 读取应用列表权限 -->
+        tools:ignore="PackageVisibilityPolicy,QueryAllPackagesPermission" /> <!-- 读取应用列表权限 -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />  <!-- 闹钟设置权限 -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" /> <!-- 请求忽略电池优化 -->
+    <uses-permission android:name="com.android.permission.GET_INSTALLED_APPS" /> <!-- 读取应用列表权限 -->
     <uses-permission
         android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
-        tools:ignore="ProtectedPermissions" />  <!-- 通知使用权限 -->
+        tools:ignore="ProtectedPermissions" /> <!-- 通知使用权限 -->
     <uses-permission
         android:name="android.permission.REQUEST_INSTALL_PACKAGES"
-        tools:ignore="RequestInstallPackagesPolicy" />  <!-- 安装APK权限 -->
-    <uses-permission android:name="android.permission.INTERNET" />  <!-- 网络权限 -->
+        tools:ignore="RequestInstallPackagesPolicy" /> <!-- 安装APK权限 -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- 网络权限 -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />   <!-- 读取外部存储权限 -->
+        android:maxSdkVersion="32" /> <!-- 读取外部存储权限 -->
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" />   <!-- 写入外部存储权限 -->
-    <uses-permission android:name="android.permission.CAMERA" />    <!-- 相机权限 -->
+        android:maxSdkVersion="28" /> <!-- 写入外部存储权限 -->
+    <uses-permission android:name="android.permission.CAMERA" /> <!-- 相机权限 -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> <!-- 开机监听权限 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" /> <!-- 通知权限 -->
 
     <uses-feature android:name="android.hardware.camera.any" />
     <uses-feature
@@ -38,6 +42,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ManagerAssistant.Static"
         tools:targetApi="33">
+        <activity
+            android:name=".ui.pages.bookkeeping.budget.BudgetAddModifyActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.pages.bookkeeping.budget.BudgetManageActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.pages.picture.FullScreenImageActivity"
             android:exported="false" />
@@ -92,8 +102,31 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <!-- 预算重置检查闹钟的接收器 -->
+        <receiver
+            android:name=".automation.broadcast.BudgetResetReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.manager.assistant.BudgetResetReceiver" />
+            </intent-filter>
+        </receiver>
+
+        <!-- 开机启动监听器 -->
+        <receiver
+            android:name=".automation.broadcast.BootReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <!-- 兼容旧版本 Android 需要添加以下权限 -->
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+
+        <!-- 通知监听服务，用于实现自动记账 -->
         <service
-            android:name=".services.AutoBookKeepingNotificationListenerService"
+            android:name=".automation.services.AutoBookKeepingNotificationListenerService"
             android:exported="false"
             android:label="自动记账通知监听服务"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">

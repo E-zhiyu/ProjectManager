@@ -15,11 +15,11 @@ import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.manager.assistant.R;
-import com.manager.assistant.data.data_class.Tag;
-import com.manager.assistant.data.data_class.TagGroup;
+import com.manager.assistant.data.classes.Tag;
+import com.manager.assistant.data.classes.TagGroup;
 import com.manager.assistant.databinding.BottomSheetAccountFilterBinding;
-import com.manager.assistant.enums.TagString;
-import com.manager.assistant.helpers.ResHelper;
+import com.manager.assistant.generic_enums.TagString;
+import com.manager.assistant.helpers.resourse.ResHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.BaseBottomSheetDialogFragment;
@@ -109,7 +109,6 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
         this.listener = listener;
     }
 
-    @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = BottomSheetAccountFilterBinding.inflate(inflater, container, false);

@@ -10,12 +10,14 @@ import androidx.work.WorkManager;
 
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.DynamicColorsOptions;
-import com.manager.assistant.data.data_save.preference.AutoBackupPreference;
-import com.manager.assistant.data.data_save.preference.AppSettingsPreference;
-import com.manager.assistant.data.data_save.preference.VersionPreference;
-import com.manager.assistant.enums.LogTags;
-import com.manager.assistant.helpers.AutoBackupHelper;
-import com.manager.assistant.workers.BackupScheduler;
+import com.manager.assistant.automation.schedulers.BudgetResetScheduler;
+import com.manager.assistant.data.save.preference.AutoBackupPreference;
+import com.manager.assistant.data.save.preference.AppSettingsPreference;
+import com.manager.assistant.data.save.preference.VersionPreference;
+import com.manager.assistant.generic_enums.LogTags;
+import com.manager.assistant.helpers.NotificationHelper;
+import com.manager.assistant.helpers.file.AutoBackupHelper;
+import com.manager.assistant.automation.schedulers.BackupScheduler;
 
 import java.io.File;
 import java.util.Locale;
@@ -26,6 +28,12 @@ public class ManagerAssistant extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        //注册预算重置检查闹钟
+        BudgetResetScheduler.scheduleNextMidnight(this);
+
+        //注册通知渠道
+        NotificationHelper.createNotificationChannels(this);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && getProcessName().equals(getPackageName())) {
             //初始化动态配色
@@ -38,8 +46,8 @@ public class ManagerAssistant extends Application {
 
             //安排自动备份任务
             if (AutoBackupPreference.getSwitchStat(this)) {
-                int frequency_index = AutoBackupPreference.getBackupFrequency(this);
-                long intervalMillis = AutoBackupHelper.BackupFrequency.values()[frequency_index].getIntervalMillis();
+                int frequency = AutoBackupPreference.getBackupFrequency(this);
+                long intervalMillis = AutoBackupHelper.BackupFrequency.values()[frequency].getIntervalMillis();
                 BackupScheduler.schedulePeriodicBackup(this, intervalMillis);
 
                 //打印任务状态日志

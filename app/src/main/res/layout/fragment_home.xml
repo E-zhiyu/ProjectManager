@@ -47,9 +47,13 @@
             android:id="@+id/report_balance_cardview"
             style="@style/ContentCardStyle"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginBottom="0dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintBottom_toBottomOf="@+id/budget_card"
             app:layout_constraintEnd_toStartOf="@id/tag_card"
-            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintHorizontal_weight="4"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/welcome_card">
 
@@ -62,15 +66,23 @@
                     style="@style/LargeTitleTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="5dp"
+                    android:paddingBottom="0dp"
+                    android:text="@string/title_report" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/MediumTitleTextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="0dp"
                     android:text="@string/today_balance" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/balance_text"
-                    style="@style/LargeTitleTextViewStyle"
+                    style="@style/TextAppearance.Material3.HeadlineLarge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
                     android:paddingTop="0dp"
                     android:paddingBottom="5dp"
                     android:text="@string/balance" />
@@ -92,12 +104,14 @@
             android:id="@+id/tag_card"
             style="@style/ContentCardStyle"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="0dp"
             android:layout_marginTop="0dp"
             android:layout_marginBottom="0dp"
-            app:layout_constraintBottom_toBottomOf="@+id/report_balance_cardview"
+            android:clickable="true"
+            android:focusable="true"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toEndOf="@+id/report_balance_cardview"
             app:layout_constraintTop_toTopOf="@+id/report_balance_cardview">
 
@@ -110,6 +124,7 @@
                     style="@style/LargeTitleTextViewStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingBottom="0dp"
                     android:text="@string/tag_count" />
 
                 <com.google.android.material.textview.MaterialTextView
@@ -118,41 +133,45 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
+                    android:paddingBottom="5dp"
                     android:text="@string/count_infinity" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- 按钮组 -->
-        <com.google.android.material.button.MaterialButtonGroup
-            android:id="@+id/btn_group_1"
+        <!-- 预算卡片 -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/budget_card"
+            style="@style/ContentCardStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            app:layout_constraintEnd_toEndOf="@+id/tag_card"
-            app:layout_constraintStart_toStartOf="@+id/report_balance_cardview"
-            app:layout_constraintTop_toBottomOf="@+id/report_balance_cardview">
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/report_balance_cardview"
+            app:layout_constraintTop_toBottomOf="@+id/tag_card">
 
-            <!-- 报表界面跳转按钮 -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/report_btn"
-                style="@style/OutlinedBtnStyle"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/check_report_data"
-                app:icon="@drawable/outline_menu_open_24"
-                app:iconGravity="textStart" />
+                android:orientation="vertical">
 
-            <!-- 标签管理界面跳转按钮 -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/tag_manage_btn"
-                style="@style/OutlinedBtnStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/manage_tag"
-                app:icon="@drawable/outline_label_24" />
-        </com.google.android.material.button.MaterialButtonGroup>
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/LargeTitleTextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="0dp"
+                    android:text="@string/budget_count" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/budget_count_text"
+                    style="@style/TextAppearance.Material3.HeadlineLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:paddingBottom="5dp"
+                    android:text="@string/count_infinity" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- 超链接布局 -->
         <com.google.android.material.loadingindicator.LoadingIndicator
@@ -170,7 +189,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/btn_group_1">
+            app:layout_constraintTop_toBottomOf="@id/report_balance_cardview">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"

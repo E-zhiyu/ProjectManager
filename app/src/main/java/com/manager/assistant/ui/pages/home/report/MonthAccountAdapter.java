@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
-import com.manager.assistant.data.data_class.MonthAccountInfo;
+import com.manager.assistant.data.classes.MonthAccountInfo;
 
 import java.util.ArrayList;
 import java.util.List;

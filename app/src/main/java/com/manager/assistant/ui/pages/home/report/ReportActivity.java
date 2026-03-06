@@ -17,16 +17,16 @@ import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.manager.assistant.R;
-import com.manager.assistant.data.data_class.AccountSourceInfo;
-import com.manager.assistant.data.data_class.MonthAccountInfo;
-import com.manager.assistant.data.data_save.database.BookkeepingColumns;
-import com.manager.assistant.data.data_save.database.BookkeepingDbHelper;
-import com.manager.assistant.data.data_save.database.BookkeepingTables;
+import com.manager.assistant.data.classes.AccountSourceInfo;
+import com.manager.assistant.data.classes.MonthAccountInfo;
+import com.manager.assistant.data.save.database.Columns;
+import com.manager.assistant.data.save.database.BookkeepingDbHelper;
+import com.manager.assistant.data.save.database.Tables;
 import com.manager.assistant.databinding.ActivityReportBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.enums.TagString;
+import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
-import com.manager.assistant.data.data_class.Tag;
+import com.manager.assistant.data.classes.Tag;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -42,7 +42,7 @@ public class ReportActivity extends AppCompatActivity {
     private final List<AccountSourceInfo> expenseSourceInfoList = new ArrayList<>();        //支出来源列表
     private final List<AccountSourceInfo> incomeSourceInfoList = new ArrayList<>();         //收入来源列表
     private final List<MonthAccountInfo> monthAccountInfoList = new ArrayList<>();          //月流水信息列表
-    private DateRangeType dateRangeType = DateRangeType.TODAY;                              //日期范围种类
+    private DateRangeType dateRangeType = DateRangeType.THIS_MONTH;                         //日期范围种类
     private AccountSourceAdapter expenseAdapter, incomeAdapter;                             //收支来源布局适配器
     private MonthAccountInfoType monthAccountInfoType = MonthAccountInfoType.BALANCE;       //月流水信息种类
     private MonthAccountAdapter monthAccountAdapter;                                        //月流水信息适配器
@@ -142,7 +142,7 @@ public class ReportActivity extends AppCompatActivity {
             }
         }));
 
-        //获取RecyclerView并设置适配器
+        //获取 RecyclerView 并设置适配器
         expenseAdapter = new AccountSourceAdapter(expenseSourceInfoList);
         binding.expenseSourceRecycler.setAdapter(expenseAdapter);
         incomeAdapter = new AccountSourceAdapter(incomeSourceInfoList);
@@ -160,12 +160,12 @@ public class ReportActivity extends AppCompatActivity {
         SQLiteDatabase db = db_helper.openReadLink();
 
         String[] columns = new String[]{
-                BookkeepingColumns.AMOUNT.toString(),
-                BookkeepingColumns.TYPE.toString(),
-                BookkeepingColumns.TAG_NO.toString(),
-                BookkeepingColumns.DATETIME.toString()
+                Columns.AMOUNT.toString(),
+                Columns.TYPE.toString(),
+                Columns.TAG_NO.toString(),
+                Columns.DATETIME.toString()
         };
-        String selection = BookkeepingColumns.DATETIME + ">=? AND " + BookkeepingColumns.DATETIME + "<?";
+        String selection = Columns.DATETIME + ">=? AND " + Columns.DATETIME + "<?";
 
         //根据日期范围设置selection语句的参数
         String[] selectionArgs;
@@ -209,20 +209,20 @@ public class ReportActivity extends AppCompatActivity {
         }
 
         Cursor basicCursor = db.query(
-                BookkeepingTables.BASIC.toString(),
+                Tables.BASIC.toString(),
                 columns,
                 selection,
                 selectionArgs,
                 null,
                 null,
-                BookkeepingColumns.DATETIME + " DESC"
+                Columns.DATETIME + " DESC"
         );
 
         while (basicCursor.moveToNext()) {
-            RunningAccountType type = RunningAccountType.valueOf(basicCursor.getString(basicCursor.getColumnIndexOrThrow(BookkeepingColumns.TYPE.toString())));
-            double amount = basicCursor.getDouble(basicCursor.getColumnIndexOrThrow(BookkeepingColumns.AMOUNT.toString()));
-            long tag_no = basicCursor.getLong(basicCursor.getColumnIndexOrThrow(BookkeepingColumns.TAG_NO.toString()));
-            String datetime = basicCursor.getString(basicCursor.getColumnIndexOrThrow(BookkeepingColumns.DATETIME.toString()));
+            RunningAccountType type = RunningAccountType.valueOf(basicCursor.getString(basicCursor.getColumnIndexOrThrow(Columns.TYPE.toString())));
+            double amount = basicCursor.getDouble(basicCursor.getColumnIndexOrThrow(Columns.AMOUNT.toString()));
+            long tag_no = basicCursor.getLong(basicCursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
+            String datetime = basicCursor.getString(basicCursor.getColumnIndexOrThrow(Columns.DATETIME.toString()));
 
             //获取月份
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -528,18 +528,18 @@ public class ReportActivity extends AppCompatActivity {
      */
     private void showDatePickerDialog() {
         //实例化一个日期对象用于存放选中的日期
-        LocalDate date = LocalDate.now(ZoneOffset.UTC).withYear(year).withMonth(month).withDayOfMonth(day);
+        LocalDate date = LocalDate.of(year, month, day);
 
         //创建日期选择器
         MaterialDatePicker.Builder<Long> dateBuilder = MaterialDatePicker.Builder.datePicker();
         dateBuilder.setTitleText("选择日期");
 
         //显示日期选择器
-        long date_selection = date.atStartOfDay()
+        long dateSelection = date.atStartOfDay()
                 .toInstant(ZoneOffset.UTC)
                 .toEpochMilli();
         MaterialDatePicker<Long> datePicker = dateBuilder
-                .setSelection(date_selection)
+                .setSelection(dateSelection)
                 .setCalendarConstraints(
                         new CalendarConstraints.Builder()
                                 .setValidator(DateValidatorPointBackward.now()) //限制为过去日期

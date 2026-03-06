@@ -13,11 +13,11 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
-import com.manager.assistant.data.data_class.Tag;
+import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.databinding.FragmentExpenseBinding;
-import com.manager.assistant.enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.ui.data_sync.account_picture.AccountPictureViewModel;
+import com.manager.assistant.ui.sync.picture.AccountPictureViewModel;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -64,10 +64,10 @@ public class ExpenseFragment extends RunningAccountFragmentBase<FragmentExpenseB
         });
         binding.amountInput.setOnClickListener(v -> binding.amountLayout.setError(null));
 
-        binding.datetimeInput.setOnClickListener(v -> showMaterialDateTimePicker());
+        binding.datetimeInput.setOnClickListener(v -> showMaterialDatePicker());
         binding.datetimeInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
-                showMaterialDateTimePicker();
+                showMaterialDatePicker();
             }
         });
         binding.runningAccountTagInput.setOnClickListener(v -> showTagSelectSheet());
