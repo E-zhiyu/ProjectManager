@@ -364,7 +364,7 @@ public class BookkeepingDbHelper extends SQLiteOpenHelper {
                     "CONSTRAINT " + Constraints.FK_TAG_NO +
                     " FOREIGN KEY (" + Columns.TAG_NO + ")" +
                     " REFERENCES " + Tables.TAG + "(" + Columns.TAG_NO + ")" +
-                    " ON DELETE CASCADE," +
+                    " ON DELETE CASCADE" +
                     ")";
             db.execSQL(create);
         } catch (SQLException e) {
