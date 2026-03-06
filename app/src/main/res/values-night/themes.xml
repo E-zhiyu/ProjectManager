@@ -6,7 +6,11 @@
         <item name="colorOnPrimary">@color/color_on_primary_night</item>
         <item name="colorPrimaryContainer">@color/color_primary_container_night</item>
         <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/color_secondary_night</item>
         <item name="colorSecondaryContainer">@color/color_secondary_container_night</item>
+        <!-- Tertiary brand color. -->
+        <item name="colorTertiary">@color/color_tertiary_night</item>
+        <item name="colorTertiaryContainer">@color/color_tertiary_container_night</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorSurface</item>
         <!-- Customize your theme here. -->

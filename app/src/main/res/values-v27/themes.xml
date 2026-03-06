@@ -7,7 +7,11 @@
         <item name="colorOnPrimary">@color/color_on_primary</item>
         <item name="colorPrimaryContainer">@color/color_primary_container</item>
         <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/color_secondary</item>
         <item name="colorSecondaryContainer">@color/color_secondary_container</item>
+        <!-- Tertiary brand color. -->
+        <item name="colorTertiary">@color/color_tertiary</item>
+        <item name="colorTertiaryContainer">@color/color_tertiary_container</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorSurface</item>
         <!-- Customize your theme here. -->
