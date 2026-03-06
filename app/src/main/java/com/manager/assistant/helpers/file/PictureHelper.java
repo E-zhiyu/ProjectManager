@@ -18,7 +18,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
 
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.helpers.about_software.AboutHelper;
+import com.manager.assistant.helpers.about.AboutHelper;
 import com.manager.assistant.generic_enums.DirectoryPaths;
 import com.manager.assistant.generic_enums.LogTags;
 

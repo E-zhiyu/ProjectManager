@@ -1,4 +1,4 @@
-package com.manager.assistant.helpers.about_software;
+package com.manager.assistant.helpers.about;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;

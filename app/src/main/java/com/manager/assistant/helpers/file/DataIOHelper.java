@@ -16,7 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.helpers.about_software.AboutHelper;
+import com.manager.assistant.helpers.about.AboutHelper;
 import com.manager.assistant.generic_enums.DirectoryPaths;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.data.save.preference.AutoBackupPreference;
