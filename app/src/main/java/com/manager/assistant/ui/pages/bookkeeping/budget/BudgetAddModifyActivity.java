@@ -12,6 +12,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.chip.Chip;
 import com.google.android.material.datepicker.CalendarConstraints;
@@ -36,6 +37,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class BudgetAddModifyActivity extends AppCompatActivity {
@@ -108,6 +110,7 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
 
         String startDate = dataBundle.getString(KeyValueStrings.START_DATE.getValue());
         binding.startDateInput.setText(startDate);
+        refreshFrequencyHelpText();
 
         viewHolderPosition = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
 
@@ -173,7 +176,10 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
         NoFilteringArrayAdapter<String> arrayAdapter = new NoFilteringArrayAdapter<>(this, frequencyTitles);
         binding.resetFrequencyInput.setAdapter(arrayAdapter);
         binding.resetFrequencyInput.setOnItemClickListener(
-                (parent, view, position, id) -> resetFrequency = ResetFrequency.values()[position]
+                (parent, view, position, id) -> {
+                    resetFrequency = ResetFrequency.values()[position];
+                    refreshFrequencyHelpText();
+                }
         );
 
         //初始化日期输入项
@@ -216,6 +222,46 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("取消", null)
                 .show());
+    }
+
+    /**
+     * 刷新重置频率输入框的 help 文本
+     */
+    private void refreshFrequencyHelpText() {
+        //获取上一次重置日期
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate lastResetDate = LocalDate.parse(
+                String.valueOf(binding.startDateInput.getText()),
+                formatter
+        );
+
+        //计算下一次重置日期
+        LocalDate nextResetDate = null;
+        switch (resetFrequency) {
+            case EVERY_DAY:
+                nextResetDate = lastResetDate.plusDays(1);
+                break;
+            case EVERY_WEEK:
+                nextResetDate = lastResetDate.plusDays(7);
+                break;
+            case EVERY_MONTH:
+                nextResetDate = lastResetDate.plusMonths(1).withDayOfMonth(1);
+                break;
+            default:
+                binding.resetFrequencyLayout.setHelperText(ContextCompat.getString(this, R.string.reset_frequency_help));
+                break;
+        }
+
+        //更新重置频率输入框布局的 help 文本
+        if (nextResetDate != null) {
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            String helpText = String.format(
+                    Locale.getDefault(),
+                    "预算将在%s重置",
+                    nextResetDate.atStartOfDay().format(timeFormatter)
+            );
+            binding.resetFrequencyLayout.setHelperText(helpText);
+        }
     }
 
     /**
