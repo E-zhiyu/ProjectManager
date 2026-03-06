@@ -32,9 +32,7 @@ import com.manager.assistant.helpers.WebsiteLinkFetchHelper;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
 import com.manager.assistant.ui.sync.account.RunningAccountViewModel;
 import com.manager.assistant.ui.sync.budget.BudgetRepository;
-import com.manager.assistant.ui.sync.budget.BudgetUpdateReason;
 import com.manager.assistant.ui.sync.tag.TagRepository;
-import com.manager.assistant.ui.sync.tag.TagUpdateReason;
 import com.manager.assistant.ui.pages.bookkeeping.budget.BudgetManageActivity;
 import com.manager.assistant.ui.pages.bookkeeping.tag.TagManageActivity;
 import com.manager.assistant.ui.pages.home.report.ReportActivity;
@@ -326,42 +324,12 @@ public class HomeFragment extends Fragment {
         tagRepository.getChangedTagList().observe(
                 requireActivity(),
                 tags -> {
-                    if (tags == null) {
-                        return;
-                    }
-
-                    TagUpdateReason reason = tagRepository.getUpdateReason();
-                    String countStr = String.valueOf(binding.tagCountText.getText());
-                    int tagCount;
                     try {
-                        tagCount = Integer.parseInt(countStr);
-                    } catch (NumberFormatException e) {
-                        tagCount = 0;
-                    }
-
-                    switch (reason) {
-                        case DELETE:
-                        case MERGE:
-                            tagCount--;
-                            binding.tagCountText.setText(String.valueOf(tagCount));
-                            break;
-                        case ADD:
-                            tagCount++;
-                            binding.tagCountText.setText(String.valueOf(tagCount));
-                            break;
-                        case CLEAR:
-                            tagCount = 0;
-                            binding.tagCountText.setText(String.valueOf(tagCount));
-                        case REFRESH:
-                            try {
-                                tagCount = Tag.getDbCount(requireContext());
-                                binding.tagCountText.setText(String.valueOf(tagCount));
-                            } catch (SQLiteException e) {
-                                binding.tagCountText.setText(0);
-                                Toast.makeText(requireContext(), "无法获取标签数量", Toast.LENGTH_SHORT).show();
-                            }
-                        default:
-                            break;
+                        int tagCount = Tag.getDbCount(requireContext());
+                        binding.tagCountText.setText(String.valueOf(tagCount));
+                    } catch (SQLiteException e) {
+                        binding.tagCountText.setText(0);
+                        Toast.makeText(requireContext(), "无法获取标签数量", Toast.LENGTH_SHORT).show();
                     }
                 }
         );
@@ -436,34 +404,12 @@ public class HomeFragment extends Fragment {
         budgetRepository.getChangedBudget().observe(
                 requireActivity(),
                 budget -> {
-                    BudgetUpdateReason reason = budgetRepository.getUpdateReason();
-                    int budgetCount;
                     try {
-                        budgetCount = Integer.parseInt(String.valueOf(binding.budgetCountText.getText()));
-                    } catch (NumberFormatException e) {
-                        budgetCount = 0;
-                    }
-                    switch (reason) {
-                        case ADD:
-                            budgetCount++;
-                            binding.budgetCountText.setText(String.valueOf(budgetCount));
-                            break;
-                        case DELETED:
-                            budgetCount--;
-                            binding.budgetCountText.setText(String.valueOf(budgetCount));
-                            break;
-                        case CLEARED:
-                            budgetCount = 0;
-                            binding.budgetCountText.setText(String.valueOf(budgetCount));
-                            break;
-                        case REFRESHED:
-                            try {
-                                budgetCount = Budget.getDbCount(requireContext());
-                                binding.budgetCountText.setText(String.valueOf(budgetCount));
-                            } catch (SQLiteException e) {
-                                binding.budgetCountText.setText(0);
-                                Toast.makeText(requireContext(), "无法获取预算数量", Toast.LENGTH_SHORT).show();
-                            }
+                        int budgetCount = Budget.getDbCount(requireContext());
+                        binding.budgetCountText.setText(String.valueOf(budgetCount));
+                    } catch (SQLiteException e) {
+                        binding.budgetCountText.setText(0);
+                        Toast.makeText(requireContext(), "无法获取预算数量", Toast.LENGTH_SHORT).show();
                     }
                 }
         );
