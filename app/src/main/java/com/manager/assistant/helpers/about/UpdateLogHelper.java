@@ -11,7 +11,10 @@ import com.manager.assistant.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.8.1  \n" +
+    private static final String update_log_md = "# v1.8.2  \n" +
+            "**BUG修复**  \n" +
+            "- 修复导入多个预算时只有最后一个预算能够正常导入标签的BUG  \n\n" +
+            "# v1.8.1  \n" +
             "**BUG修复**  \n" +
             "- 修复预算余额可以超过初始金额或为负数的BUG  \n" +
             "- 修复流水记录的日期正好为预算的起算日期时不会更新预算的BUG  \n\n" +

@@ -97,6 +97,7 @@ public class BudgetDataHelper extends DataHelperBase<BookkeepingDbHelper, Budget
 
         //清空之前表的内容
         db.delete(Tables.BUDGET.toString(), null, null);
+        db.delete(Tables.BUDGET_TAG.toString(), null, null);
 
         if (budgetList == null) {
             return;
@@ -155,9 +156,6 @@ public class BudgetDataHelper extends DataHelperBase<BookkeepingDbHelper, Budget
     }
 
     private void setBudgetTagData(long bno, @NonNull List<Long> tagNoList, @NonNull SQLiteDatabase db) {
-        //清空之前表的内容
-        db.delete(Tables.BUDGET_TAG.toString(), null, null);
-
         ContentValues values = new ContentValues();
         for (long tagNo : tagNoList) {
             values.put(Columns.BNO.toString(), bno);
