@@ -138,6 +138,11 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
     }
 
     /**
+     * 设置初始焦点
+     */
+    public abstract void setInitFocus();
+
+    /**
      * 获取ViewBinding
      *
      * @param inflater  布局填充器

@@ -39,6 +39,8 @@
                 app:endIconMode="clear_text"
                 app:helperText="@string/rule_name_help_text">
 
+                <requestFocus />
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/rule_name_input"
                     style="@style/UserInputEditTextStyle"

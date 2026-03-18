@@ -1,9 +1,11 @@
 package com.manager.assistant.ui.pages.bookkeeping.running_account.fragments;
 
+import android.content.Context;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,6 +29,21 @@ import java.util.Locale;
 public class IncomeFragment extends RunningAccountFragmentBase<FragmentIncomeBinding> {
     public IncomeFragment() {
         super(RunningAccountType.INCOME, "一条收入记录");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setInitFocus();
+    }
+
+    @Override
+    public void setInitFocus() {
+        binding.amountInput.post(() -> {
+            binding.amountLayout.requestFocus();
+            InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(binding.amountInput, InputMethodManager.SHOW_IMPLICIT);
+        });
     }
 
     @Override

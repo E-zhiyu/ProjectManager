@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.8.2  \n" +
             "**新增内容**  \n" +
+            "- 各输入界面会自动设置焦点，省去手动点击文本框的步骤  \n" +
             "- 报表界面可以点击收支来源以切换是否排除该项  \n\n" +
             "**BUG修复**  \n" +
             "- 修复流水备注和预算名称等自定义文本过长时会遮挡其他文本的BUG  \n" +
