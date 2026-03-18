@@ -46,7 +46,8 @@ public class ReportActivity extends AppCompatActivity {
     private AccountSourceAdapter expenseAdapter, incomeAdapter;                             //收支来源布局适配器
     private MonthAccountInfoType monthAccountInfoType = MonthAccountInfoType.BALANCE;       //月流水信息种类
     private MonthAccountAdapter monthAccountAdapter;                                        //月流水信息适配器
-    private double year_expense = 0, year_income = 0;                                       //年支出和年收入
+    private double yearExpense = 0, yearIncome = 0;                                         //年支出和年收入
+    private double shownIncome = 0, shownExpense = 0;                                       //显示出来的收入和支出
     private int year, month, day;                                                           //年月日
     private ActivityReportBinding binding;                                                  //XML界面绑定引用
 
@@ -63,13 +64,13 @@ public class ReportActivity extends AppCompatActivity {
     static class ReportRunningAccountData {
         private final RunningAccountType type;  //流水种类
         private final double amount;            //金额
-        private final long tag_no;              //标签编号
+        private final long tagNo;               //标签编号
         private final int month;                //月份
 
-        public ReportRunningAccountData(RunningAccountType type, double amount, long tag_no, int month) {
+        public ReportRunningAccountData(RunningAccountType type, double amount, long tagNo, int month) {
             this.type = type;
             this.amount = amount;
-            this.tag_no = tag_no;
+            this.tagNo = tagNo;
             this.month = month;
         }
 
@@ -81,8 +82,8 @@ public class ReportActivity extends AppCompatActivity {
             return amount;
         }
 
-        public long getTag_no() {
-            return tag_no;
+        public long getTagNo() {
+            return tagNo;
         }
 
         public int getMonth() {
@@ -143,9 +144,49 @@ public class ReportActivity extends AppCompatActivity {
         }));
 
         //获取 RecyclerView 并设置适配器
-        expenseAdapter = new AccountSourceAdapter(expenseSourceInfoList);
+        expenseAdapter = new AccountSourceAdapter(
+                expenseSourceInfoList,
+                (sourceInfo, isExcepted) -> {
+                    //计算新的收支结果
+                    double amount = sourceInfo.getAmount();
+                    if (isExcepted) {
+                        shownExpense -= amount;
+                    } else {
+                        shownExpense += amount;
+                    }
+                    double balance = shownIncome - shownExpense;
+
+                    //显示到界面中
+                    binding.balanceText.setText(String.format(Locale.getDefault(), "%.2f", balance));
+                    binding.expenseIncomeText.setText(String.format(
+                            Locale.getDefault(),
+                            "支出:%.2f | 收入:%.2f",
+                            shownExpense, shownIncome
+                    ));
+                }
+        );
         binding.expenseSourceRecycler.setAdapter(expenseAdapter);
-        incomeAdapter = new AccountSourceAdapter(incomeSourceInfoList);
+        incomeAdapter = new AccountSourceAdapter(
+                incomeSourceInfoList,
+                (sourceInfo, isExcepted) -> {
+                    //计算新的收支结果
+                    double amount = sourceInfo.getAmount();
+                    if (isExcepted) {
+                        shownIncome -= amount;
+                    } else {
+                        shownIncome += amount;
+                    }
+                    double balance = shownIncome - shownExpense;
+
+                    //显示到界面中
+                    binding.balanceText.setText(String.format(Locale.getDefault(), "%.2f", balance));
+                    binding.expenseIncomeText.setText(String.format(
+                            Locale.getDefault(),
+                            "支出:%.2f | 收入:%.2f",
+                            shownExpense, shownIncome
+                    ));
+                }
+        );
         binding.incomeSourceRecycler.setAdapter(incomeAdapter);
         monthAccountAdapter = new MonthAccountAdapter(monthAccountInfoType);
         binding.monthAccountRecycler.setAdapter(monthAccountAdapter);
@@ -244,24 +285,26 @@ public class ReportActivity extends AppCompatActivity {
      * @param dataList 更新视图所需的数据
      */
     private void updateAccountSource(@NonNull List<ReportRunningAccountData> dataList) {
-        double expense = 0, income = 0; //总支出和总收入
-        double balance = 0;             //结余
+        //清空旧数据
+        shownExpense = 0;
+        shownIncome = 0;
+        double balance = 0; //结余
         incomeSourceInfoList.clear();
         expenseSourceInfoList.clear();
 
         for (ReportRunningAccountData data : dataList) {
             RunningAccountType type = data.getType();
             double amount = data.getAmount();
-            long tag_no = data.getTag_no();
+            long tagNo = data.getTagNo();
 
             //获取收入或者支出列表的引用以便操作其中的元素
             List<AccountSourceInfo> expenseOrIncome;
             if (type.isIncomeType()) {
-                income += amount;
+                shownIncome += amount;
                 balance += amount;
                 expenseOrIncome = incomeSourceInfoList;
             } else if (type.isExpenseType()) {
-                expense += amount;
+                shownExpense += amount;
                 balance -= amount;
                 expenseOrIncome = expenseSourceInfoList;
             } else {
@@ -269,16 +312,16 @@ public class ReportActivity extends AppCompatActivity {
             }
 
             //判断目标列表是否为空
-            int index = isContainedInArray(expenseOrIncome, tag_no);
+            int index = isContainedInArray(expenseOrIncome, tagNo);
             if (index != -1) {      //判断是否查询到对应的来源卡片
                 expenseOrIncome.get(index).amountAdd(amount);
             } else {
-                if (tag_no != 0) {  //判断该流水记录是否有标签
-                    String tag_name = Tag.tagNoTransToName(tag_no, this);
-                    AccountSourceInfo newSource = new AccountSourceInfo(amount, tag_name, tag_no);
+                if (tagNo != 0) {  //判断该流水记录是否有标签
+                    String tagName = Tag.tagNoTransToName(tagNo, this);
+                    AccountSourceInfo newSource = new AccountSourceInfo(amount, tagName, tagNo);
                     expenseOrIncome.add(newSource);
                 } else {
-                    AccountSourceInfo otherSource = new AccountSourceInfo(amount, "其他", tag_no);
+                    AccountSourceInfo otherSource = new AccountSourceInfo(amount, "其他", tagNo);
                     expenseOrIncome.add(otherSource);
                 }
             }
@@ -289,18 +332,18 @@ public class ReportActivity extends AppCompatActivity {
         binding.expenseIncomeText.setText(String.format(
                 Locale.getDefault(),
                 "支出:%.2f | 收入:%.2f",
-                expense, income
+                shownExpense, shownIncome
         ));
 
         //计算各来源的收支占比
         for (AccountSourceInfo expenseSourceCard : expenseSourceInfoList) {
             double source_amount = expenseSourceCard.getAmount();
-            int percentage = (int) (source_amount * 100 / expense);
+            int percentage = (int) (source_amount * 100 / shownExpense);
             expenseSourceCard.setPercentage(percentage);
         }
         for (AccountSourceInfo incomeSourceCard : incomeSourceInfoList) {
             double source_amount = incomeSourceCard.getAmount();
-            int percentage = (int) (source_amount * 100 / income);
+            int percentage = (int) (source_amount * 100 / shownIncome);
             incomeSourceCard.setPercentage(percentage);
         }
 
@@ -404,10 +447,10 @@ public class ReportActivity extends AppCompatActivity {
      * @param dataList 新数据列表
      */
     private void updateMonthAccountData(@NonNull List<ReportRunningAccountData> dataList) {
-        double[] month_expense = new double[12];    //月支出
-        double[] month_income = new double[12];     //月收入
-        year_expense = 0;
-        year_income = 0;
+        double[] monthExpense = new double[12];    //月支出
+        double[] monthIncome = new double[12];     //月收入
+        yearExpense = 0;
+        yearIncome = 0;
         monthAccountInfoList.clear();               //清空每月流水数据
 
         //读取数据并计算每月收支金额以及年度收支金额
@@ -417,16 +460,16 @@ public class ReportActivity extends AppCompatActivity {
             int month = data.getMonth();
 
             if (type.isExpenseType()) {
-                month_expense[month - 1] += amount;
-                year_expense += amount;
+                monthExpense[month - 1] += amount;
+                yearExpense += amount;
             } else {
-                month_income[month - 1] += amount;
-                year_income += amount;
+                monthIncome[month - 1] += amount;
+                yearIncome += amount;
             }
         }
 
         for (int index = 0; index < 12; index++) {
-            MonthAccountInfo monthAccountInfo = new MonthAccountInfo(month_expense[index], month_income[index]);
+            MonthAccountInfo monthAccountInfo = new MonthAccountInfo(monthExpense[index], monthIncome[index]);
             monthAccountInfoList.add(monthAccountInfo);
         }
         monthAccountAdapter.refreshMonthAccountInfo(monthAccountInfoList, monthAccountInfoType);
@@ -459,7 +502,7 @@ public class ReportActivity extends AppCompatActivity {
                 for (MonthAccountInfo monthAccountInfo : monthAccountInfoList) {
                     double month_income = monthAccountInfo.getIncome();
 
-                    int percentage = (int) (month_income * 100 / year_income);
+                    int percentage = (int) (month_income * 100 / yearIncome);
                     monthAccountInfo.setPercentage(percentage);
                 }
                 break;
@@ -467,7 +510,7 @@ public class ReportActivity extends AppCompatActivity {
                 for (MonthAccountInfo monthAccountInfo : monthAccountInfoList) {
                     double month_expense = monthAccountInfo.getExpense();
 
-                    int percentage = (int) (month_expense * 100 / year_expense);
+                    int percentage = (int) (month_expense * 100 / yearExpense);
                     monthAccountInfo.setPercentage(percentage);
                 }
                 break;
@@ -514,7 +557,7 @@ public class ReportActivity extends AppCompatActivity {
     private int isContainedInArray(@NonNull List<AccountSourceInfo> accountSourceInfoList, long source_no) {
         int index = 0;
         for (AccountSourceInfo oneCard : accountSourceInfoList) {
-            if (oneCard.getSource_no() == source_no) {
+            if (oneCard.getSourceNo() == source_no) {
                 return index;
             }
             index++;

@@ -37,7 +37,7 @@ import java.util.List;
 
 public class RunningAccountAddActivity extends AppCompatActivity {
     private ActivityRunningAccountAddBinding binding;   //绑定的XML视图
-    private int current_index;                          //当前Fragment的下标
+    private int currentIndex;                           //当前Fragment的下标
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,7 +130,7 @@ public class RunningAccountAddActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                current_index = position;
+                currentIndex = position;
             }
         });
         viewPager2.setOffscreenPageLimit(2);    //设置保留邻近Fragment数量
@@ -203,7 +203,7 @@ public class RunningAccountAddActivity extends AppCompatActivity {
 
     @Nullable
     private RunningAccountFragmentBase<?> getCurrentFragment() {
-        String tag = "f" + current_index;
+        String tag = "f" + currentIndex;
         return (RunningAccountFragmentBase<?>) getSupportFragmentManager().findFragmentByTag(tag);
     }
 }

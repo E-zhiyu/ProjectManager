@@ -15,9 +15,12 @@
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/rule_name_text"
             style="@style/LargeBodyTextViewStyle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="@string/rule_name"
+            app:layout_constraintEnd_toStartOf="@id/tag_name_text"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

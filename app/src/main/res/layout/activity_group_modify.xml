@@ -47,6 +47,8 @@
                 app:endIconDrawable="@drawable/baseline_clear_24"
                 app:endIconMode="clear_text">
 
+                <requestFocus />
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tag_group_input"
                     style="@style/UserInputEditTextStyle"
