@@ -3,13 +3,13 @@ package com.manager.assistant.data.classes;
 public class AccountSourceInfo {
     private int percentage;             //此来源占支出/收入的比例
     private double amount;              //该来源的总金额
-    private final String source_name;   //来源名称
-    private final long source_no;       //来源编号（与标签编号相同）
+    private final String name;          //来源名称
+    private final long sourceNo;        //来源编号（与标签编号相同）
 
-    public AccountSourceInfo(double amount, String source_name, long source_no) {
+    public AccountSourceInfo(double amount, String name, long sourceNo) {
         this.amount = amount;
-        this.source_name = source_name;
-        this.source_no = source_no;
+        this.name = name;
+        this.sourceNo = sourceNo;
     }
 
     public int getPercentage() {
@@ -24,12 +24,12 @@ public class AccountSourceInfo {
         this.percentage = percentage;
     }
 
-    public String getSource_name() {
-        return source_name;
+    public String getName() {
+        return name;
     }
 
-    public long getSource_no() {
-        return source_no;
+    public long getSourceNo() {
+        return sourceNo;
     }
 
     /**

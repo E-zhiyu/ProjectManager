@@ -12,6 +12,8 @@ import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.8.2  \n" +
+            "**新增内容**  \n" +
+            "- 报表界面可以点击收支来源以切换是否排除该项  \n\n" +
             "**BUG修复**  \n" +
             "- 修复导入多个预算时只有最后一个预算能够正常导入标签的BUG  \n\n" +
             "# v1.8.1  \n" +
