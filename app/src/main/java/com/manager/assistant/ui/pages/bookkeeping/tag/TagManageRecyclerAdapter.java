@@ -18,7 +18,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.ui.others.animators.ExpandFoldAnimator;
+import com.manager.assistant.ui.others.animators.RotateAnimator;
 import com.manager.assistant.ui.sync.tag.TagUpdateReason;
 import com.manager.assistant.ui.sync.tag.TagRepository;
 import com.manager.assistant.data.classes.Tag;
@@ -57,24 +58,16 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
     }
 
     public static class TagEditViewHolder extends RecyclerView.ViewHolder {
-        MaterialTextView group_name_text;       //分组名称文本视图
-        ImageButton expand_fold_view;           //控制卡片展开和折叠的按钮
+        MaterialTextView groupNameText;       //分组名称文本视图
+        ImageButton expandFoldView;           //控制卡片展开和折叠的按钮
         LinearLayout subViewLayout;           //子组件的线性布局管理器
+        boolean isExpanded = true;
 
         public TagEditViewHolder(@NonNull View itemView) {
             super(itemView);
-            group_name_text = itemView.findViewById(R.id.tag_group_name_view);
+            groupNameText = itemView.findViewById(R.id.tag_group_name_view);
             subViewLayout = itemView.findViewById(R.id.sub_view_layout);
-            expand_fold_view = itemView.findViewById(R.id.expand_fold_btn);
-
-            //设置展开和折叠视图的点击方法
-            expand_fold_view.setOnClickListener(v -> {
-                //旋转分组名称文本右侧的图标
-                AnimationHelper.rotateIcon(expand_fold_view, subViewLayout.getVisibility() == View.VISIBLE);
-
-                //切换子组件布局的可见性
-                AnimationHelper.switchViewFoldOrExpanded(subViewLayout.getVisibility() != View.VISIBLE, subViewLayout);
-            });
+            expandFoldView = itemView.findViewById(R.id.expand_fold_btn);
         }
     }
 
@@ -97,14 +90,25 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
         //设置分组名称文本
         TagGroup currentGroup = this.tagGroupList.get(position);
-        long group_no = currentGroup.getGroup_no();
-        String group_name = currentGroup.getGroup_name();
-        holder.group_name_text.setText(group_name);
+        long groupNo = currentGroup.getGroup_no();
+        String groupName = currentGroup.getGroup_name();
+        holder.groupNameText.setText(groupName);
 
         //设置分组名称文本视图点击监听器
-        holder.group_name_text.setOnClickListener(v ->
-                textClickedListener.onGroupTextViewClicked(group_no, group_name)
+        holder.groupNameText.setOnClickListener(v ->
+                textClickedListener.onGroupTextViewClicked(groupNo, groupName)
         );
+
+        //设置展开和折叠视图的点击方法
+        RotateAnimator rotateAnimator = new RotateAnimator(holder.expandFoldView, 0f, 180f);
+        ExpandFoldAnimator expandFoldAnimator = new ExpandFoldAnimator(holder.subViewLayout);
+        holder.expandFoldView.setOnClickListener(v -> {
+            //旋转分组名称文本右侧的图标
+            rotateAnimator.toggle();
+
+            //切换子组件布局的可见性
+            expandFoldAnimator.toggle();
+        });
 
         //添加标签文本视图
         holder.subViewLayout.removeAllViews();    //先删除旧视图
@@ -138,7 +142,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
             //设置标签文本点击监听器
             tagTextView.setOnClickListener(v ->
-                    textClickedListener.onTagTextViewClicked(tag_no, tag_name, tag_scope, group_no, group_name)
+                    textClickedListener.onTagTextViewClicked(tag_no, tag_name, tag_scope, groupNo, groupName)
             );
 
             tagTextView.setText(tag_name);

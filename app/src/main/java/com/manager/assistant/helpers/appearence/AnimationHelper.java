@@ -144,35 +144,4 @@ public class AnimationHelper {
             }
         });
     }
-
-    /**
-     * 旋转视图的图标
-     *
-     * @param expand_fold_view 需要旋转图标的视图
-     * @param isExpanded       原先是否为展开状态
-     */
-    public static void rotateIcon(View expand_fold_view, boolean isExpanded) {
-        //使用 ObjectAnimator 动画旋转
-        ObjectAnimator animator;
-        if (!isExpanded) {
-            //不是展开状态，则将旋转了180°的图标旋转至360°
-            animator = ObjectAnimator.ofFloat(
-                    expand_fold_view,
-                    "rotation",
-                    180f,
-                    360f
-            );
-        } else {
-            animator = ObjectAnimator.ofFloat(
-                    expand_fold_view,
-                    "rotation",
-                    360f,
-                    180f
-            );
-        }
-
-        animator.setDuration(250);
-        animator.setInterpolator(new LinearInterpolator()); //匀速
-        animator.start();
-    }
 }
