@@ -761,11 +761,9 @@ public class SettingFragment extends Fragment {
                                 }
                             }
 
+                            //标记该项为未包含
                             if (!isFound) {
                                 int index = IODataType.ordinal();
-                                String dataTypeName = IODataType.getName();
-                                String disabledName = String.format(Locale.getDefault(), "%s(未包含)", dataTypeName);
-                                dataTypeNames[index] = disabledName;
                                 choiceStats[index] = false;
                                 isItemFound[index] = false;
                             }

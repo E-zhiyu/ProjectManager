@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.others.dialogs;
+package com.manager.assistant.ui.others.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +10,7 @@ import androidx.appcompat.widget.AppCompatCheckedTextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.manager.assistant.R;
+import com.manager.assistant.helpers.appearence.TextViewFlagHelper;
 
 public class MultiChoiceDialogAdapter extends RecyclerView.Adapter<MultiChoiceDialogAdapter.CheckedTextViewHolder> {
     private final String[] itemNames;         //多选选项
@@ -67,10 +68,13 @@ public class MultiChoiceDialogAdapter extends RecyclerView.Adapter<MultiChoiceDi
         }
         boolean stat = itemStats[position];
 
+        //设置选项的可用性
         holder.checkedTextView.setText(itemNames[position]);
         if (!isEnabled) {
             holder.checkedTextView.setEnabled(false);
             holder.checkedTextView.setChecked(false);
+
+            TextViewFlagHelper.setDeleteLine(holder.checkedTextView, true);
         } else {
             holder.checkedTextView.setChecked(stat);
         }

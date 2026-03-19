@@ -8,6 +8,7 @@ import android.view.View;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.manager.assistant.R;
+import com.manager.assistant.ui.others.adapters.MultiChoiceDialogAdapter;
 
 /**
  * 可禁用选项的多选对话框

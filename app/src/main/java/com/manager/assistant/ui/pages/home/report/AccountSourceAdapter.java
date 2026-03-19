@@ -1,6 +1,5 @@
 package com.manager.assistant.ui.pages.home.report;
 
-import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +11,7 @@ import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.AccountSourceInfo;
+import com.manager.assistant.helpers.appearence.TextViewFlagHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,13 +86,7 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
 
             //添加/删除删除线
             MaterialTextView textView = holder.sourceNameText;
-            int flag;
-            if (holder.isExcepted) {
-                flag = textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG;
-            } else {
-                flag = textView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG;
-            }
-            textView.setPaintFlags(flag);
+            TextViewFlagHelper.setDeleteLine(textView, holder.isExcepted);
         });
     }
 

@@ -11,7 +11,10 @@ import com.manager.assistant.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.8.2  \n" +
+    private static final String update_log_md = "# v1.8.3  \n" +
+            "**修改内容**  \n" +
+            "- 导入数据时没有包含在压缩包中的数据项将会显示删除线  \n\n" +
+            "# v1.8.2  \n" +
             "**新增内容**  \n" +
             "- 各输入界面会自动设置焦点，省去手动点击文本框的步骤  \n" +
             "- 报表界面可以点击收支来源以切换是否排除该项  \n\n" +
