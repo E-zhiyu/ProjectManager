@@ -11,7 +11,7 @@ import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.AccountSourceInfo;
-import com.manager.assistant.helpers.appearence.TextViewFlagHelper;
+import com.manager.assistant.ui.others.animators.StrikeThroughAnimator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +86,8 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
 
             //添加/删除删除线
             MaterialTextView textView = holder.sourceNameText;
-            TextViewFlagHelper.setDeleteLine(textView, holder.isExcepted);
+            StrikeThroughAnimator.applyStrikeAnimation(textView, holder.isExcepted);
+            StrikeThroughAnimator.setExcluded(textView, holder.isExcepted);
         });
     }
 
