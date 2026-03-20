@@ -248,6 +248,7 @@ public class SettingFragment extends Fragment {
                 "控制主页采购公告是否显示",
                 R.drawable.outline_link_2_24
         );
+        homeLinksSwitch.setDividerVisibility(true);
         if (!AppSettingsPreference.getLinkSwitchHide(requireContext())) {
             homeLinksSwitch.setChecked(AppSettingsPreference.getHomeLinks(requireContext()));
             homeLinksSwitch.setFunctionListener((buttonView, isChecked) -> {
@@ -432,6 +433,7 @@ public class SettingFragment extends Fragment {
                 "解析通知实现自动记账",
                 R.drawable.outline_notifications_active_24
         );
+        notificationAnalysisSwitchOption.setDividerVisibility(true);
         boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getSwitchStat(requireContext());
         ExpandFoldAnimator animator = new ExpandFoldAnimator(binding.ruleManageLayout); //展开/收缩动画执行器
         if (isNotificationAnalysisOpened && PermissionHelper.isNotificationServiceEnabled(requireContext())) {

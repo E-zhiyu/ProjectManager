@@ -74,6 +74,19 @@ abstract public class SettingOptionViewBase<C, L> {
     }
 
     /**
+     * 设置文本和右侧视图之间的分隔线的可见性
+     *
+     * @param isVisible 分割线是否可见
+     */
+    public void setDividerVisibility(boolean isVisible) {
+        if (isVisible) {
+            binding.settingViewDivider.setVisibility(View.VISIBLE);
+        } else {
+            binding.settingViewDivider.setVisibility(View.GONE);
+        }
+    }
+
+    /**
      * 初始化视图的方法
      */
     protected abstract void initView(Context context);
