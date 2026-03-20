@@ -338,7 +338,6 @@ public class SettingFragment extends Fragment {
         autoBackupHelper.setSwitchOptionView(autoBackupSwitchOption); //设置帮助器的开关视图，以便控制其状态
         String backupDir = AutoBackupPreference.getBackupDirectoryUri(requireContext());
         boolean switchStat = AutoBackupPreference.getSwitchStat(requireContext());
-        ExpandFoldAnimator animator = new ExpandFoldAnimator(binding.autoBackupLayout);
         if (!backupDir.isEmpty() && switchStat) {
             autoBackupSwitchOption.setChecked(true);
             binding.autoBackupLayout.setVisibility(View.VISIBLE);
@@ -347,7 +346,7 @@ public class SettingFragment extends Fragment {
             binding.autoBackupLayout.setVisibility(View.GONE);
         }
         autoBackupSwitchOption.setFunctionListener(
-                (buttonView, isChecked) -> onAutoBackupSwitchChanged(autoBackupSwitchOption, animator, isChecked, backupDir)
+                (buttonView, isChecked) -> onAutoBackupSwitchChanged(autoBackupSwitchOption, isChecked, backupDir)
         );
 
         //备份频率
@@ -435,7 +434,6 @@ public class SettingFragment extends Fragment {
         );
         notificationAnalysisSwitchOption.setDividerVisibility(true);
         boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getSwitchStat(requireContext());
-        ExpandFoldAnimator animator = new ExpandFoldAnimator(binding.ruleManageLayout); //展开/收缩动画执行器
         if (isNotificationAnalysisOpened && PermissionHelper.isNotificationServiceEnabled(requireContext())) {
             binding.ruleManageLayout.setVisibility(View.VISIBLE);
             notificationAnalysisSwitchOption.setChecked(true);
@@ -447,7 +445,7 @@ public class SettingFragment extends Fragment {
             AutoBookKeepingPreference.setSwitchStat(false, requireContext());
         }
         notificationAnalysisSwitchOption.setFunctionListener(
-                (buttonView, isChecked) -> onNotificationAnalysisSwitchChanged(notificationAnalysisSwitchOption, animator, isChecked)
+                (buttonView, isChecked) -> onNotificationAnalysisSwitchChanged(notificationAnalysisSwitchOption, isChecked)
         );
 
         //开关左侧文本长按功能
@@ -874,13 +872,11 @@ public class SettingFragment extends Fragment {
      * 自动备份开关状态变更回调
      *
      * @param switchView 变更状态的开关视图
-     * @param animator   展开/折叠动画执行器
      * @param isChecked  开关最后所在的状态
      * @param backupDir  自动备份的目录
      */
     private void onAutoBackupSwitchChanged(
             SettingSwitchView switchView,
-            ExpandFoldAnimator animator,
             boolean isChecked,
             @NonNull String backupDir
     ) {
@@ -910,9 +906,9 @@ public class SettingFragment extends Fragment {
 
         //执行动画
         if (isChecked) {
-            animator.expand();
+            ExpandFoldAnimator.expand(binding.autoBackupLayout);
         } else {
-            animator.collapse();
+            ExpandFoldAnimator.collapse(binding.autoBackupLayout);
         }
 
         AutoBackupPreference.setSwitchStat(requireContext(), isChecked);
@@ -922,12 +918,10 @@ public class SettingFragment extends Fragment {
      * 通知解析开关状态变更调用的方法
      *
      * @param switchView 开关视图
-     * @param animator   收缩/展开动画执行器
      * @param isChecked  开关状态
      */
     private void onNotificationAnalysisSwitchChanged(
             SettingSwitchView switchView,
-            ExpandFoldAnimator animator,
             boolean isChecked
     ) {
         AutoBookKeepingPreference.setSwitchStat(isChecked, requireContext());   //将打开状态写入文件
@@ -950,9 +944,9 @@ public class SettingFragment extends Fragment {
             requireContext().sendBroadcast(functionSwitched);
 
             if (isChecked) {
-                animator.expand();
+                ExpandFoldAnimator.expand(binding.autoBookkeepingLayout);
             } else {
-                animator.collapse();
+                ExpandFoldAnimator.collapse(binding.autoBookkeepingLayout);
             }
         }
     }

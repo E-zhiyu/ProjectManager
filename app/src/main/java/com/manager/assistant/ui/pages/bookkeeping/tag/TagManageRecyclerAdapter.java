@@ -101,21 +101,27 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
         //设置展开和折叠视图的点击方法
         RotateAnimator rotateAnimator = new RotateAnimator(holder.expandFoldView, 0f, 180f);
-        ExpandFoldAnimator expandFoldAnimator = new ExpandFoldAnimator(holder.subViewLayout);
         holder.expandFoldView.setOnClickListener(v -> {
+            //修改标志位
+            holder.isExpanded = !holder.isExpanded;
+
             //旋转分组名称文本右侧的图标
             rotateAnimator.toggle();
 
             //切换子组件布局的可见性
-            expandFoldAnimator.toggle();
+            if (holder.isExpanded)  {
+                ExpandFoldAnimator.expand(holder.subViewLayout);
+            } else {
+                ExpandFoldAnimator.collapse(holder.subViewLayout);
+            }
         });
 
         //添加标签文本视图
         holder.subViewLayout.removeAllViews();    //先删除旧视图
         for (Tag oneTag : currentGroup.getTags()) {
-            String tag_name = oneTag.getName();
-            long tag_no = oneTag.getTno();
-            int tag_scope = oneTag.getScope();
+            String tagName = oneTag.getName();
+            long tagNo = oneTag.getTno();
+            int tagScope = oneTag.getScope();
 
             //设置文本属性
             MaterialTextView tagTextView = new MaterialTextView(context);
@@ -142,10 +148,10 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
             //设置标签文本点击监听器
             tagTextView.setOnClickListener(v ->
-                    textClickedListener.onTagTextViewClicked(tag_no, tag_name, tag_scope, groupNo, groupName)
+                    textClickedListener.onTagTextViewClicked(tagNo, tagName, tagScope, groupNo, groupName)
             );
 
-            tagTextView.setText(tag_name);
+            tagTextView.setText(tagName);
             holder.subViewLayout.addView(tagTextView);
         }
     }

@@ -90,13 +90,12 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         );
         binding.typeInput.setText(type.getTitle());
         binding.typeInput.setAdapter(typeAdapter);
-        ExpandFoldAnimator animator = new ExpandFoldAnimator(binding.transferInputLayout);  //展开/收缩动画执行器
         binding.typeInput.setOnItemClickListener(
                 (parent, view, position, id) -> {
                     if (position == RunningAccountType.TRANSFER.ordinal() && type != RunningAccountType.TRANSFER) {
-                        animator.expand();
+                        ExpandFoldAnimator.expand(binding.transferInputLayout);
                     } else if (position != RunningAccountType.TRANSFER.ordinal() && type == RunningAccountType.TRANSFER) {
-                        animator.collapse();
+                        ExpandFoldAnimator.collapse(binding.transferInputLayout);
                     }
 
                     type = RunningAccountType.values()[position];

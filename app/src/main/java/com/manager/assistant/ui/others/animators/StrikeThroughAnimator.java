@@ -44,7 +44,7 @@ public class StrikeThroughAnimator {
         // 获取或创建 drawable
         StrikeDrawable drawable = (StrikeDrawable) target.getTag(TAG_DRAWABLE);
         if (drawable == null) {
-            drawable = new StrikeDrawable(target);
+            drawable = new StrikeDrawable(target, COLOR_DISABLE);
             target.setTag(TAG_DRAWABLE, drawable);
         }
 
@@ -86,17 +86,17 @@ public class StrikeThroughAnimator {
         animator.start();
     }
 
-    private class StrikeDrawable extends Drawable {
+    private static class StrikeDrawable extends Drawable {
 
         private final TextView textView;    //覆盖在文本视图表面的删除线Drawable
         private final Paint paint;          //画笔实例
         private float progress = 0f;        //过程占比（0~1）
 
-        public StrikeDrawable(@NonNull TextView textView) {
+        public StrikeDrawable(@NonNull TextView textView, int color) {
             this.textView = textView;
 
             paint = new Paint();
-            paint.setColor(COLOR_DISABLE);
+            paint.setColor(color);
             paint.setStrokeWidth(4f);
             paint.setAntiAlias(true);
         }

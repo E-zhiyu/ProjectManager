@@ -9,28 +9,9 @@ import androidx.annotation.NonNull;
 
 public class ExpandFoldAnimator {
     private static final int TAG_ANIMATOR = -1001;  //标记动画执行器的标识符
-    private final View target;                      //待展开和收缩的目标视图
-    private boolean isExpanded;                     //视图的初始状态是否为展开
-
-    public ExpandFoldAnimator(View target, boolean isExpanded) {
-        this.target = target;
-        this.isExpanded = isExpanded;
-    }
-
-    public ExpandFoldAnimator(View target) {
-        this(target, true);
-    }
-
-    public void toggle() {
-        if (isExpanded) {
-            collapse();
-        } else {
-            expand();
-        }
-    }
 
     // 展开
-    public void expand() {
+    public static void expand(View target) {
         // 先取消旧动画
         cancelRunningAnimator(target);
 
@@ -66,12 +47,10 @@ public class ExpandFoldAnimator {
 
         target.setTag(TAG_ANIMATOR, animator);
         animator.start();
-
-        isExpanded = true;
     }
 
     // 收缩
-    public void collapse() {
+    public static void collapse(View target) {
         cancelRunningAnimator(target);
 
         ValueAnimator animator = ValueAnimator.ofInt(target.getHeight(), 0);
@@ -97,8 +76,6 @@ public class ExpandFoldAnimator {
 
         target.setTag(TAG_ANIMATOR, animator);
         animator.start();
-
-        isExpanded = false;
     }
 
     // 取消正在执行的动画
