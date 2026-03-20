@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.8.3  \n" +
             "**修改内容**  \n" +
+            "- 优化报表界面的动画效果  \n" +
             "- 优化视图的折叠和展开动画，现在快速折叠或展开也能正确打断动画了  \n" +
             "- 将预算功能的两个权限申请放到同一个界面中，此前是分开的  \n" +
             "- 为可以长按的开关设置项添加竖着的分隔线以提示用户左侧是可以长按的  \n" +

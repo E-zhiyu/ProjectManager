@@ -1,5 +1,6 @@
 package com.manager.assistant.ui.pages.home.report;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -99,12 +100,14 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
      *
      * @param sourceInfoList 刷新后的收支来源数据
      */
+    @SuppressLint("NotifyDataSetChanged")
     public void refreshSource(List<AccountSourceInfo> sourceInfoList) {
-        int old_item_count = getItemCount();
         this.sourceInfoList.clear();
-        notifyItemRangeRemoved(0, old_item_count);
-
         this.sourceInfoList.addAll(sourceInfoList);
-        notifyItemRangeInserted(0, sourceInfoList.size());
+
+        //只有在新的列表不为空时才更新内容，防止内容先消失然后再播放缩小动画
+        if (!sourceInfoList.isEmpty()) {
+            notifyDataSetChanged();
+        }
     }
 }
