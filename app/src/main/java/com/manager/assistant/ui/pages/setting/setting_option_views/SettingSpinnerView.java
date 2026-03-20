@@ -44,7 +44,7 @@ public class SettingSpinnerView extends SettingOptionViewBase<MaterialTextView, 
         functionComponent.setGravity(Gravity.CENTER_VERTICAL);
         TextViewCompat.setCompoundDrawableTintList(functionComponent, ColorStateList.valueOf(ColorHelper.getPrimaryColor(context)));
         functionComponent.setPadding(10, 10, 25, 10);
-        binding.freeLayout.addView(functionComponent);
+        binding.componentLayout.addView(functionComponent);
     }
 
     @Override

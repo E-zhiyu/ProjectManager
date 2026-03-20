@@ -105,7 +105,9 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         startObserveSearchResult();
 
         //进入该界面时尝试申请权限
-        PermissionHelper.requestAppListPermission(this);
+        if (!PermissionHelper.isPermissionsGranted(this, "com.android.permission.GET_INSTALLED_APPS")) {
+            PermissionHelper.requestAppListPermission(this);
+        }
 
         //拦截返回键功能：先关闭搜索界面再返回上一级
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {

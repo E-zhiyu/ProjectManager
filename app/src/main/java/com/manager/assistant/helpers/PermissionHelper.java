@@ -7,7 +7,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.pm.PermissionInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.PowerManager;
@@ -70,49 +69,10 @@ public class PermissionHelper {
      * @param activity 申请权限的Activity，申请结果通过onRequestPermissionsResult()方法获取
      */
     public static void requestAppListPermission(@NonNull Activity activity) {
-        try {
-            if (isPermissionsGranted(activity, "com.android.permission.GET_INSTALLED_APPS")) {
-                return;
-            }
-
-            PermissionInfo permissionInfo = activity.getPackageManager().getPermissionInfo("com.android.permission.GET_INSTALLED_APPS", 0);
-            String permissionInfoPackageName = permissionInfo.packageName;
-            if (permissionInfoPackageName.equals("com.lbe.security.miui") || permissionInfoPackageName.equals("oplus")) {
-                ActivityCompat.requestPermissions(activity,
-                        new String[]{"com.android.permission.GET_INSTALLED_APPS"},
-                        RequestResultCode.REQUEST_APP_LIST_PERMISSION.ordinal()
-                );
-            } else {
-                //其他系统的动态申请逻辑
-                if (isRuntimeAppListPermissionEnable(activity)) {
-                    //没有权限，需要申请
-                    ActivityCompat.requestPermissions(activity,
-                            new String[]{"com.android.permission.GET_INSTALLED_APPS"},
-                            RequestResultCode.REQUEST_APP_LIST_PERMISSION.ordinal()
-                    );
-                } else {
-                    //不能动态申请则需要手动授权
-                    Toast.makeText(activity, "您的系统不支持动态申请应用列表权限，请手动授权并重启应用", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                    intent.setData(Uri.parse("package:" + activity.getPackageName()));
-                    activity.startActivity(intent);
-                }
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            ExceptionHelper.showExceptionDialog(activity, e);
-            Toast.makeText(activity, "应用列表权限申请失败，请手动授权并重启应用", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /**
-     * 判断是否支持动态应用列表权限申请
-     *
-     * @param context 活动类
-     * @return 是否支持动态应用列表权限申请
-     */
-    private static boolean isRuntimeAppListPermissionEnable(@NonNull Context context) {
-        return Settings.Secure.getInt(context.getContentResolver(),
-                "oem_installed_apps_runtime_permission_enable", 0) > 0;
+        ActivityCompat.requestPermissions(activity,
+                new String[]{"com.android.permission.GET_INSTALLED_APPS"},
+                RequestResultCode.REQUEST_APP_LIST_PERMISSION.ordinal()
+        );
     }
 
     /**

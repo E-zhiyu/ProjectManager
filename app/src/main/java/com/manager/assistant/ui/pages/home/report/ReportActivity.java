@@ -5,14 +5,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 
-import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -25,6 +23,7 @@ import com.manager.assistant.data.save.database.Tables;
 import com.manager.assistant.databinding.ActivityReportBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.TagString;
+import com.manager.assistant.ui.others.animators.ScaleAnimator;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.data.classes.Tag;
 
@@ -292,6 +291,11 @@ public class ReportActivity extends AppCompatActivity {
         incomeSourceInfoList.clear();
         expenseSourceInfoList.clear();
 
+        //将收支卡片都暂时缩小至消失
+        ScaleAnimator.hide(binding.expenseSourceCard);
+        ScaleAnimator.hide(binding.incomeSourceCard);
+
+        //解析新数据
         for (ReportRunningAccountData data : dataList) {
             RunningAccountType type = data.getType();
             double amount = data.getAmount();
@@ -337,13 +341,13 @@ public class ReportActivity extends AppCompatActivity {
 
         //计算各来源的收支占比
         for (AccountSourceInfo expenseSourceCard : expenseSourceInfoList) {
-            double source_amount = expenseSourceCard.getAmount();
-            int percentage = (int) (source_amount * 100 / shownExpense);
+            double sourceAmount = expenseSourceCard.getAmount();
+            int percentage = (int) (sourceAmount * 100 / shownExpense);
             expenseSourceCard.setPercentage(percentage);
         }
         for (AccountSourceInfo incomeSourceCard : incomeSourceInfoList) {
-            double source_amount = incomeSourceCard.getAmount();
-            int percentage = (int) (source_amount * 100 / shownIncome);
+            double sourceAmount = incomeSourceCard.getAmount();
+            int percentage = (int) (sourceAmount * 100 / shownIncome);
             incomeSourceCard.setPercentage(percentage);
         }
 
@@ -356,45 +360,36 @@ public class ReportActivity extends AppCompatActivity {
         compensatePrecision(incomeSourceInfoList);
 
         //设置收支来源卡片容器可见性
-        boolean isNoExpense = false, isNoIncome = false;
-        MaterialCardView expenseSourceCard = binding.expenseSourceCard;
+        boolean isNoExpense, isNoIncome;
         if (expenseSourceInfoList.isEmpty()) {
-            expenseSourceCard.setVisibility(View.GONE);
             isNoExpense = true;
         } else {
-            expenseSourceCard.setVisibility(View.VISIBLE);
+            isNoExpense = false;
+            ScaleAnimator.show(binding.expenseSourceCard);
         }
-        MaterialCardView incomeSourceCard = binding.incomeSourceCard;
         if (incomeSourceInfoList.isEmpty()) {
-            incomeSourceCard.setVisibility(View.GONE);
             isNoIncome = true;
         } else {
-            incomeSourceCard.setVisibility(View.VISIBLE);
+            isNoIncome = false;
+            ScaleAnimator.show(binding.incomeSourceCard);
         }
         if (isNoIncome && isNoExpense) {
-            String tip_str = "该时间段没有流水记录";
+            String tipStr = "该时间段没有流水记录";
             switch (dateRangeType) {
                 case TODAY:
-                    tip_str = "这一天没有流水记录";
+                    tipStr = "这一天没有流水记录";
                     break;
                 case THIS_MONTH:
-                    tip_str = "这个月没有流水记录";
+                    tipStr = "这个月没有流水记录";
                     break;
                 case RECENT_3_MONTH:
-                    tip_str = "最近三个月没有流水记录";
+                    tipStr = "最近三个月没有流水记录";
                     break;
                 case THIS_YEAR:
-                    tip_str = "这一年没有流水记录";
+                    tipStr = "这一年没有流水记录";
                     break;
             }
-            Toast.makeText(this, tip_str, Toast.LENGTH_SHORT).show();
-            binding.expenseIncomeLayout.setVisibility(View.GONE);
-            binding.monthAccountLayout.setVisibility(View.GONE);
-        } else {
-            binding.expenseIncomeLayout.setVisibility(View.VISIBLE);
-            if (dateRangeType == DateRangeType.THIS_YEAR) {
-                binding.monthAccountLayout.setVisibility(View.VISIBLE);
-            }
+            Toast.makeText(this, tipStr, Toast.LENGTH_SHORT).show();
         }
 
         //更新收支来源视图
@@ -411,7 +406,7 @@ public class ReportActivity extends AppCompatActivity {
         if (sourceInfoList.isEmpty()) return;
 
         int percentageLeft = 100;               //剩余的百分比
-        int first_zero_index = -1, index = 0;   //首个百分比为0的元素的下标
+        int firstZeroIndex = -1, index = 0;   //首个百分比为0的元素的下标
         boolean isEndsWithZero = false;         //是否以百分比为0的元素结尾
         for (AccountSourceInfo sourceInfo : sourceInfoList) {
             int currentPercentage = sourceInfo.getPercentage();
@@ -420,24 +415,24 @@ public class ReportActivity extends AppCompatActivity {
             //如果未找到百分比为0的元素且当前百分比为0，则记录该元素的下标
             if (!isEndsWithZero && currentPercentage == 0) {
                 isEndsWithZero = true;
-                first_zero_index = index;
+                firstZeroIndex = index;
             }
             index++;
         }
         if (percentageLeft == 0) return;    //如果百分比之和恰好为100则直接结束该方法
 
         //循环为每个元素百分比+1，直到剩余百分比为0
-        int cycle_index;
+        int cycleIndex;
         if (isEndsWithZero) {
-            cycle_index = first_zero_index;
+            cycleIndex = firstZeroIndex;
         } else {
-            cycle_index = 0;
+            cycleIndex = 0;
         }
         while (percentageLeft > 0) {
             percentageLeft--;
-            AccountSourceInfo currentSource = sourceInfoList.get(cycle_index);
+            AccountSourceInfo currentSource = sourceInfoList.get(cycleIndex);
             currentSource.setPercentage(currentSource.getPercentage() + 1);
-            cycle_index = (cycle_index + 1) % sourceInfoList.size();
+            cycleIndex = (cycleIndex + 1) % sourceInfoList.size();
         }
     }
 
@@ -479,21 +474,21 @@ public class ReportActivity extends AppCompatActivity {
     private void refreshMonthAccountInfoViews() {
         switch (monthAccountInfoType) {
             case BALANCE:
-                double abs_total_balance = 0;   //各月份结余绝对值总和
+                double absTotalBalance = 0;   //各月份结余绝对值总和
                 for (MonthAccountInfo monthAccountInfo : monthAccountInfoList) {
-                    double month_expense = monthAccountInfo.getExpense();
-                    double month_income = monthAccountInfo.getIncome();
-                    double month_balance = month_income - month_expense;
+                    double monthExpense = monthAccountInfo.getExpense();
+                    double monthIncome = monthAccountInfo.getIncome();
+                    double monthBalance = monthIncome - monthExpense;
 
-                    abs_total_balance += (month_balance < 0) ? -month_balance : month_balance;
+                    absTotalBalance += (monthBalance < 0) ? -monthBalance : monthBalance;
                 }
 
                 for (MonthAccountInfo monthAccountInfo : monthAccountInfoList) {
-                    double month_expense = monthAccountInfo.getExpense();
-                    double month_income = monthAccountInfo.getIncome();
-                    double month_balance = month_income - month_expense;
+                    double monthExpense = monthAccountInfo.getExpense();
+                    double monthIncome = monthAccountInfo.getIncome();
+                    double monthBalance = monthIncome - monthExpense;
 
-                    int percentage = (int) (month_balance * 100 / abs_total_balance);
+                    int percentage = (int) (monthBalance * 100 / absTotalBalance);
                     if (percentage < 0) percentage = -percentage;
                     monthAccountInfo.setPercentage(percentage);
                 }
@@ -624,25 +619,24 @@ public class ReportActivity extends AppCompatActivity {
         dateRangeSelectMenu.getMenuInflater().inflate(R.menu.popup_menu_date_range_select, dateRangeSelectMenu.getMenu());
 
         dateRangeSelectMenu.setOnMenuItemClickListener(item -> {
-            LinearLayout monthAccountLayout = binding.monthAccountLayout;
             boolean itemClicked = false;    //是否点击某个选项
             if (item.getItemId() == R.id.action_today) {
-                monthAccountLayout.setVisibility(View.GONE);
+                ScaleAnimator.show(binding.monthAccountCard);
                 dateRangeType = DateRangeType.TODAY;
                 binding.dateRangeText.setText(R.string.today);
                 itemClicked = true;
             } else if (item.getItemId() == R.id.action_this_month) {
-                monthAccountLayout.setVisibility(View.GONE);
+                ScaleAnimator.show(binding.monthAccountCard);
                 dateRangeType = DateRangeType.THIS_MONTH;
                 binding.dateRangeText.setText(R.string.this_month);
                 itemClicked = true;
             } else if (item.getItemId() == R.id.action_recent_3_month) {
-                monthAccountLayout.setVisibility(View.GONE);
+                ScaleAnimator.show(binding.monthAccountCard);
                 dateRangeType = DateRangeType.RECENT_3_MONTH;
                 binding.dateRangeText.setText(R.string.recent_3_month);
                 itemClicked = true;
             } else if (item.getItemId() == R.id.action_this_year) {
-                monthAccountLayout.setVisibility(View.VISIBLE);
+                ScaleAnimator.show(binding.monthAccountCard);
                 dateRangeType = DateRangeType.THIS_YEAR;
                 binding.dateRangeText.setText(R.string.this_year);
                 itemClicked = true;

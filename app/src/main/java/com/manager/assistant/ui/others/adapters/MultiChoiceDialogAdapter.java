@@ -1,5 +1,7 @@
-package com.manager.assistant.ui.others.dialogs;
+package com.manager.assistant.ui.others.adapters;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatCheckedTextView;
+import androidx.core.widget.TextViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.manager.assistant.R;
@@ -67,10 +70,12 @@ public class MultiChoiceDialogAdapter extends RecyclerView.Adapter<MultiChoiceDi
         }
         boolean stat = itemStats[position];
 
+        //设置选项的可用性
         holder.checkedTextView.setText(itemNames[position]);
         if (!isEnabled) {
             holder.checkedTextView.setEnabled(false);
             holder.checkedTextView.setChecked(false);
+            TextViewCompat.setCompoundDrawableTintList(holder.checkedTextView, ColorStateList.valueOf(Color.GRAY));  //图标也变成灰色
         } else {
             holder.checkedTextView.setChecked(stat);
         }

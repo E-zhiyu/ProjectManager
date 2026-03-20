@@ -1,6 +1,6 @@
 package com.manager.assistant.ui.pages.home.report;
 
-import android.graphics.Paint;
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +12,7 @@ import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.AccountSourceInfo;
+import com.manager.assistant.ui.others.animators.StrikeThroughAnimator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,19 +81,17 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
         holder.proportionBar.setProgress(percentage);             //百分比进度条
 
         //设置点击监听
+        StrikeThroughAnimator strikeThroughAnimator = new StrikeThroughAnimator(
+                holder.sourceNameText,
+                holder.itemView.getContext()
+        );
         holder.itemView.setOnClickListener(v -> {
             holder.isExcepted = !holder.isExcepted;
             listener.onClicked(info, holder.isExcepted);
 
             //添加/删除删除线
-            MaterialTextView textView = holder.sourceNameText;
-            int flag;
-            if (holder.isExcepted) {
-                flag = textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG;
-            } else {
-                flag = textView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG;
-            }
-            textView.setPaintFlags(flag);
+            strikeThroughAnimator.applyStrikeAnimation(holder.isExcepted);
+            strikeThroughAnimator.setExcluded(holder.isExcepted);
         });
     }
 
@@ -101,12 +100,14 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
      *
      * @param sourceInfoList 刷新后的收支来源数据
      */
+    @SuppressLint("NotifyDataSetChanged")
     public void refreshSource(List<AccountSourceInfo> sourceInfoList) {
-        int old_item_count = getItemCount();
         this.sourceInfoList.clear();
-        notifyItemRangeRemoved(0, old_item_count);
-
         this.sourceInfoList.addAll(sourceInfoList);
-        notifyItemRangeInserted(0, sourceInfoList.size());
+
+        //只有在新的列表不为空时才更新内容，防止内容先消失然后再播放缩小动画
+        if (!sourceInfoList.isEmpty()) {
+            notifyDataSetChanged();
+        }
     }
 }

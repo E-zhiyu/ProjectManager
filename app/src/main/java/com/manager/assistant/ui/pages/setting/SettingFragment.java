@@ -38,10 +38,10 @@ import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.data.save.preference.BookKeepingStartDatePreference;
-import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.helpers.file.DataIOHelper;
 import com.manager.assistant.helpers.UpdateHelper;
 import com.manager.assistant.helpers.file.UriPathHelper;
+import com.manager.assistant.ui.others.animators.ExpandFoldAnimator;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
 import com.manager.assistant.ui.sync.account.RunningAccountViewModel;
 import com.manager.assistant.ui.others.dialogs.MultiChoiceDialog;
@@ -248,6 +248,7 @@ public class SettingFragment extends Fragment {
                 "控制主页采购公告是否显示",
                 R.drawable.outline_link_2_24
         );
+        homeLinksSwitch.setDividerVisibility(true);
         if (!AppSettingsPreference.getLinkSwitchHide(requireContext())) {
             homeLinksSwitch.setChecked(AppSettingsPreference.getHomeLinks(requireContext()));
             homeLinksSwitch.setFunctionListener((buttonView, isChecked) -> {
@@ -327,51 +328,25 @@ public class SettingFragment extends Fragment {
         );
 
         //自动备份开关
-        SettingSwitchView autoBackupSwitch = new SettingSwitchView(
+        SettingSwitchView autoBackupSwitchOption = new SettingSwitchView(
                 requireContext(),
                 binding.autoBackupOption,
                 R.string.auto_backup,
                 "自动生成备份文件至指定位置",
                 R.drawable.outline_settings_backup_restore_24
         );
-        autoBackupHelper.setSwitchOptionView(autoBackupSwitch); //设置帮助器的开关视图，以便控制其状态
+        autoBackupHelper.setSwitchOptionView(autoBackupSwitchOption); //设置帮助器的开关视图，以便控制其状态
         String backupDir = AutoBackupPreference.getBackupDirectoryUri(requireContext());
         boolean switchStat = AutoBackupPreference.getSwitchStat(requireContext());
         if (!backupDir.isEmpty() && switchStat) {
-            autoBackupSwitch.setChecked(true);
+            autoBackupSwitchOption.setChecked(true);
             binding.autoBackupLayout.setVisibility(View.VISIBLE);
         } else {
-            autoBackupSwitch.setChecked(false);
+            autoBackupSwitchOption.setChecked(false);
             binding.autoBackupLayout.setVisibility(View.GONE);
         }
-        autoBackupSwitch.setFunctionListener(
-                (buttonView, isChecked) -> {
-                    if (backupDir.isEmpty() && isChecked) {    //备份目录无效则先提示设置
-                        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
-                                .setTitle("功能启用提示")
-                                .setMessage("该功能需要先设置备份文件存储目录，请点击“确定”按钮设置存储目录")
-                                .setNegativeButton("取消", (dialog, which) -> dialog.cancel())
-                                .setPositiveButton("确定",
-                                        (dialog, which) -> autoBackupHelper.selectBackupDirectory(
-                                                backupDirectorySetLauncher
-                                        )
-                                );
-
-                        builder.setOnCancelListener(dialog -> {
-                            buttonView.setChecked(false);
-                            BackupScheduler.cancelPeriodicBackup(requireContext());
-                        });
-                        builder.show();
-                    } else if (isChecked) {
-                        int frequency_index = AutoBackupPreference.getBackupFrequency(requireContext());
-                        long intervalMillis = AutoBackupHelper.BackupFrequency.values()[frequency_index].getIntervalMillis();
-                        BackupScheduler.schedulePeriodicBackup(requireContext(), intervalMillis);
-                    } else {
-                        BackupScheduler.cancelPeriodicBackup(requireContext());
-                    }
-                    AnimationHelper.switchViewFoldOrExpanded(isChecked, binding.autoBackupLayout);
-                    AutoBackupPreference.setSwitchStat(requireContext(), isChecked);
-                }
+        autoBackupSwitchOption.setFunctionListener(
+                (buttonView, isChecked) -> onAutoBackupSwitchChanged(autoBackupSwitchOption, isChecked, backupDir)
         );
 
         //备份频率
@@ -457,6 +432,7 @@ public class SettingFragment extends Fragment {
                 "解析通知实现自动记账",
                 R.drawable.outline_notifications_active_24
         );
+        notificationAnalysisSwitchOption.setDividerVisibility(true);
         boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getSwitchStat(requireContext());
         if (isNotificationAnalysisOpened && PermissionHelper.isNotificationServiceEnabled(requireContext())) {
             binding.ruleManageLayout.setVisibility(View.VISIBLE);
@@ -598,7 +574,7 @@ public class SettingFragment extends Fragment {
         updateCheckOption.setFunctionListener(
                 v -> {
                     Toast.makeText(requireContext(), "正在检查更新……", Toast.LENGTH_SHORT).show();
-                    UpdateHelper.checkUpdate(requireContext(),disposables, true);
+                    UpdateHelper.checkUpdate(requireContext(), disposables, true);
                 }
         );
     }
@@ -761,11 +737,9 @@ public class SettingFragment extends Fragment {
                                 }
                             }
 
+                            //标记该项为未包含
                             if (!isFound) {
                                 int index = IODataType.ordinal();
-                                String dataTypeName = IODataType.getName();
-                                String disabledName = String.format(Locale.getDefault(), "%s(未包含)", dataTypeName);
-                                dataTypeNames[index] = disabledName;
                                 choiceStats[index] = false;
                                 isItemFound[index] = false;
                             }
@@ -895,12 +869,61 @@ public class SettingFragment extends Fragment {
     }
 
     /**
+     * 自动备份开关状态变更回调
+     *
+     * @param switchView 变更状态的开关视图
+     * @param isChecked  开关最后所在的状态
+     * @param backupDir  自动备份的目录
+     */
+    private void onAutoBackupSwitchChanged(
+            SettingSwitchView switchView,
+            boolean isChecked,
+            @NonNull String backupDir
+    ) {
+        if (backupDir.isEmpty() && isChecked) {    //备份目录无效则先提示设置
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("功能启用提示")
+                    .setMessage("该功能需要先设置备份文件存储目录，请点击“确定”按钮设置存储目录")
+                    .setNegativeButton("取消", (dialog, which) -> dialog.cancel())
+                    .setPositiveButton("确定",
+                            (dialog, which) -> autoBackupHelper.selectBackupDirectory(
+                                    backupDirectorySetLauncher
+                            )
+                    );
+
+            builder.setOnCancelListener(dialog -> {
+                switchView.setChecked(false);
+                BackupScheduler.cancelPeriodicBackup(requireContext());
+            });
+            builder.show();
+        } else if (isChecked) {
+            int frequencyIndex = AutoBackupPreference.getBackupFrequency(requireContext());
+            long intervalMillis = AutoBackupHelper.BackupFrequency.values()[frequencyIndex].getIntervalMillis();
+            BackupScheduler.schedulePeriodicBackup(requireContext(), intervalMillis);
+        } else {
+            BackupScheduler.cancelPeriodicBackup(requireContext());
+        }
+
+        //执行动画
+        if (isChecked) {
+            ExpandFoldAnimator.expand(binding.autoBackupLayout);
+        } else {
+            ExpandFoldAnimator.collapse(binding.autoBackupLayout);
+        }
+
+        AutoBackupPreference.setSwitchStat(requireContext(), isChecked);
+    }
+
+    /**
      * 通知解析开关状态变更调用的方法
      *
      * @param switchView 开关视图
      * @param isChecked  开关状态
      */
-    private void onNotificationAnalysisSwitchChanged(SettingSwitchView switchView, boolean isChecked) {
+    private void onNotificationAnalysisSwitchChanged(
+            SettingSwitchView switchView,
+            boolean isChecked
+    ) {
         AutoBookKeepingPreference.setSwitchStat(isChecked, requireContext());   //将打开状态写入文件
 
         //开启开关时检测是否没有权限，如果没有则提示用户授权
@@ -919,7 +942,12 @@ public class SettingFragment extends Fragment {
             //发送功能开关变更广播
             Intent functionSwitched = new Intent(BroadcastConstants.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString());
             requireContext().sendBroadcast(functionSwitched);
-            AnimationHelper.switchViewFoldOrExpanded(isChecked, binding.ruleManageLayout);  //切换通知解析选项布局的可见性
+
+            if (isChecked) {
+                ExpandFoldAnimator.expand(binding.autoBookkeepingLayout);
+            } else {
+                ExpandFoldAnimator.collapse(binding.autoBookkeepingLayout);
+            }
         }
     }
 

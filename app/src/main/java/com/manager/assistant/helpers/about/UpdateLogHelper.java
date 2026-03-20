@@ -11,7 +11,14 @@ import com.manager.assistant.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.8.2  \n" +
+    private static final String update_log_md = "# v1.8.3  \n" +
+            "**修改内容**  \n" +
+            "- 优化报表界面的动画效果  \n" +
+            "- 优化视图的折叠和展开动画，现在快速折叠或展开也能正确打断动画了  \n" +
+            "- 将预算功能的两个权限申请放到同一个界面中，此前是分开的  \n" +
+            "- 为可以长按的开关设置项添加竖着的分隔线以提示用户左侧是可以长按的  \n" +
+            "- 为报表界面的收支来源添加删除线动画，而不是直接显示删除线  \n\n" +
+            "# v1.8.2  \n" +
             "**新增内容**  \n" +
             "- 各输入界面会自动设置焦点，省去手动点击文本框的步骤  \n" +
             "- 报表界面可以点击收支来源以切换是否排除该项  \n\n" +

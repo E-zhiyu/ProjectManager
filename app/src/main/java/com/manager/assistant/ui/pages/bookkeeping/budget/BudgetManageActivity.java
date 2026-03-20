@@ -1,5 +1,6 @@
 package com.manager.assistant.ui.pages.bookkeeping.budget;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
@@ -11,9 +12,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.data.classes.Budget;
@@ -45,24 +43,30 @@ public class BudgetManageActivity extends AppCompatActivity {
         binding = ActivityBudgetManageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-
+        //初始化启动器和视图
         initViews();
         initLaunchers();
 
-        //申请闹钟权限
-        if (!PermissionHelper.hasExactAlarmPermission(this) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle("权限提示")
-                    .setMessage("预算管理功能需要精确闹钟权限以实现自动重置预算，请点击“确定”后授予该权限")
-                    .setPositiveButton("确定", (dialog, which) -> PermissionHelper.requestExactAlarmPermission(this))
-                    .setNegativeButton("取消", null)
-                    .show()
-                    .setOnCancelListener(dialog -> BudgetManageActivity.this.finish());
+        //申请权限
+        requestPermissions();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == RequestResultCode.REQUEST_NOTIFICATION_PERMISSION.ordinal()) {
+            //判断通知权限是否授予
+            if (grantResults[0] == -1) {
+                Toast.makeText(this, "通知权限被拒绝，请前往设置手动授予", Toast.LENGTH_SHORT).show();
+            }
+
+            //没有闹钟权限时提示授予闹钟权限
+            boolean isAlarmEnable = Build.VERSION.SDK_INT <= Build.VERSION_CODES.S || PermissionHelper.hasExactAlarmPermission(this);
+            if (!isAlarmEnable) {
+                Toast.makeText(this, "请再授予精确闹钟权限", Toast.LENGTH_SHORT).show();
+                PermissionHelper.requestExactAlarmPermission(this);
+            }
         }
     }
 
@@ -73,6 +77,39 @@ public class BudgetManageActivity extends AppCompatActivity {
 
         // 防止内存泄漏
         disposables.dispose();
+    }
+
+    /**
+     * 申请一些必要的权限
+     */
+    private void requestPermissions() {
+        boolean isAlarmEnable = Build.VERSION.SDK_INT <= Build.VERSION_CODES.S || PermissionHelper.hasExactAlarmPermission(this);
+        boolean isNotificationEnable = Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU
+                || PermissionHelper.isPermissionsGranted(this, Manifest.permission.POST_NOTIFICATIONS);
+
+        String message;
+        Runnable action;
+        if (!isAlarmEnable && !isNotificationEnable) {
+            message = "本功能需要申请以下权限：\n1.精确闹钟权限：用于定期自动重置预算\n2.通知权限：用于在预算余额不足时提醒用户\n请点击“确定”授予这些权限";
+            action = () -> PermissionHelper.requestNotificationPermission(this);
+        } else if (!isAlarmEnable) {
+            message = "预算管理功能需要精确闹钟权限以实现自动重置预算，请点击“确定”授予该权限";
+            action = () -> PermissionHelper.requestExactAlarmPermission(this);
+        } else if (!isNotificationEnable) {
+            message = "预算余额较低时需要发送通知提醒，请授予通知权限，请点击“确定”授予该权限";
+            action = () -> PermissionHelper.requestNotificationPermission(this);
+        } else {
+            return;
+        }
+
+        //如果有权限缺失则弹出弹窗提示用户
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("权限说明")
+                .setMessage(message)
+                .setPositiveButton("确定", (dialog, which) -> action.run())
+                .setNegativeButton("取消", null)
+                .show()
+                .setOnCancelListener(dialog -> finish());
     }
 
     /**

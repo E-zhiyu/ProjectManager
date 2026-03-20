@@ -1,9 +1,7 @@
 package com.manager.assistant.ui.pages.bookkeeping.budget;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -25,7 +23,6 @@ import com.manager.assistant.databinding.ActivityBudgetAddModifyBinding;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.generic_enums.TagString;
-import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.tag.MultiTagSelectBottomSheet;
@@ -59,18 +56,6 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
         receiveInitData();
         initViews();
         AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
-
-        //申请通知权限
-        if (!PermissionHelper.isPermissionsGranted(this, Manifest.permission.POST_NOTIFICATIONS)
-                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle("权限说明")
-                    .setMessage("预算余额较低时需要发送通知提醒，请授予通知权限")
-                    .setPositiveButton("确定", (dialog, which) -> PermissionHelper.requestNotificationPermission(this))
-                    .setNegativeButton("取消", null)
-                    .show()
-                    .setOnCancelListener(dialog -> BudgetAddModifyActivity.this.finish());
-        }
     }
 
     @Override

@@ -32,7 +32,7 @@ public class SettingClickableTextView extends SettingOptionViewBase<ImageView, V
         functionComponent.setImageResource(R.drawable.outline_keyboard_arrow_right_24);
         functionComponent.setImageTintList(ColorStateList.valueOf(ColorHelper.getPrimaryColor(context)));
         functionComponent.setPadding(10, 10, 25, 10);
-        binding.freeLayout.addView(functionComponent);
+        binding.componentLayout.addView(functionComponent);
     }
 
     @Override
