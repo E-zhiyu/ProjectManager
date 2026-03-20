@@ -105,7 +105,7 @@ public class AutoBackupHelper {
             }
         } else {
             String backupDir = AutoBackupPreference.getBackupDirectoryUri(context);
-            if (switchOptionView != null && backupDir == null) {
+            if (switchOptionView != null && backupDir.isEmpty()) {
                 switchOptionView.setChecked(false);
             }
         }

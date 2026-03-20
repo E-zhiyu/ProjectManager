@@ -26,6 +26,7 @@ import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
+import com.manager.assistant.ui.others.animators.ExpandFoldAnimator;
 import com.manager.assistant.ui.pages.bookkeeping.notification_analysis.package_name_select.PackageNameSelectActivity;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.data.classes.Tag;
@@ -89,12 +90,13 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         );
         binding.typeInput.setText(type.getTitle());
         binding.typeInput.setAdapter(typeAdapter);
+        ExpandFoldAnimator animator = new ExpandFoldAnimator(binding.transferInputLayout);  //展开/收缩动画执行器
         binding.typeInput.setOnItemClickListener(
                 (parent, view, position, id) -> {
                     if (position == RunningAccountType.TRANSFER.ordinal() && type != RunningAccountType.TRANSFER) {
-                        AnimationHelper.switchViewFoldOrExpanded(true, binding.transferInputLayout);
+                        animator.expand();
                     } else if (position != RunningAccountType.TRANSFER.ordinal() && type == RunningAccountType.TRANSFER) {
-                        AnimationHelper.switchViewFoldOrExpanded(false, binding.transferInputLayout);
+                        animator.collapse();
                     }
 
                     type = RunningAccountType.values()[position];

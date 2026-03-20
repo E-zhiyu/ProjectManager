@@ -7,7 +7,6 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
-//TODO:用该类替换所有展开收缩方法
 public class ExpandFoldAnimator {
     private static final int TAG_ANIMATOR = -1001;  //标记动画执行器的标识符
     private final View target;                      //待展开和收缩的目标视图
@@ -25,7 +24,7 @@ public class ExpandFoldAnimator {
     public void toggle() {
         if (isExpanded) {
             collapse();
-        } else{
+        } else {
             expand();
         }
     }

@@ -1,14 +1,9 @@
 package com.manager.assistant.helpers.appearence;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.os.Vibrator;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.LinearInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -81,67 +76,5 @@ public class AnimationHelper {
                 .getSystemService(Context.VIBRATOR_SERVICE);
 
         view.setOnTouchListener(new SpringAnimationOnTouchListener(shapeable, vibrator, percentage));
-    }
-
-    /**
-     * 执行平滑滑动动画
-     *
-     * @param view  需要执行动画的视图
-     * @param start 开始时视图的高度
-     * @param end   结束时视图的高度
-     * @param onEnd 动画结束后需要执行的代码块（可为null）
-     */
-    public static void animateHeight(final View view, int start, int end, Runnable onEnd) {
-        ValueAnimator animator = ValueAnimator.ofInt(start, end);
-        animator.addUpdateListener(animation -> {
-            int height = (int) animation.getAnimatedValue();
-            ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-            layoutParams.height = height;
-            view.setLayoutParams(layoutParams);
-            view.requestLayout();
-        });
-
-        //设置动画结束后执行的代码
-        animator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                if (onEnd != null) onEnd.run();
-            }
-        });
-
-        animator.setDuration(200);
-        animator.start();
-    }
-
-    /**
-     * 切换视图展开或折叠状态（平滑动画）
-     *
-     * @param isExpanded 是否切换为展开状态
-     * @param view       需要执行动画的视图
-     */
-    public static void switchViewFoldOrExpanded(boolean isExpanded, @NonNull View view) {
-        //目标状态与当前状态相同则不执行动画
-        int originVisibility = view.getVisibility();
-        if (originVisibility == View.GONE && !isExpanded) {
-            return;
-        } else if (originVisibility == View.VISIBLE && isExpanded) {
-            return;
-        }
-
-        //测量视图
-        int widthSpec = View.MeasureSpec.makeMeasureSpec(((View) view.getParent()).getWidth(), View.MeasureSpec.AT_MOST);
-        int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-        view.measure(widthSpec, heightSpec);
-
-        //执行动画
-        view.post(() -> {
-            int layout_height = view.getMeasuredHeight();   //获得测量的高度
-            if (isExpanded) {
-                view.setVisibility(View.VISIBLE);
-                AnimationHelper.animateHeight(view, 0, layout_height, null);
-            } else {
-                AnimationHelper.animateHeight(view, layout_height, 0, () -> view.setVisibility(View.GONE));
-            }
-        });
     }
 }
