@@ -80,14 +80,17 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
         holder.proportionBar.setProgress(percentage);             //百分比进度条
 
         //设置点击监听
+        StrikeThroughAnimator strikeThroughAnimator = new StrikeThroughAnimator(
+                holder.sourceNameText,
+                holder.itemView.getContext()
+        );
         holder.itemView.setOnClickListener(v -> {
             holder.isExcepted = !holder.isExcepted;
             listener.onClicked(info, holder.isExcepted);
 
             //添加/删除删除线
-            MaterialTextView textView = holder.sourceNameText;
-            StrikeThroughAnimator.applyStrikeAnimation(textView, holder.isExcepted);
-            StrikeThroughAnimator.setExcluded(textView, holder.isExcepted);
+            strikeThroughAnimator.applyStrikeAnimation(holder.isExcepted);
+            strikeThroughAnimator.setExcluded(holder.isExcepted);
         });
     }
 

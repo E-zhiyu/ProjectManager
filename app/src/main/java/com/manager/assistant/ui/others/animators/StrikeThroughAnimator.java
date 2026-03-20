@@ -2,8 +2,8 @@ package com.manager.assistant.ui.others.animators;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
+import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
@@ -15,26 +15,37 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.manager.assistant.helpers.resourse.ColorHelper;
+
 public class StrikeThroughAnimator {
 
     private static final int TAG_DRAWABLE = 0x7F0B0001; //Drawable的标识符
     private static final int TAG_ANIMATOR = 0x7F0B0002; //动画执行器的标识符
+    private final int COLOR_DISABLE;                    //表示失效的颜色
+    private final TextView target;                      //目标文本视图
+    private final int originColor;                      //原本的文本颜色
+
+    public StrikeThroughAnimator(@NonNull TextView target, Context context) {
+        this.target = target;
+        originColor = target.getCurrentTextColor();
+
+        COLOR_DISABLE = ColorHelper.getAttrColor(context, com.google.android.material.R.attr.colorOutline);
+    }
 
     /**
      * 应用删除线动画
      *
-     * @param textView 需要应用动画的文本视图
-     * @param strike   最终状态是否为有删除线的状态
+     * @param strike 最终状态是否为有删除线的状态
      */
-    public static void applyStrikeAnimation(@NonNull TextView textView, boolean strike) {
-        View parent = (View) textView.getParent();
+    public void applyStrikeAnimation(boolean strike) {
+        View parent = (View) target.getParent();
         if (parent == null) return;
 
         // 获取或创建 drawable
-        StrikeDrawable drawable = (StrikeDrawable) textView.getTag(TAG_DRAWABLE);
+        StrikeDrawable drawable = (StrikeDrawable) target.getTag(TAG_DRAWABLE);
         if (drawable == null) {
-            drawable = new StrikeDrawable(textView);
-            textView.setTag(TAG_DRAWABLE, drawable);
+            drawable = new StrikeDrawable(target);
+            target.setTag(TAG_DRAWABLE, drawable);
         }
 
         if (drawable.getCallback() == null) {
@@ -42,18 +53,18 @@ public class StrikeThroughAnimator {
         }
 
         // 取消旧动画
-        ValueAnimator oldAnimator = (ValueAnimator) textView.getTag(TAG_ANIMATOR);
+        ValueAnimator oldAnimator = (ValueAnimator) target.getTag(TAG_ANIMATOR);
         if (oldAnimator != null) {
             oldAnimator.cancel();
         }
 
         // 从“当前进度”开始动画（防止跳变）
         float current = drawable.getProgress();
-        float target = strike ? 1f : 0f;
+        float targetProcess = strike ? 1f : 0f;
 
-        if (current == target) return;
+        if (current == targetProcess) return;
 
-        ValueAnimator animator = ValueAnimator.ofFloat(current, target);
+        ValueAnimator animator = ValueAnimator.ofFloat(current, targetProcess);
         animator.setDuration(250);
 
         StrikeDrawable finalDrawable = drawable;
@@ -66,28 +77,26 @@ public class StrikeThroughAnimator {
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                textView.setTag(TAG_ANIMATOR, null);
+                target.setTag(TAG_ANIMATOR, null);
             }
         });
 
         //开始动画
-        textView.setTag(TAG_ANIMATOR, animator);
+        target.setTag(TAG_ANIMATOR, animator);
         animator.start();
     }
 
-    // ================= Drawable =================
-
-    private static class StrikeDrawable extends Drawable {
+    private class StrikeDrawable extends Drawable {
 
         private final TextView textView;    //覆盖在文本视图表面的删除线Drawable
-        private final Paint paint;
+        private final Paint paint;          //画笔实例
         private float progress = 0f;        //过程占比（0~1）
 
         public StrikeDrawable(@NonNull TextView textView) {
             this.textView = textView;
 
             paint = new Paint();
-            paint.setColor(textView.getCurrentTextColor());
+            paint.setColor(COLOR_DISABLE);
             paint.setStrokeWidth(4f);
             paint.setAntiAlias(true);
         }
@@ -138,17 +147,16 @@ public class StrikeThroughAnimator {
     /**
      * 设置文本颜色
      *
-     * @param tv       需要设置颜色的文本视图
      * @param excluded true:文本被排除，为灰色;false:文本未排除，为黑色
      */
-    public static void setExcluded(TextView tv, boolean excluded) {
-        applyStrikeAnimation(tv, excluded);
+    public void setExcluded(boolean excluded) {
+        applyStrikeAnimation(excluded);
 
-        tv.animate()
+        target.animate()
                 .alpha(excluded ? 0.5f : 1f)
                 .setDuration(200)
                 .start();
 
-        tv.setTextColor(excluded ? Color.GRAY : Color.BLACK);
+        target.setTextColor(excluded ? COLOR_DISABLE : originColor);
     }
 }
