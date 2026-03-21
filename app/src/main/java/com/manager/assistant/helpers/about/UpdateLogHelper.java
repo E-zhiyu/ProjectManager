@@ -14,6 +14,8 @@ public class UpdateLogHelper {
     private static final String update_log_md = "# v1.8.4  \n" +
             "**BUG修复**  \n" +
             "- 修复报表界面删除线动画快结束时会卡顿一下的BUG  \n\n" +
+            "**修改内容**  \n" +
+            "- 报表统计界面支持自定义日期范围  \n\n" +
             "# v1.8.3  \n" +
             "**修改内容**  \n" +
             "- 优化报表界面的动画效果  \n" +

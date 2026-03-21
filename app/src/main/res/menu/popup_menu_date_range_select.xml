@@ -11,4 +11,7 @@
     <item
         android:id="@+id/action_this_year"
         android:title="@string/this_year" />
+    <item
+        android:id="@+id/action_custom"
+        android:title="@string/custom" />
 </menu>

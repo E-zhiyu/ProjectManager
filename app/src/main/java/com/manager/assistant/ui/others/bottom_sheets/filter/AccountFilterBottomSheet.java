@@ -279,14 +279,14 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
                 )
                 .build();
         dateRangePicker.addOnPositiveButtonClickListener(selection -> {
-            long first_selection = selection.first;
-            LocalDate startDate = Instant.ofEpochMilli(first_selection)
+            long firstSelection = selection.first;
+            LocalDate startDate = Instant.ofEpochMilli(firstSelection)
                     .atZone(ZoneOffset.UTC)
                     .toLocalDate();
             setting.setStartDate(startDate);
 
-            long second_selection = selection.second;
-            LocalDate endDate = Instant.ofEpochMilli(second_selection)
+            long secondSelection = selection.second;
+            LocalDate endDate = Instant.ofEpochMilli(secondSelection)
                     .atZone(ZoneOffset.UTC)
                     .toLocalDate();
             setting.setEndDate(endDate);

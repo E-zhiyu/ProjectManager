@@ -45,10 +45,10 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class BookKeepingFragment extends Fragment {
-    private AccountAdapter accountAdapter;                          //流水列表适配器
+    private AccountAdapter accountAdapter;                  //流水列表适配器
     private ActivityResultLauncher<Intent> accountAddLauncher, accountModifyLauncher;   //子活动启动器
-    private int account_count;                                              //流水记录数量
-    private FragmentBookkeepingBinding binding;                             //绑定的XML视图
+    private int accountCount;                               //流水记录数量
+    private FragmentBookkeepingBinding binding;             //绑定的XML视图
     private AccountUpdatedReceiver accountUpdatedReceiver;  //流水数据更新的广播接收器
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
     private AccountFilterBottomSheet.FilterSetting filterSetting = new AccountFilterBottomSheet.FilterSetting();    //过滤器设置
@@ -71,7 +71,7 @@ public class BookKeepingFragment extends Fragment {
                     AccountUpdateReason reason = viewModel.getUpdateReason();
                     switch (reason) {
                         case CLEAR:
-                            account_count = 0;
+                            accountCount = 0;
                             refreshAccountNumText();
                             accountAdapter.refreshRunningAccount(new ArrayList<>());
                             break;
@@ -233,7 +233,7 @@ public class BookKeepingFragment extends Fragment {
         binding.accountRecycler.scrollToPosition(0);
         Toast.makeText(requireContext(), "成功添加一条流水记录（自动记账）", Toast.LENGTH_SHORT).show();
 
-        account_count++;
+        accountCount++;
         refreshAccountNumText();
     }
 
@@ -255,7 +255,7 @@ public class BookKeepingFragment extends Fragment {
         Toast.makeText(requireContext(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
 
         //更新记录数量
-        account_count++;
+        accountCount++;
         refreshAccountNumText();
     }
 
@@ -293,7 +293,7 @@ public class BookKeepingFragment extends Fragment {
         Toast.makeText(requireContext(), "流水记录已删除", Toast.LENGTH_SHORT).show();
 
         //更新流水记录数量文本
-        account_count--;
+        accountCount--;
         refreshAccountNumText();
     }
 
@@ -302,7 +302,7 @@ public class BookKeepingFragment extends Fragment {
      */
     private void refreshAccountNumText() {
         MaterialTextView accountNumText = binding.accountNumText;
-        accountNumText.setText(String.format(Locale.getDefault(), "显示数量：%d", account_count));
+        accountNumText.setText(String.format(Locale.getDefault(), "显示数量：%d", accountCount));
     }
 
     /**
@@ -317,7 +317,7 @@ public class BookKeepingFragment extends Fragment {
                         .subscribe(
                                 refreshedAccount -> {
                                     accountAdapter.refreshRunningAccount(refreshedAccount);
-                                    account_count = refreshedAccount.size();
+                                    accountCount = refreshedAccount.size();
                                     refreshAccountNumText();
                                 },  //成功回调
                                 e -> ExceptionHelper.showExceptionDialog(requireContext(), e),  //错误处理

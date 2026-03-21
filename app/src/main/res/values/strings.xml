@@ -154,4 +154,6 @@
     <string name="left_amount">剩余金额</string>
     <string name="reset_frequency">重置频率</string>
     <string name="budget_reset_description">预算重置按钮</string>
+    <string name="custom">自定义</string>
+    <string name="select_date">选择日期</string>
 </resources>
