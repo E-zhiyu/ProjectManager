@@ -11,7 +11,10 @@ import com.manager.assistant.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.8.3  \n" +
+    private static final String update_log_md = "# v1.8.4  \n" +
+            "**BUG修复**  \n" +
+            "- 修复报表界面删除线动画快结束时会卡顿一下的BUG  \n\n" +
+            "# v1.8.3  \n" +
             "**修改内容**  \n" +
             "- 优化报表界面的动画效果  \n" +
             "- 优化视图的折叠和展开动画，现在快速折叠或展开也能正确打断动画了  \n" +

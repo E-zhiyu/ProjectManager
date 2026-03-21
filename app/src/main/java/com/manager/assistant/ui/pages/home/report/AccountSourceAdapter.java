@@ -90,7 +90,6 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
             listener.onClicked(info, holder.isExcepted);
 
             //添加/删除删除线
-            strikeThroughAnimator.applyStrikeAnimation(holder.isExcepted);
             strikeThroughAnimator.setExcluded(holder.isExcepted);
         });
     }
