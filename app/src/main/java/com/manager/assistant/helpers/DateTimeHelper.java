@@ -9,14 +9,26 @@ import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.helpers.resourse.ResHelper;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 public class DateTimeHelper {
+    public interface OnTimePickerPositiveBtnClickedListener {
+        /**
+         * 时间选择对话框确认按钮的点击回调
+         *
+         * @param timePicker 时间选择对话框
+         */
+        void onClicked(MaterialTimePicker timePicker);
+    }
+
     /**
      * 选择日期范围
      *
@@ -104,7 +116,40 @@ public class DateTimeHelper {
     }
 
     /**
-     * 将日期选择对话框的时间戳转换为日期
+     * 选择日期和时间
+     *
+     * @param dateTime        初始化的日期和时间
+     * @param fragmentManager 显示对话框所需的FragmentManager
+     */
+    public static void selectDateTime(
+            LocalDateTime dateTime,
+            FragmentManager fragmentManager,
+            OnTimePickerPositiveBtnClickedListener listener
+    ) {
+        //创建时间选择器
+        MaterialTimePicker.Builder timeBuilder = new MaterialTimePicker.Builder();
+        timeBuilder.setTimeFormat(TimeFormat.CLOCK_24H);    //24小时制
+        timeBuilder.setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK);  //默认使用时钟输入模式而不是键盘
+        timeBuilder.setTitleText("选择时间");
+
+        //初始化选择的时间
+        if (dateTime != null) {
+            int initHour = dateTime.getHour();                  //获取小时
+            timeBuilder.setHour(initHour);
+            int initMinute = dateTime.getMinute();              //获取分钟
+            timeBuilder.setMinute(initMinute);
+        }
+
+        //设置回调
+        MaterialTimePicker timePicker = timeBuilder.build();
+        timePicker.addOnPositiveButtonClickListener(v -> listener.onClicked(timePicker));
+
+        //显示时间选择器
+        timePicker.show(fragmentManager, TagString.TIME_PICKER.getValue());
+    }
+
+    /**
+     * 将日期选择对话框的时间戳转换为日期（UTC时区)
      *
      * @param timeMilli 时间戳
      * @return 该时间戳对应的日期
@@ -113,5 +158,17 @@ public class DateTimeHelper {
         return Instant.ofEpochMilli(timeMilli)
                 .atZone(ZoneOffset.UTC)
                 .toLocalDate();
+    }
+
+    /**
+     * 将日期选择对话框的时间戳转换为时间（UTC时区)
+     *
+     * @param timeMilli 时间戳
+     * @return 该时间戳对应的时间
+     */
+    public static LocalDateTime getLocalDateTimeFromTimeMilli(long timeMilli) {
+        return Instant.ofEpochMilli(timeMilli)
+                .atZone(ZoneOffset.UTC)
+                .toLocalDateTime();
     }
 }

@@ -23,20 +23,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.datepicker.CalendarConstraints;
-import com.google.android.material.datepicker.DateValidatorPointBackward;
-import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.loadingindicator.LoadingIndicator;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.android.material.timepicker.MaterialTimePicker;
-import com.google.android.material.timepicker.TimeFormat;
 import com.manager.assistant.data.classes.Picture;
 import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.generic_enums.DirectoryPaths;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.generic_enums.TagString;
+import com.manager.assistant.helpers.DateTimeHelper;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.sync.picture.AccountPictureViewModel;
@@ -51,10 +47,8 @@ import com.manager.assistant.ui.pages.picture.PictureAdapter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -288,41 +282,23 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
      * 弹出日期和时间选择框
      */
     protected void showMaterialDatePicker() {
-        //创建日期选择器
-        MaterialDatePicker.Builder<Long> dateBuilder = MaterialDatePicker.Builder.datePicker();
-        dateBuilder.setTitleText("选择日期");
-
-        //初始化日期格式化器
+        //解析已输入的时间
         String datetimeStr = String.valueOf(datetimeInput.getText());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime inputDatetime = LocalDateTime.parse(datetimeStr, formatter);
-
-        //获取时间戳供日期选择对话框初始化
         LocalDate date = inputDatetime.toLocalDate();
-        long dateSelection = date.atStartOfDay(ZoneOffset.UTC) //MaterialDateTimePicker使用UTC时区
-                .toInstant()
-                .toEpochMilli();
 
-        //显示日期选择器
-        MaterialDatePicker<Long> datePicker = dateBuilder
-                .setSelection(dateSelection)    //默认选中输入的日期
-                .setCalendarConstraints(
-                        new CalendarConstraints.Builder()
-                                .setValidator(DateValidatorPointBackward.now()) //限制为过去日期
-                                .build()
-                )
-                .build();
-        datePicker.show(getParentFragmentManager(), TagString.DATE_PICKER.getValue());
+        //显示日期选择对话框
+        DateTimeHelper.selectDate(
+                date, getParentFragmentManager(),
+                selection -> {
+                    //时间戳转换为LocalDateTime
+                    LocalDateTime selectedDatetime = DateTimeHelper.getLocalDateTimeFromTimeMilli(selection);
 
-        datePicker.addOnPositiveButtonClickListener(selection -> {
-            //时间戳转换为LocalDateTime
-            LocalDateTime selectedDatetime = Instant.ofEpochMilli(selection)
-                    .atZone(ZoneOffset.UTC)
-                    .toLocalDateTime();
-
-            //选择日期后，再弹出时间选择器
-            showMaterialTimePicker(selectedDatetime, inputDatetime);
-        });
+                    //选择日期后，再弹出时间选择器
+                    showMaterialTimePicker(selectedDatetime, inputDatetime);
+                }
+        );
     }
 
     /**
@@ -332,31 +308,20 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
      * @param initialDatetime  初始化日期
      */
     protected void showMaterialTimePicker(@NonNull LocalDateTime selectedDatetime, @NonNull LocalDateTime initialDatetime) {
-        //创建时间选择器
-        MaterialTimePicker.Builder timeBuilder = new MaterialTimePicker.Builder();
-        timeBuilder.setTimeFormat(TimeFormat.CLOCK_24H);    //24小时制
-        int init_hour = initialDatetime.getHour();          //获取小时
-        timeBuilder.setHour(init_hour);
-        int init_minute = initialDatetime.getMinute();      //获取分钟
-        timeBuilder.setMinute(init_minute);
-        timeBuilder.setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK);  //默认使用时钟输入模式而不是键盘
-        timeBuilder.setTitleText("选择时间");
+        DateTimeHelper.selectDateTime(
+                initialDatetime,
+                getParentFragmentManager(),
+                timePicker -> {
+                    //组合日期和时间
+                    int hour = timePicker.getHour();
+                    int minute = timePicker.getMinute();
+                    LocalDateTime finalDatetime = selectedDatetime.withHour(hour).withMinute(minute);
 
-        //显示时间选择器
-        MaterialTimePicker timePicker = timeBuilder.build();
-        timePicker.show(getParentFragmentManager(), TagString.TIME_PICKER.getValue());
-
-        //监听选择结果
-        timePicker.addOnPositiveButtonClickListener(view -> {
-            //组合日期和时间
-            int hour = timePicker.getHour();
-            int minute = timePicker.getMinute();
-            LocalDateTime finalDatetime = selectedDatetime.withHour(hour).withMinute(minute);
-
-            //修改文本框的日期和时间
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            datetimeInput.setText(formatter.format(finalDatetime));
-        });
+                    //修改文本框的日期和时间
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                    datetimeInput.setText(formatter.format(finalDatetime));
+                }
+        );
     }
 
     /**
