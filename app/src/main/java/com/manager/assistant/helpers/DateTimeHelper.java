@@ -53,7 +53,7 @@ public class DateTimeHelper {
             long startTimeMilli = start.atStartOfDay()
                     .toInstant(ZoneOffset.UTC)
                     .toEpochMilli();
-            long endTimeMilli = start.atStartOfDay()
+            long endTimeMilli = end.atStartOfDay()
                     .toInstant(ZoneOffset.UTC)
                     .toEpochMilli();
             dateBuilder.setSelection(new Pair<>(startTimeMilli, endTimeMilli));

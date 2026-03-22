@@ -663,7 +663,7 @@ public class ReportActivity extends AppCompatActivity {
 
         monthAccountInfoTypeMenu.setOnMenuItemClickListener(item -> {
             boolean itemClicked = false;    //是否点击了选项
-            MonthAccountInfoType old_type = monthAccountInfoType;   //用于比较两次选择是否相同
+            MonthAccountInfoType oldType = monthAccountInfoType;    //用于比较两次选择是否相同
             if (item.getItemId() == R.id.action_balance) {
                 monthAccountInfoType = MonthAccountInfoType.BALANCE;
                 binding.monthAccountTypeLeadingBtn.setText(R.string.balance);
@@ -681,7 +681,7 @@ public class ReportActivity extends AppCompatActivity {
                 Toast.makeText(this, "提示：统计结果包含起止日期", Toast.LENGTH_SHORT).show();
             }
 
-            if (itemClicked && old_type != monthAccountInfoType) {
+            if (itemClicked && oldType != monthAccountInfoType) {
                 List<ReportRunningAccountData> dataList = loadReportData(DateRangeType.THIS_YEAR);
                 updateMonthAccountData(dataList);
                 refreshMonthAccountInfoViews();
