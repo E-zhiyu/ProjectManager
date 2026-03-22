@@ -11,4 +11,5 @@ public enum BroadcastActions {
     ACTION_INPUT_REMARK,                            //自动记账通知中输入备注
     ACTION_KEEP,                                    //保留自动记账产生的流水记录
     ACTION_DELETE,                                  //删除自动记账产生的流水记录
+    ACTION_NOTIFICATION_DELETED,                    //应用通知被删除
 }

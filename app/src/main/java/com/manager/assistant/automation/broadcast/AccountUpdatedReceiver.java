@@ -7,6 +7,9 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
+import com.manager.assistant.data.classes.running_account.RunningAccountBase;
+import com.manager.assistant.generic_enums.KeyValueStrings;
+
 /**
  * 自动记账成功添加流水记录的广播接收器
  */
@@ -33,6 +36,10 @@ public class AccountUpdatedReceiver extends BroadcastReceiver {
         if (dataBundle == null) {
             return;
         }
+
+        //将数据写入数据库
+        long rno = RunningAccountBase.saveNewAccount(dataBundle, context);
+        dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
 
         //通过接口回调更新UI
         if (BroadcastActions.ACTION_RUNNING_ACCOUNT_UPDATED.toString().equals(action)) {

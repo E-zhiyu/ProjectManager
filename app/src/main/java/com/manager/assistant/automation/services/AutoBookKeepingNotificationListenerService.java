@@ -26,7 +26,6 @@ import com.manager.assistant.automation.broadcast.BroadcastActions;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.data.classes.AnalysisRule;
-import com.manager.assistant.data.classes.running_account.RunningAccountBase;
 import com.manager.assistant.generic_enums.NotificationID;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.NotificationHelper;
@@ -122,7 +121,6 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
 
         //启动时则加载规则
         try {
-//            ruleList = AnalysisRule.loadAnalysisRule(getApplicationContext());
             ruleHashMap.putAll(loadRulesInHashMap());
         } catch (SQLiteException e) {
             Toast.makeText(getApplicationContext(), "通知监听服务无法加载解析规则", Toast.LENGTH_SHORT).show();
@@ -233,12 +231,8 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                         continue;
                     }
 
-                    //发送流水账记录增加的广播
-                    if (dataBundle != null) {
-                        Intent accountAdded = new Intent(BroadcastActions.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
-                        accountAdded.putExtras(dataBundle);
-                        getApplicationContext().sendBroadcast(accountAdded);
-                    }
+                    //发送确认自动记账的通知，在通知中决定保留还是删除
+                    sendNotificationToConfirm(dataBundle, ruleName, getApplicationContext());
                 } else {
                     Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "正则表达式不匹配");
                 }
@@ -343,12 +337,6 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
             }
         }
 
-        long rno = RunningAccountBase.saveNewAccount(dataBundle, getApplicationContext());
-        dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
-
-        //发送确认自动记账的通知
-        sendNotificationToConfirm(rno, ruleName, getApplicationContext());
-
         return dataBundle;
     }
 
@@ -390,15 +378,15 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
     /**
      * 发送通知以提醒用户确认
      *
-     * @param rno      新增的流水记录编号
-     * @param ruleName 触发自动记账的规则名称
-     * @param context  上下文
+     * @param dataBundle 自动生成的账单的数据包
+     * @param ruleName   触发自动记账的规则名称
+     * @param context    上下文
      */
-    private void sendNotificationToConfirm(long rno, String ruleName, Context context) {
+    private void sendNotificationToConfirm(Bundle dataBundle, String ruleName, Context context) {
         //创建保留Action
         NotificationCompat.Action keepAction = createAction(
                 context,
-                rno,
+                dataBundle,
                 ruleName,
                 BroadcastActions.ACTION_KEEP.toString(),
                 "保留",
@@ -412,7 +400,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                 .build();
         NotificationCompat.Action remarkInputAction = createAction(
                 context,
-                rno,
+                dataBundle,
                 ruleName,
                 BroadcastActions.ACTION_INPUT_REMARK.toString(),
                 "备注并保留",
@@ -423,12 +411,29 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         //创建删除Action
         NotificationCompat.Action deleteAction = createAction(
                 context,
-                rno,
+                dataBundle,
                 ruleName,
                 BroadcastActions.ACTION_DELETE.toString(),
                 "删除",
                 RequestResultCode.REQUEST_DELETE.ordinal(),
                 null
+        );
+
+        //创建通知被删除的PendingIntent
+        Intent notificationDeletedIntent = new Intent(context, AutoBookkeepingActionsReceiver.class);
+        notificationDeletedIntent.setAction(BroadcastActions.ACTION_NOTIFICATION_DELETED.toString());
+        int notificationDeletedID = dataBundle.hashCode();
+        notificationDeletedIntent.putExtra(
+                KeyValueStrings.NOTIFICATION_ID.getValue(),
+                notificationDeletedID
+        );
+        notificationDeletedIntent.putExtras(dataBundle);                                               //发送流水记录数据包
+        notificationDeletedIntent.putExtra(KeyValueStrings.ANALYSIS_RULE_NAME.getValue(), ruleName);   //发送规则名称
+        PendingIntent deletePendingIntent = PendingIntent.getBroadcast(
+                context,
+                notificationDeletedID,  //直接使用Bundle的哈希值
+                notificationDeletedIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
         //创建通知构建器
@@ -441,12 +446,14 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_CALL)
                 .setAutoCancel(true)
-                .addAction(keepAction)
-                .addAction(remarkInputAction)
-                .addAction(deleteAction);
+                .addAction(keepAction)                  //点击保留按钮
+                .addAction(remarkInputAction)           //点击更改备注按钮
+                .addAction(deleteAction)                //点击删除按钮
+                .setDeleteIntent(deletePendingIntent);  //通知被划走
 
         //发送通知
-        int notificationID = NotificationID.AUTO_BOOKKEEPING_CONFIRM.ordinal() + (int) rno * 10;
+        int dataHash = dataBundle.hashCode();
+        int notificationID = NotificationID.AUTO_BOOKKEEPING_CONFIRM.ordinal() + dataHash * 10;
         NotificationHelper.sendNotification(
                 notificationID, //确保多个记录的通知ID不同
                 builder,
@@ -458,9 +465,9 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
      * 创建用于处理自动记账流水记录的通知Action（即通知按钮）
      *
      * @param context     上下文
-     * @param rno         通过自动记账创建的流水记录编号
+     * @param dataBundle  自动生成的账单的数据包
      * @param ruleName    触发自动记账的规则名称
-     * @param actionID    {@link Intent}的action标识符，用于区别不同的操作
+     * @param actionID    {@link Intent}的action标识符，用于区别不同的操作，可使用{@link BroadcastActions}中的枚举对象的.toString()方法
      * @param title       按钮的文本
      * @param requestCode PendingIntent的唯一请求代码
      * @param remoteInput 通知输入框（不需要输入框可以为null）
@@ -469,7 +476,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
     @NonNull
     private NotificationCompat.Action createAction(
             Context context,
-            long rno,
+            @NonNull Bundle dataBundle,
             String ruleName,
             String actionID,
             String title,
@@ -479,13 +486,16 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         //创建Intent
         Intent intent = new Intent(context, AutoBookkeepingActionsReceiver.class);
         intent.setAction(actionID);
-        intent.putExtra(KeyValueStrings.RNO.getValue(), rno);   //发送流水编号
+        int notificationID = NotificationID.AUTO_BOOKKEEPING_CONFIRM.ordinal() + dataBundle.hashCode() * 10;
+        intent.putExtra(KeyValueStrings.NOTIFICATION_ID.getValue(), notificationID);
+        intent.putExtras(dataBundle);                                               //发送流水记录数据包
         intent.putExtra(KeyValueStrings.ANALYSIS_RULE_NAME.getValue(), ruleName);   //发送规则名称
 
         //创建PendingIntent
+        int dataHash = dataBundle.hashCode();
         PendingIntent pi = PendingIntent.getBroadcast(
                 context,
-                (int) rno * 10 + requestCode,   //为了区分不同流水记录和不同的Action，必须将两个变量整合到一起作为唯一标识符
+                dataHash * 10 + requestCode,    //为了区分不同流水记录和不同的Action，必须将两个变量整合到一起作为唯一标识符
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE
         );
