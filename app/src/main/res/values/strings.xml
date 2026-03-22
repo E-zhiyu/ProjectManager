@@ -156,4 +156,5 @@
     <string name="budget_reset_description">预算重置按钮</string>
     <string name="custom">自定义</string>
     <string name="select_date">选择日期</string>
+    <string name="backend_popup">后台弹窗</string>
 </resources>

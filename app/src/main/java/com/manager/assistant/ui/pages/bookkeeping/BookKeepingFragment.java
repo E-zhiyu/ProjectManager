@@ -19,7 +19,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.TagString;
-import com.manager.assistant.automation.broadcast.BroadcastConstants;
+import com.manager.assistant.automation.broadcast.BroadcastActions;
 import com.manager.assistant.automation.broadcast.AccountUpdatedReceiver;
 import com.manager.assistant.data.classes.running_account.RunningAccountBase;
 import com.manager.assistant.data.classes.running_account.TransferRunningAccount;
@@ -215,7 +215,7 @@ public class BookKeepingFragment extends Fragment {
     private void setupBroadcastReceiver() {
         accountUpdatedReceiver = new AccountUpdatedReceiver(this::onNewAccountAdded);
         IntentFilter filter = new IntentFilter();
-        filter.addAction(BroadcastConstants.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
+        filter.addAction(BroadcastActions.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             requireContext().registerReceiver(accountUpdatedReceiver, filter, Context.RECEIVER_EXPORTED);
         } else {
@@ -228,8 +228,8 @@ public class BookKeepingFragment extends Fragment {
      *
      * @param dataBundle 新增流水记录的数据
      */
-    private void onNewAccountAdded(@NonNull Bundle dataBundle) {
-        accountAdapter.addNewRunningAccountByNotification(dataBundle, requireActivity(), requireContext());
+    private void onNewAccountAdded(Bundle dataBundle) {
+        accountAdapter.addNewRunningAccountAutomatically(dataBundle, requireActivity(), requireContext());
         binding.accountRecycler.scrollToPosition(0);
         Toast.makeText(requireContext(), "成功添加一条流水记录（自动记账）", Toast.LENGTH_SHORT).show();
 

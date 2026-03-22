@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.shape.Shapeable;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
-import com.manager.assistant.automation.broadcast.BroadcastConstants;
+import com.manager.assistant.automation.broadcast.BroadcastActions;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.data.classes.AnalysisRule;
@@ -204,7 +204,7 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
      * @param context 上下文
      */
     private void sendRuleUpdatedBroadcast(@NonNull Context context) {
-        Intent ruleUpdated = new Intent(BroadcastConstants.ACTION_RULES_UPDATED.toString());
+        Intent ruleUpdated = new Intent(BroadcastActions.ACTION_RULES_UPDATED.toString());
         context.sendBroadcast(ruleUpdated);
     }
 }

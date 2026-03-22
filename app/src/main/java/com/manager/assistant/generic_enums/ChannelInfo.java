@@ -8,6 +8,12 @@ public enum ChannelInfo {
             "预算提醒",
             "当预算余额过低时发送通知提醒",
             NotificationManager.IMPORTANCE_HIGH
+    ),
+    AUTO_BOOKKEEPING(
+            "auto_bookkeeping_channel",
+            "自动记账",
+            "触发自动记账后发送用于确认或修改信息的通知",
+            NotificationManager.IMPORTANCE_HIGH
     );
 
     private final String id;            //通道标识符

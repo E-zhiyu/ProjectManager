@@ -376,6 +376,30 @@ public abstract class RunningAccountBase {
     }
 
     /**
+     * 更新备注
+     *
+     * @param remark  新备注
+     * @param rno     需要更新备注的流水编号
+     * @param context 上下文
+     * @throws SQLiteException 数据写入失败引发的异常
+     */
+    public static void updateRemark(String remark, long rno, Context context) throws SQLiteException {
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
+        SQLiteDatabase db = dbHelper.openWriteLink();
+
+        ContentValues basicValues = new ContentValues();
+        basicValues.put(Columns.REMARK.toString(), remark);
+
+        String where = Columns.RNO + "=?";
+        String[] whereArgs = {
+                String.valueOf(rno)
+        };
+        db.update(Tables.BASIC.toString(), basicValues, where, whereArgs);
+
+        db.close();
+    }
+
+    /**
      * 删除流水记录
      *
      * @param rno     待删除的流水编号

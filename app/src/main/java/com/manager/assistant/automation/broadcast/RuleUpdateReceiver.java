@@ -35,13 +35,13 @@ public class RuleUpdateReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, @NonNull Intent intent) {
         String action = intent.getAction();
-        if (BroadcastConstants.ACTION_RULES_UPDATED.toString().equals(action)) {
+        if (BroadcastActions.ACTION_RULES_UPDATED.toString().equals(action)) {
             Log.d(LogTags.RULE_UPDATE_RECEIVER.getV(), "接收广播：规则更新");
 
             if (listener != null) {
                 listener.onRuleUpdated();
             }
-        } else if (BroadcastConstants.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString().equals(action)) {
+        } else if (BroadcastActions.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString().equals(action)) {
             Log.d(LogTags.RULE_UPDATE_RECEIVER.getV(), "接收广播：通知解析开关状态变化");
 
             if (listener != null) {

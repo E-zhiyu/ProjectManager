@@ -28,7 +28,7 @@ import com.manager.assistant.data.io.helpers.BudgetDataHelper;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.R;
-import com.manager.assistant.automation.broadcast.BroadcastConstants;
+import com.manager.assistant.automation.broadcast.BroadcastActions;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.preference.AutoBackupPreference;
 import com.manager.assistant.data.save.preference.KeepAlivePreference;
@@ -940,7 +940,7 @@ public class SettingFragment extends Fragment {
                     .show();
         } else {
             //发送功能开关变更广播
-            Intent functionSwitched = new Intent(BroadcastConstants.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString());
+            Intent functionSwitched = new Intent(BroadcastActions.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString());
             requireContext().sendBroadcast(functionSwitched);
 
             if (isChecked) {

@@ -196,7 +196,7 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
      * @param owner      ViewModel提供者
      * @param context    上下文
      */
-    public void addNewRunningAccountByNotification(
+    public void addNewRunningAccountAutomatically(
             @NonNull Bundle dataBundle,
             ViewModelStoreOwner owner,
             Context context

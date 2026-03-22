@@ -29,9 +29,15 @@ public class AccountUpdatedReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, @NonNull Intent intent) {
         String action = intent.getAction();
-        if (BroadcastConstants.ACTION_RUNNING_ACCOUNT_UPDATED.toString().equals(action)) {
+        Bundle dataBundle = intent.getExtras();
+        if (dataBundle == null) {
+            return;
+        }
+
+        //通过接口回调更新UI
+        if (BroadcastActions.ACTION_RUNNING_ACCOUNT_UPDATED.toString().equals(action)) {
             if (listener != null) {
-                listener.onAccountAdded(intent.getExtras());
+                listener.onAccountAdded(dataBundle);
             }
         }
     }
