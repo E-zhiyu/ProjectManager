@@ -198,7 +198,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                 String content = value.getContent();
                 String ruleName = value.getRuleName();
                 RunningAccountType type = value.getType();
-                long rule_no = value.getRule_no();
+                long ruleNo = value.getRule_no();
 
                 Matcher matcher;                                        //通知内容匹配器
                 try {
@@ -223,9 +223,9 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                     Bundle dataBundle;
                     try {
                         //获取标签编号
-                        long tag_no = Tag.getTagByRuleNo(rule_no, getApplicationContext()).getTno();
+                        long tagNo = Tag.getTagByRuleNo(ruleNo, getApplicationContext()).getTno();
 
-                        dataBundle = getNewAccountData(matcher, type, tag_no, ruleName, rule_no);
+                        dataBundle = getNewAccountData(matcher, type, tagNo, ruleName, ruleNo);
                         Log.i(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据保存成功");
                     } catch (SQLiteException e) {
                         Log.e(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据保存失败或标签编号读取失败");
@@ -460,7 +460,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
      * @param context     上下文
      * @param rno         通过自动记账创建的流水记录编号
      * @param ruleName    触发自动记账的规则名称
-     * @param actionID    用于区别各通知按钮的唯一标识符
+     * @param actionID    {@link Intent}的action标识符，用于区别不同的操作
      * @param title       按钮的文本
      * @param requestCode PendingIntent的唯一请求代码
      * @param remoteInput 通知输入框（不需要输入框可以为null）

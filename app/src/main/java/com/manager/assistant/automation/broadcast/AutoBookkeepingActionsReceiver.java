@@ -65,6 +65,7 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
                 .setContentText(content)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_CALL)
+                .setTimeoutAfter(1500)
                 .setAutoCancel(true);
 
         //发送通知
@@ -97,6 +98,7 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
                 .setContentText(content)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_CALL)
+                .setTimeoutAfter(1500)
                 .setAutoCancel(true);
 
         //发送通知
@@ -128,6 +130,7 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
                 .setContentText(content)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_CALL)
+                .setTimeoutAfter(1500)
                 .setAutoCancel(true);
 
         //发送通知
