@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String update_log_md = "# v1.8.4  \n" +
             "**BUG修复**  \n" +
+            "- 修复上个版本自动记账卡片展开折叠逻辑异常的BUG  \n" +
             "- 修复报表界面删除线动画快结束时会卡顿一下的BUG  \n\n" +
             "**修改内容**  \n" +
             "- 报表统计界面支持自定义日期范围  \n\n" +

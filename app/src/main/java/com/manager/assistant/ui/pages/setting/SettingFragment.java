@@ -944,9 +944,9 @@ public class SettingFragment extends Fragment {
             requireContext().sendBroadcast(functionSwitched);
 
             if (isChecked) {
-                ExpandFoldAnimator.expand(binding.autoBookkeepingLayout);
+                ExpandFoldAnimator.expand(binding.ruleManageLayout);
             } else {
-                ExpandFoldAnimator.collapse(binding.autoBookkeepingLayout);
+                ExpandFoldAnimator.collapse(binding.ruleManageLayout);
             }
         }
     }
