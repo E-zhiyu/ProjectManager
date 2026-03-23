@@ -511,8 +511,9 @@ public class Budget {
                     .setContentTitle("预算余额提醒")
                     .setContentText(content.toString())
                     .setContentIntent(pendingIntent)
-                    .setAutoCancel(true)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH);
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setCategory(NotificationCompat.CATEGORY_ALARM)
+                    .setAutoCancel(true);
             NotificationHelper.sendNotification(NotificationID.BUDGET_AMOUNT_WARNING.ordinal(), builder, context);
         }
     }
