@@ -1,4 +1,4 @@
-package com.manager.assistant.automation.broadcast;
+package com.manager.assistant.automation.broadcast.bookkeeping;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
+import com.manager.assistant.automation.broadcast.BroadcastActions;
 import com.manager.assistant.data.classes.running_account.RunningAccountBase;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 

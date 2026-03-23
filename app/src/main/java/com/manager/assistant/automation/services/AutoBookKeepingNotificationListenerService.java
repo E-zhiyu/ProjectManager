@@ -18,7 +18,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
 
 import com.manager.assistant.R;
-import com.manager.assistant.automation.broadcast.AutoBookkeepingActionsReceiver;
+import com.manager.assistant.automation.broadcast.bookkeeping.AutoBookkeepingActionsReceiver;
 import com.manager.assistant.generic_enums.ChannelInfo;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.automation.broadcast.RuleUpdateReceiver;

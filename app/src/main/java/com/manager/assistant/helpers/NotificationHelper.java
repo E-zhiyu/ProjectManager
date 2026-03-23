@@ -58,6 +58,13 @@ public class NotificationHelper {
         channel.setShowBadge(true);
         channel.setDescription(info.getDescription());
 
+        //震动
+        channel.enableVibration(true);
+        channel.setVibrationPattern(new long[]{0, 200, 100, 200});
+
+        //灯光提示
+        channel.enableLights(true);
+
         return channel;
     }
 

@@ -20,7 +20,7 @@ import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.automation.broadcast.BroadcastActions;
-import com.manager.assistant.automation.broadcast.AccountUpdatedReceiver;
+import com.manager.assistant.automation.broadcast.bookkeeping.AccountUpdatedReceiver;
 import com.manager.assistant.data.classes.running_account.RunningAccountBase;
 import com.manager.assistant.data.classes.running_account.TransferRunningAccount;
 import com.manager.assistant.databinding.FragmentBookkeepingBinding;
