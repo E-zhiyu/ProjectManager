@@ -438,7 +438,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
 
         //创建通知构建器
         String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
-        String content = String.format(Locale.getDefault(), "“%s”触发了自动记账", ruleName);
+        String content = String.format(Locale.getDefault(), "“%s”产生了一条流水记录", ruleName);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("自动记账确认")
