@@ -31,7 +31,6 @@ import com.manager.assistant.R;
 import com.manager.assistant.automation.broadcast.BroadcastActions;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.preference.AutoBackupPreference;
-import com.manager.assistant.data.save.preference.KeepAlivePreference;
 import com.manager.assistant.databinding.FragmentSettingBinding;
 import com.manager.assistant.helpers.file.AutoBackupHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
@@ -152,7 +151,6 @@ public class SettingFragment extends Fragment {
         initAppSettings();
         initDataManageSettings();
         initAutoBookkeepingSettings();
-        initBackgroundSettings();
         initAboutSettings();
     }
 
@@ -211,8 +209,8 @@ public class SettingFragment extends Fragment {
                 requireContext().getString(R.string.title_bookkeeping),
                 requireContext().getString(R.string.title_home)
         };
-        int screen_code = AppSettingsPreference.getFirstScreen(requireContext());
-        firstScreenOption.setSpinnerText(firstScreenTitles[screen_code]);
+        int screenCode = AppSettingsPreference.getFirstScreen(requireContext());
+        firstScreenOption.setSpinnerText(firstScreenTitles[screenCode]);
         firstScreenOption.setFunctionListener(v -> {
             PopupMenu firstScreenMenu = new PopupMenu(requireContext(), firstScreenOption.getFunctionComponent());
             firstScreenMenu.getMenuInflater().inflate(R.menu.popup_menu_first_screen, firstScreenMenu.getMenu());
@@ -241,6 +239,19 @@ public class SettingFragment extends Fragment {
             firstScreenMenu.show();
         });
 
+        //权限管理
+        SettingClickableTextView permissionsOption = new SettingClickableTextView(
+                requireContext(),
+                binding.permissionsOption,
+                R.string.permissions_setting,
+                "点击进入权限管理界面",
+                R.drawable.outline_settings_24
+        );
+        permissionsOption.setFunctionListener(v -> {
+            //TODO:跳转权限管理界面
+        });
+
+        //主页链接
         SettingSwitchView homeLinksSwitch = new SettingSwitchView(
                 requireContext(),
                 binding.homeLinksOption,
@@ -487,51 +498,6 @@ public class SettingFragment extends Fragment {
                         })
                         .setNegativeButton("取消", null)
                         .show()
-        );
-    }
-
-    /**
-     * 初始化后台设置选项
-     */
-    private void initBackgroundSettings() {
-        //后台隐藏(最近任务隐藏)
-        SettingSwitchView hideBackgroundOption = new SettingSwitchView(
-                requireContext(),
-                binding.hideBackgroundOption,
-                R.string.hide_background,
-                "在最近任务列表隐藏",
-                R.drawable.outline_visibility_off_24
-        );
-        hideBackgroundOption.setChecked(KeepAlivePreference.getHideRecents(requireContext()));
-        hideBackgroundOption.setFunctionListener(
-                (buttonView, isChecked) -> KeepAlivePreference.setHideRecents(
-                        isChecked,
-                        requireContext()
-                )
-        );
-
-        //自启动
-        SettingClickableTextView autoStartOption = new SettingClickableTextView(
-                requireContext(),
-                binding.autoStartOption,
-                R.string.auto_start_permission,
-                "点击跳转自启动设置界面",
-                R.drawable.outline_autorenew_24
-        );
-        autoStartOption.setFunctionListener(
-                v -> PermissionHelper.requestAutoStartPermission(requireContext())
-        );
-
-        //电池优化
-        SettingClickableTextView batteryOptimizationOption = new SettingClickableTextView(
-                requireContext(),
-                binding.batteryOptimizationOption,
-                R.string.battery_optimization,
-                "跳转至安卓原生电池优化界面",
-                R.drawable.outline_battery_android_frame_3_24
-        );
-        batteryOptimizationOption.setFunctionListener(
-                v -> PermissionHelper.requestIgnoringBatteryOptimizations(requireContext())
         );
     }
 

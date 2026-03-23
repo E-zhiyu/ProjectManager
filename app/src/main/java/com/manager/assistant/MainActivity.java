@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.manager.assistant.data.save.preference.KeepAlivePreference;
 import com.manager.assistant.data.save.preference.VersionPreference;
 import com.manager.assistant.databinding.ActivityMainBinding;
 import com.manager.assistant.helpers.appearence.ThemeModeHelper;
@@ -43,11 +42,7 @@ public class MainActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (KeepAlivePreference.getHideRecents(getBaseContext())) {
-                    finishAndRemoveTask();
-                } else {
-                    finish();
-                }
+                finishAndRemoveTask();
             }
         });
 
