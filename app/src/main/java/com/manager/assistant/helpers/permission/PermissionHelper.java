@@ -1,12 +1,8 @@
-package com.manager.assistant.helpers;
+package com.manager.assistant.helpers.permission;
 
-import android.Manifest;
-import android.app.Activity;
-import android.app.AlarmManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.PowerManager;
@@ -15,66 +11,11 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
-import com.manager.assistant.generic_enums.RequestResultCode;
 
 /**
- * 与应用权限有关的帮助器
+ * 静态权限帮助器
  */
 public class PermissionHelper {
-    /**
-     * 申请通知权限
-     *
-     * @param activity 申请权限的活动界面
-     */
-    public static void requestNotificationPermission(Activity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            activity.requestPermissions(
-                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
-                    RequestResultCode.REQUEST_NOTIFICATION_PERMISSION.ordinal()
-            );
-        }
-    }
-
-    /**
-     * 检查是否有精确闹钟权限
-     */
-    public static boolean hasExactAlarmPermission(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            return alarmManager.canScheduleExactAlarms();
-        }
-        // Android 12 以下不需要特殊权限
-        return true;
-    }
-
-    /**
-     * 请求精确闹钟权限（跳转到系统设置页面）
-     */
-    public static void requestExactAlarmPermission(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
-            intent.setData(Uri.parse("package:" + context.getPackageName()));
-            if (intent.resolveActivity(context.getPackageManager()) != null) {
-                context.startActivity(intent);
-            }
-        }
-    }
-
-    /**
-     * 动态申请应用列表权限（此方法只能在主线程调用）
-     *
-     * @param activity 申请权限的Activity，申请结果通过onRequestPermissionsResult()方法获取
-     */
-    public static void requestAppListPermission(@NonNull Activity activity) {
-        ActivityCompat.requestPermissions(activity,
-                new String[]{"com.android.permission.GET_INSTALLED_APPS"},
-                RequestResultCode.REQUEST_APP_LIST_PERMISSION.ordinal()
-        );
-    }
-
     /**
      * 检查通知使用权的授予情况
      *
@@ -169,16 +110,5 @@ public class PermissionHelper {
         } else {
             Toast.makeText(context, "电池优化策略已为“无限制”，无需更改", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    /**
-     * 检查Manifest中的权限是否被授予
-     *
-     * @param context    上下文
-     * @param permission Manifest中的权限
-     * @return 该权限是否被授予
-     */
-    public static boolean isPermissionsGranted(Context context, String permission) {
-        return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED;
     }
 }

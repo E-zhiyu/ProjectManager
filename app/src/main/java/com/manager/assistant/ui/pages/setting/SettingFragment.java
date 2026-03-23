@@ -35,7 +35,7 @@ import com.manager.assistant.data.save.preference.KeepAlivePreference;
 import com.manager.assistant.databinding.FragmentSettingBinding;
 import com.manager.assistant.helpers.file.AutoBackupHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.helpers.PermissionHelper;
+import com.manager.assistant.helpers.permission.PermissionHelper;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.data.save.preference.BookKeepingStartDatePreference;
 import com.manager.assistant.helpers.file.DataIOHelper;

@@ -1,9 +1,7 @@
 package com.manager.assistant.ui.pages.bookkeeping.budget;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -13,13 +11,12 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.data.classes.Budget;
 import com.manager.assistant.databinding.ActivityBudgetManageBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.RequestResultCode;
+import com.manager.assistant.helpers.permission.PermissionManager;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.helpers.resourse.ColorHelper;
 
@@ -34,6 +31,7 @@ public class BudgetManageActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> addLauncher;     //添加预算启动器
     private ActivityResultLauncher<Intent> modifyLauncher;  //修改预算启动器
     private BudgetAdapter adapter;                          //预算列表适配器
+    private final PermissionManager permissionManager = new PermissionManager(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,26 +46,7 @@ public class BudgetManageActivity extends AppCompatActivity {
         initLaunchers();
 
         //申请权限
-        requestPermissions();
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == RequestResultCode.REQUEST_NOTIFICATION_PERMISSION.ordinal()) {
-            //判断通知权限是否授予
-            if (grantResults[0] == -1) {
-                Toast.makeText(this, "通知权限被拒绝，请前往设置手动授予", Toast.LENGTH_SHORT).show();
-            }
-
-            //没有闹钟权限时提示授予闹钟权限
-            boolean isAlarmEnable = Build.VERSION.SDK_INT <= Build.VERSION_CODES.S || PermissionHelper.hasExactAlarmPermission(this);
-            if (!isAlarmEnable) {
-                Toast.makeText(this, "请再授予精确闹钟权限", Toast.LENGTH_SHORT).show();
-                PermissionHelper.requestExactAlarmPermission(this);
-            }
-        }
+        addPermissionRequests();
     }
 
     @Override
@@ -79,37 +58,22 @@ public class BudgetManageActivity extends AppCompatActivity {
         disposables.dispose();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        permissionManager.start();
+    }
+
     /**
      * 申请一些必要的权限
      */
-    private void requestPermissions() {
-        boolean isAlarmEnable = Build.VERSION.SDK_INT <= Build.VERSION_CODES.S || PermissionHelper.hasExactAlarmPermission(this);
-        boolean isNotificationEnable = Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU
-                || PermissionHelper.isPermissionsGranted(this, Manifest.permission.POST_NOTIFICATIONS);
-
-        String message;
-        Runnable action;
-        if (!isAlarmEnable && !isNotificationEnable) {
-            message = "本功能需要申请以下权限：\n1.精确闹钟权限：用于定期自动重置预算\n2.通知权限：用于在预算余额不足时提醒用户\n请点击“确定”授予这些权限";
-            action = () -> PermissionHelper.requestNotificationPermission(this);
-        } else if (!isAlarmEnable) {
-            message = "预算管理功能需要精确闹钟权限以实现自动重置预算，请点击“确定”授予该权限";
-            action = () -> PermissionHelper.requestExactAlarmPermission(this);
-        } else if (!isNotificationEnable) {
-            message = "预算余额较低时需要发送通知提醒，请授予通知权限，请点击“确定”授予该权限";
-            action = () -> PermissionHelper.requestNotificationPermission(this);
-        } else {
-            return;
-        }
-
-        //如果有权限缺失则弹出弹窗提示用户
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("权限说明")
-                .setMessage(message)
-                .setPositiveButton("确定", (dialog, which) -> action.run())
-                .setNegativeButton("取消", null)
-                .show()
-                .setOnCancelListener(dialog -> finish());
+    private void addPermissionRequests() {
+        permissionManager.addPermission("android.permission.POST_NOTIFICATIONS");
+        permissionManager.addPermission(
+                PermissionManager.SpecialType.ALARM,
+                "精确闹钟权限",
+                "自动重置预算需要精确闹钟权限，以确保每天0点能够检查并重置预算"
+        );
     }
 
     /**

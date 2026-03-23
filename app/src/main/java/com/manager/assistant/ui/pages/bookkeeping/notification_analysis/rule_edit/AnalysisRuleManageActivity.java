@@ -15,7 +15,7 @@ import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.databinding.ActivityAnalysisRuleManageBinding;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.helpers.resourse.ColorHelper;
-import com.manager.assistant.helpers.PermissionHelper;
+import com.manager.assistant.helpers.permission.PermissionHelper;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
