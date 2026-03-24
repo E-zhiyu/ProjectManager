@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.manager.assistant.data.classes.Budget;
+import com.manager.assistant.data.controllers.BudgetDataController;
 import com.manager.assistant.databinding.ActivityBudgetManageBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
@@ -190,7 +191,7 @@ public class BudgetManageActivity extends AppCompatActivity {
     private void refreshBudget() {
         binding.refreshLayout.setRefreshing(true);
         disposables.add(
-                Observable.fromCallable(() -> Budget.getAllBudgets(this))
+                Observable.fromCallable(() -> BudgetDataController.getAllBudgets(this))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(

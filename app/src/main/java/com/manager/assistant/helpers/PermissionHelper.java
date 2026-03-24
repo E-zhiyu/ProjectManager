@@ -37,6 +37,7 @@ public class PermissionHelper {
     private final List<String> runtimePermissions = new ArrayList<>();      //运行时权限列表
     private final Queue<SpecialRequest> specialQueue = new LinkedList<>();  //特殊权限队列
     private ActivityResultLauncher<String[]> runtimeLauncher;   //申请运行时权限的启动器
+    private boolean isSpecialProcessing = false;                //是否正在处理特殊权限，防止在处理权限时重复调用权限申请方法
 
     public enum SpecialType {
         //精确闹钟权限
@@ -167,6 +168,11 @@ public class PermissionHelper {
      * 开始申请权限
      */
     public void start() {
+        //检查是否正在处理权限，如果是则直接结束
+        if (isSpecialProcessing) {
+            return;
+        }
+
         if (runtimeLauncher == null) {
             throw new IllegalStateException("RuntimeLauncher has not been initialized. " +
                     "Ensure it was passed in constructor or registered before Activity started.");
@@ -199,8 +205,10 @@ public class PermissionHelper {
 
         //从队列中取出一个特殊应用权限请求
         Log.d(LogTags.PERMISSION_HELPER.getV(), "正在处理下个特殊应用权限");
+        isSpecialProcessing = true;         //标记为正在处理
         SpecialRequest request = specialQueue.poll();
         if (request == null) {
+            isSpecialProcessing = false;    //如果没有特殊权限了，那就标记为未处理
             return;
         }
 
@@ -231,7 +239,10 @@ public class PermissionHelper {
                         )
                         .setPositiveButton(
                                 "前往设置",
-                                (dialog, which) -> PermissionHelper.requestAutoStartPermission(activity)
+                                (dialog, which) -> {
+                                    isSpecialProcessing = false;    //未直接调用processNextSpecial()，需要标记为未处理
+                                    PermissionHelper.requestAutoStartPermission(activity);
+                                }
                         )
                         .setCancelable(false)
                         .show();
@@ -244,7 +255,10 @@ public class PermissionHelper {
             new MaterialAlertDialogBuilder(activity)
                     .setTitle(request.customTitle)
                     .setMessage(request.customMessage)
-                    .setPositiveButton("去设置", (d, w) -> activity.startActivity(type.getIntent(activity)))
+                    .setPositiveButton("去设置", (d, w) -> {
+                        isSpecialProcessing = false;    //未直接调用processNextSpecial()，需要标记为未处理
+                        activity.startActivity(type.getIntent(activity));
+                    })
                     .setNegativeButton("取消", (d, w) -> processNextSpecial())
                     .setCancelable(false)
                     .show();

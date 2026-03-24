@@ -16,6 +16,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.manager.assistant.data.classes.Tag;
+import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.databinding.FragmentIncomeBinding;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
@@ -152,12 +153,12 @@ public class IncomeFragment extends RunningAccountFragmentBase<FragmentIncomeBin
 
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
-        String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
+        String dateTime = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
         rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
 
         String tag_name = "";
         try {
-            Tag tag = Tag.getTagByRno(rno, requireContext());
+            Tag tag = TagDataController.getTagByRno(rno, requireContext());
             tno = tag.getTno();
             tag_name = tag.getName();
         } catch (SQLiteException e) {
@@ -169,7 +170,7 @@ public class IncomeFragment extends RunningAccountFragmentBase<FragmentIncomeBin
         TextInputEditText remarkInput = binding.remarkInput;                            //备注
         remarkInput.setText(remark);
         MaterialAutoCompleteTextView datetimeInput = binding.datetimeInput;             //日期
-        datetimeInput.setText(date_time);
+        datetimeInput.setText(dateTime);
         binding.runningAccountTagInput.setText(tag_name);                               //标签名称
     }
 

@@ -16,19 +16,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.manager.assistant.data.classes.Budget;
-import com.manager.assistant.data.classes.Tag;
-import com.manager.assistant.data.classes.running_account.RunningAccountBase;
+import com.manager.assistant.data.controllers.AccountDataController;
+import com.manager.assistant.data.controllers.BudgetDataController;
+import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Tables;
-import com.manager.assistant.data.save.preference.AppSettingsPreference;
 import com.manager.assistant.data.save.preference.BookKeepingStartDatePreference;
 import com.manager.assistant.databinding.FragmentHomeBinding;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.helpers.WebsiteLinkFetchHelper;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
 import com.manager.assistant.ui.sync.account.RunningAccountViewModel;
 import com.manager.assistant.ui.sync.budget.BudgetRepository;
@@ -38,10 +36,6 @@ import com.manager.assistant.ui.pages.bookkeeping.tag.TagManageActivity;
 import com.manager.assistant.ui.pages.home.report.ReportActivity;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
-import java.net.ConnectException;
-import java.net.ProtocolException;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -58,7 +52,6 @@ public class HomeFragment extends Fragment {
     private FragmentHomeBinding binding;                    //XML视图绑定引用
     private double dayBalance, dayExpense, dayIncome;    //日结余、日支出、日收入
     private final CompositeDisposable disposables = new CompositeDisposable();
-    private LinkAdapter linkAdapter;                        //链接列表适配器
 
     @Nullable
     @Override
@@ -72,20 +65,6 @@ public class HomeFragment extends Fragment {
         initBalanceView();
 
         return binding.getRoot();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        if (!AppSettingsPreference.getHomeLinks(requireContext())) {
-            binding.webLinkCard.setVisibility(View.GONE);
-        } else {
-            if (binding.webLinkCard.getVisibility() == View.GONE) {
-                binding.linkLoadingIndicator.setVisibility(View.VISIBLE);
-            }
-            fetchLinks(false);
-        }
     }
 
     @Override
@@ -119,21 +98,21 @@ public class HomeFragment extends Fragment {
 
         //初始化记账日期
         String startDateStr = getBookKeepingStartDate();  //获取开始记账的日期
-        long days_count;
+        long daysCount;
         if (!startDateStr.isEmpty()) {
             LocalDate startDate = LocalDate.parse(startDateStr);
             LocalDate currentDate = LocalDate.now();
 
-            days_count = ChronoUnit.DAYS.between(startDate, currentDate);    //计算相差的天数
+            daysCount = ChronoUnit.DAYS.between(startDate, currentDate);    //计算相差的天数
         } else {
-            days_count = 0;   //无法获取则说明是第一天记账
+            daysCount = 0;   //无法获取则说明是第一天记账
         }
-        if (days_count != 0) {
+        if (daysCount != 0) {
             binding.bookkeepingDaysText.setText(
                     String.format(
                             Locale.getDefault(),
                             "您已累计记账%d天",
-                            days_count
+                            daysCount
                     )
             );
         } else {
@@ -142,7 +121,7 @@ public class HomeFragment extends Fragment {
 
         //标签数量
         try {
-            int tagCount = Tag.getDbCount(requireContext());
+            int tagCount = TagDataController.getDbCount(requireContext());
             binding.tagCountText.setText(String.valueOf(tagCount));
         } catch (SQLiteException e) {
             binding.tagCountText.setText(0);
@@ -151,20 +130,11 @@ public class HomeFragment extends Fragment {
 
         //预算数量
         try {
-            int budgetCount = Budget.getDbCount(requireContext());
+            int budgetCount = BudgetDataController.getDbCount(requireContext());
             binding.budgetCountText.setText(String.valueOf(budgetCount));
         } catch (SQLiteException e) {
             binding.budgetCountText.setText(0);
             Toast.makeText(requireContext(), "无法获取预算数量", Toast.LENGTH_SHORT).show();
-        }
-
-        //初始化链接数据
-        linkAdapter = new LinkAdapter();
-        binding.webLinkRecycler.setAdapter(linkAdapter);
-        if (AppSettingsPreference.getHomeLinks(requireContext())) {
-            fetchLinks(true);
-        } else {
-            binding.linkLoadingIndicator.setVisibility(View.GONE);
         }
     }
 
@@ -254,7 +224,7 @@ public class HomeFragment extends Fragment {
         if (startDate.isEmpty()) {
             //如果没有保存开始记账日期，则尝试获取最早一次流水记录的日期
             try {
-                startDate = RunningAccountBase.getEarliestAccountDate(requireContext());
+                startDate = AccountDataController.getEarliestAccountDate(requireContext());
                 if (!startDate.isEmpty()) {
                     BookKeepingStartDatePreference.saveStartDate(startDate, requireContext());
                 }
@@ -325,7 +295,7 @@ public class HomeFragment extends Fragment {
                 requireActivity(),
                 tags -> {
                     try {
-                        int tagCount = Tag.getDbCount(requireContext());
+                        int tagCount = TagDataController.getDbCount(requireContext());
                         binding.tagCountText.setText(String.valueOf(tagCount));
                     } catch (SQLiteException e) {
                         binding.tagCountText.setText(0);
@@ -406,60 +376,13 @@ public class HomeFragment extends Fragment {
                 requireActivity(),
                 budget -> {
                     try {
-                        int budgetCount = Budget.getDbCount(requireContext());
+                        int budgetCount = BudgetDataController.getDbCount(requireContext());
                         binding.budgetCountText.setText(String.valueOf(budgetCount));
                     } catch (SQLiteException e) {
                         binding.budgetCountText.setText(0);
                         Toast.makeText(requireContext(), "无法获取预算数量", Toast.LENGTH_SHORT).show();
                     }
                 }
-        );
-    }
-
-    /**
-     * 从网页爬取超链接并显示在界面中
-     *
-     * @param isToastNeed 是否需要弹出吐司提示
-     */
-    private void fetchLinks(boolean isToastNeed) {
-        disposables.add(
-                Observable.fromCallable(() -> WebsiteLinkFetchHelper.getUrlJson("https://www.ccgp-shaanxi.gov.cn/freecms/rest/v1/notice/selectInfoForIndex.do?&siteId=a7a15d60-de5b-42f2-b35a-7e3efc34e54f&channel=1eb454a2-7ff7-4a3b-b12c-12acc2685bd1&currPage=1&pageSize=11&regionCode=610001&noticeType=001011,001012,001013,001014,001016,001019&cityOrArea=&selectTimeName=noticeTime"))
-                        .subscribeOn(Schedulers.newThread())        //不在IO线程爬取，防止阻塞流水读取
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(linkList -> {
-                                    if (!linkList.isEmpty()) {
-                                        linkAdapter.refreshLink(linkList);
-                                        binding.webLinkCard.setVisibility(View.VISIBLE);
-                                        if (isToastNeed) {
-                                            Toast.makeText(requireContext(), "成功加载采购公告", Toast.LENGTH_SHORT).show();
-                                        }
-                                    } else {
-                                        if (isToastNeed) {
-                                            Toast.makeText(requireContext(), "未获取到任何有效链接", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                }, e -> {
-                                    if (e instanceof ProtocolException) {
-                                        if (isToastNeed) {
-                                            Toast.makeText(requireContext(), "无法获取采购公告", Toast.LENGTH_SHORT).show();
-                                        }
-                                    } else if (e instanceof SocketTimeoutException) {
-                                        if (isToastNeed) {
-                                            Toast.makeText(requireContext(), "连接超时，无法获取公告", Toast.LENGTH_SHORT).show();
-                                        }
-                                    } else if (e instanceof ConnectException || e instanceof UnknownHostException) {
-                                        if (isToastNeed) {
-                                            Toast.makeText(requireContext(), "无法获取公告，请检查网络连接", Toast.LENGTH_SHORT).show();
-                                        }
-                                    } else {
-                                        if (isToastNeed) {
-                                            Toast.makeText(requireContext(), "无法获取采购公告", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                    binding.linkLoadingIndicator.setVisibility(View.GONE);
-                                },
-                                () -> binding.linkLoadingIndicator.setVisibility(View.GONE)
-                        )
         );
     }
 }

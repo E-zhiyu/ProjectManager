@@ -17,6 +17,8 @@ import com.google.android.material.shape.Shapeable;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.automation.broadcast.BroadcastActions;
+import com.manager.assistant.data.controllers.RuleDataController;
+import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.data.classes.AnalysisRule;
@@ -78,7 +80,7 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         AnalysisRule rule = ruleList.get(position);
         String rule_name = rule.getRuleName();
         RunningAccountType type = rule.getType();
-        Tag rule_tag = Tag.getTagByRuleNo(rule.getRuleNo(), holder.itemView.getContext());
+        Tag rule_tag = TagDataController.getTagByRuleNo(rule.getRuleNo(), holder.itemView.getContext());
 
         String typeStr = type.getTitle();
         holder.ruleNameText.setText(rule_name);
@@ -101,9 +103,9 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
      * @param context     上下文
      */
     public void addRule(Bundle newRuleData, Context context) {
-        long rule_no;
+        long ruleNo;
         try {
-            rule_no = AnalysisRule.saveNewRule(newRuleData, context);
+            ruleNo = RuleDataController.saveNewRule(newRuleData, context);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             Toast.makeText(context, "解析规则保存失败", Toast.LENGTH_SHORT).show();
@@ -118,7 +120,7 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         String notificationContent = newRuleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
 
         //刷新视图
-        AnalysisRule newRule = new AnalysisRule(ruleName, rule_no, type, packageName, notificationTitle, notificationContent);
+        AnalysisRule newRule = new AnalysisRule(ruleName, ruleNo, type, packageName, notificationTitle, notificationContent);
         ruleList.add(newRule);
         notifyItemInserted(ruleList.size() - 1);
         Toast.makeText(context, "解析规则添加成功", Toast.LENGTH_SHORT).show();
@@ -134,7 +136,7 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
      */
     public void modifyRule(Bundle modifiedRuleData, Context context) {
         try {
-            AnalysisRule.modifyRule(modifiedRuleData, context);
+            RuleDataController.modifyRule(modifiedRuleData, context);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             Toast.makeText(context, "规则数据保存失败", Toast.LENGTH_SHORT).show();
@@ -170,7 +172,7 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         long rule_no = rule.getRuleNo();
 
         try {
-            AnalysisRule.deleteRule(rule_no, context);
+            RuleDataController.deleteRule(rule_no, context);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             Toast.makeText(context, "规则删除失败", Toast.LENGTH_SHORT).show();

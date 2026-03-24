@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.textview.MaterialTextView;
+import com.manager.assistant.data.controllers.AccountDataController;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.automation.broadcast.BroadcastActions;
@@ -311,7 +312,7 @@ public class BookKeepingFragment extends Fragment {
     private void refreshAccountRecycler() {
         binding.refreshLayout.setRefreshing(true);
         disposables.add(
-                Observable.fromCallable(() -> RunningAccountBase.loadRunningAccountData(filterSetting, requireContext()))
+                Observable.fromCallable(() -> AccountDataController.loadRunningAccountData(filterSetting, requireContext()))
                         .subscribeOn(Schedulers.io())               //在IO线程执行查询
                         .observeOn(AndroidSchedulers.mainThread())  //切换到主线程更新 UI
                         .subscribe(

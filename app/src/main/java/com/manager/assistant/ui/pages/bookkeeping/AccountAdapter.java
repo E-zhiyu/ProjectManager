@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModelStoreOwner;
 import com.google.android.material.shape.Shapeable;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
+import com.manager.assistant.data.controllers.AccountDataController;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.data.classes.running_account.ExpenseRunningAccount;
 import com.manager.assistant.data.classes.running_account.IncomeRunningAccount;
@@ -369,7 +370,7 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
 
         //从数据库中删除
         try {
-            RunningAccountBase.deleteAccount(rno_delete, context);
+            AccountDataController.deleteAccount(rno_delete, context);
             Log.i(LogTags.ACCOUNT_ADAPTER.getV(), "数据库中删除成功");
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);

@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.manager.assistant.data.controllers.PictureDataController;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.Picture;
@@ -372,7 +373,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
 
                 //删除数据库内容（如果该图片本来就在数据库中）
                 if (pno != 0) {
-                    Picture.deletePicture(context, pno);
+                    PictureDataController.deletePicture(context, pno);
                 }
 
                 pictureList.remove(index);

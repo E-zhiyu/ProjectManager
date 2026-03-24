@@ -16,6 +16,7 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.Tag;
+import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.databinding.ActivityBudgetAddModifyBinding;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.RequestResultCode;
@@ -285,7 +286,7 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
      */
     private void refreshTagChipGroup() {
         binding.tagChipGroup.removeViews(1, binding.tagChipGroup.getChildCount() - 1);
-        List<Tag> tagList = Tag.getTagByTagNo(tagNoList, this);
+        List<Tag> tagList = TagDataController.getTagByTagNo(tagNoList, this);
         for (Tag tag : tagList) {
             String tagName = tag.getName();
             Chip tagChip = new Chip(this);

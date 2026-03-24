@@ -43,10 +43,6 @@
                 <include
                     android:id="@+id/permissions_option"
                     layout="@layout/view_setting_option" />
-
-                <include
-                    android:id="@+id/home_links_option"
-                    layout="@layout/view_setting_option" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

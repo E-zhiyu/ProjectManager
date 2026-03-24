@@ -16,6 +16,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.manager.assistant.data.classes.Tag;
+import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.databinding.FragmentExpenseBinding;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
@@ -155,11 +156,11 @@ public class ExpenseFragment extends RunningAccountFragmentBase<FragmentExpenseB
         String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
         rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
 
-        String tag_name = "";
+        String tagName = "";
         try {
-            Tag tag = Tag.getTagByRno(rno, requireContext());
+            Tag tag = TagDataController.getTagByRno(rno, requireContext());
             tno = tag.getTno();
-            tag_name = tag.getName();
+            tagName = tag.getName();
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(requireContext(), e);
             Toast.makeText(requireContext(), "无法加载该流水记录的标签信息", Toast.LENGTH_SHORT).show();
@@ -170,7 +171,7 @@ public class ExpenseFragment extends RunningAccountFragmentBase<FragmentExpenseB
         remarkInput.setText(remark);
         MaterialAutoCompleteTextView datetimeInput = binding.datetimeInput;             //日期
         datetimeInput.setText(date_time);
-        binding.runningAccountTagInput.setText(tag_name);                               //标签名称
+        binding.runningAccountTagInput.setText(tagName);                               //标签名称
     }
 
     @Override

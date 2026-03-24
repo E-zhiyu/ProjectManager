@@ -19,6 +19,7 @@ import com.google.android.material.shape.Shapeable;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.Budget;
+import com.manager.assistant.data.controllers.BudgetDataController;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
@@ -116,7 +117,8 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
     private void onResetDialogConfirmed(int position, Context context) {
         Budget budget = budgetList.get(position);
         try {
-            budget.resetBudget(context);
+            BudgetDataController.resetBudget(budget.getBno(), context);
+            budget.reset();
             notifyItemChanged(position);
             Toast.makeText(context, String.format(Locale.getDefault(), "%s已成功重置", budget.getName()), Toast.LENGTH_SHORT).show();
         } catch (SQLiteException e) {
@@ -159,7 +161,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
         //保存至数据库
         Budget budget = new Budget(name, initAmount, startDate, resetFrequency, tagNoList);
         try {
-            long bno = Budget.saveNewBudget(budget, context);
+            long bno = BudgetDataController.saveNewBudget(budget, context);
             budget.setBno(bno);
         } catch (SQLException e) {
             ExceptionHelper.showExceptionDialog(context, e);
@@ -196,7 +198,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
         //写入数据
         Budget budget = new Budget(bno, name, initAmount, leftAmount, startDate, resetFrequency, tagNoList);
         try {
-            Budget.modifyBudget(budget, context);
+            BudgetDataController.modifyBudget(budget, context);
         } catch (SQLException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             return;
@@ -219,7 +221,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
     public void deleteBudget(@NonNull Bundle dataBundle, Context context) {
         long bno = dataBundle.getLong(KeyValueStrings.BNO.getValue());
         try {
-            Budget.deleteBudget(bno, context);
+            BudgetDataController.deleteBudget(bno, context);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             return;

@@ -11,7 +11,10 @@ import com.manager.assistant.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String update_log_md = "# v1.8.4  \n" +
+    private static final String UPDATE_LOG_MD = "# v1.8.5  \n" +
+            "**BUG修复**  \n" +
+            "- 修复软件在后台时无法通过通知保留流水记录的BUG  \n\n" +
+            "# v1.8.4  \n" +
             "**BUG修复**  \n" +
             "- 修复上个版本自动记账卡片展开折叠逻辑异常的BUG  \n" +
             "- 修复报表界面删除线动画快结束时会卡顿一下的BUG  \n\n" +
@@ -341,7 +344,7 @@ public class UpdateLogHelper {
 
         //使用Markown渲染Markdown文本
         Markwon markwon = Markwon.create(context);
-        markwon.setMarkdown(text_view, update_log_md);
+        markwon.setMarkdown(text_view, UPDATE_LOG_MD);
 
         new MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.update_log)
