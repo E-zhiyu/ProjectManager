@@ -251,41 +251,6 @@ public class SettingFragment extends Fragment {
             Intent skip2PermissionManage = new Intent(requireContext(), PermissionManageActivity.class);
             startActivity(skip2PermissionManage);
         });
-
-        //主页链接
-        SettingSwitchView homeLinksSwitch = new SettingSwitchView(
-                requireContext(),
-                binding.homeLinksOption,
-                R.string.purchase_bulletin,
-                "控制主页采购公告是否显示",
-                R.drawable.outline_link_2_24
-        );
-        homeLinksSwitch.setDividerVisibility(true);
-        if (!AppSettingsPreference.getLinkSwitchHide(requireContext())) {
-            homeLinksSwitch.setChecked(AppSettingsPreference.getHomeLinks(requireContext()));
-            homeLinksSwitch.setFunctionListener((buttonView, isChecked) -> {
-                AppSettingsPreference.setHomeLinksShow(requireContext(), isChecked);
-
-                if (!isChecked) {
-                    Toast.makeText(requireContext(), "长按左侧文本可隐藏该设置项", Toast.LENGTH_SHORT).show();
-                }
-            });
-            homeLinksSwitch.setOnLongClickListener(v -> {
-                new MaterialAlertDialogBuilder(requireContext())
-                        .setTitle("隐藏主页链接设置项" )
-                        .setMessage("隐藏该设置项将永久关闭主页采购公告的显示，确认要隐藏吗？" )
-                        .setPositiveButton("确定", (dialog, which) -> {
-                            homeLinksSwitch.setVisibility(View.GONE);
-                            AppSettingsPreference.setLinkSwitchHide(requireContext(), true);
-                            AppSettingsPreference.setHomeLinksShow(requireContext(), false);
-                        })
-                        .setNegativeButton("取消", null)
-                        .show();
-                return true;
-            });
-        } else {
-            homeLinksSwitch.setVisibility(View.GONE);
-        }
     }
 
     /**
