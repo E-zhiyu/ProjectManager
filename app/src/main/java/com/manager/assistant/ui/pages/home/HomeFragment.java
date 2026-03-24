@@ -16,8 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.manager.assistant.data.classes.Budget;
 import com.manager.assistant.data.controllers.AccountDataController;
+import com.manager.assistant.data.controllers.BudgetDataController;
 import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
@@ -130,7 +130,7 @@ public class HomeFragment extends Fragment {
 
         //预算数量
         try {
-            int budgetCount = Budget.getDbCount(requireContext());
+            int budgetCount = BudgetDataController.getDbCount(requireContext());
             binding.budgetCountText.setText(String.valueOf(budgetCount));
         } catch (SQLiteException e) {
             binding.budgetCountText.setText(0);
@@ -376,7 +376,7 @@ public class HomeFragment extends Fragment {
                 requireActivity(),
                 budget -> {
                     try {
-                        int budgetCount = Budget.getDbCount(requireContext());
+                        int budgetCount = BudgetDataController.getDbCount(requireContext());
                         binding.budgetCountText.setText(String.valueOf(budgetCount));
                     } catch (SQLiteException e) {
                         binding.budgetCountText.setText(0);

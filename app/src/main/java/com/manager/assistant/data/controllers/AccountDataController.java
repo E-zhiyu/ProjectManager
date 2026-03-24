@@ -10,7 +10,6 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.data.classes.Budget;
 import com.manager.assistant.data.classes.running_account.ExpenseRunningAccount;
 import com.manager.assistant.data.classes.running_account.IncomeRunningAccount;
 import com.manager.assistant.data.classes.running_account.RunningAccountBase;
@@ -242,7 +241,7 @@ public class AccountDataController {
         }
 
         //更新预算数据
-        Budget.onAccountUpdated(tagNo, tagNo, 0, amount, type, datetime, datetime, db, context);
+        BudgetDataController.onAccountUpdated(tagNo, tagNo, 0, amount, type, datetime, datetime, db, context);
 
         db.close();
         return rno;
@@ -328,7 +327,7 @@ public class AccountDataController {
         }
 
         //修改预算数据
-        Budget.onAccountUpdated(oldTagNo, tagNo, oldAmount, amount, type, oldDatetime, datetime, db, context);
+        BudgetDataController.onAccountUpdated(oldTagNo, tagNo, oldAmount, amount, type, oldDatetime, datetime, db, context);
 
         db.close();
     }
@@ -386,7 +385,7 @@ public class AccountDataController {
         );
 
         //更新预算数据
-        Budget.onAccountUpdated(tagNo, tagNo, amount, 0, type, datetime, datetime, db, context);
+        BudgetDataController.onAccountUpdated(tagNo, tagNo, amount, 0, type, datetime, datetime, db, context);
 
         db.close();
     }

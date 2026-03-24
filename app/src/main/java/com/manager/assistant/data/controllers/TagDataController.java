@@ -9,7 +9,6 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.data.classes.Budget;
 import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Columns;
@@ -253,7 +252,7 @@ public class TagDataController {
 
         AccountDataController.onTagDeleted(tagNo, db); //清除流水记录里面的标签编号
         RuleDataController.onTagDeleted(tagNo, db);       //清除通知解析规则中的标签编号
-        Budget.onTagDeleted(tagNo, db);             //删除预算中的标签编号数据
+        BudgetDataController.onTagDeleted(tagNo, db);             //删除预算中的标签编号数据
 
         //再删除对应标签
         db.delete(
