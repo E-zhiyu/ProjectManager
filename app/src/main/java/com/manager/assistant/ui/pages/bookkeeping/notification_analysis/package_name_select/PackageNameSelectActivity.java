@@ -22,7 +22,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.search.SearchView;
 import com.manager.assistant.R;
 import com.manager.assistant.databinding.ActivityPackageNameSelectBinding;
-import com.manager.assistant.helpers.permission.PermissionManager;
+import com.manager.assistant.helpers.permission.PermissionRequester;
 import com.manager.assistant.helpers.resourse.ColorHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.resourse.PackageNameHelper;
@@ -49,7 +49,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
                     new ActivityResultContracts.RequestMultiplePermissions(),
                     this::onPermissionResult
             );
-    private final PermissionManager permissionManager = new PermissionManager(this, requestPermissionLauncher);
+    private final PermissionRequester permissionRequester = new PermissionRequester(this, requestPermissionLauncher);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,7 +139,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        permissionManager.start();
+        permissionRequester.start();
     }
 
     //初始化视图
@@ -183,7 +183,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
      * 添加权限申请
      */
     private void addPermissionRequests() {
-        permissionManager.addPermission("com.android.permission.GET_INSTALLED_APPS");
+        permissionRequester.addPermission("com.android.permission.GET_INSTALLED_APPS");
     }
 
     /**
@@ -208,7 +208,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         }
 
         //处理完运行时权限后处理特殊应用权限（如果有）
-        permissionManager.processNextSpecial();
+        permissionRequester.processNextSpecial();
     }
 
     /**

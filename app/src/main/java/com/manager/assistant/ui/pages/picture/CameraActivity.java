@@ -30,7 +30,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.manager.assistant.generic_enums.DirectoryPaths;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.databinding.ActivityCameraBinding;
-import com.manager.assistant.helpers.permission.PermissionManager;
+import com.manager.assistant.helpers.permission.PermissionRequester;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.resourse.IconHelper;
@@ -55,7 +55,7 @@ public class CameraActivity extends AppCompatActivity {
     private final ActivityResultLauncher<String[]> requestPermissionLauncher =  //权限申请启动器
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(),
                     this::onPermissionResult);
-    private final PermissionManager permissionManager = new PermissionManager(this, requestPermissionLauncher);
+    private final PermissionRequester permissionRequester = new PermissionRequester(this, requestPermissionLauncher);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +106,7 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        permissionManager.start();
+        permissionRequester.start();
     }
 
     /**
@@ -129,7 +129,7 @@ public class CameraActivity extends AppCompatActivity {
      */
     private void addPermissionRequests() {
         for (String permission : permissions) {
-            permissionManager.addPermission(permission);
+            permissionRequester.addPermission(permission);
         }
     }
 
@@ -172,7 +172,7 @@ public class CameraActivity extends AppCompatActivity {
         }
 
         //处理完运行时权限后处理特殊应用权限（如果有）
-        permissionManager.processNextSpecial();
+        permissionRequester.processNextSpecial();
     }
 
     private void bindCameraUseCases(ProcessCameraProvider cameraProvider) {

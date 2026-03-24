@@ -16,7 +16,7 @@ import com.manager.assistant.databinding.ActivityBudgetManageBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.RequestResultCode;
-import com.manager.assistant.helpers.permission.PermissionManager;
+import com.manager.assistant.helpers.permission.PermissionRequester;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.helpers.resourse.ColorHelper;
 
@@ -31,7 +31,7 @@ public class BudgetManageActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> addLauncher;     //添加预算启动器
     private ActivityResultLauncher<Intent> modifyLauncher;  //修改预算启动器
     private BudgetAdapter adapter;                          //预算列表适配器
-    private final PermissionManager permissionManager = new PermissionManager(this);
+    private final PermissionRequester permissionRequester = new PermissionRequester(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,16 +61,16 @@ public class BudgetManageActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        permissionManager.start();
+        permissionRequester.start();
     }
 
     /**
      * 申请一些必要的权限
      */
     private void addPermissionRequests() {
-        permissionManager.addPermission("android.permission.POST_NOTIFICATIONS");
-        permissionManager.addPermission(
-                PermissionManager.SpecialType.ALARM,
+        permissionRequester.addPermission("android.permission.POST_NOTIFICATIONS");
+        permissionRequester.addPermission(
+                PermissionRequester.SpecialType.ALARM,
                 "精确闹钟权限",
                 "自动重置预算需要精确闹钟权限，以确保每天0点能够检查并重置预算"
         );

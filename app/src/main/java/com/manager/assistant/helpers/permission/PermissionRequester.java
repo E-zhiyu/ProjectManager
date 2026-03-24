@@ -25,7 +25,7 @@ import java.util.Queue;
 /**
  * 在打开Activity时申请权限的工具类
  */
-public class PermissionManager {
+public class PermissionRequester {
     private final ComponentActivity activity;   //需要申请权限的Activity
     private final List<String> runtimePermissions = new ArrayList<>();      //运行时权限列表
     private final Queue<SpecialRequest> specialQueue = new LinkedList<>();  //特殊权限队列
@@ -85,7 +85,7 @@ public class PermissionManager {
     /**
      * 默认构造方法：内部自动注册 Launcher
      */
-    public PermissionManager(@NonNull ComponentActivity activity) {
+    public PermissionRequester(@NonNull ComponentActivity activity) {
         this(activity, null);
     }
 
@@ -94,8 +94,8 @@ public class PermissionManager {
      *
      * @param customLauncher 如果传入 null，则使用默认的注册逻辑
      */
-    public PermissionManager(@NonNull ComponentActivity activity,
-                             @Nullable ActivityResultLauncher<String[]> customLauncher) {
+    public PermissionRequester(@NonNull ComponentActivity activity,
+                               @Nullable ActivityResultLauncher<String[]> customLauncher) {
         this.activity = activity;
 
         if (customLauncher != null) {

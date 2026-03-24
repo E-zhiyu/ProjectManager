@@ -248,7 +248,8 @@ public class SettingFragment extends Fragment {
                 R.drawable.outline_settings_24
         );
         permissionsOption.setFunctionListener(v -> {
-            //TODO:跳转权限管理界面
+            Intent skip2PermissionManage = new Intent(requireContext(), PermissionManageActivity.class);
+            startActivity(skip2PermissionManage);
         });
 
         //主页链接
