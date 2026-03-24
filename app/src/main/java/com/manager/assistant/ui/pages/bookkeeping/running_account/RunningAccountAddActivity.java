@@ -16,9 +16,9 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.manager.assistant.data.controllers.AccountDataController;
+import com.manager.assistant.data.controllers.PictureDataController;
 import com.manager.assistant.ui.sync.picture.AccountPictureViewModel;
 import com.manager.assistant.ui.others.adapters.FragmentPagerAdapter;
-import com.manager.assistant.data.classes.Picture;
 import com.manager.assistant.databinding.ActivityRunningAccountAddBinding;
 import com.manager.assistant.generic_enums.DirectoryPaths;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
@@ -194,7 +194,7 @@ public class RunningAccountAddActivity extends AppCompatActivity {
 
         //将移动后的文件路径保存至数据库
         try {
-            Picture.addPicture(this, filesOnMovedList, rno);
+            PictureDataController.addPicture(this, filesOnMovedList, rno);
         } catch (SQLiteException e) {
             Toast.makeText(this, "将图片保存至数据库失败", Toast.LENGTH_SHORT).show();
             ExceptionHelper.showExceptionDialog(this, e);

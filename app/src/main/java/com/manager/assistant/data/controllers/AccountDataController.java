@@ -11,7 +11,6 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 
 import com.manager.assistant.data.classes.Budget;
-import com.manager.assistant.data.classes.Picture;
 import com.manager.assistant.data.classes.running_account.ExpenseRunningAccount;
 import com.manager.assistant.data.classes.running_account.IncomeRunningAccount;
 import com.manager.assistant.data.classes.running_account.RunningAccountBase;
@@ -375,7 +374,7 @@ public class AccountDataController {
         }
         oldDataCursor.close();
 
-        Picture.deletePicture(rno, db); //删除图片
+        PictureDataController.deletePicture(rno, db); //删除图片
         deleteTransferAccount(rno, db); //删除转账数据(如果是转账类型)
 
         String selection = Columns.RNO + "=?";

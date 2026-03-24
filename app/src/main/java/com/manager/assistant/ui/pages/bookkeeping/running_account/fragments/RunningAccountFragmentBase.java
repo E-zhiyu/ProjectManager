@@ -28,6 +28,7 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputLayout;
 import com.manager.assistant.data.classes.Picture;
 import com.manager.assistant.data.classes.Tag;
+import com.manager.assistant.data.controllers.PictureDataController;
 import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.generic_enums.DirectoryPaths;
 import com.manager.assistant.generic_enums.KeyValueStrings;
@@ -360,7 +361,7 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
         //多线程刷新图片防止阻塞
         if (rno != 0) {
             disposables.add(
-                    Observable.fromCallable(() -> Picture.loadPicturesByRno(requireContext(), rno))
+                    Observable.fromCallable(() -> PictureDataController.loadPicturesByRno(requireContext(), rno))
                             .subscribeOn(Schedulers.newThread())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(pictureList -> pictureAdapter.refreshPicture(pictureList),
