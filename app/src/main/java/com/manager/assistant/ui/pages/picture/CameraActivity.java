@@ -30,10 +30,10 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.manager.assistant.generic_enums.DirectoryPaths;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.databinding.ActivityCameraBinding;
+import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.resourse.IconHelper;
-import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 
 import java.io.File;
@@ -47,7 +47,7 @@ import java.util.concurrent.Executors;
 public class CameraActivity extends AppCompatActivity {
     private ActivityCameraBinding binding;  //绑定的XML视图
     private ExecutorService cameraExecutor; //相机执行器
-    private CameraSelector cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA;    //相机选择器（默认主摄）
+    private final CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;  //相机选择器（主摄）
     private ImageCapture imageCapture;      //图像捕捉器
     private final String[] permissions = {  //权限
             Manifest.permission.CAMERA
@@ -55,6 +55,7 @@ public class CameraActivity extends AppCompatActivity {
     private final ActivityResultLauncher<String[]> requestPermissionLauncher =  //权限申请启动器
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(),
                     this::onPermissionResult);
+    private final PermissionHelper permissionHelper = new PermissionHelper(this, requestPermissionLauncher);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,17 +90,23 @@ public class CameraActivity extends AppCompatActivity {
         initViews();
         AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
 
-        if (isAllPermissionGranted()) {
-            startCamera();
-        } else {
-            requestPermissionLauncher.launch(permissions);
-        }
+        //尝试启动相机
+        startCamera();
+
+        //申请权限
+        addPermissionRequests();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         cameraExecutor.shutdown();  //界面销毁后关闭相机
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        permissionHelper.start();
     }
 
     /**
@@ -118,17 +125,12 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     /**
-     * 判断所有权限是否都已授予
-     *
-     * @return 权限是否授予
+     * 添加权限申请
      */
-    private boolean isAllPermissionGranted() {
-        for (String onePermission : permissions) {
-            if (!PermissionHelper.isPermissionsGranted(this, onePermission)) {
-                return false;
-            }
+    private void addPermissionRequests() {
+        for (String permission : permissions) {
+            permissionHelper.addPermission(permission);
         }
-        return true;
     }
 
     /**
@@ -179,11 +181,6 @@ public class CameraActivity extends AppCompatActivity {
         imageCapture = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .build();
-
-        // 选择相机
-        cameraSelector = cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA
-                ? CameraSelector.DEFAULT_FRONT_CAMERA
-                : CameraSelector.DEFAULT_BACK_CAMERA;
 
         try {
             // 解绑所有用例

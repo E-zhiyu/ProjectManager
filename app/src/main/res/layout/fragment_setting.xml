@@ -41,6 +41,10 @@
                     layout="@layout/view_setting_option" />
 
                 <include
+                    android:id="@+id/permissions_option"
+                    layout="@layout/view_setting_option" />
+
+                <include
                     android:id="@+id/home_links_option"
                     layout="@layout/view_setting_option" />
             </LinearLayout>
@@ -122,8 +126,7 @@
                     android:id="@+id/rule_manage_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone">
+                    android:orientation="vertical">
 
                     <include
                         android:id="@+id/rule_manage_option"
@@ -133,37 +136,6 @@
                         android:id="@+id/reset_rule_option"
                         layout="@layout/view_setting_option" />
                 </LinearLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            style="@style/ContentCardStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <LinearLayout
-                android:id="@+id/background_settings_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <com.google.android.material.textview.MaterialTextView
-                    style="@style/LargeTitleTextViewStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/background_setting" />
-
-                <include
-                    android:id="@+id/hide_background_option"
-                    layout="@layout/view_setting_option" />
-
-                <include
-                    android:id="@+id/auto_start_option"
-                    layout="@layout/view_setting_option" />
-
-                <include
-                    android:id="@+id/battery_optimization_option"
-                    layout="@layout/view_setting_option" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

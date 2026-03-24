@@ -2,9 +2,7 @@ package com.manager.assistant.ui.pages.bookkeeping.notification_analysis.package
 
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -12,6 +10,8 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
@@ -22,13 +22,14 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.search.SearchView;
 import com.manager.assistant.R;
 import com.manager.assistant.databinding.ActivityPackageNameSelectBinding;
-import com.manager.assistant.helpers.resourse.ColorHelper;
 import com.manager.assistant.helpers.PermissionHelper;
-import com.manager.assistant.generic_enums.RequestResultCode;
+import com.manager.assistant.helpers.resourse.ColorHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.resourse.PackageNameHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.ui.sync.package_name_search.AppInfoSearchViewModel;
+
+import java.util.Map;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -43,6 +44,15 @@ public class PackageNameSelectActivity extends AppCompatActivity {
     private AppListAdapter fullAppAdapter, searchAdapter;                   //完整的应用列表适配器和搜索结果适配器
     private SwipeRefreshLayout appListRefreshLayout, searchRefreshLayout;   //下拉刷新布局
     private ActivityPackageNameSelectBinding binding;                       //绑定的XML视图引用
+    private final ActivityResultLauncher<String[]> requestPermissionLauncher =  //权限申请启动器
+            registerForActivityResult(
+                    new ActivityResultContracts.RequestMultiplePermissions(),
+                    this::onPermissionResult
+            );
+    private final PermissionHelper permissionHelper = new PermissionHelper(    //权限申请器
+            this,
+            requestPermissionLauncher
+    );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,9 +115,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         startObserveSearchResult();
 
         //进入该界面时尝试申请权限
-        if (!PermissionHelper.isPermissionsGranted(this, "com.android.permission.GET_INSTALLED_APPS")) {
-            PermissionHelper.requestAppListPermission(this);
-        }
+        addPermissionRequests();
 
         //拦截返回键功能：先关闭搜索界面再返回上一级
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -122,24 +130,6 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         });
     }
 
-    //处理动态权限申请结果的方法
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == RequestResultCode.REQUEST_APP_LIST_PERMISSION.ordinal()) {
-            if (grantResults[0] == 0) {
-                appListRefreshLayout.setRefreshing(true);
-                startLoadAppList();
-            } else if (grantResults[0] == -1) {
-                Toast.makeText(this, "权限申请被拒绝，请手动授予应用列表权限并重启应用", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                intent.setData(Uri.parse("package:" + getPackageName()));
-                startActivity(intent);
-            }
-        }
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -149,20 +139,25 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         disposables.dispose();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        permissionHelper.start();
+    }
+
     //初始化视图
     private void initViews() {
         searchView = binding.searchView;
 
-        RecyclerView full_app_list_recycler = binding.appListRecycler;         //打开页面时显示的完整应用列表视图
+        RecyclerView fullAppListRecycler = binding.appListRecycler;         //打开页面时显示的完整应用列表视图
         fullAppAdapter = new AppListAdapter(this::onAppClicked);
-        full_app_list_recycler.setAdapter(fullAppAdapter);
-        RecyclerView search_result_recycler = binding.searchResultRecycler;    //搜索结果列表视图
+        fullAppListRecycler.setAdapter(fullAppAdapter);
+        RecyclerView searchResultRecycler = binding.searchResultRecycler;    //搜索结果列表视图
         searchAdapter = new AppListAdapter(this::onAppClicked);
-        search_result_recycler.setAdapter(searchAdapter);
+        searchResultRecycler.setAdapter(searchAdapter);
 
         //开始加载应用列表
         appListRefreshLayout = binding.appListRefreshLayout;
-        appListRefreshLayout.setRefreshing(true);
         startLoadAppList();
 
         //设置下拉刷新布局的监听器
@@ -188,9 +183,39 @@ public class PackageNameSelectActivity extends AppCompatActivity {
     }
 
     /**
+     * 添加权限申请
+     */
+    private void addPermissionRequests() {
+        permissionHelper.addPermission("com.android.permission.GET_INSTALLED_APPS");
+    }
+
+    /**
+     * 处理权限授予情况的方法
+     *
+     * @param permissions K:权限名称,V:权限是否被授予
+     */
+    private void onPermissionResult(@NonNull Map<String, Boolean> permissions) {
+        boolean allGranted = true;
+        for (Map.Entry<String, Boolean> entry : permissions.entrySet()) {
+            if (!entry.getValue()) {
+                allGranted = false;
+                break;
+            }
+        }
+
+        if (allGranted) {
+            startLoadAppList();
+        } else {
+            Toast.makeText(this, "需要应用列表权限才能选择应用", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+    }
+
+    /**
      * 在IO线程开始加载应用列表
      */
     private void startLoadAppList() {
+        appListRefreshLayout.setRefreshing(true);
         disposables.add(
                 Observable.fromCallable(() -> PackageNameHelper.getInstalledApps(isSysAppIncluded, this))
                         .subscribeOn(Schedulers.io())               //在IO线程执行查询
@@ -238,7 +263,6 @@ public class PackageNameSelectActivity extends AppCompatActivity {
                 isSysAppIncluded = !isSysAppIncluded;
                 item.setChecked(!item.isChecked());
 
-                appListRefreshLayout.setRefreshing(true);
                 startLoadAppList();
                 return true;
             }

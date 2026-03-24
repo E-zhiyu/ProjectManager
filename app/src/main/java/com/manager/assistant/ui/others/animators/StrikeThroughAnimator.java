@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 
 import com.manager.assistant.helpers.resourse.ColorHelper;
 
@@ -64,12 +65,12 @@ public class StrikeThroughAnimator {
 
         if (current == targetProcess) return;
 
-        ValueAnimator animator = ValueAnimator.ofFloat(current, targetProcess);
+        ValueAnimator animator = ValueAnimator.ofFloat(current, targetProcess + 0.01f);
         animator.setDuration(250);
 
         StrikeDrawable finalDrawable = drawable;
         animator.addUpdateListener(animation -> {
-            float value = (float) animation.getAnimatedValue();
+            float value = Math.min((float) animation.getAnimatedValue(), 1f);
             finalDrawable.setProgress(value);
         });
 
@@ -81,6 +82,8 @@ public class StrikeThroughAnimator {
             }
         });
 
+        animator.setInterpolator(new FastOutSlowInInterpolator());
+
         //开始动画
         target.setTag(TAG_ANIMATOR, animator);
         animator.start();
@@ -88,7 +91,7 @@ public class StrikeThroughAnimator {
 
     private static class StrikeDrawable extends Drawable {
 
-        private final TextView textView;    //覆盖在文本视图表面的删除线Drawable
+        private final TextView textView;    //需要覆盖删除线的文本视图
         private final Paint paint;          //画笔实例
         private float progress = 0f;        //过程占比（0~1）
 

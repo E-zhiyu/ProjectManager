@@ -1,4 +1,4 @@
-package com.manager.assistant.automation.broadcast;
+package com.manager.assistant.automation.broadcast.bookkeeping;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -6,6 +6,10 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+
+import com.manager.assistant.automation.broadcast.BroadcastActions;
+import com.manager.assistant.data.classes.running_account.RunningAccountBase;
+import com.manager.assistant.generic_enums.KeyValueStrings;
 
 /**
  * 自动记账成功添加流水记录的广播接收器
@@ -29,9 +33,19 @@ public class AccountUpdatedReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, @NonNull Intent intent) {
         String action = intent.getAction();
-        if (BroadcastConstants.ACTION_RUNNING_ACCOUNT_UPDATED.toString().equals(action)) {
+        Bundle dataBundle = intent.getExtras();
+        if (dataBundle == null) {
+            return;
+        }
+
+        //将数据写入数据库
+        long rno = RunningAccountBase.saveNewAccount(dataBundle, context);
+        dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
+
+        //通过接口回调更新UI
+        if (BroadcastActions.ACTION_RUNNING_ACCOUNT_UPDATED.toString().equals(action)) {
             if (listener != null) {
-                listener.onAccountAdded(intent.getExtras());
+                listener.onAccountAdded(dataBundle);
             }
         }
     }

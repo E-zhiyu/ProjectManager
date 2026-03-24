@@ -18,6 +18,7 @@ import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Tables;
 import com.manager.assistant.generic_enums.ChannelInfo;
+import com.manager.assistant.generic_enums.NotificationID;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.NotificationHelper;
 import com.manager.assistant.ui.pages.bookkeeping.budget.BudgetManageActivity;
@@ -510,9 +511,10 @@ public class Budget {
                     .setContentTitle("预算余额提醒")
                     .setContentText(content.toString())
                     .setContentIntent(pendingIntent)
-                    .setAutoCancel(true)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH);
-            NotificationHelper.sendNotification(builder, context);
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setCategory(NotificationCompat.CATEGORY_ALARM)
+                    .setAutoCancel(true);
+            NotificationHelper.sendNotification(NotificationID.BUDGET_AMOUNT_WARNING.ordinal(), builder, context);
         }
     }
 

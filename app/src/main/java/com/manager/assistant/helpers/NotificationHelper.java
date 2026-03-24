@@ -1,14 +1,18 @@
 package com.manager.assistant.helpers;
 
+import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.manager.assistant.generic_enums.ChannelInfo;
-import com.manager.assistant.generic_enums.NotificationID;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,17 +58,32 @@ public class NotificationHelper {
         channel.setShowBadge(true);
         channel.setDescription(info.getDescription());
 
+        //震动
+        channel.enableVibration(true);
+        channel.setVibrationPattern(new long[]{0, 200, 100, 200});
+
+        //灯光提示
+        channel.enableLights(true);
+
         return channel;
     }
 
     /**
      * 发送通知
      *
-     * @param builder 已经设置好的通知构建器
-     * @param context 上下文
+     * @param notificationID 该通知的唯一标识符，如果有相同标识符的通知，则会直接覆盖更新。可以使用{@link NotificationHelper}中的枚举常数作为标识符
+     * @param builder        已经设置好的通知构建器
+     * @param context        上下文
      */
-    public static void sendNotification(@NonNull NotificationCompat.Builder builder, @NonNull Context context) {
-        NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
-        notificationManager.notify(NotificationID.BUDGET_AMOUNT.ordinal(), builder.build());
+    public static void sendNotification(
+            int notificationID,
+            @NonNull NotificationCompat.Builder builder,
+            @NonNull Context context
+    ) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(context, "通知发送失败，请授予通知权限", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        NotificationManagerCompat.from(context).notify(notificationID, builder.build());
     }
 }

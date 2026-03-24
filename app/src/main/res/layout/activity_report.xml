@@ -25,11 +25,11 @@
         app:layout_constraintTop_toBottomOf="@id/toolbar">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/report_date_select_btn"
+            android:id="@+id/date_select_btn"
             style="?attr/materialSplitButtonLeadingFilledStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/date"
+            android:text="@string/select_date"
             app:icon="@drawable/outline_calendar_month_24" />
 
         <com.google.android.material.button.MaterialButton
@@ -111,7 +111,7 @@
                     android:orientation="vertical">
 
                     <com.google.android.material.textview.MaterialTextView
-                        style="@style/MediumTitleTextViewStyle"
+                        style="@style/LargeTitleTextViewStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/income" />
@@ -139,7 +139,7 @@
                     android:orientation="vertical">
 
                     <com.google.android.material.textview.MaterialTextView
-                        style="@style/MediumTitleTextViewStyle"
+                        style="@style/LargeTitleTextViewStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/expense" />

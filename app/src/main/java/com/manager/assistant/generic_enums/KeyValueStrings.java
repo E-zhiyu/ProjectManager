@@ -30,7 +30,8 @@ public enum KeyValueStrings {
     LEFT_AMOUNT("left_amount"),                             //预算剩余金额
     START_DATE("start_date"),                               //预算起算日期
     BNO("bno"),                                             //预算编号
-    BUDGET_RESET_FREQUENCY("budget_reset_frequency");       //预算重置频率
+    BUDGET_RESET_FREQUENCY("budget_reset_frequency"),       //预算重置频率
+    NOTIFICATION_ID("notification_id");                     //应用通知ID，用于区分不同的通知
 
     final String value;
 

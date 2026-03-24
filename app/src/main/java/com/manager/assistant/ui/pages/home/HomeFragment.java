@@ -350,7 +350,8 @@ public class HomeFragment extends Fragment {
 
                     //判断这笔帐是否在这一天内
                     try {
-                        LocalDateTime accountDateTime = LocalDateTime.parse(datetime);
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                        LocalDateTime accountDateTime = LocalDateTime.from(formatter.parse(datetime));
                         LocalDate today = LocalDate.now();
                         if (!accountDateTime.isAfter(today.atStartOfDay()) || !accountDateTime.isBefore(today.plusDays(1).atStartOfDay())) {
                             Log.i(LogTags.HOME_PAGE.getV(), "日期不在当日，不执行任何操作");

@@ -10,10 +10,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
+import androidx.core.util.Pair;
 
-import com.google.android.material.datepicker.CalendarConstraints;
-import com.google.android.material.datepicker.DateValidatorPointBackward;
-import com.google.android.material.datepicker.MaterialDatePicker;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.AccountSourceInfo;
 import com.manager.assistant.data.classes.MonthAccountInfo;
@@ -21,8 +19,7 @@ import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Tables;
 import com.manager.assistant.databinding.ActivityReportBinding;
-import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.generic_enums.TagString;
+import com.manager.assistant.helpers.DateTimeHelper;
 import com.manager.assistant.ui.others.animators.ScaleAnimator;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.data.classes.Tag;
@@ -45,9 +42,10 @@ public class ReportActivity extends AppCompatActivity {
     private AccountSourceAdapter expenseAdapter, incomeAdapter;                             //收支来源布局适配器
     private MonthAccountInfoType monthAccountInfoType = MonthAccountInfoType.BALANCE;       //月流水信息种类
     private MonthAccountAdapter monthAccountAdapter;                                        //月流水信息适配器
-    private double yearExpense = 0, yearIncome = 0;                                         //年支出和年收入
+    private double yearExpense = 0, yearIncome = 0;                                         //年支出和年收入（不是显示的数据）
     private double shownIncome = 0, shownExpense = 0;                                       //显示出来的收入和支出
-    private int year, month, day;                                                           //年月日
+    private LocalDate selectedDate;                                                         //不是自定义范围时，通过日期对话框选择的日期
+    private LocalDate start, end;                                                           //查询流水记录时的日期范围
     private ActivityReportBinding binding;                                                  //XML界面绑定引用
 
     //月流水信息种类
@@ -57,7 +55,7 @@ public class ReportActivity extends AppCompatActivity {
 
     //日期范围
     enum DateRangeType {
-        TODAY, THIS_MONTH, RECENT_3_MONTH, THIS_YEAR
+        TODAY, THIS_MONTH, RECENT_3_MONTH, THIS_YEAR, CUSTOM
     }
 
     static class ReportRunningAccountData {
@@ -96,10 +94,11 @@ public class ReportActivity extends AppCompatActivity {
         binding = ActivityReportBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        start = end = selectedDate = LocalDate.now();   //将各个日期对象初始化为今天
         initViews();
 
         List<ReportRunningAccountData> dataList = loadReportData(dateRangeType);    //加载报表数据
-        updateAccountSource(dataList);                                                //更新收支来源视图
+        updateAccountSource(dataList);                                              //更新收支来源视图
 
         //读取本年的流水数据并生成每月流水总结
         dataList = loadReportData(DateRangeType.THIS_YEAR);
@@ -121,16 +120,11 @@ public class ReportActivity extends AppCompatActivity {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
 
         //初始化当前日期
-        LocalDate now = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
-        String dateStr = formatter.format(now);
-        year = now.getYear();
-        month = now.getMonthValue();
-        day = now.getDayOfMonth();
+        String dateStr = DateTimeFormatter.ofPattern("yyyy年MM月dd日").format(selectedDate);
 
         //设置点击监听器
-        binding.reportDateSelectBtn.setText(dateStr);
-        binding.reportDateSelectBtn.setOnClickListener(v -> showDatePickerDialog());
+        binding.dateSelectBtn.setText(dateStr);
+        binding.dateSelectBtn.setOnClickListener(v -> showDatePickerDialog());
         binding.dateRangeSelectBtn.addOnCheckedChangeListener((materialButton, b) -> {
             if (b) {
                 showDateRangeSelectPopupMenu(materialButton);
@@ -194,10 +188,11 @@ public class ReportActivity extends AppCompatActivity {
     /**
      * 加载流水信息并生成报表数据
      */
+    @NonNull
     private List<ReportRunningAccountData> loadReportData(@NonNull DateRangeType dateRangeType) throws SQLiteException {
         List<ReportRunningAccountData> dataList = new ArrayList<>();
-        BookkeepingDbHelper db_helper = new BookkeepingDbHelper(this);
-        SQLiteDatabase db = db_helper.openReadLink();
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(this);
+        SQLiteDatabase db = dbHelper.openReadLink();
 
         String[] columns = new String[]{
                 Columns.AMOUNT.toString(),
@@ -208,45 +203,35 @@ public class ReportActivity extends AppCompatActivity {
         String selection = Columns.DATETIME + ">=? AND " + Columns.DATETIME + "<?";
 
         //根据日期范围设置selection语句的参数
-        String[] selectionArgs;
+        LocalDate start, end;
+        start = end = selectedDate;
         switch (dateRangeType) {
             case TODAY:
-                selectionArgs = new String[]{
-                        String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month, day),
-                        String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month, day + 1)
-                };
+                end = selectedDate.plusDays(1);
                 break;
             case THIS_MONTH:
-                selectionArgs = new String[]{
-                        String.format(Locale.getDefault(), "%04d-%02d-01", year, month),
-                        String.format(Locale.getDefault(), "%04d-%02d-01", year, month + 1)
-                };
+                start = selectedDate.withDayOfMonth(1);
+                end = start.plusMonths(1);
                 break;
             case RECENT_3_MONTH:
-                int early_month = month - 2;
-                int early_year;
-                if (early_month <= 0) {
-                    early_year = year - 1;
-                    early_month += 12;
-                } else {
-                    early_year = year;
-                }
-                selectionArgs = new String[]{
-                        String.format(Locale.getDefault(), "%04d-%02d-01", early_year, early_month),
-                        String.format(Locale.getDefault(), "%04d-%02d-01", year, month + 1)
-                };
+                end = selectedDate.plusMonths(1).withDayOfMonth(1);
+                start = end.plusMonths(-3);
                 break;
             case THIS_YEAR:
-                selectionArgs = new String[]{
-                        String.format(Locale.getDefault(), "%04d-01-01", year),
-                        String.format(Locale.getDefault(), "%04d-01-01", year + 1)
-                };
+                start = selectedDate.withMonth(1).withDayOfMonth(1);
+                end = start.plusYears(1);
                 break;
-            default:
-                NullPointerException e = new NullPointerException("无法设置合法的日期范围");
-                ExceptionHelper.showExceptionDialog(this, e);
-                return dataList;
+            case CUSTOM:
+                start = this.start;
+                end = this.end;
+                break;
         }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String[] selectionArgs = {
+                start.format(formatter),
+                end.format(formatter)
+        };
 
         Cursor basicCursor = db.query(
                 Tables.BASIC.toString(),
@@ -255,21 +240,21 @@ public class ReportActivity extends AppCompatActivity {
                 selectionArgs,
                 null,
                 null,
-                Columns.DATETIME + " DESC"
+                null
         );
 
         while (basicCursor.moveToNext()) {
             RunningAccountType type = RunningAccountType.valueOf(basicCursor.getString(basicCursor.getColumnIndexOrThrow(Columns.TYPE.toString())));
             double amount = basicCursor.getDouble(basicCursor.getColumnIndexOrThrow(Columns.AMOUNT.toString()));
-            long tag_no = basicCursor.getLong(basicCursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
+            long tagNo = basicCursor.getLong(basicCursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
             String datetime = basicCursor.getString(basicCursor.getColumnIndexOrThrow(Columns.DATETIME.toString()));
 
             //获取月份
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            LocalDateTime localDateTime = LocalDateTime.parse(datetime, formatter);
-            int month = localDateTime.getMonthValue();
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            LocalDateTime dateTime = LocalDateTime.parse(datetime, timeFormatter);
+            int month = dateTime.getMonthValue();
 
-            ReportRunningAccountData oneRecordedData = new ReportRunningAccountData(type, amount, tag_no, month);
+            ReportRunningAccountData oneRecordedData = new ReportRunningAccountData(type, amount, tagNo, month);
             dataList.add(oneRecordedData);
         }
 
@@ -565,48 +550,40 @@ public class ReportActivity extends AppCompatActivity {
      * 弹出日期选择页
      */
     private void showDatePickerDialog() {
-        //实例化一个日期对象用于存放选中的日期
-        LocalDate date = LocalDate.of(year, month, day);
+        if (dateRangeType != DateRangeType.CUSTOM) {
+            DateTimeHelper.selectDate(
+                    selectedDate,
+                    getSupportFragmentManager(),
+                    selection -> {
+                        LocalDate selected = Instant.ofEpochMilli(selection)
+                                .atZone(ZoneOffset.UTC)
+                                .toLocalDate();
 
-        //创建日期选择器
-        MaterialDatePicker.Builder<Long> dateBuilder = MaterialDatePicker.Builder.datePicker();
-        dateBuilder.setTitleText("选择日期");
+                        //更新日期文本视图
+                        int oldYear = start.getYear();
+                        selectedDate = selected;
+                        DateTimeFormatter chineseFormatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
+                        binding.dateSelectBtn.setText(selected.format(chineseFormatter));
 
-        //显示日期选择器
-        long dateSelection = date.atStartOfDay()
-                .toInstant(ZoneOffset.UTC)
-                .toEpochMilli();
-        MaterialDatePicker<Long> datePicker = dateBuilder
-                .setSelection(dateSelection)
-                .setCalendarConstraints(
-                        new CalendarConstraints.Builder()
-                                .setValidator(DateValidatorPointBackward.now()) //限制为过去日期
-                                .build()
-                )
-                .build();
-        datePicker.show(getSupportFragmentManager(), TagString.DATE_PICKER.getValue());
-
-        datePicker.addOnPositiveButtonClickListener(selection -> {
-            LocalDate selectedDate = Instant.ofEpochMilli(selection)
-                    .atZone(ZoneOffset.UTC)
-                    .toLocalDate();
-
-            //更新日期文本视图
-            int old_year = this.year;
-            this.year = selectedDate.getYear();
-            this.month = selectedDate.getMonthValue();
-            this.day = selectedDate.getDayOfMonth();
-            binding.reportDateSelectBtn.setText(String.format(Locale.getDefault(), "%04d年%02d月%02d日", year, month, day));
-
-            //重新加载报表信息
-            List<ReportRunningAccountData> dataList = loadReportData(dateRangeType);
-            updateAccountSource(dataList);
-            if (old_year != this.year) {
-                dataList = loadReportData(DateRangeType.THIS_YEAR);
-                updateMonthAccountData(dataList);
-                refreshMonthAccountInfoViews();
-            }
-        });
+                        //重新加载报表信息
+                        List<ReportRunningAccountData> dataList = loadReportData(dateRangeType);
+                        updateAccountSource(dataList);
+                        if (oldYear != selectedDate.getYear()) {
+                            dataList = loadReportData(DateRangeType.THIS_YEAR);
+                            updateMonthAccountData(dataList);
+                            refreshMonthAccountInfoViews();
+                        }
+                    }
+            );
+        } else {
+            DateTimeHelper.selectDateRange(
+                    start,
+                    end,
+                    getSupportFragmentManager(),
+                    this,
+                    this::onDateRangeDialogPositiveBtnClicked
+            );
+        }
     }
 
     /**
@@ -619,7 +596,8 @@ public class ReportActivity extends AppCompatActivity {
         dateRangeSelectMenu.getMenuInflater().inflate(R.menu.popup_menu_date_range_select, dateRangeSelectMenu.getMenu());
 
         dateRangeSelectMenu.setOnMenuItemClickListener(item -> {
-            boolean itemClicked = false;    //是否点击某个选项
+            boolean itemClicked = false;        //是否点击某个选项
+            boolean isCustomRange = false;      //是否为自定义日期范围
             if (item.getItemId() == R.id.action_today) {
                 ScaleAnimator.show(binding.monthAccountCard);
                 dateRangeType = DateRangeType.TODAY;
@@ -640,12 +618,32 @@ public class ReportActivity extends AppCompatActivity {
                 dateRangeType = DateRangeType.THIS_YEAR;
                 binding.dateRangeText.setText(R.string.this_year);
                 itemClicked = true;
+            } else if (item.getItemId() == R.id.action_custom) {
+                dateRangeType = DateRangeType.CUSTOM;
+                itemClicked = true;
+                isCustomRange = true;
+
+                //显示日期范围选择对话框
+                DateTimeHelper.selectDateRange(
+                        start,
+                        end,
+                        getSupportFragmentManager(),
+                        ReportActivity.this,
+                        this::onDateRangeDialogPositiveBtnClicked
+                );
             }
 
-            if (itemClicked) {
+            //不是自定义日期范围时刷新收支来源卡片
+            if (!isCustomRange) {
                 List<ReportRunningAccountData> dataList = loadReportData(dateRangeType);
                 updateAccountSource(dataList);
+
+                //更新日期选择按钮的文本
+                DateTimeFormatter chineseFormatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
+                String selectedDateStr = selectedDate.format(chineseFormatter);
+                binding.dateSelectBtn.setText(selectedDateStr);
             }
+
             return itemClicked;
         });
 
@@ -665,7 +663,7 @@ public class ReportActivity extends AppCompatActivity {
 
         monthAccountInfoTypeMenu.setOnMenuItemClickListener(item -> {
             boolean itemClicked = false;    //是否点击了选项
-            MonthAccountInfoType old_type = monthAccountInfoType;   //用于比较两次选择是否相同
+            MonthAccountInfoType oldType = monthAccountInfoType;    //用于比较两次选择是否相同
             if (item.getItemId() == R.id.action_balance) {
                 monthAccountInfoType = MonthAccountInfoType.BALANCE;
                 binding.monthAccountTypeLeadingBtn.setText(R.string.balance);
@@ -678,9 +676,12 @@ public class ReportActivity extends AppCompatActivity {
                 monthAccountInfoType = MonthAccountInfoType.INCOME;
                 binding.monthAccountTypeLeadingBtn.setText(R.string.income);
                 itemClicked = true;
+
+                //弹出关于日期范围边界的提示
+                Toast.makeText(this, "提示：统计结果包含起止日期", Toast.LENGTH_SHORT).show();
             }
 
-            if (itemClicked && old_type != monthAccountInfoType) {
+            if (itemClicked && oldType != monthAccountInfoType) {
                 List<ReportRunningAccountData> dataList = loadReportData(DateRangeType.THIS_YEAR);
                 updateMonthAccountData(dataList);
                 refreshMonthAccountInfoViews();
@@ -691,5 +692,35 @@ public class ReportActivity extends AppCompatActivity {
 
         monthAccountInfoTypeMenu.setOnDismissListener(menu -> binding.monthAccountTypeSelectBtn.setChecked(false));
         monthAccountInfoTypeMenu.show();
+    }
+
+    /**
+     * 日期范围选择对话框确认回调
+     *
+     * @param selection 选择的日期范围对
+     */
+    private void onDateRangeDialogPositiveBtnClicked(@NonNull Pair<Long, Long> selection) {
+        start = DateTimeHelper.getLocalDateFromTimeMilli(selection.first);
+        end = DateTimeHelper.getLocalDateFromTimeMilli(selection.second).plusDays(1);   //因为数据库的WHERE子句为左闭右开，因此需要+1天
+
+        //隐藏每月流水报表（因为日期范围可以跨年）
+        ScaleAnimator.hide(binding.monthAccountCard);
+
+        //更换日期选择按钮的文本
+        binding.dateSelectBtn.setText(R.string.select_date);
+
+        //显示选中的日期范围
+        DateTimeFormatter chineseFormatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
+        String chineseDateRange = String.format(
+                Locale.getDefault(),
+                "%s ~ %s",
+                start.format(chineseFormatter),
+                end.format(chineseFormatter)
+        );
+        binding.dateRangeText.setText(chineseDateRange);
+
+        //刷新收支来源卡片
+        List<ReportRunningAccountData> dataList = loadReportData(dateRangeType);
+        updateAccountSource(dataList);
     }
 }

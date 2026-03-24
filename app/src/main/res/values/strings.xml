@@ -80,9 +80,6 @@
     <string name="notification_content_regex">通知内容(正则)</string>
     <string name="input_instruction">详细输入说明</string>
     <string name="search_app">搜索应用……</string>
-    <string name="hide_background">后台隐藏</string>
-    <string name="auto_start_permission">自启动权限</string>
-    <string name="battery_optimization">电池优化</string>
     <string name="background_setting">后台设置</string>
     <string name="analysis_rule_tip">推荐执行以下操作使通知监听更加稳定：\n1.授予自启动权限(如果有该权限设置)\n2.在最近任务中锁定本应用\n3.在该软件设置界面将电池优化设置为“无限制”</string>
     <string name="tag_optional">标签(可选)</string>
@@ -154,4 +151,15 @@
     <string name="left_amount">剩余金额</string>
     <string name="reset_frequency">重置频率</string>
     <string name="budget_reset_description">预算重置按钮</string>
+    <string name="custom">自定义</string>
+    <string name="select_date">选择日期</string>
+    <string name="backend_popup">后台弹窗</string>
+    <string name="permissions_setting">权限设置</string>
+    <string name="notification_permission">通知权限</string>
+    <string name="notification_listener_permission">通知使用权限</string>
+    <string name="auto_start_permission">自启动权限</string>
+    <string name="battery_optimization">电池优化</string>
+    <string name="alarm_permission">精确闹钟权限</string>
+    <string name="app_list_option">应用列表权限</string>
+    <string name="camera_permission">相机权限</string>
 </resources>

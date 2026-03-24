@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/CommonPageStyle"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.pages.setting.PermissionManageActivity">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="@string/permissions_setting" />
+
+    <ScrollView
+        style="@style/CommonPageStyle"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:scrollbars="none"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        tools:context=".ui.pages.setting.SettingFragment">
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/ContentCardStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/app_settings_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <include
+                    android:id="@+id/camera_option"
+                    layout="@layout/view_setting_option" />
+
+                <include
+                    android:id="@+id/app_list_option"
+                    layout="@layout/view_setting_option" />
+
+                <include
+                    android:id="@+id/notification_option"
+                    layout="@layout/view_setting_option" />
+
+                <include
+                    android:id="@+id/notification_listener_option"
+                    layout="@layout/view_setting_option" />
+
+                <include
+                    android:id="@+id/auto_start_option"
+                    layout="@layout/view_setting_option" />
+
+                <include
+                    android:id="@+id/battery_optimizations_option"
+                    layout="@layout/view_setting_option" />
+
+                <include
+                    android:id="@+id/alarm_option"
+                    layout="@layout/view_setting_option" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
