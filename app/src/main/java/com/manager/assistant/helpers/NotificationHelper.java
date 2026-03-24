@@ -5,6 +5,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.media.AudioAttributes;
+import android.media.RingtoneManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -57,6 +59,14 @@ public class NotificationHelper {
         //配置角标、描述
         channel.setShowBadge(true);
         channel.setDescription(info.getDescription());
+
+        //声音
+        channel.setSound(
+                RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
+                new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                        .build()
+        );
 
         //震动
         channel.enableVibration(true);
