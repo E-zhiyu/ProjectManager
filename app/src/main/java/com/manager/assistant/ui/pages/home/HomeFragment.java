@@ -18,7 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.manager.assistant.data.classes.Budget;
 import com.manager.assistant.data.classes.Tag;
-import com.manager.assistant.data.classes.running_account.RunningAccountBase;
+import com.manager.assistant.data.controllers.AccountDataController;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Tables;
@@ -98,21 +98,21 @@ public class HomeFragment extends Fragment {
 
         //初始化记账日期
         String startDateStr = getBookKeepingStartDate();  //获取开始记账的日期
-        long days_count;
+        long daysCount;
         if (!startDateStr.isEmpty()) {
             LocalDate startDate = LocalDate.parse(startDateStr);
             LocalDate currentDate = LocalDate.now();
 
-            days_count = ChronoUnit.DAYS.between(startDate, currentDate);    //计算相差的天数
+            daysCount = ChronoUnit.DAYS.between(startDate, currentDate);    //计算相差的天数
         } else {
-            days_count = 0;   //无法获取则说明是第一天记账
+            daysCount = 0;   //无法获取则说明是第一天记账
         }
-        if (days_count != 0) {
+        if (daysCount != 0) {
             binding.bookkeepingDaysText.setText(
                     String.format(
                             Locale.getDefault(),
                             "您已累计记账%d天",
-                            days_count
+                            daysCount
                     )
             );
         } else {
@@ -224,7 +224,7 @@ public class HomeFragment extends Fragment {
         if (startDate.isEmpty()) {
             //如果没有保存开始记账日期，则尝试获取最早一次流水记录的日期
             try {
-                startDate = RunningAccountBase.getEarliestAccountDate(requireContext());
+                startDate = AccountDataController.getEarliestAccountDate(requireContext());
                 if (!startDate.isEmpty()) {
                     BookKeepingStartDatePreference.saveStartDate(startDate, requireContext());
                 }

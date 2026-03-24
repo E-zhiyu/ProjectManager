@@ -8,7 +8,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 
 import com.manager.assistant.automation.broadcast.BroadcastActions;
-import com.manager.assistant.data.classes.running_account.RunningAccountBase;
+import com.manager.assistant.data.controllers.AccountDataController;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 
 /**
@@ -39,7 +39,7 @@ public class AccountUpdatedReceiver extends BroadcastReceiver {
         }
 
         //将数据写入数据库
-        long rno = RunningAccountBase.saveNewAccount(dataBundle, context);
+        long rno = AccountDataController.saveNewAccount(dataBundle, context);
         dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
 
         //通过接口回调更新UI

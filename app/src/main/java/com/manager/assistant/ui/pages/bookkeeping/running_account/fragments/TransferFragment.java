@@ -18,7 +18,7 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.Tag;
-import com.manager.assistant.data.classes.running_account.TransferRunningAccount;
+import com.manager.assistant.data.controllers.AccountDataController;
 import com.manager.assistant.databinding.FragmentTransferBinding;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
@@ -152,7 +152,7 @@ public class TransferFragment extends RunningAccountFragmentBase<FragmentTransfe
         });
         binding.importAccountInput.setOnClickListener(v -> binding.importAccountLayout.setError(null));
 
-        HashSet<String> importExportAccountNameSet = TransferRunningAccount.getAllExportOrImportAccounts(requireContext());
+        HashSet<String> importExportAccountNameSet = AccountDataController.getAllExportOrImportAccounts(requireContext());
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
                 requireContext(),
                 R.layout.exposed_dropdown_popup_item,

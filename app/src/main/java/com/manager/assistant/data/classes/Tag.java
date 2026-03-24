@@ -9,7 +9,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.data.classes.running_account.RunningAccountBase;
+import com.manager.assistant.data.controllers.AccountDataController;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Tables;
@@ -286,7 +286,7 @@ public class Tag {
         String whereStr = Columns.TAG_NO + "=?";
         String[] whereStrArgs = {String.valueOf(tagNo)};
 
-        RunningAccountBase.onTagDeleted(tagNo, db); //清除流水记录里面的标签编号
+        AccountDataController.onTagDeleted(tagNo, db); //清除流水记录里面的标签编号
         AnalysisRule.onTagDeleted(tagNo, db);       //清除通知解析规则中的标签编号
         Budget.onTagDeleted(tagNo, db);             //删除预算中的标签编号数据
 
@@ -324,9 +324,9 @@ public class Tag {
 
         //清空引用了标签编号的数据
         while (tagCursor.moveToNext()) {
-            long tag_no = tagCursor.getLong(tagCursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
-            RunningAccountBase.onTagDeleted(tag_no, db); //清除流水记录里面的标签编号
-            AnalysisRule.onTagDeleted(tag_no, db);       //清除通知解析规则中的标签编号
+            long tagNo = tagCursor.getLong(tagCursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
+            AccountDataController.onTagDeleted(tagNo, db); //清除流水记录里面的标签编号
+            AnalysisRule.onTagDeleted(tagNo, db);       //清除通知解析规则中的标签编号
         }
         tagCursor.close();
 

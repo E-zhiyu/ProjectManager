@@ -14,7 +14,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.Picture;
-import com.manager.assistant.data.classes.running_account.RunningAccountBase;
+import com.manager.assistant.data.controllers.AccountDataController;
 import com.manager.assistant.databinding.ActivityRunningAccountModifyBinding;
 import com.manager.assistant.generic_enums.DirectoryPaths;
 import com.manager.assistant.generic_enums.RequestResultCode;
@@ -149,7 +149,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
 
                 //将数据保存至数据库
                 try {
-                    RunningAccountBase.modifyAccount(dataBundle, this);
+                    AccountDataController.modifyAccount(dataBundle, this);
                 } catch (SQLiteException e) {
                     ExceptionHelper.showExceptionDialog(this, e);
                     Toast.makeText(this, "修改流水数据失败", Toast.LENGTH_SHORT).show();
