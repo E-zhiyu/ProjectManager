@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.manager.assistant.data.controllers.RuleDataController;
 import com.manager.assistant.databinding.ActivityAnalysisRuleManageBinding;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.helpers.PermissionHelper;
@@ -97,7 +98,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         binding.refreshLayout.setRefreshing(true);
         List<AnalysisRule> ruleList;
         try {
-            ruleList = new ArrayList<>(AnalysisRule.loadAnalysisRule(this));
+            ruleList = new ArrayList<>(RuleDataController.loadAnalysisRule(this));
         } catch (SQLiteException e) {
             ruleList = new ArrayList<>();
             ExceptionHelper.showExceptionDialog(this, e);
@@ -246,7 +247,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
     private void refreshRuleRecycler() {
         binding.refreshLayout.setRefreshing(true);
         disposables.add(
-                Observable.fromCallable(() -> AnalysisRule.loadAnalysisRule(this))
+                Observable.fromCallable(() -> RuleDataController.loadAnalysisRule(this))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(

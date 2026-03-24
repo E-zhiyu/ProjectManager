@@ -18,7 +18,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
-import com.manager.assistant.data.classes.AnalysisRule;
+import com.manager.assistant.data.controllers.RuleDataController;
 import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.databinding.ActivityRuleAddModifyBinding;
 import com.manager.assistant.generic_enums.RequestResultCode;
@@ -104,7 +104,7 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         );
 
         //转出账户和转入账户添加适配器
-        HashSet<String> accountSet = AnalysisRule.getAllExportOrImportAccounts(this);
+        HashSet<String> accountSet = RuleDataController.getAllExportOrImportAccounts(this);
         NoFilteringArrayAdapter<String> accountAdapter = new NoFilteringArrayAdapter<>(this, new ArrayList<>(accountSet));
         binding.exportAccountInput.setAdapter(accountAdapter);
         binding.importAccountInput.setAdapter(accountAdapter);
@@ -274,7 +274,7 @@ public class RuleAddModifyActivity extends AppCompatActivity {
             String notificationContent = initData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());   //通知内容
             if (type == RunningAccountType.TRANSFER) {                                                          //转账账户信息
                 binding.transferInputLayout.setVisibility(View.VISIBLE);
-                List<String> transferAccountInfo = AnalysisRule.getTransferAccounts(rule_no, this);
+                List<String> transferAccountInfo = RuleDataController.getTransferAccounts(rule_no, this);
                 if (!transferAccountInfo.isEmpty()) {
                     String exportAccount = transferAccountInfo.get(0);
                     String importAccount = transferAccountInfo.get(1);

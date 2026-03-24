@@ -19,6 +19,7 @@ import androidx.core.app.RemoteInput;
 
 import com.manager.assistant.R;
 import com.manager.assistant.automation.broadcast.bookkeeping.AutoBookkeepingActionsReceiver;
+import com.manager.assistant.data.controllers.RuleDataController;
 import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.generic_enums.ChannelInfo;
 import com.manager.assistant.generic_enums.LogTags;
@@ -321,7 +322,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
         dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
         if (type == RunningAccountType.TRANSFER) {
-            List<String> transferAccountInfo = AnalysisRule.getTransferAccounts(ruleNo, getApplicationContext());
+            List<String> transferAccountInfo = RuleDataController.getTransferAccounts(ruleNo, getApplicationContext());
             if (!transferAccountInfo.isEmpty()) {
                 String exportAccount = transferAccountInfo.get(0);
                 String importAccount = transferAccountInfo.get(1);
@@ -344,7 +345,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "开始加载通知解析规则");
 
         HashMap<RuleKey, List<RuleValue>> ruleHashMap = new HashMap<>();
-        List<AnalysisRule> ruleList = AnalysisRule.loadAnalysisRule(getApplicationContext());
+        List<AnalysisRule> ruleList = RuleDataController.loadAnalysisRule(getApplicationContext());
         for (AnalysisRule rule : ruleList) {
             String ruleName = rule.getRuleName();
             long ruleNo = rule.getRuleNo();
