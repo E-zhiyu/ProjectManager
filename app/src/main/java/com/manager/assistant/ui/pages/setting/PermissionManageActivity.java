@@ -1,7 +1,6 @@
 package com.manager.assistant.ui.pages.setting;
 
 import android.Manifest;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -22,6 +21,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.databinding.ActivityPermissionManageBinding;
+import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingClickableTextView;
 
 import io.noties.markwon.Markwon;
@@ -128,31 +128,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                         R.string.auto_start_permission,
                         "该权限是定制安卓中特有的权限，其允许应用在后台启动服务，应用范围如下：\n" +
                                 "- 在退出应用后自动启动通知监听服务，确保自动记账功能能够运行\n",
-                        () -> {
-                            String manufacturer = Build.MANUFACTURER.toLowerCase();
-
-                            Intent intent = new Intent();
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                            try {
-                                // 根据设备厂商跳转到不同的设置页面
-                                if (manufacturer.contains("xiaomi" )) {
-                                    // 小米设备
-                                    intent.setComponent(new ComponentName(
-                                            "com.miui.securitycenter",
-                                            "com.miui.permcenter.autostart.AutoStartManagementActivity" ));
-                                } else {
-                                    //其他设备跳转到设置界面
-                                    intent.setAction(Settings.ACTION_SETTINGS);
-                                    Toast.makeText(this, "请前往自启动管理页面为本应用授权", Toast.LENGTH_SHORT).show();
-                                }
-                                startActivity(intent);
-                            } catch (Exception e) {
-                                //如果出现异常，跳转到设置
-                                intent.setAction(Settings.ACTION_SETTINGS);
-                                intent.setData(Uri.fromParts("package", getPackageName(), null));
-                            }
-                        }
+                        () -> PermissionHelper.requestAutoStartPermission(this)
                 )
         );
 

@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.activity.ComponentActivity;
@@ -19,10 +20,13 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
+import com.manager.assistant.generic_enums.LogTags;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 /**
@@ -35,6 +39,7 @@ public class PermissionHelper {
     private ActivityResultLauncher<String[]> runtimeLauncher;   //申请运行时权限的启动器
 
     public enum SpecialType {
+        //精确闹钟权限
         ALARM(
                 ctx -> Build.VERSION.SDK_INT < Build.VERSION_CODES.S || ctx.getSystemService(android.app.AlarmManager.class).canScheduleExactAlarms(),
                 ctx -> {
@@ -44,10 +49,22 @@ public class PermissionHelper {
                     return null;
                 }
         ),
-        @SuppressLint("BatteryLife" ) BATTERY(
+        //电池优化
+        @SuppressLint("BatteryLife") BATTERY(
                 ctx -> ((android.os.PowerManager) ctx.getSystemService(Context.POWER_SERVICE)).isIgnoringBatteryOptimizations(ctx.getPackageName()),
                 ctx -> new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
-        );
+        ),
+        //通知监听权限
+        NOTIFICATION_LISTENER(
+                PermissionHelper::isNotificationServiceEnabled,
+                c -> {
+                    Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    return intent;
+                }
+        ),
+        //自启动权限
+        AUTO_START(context -> false, context -> null);
         private final Checker checker;
         private final IntentBuilder intentBuilder;
 
@@ -116,8 +133,12 @@ public class PermissionHelper {
         this.runtimeLauncher = activity.registerForActivityResult(
                 new ActivityResultContracts.RequestMultiplePermissions(),
                 result -> {
-                    //批量运行时权限回调后，自动进入特殊权限流程
-                    processNextSpecial();
+                    //如果运行时权限被拒绝了，那就不要继续申请
+                    for (Map.Entry<String, Boolean> entry : result.entrySet()) {
+                        if (!entry.getValue()) {
+                            runtimePermissions.remove(entry.getKey());
+                        }
+                    }
                 }
         );
     }
@@ -148,9 +169,10 @@ public class PermissionHelper {
     public void start() {
         if (runtimeLauncher == null) {
             throw new IllegalStateException("RuntimeLauncher has not been initialized. " +
-                    "Ensure it was passed in constructor or registered before Activity started." );
+                    "Ensure it was passed in constructor or registered before Activity started.");
         }
 
+        //筛选没有授权的运行时权限
         List<String> deniedPermissions = new ArrayList<>();
         for (String p : runtimePermissions) {
             if (ContextCompat.checkSelfPermission(activity, p) != PackageManager.PERMISSION_GRANTED) {
@@ -158,6 +180,7 @@ public class PermissionHelper {
             }
         }
 
+        //先处理运行时权限，再处理特殊应用权限
         if (!deniedPermissions.isEmpty()) {
             runtimeLauncher.launch(deniedPermissions.toArray(new String[0]));
         } else {
@@ -168,14 +191,20 @@ public class PermissionHelper {
     /**
      * 处理队下一个特殊应用权限
      */
-    public void processNextSpecial() {
-        if (specialQueue.isEmpty()) return;
+    private void processNextSpecial() {
+        if (specialQueue.isEmpty()) {
+            Log.i(LogTags.PERMISSION_HELPER.getV(), "特殊应用权限申请完毕");
+            return;
+        }
 
+        //从队列中取出一个特殊应用权限请求
+        Log.d(LogTags.PERMISSION_HELPER.getV(), "正在处理下个特殊应用权限");
         SpecialRequest request = specialQueue.poll();
         if (request == null) {
             return;
         }
 
+        //处理该权限
         handleSpecialPermission(request);
     }
 
@@ -186,18 +215,40 @@ public class PermissionHelper {
      */
     private void handleSpecialPermission(@NonNull SpecialRequest request) {
         SpecialType type = (SpecialType) request.permission;
-        if (type.isGranted(activity)) {
-            processNextSpecial();
-            return;
-        }
+        Log.d(LogTags.PERMISSION_HELPER.getV(), request.customTitle);
+        if (type == SpecialType.AUTO_START) {
+            //单独处理自启动权限
+            if (!AutoBookKeepingPreference.getHintAutoStart(activity)) {
+                AutoBookKeepingPreference.setHintAutoStart(true, activity);
 
-        new MaterialAlertDialogBuilder(activity)
-                .setTitle(request.customTitle)
-                .setMessage(request.customMessage)
-                .setPositiveButton("去设置", (d, w) -> activity.startActivity(type.getIntent(activity)))
-                .setNegativeButton("取消", (d, w) -> processNextSpecial())
-                .setCancelable(false)
-                .show();
+                //弹出提示框
+                new MaterialAlertDialogBuilder(activity)
+                        .setTitle(request.customTitle)
+                        .setMessage(request.customMessage)
+                        .setNegativeButton(
+                                "取消",
+                                (dialog, which) -> processNextSpecial()
+                        )
+                        .setPositiveButton(
+                                "前往设置",
+                                (dialog, which) -> PermissionHelper.requestAutoStartPermission(activity)
+                        )
+                        .setCancelable(false)
+                        .show();
+            } else {
+                processNextSpecial();
+            }
+        } else if (type.isGranted(activity)) {
+            processNextSpecial();
+        } else {
+            new MaterialAlertDialogBuilder(activity)
+                    .setTitle(request.customTitle)
+                    .setMessage(request.customMessage)
+                    .setPositiveButton("去设置", (d, w) -> activity.startActivity(type.getIntent(activity)))
+                    .setNegativeButton("取消", (d, w) -> processNextSpecial())
+                    .setCancelable(false)
+                    .show();
+        }
     }
 
     /**
@@ -245,7 +296,7 @@ public class PermissionHelper {
             } else {
                 //其他设备跳转到设置界面
                 intent.setAction(Settings.ACTION_SETTINGS);
-                Toast.makeText(context, "您的设备不支持直接跳转，请前往自启动管理页面为本应用授权", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "请前往自启动管理页进行授权", Toast.LENGTH_SHORT).show();
             }
             context.startActivity(intent);
         } catch (Exception e) {

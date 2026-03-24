@@ -209,9 +209,6 @@ public class PackageNameSelectActivity extends AppCompatActivity {
             Toast.makeText(this, "需要应用列表权限才能选择应用", Toast.LENGTH_SHORT).show();
             finish();
         }
-
-        //处理完运行时权限后处理特殊应用权限（如果有）
-        permissionHelper.processNextSpecial();
     }
 
     /**

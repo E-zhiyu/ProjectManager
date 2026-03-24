@@ -170,9 +170,6 @@ public class CameraActivity extends AppCompatActivity {
             Toast.makeText(this, "需要相机权限才能使用此功能", Toast.LENGTH_SHORT).show();
             finish();
         }
-
-        //处理完运行时权限后处理特殊应用权限（如果有）
-        permissionHelper.processNextSpecial();
     }
 
     private void bindCameraUseCases(ProcessCameraProvider cameraProvider) {

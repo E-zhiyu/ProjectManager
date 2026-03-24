@@ -1,8 +1,10 @@
 package com.manager.assistant.ui.pages.bookkeeping.notification_analysis.rule_edit;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteException;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -10,8 +12,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.databinding.ActivityAnalysisRuleManageBinding;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.helpers.PermissionHelper;
@@ -36,6 +36,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
     private AnalysisRuleAdapter ruleAdapter;                   //规则列表适配器
     private ActivityAnalysisRuleManageBinding binding;          //XML视图绑定引用
     private final CompositeDisposable disposables = new CompositeDisposable();
+    private final PermissionHelper permissionHelper = new PermissionHelper(this);   //权限申请帮助器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,19 +48,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         initViews();
         AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
         initLaunchers();
-
-        //第一次打开提示授予自启动权限
-        if (!AutoBookKeepingPreference.getHintAutoStart(this)) {
-            AutoBookKeepingPreference.setHintAutoStart(true, this);
-
-            //弹出提示框
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle("提示" )
-                    .setMessage("如果您的系统有自启动权限设置，请授予本应用自启动权限，否则该功能无法正常运行\n(提示：该功能需要在后台常驻才能稳定运行，建议在最近任务中锁定本应用)" )
-                    .setNegativeButton("关闭", ((dialog, which) -> dialog.dismiss()))
-                    .setPositiveButton("前往设置", ((dialog, which) -> PermissionHelper.requestAutoStartPermission(this)))
-                    .show();
-        }
+        addPermissionRequests();
 
         //监听标签变化并刷新UI
         TagRepository repository = TagRepository.getInstance();
@@ -75,6 +64,12 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         super.onDestroy();
         binding = null;
         disposables.dispose();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        permissionHelper.start();
     }
 
     /**
@@ -119,6 +114,26 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
     }
 
     /**
+     * 添加权限申请
+     */
+    private void addPermissionRequests() {
+        //添加权限申请
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissionHelper.addPermission(Manifest.permission.POST_NOTIFICATIONS);
+        }
+        permissionHelper.addPermission(
+                PermissionHelper.SpecialType.AUTO_START,
+                "自启动权限",
+                "该功能需要在后台运行通知监听服务，如果系统中有自启动权限，请为本应用授权，否则该功能可能无法正常运行"
+        );
+        permissionHelper.addPermission(
+                PermissionHelper.SpecialType.BATTERY,
+                "电池优化",
+                "为保证软件退出后仍然可以自动监听通知实现自动记账，请将本应用的电池优化策略改为“无限制”"
+        );
+    }
+
+    /**
      * 初始化启动器
      */
     private void initLaunchers() {
@@ -132,7 +147,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
                         if (data != null) {
                             onAnalysisRuleAdded(data);
                         } else {
-                            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据" );
+                            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据");
                             ExceptionHelper.showExceptionDialog(this, e);
                         }
                     }
@@ -149,7 +164,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
                         if (data != null) {
                             onAnalysisRuleModified(data, resultCode);
                         } else {
-                            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据" );
+                            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据");
                             ExceptionHelper.showExceptionDialog(this, e);
                         }
                     }
@@ -195,7 +210,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
     private void onAnalysisRuleAdded(@NonNull Intent resultIntent) {
         Bundle dataBundle = resultIntent.getExtras();
         if (dataBundle == null) {
-            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据" );
+            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据");
             ExceptionHelper.showExceptionDialog(this, e);
             return;
         }
@@ -212,7 +227,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
     private void onAnalysisRuleModified(@NonNull Intent resultIntent, int resultCode) {
         Bundle dataBundle = resultIntent.getExtras();
         if (dataBundle == null) {
-            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据" );
+            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据");
             ExceptionHelper.showExceptionDialog(this, e);
             return;
         }
