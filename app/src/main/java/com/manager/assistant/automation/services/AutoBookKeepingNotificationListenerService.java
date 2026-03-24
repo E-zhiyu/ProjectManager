@@ -218,18 +218,11 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
 
                 if (matcher.find()) {
                     Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "成功匹配正则表达式");
-                    Bundle dataBundle;
-                    try {
-                        //获取标签编号
-                        long tagNo = Tag.getTagByRuleNo(ruleNo, getApplicationContext()).getTno();
 
-                        dataBundle = getNewAccountData(matcher, type, tagNo, ruleName, ruleNo);
-                        Log.i(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据保存成功");
-                    } catch (SQLiteException e) {
-                        Log.e(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据保存失败或标签编号读取失败");
-                        Toast.makeText(getApplicationContext(), "自动记账出错：无法获取标签编号", Toast.LENGTH_SHORT).show();
-                        continue;
-                    }
+                    //生成流水数据包
+                    long tagNo = Tag.getTagByRuleNo(ruleNo, getApplicationContext()).getTno();
+                    Bundle dataBundle = getNewAccountData(matcher, type, tagNo, ruleName, ruleNo);
+                    Log.i(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据生成成功");
 
                     //发送确认自动记账的通知，在通知中决定保留还是删除
                     sendNotificationToConfirm(dataBundle, ruleName, getApplicationContext());
