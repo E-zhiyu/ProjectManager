@@ -28,6 +28,7 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputLayout;
 import com.manager.assistant.data.classes.Picture;
 import com.manager.assistant.data.classes.Tag;
+import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.generic_enums.DirectoryPaths;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.LogTags;
@@ -212,7 +213,7 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
                                     tagInput.setText("");
                                     break;
                                 case MERGE:
-                                    this.tno = Tag.nameTransToTno(tagName, requireContext());
+                                    this.tno = TagDataController.nameTransToTno(tagName, requireContext());
                                     tagInput.setText(tagName);
                                     break;
                                 default:

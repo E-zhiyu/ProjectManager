@@ -19,6 +19,7 @@ import androidx.core.app.RemoteInput;
 
 import com.manager.assistant.R;
 import com.manager.assistant.automation.broadcast.bookkeeping.AutoBookkeepingActionsReceiver;
+import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.generic_enums.ChannelInfo;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.automation.broadcast.RuleUpdateReceiver;
@@ -30,7 +31,6 @@ import com.manager.assistant.generic_enums.NotificationID;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.NotificationHelper;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
-import com.manager.assistant.data.classes.Tag;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -220,7 +220,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                     Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "成功匹配正则表达式");
 
                     //生成流水数据包
-                    long tagNo = Tag.getTagByRuleNo(ruleNo, getApplicationContext()).getTno();
+                    long tagNo = TagDataController.getTagByRuleNo(ruleNo, getApplicationContext()).getTno();
                     Bundle dataBundle = getNewAccountData(matcher, type, tagNo, ruleName, ruleNo);
                     Log.i(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据生成成功");
 

@@ -17,6 +17,7 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.classes.TagGroup;
+import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.databinding.BottomSheetAccountFilterBinding;
 import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.helpers.resourse.ResHelper;
@@ -223,7 +224,7 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
         loadTagGroup(tagAdapter);
 
         //初始化已选择的标签
-        List<Tag> selectedTagList = Tag.getTagByTagNo(setting.getSelectedTagList(), requireContext());
+        List<Tag> selectedTagList = TagDataController.getTagByTagNo(setting.getSelectedTagList(), requireContext());
         for (Tag tag : selectedTagList) {
             String tagName = tag.getName();
             long tno = tag.getTno();

@@ -10,6 +10,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.databinding.ActivityTagManageBinding;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.helpers.resourse.ColorHelper;
@@ -241,15 +242,15 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
             }
 
             //将新标签的数据写入数据库
-            long tag_no = 0;
+            long tagNo = 0;
             try {
-                tag_no = Tag.saveNewTag(tagName, tag_scope, group_no, this);
+                tagNo = TagDataController.saveNewTag(tagName, tag_scope, group_no, this);
             } catch (SQLiteException e) {
                 ExceptionHelper.showExceptionDialog(this, e);
             }
-            if (tag_no != 0) {
+            if (tagNo != 0) {
                 //将变化保存至列表中并传递给适配器
-                Tag newTag = new Tag(tagName, tag_no, tag_scope);
+                Tag newTag = new Tag(tagName, tagNo, tag_scope);
                 if (needNewGroup) {
                     TagGroup new_group = new TagGroup(groupName, group_no);
                     adapter.addNewTag(newTag, new_group);

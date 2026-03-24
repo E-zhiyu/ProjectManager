@@ -19,6 +19,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.AnalysisRule;
+import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.databinding.ActivityRuleAddModifyBinding;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
@@ -47,7 +48,7 @@ public class RuleAddModifyActivity extends AppCompatActivity {
     private boolean isModifyMode = false;                           //是否为规则编辑模式
     private int viewHolderPosition;                                 //规则ViewHolder下标
     private long rule_no;                                           //规则编号
-    private long tag_no = 0;                                        //标签编号
+    private long tagNo = 0;                                        //标签编号
     private RunningAccountType type = RunningAccountType.EXPENSE;   //流水种类
     private TagSelectBottomSheet tagSheet;                          //标签选择弹出菜单
     private ActivityResultLauncher<Intent> packageNameSelectLauncher;   //包名选择启动器
@@ -266,8 +267,8 @@ public class RuleAddModifyActivity extends AppCompatActivity {
             rule_no = initData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());                            //规则编号
             viewHolderPosition = initData.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());              //视图下标
             type = RunningAccountType.valueOf(initData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));     //流水种类
-            Tag ruleTag = Tag.getTagByRuleNo(rule_no, this);                                            //标签
-            tag_no = ruleTag.getTno();
+            Tag ruleTag = TagDataController.getTagByRuleNo(rule_no, this);                              //标签
+            tagNo = ruleTag.getTno();
             String packageName = initData.getString(KeyValueStrings.PACKAGE_NAME.getValue());                   //包名
             String notificationTitle = initData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());       //通知标题
             String notificationContent = initData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());   //通知内容
@@ -318,7 +319,7 @@ public class RuleAddModifyActivity extends AppCompatActivity {
 
     //处理标签按钮点击事件
     public void onTagBtnClicked(long tag_no, String tag_name) {
-        this.tag_no = tag_no;
+        this.tagNo = tag_no;
         binding.tagNameInput.setText(tag_name);
         tagSheet.dismiss();
     }
@@ -336,17 +337,17 @@ public class RuleAddModifyActivity extends AppCompatActivity {
                 String tag_name = tag.getName();
                 long tag_no = tag.getTno();
 
-                if (tag_no == this.tag_no) {    //只有找到匹配的标签编号才修改
+                if (tag_no == this.tagNo) {    //只有找到匹配的标签编号才修改
                     switch (updateReason) {
                         case RENAME:
                             binding.tagNameInput.setText(tag_name);
                             break;
                         case DELETE:
-                            this.tag_no = 0;
+                            this.tagNo = 0;
                             binding.tagNameInput.setText("");
                             break;
                         case MERGE:
-                            this.tag_no = Tag.nameTransToTno(tag_name, this);
+                            this.tagNo = TagDataController.nameTransToTno(tag_name, this);
                             binding.tagNameInput.setText(tag_name);
                             break;
                         default:
@@ -424,7 +425,7 @@ public class RuleAddModifyActivity extends AppCompatActivity {
 
         dataBundle.putString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue(), ruleName);
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());
-        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
+        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tagNo);
         dataBundle.putString(KeyValueStrings.PACKAGE_NAME.getValue(), packageName);
         dataBundle.putString(KeyValueStrings.NOTIFICATION_TITLE.getValue(), notificationTitle);
         dataBundle.putString(KeyValueStrings.NOTIFICATION_CONTENT.getValue(), notificationContent);

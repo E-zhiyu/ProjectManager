@@ -17,8 +17,8 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.manager.assistant.data.classes.Budget;
-import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.controllers.AccountDataController;
+import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Tables;
@@ -121,7 +121,7 @@ public class HomeFragment extends Fragment {
 
         //标签数量
         try {
-            int tagCount = Tag.getDbCount(requireContext());
+            int tagCount = TagDataController.getDbCount(requireContext());
             binding.tagCountText.setText(String.valueOf(tagCount));
         } catch (SQLiteException e) {
             binding.tagCountText.setText(0);
@@ -295,7 +295,7 @@ public class HomeFragment extends Fragment {
                 requireActivity(),
                 tags -> {
                     try {
-                        int tagCount = Tag.getDbCount(requireContext());
+                        int tagCount = TagDataController.getDbCount(requireContext());
                         binding.tagCountText.setText(String.valueOf(tagCount));
                     } catch (SQLiteException e) {
                         binding.tagCountText.setText(0);

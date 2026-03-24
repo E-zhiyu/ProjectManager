@@ -13,6 +13,7 @@ import com.google.android.material.chip.Chip;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.classes.TagGroup;
+import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.databinding.BottomSheetMultiTagSelectBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;
@@ -86,7 +87,7 @@ public class MultiTagSelectBottomSheet extends BaseBottomSheetDialogFragment {
         loadTagGroup(tagAdapter);
 
         //初始化已选择的标签
-        List<Tag> selectedTagList = Tag.getTagByTagNo(tagNoList, requireContext());
+        List<Tag> selectedTagList = TagDataController.getTagByTagNo(tagNoList, requireContext());
         for (Tag tag : selectedTagList) {
             String tagName = tag.getName();
             long tno = tag.getTno();

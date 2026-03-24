@@ -17,6 +17,7 @@ import com.google.android.material.shape.Shapeable;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.automation.broadcast.BroadcastActions;
+import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.data.classes.AnalysisRule;
@@ -78,7 +79,7 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         AnalysisRule rule = ruleList.get(position);
         String rule_name = rule.getRuleName();
         RunningAccountType type = rule.getType();
-        Tag rule_tag = Tag.getTagByRuleNo(rule.getRuleNo(), holder.itemView.getContext());
+        Tag rule_tag = TagDataController.getTagByRuleNo(rule.getRuleNo(), holder.itemView.getContext());
 
         String typeStr = type.getTitle();
         holder.ruleNameText.setText(rule_name);

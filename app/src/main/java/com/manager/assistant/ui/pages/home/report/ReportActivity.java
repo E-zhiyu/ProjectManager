@@ -15,6 +15,7 @@ import androidx.core.util.Pair;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.AccountSourceInfo;
 import com.manager.assistant.data.classes.MonthAccountInfo;
+import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Tables;
@@ -22,7 +23,6 @@ import com.manager.assistant.databinding.ActivityReportBinding;
 import com.manager.assistant.helpers.DateTimeHelper;
 import com.manager.assistant.ui.others.animators.ScaleAnimator;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
-import com.manager.assistant.data.classes.Tag;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -306,7 +306,7 @@ public class ReportActivity extends AppCompatActivity {
                 expenseOrIncome.get(index).amountAdd(amount);
             } else {
                 if (tagNo != 0) {  //判断该流水记录是否有标签
-                    String tagName = Tag.tagNoTransToName(tagNo, this);
+                    String tagName = TagDataController.tagNoTransToName(tagNo, this);
                     AccountSourceInfo newSource = new AccountSourceInfo(amount, tagName, tagNo);
                     expenseOrIncome.add(newSource);
                 } else {

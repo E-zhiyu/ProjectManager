@@ -14,11 +14,11 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
+import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.databinding.ActivityTagAddModifyBinding;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.TagString;
-import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
@@ -125,7 +125,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
         binding.tagNameInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 String tagName = String.valueOf(binding.tagNameInput.getText());
-                long tno = Tag.nameTransToTno(tagName, this);
+                long tno = TagDataController.nameTransToTno(tagName, this);
 
                 if (tagName.isEmpty()) {
                     binding.tagNameLayout.setErrorEnabled(true);
@@ -239,7 +239,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
      */
     private String inputInfoVerify() {
         String tag_name = String.valueOf(binding.tagNameInput.getText());
-        long db_tno = Tag.nameTransToTno(tag_name, this);
+        long db_tno = TagDataController.nameTransToTno(tag_name, this);
 
         String error = null;
         if (tag_name.isEmpty()) {

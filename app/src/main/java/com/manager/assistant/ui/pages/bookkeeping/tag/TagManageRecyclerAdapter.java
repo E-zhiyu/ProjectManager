@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
+import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.animators.ExpandFoldAnimator;
 import com.manager.assistant.ui.others.animators.RotateAnimator;
@@ -109,7 +110,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             rotateAnimator.toggle();
 
             //切换子组件布局的可见性
-            if (holder.isExpanded)  {
+            if (holder.isExpanded) {
                 ExpandFoldAnimator.expand(holder.subViewLayout);
             } else {
                 ExpandFoldAnimator.collapse(holder.subViewLayout);
@@ -206,7 +207,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
     public void modifyTag(String newTagName, long tag_no, int tag_scope, long group_no, Context context) {
         //将数据保存至数据库
         try {
-            Tag.modifyTag(newTagName, tag_no, tag_scope, context);
+            TagDataController.modifyTag(newTagName, tag_no, tag_scope, context);
             Toast.makeText(context, "标签修改成功", Toast.LENGTH_SHORT).show();
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
@@ -286,7 +287,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
         //将数据保存至数据库
         try {
-            Tag.modifyTag(newTagName, tag_no, tag_scope, group_no_after_modifying, context);
+            TagDataController.modifyTag(newTagName, tag_no, tag_scope, group_no_after_modifying, context);
             Toast.makeText(context, "标签修改成功", Toast.LENGTH_SHORT).show();
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
@@ -316,17 +317,17 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
     /**
      * 删除标签
      *
-     * @param tag_no   待删除标签的编号
+     * @param tagNo    待删除标签的编号
      * @param group_no 待删除标签所属分组的编号
      * @param context  上下文
      */
-    public void deleteTag(long tag_no, long group_no, Context context) {
+    public void deleteTag(long tagNo, long group_no, Context context) {
         int group_index = 0;        //待删除标签所属分组的下标
         for (TagGroup group : this.tagGroupList) {
             if (group.getGroup_no() == group_no) {
                 int tag_index = 0;  //待删除标签的编号
                 for (Tag tag : group.getTags()) {
-                    if (tag.getTno() == tag_no) {
+                    if (tag.getTno() == tagNo) {
                         group.removeTag(tag_index);
                         break;
                     }
@@ -339,7 +340,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
         //将数据保存至数据库
         try {
-            Tag.deleteTag(tag_no, context);
+            TagDataController.deleteTag(tagNo, context);
             Toast.makeText(context, "标签删除成功", Toast.LENGTH_SHORT).show();
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
@@ -472,14 +473,14 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
     /**
      * 合并标签
      *
-     * @param merged_tag_no       被合并的标签编号
-     * @param merge_target_tag_no 合并到的目标标签编号
-     * @param group_no            被合并标签的分组编号
-     * @param context             上下文
+     * @param mergedTagNo 被合并的标签编号
+     * @param targetTagNo 合并到的目标标签编号
+     * @param group_no    被合并标签的分组编号
+     * @param context     上下文
      */
-    public void mergeTag(long merged_tag_no, long merge_target_tag_no, long group_no, Context context) {
+    public void mergeTag(long mergedTagNo, long targetTagNo, long group_no, Context context) {
         try {
-            Tag.mergeTag(merged_tag_no, merge_target_tag_no, context);
+            TagDataController.mergeTag(mergedTagNo, targetTagNo, context);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             return;
@@ -493,7 +494,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
                 int tag_index = 0;
                 List<Tag> tagList = group.getTags();
                 for (Tag tag : tagList) {
-                    if (tag.getTno() == merged_tag_no) {
+                    if (tag.getTno() == mergedTagNo) {
                         tagList.remove(tag_index);
                         break;
                     }

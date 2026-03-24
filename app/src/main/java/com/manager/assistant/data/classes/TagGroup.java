@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteException;
 
 import androidx.annotation.NonNull;
 
+import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Tables;
@@ -277,18 +278,18 @@ public class TagGroup {
     /**
      * 删除标签分组
      *
-     * @param group_no 标签分组编号
-     * @param context  上下文
+     * @param groupNo 标签分组编号
+     * @param context 上下文
      * @throws SQLiteException 数据库修改失败引发的异常
      */
-    public static void deleteGroup(long group_no, Context context) throws SQLiteException {
+    public static void deleteGroup(long groupNo, Context context) throws SQLiteException {
         BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = db_helper.openWriteLink();
 
-        Tag.deleteTag(group_no, db);    //删除分组内的标签
+        TagDataController.deleteTag(groupNo, db);    //删除分组内的标签
 
         String where = Columns.GROUP_NO + "=?";
-        String[] whereArgs = {String.valueOf(group_no)};
+        String[] whereArgs = {String.valueOf(groupNo)};
         db.delete(Tables.TAG_GROUP.toString(), where, whereArgs);
 
         db.close();
