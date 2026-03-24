@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.data.controllers.TagDataController;
+import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.animators.ExpandFoldAnimator;
 import com.manager.assistant.ui.others.animators.RotateAnimator;
@@ -235,13 +236,13 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
     /**
      * 编辑标签（更换分组）
      *
-     * @param newTagName               新标签名称
-     * @param tag_no                   标签编号
-     * @param tag_scope                标签作用域
-     * @param newGroupName             新标签分组名称
-     * @param origin_group_no          原标签分组编号
-     * @param group_no_after_modifying 新标签分组编号
-     * @param context                  上下文
+     * @param newTagName            新标签名称
+     * @param tag_no                标签编号
+     * @param tag_scope             标签作用域
+     * @param newGroupName          新标签分组名称
+     * @param origin_group_no       原标签分组编号
+     * @param groupNoAfterModifying 新标签分组编号
+     * @param context               上下文
      */
     public void modifyTag(
             String newTagName,
@@ -249,22 +250,22 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             int tag_scope,
             String newGroupName,
             long origin_group_no,
-            long group_no_after_modifying,
+            long groupNoAfterModifying,
             Context context
     ) {
 
         //判断是否需要新建标签分组
-        if (group_no_after_modifying == -1) {
+        if (groupNoAfterModifying == -1) {
             //保存新标签分组
             try {
-                group_no_after_modifying = TagGroup.saveNewGroup(newGroupName, context);  //获取为新分组分配的编号
+                groupNoAfterModifying = TagGroupDataController.saveNewGroup(newGroupName, context);  //获取为新分组分配的编号
             } catch (SQLiteException e) {
                 ExceptionHelper.showExceptionDialog(context, e);
                 Toast.makeText(context, "标签修改失败", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            TagGroup newGroup = new TagGroup(newGroupName, group_no_after_modifying);
+            TagGroup newGroup = new TagGroup(newGroupName, groupNoAfterModifying);
             newGroup.addTag(new Tag(newTagName, tag_no, tag_scope));
 
             int new_group_index = tagGroupList.size();
@@ -274,7 +275,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
         } else {
             int new_group_index = 0;    //待新增标签的分组下标
             for (TagGroup group : this.tagGroupList) {
-                if (group.getGroup_no() == group_no_after_modifying) {
+                if (group.getGroup_no() == groupNoAfterModifying) {
                     Tag new_tag = new Tag(newTagName, tag_no, tag_scope);
                     group.addTag(new_tag);
                     break;
@@ -287,7 +288,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
         //将数据保存至数据库
         try {
-            TagDataController.modifyTag(newTagName, tag_no, tag_scope, group_no_after_modifying, context);
+            TagDataController.modifyTag(newTagName, tag_no, tag_scope, groupNoAfterModifying, context);
             Toast.makeText(context, "标签修改成功", Toast.LENGTH_SHORT).show();
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
@@ -360,7 +361,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
     public void modifyGroup(long group_no, String newGroupName, Context context) {
         //将数据保存至数据库
         try {
-            TagGroup.modifyGroupName(group_no, newGroupName, context);
+            TagGroupDataController.modifyGroupName(group_no, newGroupName, context);
             Toast.makeText(context, "标签分组修改成功", Toast.LENGTH_SHORT).show();
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
@@ -400,7 +401,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
         //从数据库中删除标签和分组
         try {
-            TagGroup.deleteGroup(group_no, context);    //删除分组
+            TagGroupDataController.deleteGroup(group_no, context);    //删除分组
 
             Toast.makeText(context, "标签分组已删除", Toast.LENGTH_SHORT).show();
 
@@ -439,7 +440,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
      */
     public void mergeGroup(long old_group_no, long merge_target_no, Context context) {
         try {
-            TagGroup.mergeGroup(old_group_no, merge_target_no, context);
+            TagGroupDataController.mergeGroup(old_group_no, merge_target_no, context);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             return;

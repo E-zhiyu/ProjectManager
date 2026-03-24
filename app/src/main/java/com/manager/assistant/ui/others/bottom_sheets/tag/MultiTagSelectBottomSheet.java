@@ -12,8 +12,8 @@ import androidx.core.content.ContextCompat;
 import com.google.android.material.chip.Chip;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.Tag;
-import com.manager.assistant.data.classes.TagGroup;
 import com.manager.assistant.data.controllers.TagDataController;
+import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.BottomSheetMultiTagSelectBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;
@@ -111,7 +111,7 @@ public class MultiTagSelectBottomSheet extends BaseBottomSheetDialogFragment {
      */
     private void loadTagGroup(@NonNull SheetTagGroupRecyclerAdapter tagAdapter) {
         disposables.add(
-                Observable.fromCallable(() -> TagGroup.loadTagGroups(requireContext()))
+                Observable.fromCallable(() -> TagGroupDataController.loadTagGroups(requireContext()))
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeOn(Schedulers.io())
                         .subscribe(

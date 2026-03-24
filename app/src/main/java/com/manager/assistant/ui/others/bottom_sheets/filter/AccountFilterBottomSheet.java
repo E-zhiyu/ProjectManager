@@ -16,8 +16,8 @@ import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.Tag;
-import com.manager.assistant.data.classes.TagGroup;
 import com.manager.assistant.data.controllers.TagDataController;
+import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.BottomSheetAccountFilterBinding;
 import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.helpers.resourse.ResHelper;
@@ -251,7 +251,7 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
      */
     private void loadTagGroup(@NonNull SheetTagGroupRecyclerAdapter tagAdapter) {
         disposables.add(
-                Observable.fromCallable(() -> TagGroup.loadTagGroups(requireContext()))
+                Observable.fromCallable(() -> TagGroupDataController.loadTagGroups(requireContext()))
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeOn(Schedulers.io())
                         .subscribe(

@@ -11,12 +11,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
+import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.ActivityGroupModifyBinding;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
-import com.manager.assistant.data.classes.TagGroup;
 import com.manager.assistant.data.io.pojos.PojoTagGroup;
 
 import java.util.List;
@@ -85,7 +85,7 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnCli
 
                         List<PojoTagGroup> groupList;
                         try {
-                            groupList = TagGroup.loadPojoTagGroups(this);
+                            groupList = TagGroupDataController.loadPojoTagGroups(this);
                         } catch (SQLiteException e) {
                             ExceptionHelper.showExceptionDialog(this, e);
                             Toast.makeText(this, "无法加载分组列表", Toast.LENGTH_SHORT).show();
@@ -136,12 +136,12 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnCli
         binding.tagGroupInput.setOnFocusChangeListener(((v, hasFocus) -> {
             if (!hasFocus) {
                 String groupName = String.valueOf(binding.tagGroupInput.getText());
-                long group_no = TagGroup.nameTransToGno(groupName, this);
+                long groupNo = TagGroupDataController.nameTransToGno(groupName, this);
 
                 if (groupName.isEmpty()) {
                     binding.groupNameLayout.setErrorEnabled(true);
                     binding.groupNameLayout.setError("分组名称不能为空");
-                } else if (group_no != -1 && group_no != this.group_no) {
+                } else if (groupNo != -1 && groupNo != this.group_no) {
                     binding.groupNameLayout.setErrorEnabled(true);
                     binding.groupNameLayout.setError("已存在同名分组");
                 }
@@ -180,14 +180,14 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnCli
      * @return 错误提示（没有错误则为null）
      */
     private String inputInfoVerify() {
-        String group_name = String.valueOf(binding.tagGroupInput.getText());
+        String groupName = String.valueOf(binding.tagGroupInput.getText());
 
         String error = null;
-        if (group_name.isEmpty()) {
+        if (groupName.isEmpty()) {
             error = "分组名不能为空";
             binding.groupNameLayout.setErrorEnabled(true);
             binding.groupNameLayout.setError(error);
-        } else if (TagGroup.nameTransToGno(group_name, this) != -1) {
+        } else if (TagGroupDataController.nameTransToGno(groupName, this) != -1) {
             error = "已存在同名分组";
             binding.groupNameLayout.setErrorEnabled(true);
             binding.groupNameLayout.setError(error);
