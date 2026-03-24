@@ -34,12 +34,12 @@ import com.manager.assistant.data.save.preference.AutoBackupPreference;
 import com.manager.assistant.databinding.FragmentSettingBinding;
 import com.manager.assistant.helpers.file.AutoBackupHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.helpers.permission.PermissionHelper;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.data.save.preference.BookKeepingStartDatePreference;
 import com.manager.assistant.helpers.file.DataIOHelper;
 import com.manager.assistant.helpers.UpdateHelper;
 import com.manager.assistant.helpers.file.UriPathHelper;
+import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.ui.others.animators.ExpandFoldAnimator;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
 import com.manager.assistant.ui.sync.account.RunningAccountViewModel;
@@ -272,8 +272,8 @@ public class SettingFragment extends Fragment {
             });
             homeLinksSwitch.setOnLongClickListener(v -> {
                 new MaterialAlertDialogBuilder(requireContext())
-                        .setTitle("隐藏主页链接设置项")
-                        .setMessage("隐藏该设置项将永久关闭主页采购公告的显示，确认要隐藏吗？")
+                        .setTitle("隐藏主页链接设置项" )
+                        .setMessage("隐藏该设置项将永久关闭主页采购公告的显示，确认要隐藏吗？" )
                         .setPositiveButton("确定", (dialog, which) -> {
                             homeLinksSwitch.setVisibility(View.GONE);
                             AppSettingsPreference.setLinkSwitchHide(requireContext(), true);
@@ -322,8 +322,8 @@ public class SettingFragment extends Fragment {
         );
         clearRunningAccountOption.setFunctionListener(
                 v -> new MaterialAlertDialogBuilder(requireContext())
-                        .setTitle("清除数据")
-                        .setMessage("此操作将清除所有流水记录、标签、标签分组和预算数据，确认继续吗？")
+                        .setTitle("清除数据" )
+                        .setMessage("此操作将清除所有流水记录、标签、标签分组和预算数据，确认继续吗？" )
                         .setPositiveButton("确认", ((dialog, which) -> {
                             dialog.dismiss();
                             RunningAccountDataHelper.deleteAllData(requireContext());
@@ -462,7 +462,9 @@ public class SettingFragment extends Fragment {
 
         //开关左侧文本长按功能
         notificationAnalysisSwitchOption.setOnLongClickListener(v -> {
-            PermissionHelper.requestNotificationListenerPermission(requireContext());
+            Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            requireContext().startActivity(intent);
             return true;
         });
 
@@ -491,8 +493,8 @@ public class SettingFragment extends Fragment {
         );
         resetRuleOption.setFunctionListener(
                 v -> new MaterialAlertDialogBuilder(requireContext())
-                        .setTitle("重置规则")
-                        .setMessage("此操作将删除现有的规则并替换为默认规则，确认继续吗？")
+                        .setTitle("重置规则" )
+                        .setMessage("此操作将删除现有的规则并替换为默认规则，确认继续吗？" )
                         .setPositiveButton("确认", (dialog, which) -> {
                             dialog.dismiss();
                             AnalysisRuleDataHelper.resetRule(requireContext());
@@ -560,7 +562,7 @@ public class SettingFragment extends Fragment {
                         return;
                     }
 
-                    ProgressDialog progressDialog = new ProgressDialog(requireContext(), "导出数据", "正在导出数据……");
+                    ProgressDialog progressDialog = new ProgressDialog(requireContext(), "导出数据", "正在导出数据……" );
                     progressDialog.buildDialog(
                             null,
                             () -> {
@@ -598,7 +600,7 @@ public class SettingFragment extends Fragment {
                         return;
                     }
 
-                    ProgressDialog progressDialog = new ProgressDialog(requireContext(), "导入数据", "正在扫描备份文件……");
+                    ProgressDialog progressDialog = new ProgressDialog(requireContext(), "导入数据", "正在扫描备份文件……" );
                     progressDialog.buildDialog(
                             null,
                             () -> {
@@ -643,7 +645,7 @@ public class SettingFragment extends Fragment {
      * 导出数据并创建文件
      */
     private void exportData(@NonNull boolean[] choseItem) {
-        Log.i(LogTags.SETTING_FRAGMENT.getV(), "开始导出数据");
+        Log.i(LogTags.SETTING_FRAGMENT.getV(), "开始导出数据" );
         List<String> fileNameList = new ArrayList<>();      //用于导出数据的临时文件名列表
         List<String> fileContentList = new ArrayList<>();   //用于导出数据的临时文件内容列表
 
@@ -679,7 +681,7 @@ public class SettingFragment extends Fragment {
      * 从文件导入数据
      */
     private void importData() {
-        Log.i(LogTags.SETTING_FRAGMENT.getV(), "开始导入数据……");
+        Log.i(LogTags.SETTING_FRAGMENT.getV(), "开始导入数据……" );
         dataIOHelper.openFileViaSAF(
                 new DataIOHelper.ImportCallback() {
                     @Override
@@ -729,42 +731,42 @@ public class SettingFragment extends Fragment {
                         try (BufferedReader reader = new BufferedReader(new FileReader(jsonFile))) {
                             String line;
                             while ((line = reader.readLine()) != null) {
-                                content_builder.append(line).append("\n");
+                                content_builder.append(line).append("\n" );
                             }
                         } catch (IOException e) {
                             ExceptionHelper.showExceptionDialog(requireContext(), e);
                             Toast.makeText(requireContext(), "临时文件读取失败，请重试", Toast.LENGTH_SHORT).show();
-                            Log.e(LogTags.SETTING_FRAGMENT.getV(), "临时文件读取失败");
+                            Log.e(LogTags.SETTING_FRAGMENT.getV(), "临时文件读取失败" );
                         }
 
                         //根据文件内容判断数据类型
                         String contentStr = content_builder.toString();
-                        if (contentStr.startsWith("{\"basic_data\"")) {
-                            Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据类型：流水记录数据");
+                        if (contentStr.startsWith("{\"basic_data\"" )) {
+                            Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据类型：流水记录数据" );
                             RunningAccountDataHelper dataHelper = new RunningAccountDataHelper(requireContext());
                             if (dataHelper.saveJsonDataToDb(contentStr)) {
                                 //清空已保存的开始记账的日期
                                 BookKeepingStartDatePreference.saveStartDate("", requireContext());
 
                                 Toast.makeText(requireContext(), "流水记录数据导入成功", Toast.LENGTH_SHORT).show();
-                                Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据导入成功");
+                                Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据导入成功" );
                             } else {
                                 Toast.makeText(requireContext(), "无法解析文件内容", Toast.LENGTH_SHORT).show();
                             }
-                        } else if (contentStr.startsWith("{\"rule_data\"")) {
-                            Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据类型：通知解析规则数据");
+                        } else if (contentStr.startsWith("{\"rule_data\"" )) {
+                            Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据类型：通知解析规则数据" );
                             AnalysisRuleDataHelper dataHelper = new AnalysisRuleDataHelper(requireContext());
                             if (dataHelper.saveJsonDataToDb(contentStr)) {
                                 //清空已保存的开始记账的日期
                                 BookKeepingStartDatePreference.saveStartDate("", requireContext());
 
                                 Toast.makeText(requireContext(), "通知解析规则数据导入成功", Toast.LENGTH_SHORT).show();
-                                Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据导入成功");
+                                Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据导入成功" );
                             } else {
                                 Toast.makeText(requireContext(), "无法解析文件内容", Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            Log.e(LogTags.SETTING_FRAGMENT.getV(), "数据类型：未知");
+                            Log.e(LogTags.SETTING_FRAGMENT.getV(), "数据类型：未知" );
                             Toast.makeText(requireContext(), "无法解析文件内容", Toast.LENGTH_SHORT).show();
                         }
 
@@ -849,8 +851,8 @@ public class SettingFragment extends Fragment {
     ) {
         if (backupDir.isEmpty() && isChecked) {    //备份目录无效则先提示设置
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("功能启用提示")
-                    .setMessage("该功能需要先设置备份文件存储目录，请点击“确定”按钮设置存储目录")
+                    .setTitle("功能启用提示" )
+                    .setMessage("该功能需要先设置备份文件存储目录，请点击“确定”按钮设置存储目录" )
                     .setNegativeButton("取消", (dialog, which) -> dialog.cancel())
                     .setPositiveButton("确定",
                             (dialog, which) -> autoBackupHelper.selectBackupDirectory(
@@ -897,11 +899,13 @@ public class SettingFragment extends Fragment {
         if (!PermissionHelper.isNotificationServiceEnabled(requireContext()) && isChecked) {
             switchView.setChecked(false);
             new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("权限申请说明")
-                    .setMessage("此功能需要使用“通知使用权”权限，该权限允许应用读取其他软件发送的通知内容。本应用不会也无法使用该权限获取用户隐私信息，仅用于解析通知中可能出现的流水账信息，请您放心使用。\n\n是否为本应用授权？")
+                    .setTitle("权限申请说明" )
+                    .setMessage("此功能需要使用“通知使用权”权限，该权限允许应用读取其他软件发送的通知内容。本应用不会也无法使用该权限获取用户隐私信息，仅用于解析通知中可能出现的流水账信息，请您放心使用。\n\n是否为本应用授权？" )
                     .setPositiveButton("确认", (dialog, which) -> {
                         //申请通知监听权限
-                        PermissionHelper.requestNotificationListenerPermission(requireContext());
+                        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        requireContext().startActivity(intent);
                     })
                     .setNegativeButton("取消", null)
                     .show();
@@ -926,7 +930,7 @@ public class SettingFragment extends Fragment {
         int theme_mode = AppSettingsPreference.getThemeMode(requireContext());
 
         new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("主题模式")
+                .setTitle("主题模式" )
                 .setSingleChoiceItems(themeModeStr, theme_mode, ((dialog, which) -> {
                     AppSettingsPreference.setThemeMode(requireContext(), which);
                     ThemeModeHelper.applyTheme(which);
@@ -974,11 +978,11 @@ public class SettingFragment extends Fragment {
                 }
 
                 if (!isNonItemChosen) {
-                    Log.i(LogTags.SETTING_FRAGMENT.getV(), "用户选择需要导入的数据并确认进行下一步");
+                    Log.i(LogTags.SETTING_FRAGMENT.getV(), "用户选择需要导入的数据并确认进行下一步" );
                     dialog.dismiss();   //仅当满足要求时才关闭
 
                     //显示进度条对话框
-                    ProgressDialog progressDialog = new ProgressDialog(requireContext(), "导入数据", "正在导入数据……");
+                    ProgressDialog progressDialog = new ProgressDialog(requireContext(), "导入数据", "正在导入数据……" );
                     progressDialog.buildDialog(
                             null,
                             () -> {
@@ -1046,8 +1050,8 @@ public class SettingFragment extends Fragment {
         //获取解压得到的临时JSON文件
         List<File> tempJsonFileList = dataIOHelper.copyZipToTempAndUnpack();
         if (tempJsonFileList == null) {
-            Log.e(LogTags.SETTING_FRAGMENT.getV(), "无法获取解压得到的临时JSON文件");
-            throw new NullPointerException("无法获取解压得到的临时JSON文件");
+            Log.e(LogTags.SETTING_FRAGMENT.getV(), "无法获取解压得到的临时JSON文件" );
+            throw new NullPointerException("无法获取解压得到的临时JSON文件" );
         }
 
         //如果选择了流水记录数据，则将图片解压至图片目录中
@@ -1078,7 +1082,7 @@ public class SettingFragment extends Fragment {
                     try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                         String line;
                         while ((line = reader.readLine()) != null) {
-                            content.append(line).append("\n");
+                            content.append(line).append("\n" );
                         }
                         isImportSuccessfully = dataHelper.saveJsonDataToDb(content.toString()) || isImportSuccessfully;
                     }
@@ -1094,11 +1098,11 @@ public class SettingFragment extends Fragment {
             //清空已保存的开始记账的日期
             BookKeepingStartDatePreference.saveStartDate("", requireContext());
 
-            Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据已成功导入");
+            Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据已成功导入" );
             return true;
         } else {
-            Log.w(LogTags.SETTING_FRAGMENT.getV(), "无法解析文件内容");
-            throw new RuntimeException("无法解析文件内容");
+            Log.w(LogTags.SETTING_FRAGMENT.getV(), "无法解析文件内容" );
+            throw new RuntimeException("无法解析文件内容" );
         }
     }
 }

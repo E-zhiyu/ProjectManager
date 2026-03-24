@@ -14,8 +14,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.databinding.ActivityAnalysisRuleManageBinding;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.resourse.ColorHelper;
-import com.manager.assistant.helpers.permission.PermissionHelper;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
@@ -54,10 +54,10 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
 
             //弹出提示框
             new MaterialAlertDialogBuilder(this)
-                    .setTitle("提示")
-                    .setMessage("如果您的系统有自启动权限设置，请授予本应用自启动权限，否则该功能无法正常运行\n(提示：该功能需要在后台常驻才能稳定运行，建议在最近任务中锁定本应用)")
+                    .setTitle("提示" )
+                    .setMessage("如果您的系统有自启动权限设置，请授予本应用自启动权限，否则该功能无法正常运行\n(提示：该功能需要在后台常驻才能稳定运行，建议在最近任务中锁定本应用)" )
                     .setNegativeButton("关闭", ((dialog, which) -> dialog.dismiss()))
-                    .setPositiveButton("前往授权", ((dialog, which) -> PermissionHelper.requestAutoStartPermission(this)))
+                    .setPositiveButton("前往设置", ((dialog, which) -> PermissionHelper.requestAutoStartPermission(this)))
                     .show();
         }
 
@@ -132,7 +132,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
                         if (data != null) {
                             onAnalysisRuleAdded(data);
                         } else {
-                            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据");
+                            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据" );
                             ExceptionHelper.showExceptionDialog(this, e);
                         }
                     }
@@ -149,7 +149,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
                         if (data != null) {
                             onAnalysisRuleModified(data, resultCode);
                         } else {
-                            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据");
+                            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据" );
                             ExceptionHelper.showExceptionDialog(this, e);
                         }
                     }
@@ -195,7 +195,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
     private void onAnalysisRuleAdded(@NonNull Intent resultIntent) {
         Bundle dataBundle = resultIntent.getExtras();
         if (dataBundle == null) {
-            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据");
+            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据" );
             ExceptionHelper.showExceptionDialog(this, e);
             return;
         }
@@ -212,7 +212,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
     private void onAnalysisRuleModified(@NonNull Intent resultIntent, int resultCode) {
         Bundle dataBundle = resultIntent.getExtras();
         if (dataBundle == null) {
-            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据");
+            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据" );
             ExceptionHelper.showExceptionDialog(this, e);
             return;
         }

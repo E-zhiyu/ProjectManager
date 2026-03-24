@@ -1,11 +1,22 @@
 package com.manager.assistant.ui.pages.setting;
 
+import android.Manifest;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textview.MaterialTextView;
@@ -16,7 +27,13 @@ import com.manager.assistant.ui.pages.setting.setting_option_views.SettingClicka
 import io.noties.markwon.Markwon;
 
 public class PermissionManageActivity extends AppCompatActivity {
-    private ActivityPermissionManageBinding binding;
+    private ActivityPermissionManageBinding binding;                //绑定的XML视图
+    private final ActivityResultLauncher<String> runtimeLauncher =  //申请运行时权限的启动器
+            registerForActivityResult(
+                    new ActivityResultContracts.RequestPermission(),
+                    o -> {
+                    }
+            );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +47,36 @@ public class PermissionManageActivity extends AppCompatActivity {
 
     private void initViews() {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
+
+        //相机权限
+        SettingClickableTextView camera = new SettingClickableTextView(
+                this,
+                binding.cameraOption,
+                R.string.camera_permission,
+                "允许使用摄像头",
+                R.drawable.baseline_photo_camera_24
+        );
+        camera.setFunctionListener(v -> showExplanationDialog(
+                R.string.camera_permission,
+                "该权限允许应用调用摄像头，应用范围如下：\n" +
+                        "- 添加流水记录图片时使用内置拍照功能拍照\n",
+                () -> requestRuntimePermission(Manifest.permission.CAMERA)
+        ));
+
+        //应用列表权限
+        SettingClickableTextView appList = new SettingClickableTextView(
+                this,
+                binding.appListOption,
+                R.string.app_list_option,
+                "允许获取应用列表",
+                R.drawable.outline_apps_24
+        );
+        appList.setFunctionListener(v -> showExplanationDialog(
+                R.string.app_list_option,
+                "该权限允许应用读取应用列表，应用范围如下：\n" +
+                        "- 在输入通知解析规则时读取应用列表以便快速输入包名\n",
+                () -> requestRuntimePermission("com.android.permission.GET_INSTALLED_APPS" )
+        ));
 
         //通知权限
         SettingClickableTextView notification = new SettingClickableTextView(
@@ -45,7 +92,11 @@ public class PermissionManageActivity extends AppCompatActivity {
                                 "- 预算余额低时发送提醒通知\n" +
                                 "- 触发自动记账后发送通知决定是否保留\n",
                         () -> {
-                            //TODO:申请权限
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                requestRuntimePermission(Manifest.permission.POST_NOTIFICATIONS);
+                            } else {
+                                Toast.makeText(this, "权限已授予", Toast.LENGTH_SHORT).show();
+                            }
                         }
                 )
         );
@@ -62,9 +113,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                 R.string.notification_listener_permission,
                 "该权限允许应用读取其他应用发送的通知，本应用不会利用该权限获取用户隐私。该权限应用范围如下：\n" +
                         "- 读取其他应用的通知实现自动记账\n",
-                () -> {
-                    //TODO:
-                }
+                () -> requestSpecialPermission(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS, false)
         ));
 
         //自启动权限
@@ -80,7 +129,29 @@ public class PermissionManageActivity extends AppCompatActivity {
                         "该权限是定制安卓中特有的权限，其允许应用在后台启动服务，应用范围如下：\n" +
                                 "- 在退出应用后自动启动通知监听服务，确保自动记账功能能够运行\n",
                         () -> {
-                            //TODO:
+                            String manufacturer = Build.MANUFACTURER.toLowerCase();
+
+                            Intent intent = new Intent();
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                            try {
+                                // 根据设备厂商跳转到不同的设置页面
+                                if (manufacturer.contains("xiaomi" )) {
+                                    // 小米设备
+                                    intent.setComponent(new ComponentName(
+                                            "com.miui.securitycenter",
+                                            "com.miui.permcenter.autostart.AutoStartManagementActivity" ));
+                                } else {
+                                    //其他设备跳转到设置界面
+                                    intent.setAction(Settings.ACTION_SETTINGS);
+                                    Toast.makeText(this, "请前往自启动管理页面为本应用授权", Toast.LENGTH_SHORT).show();
+                                }
+                                startActivity(intent);
+                            } catch (Exception e) {
+                                //如果出现异常，跳转到设置
+                                intent.setAction(Settings.ACTION_SETTINGS);
+                                intent.setData(Uri.fromParts("package", getPackageName(), null));
+                            }
                         }
                 )
         );
@@ -100,9 +171,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                         "影响范围如下：\n" +
                         "- 自动记账的通知监听服务能否在后台保持运行\n" +
                         "- 自动记账触发后能否第一时间发送通知\n",
-                () -> {
-                    //TODO:
-                }
+                () -> requestSpecialPermission(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS, false)
         ));
 
         //精确闹钟权限
@@ -118,28 +187,22 @@ public class PermissionManageActivity extends AppCompatActivity {
                 "该权限允许应用执行某些定时任务，以实现一些自动化功能，应用范围如下：\n" +
                         "- 每日0点自动检查并重置预算\n",
                 () -> {
-                    //TODO:
-                }
-        ));
-
-        //应用列表权限
-        SettingClickableTextView appList = new SettingClickableTextView(
-                this,
-                binding.appListOption,
-                R.string.app_list_option,
-                "允许获取应用列表",
-                R.drawable.outline_apps_24
-        );
-        appList.setFunctionListener(v -> showExplanationDialog(
-                R.string.app_list_option,
-                "该权限允许应用读取应用列表，应用范围如下：\n" +
-                        "- 在输入通知解析规则时读取应用列表以便快速输入包名\n",
-                () -> {
-                    //TODO:
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        requestSpecialPermission(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, true);
+                    } else {
+                        Toast.makeText(this, "权限已授予", Toast.LENGTH_SHORT).show();
+                    }
                 }
         ));
     }
 
+    /**
+     * 显示权限解释对话框
+     *
+     * @param title   对话框标题
+     * @param message 对话框内容，支持Markdown格式
+     * @param action  点击确定按钮后执行的操作
+     */
     private void showExplanationDialog(@StringRes int title, String message, Runnable action) {
         //获取自定义弹窗视图
         View dialogBody = LayoutInflater.from(this)
@@ -156,5 +219,36 @@ public class PermissionManageActivity extends AppCompatActivity {
                 .setPositiveButton("前往设置", (dialog, which) -> action.run())
                 .setNegativeButton("取消", null)
                 .show();
+    }
+
+    /**
+     * 申请运行时权限
+     *
+     * @param permission 运行时权限
+     */
+    private void requestRuntimePermission(String permission) {
+        if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "权限已授予", Toast.LENGTH_SHORT).show();
+        } else {
+            runtimeLauncher.launch(permission);
+        }
+    }
+
+    /**
+     * 跳转到特殊应用权限设置界面
+     *
+     * @param permission     特殊应用权限
+     * @param needPackageUri 是否需要在构建Intent的时候添加package:开头的Uri，以便直接跳转到该应用的设置界面
+     */
+    private void requestSpecialPermission(String permission, boolean needPackageUri) {
+        Intent permissionIntent;
+        if (needPackageUri) {
+            permissionIntent = new Intent(permission, Uri.parse("package:" + getPackageName()));
+        } else {
+            permissionIntent = new Intent(permission);
+        }
+
+        permissionIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(permissionIntent);
     }
 }

@@ -37,6 +37,14 @@
                 android:orientation="vertical">
 
                 <include
+                    android:id="@+id/camera_option"
+                    layout="@layout/view_setting_option" />
+
+                <include
+                    android:id="@+id/app_list_option"
+                    layout="@layout/view_setting_option" />
+
+                <include
                     android:id="@+id/notification_option"
                     layout="@layout/view_setting_option" />
 
@@ -54,10 +62,6 @@
 
                 <include
                     android:id="@+id/alarm_option"
-                    layout="@layout/view_setting_option" />
-
-                <include
-                    android:id="@+id/app_list_option"
                     layout="@layout/view_setting_option" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

@@ -161,4 +161,5 @@
     <string name="battery_optimization">电池优化</string>
     <string name="alarm_permission">精确闹钟权限</string>
     <string name="app_list_option">应用列表权限</string>
+    <string name="camera_permission">相机权限</string>
 </resources>

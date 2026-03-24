@@ -1,12 +1,15 @@
-package com.manager.assistant.helpers.permission;
+package com.manager.assistant.helpers;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
+import android.text.TextUtils;
+import android.widget.Toast;
 
 import androidx.activity.ComponentActivity;
 import androidx.activity.result.ActivityResultLauncher;
@@ -25,7 +28,7 @@ import java.util.Queue;
 /**
  * 在打开Activity时申请权限的工具类
  */
-public class PermissionRequester {
+public class PermissionHelper {
     private final ComponentActivity activity;   //需要申请权限的Activity
     private final List<String> runtimePermissions = new ArrayList<>();      //运行时权限列表
     private final Queue<SpecialRequest> specialQueue = new LinkedList<>();  //特殊权限队列
@@ -41,7 +44,7 @@ public class PermissionRequester {
                     return null;
                 }
         ),
-        @SuppressLint("BatteryLife") BATTERY(
+        @SuppressLint("BatteryLife" ) BATTERY(
                 ctx -> ((android.os.PowerManager) ctx.getSystemService(Context.POWER_SERVICE)).isIgnoringBatteryOptimizations(ctx.getPackageName()),
                 ctx -> new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
         );
@@ -85,7 +88,7 @@ public class PermissionRequester {
     /**
      * 默认构造方法：内部自动注册 Launcher
      */
-    public PermissionRequester(@NonNull ComponentActivity activity) {
+    public PermissionHelper(@NonNull ComponentActivity activity) {
         this(activity, null);
     }
 
@@ -94,8 +97,8 @@ public class PermissionRequester {
      *
      * @param customLauncher 如果传入 null，则使用默认的注册逻辑
      */
-    public PermissionRequester(@NonNull ComponentActivity activity,
-                               @Nullable ActivityResultLauncher<String[]> customLauncher) {
+    public PermissionHelper(@NonNull ComponentActivity activity,
+                            @Nullable ActivityResultLauncher<String[]> customLauncher) {
         this.activity = activity;
 
         if (customLauncher != null) {
@@ -145,7 +148,7 @@ public class PermissionRequester {
     public void start() {
         if (runtimeLauncher == null) {
             throw new IllegalStateException("RuntimeLauncher has not been initialized. " +
-                    "Ensure it was passed in constructor or registered before Activity started.");
+                    "Ensure it was passed in constructor or registered before Activity started." );
         }
 
         List<String> deniedPermissions = new ArrayList<>();
@@ -195,5 +198,60 @@ public class PermissionRequester {
                 .setNegativeButton("取消", (d, w) -> processNextSpecial())
                 .setCancelable(false)
                 .show();
+    }
+
+    /**
+     * 检查通知使用权的授予情况
+     *
+     * @param context 上下文
+     * @return 是否授予通知使用权
+     */
+    public static boolean isNotificationServiceEnabled(@NonNull Context context) {
+        String pkgName = context.getPackageName();
+        final String flat = Settings.Secure.getString(context.getContentResolver(),
+                "enabled_notification_listeners");
+        if (!TextUtils.isEmpty(flat)) {
+            final String[] names = flat.split(":");
+            for (String name : names) {
+                final ComponentName cn = ComponentName.unflattenFromString(name);
+                if (cn != null) {
+                    if (TextUtils.equals(pkgName, cn.getPackageName())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 检查并引导用户开启自启动权限
+     *
+     * @param context 上下文
+     */
+    public static void requestAutoStartPermission(Context context) {
+        String manufacturer = Build.MANUFACTURER.toLowerCase();
+
+        Intent intent = new Intent();
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        try {
+            // 根据设备厂商跳转到不同的设置页面
+            if (manufacturer.contains("xiaomi")) {
+                // 小米设备
+                intent.setComponent(new ComponentName(
+                        "com.miui.securitycenter",
+                        "com.miui.permcenter.autostart.AutoStartManagementActivity"));
+            } else {
+                //其他设备跳转到设置界面
+                intent.setAction(Settings.ACTION_SETTINGS);
+                Toast.makeText(context, "您的设备不支持直接跳转，请前往自启动管理页面为本应用授权", Toast.LENGTH_SHORT).show();
+            }
+            context.startActivity(intent);
+        } catch (Exception e) {
+            //如果出现异常，跳转到设置
+            intent.setAction(Settings.ACTION_SETTINGS);
+            intent.setData(Uri.fromParts("package", context.getPackageName(), null));
+        }
     }
 }
