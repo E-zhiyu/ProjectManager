@@ -11,6 +11,7 @@ import androidx.core.app.RemoteInput;
 
 import com.manager.assistant.R;
 import com.manager.assistant.automation.broadcast.BroadcastActions;
+import com.manager.assistant.data.controllers.AccountDataController;
 import com.manager.assistant.generic_enums.ChannelInfo;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.helpers.NotificationHelper;
@@ -78,10 +79,7 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
                 context
         );
 
-        //发送本地广播以保存数据
-        Intent accountAdded = new Intent(BroadcastActions.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
-        accountAdded.putExtras(dataBundle);
-        context.sendBroadcast(accountAdded);
+        writeDataAndBroadcast(dataBundle, context);
     }
 
     /**
@@ -116,10 +114,7 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
         //修改数据包中的备注
         dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
 
-        //发送本地广播以保存数据
-        Intent accountAdded = new Intent(BroadcastActions.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
-        accountAdded.putExtras(dataBundle);
-        context.sendBroadcast(accountAdded);
+        writeDataAndBroadcast(dataBundle, context);
     }
 
     /**
@@ -157,6 +152,23 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
      * @param dataBundle 流水记录数据包
      */
     private void onNotificationDeleted(@NonNull Context context, Bundle dataBundle) {
+        //发送本地广播以保存数据
+        Intent accountAdded = new Intent(BroadcastActions.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
+        accountAdded.putExtras(dataBundle);
+        context.sendBroadcast(accountAdded);
+    }
+
+    /**
+     * 将流水数据写入数据库并发送本地广播更新UI
+     *
+     * @param dataBundle 流水记录数据包
+     * @param context    上下文
+     */
+    private void writeDataAndBroadcast(Bundle dataBundle, Context context) {
+        //将数据写入数据库
+        long rno = AccountDataController.saveNewAccount(dataBundle, context);
+        dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
+
         //发送本地广播以保存数据
         Intent accountAdded = new Intent(BroadcastActions.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
         accountAdded.putExtras(dataBundle);
