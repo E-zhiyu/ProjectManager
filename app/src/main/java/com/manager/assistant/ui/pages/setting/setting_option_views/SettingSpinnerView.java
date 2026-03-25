@@ -53,11 +53,19 @@ public class SettingSpinnerView extends SettingOptionViewBase<MaterialTextView, 
     }
 
     /**
-     * 设置下拉框文本
+     * 设置右侧文本
      *
      * @param text 目标文本
      */
     public void setSpinnerText(String text) {
+        functionComponent.setText(text);
+    }
+
+    /**
+     * 设置右侧文本
+     * @param text 目标文本的ID
+     */
+    public void setSpinnerText(@StringRes int text) {
         functionComponent.setText(text);
     }
 }

@@ -28,7 +28,7 @@ import com.manager.assistant.databinding.FragmentBookkeepingBinding;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.helpers.resourse.ColorHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.helpers.file.PictureHelper;
+import com.manager.assistant.helpers.file.PictureFileHelper;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
 import com.manager.assistant.ui.sync.account.RunningAccountViewModel;
 import com.manager.assistant.ui.others.bottom_sheets.filter.AccountFilterBottomSheet;
@@ -105,7 +105,7 @@ public class BookKeepingFragment extends Fragment {
      * @param runningAccount 点击的流水数据实例
      */
     public void onRunningAccountViewClick(@NonNull RunningAccountBase runningAccount) {
-        PictureHelper.clearTempPictureDir(requireContext());    //清理临时图片目录防止残留干扰
+        PictureFileHelper.clearTempPictureDir(requireContext());    //清理临时图片目录防止残留干扰
 
         Intent skip2RunningAccountModify = new Intent(requireContext(), RunningAccountModifyActivity.class);
         Bundle dataBundle = new Bundle();
@@ -171,7 +171,7 @@ public class BookKeepingFragment extends Fragment {
     private void initViews() {
         //绑定单击按钮监听器
         binding.addFloatingBtn.setOnClickListener(v -> {
-            PictureHelper.clearTempPictureDir(requireContext());    //清理临时图片目录防止残留干扰
+            PictureFileHelper.clearTempPictureDir(requireContext());    //清理临时图片目录防止残留干扰
             Intent skip2NewRunningAccount = new Intent(requireContext(), RunningAccountAddActivity.class);
             accountAddLauncher.launch(skip2NewRunningAccount);
         });

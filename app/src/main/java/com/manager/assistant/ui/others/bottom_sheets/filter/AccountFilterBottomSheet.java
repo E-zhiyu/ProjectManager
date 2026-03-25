@@ -8,19 +8,14 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.core.util.Pair;
 
 import com.google.android.material.chip.Chip;
-import com.google.android.material.datepicker.CalendarConstraints;
-import com.google.android.material.datepicker.DateValidatorPointBackward;
-import com.google.android.material.datepicker.MaterialDatePicker;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.BottomSheetAccountFilterBinding;
-import com.manager.assistant.generic_enums.TagString;
-import com.manager.assistant.helpers.resourse.ResHelper;
+import com.manager.assistant.helpers.DateTimePickerHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.BaseBottomSheetDialogFragment;
@@ -266,64 +261,36 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
      * 显示日期范围选择对话框
      */
     private void showDateRangeSelectDialog() {
-        MaterialDatePicker.Builder<Pair<Long, Long>> dateBuilder = getDateBuilder();
+        DateTimePickerHelper.selectDateRange(
+                setting.getStartDate(),
+                setting.getEndDate(),
+                getParentFragmentManager(),
+                requireContext(),
+                selection -> {
+                    long firstSelection = selection.first;
+                    LocalDate startDate = Instant.ofEpochMilli(firstSelection)
+                            .atZone(ZoneOffset.UTC)
+                            .toLocalDate();
+                    setting.setStartDate(startDate);
 
-        MaterialDatePicker<Pair<Long, Long>> dateRangePicker = dateBuilder
-                .setTheme(ResHelper.getStyleOrThrow(
-                        requireContext(),
-                        com.google.android.material.R.attr.materialCalendarTheme
-                ))
-                .setCalendarConstraints(
-                        new CalendarConstraints.Builder()
-                                .setValidator(DateValidatorPointBackward.now()) //限制为过去日期
-                                .build()
-                )
-                .build();
-        dateRangePicker.addOnPositiveButtonClickListener(selection -> {
-            long firstSelection = selection.first;
-            LocalDate startDate = Instant.ofEpochMilli(firstSelection)
-                    .atZone(ZoneOffset.UTC)
-                    .toLocalDate();
-            setting.setStartDate(startDate);
+                    long secondSelection = selection.second;
+                    LocalDate endDate = Instant.ofEpochMilli(secondSelection)
+                            .atZone(ZoneOffset.UTC)
+                            .toLocalDate();
+                    setting.setEndDate(endDate);
 
-            long secondSelection = selection.second;
-            LocalDate endDate = Instant.ofEpochMilli(secondSelection)
-                    .atZone(ZoneOffset.UTC)
-                    .toLocalDate();
-            setting.setEndDate(endDate);
-
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
-            String start = formatter.format(startDate);
-            String end = formatter.format(endDate);
-            String selectedDateRange = String.format(
-                    Locale.getDefault(),
-                    "%s - %s",
-                    start,
-                    end
-            );
-            binding.dateRangeInput.setText(selectedDateRange);
-        });
-
-        dateRangePicker.show(getParentFragmentManager(), TagString.DATE_PICKER.getValue());
-    }
-
-    @NonNull
-    private MaterialDatePicker.Builder<Pair<Long, Long>> getDateBuilder() {
-        MaterialDatePicker.Builder<Pair<Long, Long>> dateBuilder = MaterialDatePicker.Builder.dateRangePicker();
-        dateBuilder.setTitleText("选择日期范围");
-
-        LocalDate startDate = setting.getStartDate();
-        LocalDate endDate = setting.getEndDate();
-        if (startDate != null && endDate != null) {
-            long startTimeMilli = startDate.atStartOfDay()
-                    .toInstant(ZoneOffset.UTC)
-                    .toEpochMilli();
-            long endTimeMilli = endDate.atStartOfDay()
-                    .toInstant(ZoneOffset.UTC)
-                    .toEpochMilli();
-            dateBuilder.setSelection(new Pair<>(startTimeMilli, endTimeMilli));
-        }
-        return dateBuilder;
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
+                    String start = formatter.format(startDate);
+                    String end = formatter.format(endDate);
+                    String selectedDateRange = String.format(
+                            Locale.getDefault(),
+                            "%s - %s",
+                            start,
+                            end
+                    );
+                    binding.dateRangeInput.setText(selectedDateRange);
+                }
+        );
     }
 
     /**

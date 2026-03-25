@@ -10,7 +10,7 @@ import androidx.core.content.ContextCompat;
 
 import com.manager.assistant.databinding.ActivityFullScreenImageBinding;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
-import com.manager.assistant.helpers.file.PictureHelper;
+import com.manager.assistant.helpers.file.PictureFileHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 
 import java.io.File;
@@ -58,10 +58,10 @@ public class FullScreenImageActivity extends AppCompatActivity {
     private void savePicture() {
         int current_picture_index = binding.viewPager2.getCurrentItem();
         Uri currentUri = Uri.parse(pictureUriStrings[current_picture_index]);
-        PictureHelper.saveToGallery(
+        PictureFileHelper.saveToGallery(
                 this,
                 currentUri,
-                new PictureHelper.OnSaveListener() {
+                new PictureFileHelper.OnSaveListener() {
                     @Override
                     public void onSaveSuccess(Uri savedUri, String fileName) {
                         Toast.makeText(FullScreenImageActivity.this, "图片已保存至系统相册", Toast.LENGTH_SHORT).show();
@@ -83,7 +83,7 @@ public class FullScreenImageActivity extends AppCompatActivity {
         int current_picture_index = binding.viewPager2.getCurrentItem();
         Uri currentUri = Uri.parse(pictureUriStrings[current_picture_index]);
         File pictureFile = new File(Objects.requireNonNull(currentUri.getPath()));
-        PictureHelper.shareImage(this, pictureFile, new PictureHelper.OnShareListener() {
+        PictureFileHelper.shareImage(this, pictureFile, new PictureFileHelper.OnShareListener() {
             @Override
             public void onShareSuccess() {
                 Toast.makeText(FullScreenImageActivity.this, "正在分享图片……", Toast.LENGTH_SHORT).show();
