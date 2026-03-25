@@ -132,6 +132,10 @@
                         android:id="@+id/reset_rule_option"
                         layout="@layout/view_setting_option" />
                 </LinearLayout>
+
+                <include
+                    android:id="@+id/notification_cancel_behaviour"
+                    layout="@layout/view_setting_option" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

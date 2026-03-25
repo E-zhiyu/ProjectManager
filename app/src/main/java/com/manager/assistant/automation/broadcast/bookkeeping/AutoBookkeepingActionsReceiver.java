@@ -12,6 +12,7 @@ import androidx.core.app.RemoteInput;
 import com.manager.assistant.R;
 import com.manager.assistant.automation.broadcast.BroadcastActions;
 import com.manager.assistant.data.controllers.AccountDataController;
+import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.generic_enums.ChannelInfo;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.helpers.NotificationHelper;
@@ -152,10 +153,18 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
      * @param dataBundle 流水记录数据包
      */
     private void onNotificationDeleted(@NonNull Context context, Bundle dataBundle) {
-        //发送本地广播以保存数据
-        Intent accountAdded = new Intent(BroadcastActions.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
-        accountAdded.putExtras(dataBundle);
-        context.sendBroadcast(accountAdded);
+        //决定是否保存记录
+        int behaviour = AutoBookKeepingPreference.getNotificationCancelBehaviour(context);
+        if (behaviour == 0) {
+            //将数据写入数据库
+            long rno = AccountDataController.saveNewAccount(dataBundle, context);
+            dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
+
+            //发送本地广播更新UI
+            Intent accountAdded = new Intent(BroadcastActions.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
+            accountAdded.putExtras(dataBundle);
+            context.sendBroadcast(accountAdded);
+        }
     }
 
     /**

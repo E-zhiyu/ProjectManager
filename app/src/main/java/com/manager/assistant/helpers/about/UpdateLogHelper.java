@@ -12,7 +12,10 @@ import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
     private static final String UPDATE_LOG_MD = "# v1.8.5  \n" +
+            "**新增功能**  \n" +
+            "- 添加自定义划走自动记账通知后触发行为的功能  \n\n" +
             "**BUG修复**  \n" +
+            "- 修复划走自动记账通知后会更新UI但不保存数据的BUG  \n" +
             "- 修复软件在后台时无法通过通知保留流水记录的BUG  \n\n" +
             "# v1.8.4  \n" +
             "**BUG修复**  \n" +
