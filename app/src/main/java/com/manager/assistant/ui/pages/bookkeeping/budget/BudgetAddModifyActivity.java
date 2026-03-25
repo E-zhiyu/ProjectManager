@@ -21,7 +21,7 @@ import com.manager.assistant.databinding.ActivityBudgetAddModifyBinding;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.generic_enums.TagString;
-import com.manager.assistant.helpers.DateTimeHelper;
+import com.manager.assistant.helpers.DateTimePickerHelper;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.tag.MultiTagSelectBottomSheet;
@@ -270,11 +270,11 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.parse(datetimeStr, formatter);
 
-        DateTimeHelper.selectDate(
+        DateTimePickerHelper.selectDate(
                 date,
                 getSupportFragmentManager(),
                 selection -> {
-                    LocalDate selectedDate = DateTimeHelper.getLocalDateFromTimeMilli(selection);
+                    LocalDate selectedDate = DateTimePickerHelper.getLocalDateFromTimeMilli(selection);
                     String dateStr = selectedDate.format(formatter);
                     binding.startDateInput.setText(dateStr);
                 }

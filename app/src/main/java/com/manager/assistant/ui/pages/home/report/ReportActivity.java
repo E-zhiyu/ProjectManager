@@ -20,7 +20,7 @@ import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Tables;
 import com.manager.assistant.databinding.ActivityReportBinding;
-import com.manager.assistant.helpers.DateTimeHelper;
+import com.manager.assistant.helpers.DateTimePickerHelper;
 import com.manager.assistant.ui.others.animators.ScaleAnimator;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
@@ -551,7 +551,7 @@ public class ReportActivity extends AppCompatActivity {
      */
     private void showDatePickerDialog() {
         if (dateRangeType != DateRangeType.CUSTOM) {
-            DateTimeHelper.selectDate(
+            DateTimePickerHelper.selectDate(
                     selectedDate,
                     getSupportFragmentManager(),
                     selection -> {
@@ -576,7 +576,7 @@ public class ReportActivity extends AppCompatActivity {
                     }
             );
         } else {
-            DateTimeHelper.selectDateRange(
+            DateTimePickerHelper.selectDateRange(
                     start,
                     end,
                     getSupportFragmentManager(),
@@ -624,7 +624,7 @@ public class ReportActivity extends AppCompatActivity {
                 isCustomRange = true;
 
                 //显示日期范围选择对话框
-                DateTimeHelper.selectDateRange(
+                DateTimePickerHelper.selectDateRange(
                         start,
                         end,
                         getSupportFragmentManager(),
@@ -700,8 +700,8 @@ public class ReportActivity extends AppCompatActivity {
      * @param selection 选择的日期范围对
      */
     private void onDateRangeDialogPositiveBtnClicked(@NonNull Pair<Long, Long> selection) {
-        start = DateTimeHelper.getLocalDateFromTimeMilli(selection.first);
-        end = DateTimeHelper.getLocalDateFromTimeMilli(selection.second).plusDays(1);   //因为数据库的WHERE子句为左闭右开，因此需要+1天
+        start = DateTimePickerHelper.getLocalDateFromTimeMilli(selection.first);
+        end = DateTimePickerHelper.getLocalDateFromTimeMilli(selection.second).plusDays(1);   //因为数据库的WHERE子句为左闭右开，因此需要+1天
 
         //隐藏每月流水报表（因为日期范围可以跨年）
         ScaleAnimator.hide(binding.monthAccountCard);
