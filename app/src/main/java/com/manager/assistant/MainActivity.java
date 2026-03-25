@@ -2,7 +2,6 @@ package com.manager.assistant;
 
 import android.os.Bundle;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -38,23 +37,15 @@ public class MainActivity extends AppCompatActivity {
         initThemeMode();
         initViews();
 
-        //拦截返回行为
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                finishAndRemoveTask();
-            }
-        });
-
         //启动时更新检测
-        int start_version_check_num = VersionPreference.getStartVersionCheckNum(this);
-        int recycle_num = VersionPreference.VERSION_CHECK_RECYCLE_NUM;
+        int startVersionCheckNum = VersionPreference.getStartVersionCheckNum(this);
+        int recycleNum = VersionPreference.VERSION_CHECK_RECYCLE_NUM;
         boolean isMandatoryUpdateFound = VersionPreference.getFindMandatoryUpdate(this);    //是否获取到强制更新
         if (!isMandatoryUpdateFound) {
-            if (start_version_check_num % recycle_num == 0) {
+            if (startVersionCheckNum % recycleNum == 0) {
                 UpdateHelper.checkUpdate(this, disposables, false);
             }
-            VersionPreference.setStartVersionCheckNum(this, (start_version_check_num + 1) % recycle_num);
+            VersionPreference.setStartVersionCheckNum(this, (startVersionCheckNum + 1) % recycleNum);
         } else {
             UpdateHelper.showMandatoryUpdateDialog(this);
         }
