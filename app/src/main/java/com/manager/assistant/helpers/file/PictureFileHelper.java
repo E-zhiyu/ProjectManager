@@ -30,7 +30,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-public class PictureHelper {
+public class PictureFileHelper {
     /**
      * 清空临时图片目录
      *

@@ -45,6 +45,9 @@ public class PermissionManageActivity extends AppCompatActivity {
         initViews();
     }
 
+    /**
+     * 初始化视图
+     */
     private void initViews() {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
 
@@ -75,7 +78,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                 R.string.app_list_option,
                 "该权限允许应用读取应用列表，应用范围如下：\n" +
                         "- 在输入通知解析规则时读取应用列表以便快速输入包名\n",
-                () -> requestRuntimePermission("com.android.permission.GET_INSTALLED_APPS" )
+                () -> requestRuntimePermission("com.android.permission.GET_INSTALLED_APPS")
         ));
 
         //通知权限
