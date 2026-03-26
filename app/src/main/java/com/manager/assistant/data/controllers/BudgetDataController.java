@@ -20,7 +20,7 @@ import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.Tables;
 import com.manager.assistant.generic_enums.ChannelInfo;
 import com.manager.assistant.generic_enums.NotificationID;
-import com.manager.assistant.generic_enums.RequestResultCode;
+import com.manager.assistant.generic_enums.PendingRequestCode;
 import com.manager.assistant.helpers.NotificationHelper;
 import com.manager.assistant.ui.pages.bookkeeping.budget.BudgetManageActivity;
 import com.manager.assistant.ui.pages.bookkeeping.budget.ResetFrequency;
@@ -391,7 +391,7 @@ public class BudgetDataController {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             PendingIntent pendingIntent = PendingIntent.getActivity(
                     context,
-                    RequestResultCode.REQUEST_BUDGET_NOTIFICATION.ordinal(),
+                    PendingRequestCode.BUDGET_NOTIFICATION.ordinal(),
                     intent,
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
             );

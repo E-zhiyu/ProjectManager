@@ -1,5 +1,6 @@
 package com.manager.assistant.automation.broadcast.bookkeeping;
 
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +16,9 @@ import com.manager.assistant.data.controllers.AccountDataController;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.generic_enums.ChannelInfo;
 import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.PendingRequestCode;
 import com.manager.assistant.helpers.NotificationHelper;
+import com.manager.assistant.ui.pages.bookkeeping.running_account.RunningAccountModifyActivity;
 
 import java.util.Locale;
 
@@ -61,16 +64,21 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
      * @param ruleName       触发自动记账的规则名称
      */
     private void onAccountKept(Context context, int notificationID, @NonNull Bundle dataBundle, String ruleName) {
+        //保存数据并更新UI
+        writeDataAndBroadcast(dataBundle, context);
+
         //创建通知构建器
-        String content = String.format(Locale.getDefault(), "已保留由“%s”触发的记录", ruleName);
+        String content = String.format(Locale.getDefault(), "已保留由“%s”触发的记录，点击查看详情", ruleName);
         String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
+        PendingIntent accountModifyPendingIntent = getAccountDetailPendingIntent(dataBundle, context);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("保留成功")
                 .setContentText(content)
+                .setContentIntent(accountModifyPendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_CALL)
-                .setTimeoutAfter(1500)
+//                .setTimeoutAfter(3000)
                 .setAutoCancel(true);
 
         //发送通知
@@ -80,7 +88,6 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
                 context
         );
 
-        writeDataAndBroadcast(dataBundle, context);
     }
 
     /**
@@ -93,16 +100,21 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
      * @param ruleName       触发自动记账的规则名称
      */
     private void onRemarkInput(Context context, int notificationID, String remark, @NonNull Bundle dataBundle, String ruleName) {
+        //保存数据并更新UI
+        writeDataAndBroadcast(dataBundle, context);
+
         //创建通知构建器
-        String content = String.format(Locale.getDefault(), "备注成功并保留由“%s”触发的记录", ruleName);
+        String content = String.format(Locale.getDefault(), "备注成功并保留由“%s”触发的记录，点击查看详情", ruleName);
         String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
+        PendingIntent accountModifyPendingIntent = getAccountDetailPendingIntent(dataBundle, context);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("备注输入成功")
                 .setContentText(content)
+                .setContentIntent(accountModifyPendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_CALL)
-                .setTimeoutAfter(1500)
+//                .setTimeoutAfter(3000)
                 .setAutoCancel(true);
 
         //发送通知
@@ -115,7 +127,6 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
         //修改数据包中的备注
         dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
 
-        writeDataAndBroadcast(dataBundle, context);
     }
 
     /**
@@ -182,5 +193,25 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
         Intent accountAdded = new Intent(BroadcastActions.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
         accountAdded.putExtras(dataBundle);
         context.sendBroadcast(accountAdded);
+    }
+
+    /**
+     * 获取能够跳转到流水记录输入界面的PendingInten
+     *
+     * @param dataBundle 需要传递的流水记录数据包
+     * @param context    上下文
+     * @return 能够跳转到流水记录输入界面的PendingInten
+     */
+    private PendingIntent getAccountDetailPendingIntent(Bundle dataBundle, Context context) {
+        Intent skip2AccountModify = new Intent(context, RunningAccountModifyActivity.class);
+        skip2AccountModify.putExtras(dataBundle);
+        skip2AccountModify.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        return PendingIntent.getActivity(
+                context,
+                PendingRequestCode.SKIP_ACCOUNT_INPUT.ordinal(),
+                skip2AccountModify,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
     }
 }

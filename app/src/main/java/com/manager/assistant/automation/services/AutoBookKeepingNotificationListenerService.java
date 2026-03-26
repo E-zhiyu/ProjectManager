@@ -29,7 +29,7 @@ import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.data.classes.AnalysisRule;
 import com.manager.assistant.generic_enums.NotificationID;
-import com.manager.assistant.generic_enums.RequestResultCode;
+import com.manager.assistant.generic_enums.PendingRequestCode;
 import com.manager.assistant.helpers.NotificationHelper;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
@@ -384,7 +384,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                 ruleName,
                 BroadcastActions.ACTION_KEEP.toString(),
                 "保留",
-                RequestResultCode.REQUEST_KEEP.ordinal(),
+                PendingRequestCode.ACCOUNT_KEEP.ordinal(),
                 null
         );
 
@@ -398,7 +398,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                 ruleName,
                 BroadcastActions.ACTION_INPUT_REMARK.toString(),
                 "备注并保留",
-                RequestResultCode.REQUEST_INPUT_REMARK.ordinal(),
+                PendingRequestCode.ACCOUNT_INPUT_REMARK.ordinal(),
                 remarkRemoteInput
         );
 
@@ -409,7 +409,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                 ruleName,
                 BroadcastActions.ACTION_DELETE.toString(),
                 "删除",
-                RequestResultCode.REQUEST_DELETE.ordinal(),
+                PendingRequestCode.ACCOUNT_DELETE.ordinal(),
                 null
         );
 

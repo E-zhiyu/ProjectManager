@@ -79,6 +79,7 @@
             android:exported="false" />
         <activity
             android:name=".ui.pages.bookkeeping.running_account.RunningAccountModifyActivity"
+            android:excludeFromRecents="true"
             android:exported="false" />
         <activity
             android:name=".ui.pages.bookkeeping.running_account.RunningAccountAddActivity"
