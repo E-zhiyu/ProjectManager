@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String UPDATE_LOG_MD = "# v1.8.8  \n" +
             "**BUG修复**  \n" +
+            "- 修复上个版本通过通知输入备注不生效的BUG  \n" +
             "- 修复手动检查更新仍然会跳过已忽略的版本的BUG  \n\n" +
             "# v1.8.7  \n" +
             "**新增内容**  \n" +
