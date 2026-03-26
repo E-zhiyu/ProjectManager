@@ -78,7 +78,7 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
                 .setContentIntent(accountModifyPendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_CALL)
-//                .setTimeoutAfter(3000)
+                .setTimeoutAfter(3000)
                 .setAutoCancel(true);
 
         //发送通知
@@ -114,7 +114,7 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
                 .setContentIntent(accountModifyPendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_CALL)
-//                .setTimeoutAfter(3000)
+                .setTimeoutAfter(3000)
                 .setAutoCancel(true);
 
         //发送通知
@@ -126,7 +126,6 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
 
         //修改数据包中的备注
         dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
-
     }
 
     /**
