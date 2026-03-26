@@ -11,11 +11,19 @@ import com.manager.assistant.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String UPDATE_LOG_MD = "# v1.8.5  \n" +
+    private static final String UPDATE_LOG_MD = "# v1.8.7  \n" +
+            "**新增内容**  \n" +
+            "- 选择保留或备注并保留后可以点击通知直接跳转到流水详情界面  \n\n" +
+            "**修改内容**  \n" +
+            "- 修改“通知取消行为”设置项的提示文本  \n\n" +
+            "# v1.8.6  \n" +
             "**新增功能**  \n" +
             "- 添加自定义划走自动记账通知后触发行为的功能  \n\n" +
             "**BUG修复**  \n" +
             "- 修复划走自动记账通知后会更新UI但不保存数据的BUG  \n" +
+            "- 修复软件在后台时无法通过通知保留流水记录的BUG  \n\n" +
+            "# v1.8.5  \n" +
+            "**BUG修复**  \n" +
             "- 修复软件在后台时无法通过通知保留流水记录的BUG  \n\n" +
             "# v1.8.4  \n" +
             "**BUG修复**  \n" +

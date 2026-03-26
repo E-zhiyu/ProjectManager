@@ -473,18 +473,15 @@ public class SettingFragment extends Fragment {
                 requireContext(),
                 binding.notificationCancelBehaviour,
                 R.string.notification_cancel_behaviour,
-                "划走自动记账通知时执行的操作",
+                "划走确认通知后执行的操作",
                 R.drawable.outline_comments_disabled_24
         );
-        int behaviour = AutoBookKeepingPreference.getNotificationCancelBehaviour(requireContext());
-        switch (behaviour) {
-            case 0:
-                notificationCancelBehaviour.setSpinnerText(R.string.keep);
-                break;
-            case 1:
-                notificationCancelBehaviour.setSpinnerText(R.string.delete);
-                break;
-        }
+        int[] strResId = {
+                R.string.keep_account,
+                R.string.delete_account
+        };
+        int behaviourCode = AutoBookKeepingPreference.getNotificationCancelBehaviour(requireContext());
+        notificationCancelBehaviour.setSpinnerText(strResId[behaviourCode]);
         notificationCancelBehaviour.setFunctionListener(v -> {
             PopupMenu behaviourMenu = new PopupMenu(requireContext(), notificationCancelBehaviour.getFunctionComponent());
             behaviourMenu.getMenuInflater().inflate(R.menu.popup_menu_notification_cancel_behaviour, behaviourMenu.getMenu());
@@ -493,11 +490,11 @@ public class SettingFragment extends Fragment {
                 boolean isItemClicked = false;
                 if (item.getItemId() == R.id.action_keep) {
                     AutoBookKeepingPreference.setNotificationCancelBehaviour(0, requireContext());
-                    notificationCancelBehaviour.setSpinnerText(R.string.keep);
+                    notificationCancelBehaviour.setSpinnerText(strResId[0]);
                     isItemClicked = true;
                 } else if (item.getItemId() == R.id.action_delete) {
                     AutoBookKeepingPreference.setNotificationCancelBehaviour(1, requireContext());
-                    notificationCancelBehaviour.setSpinnerText(R.string.delete);
+                    notificationCancelBehaviour.setSpinnerText(strResId[1]);
                     isItemClicked = true;
                 }
 
