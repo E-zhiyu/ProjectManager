@@ -52,11 +52,17 @@ public class UpdateHelper {
     /**
      * 检查更新
      *
-     * @param context     上下文
-     * @param disposables 多线程任务订阅列表
-     * @param isHaveToast 是否需要弹出提示
+     * @param context           上下文
+     * @param disposables       多线程任务订阅列表
+     * @param isHaveToast       是否需要弹出提示
+     * @param ignoreSkipVersion 是否忽视跳过的软件版本
      */
-    public static void checkUpdate(Context context, @NonNull CompositeDisposable disposables, boolean isHaveToast) {
+    public static void checkUpdate(
+            Context context,
+            @NonNull CompositeDisposable disposables,
+            boolean isHaveToast,
+            boolean ignoreSkipVersion
+    ) {
         disposables.add(Observable.fromCallable(
                         () -> {
                             URL versionInfoUrl = new URL(versionInfoUrL);
@@ -64,7 +70,7 @@ public class UpdateHelper {
                         })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(version_info_json -> analyseVersionInfo(context, version_info_json),
+                .subscribe(versionInfoJson -> analyseVersionInfo(context, versionInfoJson, ignoreSkipVersion),
                         e -> {
                             if (e instanceof ProtocolException) {
                                 if (isHaveToast) {
@@ -120,17 +126,22 @@ public class UpdateHelper {
      * 解析版本信息文本
      *
      * @param context           上下文
-     * @param version_info_json 从服务端获取的最新版本信息
+     * @param versionInfoJson   从服务端获取的最新版本信息
+     * @param ignoreSkipVersion 是否跳过忽视的软件版本
      * @throws PackageManager.NameNotFoundException 无法获取版本代码时引发的异常
      */
-    private static void analyseVersionInfo(Context context, String version_info_json) throws PackageManager.NameNotFoundException, JsonProcessingException {
+    private static void analyseVersionInfo(
+            Context context,
+            String versionInfoJson,
+            boolean ignoreSkipVersion
+    ) throws JsonProcessingException, PackageManager.NameNotFoundException {
         ObjectMapper mapper = new ObjectMapper();
-        VersionInfo versionInfo = mapper.readValue(version_info_json, VersionInfo.class);
+        VersionInfo versionInfo = mapper.readValue(versionInfoJson, VersionInfo.class);
 
         int latestVersionCode = versionInfo.getVersionCode();                   //新版本的版本代码
         int currentVersionCode = AboutHelper.getVersionCode(context);           //当前版本代码
         int skipVersionCode = VersionPreference.getSkipVersionCode(context);    //跳过的版本代码
-        if (latestVersionCode > currentVersionCode && latestVersionCode > skipVersionCode) {
+        if (latestVersionCode > currentVersionCode && (ignoreSkipVersion || latestVersionCode > skipVersionCode)) {
             boolean isMandatory = versionInfo.isMandatory();
             String downloadUrl = versionInfo.getDownloadUrl();
             String updateLog = versionInfo.getUpdateLog();

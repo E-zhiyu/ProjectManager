@@ -47,8 +47,8 @@ import io.noties.markwon.Markwon;
 public class RuleAddModifyActivity extends AppCompatActivity {
     private boolean isModifyMode = false;                           //是否为规则编辑模式
     private int viewHolderPosition;                                 //规则ViewHolder下标
-    private long rule_no;                                           //规则编号
-    private long tagNo = 0;                                        //标签编号
+    private long ruleNo;                                            //规则编号
+    private long tagNo = 0;                                         //标签编号
     private RunningAccountType type = RunningAccountType.EXPENSE;   //流水种类
     private TagSelectBottomSheet tagSheet;                          //标签选择弹出菜单
     private ActivityResultLauncher<Intent> packageNameSelectLauncher;   //包名选择启动器
@@ -264,17 +264,17 @@ public class RuleAddModifyActivity extends AppCompatActivity {
 
             //解析数据
             String ruleName = initData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());                //规则名称
-            rule_no = initData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());                            //规则编号
+            ruleNo = initData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());                            //规则编号
             viewHolderPosition = initData.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());              //视图下标
             type = RunningAccountType.valueOf(initData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));     //流水种类
-            Tag ruleTag = TagDataController.getTagByRuleNo(rule_no, this);                              //标签
+            Tag ruleTag = TagDataController.getTagByRuleNo(ruleNo, this);                              //标签
             tagNo = ruleTag.getTno();
             String packageName = initData.getString(KeyValueStrings.PACKAGE_NAME.getValue());                   //包名
             String notificationTitle = initData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());       //通知标题
             String notificationContent = initData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());   //通知内容
             if (type == RunningAccountType.TRANSFER) {                                                          //转账账户信息
                 binding.transferInputLayout.setVisibility(View.VISIBLE);
-                List<String> transferAccountInfo = RuleDataController.getTransferAccounts(rule_no, this);
+                List<String> transferAccountInfo = RuleDataController.getTransferAccounts(ruleNo, this);
                 if (!transferAccountInfo.isEmpty()) {
                     String exportAccount = transferAccountInfo.get(0);
                     String importAccount = transferAccountInfo.get(1);
@@ -440,7 +440,7 @@ public class RuleAddModifyActivity extends AppCompatActivity {
 
         if (isModifyMode) {
             dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), viewHolderPosition);
-            dataBundle.putLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue(), rule_no);
+            dataBundle.putLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue(), ruleNo);
         }
 
         return dataBundle;

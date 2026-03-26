@@ -100,6 +100,9 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
      * @param ruleName       触发自动记账的规则名称
      */
     private void onRemarkInput(Context context, int notificationID, String remark, @NonNull Bundle dataBundle, String ruleName) {
+        //修改数据包中的备注
+        dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
+
         //保存数据并更新UI
         writeDataAndBroadcast(dataBundle, context);
 
@@ -123,9 +126,6 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
                 builder,
                 context
         );
-
-        //修改数据包中的备注
-        dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
     }
 
     /**

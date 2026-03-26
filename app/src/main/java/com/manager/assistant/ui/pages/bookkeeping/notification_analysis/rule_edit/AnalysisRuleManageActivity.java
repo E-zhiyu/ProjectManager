@@ -125,7 +125,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         permissionHelper.addPermission(
                 PermissionHelper.SpecialType.AUTO_START,
                 "自启动权限",
-                "该功能需要在后台运行通知监听服务，如果系统中有自启动权限，请为本应用授权，否则该功能可能无法正常运行"
+                "该功能需要在后台运行通知监听服务，如果系统中有自启动权限，请为本应用授权，否则该功能可能无法正常运行。为了进一步保障在后台正常运行，建议您在最近任务锁定本应用"
         );
         permissionHelper.addPermission(
                 PermissionHelper.SpecialType.BATTERY,

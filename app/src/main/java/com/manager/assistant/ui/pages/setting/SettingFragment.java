@@ -544,7 +544,7 @@ public class SettingFragment extends Fragment {
         updateCheckOption.setFunctionListener(
                 v -> {
                     Toast.makeText(requireContext(), "正在检查更新……", Toast.LENGTH_SHORT).show();
-                    UpdateHelper.checkUpdate(requireContext(), disposables, true);
+                    UpdateHelper.checkUpdate(requireContext(), disposables, true, true);
                 }
         );
     }

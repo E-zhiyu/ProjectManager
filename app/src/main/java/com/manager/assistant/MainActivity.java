@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         boolean isMandatoryUpdateFound = VersionPreference.getFindMandatoryUpdate(this);    //是否获取到强制更新
         if (!isMandatoryUpdateFound) {
             if (startVersionCheckNum % recycleNum == 0) {
-                UpdateHelper.checkUpdate(this, disposables, false);
+                UpdateHelper.checkUpdate(this, disposables, false, false);
             }
             VersionPreference.setStartVersionCheckNum(this, (startVersionCheckNum + 1) % recycleNum);
         } else {
