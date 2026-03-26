@@ -205,6 +205,8 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
     private PendingIntent getAccountDetailPendingIntent(Bundle dataBundle, Context context) {
         Intent skip2AccountModify = new Intent(context, RunningAccountModifyActivity.class);
         skip2AccountModify.putExtras(dataBundle);
+
+        //传递标识：新建任务并清除旧任务
         skip2AccountModify.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         return PendingIntent.getActivity(

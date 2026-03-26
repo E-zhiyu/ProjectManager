@@ -164,4 +164,6 @@
     <string name="camera_permission">相机权限</string>
     <string name="notification_cancel_behaviour">通知取消行为</string>
     <string name="keep">保留</string>
+    <string name="keep_account">保留记录</string>
+    <string name="delete_account">删除记录</string>
 </resources>
