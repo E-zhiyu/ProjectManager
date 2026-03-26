@@ -81,7 +81,6 @@
     <string name="input_instruction">详细输入说明</string>
     <string name="search_app">搜索应用……</string>
     <string name="background_setting">后台设置</string>
-    <string name="analysis_rule_tip">推荐执行以下操作使通知监听更加稳定：\n1.授予自启动权限(如果有该权限设置)\n2.在最近任务中锁定本应用\n3.在该软件设置界面将电池优化设置为“无限制”</string>
     <string name="tag_optional">标签(可选)</string>
     <string name="btn_expands_list">展开列表选项的按钮</string>
     <string name="isSysAppIncluded">包含系统应用</string>

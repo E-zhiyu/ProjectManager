@@ -182,12 +182,6 @@
                 android:text="@string/input_instruction"
                 app:icon="@drawable/outline_info_24"
                 app:iconGravity="textStart" />
-
-            <com.google.android.material.textview.MaterialTextView
-                style="@style/TipTextViewStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/analysis_rule_tip" />
         </LinearLayout>
     </ScrollView>
 
