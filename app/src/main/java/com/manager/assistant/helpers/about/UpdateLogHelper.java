@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String UPDATE_LOG_MD = "# v1.8.9  \n" +
             "**BUG修复**  \n" +
+            "- 修复流水输入界面无法通过回车从金额输入框切换焦点的BUG  \n" +
             "- 修复报表界面自定义日期范围的边界不正确的BUG  \n\n" +
             "**修改内容**  \n" +
             "- 限制通过通知输入备注的长度为20个字符  \n\n" +
