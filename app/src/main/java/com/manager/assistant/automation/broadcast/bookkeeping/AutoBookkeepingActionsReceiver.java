@@ -45,7 +45,7 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
                 return;
             }
 
-            onRemarkInput(context, notificationID, remark, dataBundle, ruleName);
+            onRemarkInput(context, notificationID, remark.substring(0, 19), dataBundle, ruleName);  //限制备注为20长度
         } else if (action.equals(BroadcastActions.ACTION_KEEP.toString())) {
             onAccountKept(context, notificationID, dataBundle, ruleName);
         } else if (action.equals(BroadcastActions.ACTION_DELETE.toString())) {

@@ -11,7 +11,10 @@ import com.manager.assistant.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String UPDATE_LOG_MD = "# v1.8.8  \n" +
+    private static final String UPDATE_LOG_MD = "# v1.8.9  \n" +
+            "**修改内容**  \n" +
+            "- 限制通过通知输入备注的长度为20个字符  \n\n" +
+            "# v1.8.8  \n" +
             "**BUG修复**  \n" +
             "- 修复上个版本通过通知输入备注不生效的BUG  \n" +
             "- 修复手动检查更新仍然会跳过已忽略的版本的BUG  \n\n" +
