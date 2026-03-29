@@ -223,6 +223,9 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                     //生成流水数据包
                     long tagNo = TagDataController.getTagByRuleNo(ruleNo, getApplicationContext()).getTno();
                     Bundle dataBundle = getNewAccountData(matcher, type, tagNo, ruleName, ruleNo);
+                    if (dataBundle == null) {
+                        return;
+                    }
                     Log.i(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据生成成功");
 
                     //发送确认自动记账的通知，在通知中决定保留还是删除
@@ -376,7 +379,10 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
      * @param ruleName   触发自动记账的规则名称
      * @param context    上下文
      */
-    private void sendNotificationToConfirm(Bundle dataBundle, String ruleName, Context context) {
+    private void sendNotificationToConfirm(@NonNull Bundle dataBundle, String ruleName, Context context) {
+        //生成通知唯一标识符
+        int notificationID = dataBundle.hashCode() * 10 + NotificationID.AUTO_BOOKKEEPING_CONFIRM.ordinal();
+
         //创建保留Action
         NotificationCompat.Action keepAction = createAction(
                 context,
@@ -415,17 +421,17 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
 
         //创建通知被删除的PendingIntent
         Intent notificationDeletedIntent = new Intent(context, AutoBookkeepingActionsReceiver.class);
-        notificationDeletedIntent.setAction(BroadcastActions.ACTION_NOTIFICATION_DELETED.toString());
-        int notificationDeletedID = dataBundle.hashCode();
+        notificationDeletedIntent.setAction(BroadcastActions.ACTION_AUTO_BOOKKEEPING_NOTIFICATION_DELETED.toString());
         notificationDeletedIntent.putExtra(
                 KeyValueStrings.NOTIFICATION_ID.getValue(),
-                notificationDeletedID
+                notificationID
         );
         notificationDeletedIntent.putExtras(dataBundle);                                               //发送流水记录数据包
         notificationDeletedIntent.putExtra(KeyValueStrings.ANALYSIS_RULE_NAME.getValue(), ruleName);   //发送规则名称
+        int pendingDeletedID = dataBundle.hashCode() * 10 + PendingRequestCode.AUTO_BOOKKEEPING_NOTIFICATION_DELETE.ordinal();
         PendingIntent deletePendingIntent = PendingIntent.getBroadcast(
                 context,
-                notificationDeletedID,  //直接使用Bundle的哈希值
+                pendingDeletedID,
                 notificationDeletedIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
@@ -445,9 +451,31 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                 .addAction(deleteAction)                //点击删除按钮
                 .setDeleteIntent(deletePendingIntent);  //通知被划走
 
+        //创建通知点击PendingIntent
+        int clickBehaviourCode = AutoBookKeepingPreference.getNotificationClickBehaviour(context);
+        if (clickBehaviourCode != 0) {
+            Intent notificationClickIntent = new Intent(context, AutoBookkeepingActionsReceiver.class);
+            notificationClickIntent.setAction(BroadcastActions.ACTION_AUTO_BOOKKEEPING_NOTIFICATION_CLICKED.toString());
+            notificationClickIntent.putExtra(
+                    KeyValueStrings.NOTIFICATION_ID.getValue(),
+                    notificationID
+            );
+            notificationClickIntent.putExtras(dataBundle);                                                  //发送流水记录数据
+            notificationClickIntent.putExtra(KeyValueStrings.ANALYSIS_RULE_NAME.getValue(), ruleName);      //发送规则名称
+            int pendingClickedID = dataBundle.hashCode() * 10 + PendingRequestCode.AUTO_BOOKKEEPING_NOTIFICATION_CLICK.ordinal();
+            PendingIntent clickPendingIntent = PendingIntent.getBroadcast(
+                    context,
+                    pendingClickedID,
+                    notificationClickIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+            );
+
+            //为通知构建器加上点击逻辑
+            builder.setContentIntent(clickPendingIntent);
+            builder.setAutoCancel(false);
+        }
+
         //发送通知
-        int dataHash = dataBundle.hashCode();
-        int notificationID = NotificationID.AUTO_BOOKKEEPING_CONFIRM.ordinal() + dataHash * 10;
         NotificationHelper.sendNotification(
                 notificationID, //确保多个记录的通知ID不同
                 builder,

@@ -476,12 +476,12 @@ public class SettingFragment extends Fragment {
                 "划走确认通知后执行的操作",
                 R.drawable.outline_comments_disabled_24
         );
-        int[] strResId = {
+        int[] cancelTitleResId = {
                 R.string.keep_account,
                 R.string.delete_account
         };
-        int behaviourCode = AutoBookKeepingPreference.getNotificationCancelBehaviour(requireContext());
-        notificationCancelBehaviour.setSpinnerText(strResId[behaviourCode]);
+        int cancelBehaviourCode = AutoBookKeepingPreference.getNotificationCancelBehaviour(requireContext());
+        notificationCancelBehaviour.setSpinnerText(cancelTitleResId[cancelBehaviourCode]);
         notificationCancelBehaviour.setFunctionListener(v -> {
             PopupMenu behaviourMenu = new PopupMenu(requireContext(), notificationCancelBehaviour.getFunctionComponent());
             behaviourMenu.getMenuInflater().inflate(R.menu.popup_menu_notification_cancel_behaviour, behaviourMenu.getMenu());
@@ -490,11 +490,52 @@ public class SettingFragment extends Fragment {
                 boolean isItemClicked = false;
                 if (item.getItemId() == R.id.action_keep) {
                     AutoBookKeepingPreference.setNotificationCancelBehaviour(0, requireContext());
-                    notificationCancelBehaviour.setSpinnerText(strResId[0]);
+                    notificationCancelBehaviour.setSpinnerText(cancelTitleResId[0]);
                     isItemClicked = true;
                 } else if (item.getItemId() == R.id.action_delete) {
                     AutoBookKeepingPreference.setNotificationCancelBehaviour(1, requireContext());
-                    notificationCancelBehaviour.setSpinnerText(strResId[1]);
+                    notificationCancelBehaviour.setSpinnerText(cancelTitleResId[1]);
+                    isItemClicked = true;
+                }
+
+                return isItemClicked;
+            });
+
+            behaviourMenu.show();
+        });
+
+        //通知点击行为
+        SettingSpinnerView notificationClickBehaviour = new SettingSpinnerView(
+                requireContext(),
+                binding.notificationClickBehaviour,
+                R.string.notification_click_behaviour,
+                "点击确认通知后执行的操作",
+                R.drawable.outline_ads_click_24
+        );
+        int[] clickTitleResId = {
+                R.string.none,
+                R.string.keep_account,
+                R.string.delete_account
+        };
+        int clickBehaviourCode = AutoBookKeepingPreference.getNotificationClickBehaviour(requireContext());
+        notificationClickBehaviour.setSpinnerText(clickTitleResId[clickBehaviourCode]);
+        notificationClickBehaviour.setFunctionListener(v -> {
+            PopupMenu behaviourMenu = new PopupMenu(requireContext(), notificationCancelBehaviour.getFunctionComponent());
+            behaviourMenu.getMenuInflater().inflate(R.menu.popup_menu_notification_click_behaviour, behaviourMenu.getMenu());
+
+            behaviourMenu.setOnMenuItemClickListener(item -> {
+                boolean isItemClicked = false;
+                if (item.getItemId() == R.id.action_none) {
+                    AutoBookKeepingPreference.setNotificationClickBehaviour(0, requireContext());
+                    notificationClickBehaviour.setSpinnerText(clickTitleResId[0]);
+                    isItemClicked = true;
+                } else if (item.getItemId() == R.id.action_keep) {
+                    AutoBookKeepingPreference.setNotificationClickBehaviour(1, requireContext());
+                    notificationClickBehaviour.setSpinnerText(clickTitleResId[1]);
+                    isItemClicked = true;
+                } else if (item.getItemId() == R.id.action_delete) {
+                    AutoBookKeepingPreference.setNotificationClickBehaviour(2, requireContext());
+                    notificationClickBehaviour.setSpinnerText(clickTitleResId[2]);
                     isItemClicked = true;
                 }
 

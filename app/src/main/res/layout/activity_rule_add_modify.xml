@@ -35,8 +35,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:counterMaxLength="15"
-                app:endIconDrawable="@drawable/baseline_clear_24"
-                app:endIconMode="clear_text"
                 app:helperText="@string/rule_name_help_text">
 
                 <requestFocus />

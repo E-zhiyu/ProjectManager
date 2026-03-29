@@ -169,6 +169,8 @@
         <item name="helperTextEnabled">true</item>
         <item name="android:layout_marginTop">4dp</item>
         <item name="android:layout_marginBottom">4dp</item>
+        <item name="endIconDrawable">@drawable/baseline_clear_24</item>
+        <item name="endIconMode">clear_text</item>
     </style>
 
     <style name="DropdownMenuTextInputLayoutStyle" parent="Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu">

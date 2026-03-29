@@ -125,7 +125,7 @@
     <string name="budget_name_help">预算的名称</string>
     <string name="start_date_help">开始计入预算的流水日期</string>
     <string name="init_amount_help">预算的初始金额</string>
-    <string name="left_amount_help">预算剩余的金额</string>
+    <string name="left_amount_help">预算的余额</string>
     <string name="reset_frequency_help">重置金额和起算日期的时间间隔</string>
     <string name="tag_name_help">该标签的名称</string>
     <string name="tag_group_name_help">该标签所属分组的名称</string>
@@ -162,7 +162,8 @@
     <string name="app_list_option">应用列表权限</string>
     <string name="camera_permission">相机权限</string>
     <string name="notification_cancel_behaviour">通知取消行为</string>
-    <string name="keep">保留</string>
     <string name="keep_account">保留记录</string>
     <string name="delete_account">删除记录</string>
+    <string name="notification_click_behaviour">通知点击行为</string>
+    <string name="none">无</string>
 </resources>
