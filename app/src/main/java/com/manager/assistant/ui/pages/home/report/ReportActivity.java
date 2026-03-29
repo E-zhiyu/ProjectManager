@@ -45,7 +45,7 @@ public class ReportActivity extends AppCompatActivity {
     private double yearExpense = 0, yearIncome = 0;                                         //年支出和年收入（不是显示的数据）
     private double shownIncome = 0, shownExpense = 0;                                       //显示出来的收入和支出
     private LocalDate selectedDate;                                                         //不是自定义范围时，通过日期对话框选择的日期
-    private LocalDate start, end;                                                           //查询流水记录时的日期范围
+    private LocalDate start, end;                                                           //自定义日期范围时选中的起止日期
     private ActivityReportBinding binding;                                                  //XML界面绑定引用
 
     //月流水信息种类
@@ -223,7 +223,7 @@ public class ReportActivity extends AppCompatActivity {
                 break;
             case CUSTOM:
                 start = this.start;
-                end = this.end;
+                end = this.end.plusDays(1); //由于包含结束的日期，所以需要额外加一天
                 break;
         }
 
@@ -619,7 +619,6 @@ public class ReportActivity extends AppCompatActivity {
                 binding.dateRangeText.setText(R.string.this_year);
                 itemClicked = true;
             } else if (item.getItemId() == R.id.action_custom) {
-                dateRangeType = DateRangeType.CUSTOM;
                 itemClicked = true;
                 isCustomRange = true;
 
@@ -631,6 +630,9 @@ public class ReportActivity extends AppCompatActivity {
                         ReportActivity.this,
                         this::onDateRangeDialogPositiveBtnClicked
                 );
+
+                //弹出关于日期范围边界的提示
+                Toast.makeText(this, "提示：统计结果包含起止日期", Toast.LENGTH_SHORT).show();
             }
 
             //不是自定义日期范围时刷新收支来源卡片
@@ -676,9 +678,6 @@ public class ReportActivity extends AppCompatActivity {
                 monthAccountInfoType = MonthAccountInfoType.INCOME;
                 binding.monthAccountTypeLeadingBtn.setText(R.string.income);
                 itemClicked = true;
-
-                //弹出关于日期范围边界的提示
-                Toast.makeText(this, "提示：统计结果包含起止日期", Toast.LENGTH_SHORT).show();
             }
 
             if (itemClicked && oldType != monthAccountInfoType) {
@@ -700,8 +699,12 @@ public class ReportActivity extends AppCompatActivity {
      * @param selection 选择的日期范围对
      */
     private void onDateRangeDialogPositiveBtnClicked(@NonNull Pair<Long, Long> selection) {
+        //更新流水日期范围种类
+        dateRangeType = DateRangeType.CUSTOM;
+
+        //将时间戳转换为 LocalDate
         start = DateTimePickerHelper.getLocalDateFromTimeMilli(selection.first);
-        end = DateTimePickerHelper.getLocalDateFromTimeMilli(selection.second).plusDays(1);   //因为数据库的WHERE子句为左闭右开，因此需要+1天
+        end = DateTimePickerHelper.getLocalDateFromTimeMilli(selection.second);
 
         //隐藏每月流水报表（因为日期范围可以跨年）
         ScaleAnimator.hide(binding.monthAccountCard);
