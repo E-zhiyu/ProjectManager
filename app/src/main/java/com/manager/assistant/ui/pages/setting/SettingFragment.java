@@ -520,7 +520,7 @@ public class SettingFragment extends Fragment {
         int clickBehaviourCode = AutoBookKeepingPreference.getNotificationClickBehaviour(requireContext());
         notificationClickBehaviour.setSpinnerText(clickTitleResId[clickBehaviourCode]);
         notificationClickBehaviour.setFunctionListener(v -> {
-            PopupMenu behaviourMenu = new PopupMenu(requireContext(), notificationCancelBehaviour.getFunctionComponent());
+            PopupMenu behaviourMenu = new PopupMenu(requireContext(), notificationClickBehaviour.getFunctionComponent());
             behaviourMenu.getMenuInflater().inflate(R.menu.popup_menu_notification_click_behaviour, behaviourMenu.getMenu());
 
             behaviourMenu.setOnMenuItemClickListener(item -> {
