@@ -45,13 +45,20 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
                 return;
             }
 
-            onRemarkInput(context, notificationID, remark.substring(0, 19), dataBundle, ruleName);  //限制备注为20长度
+            //选取前20个字符
+            if (remark.length() > 20) {
+                remark = remark.substring(0, 19);
+            }
+
+            onRemarkInput(context, notificationID, remark, dataBundle, ruleName);  //限制备注为20长度
         } else if (action.equals(BroadcastActions.ACTION_KEEP.toString())) {
             onAccountKept(context, notificationID, dataBundle, ruleName);
         } else if (action.equals(BroadcastActions.ACTION_DELETE.toString())) {
             onAccountDeleted(context, notificationID, ruleName);
-        } else if (action.equals(BroadcastActions.ACTION_NOTIFICATION_DELETED.toString())) {
+        } else if (action.equals(BroadcastActions.ACTION_AUTO_BOOKKEEPING_NOTIFICATION_DELETED.toString())) {
             onNotificationDeleted(context, dataBundle);
+        } else if (action.equals(BroadcastActions.ACTION_AUTO_BOOKKEEPING_NOTIFICATION_CLICKED.toString())) {
+            onNotificationClicked(context, dataBundle, notificationID, ruleName);
         }
     }
 
@@ -87,7 +94,6 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
                 builder,
                 context
         );
-
     }
 
     /**
@@ -178,6 +184,68 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
     }
 
     /**
+     * 记账确认通知点击回调
+     *
+     * @param context        上下文
+     * @param dataBundle     流水数据包
+     * @param notificationID 自动记账确认通知的ID
+     * @param ruleName       触发自动记账的规则名称
+     */
+    private void onNotificationClicked(Context context, Bundle dataBundle, int notificationID, String ruleName) {
+        int behaviour = AutoBookKeepingPreference.getNotificationClickBehaviour(context);
+        if (behaviour == 1) {
+            //将数据写入数据库
+            long rno = AccountDataController.saveNewAccount(dataBundle, context);
+            dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
+
+            //发送本地广播更新UI
+            Intent accountAdded = new Intent(BroadcastActions.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
+            accountAdded.putExtras(dataBundle);
+            context.sendBroadcast(accountAdded);
+
+            //创建通知构建器
+            String content = String.format(Locale.getDefault(), "已保留由“%s”触发的记录，点击查看详情", ruleName);
+            String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
+            PendingIntent accountModifyPendingIntent = getAccountDetailPendingIntent(dataBundle, context);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle("保留成功")
+                    .setContentText(content)
+                    .setContentIntent(accountModifyPendingIntent)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setCategory(NotificationCompat.CATEGORY_CALL)
+                    .setTimeoutAfter(3000)
+                    .setAutoCancel(true);
+
+            //发送通知
+            NotificationHelper.sendNotification(
+                    notificationID,
+                    builder,
+                    context
+            );
+        } else if (behaviour == 2) {
+            //创建通知构建器
+            String content = String.format(Locale.getDefault(), "已删除由“%s”触发的记录", ruleName);
+            String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle("删除成功")
+                    .setContentText(content)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setCategory(NotificationCompat.CATEGORY_CALL)
+                    .setTimeoutAfter(1500)
+                    .setAutoCancel(true);
+
+            //发送通知
+            NotificationHelper.sendNotification(
+                    notificationID,
+                    builder,
+                    context
+            );
+        }
+    }
+
+    /**
      * 将流水数据写入数据库并发送本地广播更新UI
      *
      * @param dataBundle 流水记录数据包
@@ -210,7 +278,7 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
 
         return PendingIntent.getActivity(
                 context,
-                PendingRequestCode.SKIP_ACCOUNT_INPUT.ordinal(),
+                PendingRequestCode.SKIP_TO_ACCOUNT_INPUT.ordinal(),
                 skip2AccountModify,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );

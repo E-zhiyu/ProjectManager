@@ -12,7 +12,8 @@ public class AutoBookKeepingPreference {
     private static final String PREF_NAME = "AutoBookKeepingPreference";
     private static final String KEY_NOTIFICATION_ANALYSIS_OPENED = "notification_analysis_opened";
     private static final String KEY_HINT_AUTO_START = "hint_auto_start";            //是否提示打开自启动权限
-    private static final String KEY_NOTIFICATION_CANCEL = "notification_cancel";    //自动记账通知取消行为
+    private static final String KEY_NOTIFICATION_CANCEL = "notification_cancel";    //自动记账通知点击行为
+    private static final String KEY_NOTIFICATION_CLICK = "notification_click";      //自动记账确认通知点击行为
 
     public static void setSwitchStat(boolean isOpened, @NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -54,5 +55,27 @@ public class AutoBookKeepingPreference {
     public static int getNotificationCancelBehaviour(@NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return pref.getInt(KEY_NOTIFICATION_CANCEL, 0);
+    }
+
+    /**
+     * 设置通知划走后是否保存流水记录
+     *
+     * @param behaviour 是否保存流水记录（0：保留，1：不保留）
+     * @param context   上下文
+     */
+    public static void setNotificationClickBehaviour(int behaviour, @NonNull Context context) {
+        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        pref.edit().putInt(KEY_NOTIFICATION_CLICK, behaviour).apply();
+    }
+
+    /**
+     * 读取通知划走后是否保存流水记录
+     *
+     * @param context 上下文
+     * @return 是否保存流水记录（0：保留，1：不保留）
+     */
+    public static int getNotificationClickBehaviour(@NonNull Context context) {
+        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return pref.getInt(KEY_NOTIFICATION_CLICK, 0);
     }
 }
