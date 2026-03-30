@@ -59,8 +59,8 @@ public class TransferFragment extends RunningAccountFragmentBase<FragmentTransfe
 
     @Override
     protected void initViews() {
-        tagLayout = binding.runningAccountTagLayout;
-        tagInput = binding.runningAccountTagInput;
+        tagLayout = binding.tagLayout;
+        tagInput = binding.tagInput;
         datetimeInput = binding.datetimeInput;
         loadingIndicator = binding.loadingIndicator;
         pictureRecycler = binding.pictureRecycler;
@@ -93,8 +93,8 @@ public class TransferFragment extends RunningAccountFragmentBase<FragmentTransfe
                 showMaterialDatePicker();
             }
         });
-        binding.runningAccountTagInput.setOnClickListener(v -> showTagSelectSheet());
-        binding.runningAccountTagInput.setOnFocusChangeListener((v, hasFocus) -> {
+        binding.tagInput.setOnClickListener(v -> showTagSelectSheet());
+        binding.tagInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 showTagSelectSheet();
             }
@@ -190,7 +190,7 @@ public class TransferFragment extends RunningAccountFragmentBase<FragmentTransfe
         remarkInput.setText(remark);
         MaterialAutoCompleteTextView datetimeInput = binding.datetimeInput;             //日期
         datetimeInput.setText(date_time);
-        binding.runningAccountTagInput.setText(tagName);                               //标签名称
+        binding.tagInput.setText(tagName);                                              //标签名称
 
         String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());
         String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());

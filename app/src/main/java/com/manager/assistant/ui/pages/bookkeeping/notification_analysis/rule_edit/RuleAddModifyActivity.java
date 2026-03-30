@@ -138,13 +138,13 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         binding.importAccountInput.setOnClickListener(v -> binding.importAccountLayout.setError(null));
 
         //标签名称
-        binding.tagNameInput.setOnFocusChangeListener((v, hasFocus) -> {
+        binding.tagInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, type);
                 tagSheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
             }
         });
-        binding.tagNameInput.setOnClickListener(v -> {
+        binding.tagInput.setOnClickListener(v -> {
             tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, type);
             tagSheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
         });
@@ -284,7 +284,7 @@ public class RuleAddModifyActivity extends AppCompatActivity {
             }
 
             binding.ruleNameInput.setText(ruleName);
-            binding.tagNameInput.setText(ruleTag.getName());
+            binding.tagInput.setText(ruleTag.getName());
             binding.packageNameInput.setText(packageName);
             binding.notificationTitleInput.setText(notificationTitle);
             binding.notificationContentInput.setText(notificationContent);
@@ -320,7 +320,7 @@ public class RuleAddModifyActivity extends AppCompatActivity {
     //处理标签按钮点击事件
     public void onTagBtnClicked(long tag_no, String tag_name) {
         this.tagNo = tag_no;
-        binding.tagNameInput.setText(tag_name);
+        binding.tagInput.setText(tag_name);
         tagSheet.dismiss();
     }
 
@@ -340,15 +340,15 @@ public class RuleAddModifyActivity extends AppCompatActivity {
                 if (tag_no == this.tagNo) {    //只有找到匹配的标签编号才修改
                     switch (updateReason) {
                         case RENAME:
-                            binding.tagNameInput.setText(tag_name);
+                            binding.tagInput.setText(tag_name);
                             break;
                         case DELETE:
                             this.tagNo = 0;
-                            binding.tagNameInput.setText("");
+                            binding.tagInput.setText("");
                             break;
                         case MERGE:
                             this.tagNo = TagDataController.nameTransToTno(tag_name, this);
-                            binding.tagNameInput.setText(tag_name);
+                            binding.tagInput.setText(tag_name);
                             break;
                         default:
                             break;
