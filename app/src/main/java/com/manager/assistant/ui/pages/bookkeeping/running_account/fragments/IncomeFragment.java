@@ -54,8 +54,8 @@ public class IncomeFragment extends RunningAccountFragmentBase<FragmentIncomeBin
 
     @Override
     protected void initViews() {
-        tagLayout = binding.runningAccountTagLayout;
-        tagInput = binding.runningAccountTagInput;
+        tagLayout = binding.tagLayout;
+        tagInput = binding.tagInput;
         datetimeInput = binding.datetimeInput;
         loadingIndicator = binding.loadingIndicator;
         pictureRecycler = binding.pictureRecycler;
@@ -88,8 +88,8 @@ public class IncomeFragment extends RunningAccountFragmentBase<FragmentIncomeBin
                 showMaterialDatePicker();
             }
         });
-        binding.runningAccountTagInput.setOnClickListener(v -> showTagSelectSheet());
-        binding.runningAccountTagInput.setOnFocusChangeListener((v, hasFocus) -> {
+        binding.tagInput.setOnClickListener(v -> showTagSelectSheet());
+        binding.tagInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 showTagSelectSheet();
             }
@@ -171,7 +171,7 @@ public class IncomeFragment extends RunningAccountFragmentBase<FragmentIncomeBin
         remarkInput.setText(remark);
         MaterialAutoCompleteTextView datetimeInput = binding.datetimeInput;             //日期
         datetimeInput.setText(dateTime);
-        binding.runningAccountTagInput.setText(tag_name);                               //标签名称
+        binding.tagInput.setText(tag_name);                                             //标签名称
     }
 
     @Override
