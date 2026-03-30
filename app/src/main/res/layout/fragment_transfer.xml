@@ -65,16 +65,17 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/running_account_tag_layout"
+            android:id="@+id/tag_layout"
             style="@style/CommonTextInputLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/tag"
             app:counterEnabled="false"
+            app:endIconMode="none"
             app:helperText="@string/account_tag_help">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                android:id="@+id/running_account_tag_input"
+                android:id="@+id/tag_input"
                 style="@style/UneditableAutoCompleteTextViewStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />

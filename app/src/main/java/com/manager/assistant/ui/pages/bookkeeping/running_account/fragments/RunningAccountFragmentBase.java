@@ -155,11 +155,11 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
     /**
      * 标签选中弹窗的标签按钮点击回调
      *
-     * @param tag_no  点击的标签编号
+     * @param tagNo   点击的标签编号
      * @param tagName 点击的标签名称
      */
-    public void onTagBtnClicked(long tag_no, String tagName) {
-        this.tno = tag_no;   //更新全局变量中的标签编号
+    public void onTagBtnClicked(long tagNo, String tagName) {
+        this.tno = tagNo;   //更新全局变量中的标签编号
         tagInput.setText(tagName);
         tagLayout.setError(null);
         tagSheet.dismiss();
@@ -202,9 +202,9 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
                     TagUpdateReason updateReason = repository.getUpdateReason();
                     for (Tag tag : tagList) {
                         String tagName = tag.getName();
-                        long tag_no = tag.getTno();
+                        long tagNo = tag.getTno();
 
-                        if (tag_no == this.tno) {    //只有找到匹配的标签编号才修改
+                        if (tagNo == this.tno) {    //只有找到匹配的标签编号才修改
                             switch (updateReason) {
                                 case RENAME:
                                     tagInput.setText(tagName);

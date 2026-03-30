@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String UPDATE_LOG_MD = "# v1.8.10  \n" +
             "**BUG修复**  \n" +
+            "- 修复标签选择文本框会出现多余的文本清除按钮的BUG  \n" +
             "- 修复第一次启动可能直接崩溃的BUG  \n\n" +
             "# v1.8.9  \n" +
             "**新增功能**  \n" +
