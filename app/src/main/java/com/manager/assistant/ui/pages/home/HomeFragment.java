@@ -124,7 +124,7 @@ public class HomeFragment extends Fragment {
             int tagCount = TagDataController.getDbCount(requireContext());
             binding.tagCountText.setText(String.valueOf(tagCount));
         } catch (SQLiteException e) {
-            binding.tagCountText.setText(0);
+            binding.tagCountText.setText(String.valueOf(0));
             Toast.makeText(requireContext(), "无法获取标签数量", Toast.LENGTH_SHORT).show();
         }
 
@@ -133,7 +133,7 @@ public class HomeFragment extends Fragment {
             int budgetCount = BudgetDataController.getDbCount(requireContext());
             binding.budgetCountText.setText(String.valueOf(budgetCount));
         } catch (SQLiteException e) {
-            binding.budgetCountText.setText(0);
+            binding.budgetCountText.setText(String.valueOf(0));
             Toast.makeText(requireContext(), "无法获取预算数量", Toast.LENGTH_SHORT).show();
         }
     }
