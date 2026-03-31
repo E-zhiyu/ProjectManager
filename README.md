@@ -105,15 +105,15 @@
 
 ## 软件下载
 
-- Github仓库:https://github.com/E-zhiyu/ManagerAssitant/releases
-- Gitee仓库:https://gitee.com/e-zhiyu/manager-assistant-web/releases
-- 123云盘:https://www.123865.com/s/C5xcVv-kRYT3
-- 小飞机网盘:https://share.feijipan.com/s/kTVc2PiI
+- [Github仓库](https://github.com/E-zhiyu/ManagerAssitant/releases)
+- [Gitee仓库](https://gitee.com/e-zhiyu/manager-assistant-web/releases)
+- [123云盘](https://www.123865.com/s/C5xcVv-kRYT3)
+- [小飞机网盘](https://share.feijipan.com/s/kTVc2PiI)
 
 ## 使用到的第三方库
 
-- Material Components:https://github.com/material-components/material-components-android
-- Groupie:https://github.com/lisawray/groupie
-- RxJava:https://github.com/ReactiveX/RxJava
-- Glide:https://github.com/bumptech/glide
-- PhotoView:https://github.com/Baseflow/PhotoView
+- [Material Components](https://github.com/material-components/material-components-android)
+- [Groupie](https://github.com/lisawray/groupie)
+- [RxJava](https://github.com/ReactiveX/RxJava)
+- [Glide](https://github.com/bumptech/glide)
+- [PhotoView](https://github.com/Baseflow/PhotoView)
