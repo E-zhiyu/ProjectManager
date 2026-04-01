@@ -26,6 +26,7 @@ import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.databinding.ActivityPermissionManageBinding;
 import com.manager.assistant.helpers.PermissionHelper;
+import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingClickableTextView;
 
 import io.noties.markwon.Markwon;
@@ -50,7 +51,12 @@ public class PermissionManageActivity extends AppCompatActivity {
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
-            binding.appSettingsLayout.setPadding(0, 0, 0, systemBars.bottom);
+            binding.scrollView.setPadding(
+                    0,
+                    0,
+                    0,
+                    systemBars.bottom + ViewEdgeHelper.dpToPx(this, 15)
+            );
             return insets;
         });
 
