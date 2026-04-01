@@ -1,4 +1,4 @@
-package com.manager.assistant.helpers.resourse;
+package com.manager.assistant.helpers;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -9,11 +9,12 @@ import android.graphics.drawable.Drawable;
 import androidx.annotation.NonNull;
 
 import com.manager.assistant.data.classes.AppInfo;
+import com.manager.assistant.helpers.appearence.IconHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PackageNameHelper {
+public class AppListHelper {
     /**
      * 加载应用列表
      *

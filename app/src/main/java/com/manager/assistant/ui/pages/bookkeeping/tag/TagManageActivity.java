@@ -18,12 +18,13 @@ import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.ActivityTagManageBinding;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
-import com.manager.assistant.helpers.resourse.ColorHelper;
+import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.classes.TagGroup;
+import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +56,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
             binding.tagGroupRecycler.setPadding(0, 0, 0, systemBars.bottom);
             return insets;
         });
+        ViewEdgeHelper.setMarginToNavigation(binding.addFloatingBtn, this);
 
         initLaunchers();
         initViews();
@@ -71,11 +73,11 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
     }
 
     @Override
-    public void onTagTextViewClicked(long tag_no, String tag_name, int tag_scope, long group_no, String group_name) {
+    public void onTagTextViewClicked(long tag_no, String tagName, int tag_scope, long group_no, String group_name) {
         Intent skip2ModifyTag = new Intent(this, TagAddModifyActivity.class);
         Bundle clickedTagData = new Bundle();
 
-        clickedTagData.putString(KeyValueStrings.TAG_NAME.getValue(), tag_name);
+        clickedTagData.putString(KeyValueStrings.TAG_NAME.getValue(), tagName);
         clickedTagData.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), group_name);
         clickedTagData.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
         clickedTagData.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), group_no);

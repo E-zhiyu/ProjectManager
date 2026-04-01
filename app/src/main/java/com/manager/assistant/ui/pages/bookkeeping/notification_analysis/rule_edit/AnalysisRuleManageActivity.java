@@ -20,11 +20,12 @@ import com.manager.assistant.data.controllers.RuleDataController;
 import com.manager.assistant.databinding.ActivityAnalysisRuleManageBinding;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.helpers.PermissionHelper;
-import com.manager.assistant.helpers.resourse.ColorHelper;
+import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.data.classes.AnalysisRule;
+import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 import com.manager.assistant.ui.sync.tag.TagRepository;
 
 import java.util.ArrayList;
@@ -57,6 +58,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
             binding.ruleRecycler.setPadding(0, 0, 0, systemBars.bottom);
             return insets;
         });
+        ViewEdgeHelper.setMarginToNavigation(binding.addFloatingBtn, this);
 
         initViews();
         AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());

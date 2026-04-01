@@ -23,7 +23,8 @@ import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
-import com.manager.assistant.helpers.resourse.ColorHelper;
+import com.manager.assistant.helpers.appearence.ColorHelper;
+import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -52,6 +53,7 @@ public class BudgetManageActivity extends AppCompatActivity {
             binding.budgetRecycler.setPadding(0, 0, 0, systemBars.bottom);
             return insets;
         });
+        ViewEdgeHelper.setMarginToNavigation(binding.addFloatingBtn, this);
 
         //初始化启动器和视图
         initViews();

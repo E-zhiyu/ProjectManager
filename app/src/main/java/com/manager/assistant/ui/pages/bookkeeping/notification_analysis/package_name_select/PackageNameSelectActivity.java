@@ -27,9 +27,9 @@ import com.google.android.material.search.SearchView;
 import com.manager.assistant.R;
 import com.manager.assistant.databinding.ActivityPackageNameSelectBinding;
 import com.manager.assistant.helpers.PermissionHelper;
-import com.manager.assistant.helpers.resourse.ColorHelper;
+import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.helpers.resourse.PackageNameHelper;
+import com.manager.assistant.helpers.AppListHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.ui.sync.package_name_search.AppInfoSearchViewModel;
 
@@ -201,7 +201,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
     private void startLoadAppList() {
         appListRefreshLayout.setRefreshing(true);
         disposables.add(
-                Observable.fromCallable(() -> PackageNameHelper.getInstalledApps(isSysAppIncluded, this))
+                Observable.fromCallable(() -> AppListHelper.getInstalledApps(isSysAppIncluded, this))
                         .subscribeOn(Schedulers.io())               //在IO线程执行查询
                         .observeOn(AndroidSchedulers.mainThread())  //切换到主线程更新 UI
                         .subscribe(

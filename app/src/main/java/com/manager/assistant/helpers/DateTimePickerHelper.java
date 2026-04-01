@@ -1,6 +1,7 @@
 package com.manager.assistant.helpers;
 
 import android.content.Context;
+import android.util.TypedValue;
 
 import androidx.core.util.Pair;
 import androidx.fragment.app.FragmentManager;
@@ -12,7 +13,6 @@ import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClic
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 import com.manager.assistant.generic_enums.TagString;
-import com.manager.assistant.helpers.resourse.ResHelper;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -60,11 +60,10 @@ public class DateTimePickerHelper {
         }
 
         //创建日期选择对话框构建器
+        TypedValue typedValue = new TypedValue();   //获取对话框式的样式资源
+        context.getTheme().resolveAttribute(com.google.android.material.R.attr.materialCalendarTheme, typedValue, true);
         MaterialDatePicker<Pair<Long, Long>> dateRangePicker = dateBuilder
-                .setTheme(ResHelper.getStyleOrThrow(
-                        context,
-                        com.google.android.material.R.attr.materialCalendarTheme
-                ))
+                .setTheme(typedValue.data)
                 .setCalendarConstraints(
                         new CalendarConstraints.Builder()
                                 .setValidator(DateValidatorPointBackward.now()) //限制为过去日期

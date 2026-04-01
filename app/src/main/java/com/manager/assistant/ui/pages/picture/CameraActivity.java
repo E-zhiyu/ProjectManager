@@ -33,8 +33,8 @@ import com.manager.assistant.databinding.ActivityCameraBinding;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.helpers.resourse.IconHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -75,10 +75,10 @@ public class CameraActivity extends AppCompatActivity {
             //设置拍照按钮的间距
             ViewGroup.MarginLayoutParams btnParams = (ViewGroup.MarginLayoutParams) binding.captureBtn.getLayoutParams();
             btnParams.setMargins(
-                    IconHelper.dpToPx(this, 15),
+                    ViewEdgeHelper.dpToPx(this, 15),
                     0,
-                    IconHelper.dpToPx(this, 15),
-                    IconHelper.dpToPx(this, 10) + systemBars.bottom
+                    ViewEdgeHelper.dpToPx(this, 15),
+                    ViewEdgeHelper.dpToPx(this, 10) + systemBars.bottom
             );
             return insets;
         });

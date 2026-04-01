@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.manager.assistant.helpers.resourse.PackageNameHelper;
+import com.manager.assistant.helpers.AppListHelper;
 import com.manager.assistant.data.classes.AppInfo;
 
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ public class AppInfoSearchViewModel extends ViewModel {
                             if (query.isEmpty()) {
                                 return Observable.just(Collections.emptyList()); //空查询返回空
                             }
-                            return Observable.fromCallable(() -> PackageNameHelper.searchInFullAppList(query, fullAppInfoList)) // 实际搜索
+                            return Observable.fromCallable(() -> AppListHelper.searchInFullAppList(query, fullAppInfoList)) // 实际搜索
                                     .subscribeOn(Schedulers.computation()) //指定在计算进程执行
                                     .cast(List.class) //显式声明泛型类型
                                     .onErrorResumeNext(throwable -> { //错误处理

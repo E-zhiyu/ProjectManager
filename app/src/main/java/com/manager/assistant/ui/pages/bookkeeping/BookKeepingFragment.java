@@ -26,7 +26,7 @@ import com.manager.assistant.data.classes.running_account.RunningAccountBase;
 import com.manager.assistant.data.classes.running_account.TransferRunningAccount;
 import com.manager.assistant.databinding.FragmentBookkeepingBinding;
 import com.manager.assistant.helpers.appearence.AnimationHelper;
-import com.manager.assistant.helpers.resourse.ColorHelper;
+import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.file.PictureFileHelper;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
