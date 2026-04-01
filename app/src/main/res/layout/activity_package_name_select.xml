@@ -1,7 +1,6 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     tools:context=".ui.pages.bookkeeping.notification_analysis.package_name_select.PackageNameSelectActivity">
@@ -47,13 +46,12 @@
             android:id="@+id/app_list_recycler"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="10dp"
+            android:clipToPadding="false"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <com.google.android.material.search.SearchView
         android:id="@+id/search_view"
-        style="@style/SearchViewStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/search_app"
@@ -74,7 +72,7 @@
                     android:id="@+id/search_result_recycler"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="10sp"
+                    android:clipToPadding="false"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         </LinearLayout>
