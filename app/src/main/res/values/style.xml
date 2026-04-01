@@ -9,12 +9,6 @@
         <item name="titleTextAppearance">?attr/textAppearanceHeadlineSmall</item>
     </style>
 
-    <!-- 普通页面样式 -->
-    <style name="CommonPageStyle">
-        <item name="android:fitsSystemWindows">true</item>
-        <item name="android:background">?attr/colorSurface</item>
-    </style>
-
     <!-- 文本样式基类 -->
     <style name="TextViewStyleBase">
         <item name="android:paddingStart">10dp</item>

@@ -6,8 +6,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
@@ -22,15 +26,24 @@ import com.manager.assistant.data.io.pojos.PojoTagGroup;
 import java.util.List;
 
 public class GroupModifyActivity extends AppCompatActivity implements View.OnClickListener {
-    private long group_no;                      //分组编号
+    private long groupNo;                       //分组编号
     private ActivityGroupModifyBinding binding; //绑定的XML视图引用
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
 
         binding = ActivityGroupModifyBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime()
+            );
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
         initViews();
         AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
@@ -46,7 +59,7 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnCli
     public void onClick(@NonNull View v) {
         Intent result2EditActivity = new Intent();
         Bundle dataBundle = new Bundle();
-        dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), group_no);  //先放入分组编号
+        dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), groupNo);  //先放入分组编号
 
         if (v.getId() == R.id.finish_btn) {
             String err = inputInfoVerify();
@@ -95,7 +108,7 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnCli
 
                         int index = 0, same_group_index = -1;
                         for (PojoTagGroup group : groupList) {
-                            if (group.getGroup_no() == group_no) {
+                            if (group.getGroup_no() == groupNo) {
                                 same_group_index = index;
                             } else {
                                 group_names[index] = group.getGroup_name();
@@ -141,7 +154,7 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnCli
                 if (groupName.isEmpty()) {
                     binding.groupNameLayout.setErrorEnabled(true);
                     binding.groupNameLayout.setError("分组名称不能为空");
-                } else if (groupNo != -1 && groupNo != this.group_no) {
+                } else if (groupNo != -1 && groupNo != this.groupNo) {
                     binding.groupNameLayout.setErrorEnabled(true);
                     binding.groupNameLayout.setError("已存在同名分组");
                 }
@@ -160,7 +173,7 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnCli
         //加载传入的数据
         Bundle dataBundle = getIntent().getExtras();
         if (dataBundle != null) {
-            group_no = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());
+            groupNo = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());
             String group_name = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
             binding.tagGroupInput.setText(group_name);
         } else {
@@ -168,7 +181,7 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnCli
         }
 
         //当修改默认分组时隐藏部分组件
-        if (group_no == 0) {
+        if (groupNo == 0) {
             binding.deleteBtn.setVisibility(View.GONE);
             binding.mergeBtn.setVisibility(View.GONE);
         }
