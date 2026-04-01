@@ -7,10 +7,14 @@ import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.manager.assistant.data.controllers.RuleDataController;
 import com.manager.assistant.databinding.ActivityAnalysisRuleManageBinding;
@@ -42,9 +46,17 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
 
         binding = ActivityAnalysisRuleManageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+            binding.ruleRecycler.setPadding(0, 0, 0, systemBars.bottom);
+            return insets;
+        });
 
         initViews();
         AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
