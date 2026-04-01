@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.manager.assistant.R;
 import com.manager.assistant.data.controllers.AccountDataController;
 import com.manager.assistant.data.controllers.BudgetDataController;
 import com.manager.assistant.data.controllers.TagDataController;
@@ -41,7 +42,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -49,9 +55,10 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class HomeFragment extends Fragment {
-    private FragmentHomeBinding binding;                    //XML视图绑定引用
-    private double dayBalance, dayExpense, dayIncome;    //日结余、日支出、日收入
+    private FragmentHomeBinding binding;                        //XML视图绑定引用
+    private double dayBalance, dayExpense, dayIncome;           //日结余、日支出、日收入
     private final CompositeDisposable disposables = new CompositeDisposable();
+    private final List<String> tipsList = new LinkedList<>();   //提示文本列表
 
     @Nullable
     @Override
@@ -63,6 +70,9 @@ public class HomeFragment extends Fragment {
         initViews();
         startObserveLiveData();
         initBalanceView();
+
+        //显示随机提示文本
+        showRandomTipText();
 
         return binding.getRoot();
     }
@@ -118,6 +128,10 @@ public class HomeFragment extends Fragment {
         } else {
             binding.bookkeepingDaysText.setText("这是您记账的第一天");
         }
+
+        //随机提示文本
+        binding.tipsCard.setOnClickListener(v -> showRandomTipText());
+        AnimationHelper.attachMorphAnimation(binding.tipsCard);
 
         //标签数量
         try {
@@ -384,5 +398,31 @@ public class HomeFragment extends Fragment {
                     }
                 }
         );
+    }
+
+    /**
+     * 显示随机的提示文本
+     */
+    private void showRandomTipText() {
+        //如果提示文本列表为空，则重新获取提示文本资源
+        if (tipsList.isEmpty()) {
+            String[] tipsArray = getResources().getStringArray(R.array.tips_text_array);
+            tipsList.addAll(Arrays.stream(tipsArray).collect(Collectors.toList()));
+        }
+
+        //获取随机下标
+        Random random = new Random();
+        int randomNum = random.nextInt();
+        if (randomNum < 0) {
+            randomNum = -randomNum;
+        }
+        int tipIndex = randomNum % tipsList.size();
+
+        //显示对应的文本
+        String tip = "tip : " + tipsList.get(tipIndex);
+        binding.tipsText.setText(tip);
+
+        //删除刚刚显示的文本防止重复
+        tipsList.remove(tipIndex);
     }
 }

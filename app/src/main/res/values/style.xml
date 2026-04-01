@@ -79,7 +79,10 @@
     <!-- 圆角卡片容器器样式 -->
     <style name="RoundCardStyle" parent="CardStyleBase">
         <item name="cardCornerRadius">50dp</item>
-        <item name="android:layout_margin">10dp</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginStart">10dp</item>
+        <item name="android:layout_marginEnd">10dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
     </style>
 
     <!-- 带有多项内容的卡片容器 -->

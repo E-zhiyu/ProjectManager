@@ -12,6 +12,8 @@ import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
     private static final String UPDATE_LOG_MD = "# v1.8.11  \n" +
+            "**新增内容**  \n" +
+            "- 主页新增随机提示文本  \n\n" +
             "**修改内容**  \n" +
             "- 使用全面屏手势时所有界面支持沉浸式小白条  \n\n" +
             "# v1.8.10  \n" +
