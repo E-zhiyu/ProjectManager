@@ -6,9 +6,13 @@ import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.data.controllers.TagGroupDataController;
@@ -39,9 +43,18 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);    //启用边到边以适配沉浸式小白条
 
         binding = ActivityTagManageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        //设置界面边距以防内容被小白条遮挡
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, v.getBottom());
+            binding.tagGroupRecycler.setPadding(0, 0, 0, systemBars.bottom);
+            return insets;
+        });
 
         initLaunchers();
         initViews();
