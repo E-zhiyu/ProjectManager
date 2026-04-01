@@ -2,6 +2,7 @@ package com.manager.assistant.ui.pages.bookkeeping.budget;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -10,6 +11,9 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.manager.assistant.data.classes.Budget;
 import com.manager.assistant.data.controllers.BudgetDataController;
@@ -42,12 +46,25 @@ public class BudgetManageActivity extends AppCompatActivity {
         binding = ActivityBudgetManageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+            binding.budgetRecycler.setPadding(0, 0, 0, systemBars.bottom);
+            return insets;
+        });
+
         //初始化启动器和视图
         initViews();
         initLaunchers();
 
         //申请权限
         addPermissionRequests();
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        ViewCompat.requestApplyInsets(getWindow().getDecorView());
     }
 
     @Override

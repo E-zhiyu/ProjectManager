@@ -51,7 +51,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         //设置界面边距以防内容被小白条遮挡
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, v.getBottom());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
             binding.tagGroupRecycler.setPadding(0, 0, 0, systemBars.bottom);
             return insets;
         });
