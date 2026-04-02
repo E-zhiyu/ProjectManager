@@ -178,25 +178,30 @@
         <item>动态色彩支持Android 12以上的系统，能够根据壁纸颜色生成配色方案，当然你也可以在设置界面切换成静态色彩。</item>
         <item>流水标签非常重要，预算管理、流水记录筛选和自动记账都需要流水标签。</item>
         <item>本软件的UI采用Material You风格，以后要不要加上MIUI风格的UI呢？</item>
+        <item>设置界面可以调整开屏界面，这样每次打开应用就不用手动跳转记账界面了，但那样谁来看我的提示文本呢？🤔</item>
 
         <item>这句话是错……误……的😵‍💫</item>
         <item>手握两把锟斤拷，口中直呼烫烫烫……</item>
         <item>你说得对，但Material You是由谷歌推出的一套全新动态设计语言系统。它构建于名为「Material Design」的视觉框架之上，通过智能算法实现「以你为本」的个性化体验。在这个充满活力的数字世界中，用户将通过「动态色彩」技术获得专属的视觉风格。</item>
-        <item>图标中的角色叫斯莱，是游戏《空洞骑士》中一位很有个性的人物。</item>
+        <item>软件图标中的角色叫斯莱，是游戏《空洞骑士》中一位很有个性的人物。</item>
         <item>AI真的太好用了你知道吗？这里几乎所有动画都是AI写的！</item>
         <item>何意味是什么意思</item>
-        <item>正在下发云控……什么？我根本没写云服务？</item>
+        <item>大手子云控中😈……什么？我根本没写云服务？😦</item>
         <item>System has been destroyed!</item>
         <item>我方Vibe Coding正在路上</item>
         <item>Android恩情还不完✋😭🤚</item>
         <item>Android一定要开放✍️</item>
         <item>老婆饼没有老婆，“小而美”也不小而美😡</item>
-        <item>先有鸡还是先有蛋？先有编译器还是先有代码？</item>
+        <item>先有鸡还是先有蛋？先有编译器还是先有代码？🤔</item>
     </string-array>
     <string-array name="xiaomi_tips">
         <item>两行干碎一加魂，长官我是小米人。</item>
         <item>2026–3–8被称为“小米解锁节”。</item>
         <item>Are you OK?</item>
         <item>你知道吗？只有小米可以直接跳转自启动界面，其他系统只能跳转到设置主界面。</item>
+        <item>小米超级岛(×)金凡帮你岛(√)</item>
+        <item>System UI未响应……</item>
+        <item>雷军！金凡！</item>
+        <item>你是17 Pro Max？我也是17 Pro Max！🥰</item>
     </string-array>
 </resources>
