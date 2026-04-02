@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.manager.assistant.databinding.ActivityFullScreenImageBinding;
-import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.file.PictureFileHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 
@@ -38,7 +38,7 @@ public class FullScreenImageActivity extends AppCompatActivity {
         pictureUriStrings = getIntent().getStringArrayExtra(KeyValueStrings.FILE_URI.getValue());
 
         initViews();
-        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
+        AppearanceAnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
     }
 
     private void initViews() {

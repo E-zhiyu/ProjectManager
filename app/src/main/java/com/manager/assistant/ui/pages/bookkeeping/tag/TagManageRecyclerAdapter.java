@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.sqlite.SQLiteException;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,21 +39,21 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
         /**
          * 处理标签文本视图点击事件
          *
-         * @param tag_no     标签编号
-         * @param tag_name   标签名称
-         * @param tag_scope  标签作用域
-         * @param group_no   标签分组编号
-         * @param group_name 标签分组名称
+         * @param tagNo     标签编号
+         * @param tagName   标签名称
+         * @param tagScope  标签作用域
+         * @param groupNo   标签分组编号
+         * @param groupName 标签分组名称
          */
-        void onTagTextViewClicked(long tag_no, String tag_name, int tag_scope, long group_no, String group_name);
+        void onTagTextViewClicked(long tagNo, String tagName, int tagScope, long groupNo, String groupName);
 
         /**
          * 处理分组文本视图点击事件
          *
-         * @param group_no   点击的分组编号
-         * @param group_name 点击的分组名称
+         * @param groupNo   点击的分组编号
+         * @param groupName 点击的分组名称
          */
-        void onGroupTextViewClicked(long group_no, String group_name);
+        void onGroupTextViewClicked(long groupNo, String groupName);
     }
 
     public List<TagGroup> getTagGroupList() {
@@ -127,6 +128,8 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
             //设置文本属性
             MaterialTextView tagTextView = new MaterialTextView(context);
+            tagTextView.setMaxLines(1);
+            tagTextView.setEllipsize(TextUtils.TruncateAt.END);
             tagTextView.setLayoutParams(new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
@@ -143,9 +146,9 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             tagTextView.setClickable(true);
 
             //添加右侧箭头图标
-            Drawable right_arrow = AppCompatResources.getDrawable(context, R.drawable.outline_keyboard_arrow_right_24);
+            Drawable rightArrow = AppCompatResources.getDrawable(context, R.drawable.outline_keyboard_arrow_right_24);
             tagTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                    null, null, right_arrow, null
+                    null, null, rightArrow, null
             );
 
             //设置标签文本点击监听器
@@ -268,22 +271,22 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             TagGroup newGroup = new TagGroup(newGroupName, groupNoAfterModifying);
             newGroup.addTag(new Tag(newTagName, tag_no, tag_scope));
 
-            int new_group_index = tagGroupList.size();
+            int newGroupIndex = tagGroupList.size();
             tagGroupList.add(newGroup);
 
-            notifyItemInserted(new_group_index);   //更新列表视图
+            notifyItemInserted(newGroupIndex);   //更新列表视图
         } else {
-            int new_group_index = 0;    //待新增标签的分组下标
+            int newGroupIndex = 0;    //待新增标签的分组下标
             for (TagGroup group : this.tagGroupList) {
                 if (group.getGroup_no() == groupNoAfterModifying) {
                     Tag new_tag = new Tag(newTagName, tag_no, tag_scope);
                     group.addTag(new_tag);
                     break;
                 }
-                new_group_index++;
+                newGroupIndex++;
             }
 
-            notifyItemChanged(new_group_index);
+            notifyItemChanged(newGroupIndex);
         }
 
         //将数据保存至数据库
@@ -296,23 +299,23 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
         }
 
         //删除原分组中对应的标签
-        int origin_group_index = 0;
+        int originGroupIndex = 0;
         for (TagGroup group : this.tagGroupList) {
             if (group.getGroup_no() == origin_group_no) {
-                int old_tag_index = 0;
+                int oldTagIndex = 0;
                 for (Tag old_tag : group.getTags()) {
                     if (old_tag.getTno() == tag_no) {
-                        group.removeTag(old_tag_index);
+                        group.removeTag(oldTagIndex);
                         break;
                     }
-                    old_tag_index++;
+                    oldTagIndex++;
                 }
                 break;
             }
-            origin_group_index++;
+            originGroupIndex++;
         }
 
-        notifyItemChanged(origin_group_index);
+        notifyItemChanged(originGroupIndex);
     }
 
     /**

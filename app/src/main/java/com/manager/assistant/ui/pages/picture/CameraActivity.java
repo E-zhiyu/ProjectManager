@@ -31,7 +31,7 @@ import com.manager.assistant.generic_enums.DirectoryPaths;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.databinding.ActivityCameraBinding;
 import com.manager.assistant.helpers.PermissionHelper;
-import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
@@ -88,7 +88,7 @@ public class CameraActivity extends AppCompatActivity {
         getWindow().setNavigationBarColor(ContextCompat.getColor(this, android.R.color.black));
 
         initViews();
-        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
+        AppearanceAnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
 
         //尝试启动相机
         startCamera();

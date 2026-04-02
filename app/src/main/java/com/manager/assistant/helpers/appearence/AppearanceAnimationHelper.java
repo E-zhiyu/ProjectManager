@@ -10,11 +10,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.shape.ShapeAppearanceModel;
 import com.google.android.material.shape.Shapeable;
 import com.manager.assistant.ui.others.listeners.RecyclerScrollHideShowListener;
 import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
 
-public class AnimationHelper {
+/**
+ * 视图显示和动画帮助器
+ */
+public class AppearanceAnimationHelper {
+    private static final int SMALL_CARD_RADIUS = 5;     //小卡片圆角大小（dp）
+    private static final int MEDIUM_CARD_RADIUS = 15;   //中等卡片圆角大小（dp）
+
     /**
      * 设置下滑隐藏浮动按钮
      *
@@ -71,10 +78,63 @@ public class AnimationHelper {
             throw new IllegalArgumentException("View must implement Shapeable");
         }
 
-        Shapeable shapeable = (Shapeable) view;
+        Shapeable shapeableView = (Shapeable) view;
         Vibrator vibrator = (Vibrator) view.getContext()
                 .getSystemService(Context.VIBRATOR_SERVICE);
 
-        view.setOnTouchListener(new SpringAnimationOnTouchListener(shapeable, vibrator, percentage));
+        view.setOnTouchListener(new SpringAnimationOnTouchListener(shapeableView, vibrator, percentage));
+    }
+
+    /**
+     * 设置视图四个边角大小
+     *
+     * @param context       上下文
+     * @param shapeableView 需要设置圆角的视图
+     * @param topLeft       左上角圆角大小，单位dp
+     * @param topRight      右上角圆角大小，单位dp
+     * @param bottomLeft    左下角圆角大小，单位dp
+     * @param bottomRight   右下角圆角大小，单位dp
+     */
+    public static void setRadius(
+            Context context,
+            @NonNull Shapeable shapeableView,
+            float topLeft,
+            float topRight,
+            float bottomLeft,
+            float bottomRight
+    ) {
+        ShapeAppearanceModel model = shapeableView.getShapeAppearanceModel();
+        shapeableView.setShapeAppearanceModel(model.toBuilder()
+                .setTopLeftCornerSize(ViewEdgeHelper.dpToPx(context, topLeft))
+                .setTopRightCornerSize(ViewEdgeHelper.dpToPx(context, topRight))
+                .setBottomLeftCornerSize(ViewEdgeHelper.dpToPx(context, bottomLeft))
+                .setBottomRightCornerSize(ViewEdgeHelper.dpToPx(context, bottomRight))
+                .build()
+        );
+    }
+
+    /**
+     * 根据视图所在位置设置四个圆角的大小
+     *
+     * @param view     实现了{@link Shapeable}的视图
+     * @param listSize 列表大小
+     * @param position 当前视图所处的下标
+     */
+    public static void setRecyclerItemRadius(View view, int listSize, int position) {
+        //列表长度为1或者视图不是 Shapeable 则不执行任何操作
+        if (!(view instanceof Shapeable) || listSize == 1) {
+            return;
+        }
+        Shapeable shapeableView = (Shapeable) view;
+
+        //设置新的圆角值
+        Context context = view.getContext();
+        if (position == 0) {
+            setRadius(context, shapeableView, MEDIUM_CARD_RADIUS, MEDIUM_CARD_RADIUS, SMALL_CARD_RADIUS, SMALL_CARD_RADIUS);
+        } else if (position == listSize - 1) {
+            setRadius(context, shapeableView, SMALL_CARD_RADIUS, SMALL_CARD_RADIUS, MEDIUM_CARD_RADIUS, MEDIUM_CARD_RADIUS);
+        } else {
+            setRadius(context, shapeableView, SMALL_CARD_RADIUS, SMALL_CARD_RADIUS, SMALL_CARD_RADIUS, SMALL_CARD_RADIUS);
+        }
     }
 }

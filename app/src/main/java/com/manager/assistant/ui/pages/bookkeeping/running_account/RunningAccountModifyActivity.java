@@ -23,7 +23,7 @@ import com.manager.assistant.databinding.ActivityRunningAccountModifyBinding;
 import com.manager.assistant.generic_enums.DirectoryPaths;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.generic_enums.TagString;
-import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.ui.sync.picture.AccountPictureViewModel;
@@ -62,7 +62,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
 
         receiveInitData();
         initViews();
-        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
+        AppearanceAnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
 
         //只在第一次创建界面时创建新Fragment
         if (savedInstanceState == null) {

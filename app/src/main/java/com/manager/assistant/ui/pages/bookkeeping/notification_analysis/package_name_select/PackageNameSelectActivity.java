@@ -20,10 +20,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.material.search.SearchView;
 import com.manager.assistant.R;
 import com.manager.assistant.databinding.ActivityPackageNameSelectBinding;
 import com.manager.assistant.helpers.PermissionHelper;
@@ -43,10 +40,8 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class PackageNameSelectActivity extends AppCompatActivity {
     private boolean isSysAppIncluded = false;                               //应用列表是否包含系统应用
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
-    private SearchView searchView;                                          //搜索视图
     private AppInfoSearchViewModel searchViewModel;                         //搜索应用的ViewModel
     private AppListAdapter fullAppAdapter, searchAdapter;                   //完整的应用列表适配器和搜索结果适配器
-    private SwipeRefreshLayout appListRefreshLayout, searchRefreshLayout;   //下拉刷新布局
     private ActivityPackageNameSelectBinding binding;                       //绑定的XML视图引用
     private final ActivityResultLauncher<String[]> requestPermissionLauncher =  //权限申请启动器
             registerForActivityResult(
@@ -79,7 +74,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
 
         searchViewModel = new ViewModelProvider(this).get(AppInfoSearchViewModel.class);
         searchViewModel.init();
-        searchView.getEditText().addTextChangedListener(new TextWatcher() {
+        binding.searchView.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
             }
@@ -91,7 +86,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (!String.valueOf(s).isEmpty()) {
-                    searchRefreshLayout.setRefreshing(true);
+                    binding.searchRefreshLayout.setRefreshing(true);
                 }
                 searchViewModel.onSearchQueryChanged(String.valueOf(s));
             }
@@ -105,8 +100,8 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (searchView.isShowing()) {
-                    searchView.hide();
+                if (binding.searchView.isShowing()) {
+                    binding.searchView.hide();
                 } else {
                     finish();
                 }
@@ -131,24 +126,19 @@ public class PackageNameSelectActivity extends AppCompatActivity {
 
     //初始化视图
     private void initViews() {
-        searchView = binding.searchView;
-
-        RecyclerView fullAppListRecycler = binding.appListRecycler;         //打开页面时显示的完整应用列表视图
+        //设置列表视图
         fullAppAdapter = new AppListAdapter(this::onAppClicked);
-        fullAppListRecycler.setAdapter(fullAppAdapter);
-        RecyclerView searchResultRecycler = binding.searchResultRecycler;    //搜索结果列表视图
+        binding.appListRecycler.setAdapter(fullAppAdapter);                 //打开页面时显示的完整应用列表视图
         searchAdapter = new AppListAdapter(this::onAppClicked);
-        searchResultRecycler.setAdapter(searchAdapter);
+        binding.searchResultRecycler.setAdapter(searchAdapter);             //搜索结果列表视图
 
         //开始加载应用列表
-        appListRefreshLayout = binding.appListRefreshLayout;
         startLoadAppList();
 
         //设置下拉刷新布局的监听器
-        appListRefreshLayout.setOnRefreshListener(this::startLoadAppList);
-        searchRefreshLayout = binding.searchRefreshLayout;
-        searchRefreshLayout.setOnRefreshListener(() -> {
-            String searchViewText = searchView.getText().toString();
+        binding.appListRefreshLayout.setOnRefreshListener(this::startLoadAppList);
+        binding.searchRefreshLayout.setOnRefreshListener(() -> {
+            String searchViewText = binding.searchView.getText().toString();
             searchViewModel.onSearchQueryChanged(searchViewText);
         });
 
@@ -156,10 +146,10 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         int colorPrimary = ColorHelper.getPrimaryColor(this);
         int colorSecondary = ColorHelper.getSecondaryPrimaryColor(this);
         int colorBackground = ColorHelper.getBackgroundColor(this);
-        appListRefreshLayout.setColorSchemeColors(colorPrimary, colorSecondary);
-        searchRefreshLayout.setColorSchemeColors(colorPrimary, colorSecondary);
-        appListRefreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
-        searchRefreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
+        binding.appListRefreshLayout.setColorSchemeColors(colorPrimary, colorSecondary);
+        binding.searchRefreshLayout.setColorSchemeColors(colorPrimary, colorSecondary);
+        binding.appListRefreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
+        binding.searchRefreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
 
         //设置图标按钮点击监听器
         ImageButton expandListBtn = binding.expandListBtn;
@@ -199,7 +189,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
      * 在IO线程开始加载应用列表
      */
     private void startLoadAppList() {
-        appListRefreshLayout.setRefreshing(true);
+        binding.appListRefreshLayout.setRefreshing(true);
         disposables.add(
                 Observable.fromCallable(() -> AppListHelper.getInstalledApps(isSysAppIncluded, this))
                         .subscribeOn(Schedulers.io())               //在IO线程执行查询
@@ -210,7 +200,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
                                     searchViewModel.setFullAppInfoList(fullAppInfoList);
                                 },  //成功回调
                                 e -> ExceptionHelper.showExceptionDialog(this, e),  //错误处理
-                                () -> appListRefreshLayout.setRefreshing(false)
+                                () -> binding.appListRefreshLayout.setRefreshing(false)
                         )
         );
     }
@@ -227,7 +217,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
     private void startObserveSearchResult() {
         searchViewModel.getResultsLiveData().observe(this, result -> {
             searchAdapter.setAppInfoList(result);
-            searchRefreshLayout.setRefreshing(false);
+            binding.searchRefreshLayout.setRefreshing(false);
         });
     }
 

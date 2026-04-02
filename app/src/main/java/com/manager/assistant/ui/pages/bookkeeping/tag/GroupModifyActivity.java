@@ -18,7 +18,7 @@ import com.manager.assistant.R;
 import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.ActivityGroupModifyBinding;
 import com.manager.assistant.generic_enums.RequestResultCode;
-import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.data.io.pojos.PojoTagGroup;
@@ -46,7 +46,7 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnCli
         });
 
         initViews();
-        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
+        AppearanceAnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
     }
 
     @Override

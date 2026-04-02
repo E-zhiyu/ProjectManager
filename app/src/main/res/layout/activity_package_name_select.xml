@@ -14,7 +14,6 @@
             android:id="@+id/toolbar_container_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
             app:layout_scrollFlags="scroll|enterAlways|snap">
 
             <com.google.android.material.search.SearchBar
@@ -73,6 +72,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clipToPadding="false"
+                    android:paddingTop="10dp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         </LinearLayout>

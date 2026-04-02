@@ -27,7 +27,7 @@ import com.manager.assistant.data.save.database.Tables;
 import com.manager.assistant.data.save.preference.BookKeepingStartDatePreference;
 import com.manager.assistant.databinding.FragmentHomeBinding;
 import com.manager.assistant.generic_enums.LogTags;
-import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
 import com.manager.assistant.ui.sync.account.RunningAccountViewModel;
@@ -91,12 +91,12 @@ public class HomeFragment extends Fragment {
      */
     private void initViews() {
         //设置按钮的点击监听器
-        AnimationHelper.attachMorphAnimation(binding.reportBalanceCardview);
+        AppearanceAnimationHelper.attachMorphAnimation(binding.reportBalanceCardview);
         binding.reportBalanceCardview.setOnClickListener(v -> {
             Intent skip2Report = new Intent(requireContext(), ReportActivity.class);
             startActivity(skip2Report);
         });
-        AnimationHelper.attachMorphAnimation(binding.tagCard);
+        AppearanceAnimationHelper.attachMorphAnimation(binding.tagCard);
         binding.tagCard.setOnClickListener(v -> {
             Intent skip2TagManage = new Intent(requireContext(), TagManageActivity.class);
             startActivity(skip2TagManage);
@@ -105,7 +105,7 @@ public class HomeFragment extends Fragment {
             Intent skip2BudgetManage = new Intent(requireContext(), BudgetManageActivity.class);
             startActivity(skip2BudgetManage);
         });
-        AnimationHelper.attachMorphAnimation(binding.budgetCard);
+        AppearanceAnimationHelper.attachMorphAnimation(binding.budgetCard);
 
         //初始化记账日期
         String startDateStr = getBookKeepingStartDate();  //获取开始记账的日期
@@ -132,7 +132,7 @@ public class HomeFragment extends Fragment {
 
         //随机提示文本
         binding.tipsCard.setOnClickListener(v -> showRandomTipText());
-        AnimationHelper.attachMorphAnimation(binding.tipsCard);
+        AppearanceAnimationHelper.attachMorphAnimation(binding.tipsCard);
 
         //标签数量
         try {

@@ -57,4 +57,15 @@ public class ViewEdgeHelper {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
+
+    /**
+     * 将dp转换为像素
+     *
+     * @param context 上下文
+     * @return 目标dp对应的像素数量
+     */
+    public static float dpToPx(@NonNull Context context, float dp) {
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+    }
 }

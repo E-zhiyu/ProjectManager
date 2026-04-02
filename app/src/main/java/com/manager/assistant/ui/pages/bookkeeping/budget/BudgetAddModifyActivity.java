@@ -25,7 +25,7 @@ import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.helpers.DateTimePickerHelper;
-import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.tag.MultiTagSelectBottomSheet;
 
@@ -63,7 +63,7 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
 
         receiveInitData();
         initViews();
-        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
+        AppearanceAnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
     }
 
     @Override

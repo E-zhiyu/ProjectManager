@@ -25,7 +25,7 @@ import com.manager.assistant.automation.broadcast.bookkeeping.AccountUpdatedRece
 import com.manager.assistant.data.classes.running_account.RunningAccountBase;
 import com.manager.assistant.data.classes.running_account.TransferRunningAccount;
 import com.manager.assistant.databinding.FragmentBookkeepingBinding;
-import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.file.PictureFileHelper;
@@ -175,7 +175,7 @@ public class BookKeepingFragment extends Fragment {
             Intent skip2NewRunningAccount = new Intent(requireContext(), RunningAccountAddActivity.class);
             accountAddLauncher.launch(skip2NewRunningAccount);
         });
-        AnimationHelper.attachMorphAnimation(binding.addFloatingBtn);
+        AppearanceAnimationHelper.attachMorphAnimation(binding.addFloatingBtn);
 
         //绑定过滤器按钮的点击监听器
         binding.filterSelectBtn.setOnClickListener(v -> {
@@ -201,7 +201,7 @@ public class BookKeepingFragment extends Fragment {
         binding.accountRecycler.setAdapter(accountAdapter);
 
         //设置浮动按钮隐藏行为
-        AnimationHelper.setupFloatingBtnBehaviour(binding.accountRecycler, binding.addFloatingBtn);
+        AppearanceAnimationHelper.setupFloatingBtnBehaviour(binding.accountRecycler, binding.addFloatingBtn);
 
         //设置下拉刷新布局的监听器
         binding.refreshLayout.setOnRefreshListener(this::refreshAccountRecycler);

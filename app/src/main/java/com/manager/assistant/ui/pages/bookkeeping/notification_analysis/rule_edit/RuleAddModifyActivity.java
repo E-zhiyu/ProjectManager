@@ -26,7 +26,7 @@ import com.manager.assistant.data.controllers.RuleDataController;
 import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.databinding.ActivityRuleAddModifyBinding;
 import com.manager.assistant.generic_enums.RequestResultCode;
-import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.TagString;
@@ -77,7 +77,7 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         receiveInitData();
         initViews();
         initLaunchers();
-        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
+        AppearanceAnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
 
         startObserveTag();
     }

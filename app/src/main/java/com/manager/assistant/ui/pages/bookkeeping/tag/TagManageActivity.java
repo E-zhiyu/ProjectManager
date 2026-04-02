@@ -17,7 +17,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.ActivityTagManageBinding;
-import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
@@ -60,7 +60,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
 
         initLaunchers();
         initViews();
-        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
+        AppearanceAnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
     }
 
     @Override
@@ -73,15 +73,15 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
     }
 
     @Override
-    public void onTagTextViewClicked(long tag_no, String tagName, int tag_scope, long group_no, String group_name) {
+    public void onTagTextViewClicked(long tagNo, String tagName, int tagScope, long groupNo, String groupName) {
         Intent skip2ModifyTag = new Intent(this, TagAddModifyActivity.class);
         Bundle clickedTagData = new Bundle();
 
         clickedTagData.putString(KeyValueStrings.TAG_NAME.getValue(), tagName);
-        clickedTagData.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), group_name);
-        clickedTagData.putLong(KeyValueStrings.TAG_NO.getValue(), tag_no);
-        clickedTagData.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), group_no);
-        clickedTagData.putInt(KeyValueStrings.TAG_SCOPE.getValue(), tag_scope);
+        clickedTagData.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), groupName);
+        clickedTagData.putLong(KeyValueStrings.TAG_NO.getValue(), tagNo);
+        clickedTagData.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), groupNo);
+        clickedTagData.putInt(KeyValueStrings.TAG_SCOPE.getValue(), tagScope);
 
         //获取已保存的标签分组信息并传递到子界面
         ArrayList<String> groupNames = adapter.getTagGroupList().stream()
@@ -95,12 +95,12 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
     }
 
     @Override
-    public void onGroupTextViewClicked(long group_no, String group_name) {
+    public void onGroupTextViewClicked(long groupNo, String groupName) {
         Intent skip2GroupModify = new Intent(this, GroupModifyActivity.class);
         Bundle clickedGroupData = new Bundle();
 
-        clickedGroupData.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), group_name);
-        clickedGroupData.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), group_no);
+        clickedGroupData.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), groupName);
+        clickedGroupData.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), groupNo);
 
         skip2GroupModify.putExtras(clickedGroupData);
         modifyGroupLauncher.launch(skip2GroupModify);
@@ -165,7 +165,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         binding.tagGroupRecycler.setAdapter(adapter);
 
         //添加RecyclerView滚动监听器，用以控制添加按钮的显示与否
-        AnimationHelper.setupFloatingBtnBehaviour(binding.tagGroupRecycler, binding.addFloatingBtn);
+        AppearanceAnimationHelper.setupFloatingBtnBehaviour(binding.tagGroupRecycler, binding.addFloatingBtn);
     }
 
     //初始化活动启动器
