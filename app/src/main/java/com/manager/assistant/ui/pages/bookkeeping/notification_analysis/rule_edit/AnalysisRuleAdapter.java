@@ -22,6 +22,7 @@ import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.data.classes.AnalysisRule;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.data.classes.Tag;
@@ -77,16 +78,22 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
 
     @Override
     public void onBindViewHolder(@NonNull AnalysisRuleViewHolder holder, int position) {
+        //获取规则数据
         AnalysisRule rule = ruleList.get(position);
-        String rule_name = rule.getRuleName();
+        String ruleName = rule.getRuleName();
         RunningAccountType type = rule.getType();
-        Tag rule_tag = TagDataController.getTagByRuleNo(rule.getRuleNo(), holder.itemView.getContext());
+        Tag ruleTag = TagDataController.getTagByRuleNo(rule.getRuleNo(), holder.itemView.getContext());
 
+        //初始化规则视图
         String typeStr = type.getTitle();
-        holder.ruleNameText.setText(rule_name);
+        holder.ruleNameText.setText(ruleName);
         holder.typeText.setText(typeStr);
-        holder.tagNameText.setText(rule_tag.getName());
+        holder.tagNameText.setText(ruleTag.getName());
 
+        //设置圆角大小
+        AppearanceAnimationHelper.setRecyclerItemRadius(holder.itemView, ruleList.size(), position);
+
+        //设置点击监听
         holder.itemView.setOnClickListener(v ->
                 listener.onRuleClicked(holder.getBindingAdapterPosition(), rule));
     }
@@ -125,6 +132,10 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         notifyItemInserted(ruleList.size() - 1);
         Toast.makeText(context, "解析规则添加成功", Toast.LENGTH_SHORT).show();
 
+        //刷新圆角
+        notifyItemChanged(ruleList.size() - 2);
+
+        //发送规则更新广播
         sendRuleUpdatedBroadcast(context);
     }
 
@@ -169,20 +180,29 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
      */
     public void deleteRule(int position, Context context) {
         AnalysisRule rule = ruleList.get(position);
-        long rule_no = rule.getRuleNo();
+        long ruleNo = rule.getRuleNo();
 
         try {
-            RuleDataController.deleteRule(rule_no, context);
+            RuleDataController.deleteRule(ruleNo, context);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
             Toast.makeText(context, "规则删除失败", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        //刷新 UI
         ruleList.remove(position);
         notifyItemRemoved(position);
         Toast.makeText(context, "规则删除成功", Toast.LENGTH_SHORT).show();
 
+        //刷新圆角
+        if (position == ruleList.size()) {
+            notifyItemChanged(ruleList.size() - 1);
+        } else if (position == 0) {
+            notifyItemChanged(0);
+        }
+
+        //发送规则更新广播
         sendRuleUpdatedBroadcast(context);
     }
 

@@ -134,7 +134,17 @@ public class HomeFragment extends Fragment {
         binding.tipsCard.setOnClickListener(v -> showRandomTipText());
         AppearanceAnimationHelper.attachMorphAnimation(binding.tipsCard);
 
-        //标签数量
+        //报表卡片
+        AppearanceAnimationHelper.setRadius(
+                requireContext(),
+                binding.reportBalanceCardview,
+                AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
+                AppearanceAnimationHelper.SMALL_CARD_RADIUS,
+                AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
+                AppearanceAnimationHelper.SMALL_CARD_RADIUS
+        );
+
+        //标签卡片
         try {
             int tagCount = TagDataController.getDbCount(requireContext());
             binding.tagCountText.setText(String.valueOf(tagCount));
@@ -142,8 +152,16 @@ public class HomeFragment extends Fragment {
             binding.tagCountText.setText(String.valueOf(0));
             Toast.makeText(requireContext(), "无法获取标签数量", Toast.LENGTH_SHORT).show();
         }
+        AppearanceAnimationHelper.setRadius(
+                requireContext(),
+                binding.tagCard,
+                AppearanceAnimationHelper.SMALL_CARD_RADIUS,
+                AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
+                AppearanceAnimationHelper.SMALL_CARD_RADIUS,
+                AppearanceAnimationHelper.SMALL_CARD_RADIUS
+        );
 
-        //预算数量
+        //预算卡片
         try {
             int budgetCount = BudgetDataController.getDbCount(requireContext());
             binding.budgetCountText.setText(String.valueOf(budgetCount));
@@ -151,6 +169,14 @@ public class HomeFragment extends Fragment {
             binding.budgetCountText.setText(String.valueOf(0));
             Toast.makeText(requireContext(), "无法获取预算数量", Toast.LENGTH_SHORT).show();
         }
+        AppearanceAnimationHelper.setRadius(
+                requireContext(),
+                binding.budgetCard,
+                AppearanceAnimationHelper.SMALL_CARD_RADIUS,
+                AppearanceAnimationHelper.SMALL_CARD_RADIUS,
+                AppearanceAnimationHelper.SMALL_CARD_RADIUS,
+                AppearanceAnimationHelper.MEDIUM_CARD_RADIUS
+        );
     }
 
     /**

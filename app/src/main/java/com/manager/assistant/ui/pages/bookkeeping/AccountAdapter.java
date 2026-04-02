@@ -92,20 +92,22 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
             onTouchListener = new SpringAnimationOnTouchListener(shapeable, vibrator);
             groupieViewHolder.itemView.setOnTouchListener(onTouchListener);
 
-            MaterialTextView amountText = groupieViewHolder.itemView.findViewById(R.id.amount_text);
-            MaterialTextView remarkText = groupieViewHolder.itemView.findViewById(R.id.remark_text);
-            MaterialTextView typeDatetimeText = groupieViewHolder.itemView.findViewById(R.id.type_datetime_textview);
-
+            //获取流水数据
             String type = runningAccount.getType().getTitle();
             String datetime = runningAccount.getDatetime();
             String typeAndDatetime = String.format(Locale.getDefault(), "%s·%s", type, datetime);
             String remark = runningAccount.getRemark();
             double amount = runningAccount.getAmount();
 
+            //初始化文本视图
+            MaterialTextView amountText = groupieViewHolder.itemView.findViewById(R.id.amount_text);
+            MaterialTextView remarkText = groupieViewHolder.itemView.findViewById(R.id.remark_text);
+            MaterialTextView typeDatetimeText = groupieViewHolder.itemView.findViewById(R.id.type_datetime_textview);
             amountText.setText(String.format(Locale.getDefault(), "%.2f", amount));
             remarkText.setText(remark.isEmpty() ? runningAccount.getDefaultRemark() : remark);
             typeDatetimeText.setText(typeAndDatetime);
 
+            //设置点击监听
             groupieViewHolder.itemView.setOnClickListener(v -> onClickListener.onRunningAccountClick(runningAccount));
         }
 
@@ -173,7 +175,7 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
         runningAccount.setRno(rno);  //保存流水编号
 
         //刷新UI
-        this.accountList.add(0, runningAccount);
+        accountList.add(0, runningAccount);
         String date = runningAccount.getDatetime().substring(0, 10);
         Section section = sectionHashMap.get(date);
         ContentItem contentItem = new ContentItem(runningAccount, listener);

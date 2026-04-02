@@ -22,6 +22,7 @@ import com.manager.assistant.data.classes.Budget;
 import com.manager.assistant.data.controllers.BudgetDataController;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
 import com.manager.assistant.ui.sync.budget.BudgetRepository;
 import com.manager.assistant.ui.sync.budget.BudgetUpdateReason;
@@ -89,6 +90,9 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
         String amountStr = String.format(Locale.getDefault(), "%.2f/%.2f", leftAmount, initAmount);
         holder.amountText.setText(amountStr);
         holder.resetFrequencyText.setText(resetFrequency.getTitle());
+
+        //设置圆角
+        AppearanceAnimationHelper.setRecyclerItemRadius(holder.itemView, budgetList.size(), position);
 
         //设置点击监听
         holder.itemView.setOnClickListener(v -> listener.onClicked(budget, position));
@@ -171,6 +175,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
         //更新 UI
         budgetList.add(budget);
         notifyItemInserted(budgetList.size() - 1);
+        notifyItemChanged(budgetList.size() - 2);   //更新尾部卡片圆角
         BudgetRepository repository = BudgetRepository.getInstance();
         repository.onUpdated(budget, BudgetUpdateReason.ADD);
     }
@@ -233,5 +238,12 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
         notifyItemRemoved(position);
         BudgetRepository repository = BudgetRepository.getInstance();
         repository.onUpdated(BudgetUpdateReason.DELETED);
+
+        //更新首尾卡片圆角
+        if (position == budgetList.size()) {
+            notifyItemChanged(budgetList.size() - 1);
+        } else if (position == 0) {
+            notifyItemChanged(0);
+        }
     }
 }
