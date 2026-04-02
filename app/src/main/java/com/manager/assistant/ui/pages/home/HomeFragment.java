@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -406,8 +407,15 @@ public class HomeFragment extends Fragment {
     private void showRandomTipText() {
         //如果提示文本列表为空，则重新获取提示文本资源
         if (tipsList.isEmpty()) {
-            String[] tipsArray = getResources().getStringArray(R.array.tips_text_array);
+            String[] tipsArray = getResources().getStringArray(R.array.tips_array);
             tipsList.addAll(Arrays.stream(tipsArray).collect(Collectors.toList()));
+
+            //添加小米专属的提示文本
+            String manufacturer = Build.MANUFACTURER.toLowerCase();
+            if (manufacturer.contains("xiaomi")) {
+                String[] xiaomiTips = getResources().getStringArray(R.array.xiaomi_tips);
+                tipsList.addAll(Arrays.stream(xiaomiTips).collect(Collectors.toList()));
+            }
         }
 
         //获取随机下标
