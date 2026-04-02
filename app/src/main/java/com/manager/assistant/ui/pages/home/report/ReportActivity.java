@@ -457,7 +457,7 @@ public class ReportActivity extends AppCompatActivity {
             if (type.isExpenseType()) {
                 monthExpense[month - 1] += amount;
                 yearExpense += amount;
-            } else {
+            } else if (type.isIncomeType()) {
                 monthIncome[month - 1] += amount;
                 yearIncome += amount;
             }
@@ -495,17 +495,17 @@ public class ReportActivity extends AppCompatActivity {
                 break;
             case INCOME:
                 for (MonthAccountInfo monthAccountInfo : monthAccountInfoList) {
-                    double month_income = monthAccountInfo.getIncome();
+                    double infoIncome = monthAccountInfo.getIncome();
 
-                    int percentage = (int) (month_income * 100 / yearIncome);
+                    int percentage = (int) (infoIncome * 100 / yearIncome);
                     monthAccountInfo.setPercentage(percentage);
                 }
                 break;
             case EXPENSE:
                 for (MonthAccountInfo monthAccountInfo : monthAccountInfoList) {
-                    double month_expense = monthAccountInfo.getExpense();
+                    double monthExpense = monthAccountInfo.getExpense();
 
-                    int percentage = (int) (month_expense * 100 / yearExpense);
+                    int percentage = (int) (monthExpense * 100 / yearExpense);
                     monthAccountInfo.setPercentage(percentage);
                 }
                 break;
