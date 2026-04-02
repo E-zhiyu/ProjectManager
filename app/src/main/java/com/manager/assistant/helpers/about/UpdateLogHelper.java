@@ -14,6 +14,8 @@ public class UpdateLogHelper {
     private static final String UPDATE_LOG_MD = "# v1.8.11  \n" +
             "**新增内容**  \n" +
             "- 主页新增随机提示文本  \n\n" +
+            "**BUG修复**  \n" +
+            "- 修复进入报表界面时如果没有收入或支出会导致动画不连贯的BUG  \n\n" +
             "**修改内容**  \n" +
             "- 默认开屏界面设置为“主页”  \n" +
             "- 使用全面屏手势时所有界面支持沉浸式小白条  \n\n" +
