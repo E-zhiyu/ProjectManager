@@ -22,6 +22,7 @@ import com.manager.assistant.data.classes.running_account.RunningAccountBase;
 import com.manager.assistant.data.classes.running_account.TransferRunningAccount;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.helpers.ExceptionHelper;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
 import com.manager.assistant.ui.sync.account.RunningAccountViewModel;
 import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
@@ -67,7 +68,7 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
         }
     }
 
-    private static class ContentItem extends Item<GroupieViewHolder> {
+    private class ContentItem extends Item<GroupieViewHolder> {
         private final RunningAccountBase runningAccount;
         SpringAnimationOnTouchListener onTouchListener;
         OnRunningAccountViewClickListener onClickListener;
@@ -84,13 +85,15 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
         }
 
         @Override
-        public void bind(@NonNull GroupieViewHolder groupieViewHolder, int i) {
+        public void bind(@NonNull GroupieViewHolder groupieViewHolder, int position) {
             //设置触摸监听器
-            Shapeable shapeable = (Shapeable) groupieViewHolder.itemView;
-            Vibrator vibrator = (Vibrator) groupieViewHolder.itemView.getContext()
-                    .getSystemService(Context.VIBRATOR_SERVICE);
-            onTouchListener = new SpringAnimationOnTouchListener(shapeable, vibrator);
-            groupieViewHolder.itemView.setOnTouchListener(onTouchListener);
+            if (groupieViewHolder.itemView instanceof Shapeable) {
+                Shapeable shapeable = (Shapeable) groupieViewHolder.itemView;
+                Vibrator vibrator = (Vibrator) groupieViewHolder.itemView.getContext()
+                        .getSystemService(Context.VIBRATOR_SERVICE);
+                onTouchListener = new SpringAnimationOnTouchListener(shapeable, vibrator);
+                groupieViewHolder.itemView.setOnTouchListener(onTouchListener);
+            }
 
             //获取流水数据
             String type = runningAccount.getType().getTitle();
@@ -106,6 +109,14 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
             amountText.setText(String.format(Locale.getDefault(), "%.2f", amount));
             remarkText.setText(remark.isEmpty() ? runningAccount.getDefaultRemark() : remark);
             typeDatetimeText.setText(typeAndDatetime);
+
+            //设置圆角大小
+            Section section = sectionHashMap.get(datetime.substring(0, 10));
+            if (section != null) {
+                int contentItemCount = section.getGroupCount() - 1; //分组列表长度
+                int index = section.getPosition(this) - 1;      //当前的下标
+                AppearanceAnimationHelper.setRecyclerItemRadius(groupieViewHolder.itemView, contentItemCount, index);
+            }
 
             //设置点击监听
             groupieViewHolder.itemView.setOnClickListener(v -> onClickListener.onRunningAccountClick(runningAccount));
@@ -189,6 +200,10 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
             this.add(0, newSection);
         } else {
             section.add(contentItem);
+
+            //更新原有卡片的圆角
+            int contentItemCount = section.getGroupCount();
+            section.notifyItemChanged(contentItemCount - 2);
         }
     }
 
@@ -249,6 +264,10 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
             this.add(0, newSection);
         } else {
             section.add(contentItem);
+
+            //更新原有卡片的圆角
+            int contentItemCount = section.getGroupCount();
+            section.notifyItemChanged(contentItemCount - 2);
         }
     }
 
@@ -358,21 +377,21 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
     /**
      * 删除指定下标的流水记录
      *
-     * @param rno_delete 待删除的流水记录的编号
-     * @param owner      ViewModel的提供者
-     * @param context    上下文
+     * @param rnoDelete 待删除的流水记录的编号
+     * @param owner     ViewModel的提供者
+     * @param context   上下文
      */
-    public void deleteRunningAccount(long rno_delete, ViewModelStoreOwner owner, Context context) {
-        if (rno_delete == -1) {
+    public void deleteRunningAccount(long rnoDelete, ViewModelStoreOwner owner, Context context) {
+        if (rnoDelete == -1) {
             Log.e(LogTags.ACCOUNT_ADAPTER.getV(), "未获取到合法的流水编号，无法删除流水记录");
             return;
         } else {
-            Log.i(LogTags.ACCOUNT_ADAPTER.getV(), String.format(Locale.getDefault(), "待删除流水编号：%d", rno_delete));
+            Log.i(LogTags.ACCOUNT_ADAPTER.getV(), String.format(Locale.getDefault(), "待删除流水编号：%d", rnoDelete));
         }
 
         //从数据库中删除
         try {
-            AccountDataController.deleteAccount(rno_delete, context);
+            AccountDataController.deleteAccount(rnoDelete, context);
             Log.i(LogTags.ACCOUNT_ADAPTER.getV(), "数据库中删除成功");
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
@@ -385,7 +404,7 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
         String date = "";
         for (int index = 0; index < accountList.size(); index++) {
             RunningAccountBase runningAccount = accountList.get(index);
-            if (rno_delete == runningAccount.getRno()) {
+            if (rnoDelete == runningAccount.getRno()) {
                 Log.i(LogTags.ACCOUNT_ADAPTER.getV(), "成功在List中找到需要删除的数据类");
 
                 //使用ViewModel刷新UI（主页的简易报表）
@@ -408,18 +427,21 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
         }
         Section section = sectionHashMap.get(date);
         if (section != null) {
-            int item_num = section.getItemCount();
+            int contentCount = section.getItemCount() - 1;  //去掉一个HeaderItem
 
-            //判断是否没有ContentItem(HeaderItem会占用一个数量，因此判断是否大于2)
-            if (item_num > 2) {
+            //判断是否只剩一个ContentItem
+            if (contentCount > 1) {
                 List<ContentItem> contentItemList = new ArrayList<>();
                 for (int index = 0; index < section.getItemCount(); index++) {
                     Item<?> item = section.getItem(index);
-                    if (item instanceof ContentItem && ((ContentItem) item).getRno() != rno_delete) {
+                    if (item instanceof ContentItem && ((ContentItem) item).getRno() != rnoDelete) {
                         contentItemList.add((ContentItem) item);
                     }
                 }
                 section.update(contentItemList);
+
+                //更新原有卡片的圆角
+                section.notifyItemChanged(contentCount - 1);    //由于Section中包含一个HeaderItem，删除后只需要更新最后一个，所以只需要减一
             } else {
                 //当没有任何一个ContentItem时删除该Section
                 Log.d(LogTags.ACCOUNT_ADAPTER.getV(), "Section为空，删除整个Section");

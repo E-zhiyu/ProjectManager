@@ -127,8 +127,8 @@ public class AppearanceAnimationHelper {
      * @param position 当前视图所处的下标
      */
     public static void setRecyclerItemRadius(View view, int listSize, int position) {
-        //列表长度为1则不执行任何操作
-        if (listSize == 1) {
+        //列表长度为1或者列表为空则不执行任何操作
+        if (listSize == 1 || listSize == 0) {
             return;
         }
 
