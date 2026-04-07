@@ -281,62 +281,45 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
     /**
      * 编辑标签（更换分组）
      *
-     * @param newTagName            新标签名称
-     * @param tagNo                 标签编号
-     * @param tagScope              标签作用域
-     * @param newGroupName          新标签分组名称
-     * @param originGroupNo         原标签分组编号
-     * @param groupNoAfterModifying 新标签分组编号
-     * @param context               上下文
+     * @param newTagName   新标签名称
+     * @param tagNo        标签编号
+     * @param tagScope     标签作用域
+     * @param newGroupName 新标签分组名称
+     * @param oldGroupNo   原标签分组编号
+     * @param newGroupNo   新标签分组编号
+     * @param context      上下文
      */
     public void modifyTag(
             String newTagName,
             long tagNo,
             int tagScope,
             String newGroupName,
-            long originGroupNo,
-            long groupNoAfterModifying,
+            long oldGroupNo,
+            long newGroupNo,
             Context context
     ) {
-        //判断是否需要新建标签分组
-        if (groupNoAfterModifying == -1) {
-            //保存新标签分组
-            try {
-                groupNoAfterModifying = TagGroupDataController.saveNewGroup(newGroupName, context);  //获取为新分组分配的编号
-            } catch (SQLiteException e) {
-                ExceptionHelper.showExceptionDialog(context, e);
-                Toast.makeText(context, "标签修改失败", Toast.LENGTH_SHORT).show();
-                return;
+        //向内存中添加修改后的标签
+        int newGroupIndex = 0;    //待新增标签的分组下标
+        for (Map.Entry<TagGroup, List<Tag>> entry : tagGroupMap.entrySet()) {
+            TagGroup group = entry.getKey();
+            if (group.getGroupNo() == newGroupNo) {
+                List<Tag> tagList = entry.getValue();
+                tagList.add(new Tag(newTagName, tagNo, tagScope));
+                break;
             }
-
-            TagGroup newGroup = new TagGroup(newGroupName, groupNoAfterModifying);
+            newGroupIndex++;
+        }
+        if (newGroupIndex == tagGroupMap.size()) {
+            TagGroup group = new TagGroup(newGroupName, newGroupNo);
             List<Tag> tagList = new ArrayList<>();
             tagList.add(new Tag(newTagName, tagNo, tagScope));
-
-            int newGroupIndex = tagGroupMap.size();
-            tagGroupMap.put(newGroup, tagList);
-
-            notifyItemInserted(newGroupIndex);   //更新列表视图
-        } else {
-            int newGroupIndex = 0;    //待新增标签的分组下标
-
-            for (Map.Entry<TagGroup, List<Tag>> entry : tagGroupMap.entrySet()) {
-                TagGroup group = entry.getKey();
-                if (group.getGroupNo() == groupNoAfterModifying) {
-                    List<Tag> tagList = entry.getValue();
-                    tagList.add(new Tag(newTagName, tagNo, tagScope));
-                    break;
-                }
-
-                newGroupIndex++;
-            }
-
-            notifyItemChanged(newGroupIndex);
+            tagGroupMap.put(group, tagList);
         }
+        notifyItemChanged(newGroupIndex);
 
         //将数据保存至数据库
         try {
-            TagDataController.modifyTag(newTagName, tagNo, tagScope, groupNoAfterModifying, context);
+            TagDataController.modifyTag(newTagName, tagNo, tagScope, newGroupNo, context);
             Toast.makeText(context, "标签修改成功", Toast.LENGTH_SHORT).show();
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(context, e);
@@ -345,10 +328,9 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
         //删除原分组中对应的标签
         int originGroupIndex = 0;
-
         for (Map.Entry<TagGroup, List<Tag>> entry : tagGroupMap.entrySet()) {
             TagGroup group = entry.getKey();
-            if (group.getGroupNo() == originGroupNo) {
+            if (group.getGroupNo() == oldGroupNo) {
                 List<Tag> tagList = entry.getValue();
                 for (Tag oldTag : tagList) {
                     if (oldTag.getTno() == tagNo) {
@@ -358,10 +340,8 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
                 }
                 break;
             }
-
             originGroupIndex++;
         }
-
         notifyItemChanged(originGroupIndex);
     }
 

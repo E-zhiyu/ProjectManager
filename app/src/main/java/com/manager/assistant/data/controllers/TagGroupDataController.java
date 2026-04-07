@@ -68,17 +68,17 @@ public class TagGroupDataController {
     /**
      * 向数据库中保存新的标签分组
      *
-     * @param group_name 新分组的名称
+     * @param groupName 新分组的名称
      * @param context    打开数据库的上下文
      * @return 新分组对应的编号
      * @throws SQLiteException 写入失败产生的数据库异常
      */
-    public static long saveNewGroup(String group_name, Context context) throws SQLiteException {
+    public static long saveNewGroup(String groupName, Context context) throws SQLiteException {
         BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         ContentValues groupValues = new ContentValues();
-        groupValues.put(Columns.GROUP_NAME.toString(), group_name);
+        groupValues.put(Columns.GROUP_NAME.toString(), groupName);
         long groupNo = db.insert(Tables.TAG_GROUP.toString(), null, groupValues);
 
         db.close();

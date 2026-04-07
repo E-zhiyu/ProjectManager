@@ -19,6 +19,7 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
 import com.manager.assistant.data.controllers.TagDataController;
+import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.ActivityTagAddModifyBinding;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.generic_enums.KeyValueStrings;
@@ -34,7 +35,7 @@ import java.util.ArrayList;
 
 public class TagAddModifyActivity extends AppCompatActivity implements View.OnClickListener {
     private boolean isModifyMode = false;                       //是否为标签编辑模式
-    private long tagNo = 0, groupNo = 0;                      //标签和标签分组编号
+    private long tagNo = 0, groupNo = 0;                        //标签和标签分组编号
     private TagSelectBottomSheet tagSheet;                      //标签选择底部弹窗
     private ActivityTagAddModifyBinding binding;                //绑定的XML视图的引用
     private int scope = 0;                                      //标签作用域范围
@@ -85,6 +86,9 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
                 String groupName = String.valueOf(binding.tagGroupInput.getText());
                 dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), groupName);    //分组名称
                 dataBundle.putInt(KeyValueStrings.TAG_SCOPE.getValue(), scope);                //标签作用域
+
+                //如果分组名称不存在，自动新建分组
+                TagGroupDataController.saveNewGroup(groupName, this);
 
                 TagRepository repository = TagRepository.getInstance();
                 if (isModifyMode) {
@@ -251,13 +255,13 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
      * @return 错误提示（没有错误则为null）
      */
     private String inputInfoVerify() {
-        String tag_name = String.valueOf(binding.tagNameInput.getText());
-        long db_tno = TagDataController.nameTransToTno(tag_name, this);
+        String tagName = String.valueOf(binding.tagNameInput.getText());
+        long dbTno = TagDataController.nameTransToTno(tagName, this);
 
         String error = null;
-        if (tag_name.isEmpty()) {
+        if (tagName.isEmpty()) {
             error = "标签名不能为空";
-        } else if (db_tno != 0 && db_tno != tagNo) {  //查询到数据库中存在同名编号并且编号不为自身时
+        } else if (dbTno != 0 && dbTno != tagNo) {  //查询到数据库中存在同名编号并且编号不为自身时
             error = "已存在同名标签";
         }
 

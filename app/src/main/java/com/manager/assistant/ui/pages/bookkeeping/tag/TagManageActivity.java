@@ -320,45 +320,47 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
             return;
         }
 
-        //TODO:修改这里的代码，简化新建分组的逻辑
+        //解析数据包
         long tagNo = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());                     //标签编号
-        long originGroupNo = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());       //原分组编号
-        if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
-            String tagName = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
-            String groupName = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
-            int tagScope = dataBundle.getInt(KeyValueStrings.TAG_SCOPE.getValue());             //标签作用域
+        long oldGroupNo = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());       //原分组编号
+        String groupName = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
+        String tagName = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
+        int tagScope = dataBundle.getInt(KeyValueStrings.TAG_SCOPE.getValue());                 //标签作用域
 
+        //执行操作
+        if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
             //获取修改后的分组编号
-            long groupNoAfterModifying;
+            long newGroupNo;
             if (groupName != null && !groupName.isEmpty()) {  //判断用户是否输入了分组名称
                 try {
-                    groupNoAfterModifying = TagGroupDataController.nameTransToGno(groupName, this);
+                    newGroupNo = TagGroupDataController.nameTransToGno(groupName, this);
                 } catch (SQLiteException e) {
                     ExceptionHelper.showExceptionDialog(this, e);
                     Toast.makeText(this, "标签修改失败", Toast.LENGTH_SHORT).show();
                     return;
                 }
             } else {
-                groupNoAfterModifying = 0;
+                newGroupNo = 0;
             }
 
-            if (originGroupNo == groupNoAfterModifying) {
-                adapter.modifyTag(tagName, tagNo, tagScope, originGroupNo, this);
+            if (oldGroupNo == newGroupNo) {
+                adapter.modifyTag(tagName, tagNo, tagScope, oldGroupNo, this);
             } else {
                 adapter.modifyTag(
                         tagName,
                         tagNo,
                         tagScope,
                         groupName,
-                        originGroupNo,
-                        groupNoAfterModifying,
-                        this);
+                        oldGroupNo,
+                        newGroupNo,
+                        this
+                );
             }
         } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
-            adapter.deleteTag(tagNo, originGroupNo, this);
+            adapter.deleteTag(tagNo, oldGroupNo, this);
         } else if (resultCode == RequestResultCode.RESULT_MERGE.ordinal()) {
             long mergeTargetTagNo = dataBundle.getLong(KeyValueStrings.MERGE_TARGET_NO.getValue());  //获取合并到的目标标签编号
-            adapter.mergeTag(tagNo, mergeTargetTagNo, originGroupNo, this);
+            adapter.mergeTag(tagNo, mergeTargetTagNo, oldGroupNo, this);
         }
     }
 
