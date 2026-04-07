@@ -20,11 +20,6 @@ public class TagGroup {
         return groupNo;
     }
 
-    public TagGroup(long groupNo) {
-        this.groupName = "";
-        this.groupNo = groupNo;
-    }
-
     /**
      * 未指定标签的构造方法
      *

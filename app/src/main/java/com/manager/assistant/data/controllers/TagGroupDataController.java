@@ -20,7 +20,6 @@ import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.Runn
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -69,7 +68,7 @@ public class TagGroupDataController {
      * 向数据库中保存新的标签分组
      *
      * @param groupName 新分组的名称
-     * @param context    打开数据库的上下文
+     * @param context   打开数据库的上下文
      * @return 新分组对应的编号
      * @throws SQLiteException 写入失败产生的数据库异常
      */
@@ -115,7 +114,7 @@ public class TagGroupDataController {
      *
      * @param context       用于打开数据库的上下文
      * @param targetGroupNo 需要查询单个分组时对应分组的编号（传递-1以忽略该选择条件）
-     * @param exceptedTno   被排除的标签编号（传递0以忽略该选择条件）
+     * @param excludedTagNo 被排除的标签编号（传递0以忽略该选择条件）
      * @param scopeType     标签作用域
      * @return 标签分组字典，并按照分组编号升序排序（k:标签分组，v:标签列表）
      * @throws SQLiteException 读取失败产生的数据库异常
@@ -123,38 +122,41 @@ public class TagGroupDataController {
     @NonNull
     public static Map<TagGroup, List<Tag>> loadTagGroup(
             Context context,
-            long exceptedTno,
+            long excludedTagNo,
             long targetGroupNo,
             @Nullable RunningAccountType scopeType
     ) throws SQLiteException {
         BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openReadLink();
 
-        //生成标签查询条件
-        List<String> selectionArgs = new ArrayList<>();
+        //查询所有分组
+        List<TagGroup> groupList = getTagGroup(db, targetGroupNo);
+
+        //根据分组编号依次查询组内标签
+        Map<TagGroup, List<Tag>> groupMap = new TreeMap<>(Comparator.comparingLong(TagGroup::getGroupNo));
+        for (TagGroup group : groupList) {
+            List<Tag> tagList = TagDataController.getTags(db, group.getGroupNo(), excludedTagNo, scopeType);
+
+            groupMap.put(group, tagList);
+        }
+
+        db.close();
+        return groupMap;
+    }
+
+    /**
+     * 获取指定编号的分组实例
+     *
+     * @param db            数据库实例
+     * @param targetGroupNo 分组编号（传递-1不限制分组）
+     * @return 包含所有标签分组的列表
+     * @throws SQLiteException 数据读取失败引发的异常
+     */
+    @NonNull
+    public static List<TagGroup> getTagGroup(@NonNull SQLiteDatabase db, long targetGroupNo) throws SQLiteException {
         StringBuilder selectionBuilder = new StringBuilder("1=1");
+        List<String> selectionArgs = new ArrayList<>();
 
-        //生成排除某个标签的条件
-        if (exceptedTno != 0) {
-            selectionBuilder.append(" AND ");
-            selectionBuilder.append(Columns.TAG_NO);
-            selectionBuilder.append("!=?");
-            selectionArgs.add(String.valueOf(exceptedTno));
-        }
-
-        //生成过滤标签作用域的条件
-        if (scopeType != null) {
-            int binary = (int) Math.pow(2, scopeType.ordinal());
-            selectionBuilder.append(" AND ");
-            selectionBuilder.append(String.format(
-                    Locale.getDefault(),
-                    "%s&%d=0",      //某一位为0表示这个标签对于该位数对应的序列数的种类可见
-                    Columns.TAG_SCOPE,
-                    binary
-            ));
-        }
-
-        //生成过滤标签分组编号的条件
         if (targetGroupNo != -1) {
             selectionBuilder.append(" AND ");
             selectionBuilder.append(Columns.GROUP_NO);
@@ -162,74 +164,27 @@ public class TagGroupDataController {
             selectionArgs.add(String.valueOf(targetGroupNo));
         }
 
-        //生成查询游标
-        Cursor tagCursor = db.query(
-                Tables.TAG.toString(),
+        //生成游标
+        Cursor groupCursor = db.query(
+                Tables.TAG_GROUP.toString(),
                 null,
                 selectionBuilder.toString(),
                 selectionArgs.toArray(new String[0]),
                 null,
                 null,
-                Columns.TAG_NO.toString()
-        );
-
-        //开始查询
-        Map<TagGroup, List<Tag>> groupMap = new TreeMap<>(Comparator.comparingLong(TagGroup::getGroupNo));
-        while (tagCursor.moveToNext()) {
-            String tagName = tagCursor.getString(tagCursor.getColumnIndexOrThrow(Columns.TAG_NAME.toString()));     //标签名称
-            long tagNo = tagCursor.getLong(tagCursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));             //标签编号
-            long groupNo = tagCursor.getLong(tagCursor.getColumnIndexOrThrow(Columns.GROUP_NO.toString()));         //分组编号
-            int tagScope = tagCursor.getInt(tagCursor.getColumnIndexOrThrow(Columns.TAG_SCOPE.toString()));
-
-            Tag oneTag = new Tag(tagName, tagNo, tagScope);
-            TagGroup group = new TagGroup(groupNo);
-            List<Tag> tagList = groupMap.get(group);
-            if (tagList == null) {
-                tagList = new ArrayList<>();
-                groupMap.put(group, tagList);
-
-                //获取分组的名称
-                String groupName = TagGroupDataController.getGroupName(db, groupNo);
-                group.setGroupName(groupName);
-            }
-            tagList.add(oneTag);
-        }
-
-        tagCursor.close();
-        db.close();
-        return groupMap;
-    }
-
-    /**
-     * 获取分组名称
-     *
-     * @param db      数据库实例
-     * @param groupNo 分组编号
-     * @return 分组编号对应的分组名称
-     * @throws SQLiteException 数据读取失败引发的异常
-     */
-    public static String getGroupName(@NonNull SQLiteDatabase db, long groupNo) throws SQLiteException {
-        String selection = Columns.GROUP_NO + "=?";
-        String[] selectionArgs = {String.valueOf(groupNo)};
-        String[] columns = {Columns.GROUP_NAME.toString()};
-
-        Cursor groupCursor = db.query(
-                Tables.TAG_GROUP.toString(),
-                columns,
-                selection,
-                selectionArgs,
-                null,
-                null,
                 null
         );
 
-        String groupName = null;
-        if (groupCursor.moveToFirst()) {
-            groupName = groupCursor.getString(groupCursor.getColumnIndexOrThrow(Columns.GROUP_NAME.toString()));
+        //开始查询
+        List<TagGroup> groupList = new ArrayList<>();
+        while (groupCursor.moveToNext()) {
+            String groupName = groupCursor.getString(groupCursor.getColumnIndexOrThrow(Columns.GROUP_NAME.toString()));
+            long groupNo = groupCursor.getLong(groupCursor.getColumnIndexOrThrow(Columns.GROUP_NO.toString()));
+            groupList.add(new TagGroup(groupName, groupNo));
         }
 
         groupCursor.close();
-        return groupName;
+        return groupList;
     }
 
     /**
@@ -257,10 +212,10 @@ public class TagGroupDataController {
         );
 
         while (groupCursor.moveToNext()) {
-            String group_name = groupCursor.getString(groupCursor.getColumnIndexOrThrow(Columns.GROUP_NAME.toString()));
-            long group_no = groupCursor.getLong(groupCursor.getColumnIndexOrThrow(Columns.GROUP_NO.toString()));
+            String groupName = groupCursor.getString(groupCursor.getColumnIndexOrThrow(Columns.GROUP_NAME.toString()));
+            long groupNo = groupCursor.getLong(groupCursor.getColumnIndexOrThrow(Columns.GROUP_NO.toString()));
 
-            PojoTagGroup oneGroup = new PojoTagGroup(group_name, group_no);
+            PojoTagGroup oneGroup = new PojoTagGroup(groupName, groupNo);
             tagGroupList.add(oneGroup);
         }
 
