@@ -85,19 +85,6 @@ public class TagGroupDataController {
     }
 
     /**
-     * 加载单个分组
-     *
-     * @param context 上下文
-     * @param groupNo 需要加载的分组编号
-     * @return 标签分组字典（k:标签分组，v:标签列表）
-     * @throws SQLiteException 读取失败引发的异常
-     */
-    @NonNull
-    public static Map<TagGroup, List<Tag>> loadSingleTagGroup(Context context, long groupNo) throws SQLiteException {
-        return loadTagGroup(context, 0, groupNo, null);
-    }
-
-    /**
      * 加载所有标签分组但是不排除标签
      *
      * @param context 用于打开数据库的上下文

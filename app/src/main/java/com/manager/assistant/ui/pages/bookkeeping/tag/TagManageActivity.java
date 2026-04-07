@@ -32,6 +32,7 @@ import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -47,6 +48,8 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
     private final CompositeDisposable disposables = new CompositeDisposable();                      //订阅列表（便于取消订阅）
     private ActivityResultLauncher<Intent> tagAddLauncher, tagModifyLauncher, modifyGroupLauncher;  //活动启动器
     private ActivityTagManageBinding binding;   //绑定的XML视图的引用
+    private final Map<Integer, Long> itemIdAndGroupNoMap = new HashMap<>();                         //保存左侧导航栏Item的ID与标签分组编号映射的Map
+    private Long currentGroupNo = -1L;                                                              //当前显示的标签分组编号
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,21 +143,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
 
         //设置刷新监听器
-        binding.refreshLayout.setOnRefreshListener(() -> disposables.add(
-                Observable.fromCallable(() -> TagGroupDataController.loadTagGroup(this))
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(tagGroupList -> adapter.refreshUI(tagGroupList),
-                                e -> {
-                                    ExceptionHelper.showExceptionDialog(this, e);
-                                    Toast.makeText(this, "刷新失败", Toast.LENGTH_SHORT).show();
-                                },
-                                () -> {
-                                    binding.refreshLayout.setRefreshing(false);
-                                    binding.addFloatingBtn.show();
-                                }
-                        )
-        ));
+        binding.refreshLayout.setOnRefreshListener(this::refreshUI);
 
         //获取标签分组数据
         Map<TagGroup, List<Tag>> tagGroupMap;
@@ -176,13 +165,22 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
             }
         });
         binding.tagGroupNaviRail.addHeaderView(headerBinding.getRoot());
+        int index = 1;
         Menu groupMenu = binding.tagGroupNaviRail.getMenu();
+        MenuItem menuItem = groupMenu.add(Menu.NONE, 0, Menu.NONE, "显示所有");
+        menuItem.setIcon(R.drawable.baseline_attach_money_24);
+        itemIdAndGroupNoMap.put(0, -1L);
         for (TagGroup group : tagGroupMap.keySet()) {
-            MenuItem menuItem = groupMenu.add(Menu.NONE, (int) group.getGroupNo(), Menu.NONE, group.getGroupName());
+            menuItem = groupMenu.add(Menu.NONE, index, Menu.NONE, group.getGroupName());
             menuItem.setIcon(R.drawable.baseline_attach_money_24);
+
+            //将index与groupNo的映射保存到Map中
+            itemIdAndGroupNoMap.put(index, group.getGroupNo());
+            index++;
         }
-        binding.tagGroupNaviRail.setOnItemSelectedListener(menuItem -> {
-            //TODO:完成分组切换逻辑
+        binding.tagGroupNaviRail.setOnItemSelectedListener(item -> {
+            currentGroupNo = itemIdAndGroupNoMap.get(item.getItemId());
+            refreshUI();
             return true;
         });
 
@@ -394,5 +392,31 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
             long mergeTargetNo = dataBundle.getLong(KeyValueStrings.MERGE_TARGET_NO.getValue());
             adapter.mergeGroup(groupNo, mergeTargetNo, this);
         }
+    }
+
+    /**
+     * 视图刷新回调
+     */
+    private void refreshUI() {
+        disposables.add(
+                Observable.fromCallable(() -> TagGroupDataController.loadTagGroup(
+                                this,
+                                0,
+                                currentGroupNo,
+                                null
+                        ))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(tagGroupList -> adapter.refreshUI(tagGroupList),
+                                e -> {
+                                    ExceptionHelper.showExceptionDialog(this, e);
+                                    Toast.makeText(this, "刷新失败", Toast.LENGTH_SHORT).show();
+                                },
+                                () -> {
+                                    binding.refreshLayout.setRefreshing(false);
+                                    binding.addFloatingBtn.show();
+                                }
+                        )
+        );
     }
 }
