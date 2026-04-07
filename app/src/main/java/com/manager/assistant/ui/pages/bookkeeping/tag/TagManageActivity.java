@@ -35,6 +35,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -168,20 +169,26 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         int index = 1;
         Menu groupMenu = binding.tagGroupNaviRail.getMenu();
         MenuItem menuItem = groupMenu.add(Menu.NONE, 0, Menu.NONE, "显示所有");
-        menuItem.setIcon(R.drawable.baseline_attach_money_24);
+        menuItem.setIcon(R.drawable.outline_select_all_24);
         itemIdAndGroupNoMap.put(0, -1L);
         for (TagGroup group : tagGroupMap.keySet()) {
             menuItem = groupMenu.add(Menu.NONE, index, Menu.NONE, group.getGroupName());
-            menuItem.setIcon(R.drawable.baseline_attach_money_24);
+            menuItem.setIcon(R.drawable.outline_tab_group_24);
 
             //将index与groupNo的映射保存到Map中
             itemIdAndGroupNoMap.put(index, group.getGroupNo());
             index++;
         }
         binding.tagGroupNaviRail.setOnItemSelectedListener(item -> {
-            currentGroupNo = itemIdAndGroupNoMap.get(item.getItemId());
-            refreshUI();
-            return true;
+            Long targetGroupNo = itemIdAndGroupNoMap.get(item.getItemId());
+            if (!Objects.equals(currentGroupNo, targetGroupNo)) {
+                //刷新标签列表
+                currentGroupNo = targetGroupNo;
+                refreshUI();
+                return true;
+            } else {
+                return false;
+            }
         });
 
         //初始化RecyclerView

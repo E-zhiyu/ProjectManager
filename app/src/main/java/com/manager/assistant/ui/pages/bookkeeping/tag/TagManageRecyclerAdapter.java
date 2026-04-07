@@ -110,7 +110,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
         holder.groupNameText.setText(groupName);
 
         //设置分组名称文本视图点击监听器
-        holder.groupNameText.setOnClickListener(v ->
+        holder.itemView.setOnClickListener(v ->
                 textClickedListener.onGroupTextViewClicked(groupNo, groupName)
         );
 
