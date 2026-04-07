@@ -14,10 +14,12 @@ import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.classes.TagGroup;
 import com.manager.assistant.ui.others.bottom_sheets.tag.GridSpacingItemDecoration;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class SheetTagGroupRecyclerAdapter extends RecyclerView.Adapter<SheetTagGroupRecyclerAdapter.TagSelectHolder> {
-    private List<TagGroup> tagGroupList;                                        //标签组列表
+    private Map<TagGroup, List<Tag>> tagGroupMap;                               //标签分组字典
     private final SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener;  //标签按钮点击监听器
 
     public static class TagSelectHolder extends RecyclerView.ViewHolder {
@@ -39,26 +41,28 @@ public class SheetTagGroupRecyclerAdapter extends RecyclerView.Adapter<SheetTagG
     @NonNull
     @Override
     public TagSelectHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View tag_group = LayoutInflater.from(parent.getContext())
+        View tagGroup = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.view_holder_tag_select, parent, false);
 
-        return new TagSelectHolder(tag_group);
+        return new TagSelectHolder(tagGroup);
     }
 
     @Override
     public void onBindViewHolder(@NonNull TagSelectHolder holder, int position) {
-        TagGroup currentTagGroup = this.tagGroupList.get(position);
-        String group_name = currentTagGroup.getGroup_name();
-        List<Tag> tags = currentTagGroup.getTags();
+        List<Map.Entry<TagGroup, List<Tag>>> entryList = new ArrayList<>(tagGroupMap.entrySet());
+        Map.Entry<TagGroup, List<Tag>> currentEntry = entryList.get(position);
+        TagGroup currentGroup = currentEntry.getKey();
+        String groupName = currentGroup.getGroupName();
+        List<Tag> tagList = currentEntry.getValue();
 
         //根据当前的标签列表是否为空设置视图内容
-        if (tags.isEmpty()) {
+        if (tagList.isEmpty()) {
             holder.tagGroupNameText.setVisibility(View.GONE);
             holder.tagBtnRecycler.setVisibility(View.GONE);
         } else {
-            holder.tagGroupNameText.setText(group_name);
-            SheetTagBtnRecyclerAdapter btn_layout_adapter = new SheetTagBtnRecyclerAdapter(tags, listener);
-            holder.tagBtnRecycler.setAdapter(btn_layout_adapter);
+            holder.tagGroupNameText.setText(groupName);
+            SheetTagBtnRecyclerAdapter btnLayoutAdapter = new SheetTagBtnRecyclerAdapter(tagList, listener);
+            holder.tagBtnRecycler.setAdapter(btnLayoutAdapter);
 
             //设置布局器
             int spanCount = 3;
@@ -66,23 +70,23 @@ public class SheetTagGroupRecyclerAdapter extends RecyclerView.Adapter<SheetTagG
             holder.tagBtnRecycler.setLayoutManager(layoutManager);
 
             //设置按钮间隔
-            int spacing = 16; // 单位：像素
+            int spacing = 16; //单位：像素
             holder.tagBtnRecycler.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing, true));
         }
     }
 
     @Override
     public int getItemCount() {
-        return tagGroupList != null ? tagGroupList.size() : 0;
+        return tagGroupMap != null ? tagGroupMap.size() : 0;
     }
 
     /**
      * 设置标签分组数据并刷新UI
      *
-     * @param tagGroupList 标签分组列表
+     * @param tagGroupMap 标签分组列表
      */
-    public void setTagGroupList(@NonNull List<TagGroup> tagGroupList) {
-        this.tagGroupList = tagGroupList;
-        notifyItemRangeChanged(0, tagGroupList.size());
+    public void setTagGroupMap(@NonNull Map<TagGroup, List<Tag>> tagGroupMap) {
+        this.tagGroupMap = tagGroupMap;
+        notifyItemRangeChanged(0, tagGroupMap.size());
     }
 }

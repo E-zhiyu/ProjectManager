@@ -111,11 +111,11 @@ public class MultiTagSelectBottomSheet extends BaseBottomSheetDialogFragment {
      */
     private void loadTagGroup(@NonNull SheetTagGroupRecyclerAdapter tagAdapter) {
         disposables.add(
-                Observable.fromCallable(() -> TagGroupDataController.loadTagGroups(requireContext()))
+                Observable.fromCallable(() -> TagGroupDataController.loadTagGroup(requireContext()))
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeOn(Schedulers.io())
                         .subscribe(
-                                tagAdapter::setTagGroupList,
+                                tagAdapter::setTagGroupMap,
                                 e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
                                 () -> binding.loadingIndicator.setVisibility(View.GONE)
                         )

@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -14,9 +16,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.manager.assistant.R;
 import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.ActivityTagManageBinding;
+import com.manager.assistant.databinding.ViewRailHeaderBinding;
 import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.generic_enums.RequestResultCode;
@@ -27,7 +31,10 @@ import com.manager.assistant.data.classes.TagGroup;
 import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -84,8 +91,8 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         clickedTagData.putInt(KeyValueStrings.TAG_SCOPE.getValue(), tagScope);
 
         //获取已保存的标签分组信息并传递到子界面
-        ArrayList<String> groupNames = adapter.getTagGroupList().stream()
-                .map(TagGroup::getGroup_name)
+        ArrayList<String> groupNames = adapter.getTagGroupMapKeys().stream()
+                .map(TagGroup::getGroupName)
                 .collect(Collectors.toCollection(ArrayList::new));
         clickedTagData.putStringArrayList(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue(), groupNames);
 
@@ -116,13 +123,10 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
             Intent skip2TagAdd = new Intent(this, TagAddModifyActivity.class);
 
             //获取已保存的标签分组信息
-            List<TagGroup> tagGroupList = adapter.getTagGroupList();
-            ArrayList<String> groupNameList = new ArrayList<>();
-            for (TagGroup group : tagGroupList) {
-                groupNameList.add(group.getGroup_name());
-            }
+            ArrayList<String> groupNameList = adapter.getTagGroupMapKeys().stream()
+                    .map(TagGroup::getGroupName)
+                    .collect(Collectors.toCollection(ArrayList<String>::new));
             skip2TagAdd.putStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue(), groupNameList);
-
             skip2TagAdd.putExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), false);
 
             tagAddLauncher.launch(skip2TagAdd);
@@ -137,7 +141,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
 
         //设置刷新监听器
         binding.refreshLayout.setOnRefreshListener(() -> disposables.add(
-                Observable.fromCallable(() -> TagGroupDataController.loadTagGroups(this))
+                Observable.fromCallable(() -> TagGroupDataController.loadTagGroup(this))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(tagGroupList -> adapter.refreshUI(tagGroupList),
@@ -152,16 +156,38 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
                         )
         ));
 
-        //初始化RecyclerView
-        List<TagGroup> tagGroupList;    //获取标签分组数据
+        //获取标签分组数据
+        Map<TagGroup, List<Tag>> tagGroupMap;
         try {
-            tagGroupList = TagGroupDataController.loadTagGroups(this);
+            tagGroupMap = TagGroupDataController.loadTagGroup(this);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(this, e);
             Toast.makeText(this, "标签数据读取失败", Toast.LENGTH_SHORT).show();
-            tagGroupList = new ArrayList<>();
+            tagGroupMap = new TreeMap<>(Comparator.comparingLong(TagGroup::getGroupNo));
         }
-        adapter = new TagManageRecyclerAdapter(tagGroupList, this);
+
+        //左侧标签分组抽屉
+        ViewRailHeaderBinding headerBinding = ViewRailHeaderBinding.inflate(getLayoutInflater());
+        headerBinding.headerBtn.setOnClickListener(v -> {   //设置头部视图点击监听
+            if (binding.tagGroupNaviRail.isExpanded()) {
+                binding.tagGroupNaviRail.collapse();
+            } else {
+                binding.tagGroupNaviRail.expand();
+            }
+        });
+        binding.tagGroupNaviRail.addHeaderView(headerBinding.getRoot());
+        Menu groupMenu = binding.tagGroupNaviRail.getMenu();
+        for (TagGroup group : tagGroupMap.keySet()) {
+            MenuItem menuItem = groupMenu.add(Menu.NONE, (int) group.getGroupNo(), Menu.NONE, group.getGroupName());
+            menuItem.setIcon(R.drawable.baseline_attach_money_24);
+        }
+        binding.tagGroupNaviRail.setOnItemSelectedListener(menuItem -> {
+            //TODO:完成分组切换逻辑
+            return true;
+        });
+
+        //初始化RecyclerView
+        adapter = new TagManageRecyclerAdapter(tagGroupMap, this);
         binding.tagGroupRecycler.setAdapter(adapter);
 
         //添加RecyclerView滚动监听器，用以控制添加按钮的显示与否
@@ -195,7 +221,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
                         NullPointerException e = new NullPointerException("无法获取修改后的标签数据");
                         ExceptionHelper.showExceptionDialog(this, e);
                     } else {
-                        onTagModifyActivityResulted(resultCode, data);
+                        onTagModified(resultCode, data);
                     }
                 }
         );
@@ -216,70 +242,73 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         );
     }
 
+    /**
+     * 处理新标签添加回调
+     *
+     * @param resultCode   子界面的返回代码
+     * @param resultIntent 返回的Intent
+     */
     private void onNewTagActivityResulted(int resultCode, Intent resultIntent) {
-        if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
-            Bundle dataBundle = resultIntent.getExtras();
-            if (dataBundle == null) {
-                return;
-            }
+        if (resultCode != RequestResultCode.RESULT_OK.ordinal()) {
+            return;
+        }
 
-            String tagName = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
-            String groupName = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
-            int tag_scope = dataBundle.getInt(KeyValueStrings.TAG_SCOPE.getValue());
+        Bundle dataBundle = resultIntent.getExtras();
+        if (dataBundle == null) {
+            return;
+        }
 
-            //判断是否需要新的分组
-            long groupNo = 0;   //分组编号
-            List<TagGroup> tagGroupList = adapter.getTagGroupList();
-            boolean needNewGroup = true;
-            if (groupName != null && !groupName.isEmpty()) {
-                for (TagGroup oneGroup : tagGroupList) {
-                    if (oneGroup.getGroup_name().equals(groupName)) {
-                        needNewGroup = false;
-                        try {
-                            groupNo = TagGroupDataController.nameTransToGno(groupName, this);
-                        } catch (SQLiteException e) {
-                            ExceptionHelper.showExceptionDialog(this, e);
-                        }
-                        break;
-                    }
-                }
-            } else {
-                needNewGroup = false;   //如果用户没有输入分组名称，则添加至默认分组（编号为0的分组）
-            }
+        String tagName = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
+        String groupName = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
+        int tagScope = dataBundle.getInt(KeyValueStrings.TAG_SCOPE.getValue());
 
-            //如果需要添加新分组，则通过数据库获取为新分组分配的编号
-            if (needNewGroup) {
-                try {
-                    groupNo = TagGroupDataController.saveNewGroup(groupName, this);
-                } catch (SQLiteException e) {
-                    ExceptionHelper.showExceptionDialog(this, e);
-                    return;
-                }
-            }
+        //判断是否需要新的分组
+        long groupNo;
+        try {
+            groupNo = TagGroupDataController.nameTransToGno(groupName, this);
+        } catch (SQLiteException e) {
+            groupNo = -1;
+        }
+        boolean needNewGroup = groupNo == -1;
 
-            //将新标签的数据写入数据库
-            long tagNo = 0;
+        //如果需要添加新分组，则通过数据库获取为新分组分配的编号
+        if (needNewGroup) {
             try {
-                tagNo = TagDataController.saveNewTag(tagName, tag_scope, groupNo, this);
+                groupNo = TagGroupDataController.saveNewGroup(groupName, this);
             } catch (SQLiteException e) {
                 ExceptionHelper.showExceptionDialog(this, e);
+                return;
             }
-            if (tagNo != 0) {
-                //将变化保存至列表中并传递给适配器
-                Tag newTag = new Tag(tagName, tagNo, tag_scope);
-                if (needNewGroup) {
-                    TagGroup new_group = new TagGroup(groupName, groupNo);
-                    adapter.addNewTag(newTag, new_group);
-                    binding.tagGroupRecycler.scrollToPosition(adapter.getItemCount() - 1);
-                } else {
-                    adapter.addNewTag(newTag, groupNo);
-                }
-                Toast.makeText(this, "标签添加成功", Toast.LENGTH_SHORT).show();
+        }
+
+        //将新标签的数据写入数据库
+        long tagNo = 0;
+        try {
+            tagNo = TagDataController.saveNewTag(tagName, tagScope, groupNo, this);
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(this, e);
+        }
+        if (tagNo != 0) {
+            //将变化保存至列表中并传递给适配器
+            Tag newTag = new Tag(tagName, tagNo, tagScope);
+            if (needNewGroup) {
+                TagGroup new_group = new TagGroup(groupName, groupNo);
+                adapter.addNewTag(newTag, new_group);
+                binding.tagGroupRecycler.scrollToPosition(adapter.getItemCount() - 1);
+            } else {
+                adapter.addNewTag(newTag, groupNo);
             }
+            Toast.makeText(this, "标签添加成功", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void onTagModifyActivityResulted(int resultCode, Intent resultIntent) {
+    /**
+     * 处理标签修改回调
+     *
+     * @param resultCode   子界面返回的代码
+     * @param resultIntent 返回的数据
+     */
+    private void onTagModified(int resultCode, Intent resultIntent) {
         if (resultCode == Activity.RESULT_CANCELED) {
             return;
         }
@@ -291,47 +320,54 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
             return;
         }
 
-        long tag_no = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());                    //标签编号
-        long origin_group_no = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());     //原分组编号
+        //TODO:修改这里的代码，简化新建分组的逻辑
+        long tagNo = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());                     //标签编号
+        long originGroupNo = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());       //原分组编号
         if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
-            String tag_name = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
+            String tagName = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
             String groupName = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
-            int tag_scope = dataBundle.getInt(KeyValueStrings.TAG_SCOPE.getValue());            //标签作用域
+            int tagScope = dataBundle.getInt(KeyValueStrings.TAG_SCOPE.getValue());             //标签作用域
 
             //获取修改后的分组编号
-            long group_no_after_modifying;
+            long groupNoAfterModifying;
             if (groupName != null && !groupName.isEmpty()) {  //判断用户是否输入了分组名称
                 try {
-                    group_no_after_modifying = TagGroupDataController.nameTransToGno(groupName, this);
+                    groupNoAfterModifying = TagGroupDataController.nameTransToGno(groupName, this);
                 } catch (SQLiteException e) {
                     ExceptionHelper.showExceptionDialog(this, e);
                     Toast.makeText(this, "标签修改失败", Toast.LENGTH_SHORT).show();
                     return;
                 }
             } else {
-                group_no_after_modifying = 0;
+                groupNoAfterModifying = 0;
             }
 
-            if (origin_group_no == group_no_after_modifying) {
-                adapter.modifyTag(tag_name, tag_no, tag_scope, origin_group_no, this);
+            if (originGroupNo == groupNoAfterModifying) {
+                adapter.modifyTag(tagName, tagNo, tagScope, originGroupNo, this);
             } else {
                 adapter.modifyTag(
-                        tag_name,
-                        tag_no,
-                        tag_scope,
+                        tagName,
+                        tagNo,
+                        tagScope,
                         groupName,
-                        origin_group_no,
-                        group_no_after_modifying,
+                        originGroupNo,
+                        groupNoAfterModifying,
                         this);
             }
         } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
-            adapter.deleteTag(tag_no, origin_group_no, this);
+            adapter.deleteTag(tagNo, originGroupNo, this);
         } else if (resultCode == RequestResultCode.RESULT_MERGE.ordinal()) {
-            long merge_target_tag_no = dataBundle.getLong(KeyValueStrings.MERGE_TARGET_NO.getValue());  //获取合并到的目标标签编号
-            adapter.mergeTag(tag_no, merge_target_tag_no, origin_group_no, this);
+            long mergeTargetTagNo = dataBundle.getLong(KeyValueStrings.MERGE_TARGET_NO.getValue());  //获取合并到的目标标签编号
+            adapter.mergeTag(tagNo, mergeTargetTagNo, originGroupNo, this);
         }
     }
 
+    /**
+     * 分组修改回调
+     *
+     * @param resultCode 子界面返回的代码
+     * @param data       返回的数据
+     */
     private void modifyGroup(int resultCode, Intent data) {
         if (resultCode == RequestResultCode.RESULT_CANCEL.ordinal()) {
             return;
