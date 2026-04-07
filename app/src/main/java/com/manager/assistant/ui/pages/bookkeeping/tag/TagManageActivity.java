@@ -144,7 +144,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
 
         //设置刷新监听器
-        binding.refreshLayout.setOnRefreshListener(this::refreshUI);
+        binding.refreshLayout.setOnRefreshListener(() -> refreshUI(false));
 
         //获取标签分组数据
         Map<TagGroup, List<Tag>> tagGroupMap;
@@ -184,7 +184,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
             if (!Objects.equals(currentGroupNo, targetGroupNo)) {
                 //刷新标签列表
                 currentGroupNo = targetGroupNo;
-                refreshUI();
+                refreshUI(false);
                 return true;
             } else {
                 return false;
@@ -241,7 +241,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
                         NullPointerException e = new NullPointerException("无法获取修改后的分组数据");
                         ExceptionHelper.showExceptionDialog(this, e);
                     } else {
-                        modifyGroup(resultCode, data);
+                        onGroupModified(resultCode, data);
                     }
                 }
         );
@@ -375,7 +375,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
      * @param resultCode 子界面返回的代码
      * @param data       返回的数据
      */
-    private void modifyGroup(int resultCode, Intent data) {
+    private void onGroupModified(int resultCode, Intent data) {
         if (resultCode == RequestResultCode.RESULT_CANCEL.ordinal()) {
             return;
         }
@@ -393,18 +393,36 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
 
             //修改视图中的分组并保存
             adapter.modifyGroup(groupNo, newGroupName, this);
+
+            //更新RailView中的选项Title
+            for (Map.Entry<Integer, Long> entry : itemIdAndGroupNoMap.entrySet()) {
+                int itemIndex = entry.getKey();     //MenuItem的Id就是下标
+                long mapGroupNo = entry.getValue();
+                if (mapGroupNo == groupNo) {
+                    Menu railMenu = binding.tagGroupNaviRail.getMenu();
+                    railMenu.getItem(itemIndex).setTitle(newGroupName);
+                    break;
+                }
+            }
         } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
             adapter.deleteGroup(groupNo, this);
+            refreshUI(true);
         } else if (resultCode == RequestResultCode.RESULT_MERGE.ordinal()) {
             long mergeTargetNo = dataBundle.getLong(KeyValueStrings.MERGE_TARGET_NO.getValue());
             adapter.mergeGroup(groupNo, mergeTargetNo, this);
+            refreshUI(true);
         }
     }
 
     /**
      * 视图刷新回调
+     *
+     * @param refreshRailView 是否需要刷新左侧导航栏
      */
-    private void refreshUI() {
+    private void refreshUI(boolean refreshRailView) {
+        if (refreshRailView) {
+            currentGroupNo = -1L;
+        }
         disposables.add(
                 Observable.fromCallable(() -> TagGroupDataController.loadTagGroup(
                                 this,
@@ -414,10 +432,37 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
                         ))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(tagGroupList -> adapter.refreshUI(tagGroupList),
+                        .subscribe(tagGroupListMap -> {
+                                    adapter.refreshUI(tagGroupListMap);
+
+                                    if (!refreshRailView) {
+                                        return;
+                                    }
+
+                                    //重绘NavigationRailView
+                                    Menu groupMenu = binding.tagGroupNaviRail.getMenu();
+                                    groupMenu.clear();
+                                    itemIdAndGroupNoMap.clear();
+
+                                    //添加显示所有的选项
+                                    MenuItem menuItem = groupMenu.add(Menu.NONE, 0, Menu.NONE, "显示所有");
+                                    menuItem.setIcon(R.drawable.outline_select_all_24);
+                                    itemIdAndGroupNoMap.put(0, -1L);
+
+                                    //遍历添加分组选项
+                                    int index = 1;
+                                    for (TagGroup group : tagGroupListMap.keySet()) {
+                                        menuItem = groupMenu.add(Menu.NONE, index, Menu.NONE, group.getGroupName());
+                                        menuItem.setIcon(R.drawable.outline_tab_group_24);
+
+                                        //将index与groupNo的映射保存到Map中
+                                        itemIdAndGroupNoMap.put(index, group.getGroupNo());
+                                        index++;
+                                    }
+                                },
                                 e -> {
                                     ExceptionHelper.showExceptionDialog(this, e);
-                                    Toast.makeText(this, "刷新失败", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(this, "标签列表刷新失败", Toast.LENGTH_SHORT).show();
                                 },
                                 () -> {
                                     binding.refreshLayout.setRefreshing(false);
