@@ -2,7 +2,6 @@ package com.manager.assistant.generic_enums;
 
 //用作关键字的字符串枚举
 public enum KeyValueStrings {
-    RNO("rno"),                                             //流水编号
     ACCOUNT_TYPE("account_type"),                           //流水种类
     ACCOUNT_REMARK("account_remark"),                       //流水备注
     ACCOUNT_DATETIME("account_datetime"),                   //流水日期和时间

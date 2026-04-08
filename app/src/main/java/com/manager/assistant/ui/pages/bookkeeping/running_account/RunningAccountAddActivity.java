@@ -162,7 +162,7 @@ public class RunningAccountAddActivity extends AppCompatActivity {
         long rno;
         try {
             rno = AccountDataController.saveNewAccount(dataBundle, this);
-            dataBundle.putLong(KeyValueStrings.RNO.getValue(), rno);
+            dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
             moveTempPictures(rno);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(this, e);

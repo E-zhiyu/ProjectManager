@@ -1,11 +1,9 @@
 package com.manager.assistant.ui.pages.bookkeeping;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
@@ -14,7 +12,6 @@ import androidx.lifecycle.ViewModelStoreOwner;
 import com.google.android.material.shape.Shapeable;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
-import com.manager.assistant.data.controllers.AccountDataController;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.data.classes.running_account.ExpenseRunningAccount;
 import com.manager.assistant.data.classes.running_account.IncomeRunningAccount;
@@ -160,7 +157,7 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
         if (remark == null) remark = "";
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
         String datetime = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
-        long rno = dataBundle.getLong(KeyValueStrings.RNO.getValue(), 0);
+        long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue(), 0);
         if (rno == 0) return;   //如果为0则说明数据库保存失败，直接结束该方法
 
         //使用ViewModel刷新UI（主页的简易报表）
@@ -379,25 +376,13 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
      *
      * @param rnoDelete 待删除的流水记录的编号
      * @param owner     ViewModel的提供者
-     * @param context   上下文
      */
-    public void deleteRunningAccount(long rnoDelete, ViewModelStoreOwner owner, Context context) {
+    public void deleteRunningAccount(long rnoDelete, ViewModelStoreOwner owner) {
         if (rnoDelete == -1) {
             Log.e(LogTags.ACCOUNT_ADAPTER.getV(), "未获取到合法的流水编号，无法删除流水记录");
             return;
         } else {
             Log.i(LogTags.ACCOUNT_ADAPTER.getV(), String.format(Locale.getDefault(), "待删除流水编号：%d", rnoDelete));
-        }
-
-        //从数据库中删除
-        try {
-            AccountDataController.deleteAccount(rnoDelete, context);
-            Log.i(LogTags.ACCOUNT_ADAPTER.getV(), "数据库中删除成功");
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            Log.e(LogTags.ACCOUNT_ADAPTER.getV(), "数据库中删除失败");
-            Toast.makeText(context, "流水记录删除失败", Toast.LENGTH_SHORT).show();
-            return;
         }
 
         //删除列表中的流水记录

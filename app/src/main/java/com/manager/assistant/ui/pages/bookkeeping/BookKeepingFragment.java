@@ -289,8 +289,8 @@ public class BookKeepingFragment extends Fragment {
             return;
         }
 
-        long rno = dataBundle.getLong(KeyValueStrings.RNO.getValue(), -1);
-        accountAdapter.deleteRunningAccount(rno, requireActivity(), requireContext());
+        long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue(), -1);
+        accountAdapter.deleteRunningAccount(rno, requireActivity());
         Toast.makeText(requireContext(), "流水记录已删除", Toast.LENGTH_SHORT).show();
 
         //更新流水记录数量文本

@@ -141,8 +141,10 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
         binding.toolbar.setTitle(String.format(Locale.getDefault(), "%s编辑", type.getTitle()));
 
-        //为按钮设置单击监听器
+        //取消按钮
         binding.cancelBtn.setOnClickListener(v -> finish());
+
+        //完成按钮
         binding.finishBtn.setOnClickListener(v -> {
             Intent result2BookKeeping = new Intent();
             String error;
@@ -177,14 +179,27 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
             }
         });
 
+        //删除按钮
         binding.deleteBtn.setOnClickListener(v -> {
             Intent result2BookKeeping = new Intent();
             new MaterialAlertDialogBuilder(this)
                     .setTitle("删除流水记录")
                     .setMessage("此流水记录将会被永久删除，确认继续吗？")
                     .setPositiveButton("确认", (dialog, which) -> {
-                        Bundle dataBundle = new Bundle();
-                        dataBundle.putLong(KeyValueStrings.RNO.getValue(), rno);
+                        //从数据库中删除数据
+                        try {
+                            AccountDataController.deleteAccount(rno, this);
+                        } catch (SQLiteException e) {
+                            ExceptionHelper.showExceptionDialog(this, e);
+                            Toast.makeText(this, "流水记录删除失败", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        //向父界面传递数据
+                        Bundle dataBundle = getInputData();
+                        if (dataBundle == null) {
+                            return;
+                        }
                         result2BookKeeping.putExtras(dataBundle);
                         setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2BookKeeping);
                         finish();
