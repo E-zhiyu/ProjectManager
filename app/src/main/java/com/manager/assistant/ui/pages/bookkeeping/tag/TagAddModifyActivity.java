@@ -33,7 +33,7 @@ import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.Runn
 
 import java.util.ArrayList;
 
-public class TagAddModifyActivity extends AppCompatActivity implements View.OnClickListener {
+public class TagAddModifyActivity extends AppCompatActivity {
     private boolean isModifyMode = false;                       //是否为标签编辑模式
     private long tagNo = 0, groupNo = 0;                        //标签和标签分组编号
     private TagSelectBottomSheet tagSheet;                      //标签选择底部弹窗
@@ -67,57 +67,6 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
         binding = null;
     }
 
-    @Override
-    public void onClick(@NonNull View v) {
-        Intent result2TagManage = new Intent();
-        Bundle dataBundle = new Bundle();
-        dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), groupNo);      //分组编号
-        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tagNo);              //标签编号
-
-        if (v.getId() == R.id.finish_btn) {
-            String error = inputInfoVerify();
-
-            //判断校验后是否有错误
-            if (error != null) {
-                Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
-            } else {
-                String tagName = String.valueOf(binding.tagNameInput.getText());
-                dataBundle.putString(KeyValueStrings.TAG_NAME.getValue(), tagName);            //标签名
-                String groupName = String.valueOf(binding.tagGroupInput.getText());
-                dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), groupName);    //分组名称
-                dataBundle.putInt(KeyValueStrings.TAG_SCOPE.getValue(), scope);                //标签作用域
-
-                //如果分组名称不存在，自动新建分组
-                TagGroupDataController.saveNewGroup(groupName, this);
-
-                TagRepository repository = TagRepository.getInstance();
-                if (isModifyMode) {
-                    repository.updateTag(tagName, tagNo, TagUpdateReason.RENAME);
-                } else {
-                    repository.updateTag(tagName, tagNo, TagUpdateReason.ADD);
-                }
-
-                result2TagManage.putExtras(dataBundle);
-                setResult(RequestResultCode.RESULT_OK.ordinal(), result2TagManage);
-                finish();
-            }
-        } else if (v.getId() == R.id.delete_btn) {
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle("删除标签")
-                    .setMessage("此操作将清空所有相应流水记录和通知解析规则的标签数据，确认继续吗？")
-                    .setPositiveButton("确定", ((dialog, which) -> {
-                        TagRepository repository = TagRepository.getInstance();
-                        repository.updateTag("", tagNo, TagUpdateReason.DELETE);    //更新ViewModel中的标签数据
-
-                        result2TagManage.putExtras(dataBundle);
-                        setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2TagManage);
-                        finish();
-                    }))
-                    .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
-                    .show();
-        }
-    }
-
     /**
      * 初始化视图
      */
@@ -125,6 +74,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
         //设置标题栏的图标点击监听器
         binding.toolbar.setNavigationOnClickListener(v -> finish());
 
+        //标签分组输入
         ArrayList<String> groupNameList = getIntent().getStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue());
         if (groupNameList != null) {
             NoFilteringArrayAdapter<String> adapter = new NoFilteringArrayAdapter<>(
@@ -132,13 +82,9 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
                     groupNameList
             );
             binding.tagGroupInput.setAdapter(adapter);
-
-            binding.tagGroupInput.setOnItemClickListener((parent, view, position, id) -> {
-                String groupName = groupNameList.get(position);
-                binding.tagGroupInput.setText(groupName);
-            });
         }
 
+        //标签名称输入框
         binding.tagNameInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
                 String tagName = String.valueOf(binding.tagNameInput.getText());
@@ -159,10 +105,56 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
         });
         binding.tagNameInput.setOnClickListener(v -> binding.tagNameLayout.setError(null));
 
-        binding.deleteBtn.setOnClickListener(this);
-        binding.finishBtn.setOnClickListener(this);
+        //删除按钮
+        binding.deleteBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(this)
+                .setTitle("删除标签")
+                .setMessage("此操作将清空所有相应流水记录和通知解析规则的标签数据，确认继续吗？")
+                .setPositiveButton("确定", ((dialog, which) -> {
+                    TagRepository repository = TagRepository.getInstance();
+                    repository.updateTag("", tagNo, TagUpdateReason.DELETE);    //更新ViewModel中的标签数据
+
+                    Intent result2TagManage = new Intent();
+                    Bundle dataBundle = getInputData();
+                    result2TagManage.putExtras(dataBundle);
+                    setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2TagManage);
+                    finish();
+                }))
+                .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
+                .show());
+
+        //完成按钮
+        binding.finishBtn.setOnClickListener(v -> {
+            Intent result2TagManage = new Intent();
+            Bundle dataBundle = getInputData();
+            String error = inputInfoVerify();
+
+            //判断校验后是否有错误
+            if (error != null) {
+                Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+            } else {
+                //如果分组名称不存在，自动新建分组
+                String groupName = String.valueOf(binding.tagGroupInput.getText());
+                TagGroupDataController.saveNewGroup(groupName, this);
+
+                //触发LiveData以刷新其他界面
+                TagRepository repository = TagRepository.getInstance();
+                String tagName = String.valueOf(binding.tagNameInput.getText());
+                if (isModifyMode) {
+                    repository.updateTag(tagName, tagNo, TagUpdateReason.RENAME);
+                } else {
+                    repository.updateTag(tagName, tagNo, TagUpdateReason.ADD);
+                }
+
+                result2TagManage.putExtras(dataBundle);
+                setResult(RequestResultCode.RESULT_OK.ordinal(), result2TagManage);
+                finish();
+            }
+        });
+
+        //取消按钮
         binding.cancelBtn.setOnClickListener(v -> finish());
-        binding.mergeBtn.setOnClickListener(this);
+
+        //合并按钮
         binding.mergeBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(this)
                 .setTitle("合并标签")
                 .setMessage("此操作会将本标签与其他标签合并，使用本标签标记的流水记录将自动替换为用合并后的标签标记，并且本标签将被永久删除，确认继续吗？")
@@ -186,6 +178,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
             int iBinary = (int) Math.pow(2, type.ordinal());
             scopeChip.setChecked((scope & iBinary) == 0);
 
+            //设置切换监听器
             scopeChip.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 int binary = (int) Math.pow(2, type.ordinal());
                 if (!isChecked) {
@@ -195,6 +188,7 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
                 }
             });
 
+            //添加视图到Chip组中
             binding.scopeSelectChipGroup.addView(scopeChip);
         }
     }
@@ -272,5 +266,26 @@ public class TagAddModifyActivity extends AppCompatActivity implements View.OnCl
         }
 
         return error;
+    }
+
+    /**
+     * 获取输入的标签数据
+     *
+     * @return 需要传递到父界面的数据包
+     */
+    @NonNull
+    private Bundle getInputData() {
+        Bundle dataBundle = new Bundle();
+
+        //放入数据
+        String tagName = String.valueOf(binding.tagNameInput.getText());
+        dataBundle.putString(KeyValueStrings.TAG_NAME.getValue(), tagName);         //标签名
+        String groupName = String.valueOf(binding.tagGroupInput.getText());
+        dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), groupName); //分组名称
+        dataBundle.putInt(KeyValueStrings.TAG_SCOPE.getValue(), scope);             //标签作用域
+        dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), groupNo);       //分组编号
+        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tagNo);               //标签编号
+
+        return dataBundle;
     }
 }
