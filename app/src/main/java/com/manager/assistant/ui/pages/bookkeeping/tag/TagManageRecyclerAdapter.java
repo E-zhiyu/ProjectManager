@@ -212,12 +212,13 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
     /**
      * 编辑标签（更换分组）
      *
-     * @param newTagName   新标签名称
-     * @param tagNo        标签编号
-     * @param tagScope     标签作用域
-     * @param newGroupName 新标签分组名称
-     * @param oldGroupNo   原标签分组编号
-     * @param newGroupNo   新标签分组编号
+     * @param newTagName     新标签名称
+     * @param tagNo          标签编号
+     * @param tagScope       标签作用域
+     * @param newGroupName   新标签分组名称
+     * @param oldGroupNo     原标签分组编号
+     * @param newGroupNo     新标签分组编号
+     * @param currentGroupNo 当前正在显示的分组编号（-1表示显示所有）
      */
     public void modifyTag(
             String newTagName,
@@ -225,45 +226,60 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             int tagScope,
             String newGroupName,
             long oldGroupNo,
-            long newGroupNo
+            long newGroupNo,
+            long currentGroupNo
     ) {
         if (oldGroupNo != newGroupNo) {
-            //向内存中添加修改后的标签
-            int newGroupIndex = 0;    //待新增标签的分组下标
+            //删除原分组中的标签
+            int oldGroupIndex = 0;
             for (Map.Entry<TagGroup, List<Tag>> entry : tagGroupMap.entrySet()) {
-                TagGroup group = entry.getKey();
-                if (group.getGroupNo() == newGroupNo) {
-                    List<Tag> tagList = entry.getValue();
-                    tagList.add(new Tag(newTagName, tagNo, tagScope));
-                    break;
-                }
-                newGroupIndex++;
-            }
-            if (newGroupIndex == tagGroupMap.size()) {
-                TagGroup group = new TagGroup(newGroupName, newGroupNo);
-                List<Tag> tagList = new ArrayList<>();
-                tagList.add(new Tag(newTagName, tagNo, tagScope));
-                tagGroupMap.put(group, tagList);
-            }
-            notifyItemChanged(newGroupIndex);
-
-            //删除原分组中对应的标签
-            int originGroupIndex = 0;
-            for (Map.Entry<TagGroup, List<Tag>> entry : tagGroupMap.entrySet()) {
-                TagGroup group = entry.getKey();
-                if (group.getGroupNo() == oldGroupNo) {
-                    List<Tag> tagList = entry.getValue();
-                    for (Tag oldTag : tagList) {
+                TagGroup oldGroup = entry.getKey();
+                if (oldGroup.getGroupNo() == oldGroupNo) {
+                    List<Tag> oldTagList = entry.getValue();
+                    for (int i = 0; i < oldTagList.size(); i++) {
+                        Tag oldTag = oldTagList.get(i);
                         if (oldTag.getTno() == tagNo) {
-                            tagList.remove(oldTag);
+                            oldTagList.remove(i);
                             break;
                         }
                     }
                     break;
                 }
-                originGroupIndex++;
+                oldGroupIndex++;
             }
-            notifyItemChanged(originGroupIndex);
+            notifyItemChanged(oldGroupIndex);
+
+            //如果新分组编号与当前分组编号相同，则添加新分组
+            if (newGroupNo == currentGroupNo && currentGroupNo != -1) {
+                TagGroup newGroup = new TagGroup(newGroupName, newGroupNo);
+                List<Tag> newTagList = new ArrayList<>();
+                newTagList.add(new Tag(newTagName, tagNo, tagScope));
+                tagGroupMap.put(newGroup, newTagList);
+                notifyItemInserted(tagGroupMap.size() - 1);
+            } else if (currentGroupNo == -1) {
+                //遍历查找
+                int newGroupIndex = 0;
+                for (Map.Entry<TagGroup, List<Tag>> entry : tagGroupMap.entrySet()) {
+                    TagGroup group = entry.getKey();
+                    if (group.getGroupNo() == newGroupNo) {
+                        List<Tag> newTagList = entry.getValue();
+                        newTagList.add(new Tag(newTagName, tagNo, tagScope));
+                        break;
+                    }
+                    newGroupIndex++;
+                }
+
+                //更新UI
+                if (newGroupIndex != tagGroupMap.size()) {
+                    notifyItemChanged(newGroupIndex);
+                } else {
+                    TagGroup group = new TagGroup(newGroupName, newGroupNo);
+                    List<Tag> tagList = new ArrayList<>();
+                    tagList.add(new Tag(newTagName, tagNo, tagScope));
+                    tagGroupMap.put(group, tagList);
+                    notifyItemInserted(tagGroupMap.size() - 1);
+                }
+            }
         } else {
             //找到需要更新的视图的下标
             List<TagGroup> keyList = new ArrayList<>(tagGroupMap.keySet());

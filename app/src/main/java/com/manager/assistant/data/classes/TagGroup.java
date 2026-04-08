@@ -21,7 +21,7 @@ public class TagGroup {
     }
 
     /**
-     * 未指定标签的构造方法
+     * 标签分组构造方法
      *
      * @param groupName 标签分组名
      * @param groupNo   标签分组编号

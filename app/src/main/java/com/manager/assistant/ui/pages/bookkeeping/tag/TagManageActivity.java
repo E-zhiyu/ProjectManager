@@ -295,8 +295,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         //执行操作
         if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
             refreshRailView();
-            //TODO:修复选择单个分组时移动分组，会在界面中添加新分组的BUG
-            adapter.modifyTag(tagName, tagNo, tagScope, groupName, oldGroupNo, newGroupNo);
+            adapter.modifyTag(tagName, tagNo, tagScope, groupName, oldGroupNo, newGroupNo, currentGroupNo);
         } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
             adapter.deleteTag(tagNo, oldGroupNo);
         } else if (resultCode == RequestResultCode.RESULT_MERGE.ordinal()) {
