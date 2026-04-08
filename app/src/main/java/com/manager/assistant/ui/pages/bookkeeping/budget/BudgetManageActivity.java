@@ -164,7 +164,7 @@ public class BudgetManageActivity extends AppCompatActivity {
                     }
 
                     if (resultCode == Activity.RESULT_OK) {
-                        onBudgetModified(dataBundle);
+                        adapter.modifyBudget(dataBundle);
                     } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
                         onBudgetDeleted(dataBundle);
                     }
@@ -222,16 +222,6 @@ public class BudgetManageActivity extends AppCompatActivity {
                                 }
                         )
         );
-    }
-
-    /**
-     * 预算修改的回调
-     *
-     * @param dataBundle 修改后的数据包
-     */
-    private void onBudgetModified(Bundle dataBundle) {
-        adapter.modifyBudget(dataBundle, this);
-        Toast.makeText(this, "预算修改成功", Toast.LENGTH_SHORT).show();
     }
 
     /**

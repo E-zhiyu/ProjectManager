@@ -2,6 +2,7 @@ package com.manager.assistant.ui.pages.bookkeeping.budget;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.View;
@@ -205,6 +206,15 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
                 } catch (SQLiteException e) {
                     ExceptionHelper.showExceptionDialog(this, e);
                     Toast.makeText(this, "预算添加失败", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } else {
+                try {
+                    BudgetDataController.modifyBudget(dataBundle, this);
+                    Toast.makeText(this, "预算修改成功", Toast.LENGTH_SHORT).show();
+                } catch (SQLException e) {
+                    ExceptionHelper.showExceptionDialog(this, e);
+                    Toast.makeText(this, "预算修改失败", Toast.LENGTH_SHORT).show();
                     return;
                 }
             }

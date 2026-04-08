@@ -266,22 +266,28 @@ public class BudgetDataController {
     /**
      * 修改预算
      *
-     * @param budget  修改后的预算实例
-     * @param context 上下文
+     * @param dataBundle 修改后的预算数据包
+     * @param context    上下文
      * @throws SQLiteException 写入失败引发的异常
      */
-    public static void modifyBudget(@NonNull Budget budget, Context context) throws SQLiteException {
+    public static void modifyBudget(@NonNull Bundle dataBundle, Context context) throws SQLiteException {
         BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         //解析数据
-        long bno = budget.getBno();
-        String name = budget.getName();
-        double initAmount = budget.getInitAmount();
-        double leftAmount = budget.getLeftAmount();
-        String startDate = budget.getStartDate();
-        ResetFrequency resetFrequency = budget.getResetFrequency();
-        List<Long> tagNoList = budget.getTagNoList();
+        long bno = dataBundle.getLong(KeyValueStrings.BNO.getValue());
+        String name = dataBundle.getString(KeyValueStrings.BUDGET_NAME.getValue());
+        double initAmount = dataBundle.getDouble(KeyValueStrings.INIT_AMOUNT.getValue());
+        double leftAmount = dataBundle.getDouble(KeyValueStrings.LEFT_AMOUNT.getValue());
+        String startDate = dataBundle.getString(KeyValueStrings.START_DATE.getValue());
+        ResetFrequency resetFrequency = ResetFrequency.valueOf(dataBundle.getString(KeyValueStrings.BUDGET_RESET_FREQUENCY.getValue()));
+        long[] tagNos = dataBundle.getLongArray(KeyValueStrings.TAG_NO.getValue());
+        if (tagNos == null) {
+            throw new SQLiteException("标签编号列表为空");
+        }
+        List<Long> tagNoList = Arrays.stream(tagNos)
+                .boxed()
+                .collect(Collectors.toList());
 
         //写入数据
         String where = Columns.BNO + "=?";

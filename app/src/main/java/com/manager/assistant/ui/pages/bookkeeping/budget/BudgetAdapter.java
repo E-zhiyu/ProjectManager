@@ -1,7 +1,6 @@
 package com.manager.assistant.ui.pages.bookkeeping.budget;
 
 import android.content.Context;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -179,9 +178,8 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
      * 修改预算
      *
      * @param dataBundle 修改后的预算的数据包
-     * @param context    上下文
      */
-    public void modifyBudget(@NonNull Bundle dataBundle, Context context) {
+    public void modifyBudget(@NonNull Bundle dataBundle) {
         long bno = dataBundle.getLong(KeyValueStrings.BNO.getValue());
         String name = dataBundle.getString(KeyValueStrings.BUDGET_NAME.getValue());
         double initAmount = dataBundle.getDouble(KeyValueStrings.INIT_AMOUNT.getValue());
@@ -195,17 +193,9 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
                 .boxed()
                 .collect(Collectors.toList());
 
-        //写入数据
-        Budget budget = new Budget(bno, name, initAmount, leftAmount, startDate, resetFrequency, tagNoList);
-        try {
-            BudgetDataController.modifyBudget(budget, context);
-        } catch (SQLException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            return;
-        }
-
         //更新 UI
         int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
+        Budget budget = new Budget(bno, name, initAmount, leftAmount, startDate, resetFrequency, tagNoList);
         budgetList.set(position, budget);
         notifyItemChanged(position);
         BudgetRepository repository = BudgetRepository.getInstance();
