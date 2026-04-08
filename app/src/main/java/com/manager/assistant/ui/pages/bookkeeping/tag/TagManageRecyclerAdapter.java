@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.data.controllers.TagDataController;
-import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.animators.ExpandFoldAnimator;
 import com.manager.assistant.ui.others.animators.RotateAnimator;
@@ -401,13 +400,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
      * @param context       上下文
      */
     public void mergeGroup(long mergedGroupNo, long targetGroupNo, Context context) {
-        try {
-            TagGroupDataController.mergeGroup(mergedGroupNo, targetGroupNo, context);
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            return;
-        }
-
+        //找出新旧分组中的标签
         List<Tag> tagsInOldGroup = null, tagsInTargetGroup = null;
         TagGroup mergedGroup = null;
         int oldGroupIndex = -1, targetGroupIndex = -1;
@@ -425,6 +418,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             index++;
         }
 
+        //合并标签列表并删除被合并的分组
         if (tagsInOldGroup != null && tagsInTargetGroup != null) {
             tagsInTargetGroup.addAll(tagsInOldGroup);
             tagGroupMap.remove(mergedGroup);

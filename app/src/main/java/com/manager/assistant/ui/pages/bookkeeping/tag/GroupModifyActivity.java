@@ -149,10 +149,18 @@ public class GroupModifyActivity extends AppCompatActivity {
                                     return;
                                 }
 
+                                //修改数据
+                                long targetGroupNo = groupList.get(selectedIndex.get()).getGroupNo();   //获取合并到的分组的编号
+                                try {
+                                    TagGroupDataController.mergeGroup(groupNo, targetGroupNo, this);
+                                } catch (SQLiteException e) {
+                                    ExceptionHelper.showExceptionDialog(this, e);
+                                    return;
+                                }
+
                                 //返回数据
                                 Bundle dataBundle = getInputData();
                                 Intent result2EditActivity = new Intent();
-                                long targetGroupNo = groupList.get(selectedIndex.get()).getGroupNo(); //获取合并到的分组的编号
                                 dataBundle.putLong(KeyValueStrings.MERGE_TARGET_NO.getValue(), targetGroupNo);
                                 result2EditActivity.putExtras(dataBundle);
                                 setResult(RequestResultCode.RESULT_MERGE.ordinal(), result2EditActivity);
