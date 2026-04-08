@@ -319,7 +319,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
                 );
             }
         } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
-            adapter.deleteTag(tagNo, oldGroupNo, this);
+            adapter.deleteTag(tagNo, oldGroupNo);
         } else if (resultCode == RequestResultCode.RESULT_MERGE.ordinal()) {
             long mergeTargetTagNo = dataBundle.getLong(KeyValueStrings.MERGE_TARGET_NO.getValue());  //获取合并到的目标标签编号
             adapter.mergeTag(tagNo, mergeTargetTagNo, oldGroupNo, this);
@@ -349,7 +349,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
             String newGroupName = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
 
             //修改视图中的分组并保存
-            adapter.modifyGroup(groupNo, newGroupName, this);
+            adapter.modifyGroup(groupNo, newGroupName);
 
             //更新RailView中的选项Title
             for (Map.Entry<Integer, Long> entry : itemIdAndGroupNoMap.entrySet()) {
@@ -362,7 +362,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
                 }
             }
         } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
-            adapter.deleteGroup(groupNo, this);
+            adapter.deleteGroup(groupNo);
             refreshUI(true);
         } else if (resultCode == RequestResultCode.RESULT_MERGE.ordinal()) {
             long mergeTargetNo = dataBundle.getLong(KeyValueStrings.MERGE_TARGET_NO.getValue());

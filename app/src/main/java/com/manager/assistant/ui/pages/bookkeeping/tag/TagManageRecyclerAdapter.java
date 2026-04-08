@@ -23,8 +23,6 @@ import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.animators.ExpandFoldAnimator;
 import com.manager.assistant.ui.others.animators.RotateAnimator;
-import com.manager.assistant.ui.sync.tag.TagUpdateReason;
-import com.manager.assistant.ui.sync.tag.TagRepository;
 import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.classes.TagGroup;
 
@@ -317,9 +315,8 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
      *
      * @param tagNo   待删除标签的编号
      * @param groupNo 待删除标签所属分组的编号
-     * @param context 上下文
      */
-    public void deleteTag(long tagNo, long groupNo, Context context) {
+    public void deleteTag(long tagNo, long groupNo) {
         int groupIndex = 0;        //待删除标签所属分组的下标
         for (Map.Entry<TagGroup, List<Tag>> entry : tagGroupMap.entrySet()) {
             TagGroup group = entry.getKey();
@@ -337,15 +334,6 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             groupIndex++;
         }
 
-        //将数据保存至数据库
-        try {
-            TagDataController.deleteTag(tagNo, context);
-            Toast.makeText(context, "标签删除成功", Toast.LENGTH_SHORT).show();
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            return;
-        }
-
         notifyItemChanged(groupIndex);
     }
 
@@ -354,18 +342,8 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
      *
      * @param groupNo      分组编号
      * @param newGroupName 分组名称
-     * @param context      上下文
      */
-    public void modifyGroup(long groupNo, String newGroupName, Context context) {
-        //将数据保存至数据库
-        try {
-            TagGroupDataController.modifyGroupName(groupNo, newGroupName, context);
-            Toast.makeText(context, "标签分组修改成功", Toast.LENGTH_SHORT).show();
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            return;
-        }
-
+    public void modifyGroup(long groupNo, String newGroupName) {
         //修改界面中的分组
         int groupIndex = 0;
         for (TagGroup group : this.tagGroupMap.keySet()) {
@@ -383,36 +361,18 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
      * 删除分组
      *
      * @param groupNo 分组编号
-     * @param context 上下文
      */
-    public void deleteGroup(long groupNo, Context context) {
+    public void deleteGroup(long groupNo) {
         //获取需要删除的标签列表
         int groupIndex = 0;
         TagGroup deletedGroup = null;
-        List<Tag> tagsToBeDeleted = new ArrayList<>();  //待删除的标签的列表
         for (Map.Entry<TagGroup, List<Tag>> entry : tagGroupMap.entrySet()) {
             TagGroup group = entry.getKey();
             if (group.getGroupNo() == groupNo) {
                 deletedGroup = group;
-                tagsToBeDeleted = entry.getValue();
                 break;
             }
-
             groupIndex++;
-        }
-
-        //从数据库中删除标签和分组
-        try {
-            TagGroupDataController.deleteGroup(groupNo, context);    //删除分组
-
-            Toast.makeText(context, "标签分组已删除", Toast.LENGTH_SHORT).show();
-
-            //通知带有标签的输入界面更新UI
-            TagRepository repository = TagRepository.getInstance();
-            repository.updateTag(tagsToBeDeleted, TagUpdateReason.DELETE);
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            return;
         }
 
         tagGroupMap.remove(deletedGroup);

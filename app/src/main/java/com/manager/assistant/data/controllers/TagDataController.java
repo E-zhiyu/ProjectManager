@@ -27,6 +27,24 @@ import java.util.Locale;
 
 public class TagDataController {
     /**
+     * 获取某个分组内的标签
+     *
+     * @param context 上下文
+     * @param groupNo 待查询的分组编号
+     * @return 该分组下的所有标签组成的列表
+     */
+    @NonNull
+    public static List<Tag> getTags(Context context, long groupNo) {
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
+        SQLiteDatabase db = dbHelper.openReadLink();
+
+        List<Tag> tagList = getTags(db, groupNo, 0, null);
+
+        db.close();
+        return tagList;
+    }
+
+    /**
      * 获取标签
      *
      * @param db            数据库实例

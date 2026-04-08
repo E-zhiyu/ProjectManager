@@ -14,13 +14,17 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.classes.TagGroup;
+import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.ActivityGroupModifyBinding;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.ui.sync.tag.TagRepository;
+import com.manager.assistant.ui.sync.tag.TagUpdateReason;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -85,6 +89,22 @@ public class GroupModifyActivity extends AppCompatActivity {
                 .setTitle("删除分组")
                 .setMessage("此操作将清空分组内的所有标签并清除对应流水记录的标签，确认继续吗？")
                 .setPositiveButton("确定", ((dialog, which) -> {
+                    try {
+                        //获取需要被删除的标签
+                        List<Tag> tagsToBeDeleted = TagDataController.getTags(this, groupNo);
+
+                        //删除分组数据
+                        TagGroupDataController.deleteGroup(groupNo, this);    //删除分组
+                        Toast.makeText(this, "标签分组已删除", Toast.LENGTH_SHORT).show();
+
+                        //通知带有标签的输入界面更新UI
+                        TagRepository repository = TagRepository.getInstance();
+                        repository.updateTag(tagsToBeDeleted, TagUpdateReason.DELETE);
+                    } catch (SQLiteException e) {
+                        ExceptionHelper.showExceptionDialog(this, e);
+                        return;
+                    }
+
                     Intent result2EditActivity = new Intent();
                     Bundle dataBundle = getInputData();
                     result2EditActivity.putExtras(dataBundle);

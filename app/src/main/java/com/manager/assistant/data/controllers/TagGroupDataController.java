@@ -11,7 +11,6 @@ import androidx.annotation.Nullable;
 
 import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.classes.TagGroup;
-import com.manager.assistant.data.io.pojos.PojoTagGroup;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.Tables;
@@ -190,43 +189,6 @@ public class TagGroupDataController {
 
         groupCursor.close();
         return groupList;
-    }
-
-    /**
-     * 获取所有标签分组（POJO类）
-     *
-     * @param context 上下文
-     * @return 由分组POJO类组成的列表
-     * @throws SQLiteException 读取失败产生的数据库异常
-     */
-    @NonNull
-    public static List<PojoTagGroup> loadPojoTagGroups(Context context) throws SQLiteException {
-        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = dbHelper.openReadLink();
-        List<PojoTagGroup> tagGroupList = new ArrayList<>();
-
-        String[] columns = {Columns.GROUP_NO.toString(), Columns.GROUP_NAME.toString()};
-        Cursor groupCursor = db.query(
-                Tables.TAG_GROUP.toString(),
-                columns,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-
-        while (groupCursor.moveToNext()) {
-            String groupName = groupCursor.getString(groupCursor.getColumnIndexOrThrow(Columns.GROUP_NAME.toString()));
-            long groupNo = groupCursor.getLong(groupCursor.getColumnIndexOrThrow(Columns.GROUP_NO.toString()));
-
-            PojoTagGroup oneGroup = new PojoTagGroup(groupName, groupNo);
-            tagGroupList.add(oneGroup);
-        }
-
-        groupCursor.close();
-        db.close();
-        return tagGroupList;
     }
 
     /**

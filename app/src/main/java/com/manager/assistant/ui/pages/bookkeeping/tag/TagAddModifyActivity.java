@@ -115,6 +115,15 @@ public class TagAddModifyActivity extends AppCompatActivity {
                 .setTitle("删除标签")
                 .setMessage("此操作将清空所有相应流水记录和通知解析规则的标签数据，确认继续吗？")
                 .setPositiveButton("确定", ((dialog, which) -> {
+                    //将数据保存至数据库
+                    try {
+                        TagDataController.deleteTag(tagNo, this);
+                        Toast.makeText(this, "标签删除成功", Toast.LENGTH_SHORT).show();
+                    } catch (SQLiteException e) {
+                        ExceptionHelper.showExceptionDialog(this, e);
+                        return;
+                    }
+
                     TagRepository repository = TagRepository.getInstance();
                     repository.updateTag("", tagNo, TagUpdateReason.DELETE);    //更新ViewModel中的标签数据
 
