@@ -18,7 +18,6 @@ import com.manager.assistant.data.classes.running_account.IncomeRunningAccount;
 import com.manager.assistant.data.classes.running_account.RunningAccountBase;
 import com.manager.assistant.data.classes.running_account.TransferRunningAccount;
 import com.manager.assistant.generic_enums.LogTags;
-import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
 import com.manager.assistant.ui.sync.account.RunningAccountViewModel;
@@ -145,12 +144,10 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
      *
      * @param dataBundle 新建流水的数据包
      * @param owner      ViewModel提供者
-     * @param context    上下文
      */
     public void addNewRunningAccount(
             @NonNull Bundle dataBundle,
-            ViewModelStoreOwner owner,
-            Context context
+            ViewModelStoreOwner owner
     ) {
         RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
@@ -175,8 +172,6 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
             String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
             runningAccount = new TransferRunningAccount(remark, datetime, amount, exportAccount, importAccount);
         } else {
-            NullPointerException e = new NullPointerException("流水类型获取失败");
-            ExceptionHelper.showExceptionDialog(context, e);
             return;
         }
 
@@ -209,12 +204,10 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
      *
      * @param dataBundle 新流水记录数据包
      * @param owner      ViewModel提供者
-     * @param context    上下文
      */
     public void addNewRunningAccountAutomatically(
             @NonNull Bundle dataBundle,
-            ViewModelStoreOwner owner,
-            Context context
+            ViewModelStoreOwner owner
     ) {
         //解析数据
         long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
@@ -239,8 +232,6 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
             String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
             runningAccount = new TransferRunningAccount(remark, datetime, amount, exportAccount, importAccount);
         } else {
-            NullPointerException e = new NullPointerException("流水类型获取失败");
-            ExceptionHelper.showExceptionDialog(context, e);
             return;
         }
 
@@ -273,9 +264,8 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
      *
      * @param dataBundle 修改后的流水数据
      * @param owner      ViewModel提供者
-     * @param context    上下文
      */
-    public void modifyRunningAccount(@NonNull Bundle dataBundle, ViewModelStoreOwner owner, Context context) {
+    public void modifyRunningAccount(@NonNull Bundle dataBundle, ViewModelStoreOwner owner) {
         //解析数据
         long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
         RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
@@ -299,8 +289,6 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
             String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());    //转入账户
             runningAccount = new TransferRunningAccount(remark, datetime, amount, exportAccount, importAccount);
         } else {
-            NullPointerException e = new NullPointerException("流水类型获取失败");
-            ExceptionHelper.showExceptionDialog(context, e);
             return;
         }
 

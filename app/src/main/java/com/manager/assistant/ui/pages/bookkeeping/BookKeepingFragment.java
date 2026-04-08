@@ -230,7 +230,7 @@ public class BookKeepingFragment extends Fragment {
      * @param dataBundle 新增流水记录的数据
      */
     private void onNewAccountAdded(Bundle dataBundle) {
-        accountAdapter.addNewRunningAccountAutomatically(dataBundle, requireActivity(), requireContext());
+        accountAdapter.addNewRunningAccountAutomatically(dataBundle, requireActivity());
         binding.accountRecycler.scrollToPosition(0);
         Toast.makeText(requireContext(), "成功添加一条流水记录（自动记账）", Toast.LENGTH_SHORT).show();
 
@@ -251,7 +251,7 @@ public class BookKeepingFragment extends Fragment {
             return;
         }
 
-        accountAdapter.addNewRunningAccount(dataBundle, requireActivity(), requireContext());
+        accountAdapter.addNewRunningAccount(dataBundle, requireActivity());
         binding.accountRecycler.scrollToPosition(0);    //滚动到顶部
         Toast.makeText(requireContext(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
 
@@ -273,7 +273,7 @@ public class BookKeepingFragment extends Fragment {
             return;
         }
 
-        accountAdapter.modifyRunningAccount(dataBundle, requireActivity(), requireContext());
+        accountAdapter.modifyRunningAccount(dataBundle, requireActivity());
         Toast.makeText(requireContext(), "成功修改流水记录", Toast.LENGTH_SHORT).show();
     }
 
