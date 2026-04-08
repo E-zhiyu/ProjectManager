@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -166,7 +165,7 @@ public class BudgetManageActivity extends AppCompatActivity {
                     if (resultCode == Activity.RESULT_OK) {
                         adapter.modifyBudget(dataBundle);
                     } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
-                        onBudgetDeleted(dataBundle);
+                        adapter.deleteBudget(dataBundle);
                     }
                 }
         );
@@ -222,15 +221,5 @@ public class BudgetManageActivity extends AppCompatActivity {
                                 }
                         )
         );
-    }
-
-    /**
-     * 预算删除的回调
-     *
-     * @param dataBundle 删除预算的数据包
-     */
-    private void onBudgetDeleted(Bundle dataBundle) {
-        adapter.deleteBudget(dataBundle, this);
-        Toast.makeText(this, "预算删除成功", Toast.LENGTH_SHORT).show();
     }
 }

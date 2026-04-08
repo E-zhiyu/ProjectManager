@@ -206,17 +206,8 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
      * 删除预算
      *
      * @param dataBundle 待删除的预算的数据包
-     * @param context    上下文
      */
-    public void deleteBudget(@NonNull Bundle dataBundle, Context context) {
-        long bno = dataBundle.getLong(KeyValueStrings.BNO.getValue());
-        try {
-            BudgetDataController.deleteBudget(bno, context);
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            return;
-        }
-
+    public void deleteBudget(@NonNull Bundle dataBundle) {
         //更新 UI
         int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
         budgetList.remove(position);

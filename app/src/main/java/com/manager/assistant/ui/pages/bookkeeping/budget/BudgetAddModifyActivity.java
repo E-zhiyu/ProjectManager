@@ -233,6 +233,15 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
                 .setTitle("删除预算")
                 .setMessage("确认要删除该预算吗？")
                 .setPositiveButton("确定", (dialog, which) -> {
+                    try {
+                        BudgetDataController.deleteBudget(bno, this);
+                        Toast.makeText(this, "预算删除成功", Toast.LENGTH_SHORT).show();
+                    } catch (SQLiteException e) {
+                        ExceptionHelper.showExceptionDialog(this, e);
+                        Toast.makeText(this, "预算删除失败", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     Intent result2BudgetManage = new Intent();
                     Bundle inputData = getInputData();
                     result2BudgetManage.putExtras(inputData);

@@ -25,7 +25,6 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class ManagerAssistant extends Application {
-    //TODO:将数据修改逻辑与UI更新逻辑分开
     @Override
     public void onCreate() {
         super.onCreate();
