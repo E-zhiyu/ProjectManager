@@ -29,13 +29,11 @@ import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.classes.TagGroup;
 import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -92,12 +90,6 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         clickedTagData.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), groupNo);
         clickedTagData.putInt(KeyValueStrings.TAG_SCOPE.getValue(), tagScope);
 
-        //获取已保存的标签分组信息并传递到子界面
-        ArrayList<String> groupNames = adapter.getTagGroupMapKeys().stream()
-                .map(TagGroup::getGroupName)
-                .collect(Collectors.toCollection(ArrayList::new));
-        clickedTagData.putStringArrayList(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue(), groupNames);
-
         skip2ModifyTag.putExtras(clickedTagData);
         skip2ModifyTag.putExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), true);
         tagModifyLauncher.launch(skip2ModifyTag);
@@ -123,15 +115,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         //设置按钮点击监听
         binding.addFloatingBtn.setOnClickListener(v -> {
             Intent skip2TagAdd = new Intent(this, TagAddModifyActivity.class);
-
-            //获取已保存的标签分组信息
-            //TODO:从数据库中获取
-            ArrayList<String> groupNameList = adapter.getTagGroupMapKeys().stream()
-                    .map(TagGroup::getGroupName)
-                    .collect(Collectors.toCollection(ArrayList<String>::new));
-            skip2TagAdd.putStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue(), groupNameList);
             skip2TagAdd.putExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), false);
-
             tagAddLauncher.launch(skip2TagAdd);
         });
 
@@ -208,7 +192,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
                         NullPointerException e = new NullPointerException("无法获取新建标签数据");
                         ExceptionHelper.showExceptionDialog(this, e);
                     } else {
-                        onNewTagActivityResulted(resultCode, data);
+                        onTagAdded(resultCode, data);
                     }
                 }
         );
@@ -250,7 +234,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
      * @param resultCode   子界面的返回代码
      * @param resultIntent 返回的Intent
      */
-    private void onNewTagActivityResulted(int resultCode, Intent resultIntent) {
+    private void onTagAdded(int resultCode, Intent resultIntent) {
         if (resultCode != RequestResultCode.RESULT_OK.ordinal()) {
             return;
         }
@@ -302,8 +286,8 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         //解析数据包
         long tagNo = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());                     //标签编号
         long oldGroupNo = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());          //原分组编号
-        String groupName = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
-        String tagName = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
+        String groupName = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());     //分组名称
+        String tagName = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());             //标签名称
         int tagScope = dataBundle.getInt(KeyValueStrings.TAG_SCOPE.getValue());                 //标签作用域
 
         //执行操作
@@ -323,7 +307,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
             }
 
             if (oldGroupNo == newGroupNo) {
-                adapter.modifyTag(tagName, tagNo, tagScope, oldGroupNo, this);
+                adapter.modifyTag(tagName, tagNo, tagScope, oldGroupNo);
             } else {
                 adapter.modifyTag(
                         tagName,
@@ -331,8 +315,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
                         tagScope,
                         groupName,
                         oldGroupNo,
-                        newGroupNo,
-                        this
+                        newGroupNo
                 );
             }
         } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {

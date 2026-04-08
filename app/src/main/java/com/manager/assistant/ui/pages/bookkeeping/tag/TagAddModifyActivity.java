@@ -19,6 +19,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
+import com.manager.assistant.data.classes.TagGroup;
 import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.ActivityTagAddModifyBinding;
@@ -33,7 +34,13 @@ import com.manager.assistant.ui.sync.tag.TagUpdateReason;
 import com.manager.assistant.ui.sync.tag.TagRepository;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class TagAddModifyActivity extends AppCompatActivity {
     private boolean isModifyMode = false;                       //是否为标签编辑模式
@@ -41,6 +48,7 @@ public class TagAddModifyActivity extends AppCompatActivity {
     private TagSelectBottomSheet tagSheet;                      //标签选择底部弹窗
     private ActivityTagAddModifyBinding binding;                //绑定的XML视图的引用
     private int scope = 0;                                      //标签作用域范围
+    private final CompositeDisposable disposables = new CompositeDisposable();                      //订阅列表（便于取消订阅）
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +74,8 @@ public class TagAddModifyActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        disposables.dispose();
         binding = null;
     }
 
@@ -77,14 +87,7 @@ public class TagAddModifyActivity extends AppCompatActivity {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
 
         //标签分组输入
-        ArrayList<String> groupNameList = getIntent().getStringArrayListExtra(KeyValueStrings.TAG_GROUP_NAME_LIST.getValue());
-        if (groupNameList != null) {
-            NoFilteringArrayAdapter<String> adapter = new NoFilteringArrayAdapter<>(
-                    this,
-                    groupNameList
-            );
-            binding.tagGroupInput.setAdapter(adapter);
-        }
+        initTagGroupInput();
 
         //标签名称输入框
         binding.tagNameInput.setOnFocusChangeListener((v, hasFocus) -> {
@@ -133,52 +136,17 @@ public class TagAddModifyActivity extends AppCompatActivity {
             //判断校验后是否有错误
             if (error != null) {
                 Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+                return;
+            } else if (isModifyMode) {
+                onTagModified(dataBundle);
             } else {
-                //处理分组
-                try {
-                    //尝试获取分组编号
-                    String groupName = String.valueOf(binding.tagGroupInput.getText());
-                    long groupNo = TagGroupDataController.nameTransToGno(groupName, this);
-
-                    //如果是新的分组，则创建新分组
-                    if (groupNo == -1L) {
-                        groupNo = TagGroupDataController.saveNewGroup(groupName, this);
-                    }
-
-                    //保存至数据包中
-                    dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), groupNo);
-                } catch (SQLiteException e) {
-                    ExceptionHelper.showExceptionDialog(this, e);
-                    dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), 0L);
-                    Toast.makeText(this, "分组出错，保存至默认分组", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                //保存数据
-                try {
-                    long tagNo = TagDataController.saveNewTag(dataBundle, this);
-                    dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tagNo);
-                    Toast.makeText(this, isModifyMode ? "标签修改成功" : "标签添加成功", Toast.LENGTH_SHORT).show();
-                } catch (SQLiteException e) {
-                    ExceptionHelper.showExceptionDialog(this, e);
-                    Toast.makeText(this, isModifyMode ? "标签修改失败" : "标签添加失败", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                //触发LiveData以刷新其他界面
-                TagRepository repository = TagRepository.getInstance();
-                String tagName = String.valueOf(binding.tagNameInput.getText());
-                if (isModifyMode) {
-                    repository.updateTag(tagName, tagNo, TagUpdateReason.RENAME);
-                } else {
-                    repository.updateTag(tagName, tagNo, TagUpdateReason.ADD);
-                }
-
-                //通过Intent返回数据
-                result2TagManage.putExtras(dataBundle);
-                setResult(RequestResultCode.RESULT_OK.ordinal(), result2TagManage);
-                finish();
+                onTagAdded(dataBundle);
             }
+
+            //通过Intent返回数据
+            result2TagManage.putExtras(dataBundle);
+            setResult(RequestResultCode.RESULT_OK.ordinal(), result2TagManage);
+            finish();
         });
 
         //取消按钮
@@ -221,6 +189,30 @@ public class TagAddModifyActivity extends AppCompatActivity {
             //添加视图到Chip组中
             binding.scopeSelectChipGroup.addView(scopeChip);
         }
+    }
+
+    /**
+     * 初始化标签分组输入框
+     */
+    private void initTagGroupInput() {
+        disposables.add(
+                Observable.fromCallable(() -> TagGroupDataController.getTagGroup(this, -1))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(tagGroupList -> {
+                            //多线程获取所有分组
+                            List<String> groupNameList = tagGroupList.stream()
+                                    .map(TagGroup::getGroupName)
+                                    .collect(Collectors.toList());
+
+                            //设置适配器
+                            NoFilteringArrayAdapter<String> adapter = new NoFilteringArrayAdapter<>(
+                                    this,
+                                    groupNameList
+                            );
+                            binding.tagGroupInput.setAdapter(adapter);
+                        }, e -> Toast.makeText(this, "分组加载失败，分组名自动填充失效", Toast.LENGTH_SHORT).show())
+        );
     }
 
     /**
@@ -315,5 +307,96 @@ public class TagAddModifyActivity extends AppCompatActivity {
         dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tagNo);               //标签编号
 
         return dataBundle;
+    }
+
+    /**
+     * 添加模式下完成按钮的点击回调
+     *
+     * @param dataBundle 包含标签数据的数据包
+     */
+    private void onTagAdded(Bundle dataBundle) {
+        //处理分组
+        try {
+            //尝试获取分组编号
+            String groupName = String.valueOf(binding.tagGroupInput.getText());
+            long groupNo = this.groupNo;
+            if (!groupName.isEmpty()) {
+                groupNo = TagGroupDataController.nameTransToGno(groupName, this);
+            }
+
+            //如果是新的分组，则创建新分组
+            if (groupNo == -1L) {
+                groupNo = TagGroupDataController.saveNewGroup(groupName, this);
+            }
+
+            //保存至数据包中
+            dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), groupNo);
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(this, e);
+            dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), 0L);
+            Toast.makeText(this, "分组出错，保存至默认分组", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        //保存数据
+        try {
+            long tagNo = TagDataController.saveNewTag(dataBundle, this);
+            dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tagNo);
+            Toast.makeText(this, "标签添加成功", Toast.LENGTH_SHORT).show();
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(this, e);
+            Toast.makeText(this, "标签添加失败", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        //触发LiveData以刷新其他界面
+        TagRepository repository = TagRepository.getInstance();
+        String tagName = String.valueOf(binding.tagNameInput.getText());
+        repository.updateTag(tagName, tagNo, TagUpdateReason.ADD);
+    }
+
+    /**
+     * 编辑模式下完成按钮的点击回调
+     *
+     * @param dataBundle 包含标签数据的数据包
+     */
+    private void onTagModified(Bundle dataBundle) {
+        //处理分组
+        try {
+            //尝试获取分组编号
+            String groupName = String.valueOf(binding.tagGroupInput.getText());
+            long groupNo = this.groupNo;
+            if (!groupName.isEmpty()) {
+                groupNo = TagGroupDataController.nameTransToGno(groupName, this);
+            }
+
+            //如果是新的分组，则创建新分组
+            if (groupNo == -1L) {
+                groupNo = TagGroupDataController.saveNewGroup(groupName, this);
+            }
+
+            //保存至数据包中
+            dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO_NEW.getValue(), groupNo);
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(this, e);
+            dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO_NEW.getValue(), 0L);
+            Toast.makeText(this, "分组出错，保存至默认分组", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        //保存数据
+        try {
+            TagDataController.modifyTag(dataBundle, this);
+            Toast.makeText(this, "标签修改成功", Toast.LENGTH_SHORT).show();
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(this, e);
+            Toast.makeText(this, "标签修改失败", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        //触发LiveData以刷新其他界面
+        TagRepository repository = TagRepository.getInstance();
+        String tagName = String.valueOf(binding.tagNameInput.getText());
+        repository.updateTag(tagName, tagNo, TagUpdateReason.RENAME);
     }
 }

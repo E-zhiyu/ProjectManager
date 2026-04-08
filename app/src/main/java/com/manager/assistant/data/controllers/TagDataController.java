@@ -254,45 +254,19 @@ public class TagDataController {
     }
 
     /**
-     * 修改标签（不修改所属分组）
+     * 修改标签
      *
-     * @param newName  新标签名称
-     * @param tagNo    标签编号
-     * @param tagScope 标签作用域
-     * @param context  打开数据库所需的上下文
-     * @throws SQLiteException 无法修改数据库时引发的异常
-     */
-    public static void modifyTag(String newName, long tagNo, int tagScope, Context context) throws SQLiteException {
-        ContentValues tagValues = new ContentValues();
-        tagValues.put(Columns.TAG_NAME.toString(), newName);
-        tagValues.put(Columns.TAG_SCOPE.toString(), tagScope);
-        String whereStr = Columns.TAG_NO + "=?";
-        String[] whereStrArgs = {String.valueOf(tagNo)};
-
-        BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = db_helper.openWriteLink();
-
-        db.update(
-                Tables.TAG.toString(),
-                tagValues,
-                whereStr,
-                whereStrArgs
-        );
-
-        db.close();
-    }
-
-    /**
-     * 修改标签（修改所属分组）
-     *
-     * @param tagName    新标签名称
-     * @param tagNo      待修改的标签编号
-     * @param tagScope   标签作用域
-     * @param newGroupNo 新分组编号
+     * @param dataBundle 包含修改后的标签的数据包
      * @param context    打开数据库所需的上下文
      * @throws SQLiteException 无法修改数据库时引发的异常
      */
-    public static void modifyTag(String tagName, long tagNo, int tagScope, long newGroupNo, Context context) throws SQLiteException {
+    public static void modifyTag(@NonNull Bundle dataBundle, Context context) throws SQLiteException {
+        //解析数据包
+        String tagName = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
+        int tagScope = dataBundle.getInt(KeyValueStrings.TAG_SCOPE.getValue());
+        long newGroupNo = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO_NEW.getValue());
+        long tagNo = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
+
         ContentValues tagValues = new ContentValues();
         tagValues.put(Columns.TAG_NAME.toString(), tagName);
         tagValues.put(Columns.TAG_SCOPE.toString(), tagScope);
