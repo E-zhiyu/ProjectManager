@@ -102,7 +102,18 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
         holder.resetBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(context)
                 .setTitle("重置预算")
                 .setMessage("此操作将重置预算的余额并将起算日期设置为今天，确认继续吗？")
-                .setPositiveButton("确定", (dialog, which) -> onResetDialogConfirmed(position, context))
+                .setPositiveButton("确定", (dialog, which) -> {
+                    try {
+                        BudgetDataController.resetBudget(budget.getBno(), context);
+                        Toast.makeText(context, String.format(Locale.getDefault(), "%s已成功重置", budget.getName()), Toast.LENGTH_SHORT).show();
+                    } catch (SQLiteException e) {
+                        Toast.makeText(context, "预算重置失败", Toast.LENGTH_SHORT).show();
+                        ExceptionHelper.showExceptionDialog(context, e);
+                        return;
+                    }
+
+                    onResetDialogConfirmed(position);
+                })
                 .setNegativeButton("取消", null)
                 .show());
     }
@@ -116,18 +127,11 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
      * 确认重置回调
      *
      * @param position 重置的预算所在的下标
-     * @param context  上下文
      */
-    private void onResetDialogConfirmed(int position, Context context) {
+    private void onResetDialogConfirmed(int position) {
         Budget budget = budgetList.get(position);
-        try {
-            BudgetDataController.resetBudget(budget.getBno(), context);
-            budget.reset();
-            notifyItemChanged(position);
-            Toast.makeText(context, String.format(Locale.getDefault(), "%s已成功重置", budget.getName()), Toast.LENGTH_SHORT).show();
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-        }
+        budget.reset();
+        notifyItemChanged(position);
     }
 
     /**
@@ -148,31 +152,22 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
      * 添加新预算
      *
      * @param dataBundle 新预算的数据包
-     * @param context    上下文
      */
-    public void addBudget(@NonNull Bundle dataBundle, Context context) {
-        String name = dataBundle.getString(KeyValueStrings.BUDGET_NAME.getValue());
-        double initAmount = dataBundle.getDouble(KeyValueStrings.INIT_AMOUNT.getValue());
-        String startDate = dataBundle.getString(KeyValueStrings.START_DATE.getValue());
-        String resetFrequencyStr = dataBundle.getString(KeyValueStrings.BUDGET_RESET_FREQUENCY.getValue());
+    public void addBudget(@NonNull Bundle dataBundle) {
+        long bno = dataBundle.getLong(KeyValueStrings.BNO.getValue());                                      //预算编号
+        String name = dataBundle.getString(KeyValueStrings.BUDGET_NAME.getValue());                         //预算名称
+        double initAmount = dataBundle.getDouble(KeyValueStrings.INIT_AMOUNT.getValue());                   //初始金额
+        String startDate = dataBundle.getString(KeyValueStrings.START_DATE.getValue());                     //起算日期
+        String resetFrequencyStr = dataBundle.getString(KeyValueStrings.BUDGET_RESET_FREQUENCY.getValue()); //重置频率
         ResetFrequency resetFrequency = ResetFrequency.valueOf(resetFrequencyStr);
-        long[] tagNos = dataBundle.getLongArray(KeyValueStrings.TAG_NO.getValue());
+        long[] tagNos = dataBundle.getLongArray(KeyValueStrings.TAG_NO.getValue());                         //预算标签
         if (tagNos == null) return;
         List<Long> tagNoList = Arrays.stream(tagNos)
                 .boxed()
                 .collect(Collectors.toList());
 
-        //保存至数据库
-        Budget budget = new Budget(name, initAmount, startDate, resetFrequency, tagNoList);
-        try {
-            long bno = BudgetDataController.saveNewBudget(budget, context);
-            budget.setBno(bno);
-        } catch (SQLException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            return;
-        }
-
         //更新 UI
+        Budget budget = new Budget(bno,name, initAmount, startDate, resetFrequency, tagNoList);
         budgetList.add(budget);
         notifyItemInserted(budgetList.size() - 1);
         notifyItemChanged(budgetList.size() - 2);   //更新尾部卡片圆角

@@ -146,7 +146,7 @@ public class BudgetManageActivity extends AppCompatActivity {
                         return;
                     }
 
-                    onBudgetAdded(dataBundle);
+                    adapter.addBudget(dataBundle);
                 }
         );
 
@@ -222,16 +222,6 @@ public class BudgetManageActivity extends AppCompatActivity {
                                 }
                         )
         );
-    }
-
-    /**
-     * 处理预算添加的回调
-     *
-     * @param dataBundle 新添加的预算的数据包
-     */
-    private void onBudgetAdded(Bundle dataBundle) {
-        adapter.addBudget(dataBundle, this);
-        Toast.makeText(this, "预算添加成功", Toast.LENGTH_SHORT).show();
     }
 
     /**

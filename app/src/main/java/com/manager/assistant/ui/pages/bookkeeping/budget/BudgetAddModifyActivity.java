@@ -2,6 +2,7 @@ package com.manager.assistant.ui.pages.bookkeeping.budget;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -19,12 +20,14 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.Tag;
+import com.manager.assistant.data.controllers.BudgetDataController;
 import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.databinding.ActivityBudgetAddModifyBinding;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.helpers.DateTimePickerHelper;
+import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.tag.MultiTagSelectBottomSheet;
@@ -192,9 +195,22 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
                 return;
             }
 
+            //保存至数据库
+            Bundle dataBundle = getInputData();
+            if (!isModifyMode) {
+                try {
+                    long bno = BudgetDataController.saveNewBudget(dataBundle, this);
+                    dataBundle.putLong(KeyValueStrings.BNO.getValue(), bno);
+                    Toast.makeText(this, "预算添加成功", Toast.LENGTH_SHORT).show();
+                } catch (SQLiteException e) {
+                    ExceptionHelper.showExceptionDialog(this, e);
+                    Toast.makeText(this, "预算添加失败", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+
             Intent result2BudgetManage = new Intent();
-            Bundle inputData = getInputData();
-            result2BudgetManage.putExtras(inputData);
+            result2BudgetManage.putExtras(dataBundle);
             setResult(Activity.RESULT_OK, result2BudgetManage);
             finish();
         });
