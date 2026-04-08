@@ -14,18 +14,18 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.manager.assistant.R;
+import com.manager.assistant.data.classes.TagGroup;
 import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.ActivityGroupModifyBinding;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
-import com.manager.assistant.data.io.pojos.PojoTagGroup;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class GroupModifyActivity extends AppCompatActivity implements View.OnClickListener {
+public class GroupModifyActivity extends AppCompatActivity {
     private long groupNo;                       //分组编号
     private ActivityGroupModifyBinding binding; //绑定的XML视图引用
 
@@ -55,90 +55,6 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnCli
         binding = null;
     }
 
-    @Override
-    public void onClick(@NonNull View v) {
-        Intent result2EditActivity = new Intent();
-        Bundle dataBundle = new Bundle();
-        dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), groupNo);  //先放入分组编号
-
-        if (v.getId() == R.id.finish_btn) {
-            String err = inputInfoVerify();
-
-            if (err != null) {
-                Toast.makeText(this, err, Toast.LENGTH_SHORT).show();
-            } else {
-                String new_group_name = String.valueOf(binding.tagGroupInput.getText());
-                dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), new_group_name);
-
-                result2EditActivity.putExtras(dataBundle);
-                setResult(RequestResultCode.RESULT_OK.ordinal(), result2EditActivity);
-                finish();
-            }
-        } else if (v.getId() == R.id.cancel_btn) {
-            setResult(RequestResultCode.RESULT_CANCEL.ordinal(), result2EditActivity);
-            finish();
-        } else if (v.getId() == R.id.delete_btn) {
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle("删除分组")
-                    .setMessage("此操作将清空分组内的所有标签并清除对应流水记录的标签，确认继续吗？")
-                    .setPositiveButton("确定", ((dialog, which) -> {
-                        result2EditActivity.putExtras(dataBundle);
-                        setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2EditActivity);
-                        finish();
-                    }))
-                    .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
-                    .show();
-        } else if (v.getId() == R.id.merge_btn) {
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle("合并分组")
-                    .setMessage("执行此操作会将本分组的标签全部移动至目标分组并删除本分组，确认继续吗？")
-                    .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
-                    .setPositiveButton("确认", (dialog, which) -> {
-                        dialog.dismiss();
-
-                        List<PojoTagGroup> groupList;
-                        try {
-                            groupList = TagGroupDataController.loadPojoTagGroups(this);
-                        } catch (SQLiteException e) {
-                            ExceptionHelper.showExceptionDialog(this, e);
-                            Toast.makeText(this, "无法加载分组列表", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        String[] group_names = new String[groupList.size() - 1];
-
-                        int index = 0, same_group_index = -1;
-                        for (PojoTagGroup group : groupList) {
-                            if (group.getGroup_no() == groupNo) {
-                                same_group_index = index;
-                            } else {
-                                group_names[index] = group.getGroup_name();
-                                index++;
-                            }
-                        }
-                        if (same_group_index != -1) {
-                            groupList.remove(same_group_index); //去除同号分组
-                        }
-
-                        new MaterialAlertDialogBuilder(this)
-                                .setTitle("合并到哪个分组")
-                                .setSingleChoiceItems(group_names, -1, (select_dialog, select_which) -> {
-                                    long merged_no = groupList.get(select_which).getGroup_no(); //获取合并到的分组的编号
-                                    dataBundle.putLong(KeyValueStrings.MERGE_TARGET_NO.getValue(), merged_no);
-                                    result2EditActivity.putExtras(dataBundle);
-                                    setResult(RequestResultCode.RESULT_MERGE.ordinal(), result2EditActivity);
-                                    finish();
-
-                                    select_dialog.dismiss();
-                                })
-                                .show();
-                    })
-                    .show();
-        } else {
-            NullPointerException e = new NullPointerException("无法获取正确的视图ID");
-            ExceptionHelper.showExceptionDialog(this, e);
-        }
-    }
-
     /**
      * 初始化视图
      */
@@ -164,11 +80,84 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnCli
         }));
         binding.tagGroupInput.setOnClickListener(v -> binding.groupNameLayout.setError(null));
 
-        //设置按钮点击监听器
-        binding.deleteBtn.setOnClickListener(this);
-        binding.mergeBtn.setOnClickListener(this);
-        binding.finishBtn.setOnClickListener(this);
-        binding.cancelBtn.setOnClickListener(this);
+        //删除按钮
+        binding.deleteBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(this)
+                .setTitle("删除分组")
+                .setMessage("此操作将清空分组内的所有标签并清除对应流水记录的标签，确认继续吗？")
+                .setPositiveButton("确定", ((dialog, which) -> {
+                    Intent result2EditActivity = new Intent();
+                    Bundle dataBundle = getInputData();
+                    result2EditActivity.putExtras(dataBundle);
+                    setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2EditActivity);
+                    finish();
+                }))
+                .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
+                .show());
+
+        //合并按钮
+        binding.mergeBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(this)
+                .setTitle("合并分组")
+                .setMessage("执行此操作会将本分组的标签全部移动至目标分组并删除本分组，确认继续吗？")
+                .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
+                .setPositiveButton("确认", (dialog, which) -> {
+                    //获取所有分组
+                    List<TagGroup> groupList;
+                    try {
+                        groupList = TagGroupDataController.getTagGroup(this, -1);
+                    } catch (SQLiteException e) {
+                        ExceptionHelper.showExceptionDialog(this, e);
+                        Toast.makeText(this, "无法加载分组列表", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    //转换为分组名称数组
+                    String[] groupNames = groupList.stream()
+                            .filter(tagGroup -> tagGroup.getGroupNo() != groupNo)
+                            .map(TagGroup::getGroupName)
+                            .toArray(String[]::new);
+
+                    //显示单选对话框
+                    AtomicInteger selectedIndex = new AtomicInteger(-1);
+                    new MaterialAlertDialogBuilder(this)
+                            .setTitle("合并到哪个分组")
+                            .setSingleChoiceItems(groupNames, -1, (d, w) -> selectedIndex.set(w))
+                            .setNegativeButton("取消", null)
+                            .setPositiveButton("确定", (dialog1, which1) -> {
+                                //检测是否选择
+                                if (selectedIndex.get() == -1) {
+                                    Toast.makeText(this, "请选择需要合并到的分组", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+
+                                //返回数据
+                                Bundle dataBundle = getInputData();
+                                Intent result2EditActivity = new Intent();
+                                long targetGroupNo = groupList.get(selectedIndex.get()).getGroupNo(); //获取合并到的分组的编号
+                                dataBundle.putLong(KeyValueStrings.MERGE_TARGET_NO.getValue(), targetGroupNo);
+                                result2EditActivity.putExtras(dataBundle);
+                                setResult(RequestResultCode.RESULT_MERGE.ordinal(), result2EditActivity);
+                                finish();
+                            })
+                            .show();
+                })
+                .show());
+
+        //完成按钮
+        binding.finishBtn.setOnClickListener(v -> {
+            String err = inputInfoVerify();
+            if (err != null) {
+                Toast.makeText(this, err, Toast.LENGTH_SHORT).show();
+            } else {
+                Intent result2EditActivity = new Intent();
+                Bundle dataBundle = getInputData();
+                result2EditActivity.putExtras(dataBundle);
+                setResult(RequestResultCode.RESULT_OK.ordinal(), result2EditActivity);
+                finish();
+            }
+        });
+
+        //取消按钮
+        binding.cancelBtn.setOnClickListener(v -> finish());
 
         //加载传入的数据
         Bundle dataBundle = getIntent().getExtras();
@@ -207,5 +196,21 @@ public class GroupModifyActivity extends AppCompatActivity implements View.OnCli
         }
 
         return error;
+    }
+
+    /**
+     * 获取输入的数据
+     *
+     * @return 包含标签分组数据的数据包
+     */
+    @NonNull
+    private Bundle getInputData() {
+        Bundle dataBundle = new Bundle();
+
+        String newGroupName = String.valueOf(binding.tagGroupInput.getText());
+        dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), newGroupName);  //分组名称
+        dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), groupNo);           //分组编号
+
+        return dataBundle;
     }
 }
