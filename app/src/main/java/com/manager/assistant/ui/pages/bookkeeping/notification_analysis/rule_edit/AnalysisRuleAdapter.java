@@ -1,14 +1,11 @@
 package com.manager.assistant.ui.pages.bookkeeping.notification_analysis.rule_edit;
 
 import android.content.Context;
-import android.content.Intent;
-import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,10 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.shape.Shapeable;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
-import com.manager.assistant.automation.broadcast.BroadcastActions;
-import com.manager.assistant.data.controllers.RuleDataController;
 import com.manager.assistant.data.controllers.TagDataController;
-import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.data.classes.AnalysisRule;
 import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
@@ -151,24 +145,11 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
      * 删除规则
      *
      * @param position 待删除标签的下标
-     * @param context  上下文
      */
-    public void deleteRule(int position, Context context) {
-        AnalysisRule rule = ruleList.get(position);
-        long ruleNo = rule.getRuleNo();
-
-        try {
-            RuleDataController.deleteRule(ruleNo, context);
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            Toast.makeText(context, "规则删除失败", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
+    public void deleteRule(int position) {
         //刷新 UI
         ruleList.remove(position);
         notifyItemRemoved(position);
-        Toast.makeText(context, "规则删除成功", Toast.LENGTH_SHORT).show();
 
         //刷新圆角
         if (position == ruleList.size()) {
@@ -176,9 +157,6 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         } else if (position == 0) {
             notifyItemChanged(0);
         }
-
-        //发送规则更新广播
-        sendRuleUpdatedBroadcast(context);
     }
 
     /**
@@ -193,15 +171,5 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
 
         this.ruleList.addAll(ruleList);
         notifyItemRangeInserted(0, ruleList.size());
-    }
-
-    /**
-     * 发送规则变更的广播
-     *
-     * @param context 上下文
-     */
-    private void sendRuleUpdatedBroadcast(@NonNull Context context) {
-        Intent ruleUpdated = new Intent(BroadcastActions.ACTION_RULES_UPDATED.toString());
-        context.sendBroadcast(ruleUpdated);
     }
 }

@@ -238,13 +238,23 @@ public class RuleAddModifyActivity extends AppCompatActivity {
                 .setMessage("确定要删除这条规则吗？")
                 .setNegativeButton("取消", null)
                 .setPositiveButton("确定", (dialog, which) -> {
-                    Intent result2AnalysisRuleActivity = new Intent();
-                    Bundle dataBundle = new Bundle();
-                    dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), viewHolderPosition);
-                    result2AnalysisRuleActivity.putExtras(dataBundle);
+                    try {
+                        RuleDataController.deleteRule(ruleNo, this);
+                        Toast.makeText(this, "规则删除成功", Toast.LENGTH_SHORT).show();
 
+                        //发送广播
+                        Intent ruleUpdated = new Intent(BroadcastActions.ACTION_RULES_UPDATED.toString());
+                        sendBroadcast(ruleUpdated);
+                    } catch (SQLiteException e) {
+                        ExceptionHelper.showExceptionDialog(this, e);
+                        Toast.makeText(this, "规则删除失败", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    Intent result2AnalysisRuleActivity = new Intent();
+                    Bundle dataBundle = getInputData();
+                    result2AnalysisRuleActivity.putExtras(dataBundle);
                     setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2AnalysisRuleActivity);
-                    dialog.dismiss();
                     finish();
                 })
                 .show()

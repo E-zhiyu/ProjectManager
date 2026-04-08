@@ -251,7 +251,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
             ruleAdapter.modifyRule(dataBundle);
         } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
             int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
-            ruleAdapter.deleteRule(position, this);
+            ruleAdapter.deleteRule(position);
         }
     }
 
