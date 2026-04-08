@@ -261,7 +261,17 @@ public class TagAddModifyActivity extends AppCompatActivity {
         TagRepository repository = TagRepository.getInstance();
         repository.updateTag(tagName, tagNo, TagUpdateReason.MERGE);    //传递合并到的标签的名称和原来标签的编号
 
+        //隐藏对话框
         tagSheet.dismiss();
+
+        //修改数据库中的数据
+        try {
+            TagDataController.mergeTag(this.tagNo, tagNo, this);
+            Toast.makeText(this, "标签合并成功", Toast.LENGTH_SHORT).show();
+        } catch (SQLiteException e) {
+            ExceptionHelper.showExceptionDialog(this, e);
+            return;
+        }
 
         //将数据传递给父界面
         Intent result2TagEdit = new Intent();

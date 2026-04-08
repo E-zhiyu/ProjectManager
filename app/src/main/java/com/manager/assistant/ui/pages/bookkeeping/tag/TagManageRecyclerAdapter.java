@@ -2,7 +2,6 @@ package com.manager.assistant.ui.pages.bookkeeping.tag;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.database.sqlite.SQLiteException;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -10,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -18,8 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
-import com.manager.assistant.data.controllers.TagDataController;
-import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.animators.ExpandFoldAnimator;
 import com.manager.assistant.ui.others.animators.RotateAnimator;
 import com.manager.assistant.data.classes.Tag;
@@ -214,46 +210,6 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
     }
 
     /**
-     * 编辑标签（未更换分组）
-     *
-     * @param newTagName 新标签名称
-     * @param tagNo      标签编号
-     * @param tagScope   标签作用域
-     * @param groupNo    该标签所属的分组编号
-     */
-    public void modifyTag(String newTagName, long tagNo, int tagScope, long groupNo) {
-        //找到需要更新的视图的下标
-        List<TagGroup> keyList = new ArrayList<>(tagGroupMap.keySet());
-        TagGroup targetGroup = null;
-        int position = 0;
-        for (TagGroup group : keyList) {
-            if (group.getGroupNo() == groupNo) {
-                targetGroup = group;
-                break;
-            }
-            position++;
-        }
-        if (targetGroup == null) {
-            return;
-        }
-
-        //修改内存中的数据
-        List<Tag> tagList = tagGroupMap.get(targetGroup);
-        if (tagList == null) {
-            return;
-        }
-        for (Tag tag : tagList) {
-            if (tag.getTno() == tagNo) {
-                tag.setName(newTagName);
-                tag.setScope(tagScope);
-            }
-        }
-
-        //更新视图
-        notifyItemChanged(position);
-    }
-
-    /**
      * 编辑标签（更换分组）
      *
      * @param newTagName   新标签名称
@@ -271,42 +227,74 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             long oldGroupNo,
             long newGroupNo
     ) {
-        //向内存中添加修改后的标签
-        int newGroupIndex = 0;    //待新增标签的分组下标
-        for (Map.Entry<TagGroup, List<Tag>> entry : tagGroupMap.entrySet()) {
-            TagGroup group = entry.getKey();
-            if (group.getGroupNo() == newGroupNo) {
-                List<Tag> tagList = entry.getValue();
-                tagList.add(new Tag(newTagName, tagNo, tagScope));
-                break;
-            }
-            newGroupIndex++;
-        }
-        if (newGroupIndex == tagGroupMap.size()) {
-            TagGroup group = new TagGroup(newGroupName, newGroupNo);
-            List<Tag> tagList = new ArrayList<>();
-            tagList.add(new Tag(newTagName, tagNo, tagScope));
-            tagGroupMap.put(group, tagList);
-        }
-        notifyItemChanged(newGroupIndex);
-
-        //删除原分组中对应的标签
-        int originGroupIndex = 0;
-        for (Map.Entry<TagGroup, List<Tag>> entry : tagGroupMap.entrySet()) {
-            TagGroup group = entry.getKey();
-            if (group.getGroupNo() == oldGroupNo) {
-                List<Tag> tagList = entry.getValue();
-                for (Tag oldTag : tagList) {
-                    if (oldTag.getTno() == tagNo) {
-                        tagList.remove(oldTag);
-                        break;
-                    }
+        if (oldGroupNo != newGroupNo) {
+            //向内存中添加修改后的标签
+            int newGroupIndex = 0;    //待新增标签的分组下标
+            for (Map.Entry<TagGroup, List<Tag>> entry : tagGroupMap.entrySet()) {
+                TagGroup group = entry.getKey();
+                if (group.getGroupNo() == newGroupNo) {
+                    List<Tag> tagList = entry.getValue();
+                    tagList.add(new Tag(newTagName, tagNo, tagScope));
+                    break;
                 }
-                break;
+                newGroupIndex++;
             }
-            originGroupIndex++;
+            if (newGroupIndex == tagGroupMap.size()) {
+                TagGroup group = new TagGroup(newGroupName, newGroupNo);
+                List<Tag> tagList = new ArrayList<>();
+                tagList.add(new Tag(newTagName, tagNo, tagScope));
+                tagGroupMap.put(group, tagList);
+            }
+            notifyItemChanged(newGroupIndex);
+
+            //删除原分组中对应的标签
+            int originGroupIndex = 0;
+            for (Map.Entry<TagGroup, List<Tag>> entry : tagGroupMap.entrySet()) {
+                TagGroup group = entry.getKey();
+                if (group.getGroupNo() == oldGroupNo) {
+                    List<Tag> tagList = entry.getValue();
+                    for (Tag oldTag : tagList) {
+                        if (oldTag.getTno() == tagNo) {
+                            tagList.remove(oldTag);
+                            break;
+                        }
+                    }
+                    break;
+                }
+                originGroupIndex++;
+            }
+            notifyItemChanged(originGroupIndex);
+        } else {
+            //找到需要更新的视图的下标
+            List<TagGroup> keyList = new ArrayList<>(tagGroupMap.keySet());
+            TagGroup targetGroup = null;
+            int position = 0;
+            for (TagGroup group : keyList) {
+                if (group.getGroupNo() == oldGroupNo) {
+                    targetGroup = group;
+                    break;
+                }
+                position++;
+            }
+            if (targetGroup == null) {
+                return;
+            }
+
+            //修改内存中的数据
+            List<Tag> tagList = tagGroupMap.get(targetGroup);
+            if (tagList == null) {
+                return;
+            }
+            for (Tag tag : tagList) {
+                if (tag.getTno() == tagNo) {
+                    tag.setName(newTagName);
+                    tag.setScope(tagScope);
+                }
+            }
+
+            //更新视图
+            notifyItemChanged(position);
         }
-        notifyItemChanged(originGroupIndex);
     }
 
     /**
@@ -397,9 +385,8 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
      *
      * @param mergedGroupNo 被合并的分组编号
      * @param targetGroupNo 合并到的分组的编号
-     * @param context       上下文
      */
-    public void mergeGroup(long mergedGroupNo, long targetGroupNo, Context context) {
+    public void mergeGroup(long mergedGroupNo, long targetGroupNo) {
         //找出新旧分组中的标签
         List<Tag> tagsInOldGroup = null, tagsInTargetGroup = null;
         TagGroup mergedGroup = null;
@@ -426,7 +413,6 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             //刷新UI
             notifyItemRemoved(oldGroupIndex);
             notifyItemChanged(targetGroupIndex);
-            Toast.makeText(context, "分组合并成功", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -434,18 +420,9 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
      * 合并标签
      *
      * @param mergedTagNo 被合并的标签编号
-     * @param targetTagNo 合并到的目标标签编号
      * @param groupNo     被合并标签的分组编号
-     * @param context     上下文
      */
-    public void mergeTag(long mergedTagNo, long targetTagNo, long groupNo, Context context) {
-        try {
-            TagDataController.mergeTag(mergedTagNo, targetTagNo, context);
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            return;
-        }
-
+    public void mergeTag(long mergedTagNo, long groupNo) {
         int groupIndex = 0;
         int mergedTagGroupIndex = -1;    //被合并的标签所在分组的下标
         for (Map.Entry<TagGroup, List<Tag>> entry : tagGroupMap.entrySet()) {
@@ -467,7 +444,6 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
         }
         if (mergedTagGroupIndex != -1) { //更新UI
             notifyItemChanged(mergedTagGroupIndex);
-            Toast.makeText(context, "标签合并成功", Toast.LENGTH_SHORT).show();
         }
     }
 }

@@ -169,7 +169,8 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
                 currentGroupNo = targetGroupNo;
                 refreshUI(false);
                 return true;
-            } else return targetGroupNo == null;    //如果targetGroupNo为null，说明是手动刷新RailView时触发的监听器，需要返回true
+            } else
+                return targetGroupNo == null;    //如果targetGroupNo为null，说明是手动刷新RailView时触发的监听器，需要返回true
         });
 
         //初始化RecyclerView
@@ -286,43 +287,20 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         //解析数据包
         long tagNo = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());                     //标签编号
         long oldGroupNo = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());          //原分组编号
+        long newGroupNo = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO_NEW.getValue());      //新分组编号
         String groupName = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());     //分组名称
         String tagName = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());             //标签名称
         int tagScope = dataBundle.getInt(KeyValueStrings.TAG_SCOPE.getValue());                 //标签作用域
 
         //执行操作
         if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
-            //获取修改后的分组编号
-            long newGroupNo;
-            if (groupName != null && !groupName.isEmpty()) {  //判断用户是否输入了分组名称
-                try {
-                    newGroupNo = TagGroupDataController.nameTransToGno(groupName, this);
-                } catch (SQLiteException e) {
-                    ExceptionHelper.showExceptionDialog(this, e);
-                    Toast.makeText(this, "标签修改失败", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-            } else {
-                newGroupNo = 0;
-            }
-
-            if (oldGroupNo == newGroupNo) {
-                adapter.modifyTag(tagName, tagNo, tagScope, oldGroupNo);
-            } else {
-                adapter.modifyTag(
-                        tagName,
-                        tagNo,
-                        tagScope,
-                        groupName,
-                        oldGroupNo,
-                        newGroupNo
-                );
-            }
+            refreshRailView();
+            //TODO:修复选择单个分组时移动分组，会在界面中添加新分组的BUG
+            adapter.modifyTag(tagName, tagNo, tagScope, groupName, oldGroupNo, newGroupNo);
         } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
             adapter.deleteTag(tagNo, oldGroupNo);
         } else if (resultCode == RequestResultCode.RESULT_MERGE.ordinal()) {
-            long mergeTargetTagNo = dataBundle.getLong(KeyValueStrings.MERGE_TARGET_NO.getValue());  //获取合并到的目标标签编号
-            adapter.mergeTag(tagNo, mergeTargetTagNo, oldGroupNo, this);
+            adapter.mergeTag(tagNo, oldGroupNo);
         }
     }
 
@@ -363,10 +341,14 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
             }
         } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
             adapter.deleteGroup(groupNo);
-            refreshUI(true);
+            if (currentGroupNo != -1L) {
+                refreshUI(true);    //显示单个分组时直接刷新整个界面
+            } else {
+                refreshRailView();                  //显示所有分组时只需要刷新RailView以保证有动画
+            }
         } else if (resultCode == RequestResultCode.RESULT_MERGE.ordinal()) {
             long mergeTargetNo = dataBundle.getLong(KeyValueStrings.MERGE_TARGET_NO.getValue());
-            adapter.mergeGroup(groupNo, mergeTargetNo, this);
+            adapter.mergeGroup(groupNo, mergeTargetNo);
             refreshUI(true);
         }
     }

@@ -153,6 +153,7 @@ public class GroupModifyActivity extends AppCompatActivity {
                                 long targetGroupNo = groupList.get(selectedIndex.get()).getGroupNo();   //获取合并到的分组的编号
                                 try {
                                     TagGroupDataController.mergeGroup(groupNo, targetGroupNo, this);
+                                    Toast.makeText(this, "分组合并成功", Toast.LENGTH_SHORT).show();
                                 } catch (SQLiteException e) {
                                     ExceptionHelper.showExceptionDialog(this, e);
                                     return;
