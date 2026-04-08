@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.os.Bundle;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,7 @@ import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.Tables;
+import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
 import org.jetbrains.annotations.Contract;
@@ -80,7 +82,7 @@ public class TagDataController {
                 selectionArgs.toArray(new String[0]),
                 null,
                 null,
-                Columns.TAG_NO.toString()
+                Columns.TAG_NO.toString()   //标签编号升序排序
         );
 
         //开始查询
@@ -228,16 +230,18 @@ public class TagDataController {
     /**
      * 保存新的标签到数据库
      *
-     * @param tagName  标签名称
-     * @param tagScope 标签作用域
-     * @param groupNo  该标签对应的分组编号
-     * @param context  用于打开数据库的上下文
+     * @param dataBundle 包含标签数据的数据包
+     * @param context    用于打开数据库的上下文
      * @return 对应的标签编号
      * @throws SQLiteException 无法修改数据库时引发的异常
      */
-    public static long saveNewTag(String tagName, int tagScope, long groupNo, Context context) throws SQLiteException {
+    public static long saveNewTag(@NonNull Bundle dataBundle, Context context) throws SQLiteException {
         BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openWriteLink();
+
+        String tagName = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
+        int tagScope = dataBundle.getInt(KeyValueStrings.TAG_SCOPE.getValue());
+        long groupNo = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());
 
         ContentValues tagValues = new ContentValues();
         tagValues.put(Columns.TAG_NAME.toString(), tagName);

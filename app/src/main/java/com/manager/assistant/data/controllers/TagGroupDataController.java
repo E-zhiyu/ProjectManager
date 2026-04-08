@@ -18,10 +18,9 @@ import com.manager.assistant.data.save.database.Tables;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class TagGroupDataController {
     /**
@@ -120,7 +119,7 @@ public class TagGroupDataController {
         List<TagGroup> groupList = getTagGroup(db, targetGroupNo);
 
         //根据分组编号依次查询组内标签
-        Map<TagGroup, List<Tag>> groupMap = new TreeMap<>(Comparator.comparingLong(TagGroup::getGroupNo));
+        Map<TagGroup, List<Tag>> groupMap = new LinkedHashMap<>();
         for (TagGroup group : groupList) {
             List<Tag> tagList = TagDataController.getTags(db, group.getGroupNo(), excludedTagNo, scopeType);
 
@@ -129,6 +128,25 @@ public class TagGroupDataController {
 
         db.close();
         return groupMap;
+    }
+
+    /**
+     * 获取指定编号的分组实例
+     *
+     * @param context       上下文
+     * @param targetGroupNo 分组编号（传递-1不限制分组）
+     * @return 包含所有标签分组的列表
+     * @throws SQLiteException 数据读取失败引发的异常
+     */
+    @NonNull
+    public static List<TagGroup> getTagGroup(Context context, long targetGroupNo) throws SQLiteException {
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
+        SQLiteDatabase db = dbHelper.openReadLink();
+
+        List<TagGroup> groupList = getTagGroup(db, targetGroupNo);
+
+        db.close();
+        return groupList;
     }
 
     /**
@@ -159,7 +177,7 @@ public class TagGroupDataController {
                 selectionArgs.toArray(new String[0]),
                 null,
                 null,
-                null
+                Columns.GROUP_NO.toString() //分组编号升序排序
         );
 
         //开始查询

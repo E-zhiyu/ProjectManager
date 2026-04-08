@@ -2,6 +2,7 @@ package com.manager.assistant.ui.pages.bookkeeping.tag;
 
 import android.content.Intent;
 
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -24,6 +25,7 @@ import com.manager.assistant.databinding.ActivityTagAddModifyBinding;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.TagString;
+import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
@@ -132,9 +134,36 @@ public class TagAddModifyActivity extends AppCompatActivity {
             if (error != null) {
                 Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
             } else {
-                //如果分组名称不存在，自动新建分组
-                String groupName = String.valueOf(binding.tagGroupInput.getText());
-                TagGroupDataController.saveNewGroup(groupName, this);
+                //处理分组
+                try {
+                    //尝试获取分组编号
+                    String groupName = String.valueOf(binding.tagGroupInput.getText());
+                    long groupNo = TagGroupDataController.nameTransToGno(groupName, this);
+
+                    //如果是新的分组，则创建新分组
+                    if (groupNo == -1L) {
+                        groupNo = TagGroupDataController.saveNewGroup(groupName, this);
+                    }
+
+                    //保存至数据包中
+                    dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), groupNo);
+                } catch (SQLiteException e) {
+                    ExceptionHelper.showExceptionDialog(this, e);
+                    dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), 0L);
+                    Toast.makeText(this, "分组出错，保存至默认分组", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                //保存数据
+                try {
+                    long tagNo = TagDataController.saveNewTag(dataBundle, this);
+                    dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tagNo);
+                    Toast.makeText(this, isModifyMode ? "标签修改成功" : "标签添加成功", Toast.LENGTH_SHORT).show();
+                } catch (SQLiteException e) {
+                    ExceptionHelper.showExceptionDialog(this, e);
+                    Toast.makeText(this, isModifyMode ? "标签修改失败" : "标签添加失败", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 //触发LiveData以刷新其他界面
                 TagRepository repository = TagRepository.getInstance();
@@ -145,6 +174,7 @@ public class TagAddModifyActivity extends AppCompatActivity {
                     repository.updateTag(tagName, tagNo, TagUpdateReason.ADD);
                 }
 
+                //通过Intent返回数据
                 result2TagManage.putExtras(dataBundle);
                 setResult(RequestResultCode.RESULT_OK.ordinal(), result2TagManage);
                 finish();

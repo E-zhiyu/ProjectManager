@@ -179,53 +179,79 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
         return this.tagGroupMap.size();
     }
 
+//    /**
+//     * 添加新标签（不添加新分组）
+//     *
+//     * @param newTag        新标签对象
+//     * @param targetGroupNo 已存在的分组编号
+//     */
+//    public void addNewTag(Tag newTag, long targetGroupNo) {
+//        //获取需要更新的视图的下标
+//        List<TagGroup> keyList = new ArrayList<>(tagGroupMap.keySet());
+//        TagGroup targetGroup = null;
+//        int position = 0;
+//        for (TagGroup group : keyList) {
+//            if (group.getGroupNo() == targetGroupNo) {
+//                targetGroup = group;
+//                break;
+//            }
+//            position++;
+//        }
+//        if (targetGroup == null) {
+//            return;
+//        }
+//
+//        //向内存中写入新标签
+//        List<Tag> tagList = tagGroupMap.get(targetGroup);
+//        if (tagList == null) {
+//            return;
+//        }
+//        tagList.add(newTag);
+//
+//        //更新视图
+//        notifyItemChanged(position);
+//    }
+
     /**
-     * 添加新标签（不添加新分组）
+     * 添加新标签
      *
-     * @param newTag        新标签对象
-     * @param targetGroupNo 已存在的分组编号
+     * @param newTag 新标签对象
+     * @param group  新分组对象
      */
-    public void addNewTag(Tag newTag, long targetGroupNo) {
-        //获取需要更新的视图的下标
-        List<TagGroup> keyList = new ArrayList<>(tagGroupMap.keySet());
-        TagGroup targetGroup = null;
-        int position = 0;
-        for (TagGroup group : keyList) {
-            if (group.getGroupNo() == targetGroupNo) {
-                targetGroup = group;
-                break;
+    public void addNewTag(Tag newTag, @NonNull TagGroup group) {
+        //根据是否包含分组，执行不同的新建操作
+        if (tagGroupMap.containsKey(group)) {
+            //获取需要更新的视图的下标
+            List<TagGroup> keyList = new ArrayList<>(tagGroupMap.keySet());
+            TagGroup targetGroup = null;
+            int position = 0;
+            for (TagGroup tagGroup : keyList) {
+                if (tagGroup.getGroupNo() == group.getGroupNo()) {
+                    targetGroup = tagGroup;
+                    break;
+                }
+                position++;
             }
-            position++;
+            if (targetGroup == null) {
+                return;
+            }
+
+            //向内存中写入新标签
+            List<Tag> tagList = tagGroupMap.get(targetGroup);
+            if (tagList == null) {
+                return;
+            }
+            tagList.add(newTag);
+
+            //更新视图
+            notifyItemChanged(position);
+        } else {
+            List<Tag> tagList = new ArrayList<>();
+            tagList.add(newTag);
+            tagGroupMap.put(group, tagList);
+
+            notifyItemInserted(tagGroupMap.size() - 1);
         }
-        if (targetGroup == null) {
-            return;
-        }
-
-        //向内存中写入新标签
-        List<Tag> tagList = tagGroupMap.get(targetGroup);
-        if (tagList == null) {
-            return;
-        }
-        tagList.add(newTag);
-
-        //更新视图
-        notifyItemChanged(position);
-    }
-
-    /**
-     * 添加新标签（同时添加新分组）
-     *
-     * @param newTag   新标签对象
-     * @param newGroup 新分组对象
-     */
-    public void addNewTag(Tag newTag, @NonNull TagGroup newGroup) {
-        int listSize = this.tagGroupMap.size();
-
-        List<Tag> tagList = new ArrayList<>();
-        tagList.add(newTag);
-        tagGroupMap.put(newGroup, tagList);
-
-        notifyItemInserted(listSize);
     }
 
     /**

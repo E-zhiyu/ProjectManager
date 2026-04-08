@@ -17,7 +17,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.manager.assistant.R;
-import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.ActivityTagManageBinding;
 import com.manager.assistant.databinding.ViewRailHeaderBinding;
@@ -31,12 +30,11 @@ import com.manager.assistant.data.classes.TagGroup;
 import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -127,6 +125,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
             Intent skip2TagAdd = new Intent(this, TagAddModifyActivity.class);
 
             //获取已保存的标签分组信息
+            //TODO:从数据库中获取
             ArrayList<String> groupNameList = adapter.getTagGroupMapKeys().stream()
                     .map(TagGroup::getGroupName)
                     .collect(Collectors.toCollection(ArrayList<String>::new));
@@ -153,7 +152,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(this, e);
             Toast.makeText(this, "标签数据读取失败", Toast.LENGTH_SHORT).show();
-            tagGroupMap = new TreeMap<>(Comparator.comparingLong(TagGroup::getGroupNo));
+            tagGroupMap = new LinkedHashMap<>();
         }
 
         //左侧标签分组抽屉
@@ -181,14 +180,12 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         }
         binding.tagGroupNaviRail.setOnItemSelectedListener(item -> {
             Long targetGroupNo = itemIdAndGroupNoMap.get(item.getItemId());
-            if (!Objects.equals(currentGroupNo, targetGroupNo)) {
+            if (!Objects.equals(currentGroupNo, targetGroupNo) && targetGroupNo != null) {
                 //刷新标签列表
                 currentGroupNo = targetGroupNo;
                 refreshUI(false);
                 return true;
-            } else {
-                return false;
-            }
+            } else return targetGroupNo == null;    //如果targetGroupNo为null，说明是手动刷新RailView时触发的监听器，需要返回true
         });
 
         //初始化RecyclerView
@@ -266,45 +263,22 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
         String tagName = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
         String groupName = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
         int tagScope = dataBundle.getInt(KeyValueStrings.TAG_SCOPE.getValue());
-
-        //判断是否需要新的分组
-        long groupNo;
-        try {
-            groupNo = TagGroupDataController.nameTransToGno(groupName, this);
-        } catch (SQLiteException e) {
-            groupNo = -1;
-        }
-        boolean needNewGroup = groupNo == -1;
-
-        //如果需要添加新分组，则通过数据库获取为新分组分配的编号
-        if (needNewGroup) {
-            try {
-                groupNo = TagGroupDataController.saveNewGroup(groupName, this);
-            } catch (SQLiteException e) {
-                ExceptionHelper.showExceptionDialog(this, e);
-                return;
-            }
+        long tagNo = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue(), 0L);
+        long groupNo = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue(), 0L);
+        if (tagNo == 0L) {
+            return;
         }
 
-        //将新标签的数据写入数据库
-        long tagNo = 0;
-        try {
-            tagNo = TagDataController.saveNewTag(tagName, tagScope, groupNo, this);
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(this, e);
-        }
-        if (tagNo != 0) {
-            //将变化保存至列表中并传递给适配器
+        //只有当标签的分组与当前显示的分组一致时，或者当前显示所有分组时才更新RecyclerView
+        if (groupNo == currentGroupNo || currentGroupNo == -1) {
+            //通过适配器刷新UI
             Tag newTag = new Tag(tagName, tagNo, tagScope);
-            if (needNewGroup) {
-                TagGroup new_group = new TagGroup(groupName, groupNo);
-                adapter.addNewTag(newTag, new_group);
-                binding.tagGroupRecycler.scrollToPosition(adapter.getItemCount() - 1);
-            } else {
-                adapter.addNewTag(newTag, groupNo);
-            }
-            Toast.makeText(this, "标签添加成功", Toast.LENGTH_SHORT).show();
+            TagGroup group = new TagGroup(groupName, groupNo);
+            adapter.addNewTag(newTag, group);
         }
+
+        //刷新RailView
+        refreshRailView();
     }
 
     /**
@@ -327,7 +301,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
 
         //解析数据包
         long tagNo = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());                     //标签编号
-        long oldGroupNo = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());       //原分组编号
+        long oldGroupNo = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());          //原分组编号
         String groupName = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
         String tagName = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
         int tagScope = dataBundle.getInt(KeyValueStrings.TAG_SCOPE.getValue());                 //标签作用域
@@ -439,7 +413,7 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
                                         return;
                                     }
 
-                                    //重绘NavigationRailView
+                                    //清空
                                     Menu groupMenu = binding.tagGroupNaviRail.getMenu();
                                     groupMenu.clear();
                                     itemIdAndGroupNoMap.clear();
@@ -469,6 +443,44 @@ public class TagManageActivity extends AppCompatActivity implements TagManageRec
                                     binding.addFloatingBtn.show();
                                 }
                         )
+        );
+    }
+
+    /**
+     * 只刷新RailView
+     */
+    private void refreshRailView() {
+        disposables.add(
+                Observable.fromCallable(() -> TagGroupDataController.getTagGroup(this, -1))
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.io())
+                        .subscribe(tagGroupList -> {
+                            //先清空
+                            Menu groupMenu = binding.tagGroupNaviRail.getMenu();
+                            groupMenu.clear();
+                            itemIdAndGroupNoMap.clear();
+
+                            //添加“显示所有”
+                            MenuItem menuItem = groupMenu.add(Menu.NONE, 0, Menu.NONE, "显示所有");
+                            menuItem.setIcon(R.drawable.outline_select_all_24);
+                            itemIdAndGroupNoMap.put(0, -1L);
+
+                            //遍历添加选项
+                            int index = 1;
+                            for (TagGroup group : tagGroupList) {
+                                menuItem = groupMenu.add(Menu.NONE, index, Menu.NONE, group.getGroupName());
+                                menuItem.setIcon(R.drawable.outline_tab_group_24);
+
+                                //重新选中当前分组（放在这里是为了让监听器中获得到的groupNo为null，避免重复刷新RecyclerView）
+                                if (currentGroupNo == group.getGroupNo()) {
+                                    binding.tagGroupNaviRail.setSelectedItemId(index);
+                                }
+
+                                //将index与groupNo的映射保存到Map中
+                                itemIdAndGroupNoMap.put(index, group.getGroupNo());
+                                index++;
+                            }
+                        })
         );
     }
 }
