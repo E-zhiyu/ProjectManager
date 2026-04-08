@@ -159,7 +159,7 @@ public class TagAddModifyActivity extends AppCompatActivity {
                 .setTitle("合并标签")
                 .setMessage("此操作会将本标签与其他标签合并，使用本标签标记的流水记录将自动替换为用合并后的标签标记，并且本标签将被永久删除，确认继续吗？")
                 .setPositiveButton("确认", (dialog, which) -> {
-                    tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, tagNo);
+                    tagSheet = new TagSelectBottomSheet(this::onTagMergeConfirmed, tagNo);
                     tagSheet.show(getSupportFragmentManager(), TagString.TAG_MERGE_SHEET.getValue());
                 })
                 .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
@@ -208,36 +208,34 @@ public class TagAddModifyActivity extends AppCompatActivity {
             binding.deleteBtn.setVisibility(View.VISIBLE);
             binding.mergeBtn.setVisibility(View.VISIBLE);
 
-            tagNo = tagData.getLong(KeyValueStrings.TAG_NO.getValue());                        //该标签编号
-            groupNo = tagData.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());                //所属分组编号
+            tagNo = tagData.getLong(KeyValueStrings.TAG_NO.getValue());                         //该标签编号
+            groupNo = tagData.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());                 //所属分组编号
             scope = tagData.getInt(KeyValueStrings.TAG_SCOPE.getValue());                       //标签作用域
-            String tag_name = tagData.getString(KeyValueStrings.TAG_NAME.getValue());           //该标签名称
-            String group_name = tagData.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());   //所属分组名称
+            String tagName = tagData.getString(KeyValueStrings.TAG_NAME.getValue());            //该标签名称
+            String groupName = tagData.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());    //所属分组名称
 
-            binding.tagNameInput.setText(tag_name);
-            binding.tagGroupInput.setText(group_name);
+            binding.tagNameInput.setText(tagName);
+            binding.tagGroupInput.setText(groupName);
         }
     }
 
     /**
      * 合并标签时标签按钮点击回调
      *
-     * @param tag_no   目标标签编号
-     * @param tag_name 目标标签名称
+     * @param tagNo   目标标签编号
+     * @param tagName 目标标签名称
      */
-    private void onTagBtnClicked(long tag_no, String tag_name) {
+    private void onTagMergeConfirmed(long tagNo, String tagName) {
         //通知流水输入界面更新名称
         TagRepository repository = TagRepository.getInstance();
-        repository.updateTag(tag_name, tag_no, TagUpdateReason.MERGE);    //传递合并到的标签的名称和原来标签的编号
+        repository.updateTag(tagName, tagNo, TagUpdateReason.MERGE);    //传递合并到的标签的名称和原来标签的编号
 
         tagSheet.dismiss();
 
         //将数据传递给父界面
         Intent result2TagEdit = new Intent();
-        Bundle dataBundle = new Bundle();
-        dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), this.groupNo);     //被合并标签的分组编号
-        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), this.tagNo);             //被合并标签的编号
-        dataBundle.putLong(KeyValueStrings.MERGE_TARGET_NO.getValue(), tag_no);
+        Bundle dataBundle = getInputData(); //获取输入内容，包括了被合并的标签编号和分组编号
+        dataBundle.putLong(KeyValueStrings.MERGE_TARGET_NO.getValue(), tagNo);
         result2TagEdit.putExtras(dataBundle);
         setResult(RequestResultCode.RESULT_MERGE.ordinal(), result2TagEdit);
         finish();
