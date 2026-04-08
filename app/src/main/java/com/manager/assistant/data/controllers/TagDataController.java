@@ -318,7 +318,7 @@ public class TagDataController {
     }
 
     /**
-     * 通过分组编号删除标签
+     * 删除某个分组内的所有标签
      *
      * @param groupNo 标签对应的分组编号
      * @param db      需要修改的数据库
@@ -342,11 +342,12 @@ public class TagDataController {
         //清空引用了标签编号的数据
         while (tagCursor.moveToNext()) {
             long tagNo = tagCursor.getLong(tagCursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
-            AccountDataController.onTagDeleted(tagNo, db); //清除流水记录里面的标签编号
-            RuleDataController.onTagDeleted(tagNo, db);       //清除通知解析规则中的标签编号
+            AccountDataController.onTagDeleted(tagNo, db);  //清除流水记录里面的标签编号
+            RuleDataController.onTagDeleted(tagNo, db);     //清除通知解析规则中的标签编号
         }
         tagCursor.close();
 
+        //清空引用后再删除标签表中的数据
         String where = Columns.GROUP_NO + "=?";
         String[] whereArgs = {String.valueOf(groupNo)};
         db.delete(Tables.TAG.toString(), where, whereArgs);

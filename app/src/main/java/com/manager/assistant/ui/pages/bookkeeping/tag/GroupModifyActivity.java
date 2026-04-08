@@ -150,6 +150,16 @@ public class GroupModifyActivity extends AppCompatActivity {
             } else {
                 Intent result2EditActivity = new Intent();
                 Bundle dataBundle = getInputData();
+
+                try {
+                    String newGroupName = String.valueOf(binding.tagGroupInput.getText());
+                    TagGroupDataController.modifyGroupName(groupNo, newGroupName, this);
+                    Toast.makeText(this, "标签分组修改成功", Toast.LENGTH_SHORT).show();
+                } catch (SQLiteException e) {
+                    ExceptionHelper.showExceptionDialog(this, e);
+                    return;
+                }
+
                 result2EditActivity.putExtras(dataBundle);
                 setResult(RequestResultCode.RESULT_OK.ordinal(), result2EditActivity);
                 finish();
