@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -16,8 +17,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.MainActivity;
+import com.manager.assistant.R;
 import com.manager.assistant.data.controllers.AccountDataController;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.TagString;
@@ -54,6 +55,7 @@ public class BookKeepingFragment extends Fragment {
     private AccountUpdatedReceiver accountUpdatedReceiver;  //流水数据更新的广播接收器
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
     private AccountFilterBottomSheet.FilterSetting filterSetting = new AccountFilterBottomSheet.FilterSetting();    //过滤器设置
+    private String searchText = "";                         //搜索文本，用于搜索流水备注
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
@@ -172,8 +174,32 @@ public class BookKeepingFragment extends Fragment {
     private void initViews() {
         //搜索框
         if (requireActivity() instanceof MainActivity) {
+            //绑定到SearchBar
             MainActivity mainActivity = (MainActivity) requireActivity();
             mainActivity.binding.searchView.setupWithSearchBar(binding.remarkSearchBar);
+
+            //设置监听
+            mainActivity.binding.searchView.getEditText().setOnEditorActionListener((v, actionId, event) -> {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    //获取输入文本
+                    searchText = mainActivity.binding.searchView.getText().toString();
+
+                    //将文本显示在SearchBar上
+                    binding.remarkSearchBar.setText(searchText);
+
+                    //TODO:保存关键词
+
+                    //刷新视图
+                    refreshAccountRecycler();
+
+                    //隐藏SearchView
+                    mainActivity.binding.searchView.hide();
+
+                    return true;
+                } else {
+                    return false;
+                }
+            });
         }
 
         //添加按钮
@@ -309,8 +335,7 @@ public class BookKeepingFragment extends Fragment {
      * 刷新流水记录数量文本
      */
     private void refreshAccountNumText() {
-        MaterialTextView accountNumText = binding.accountNumText;
-        accountNumText.setText(String.format(Locale.getDefault(), "显示数量：%d", accountCount));
+        binding.accountNumText.setText(String.format(Locale.getDefault(), "显示数量：%d", accountCount));
     }
 
     /**
@@ -319,7 +344,7 @@ public class BookKeepingFragment extends Fragment {
     private void refreshAccountRecycler() {
         binding.refreshLayout.setRefreshing(true);
         disposables.add(
-                Observable.fromCallable(() -> AccountDataController.loadRunningAccountData(filterSetting, requireContext()))
+                Observable.fromCallable(() -> AccountDataController.loadRunningAccountData(filterSetting, searchText, requireContext()))
                         .subscribeOn(Schedulers.io())               //在IO线程执行查询
                         .observeOn(AndroidSchedulers.mainThread())  //切换到主线程更新 UI
                         .subscribe(
@@ -328,7 +353,11 @@ public class BookKeepingFragment extends Fragment {
                                     accountCount = refreshedAccount.size();
                                     refreshAccountNumText();
                                 },  //成功回调
-                                e -> ExceptionHelper.showExceptionDialog(requireContext(), e),  //错误处理
+                                e -> {
+                                    ExceptionHelper.showExceptionDialog(requireContext(), e);
+                                    binding.refreshLayout.setRefreshing(false);
+                                    binding.accountNumText.setText(R.string.count_infinity);
+                                },  //错误处理
                                 () -> {
                                     binding.refreshLayout.setRefreshing(false);
                                     binding.addFloatingBtn.show();

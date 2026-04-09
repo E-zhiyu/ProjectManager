@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String UPDATE_LOG_MD = "# v1.8.11  \n" +
             "**新增内容**  \n" +
+            "- 增加搜索流水备注功能  \n" +
             "- 主页新增随机提示文本  \n\n" +
             "**BUG修复**  \n" +
             "- 修复包名选择界面的内容会与状态栏重叠的BUG  \n" +
