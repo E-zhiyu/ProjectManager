@@ -28,6 +28,7 @@ import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.AppListHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 import com.manager.assistant.ui.sync.package_name_search.AppInfoSearchViewModel;
 
 import java.util.Map;
@@ -67,6 +68,11 @@ public class PackageNameSelectActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, 0, systemBars.right, 0);
             binding.toolbarContainerLayout.setPadding(0, systemBars.top, 0, 0);
             binding.appListRecycler.setPadding(0, 0, 0, systemBars.bottom);
+            return insets;
+        });
+        ViewCompat.setOnApplyWindowInsetsListener(binding.searchResultRecycler, (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, ViewEdgeHelper.dpToPx(this, 10), systemBars.right, systemBars.bottom);
             return insets;
         });
 

@@ -20,10 +20,10 @@ import io.reactivex.rxjava3.subjects.PublishSubject;
 import io.reactivex.rxjava3.subjects.Subject;
 
 public class AppInfoSearchViewModel extends ViewModel {
-    private List<AppInfo> fullAppInfoList = new ArrayList<>();  //完整的应用列表
+    private List<AppInfo> fullAppInfoList = new ArrayList<>();                  //完整的应用列表
     private final MutableLiveData<List<AppInfo>> resultsLiveData = new MutableLiveData<>();
-    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
-    private final Subject<String> searchSubject = PublishSubject.create();
+    private final CompositeDisposable disposable = new CompositeDisposable();   //多线程队列
+    private final Subject<String> searchSubject = PublishSubject.create();      //搜索任务
 
     public void setFullAppInfoList(List<AppInfo> appInfoList) {
         this.fullAppInfoList = appInfoList;
@@ -31,19 +31,20 @@ public class AppInfoSearchViewModel extends ViewModel {
 
     //初始化订阅
     public void init() {
-        compositeDisposable.add(
+        disposable.add(
                 searchSubject
                         .debounce(300, TimeUnit.MILLISECONDS)  //防抖
                         .switchMap(query -> {                 //切换搜索任务
                             if (query.isEmpty()) {
                                 return Observable.just(Collections.emptyList()); //空查询返回空
+                            } else {
+                                return Observable.fromCallable(() -> AppListHelper.searchInFullAppList(query, fullAppInfoList)) // 实际搜索
+                                        .subscribeOn(Schedulers.computation()) //指定在计算进程执行
+                                        .cast(List.class) //显式声明泛型类型
+                                        .onErrorResumeNext(throwable -> { //错误处理
+                                            return Observable.just(Collections.emptyList());
+                                        });
                             }
-                            return Observable.fromCallable(() -> AppListHelper.searchInFullAppList(query, fullAppInfoList)) // 实际搜索
-                                    .subscribeOn(Schedulers.computation()) //指定在计算进程执行
-                                    .cast(List.class) //显式声明泛型类型
-                                    .onErrorResumeNext(throwable -> { //错误处理
-                                        return Observable.just(Collections.emptyList());
-                                    });
                         })
                         .observeOn(AndroidSchedulers.mainThread()) //切换到主线程
                         .subscribe(resultsLiveData::postValue)     //更新结果到LiveData
@@ -61,7 +62,7 @@ public class AppInfoSearchViewModel extends ViewModel {
     //清理资源
     @Override
     protected void onCleared() {
-        compositeDisposable.dispose();
+        disposable.dispose();
         super.onCleared();
     }
 }

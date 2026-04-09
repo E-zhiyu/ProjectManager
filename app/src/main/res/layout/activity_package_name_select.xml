@@ -72,7 +72,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clipToPadding="false"
-                    android:paddingTop="10dp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         </LinearLayout>

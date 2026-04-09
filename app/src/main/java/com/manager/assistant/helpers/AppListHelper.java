@@ -13,6 +13,7 @@ import com.manager.assistant.helpers.appearence.IconHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AppListHelper {
     /**
@@ -54,14 +55,8 @@ public class AppListHelper {
      */
     @NonNull
     public static List<AppInfo> searchInFullAppList(String query, @NonNull List<AppInfo> fullAppInfoList) {
-        List<AppInfo> searchResult = new ArrayList<>();
-
-        for (AppInfo app : fullAppInfoList) {
-            String app_name = app.getAppName();
-            if (app_name.toLowerCase().contains(query.toLowerCase()))
-                searchResult.add(app);
-        }
-
-        return searchResult;
+        return fullAppInfoList.stream()
+                .filter(appInfo -> appInfo.getAppName().contains(query))
+                .collect(Collectors.toList());
     }
 }
