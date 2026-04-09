@@ -28,7 +28,7 @@ import java.util.List;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 public class MainActivity extends AppCompatActivity {
-    private ActivityMainBinding binding;                                            //绑定的 XML 视图
+    public ActivityMainBinding binding;                                             //绑定的 XML 视图（设为public方便子元素访问）
     private final CompositeDisposable disposables = new CompositeDisposable();      //多线程任务列表
 
     @Override
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.viewPager2, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
             return insets;

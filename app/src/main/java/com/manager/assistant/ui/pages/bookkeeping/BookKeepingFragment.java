@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.textview.MaterialTextView;
+import com.manager.assistant.MainActivity;
 import com.manager.assistant.data.controllers.AccountDataController;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.TagString;
@@ -169,7 +170,13 @@ public class BookKeepingFragment extends Fragment {
      * 初始化视图
      */
     private void initViews() {
-        //绑定单击按钮监听器
+        //搜索框
+        if (requireActivity() instanceof MainActivity) {
+            MainActivity mainActivity = (MainActivity) requireActivity();
+            mainActivity.binding.searchView.setupWithSearchBar(binding.remarkSearchBar);
+        }
+
+        //添加按钮
         binding.addFloatingBtn.setOnClickListener(v -> {
             PictureFileHelper.clearTempPictureDir(requireContext());    //清理临时图片目录防止残留干扰
             Intent skip2NewRunningAccount = new Intent(requireContext(), RunningAccountAddActivity.class);

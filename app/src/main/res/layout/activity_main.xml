@@ -23,4 +23,17 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/bottom_nav_menu" />
 
+    <!-- 记账界面的搜索视图，放在此处用于覆盖全屏 -->
+    <com.google.android.material.search.SearchView
+        android:id="@+id/search_view"
+        style="@style/SearchViewStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/search_remark"
+        app:layout_behavior="com.google.android.material.search.SearchView$Behavior"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- TODO:添加搜索视图的内容，显示常搜素备注 -->
+    </com.google.android.material.search.SearchView>
 </androidx.constraintlayout.widget.ConstraintLayout>
