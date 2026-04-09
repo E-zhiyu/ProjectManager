@@ -63,10 +63,9 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         //边距设置
-        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbarContainerLayout, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, 0, systemBars.right, 0);
-            binding.toolbarContainerLayout.setPadding(0, systemBars.top, 0, 0);
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
             binding.appListRecycler.setPadding(0, 0, 0, systemBars.bottom);
             return insets;
         });
@@ -137,6 +136,9 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         binding.appListRecycler.setAdapter(fullAppAdapter);                 //打开页面时显示的完整应用列表视图
         searchAdapter = new AppListAdapter(this::onAppClicked);
         binding.searchResultRecycler.setAdapter(searchAdapter);             //搜索结果列表视图
+
+        //SearchView和SearchBar
+        binding.searchView.setupWithSearchBar(binding.searchBar);
 
         //开始加载应用列表
         startLoadAppList();
