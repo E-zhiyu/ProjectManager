@@ -71,9 +71,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        //替换自带工具栏
-        setSupportActionBar(binding.toolbar);
-
         List<Fragment> fragmentList = new ArrayList<>();
         fragmentList.add(new BookKeepingFragment());
         fragmentList.add(new HomeFragment());
@@ -81,50 +78,23 @@ public class MainActivity extends AppCompatActivity {
         ViewPager2 viewPager2 = getViewPager2(fragmentList, binding.bottomNavi);    //设置翻页器
 
         //设置APP启动第一屏
-        int first_screen_code = AppSettingsPreference.getFirstScreen(this);
-        viewPager2.setCurrentItem(first_screen_code, false);
-        int[] titleIds = {
-                R.string.title_bookkeeping,
-                R.string.title_home
-        };
-        binding.toolbar.setTitle(titleIds[first_screen_code]);
+        int firstScreenCode = AppSettingsPreference.getFirstScreen(this);
+        viewPager2.setCurrentItem(firstScreenCode, false);
 
         //设置底部导航栏点击监听
         binding.bottomNavi.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.navigation_bookkeeping) {
                 viewPager2.setCurrentItem(0, true);
-                binding.toolbar.setTitle(R.string.title_bookkeeping);
                 return true;
             } else if (id == R.id.navigation_home) {
                 viewPager2.setCurrentItem(1, true);
-                binding.toolbar.setTitle(R.string.title_home);
                 return true;
             } else if (id == R.id.navigation_settings) {
                 viewPager2.setCurrentItem(2, true);
-                binding.toolbar.setTitle(R.string.title_setting);
                 return true;
             }
             return false;
-        });
-
-        //设置滚动监听器
-        viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                switch (position) {
-                    case 0:
-                        binding.toolbar.setTitle(R.string.title_bookkeeping);
-                        break;
-                    case 1:
-                        binding.toolbar.setTitle(R.string.title_home);
-                        break;
-                    case 2:
-                        binding.toolbar.setTitle(R.string.title_setting);
-                        break;
-                }
-            }
         });
     }
 
@@ -148,9 +118,9 @@ public class MainActivity extends AppCompatActivity {
         return viewPager2;
     }
 
-    //初始化主题模式
+    //初始化深浅色主题模式
     private void initThemeMode() {
-        int theme_mode = AppSettingsPreference.getThemeMode(this);
-        ThemeModeHelper.applyTheme(theme_mode);
+        int themeMode = AppSettingsPreference.getThemeMode(this);
+        ThemeModeHelper.applyTheme(themeMode);
     }
 }
