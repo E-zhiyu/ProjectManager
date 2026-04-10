@@ -61,4 +61,5 @@ dependencies {
     implementation libs.photoview
     implementation libs.groupie
     implementation libs.dynamicanimation
+    implementation libs.flexbox
 }
