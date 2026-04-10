@@ -17,9 +17,11 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.search.SearchView;
 import com.manager.assistant.MainActivity;
 import com.manager.assistant.R;
 import com.manager.assistant.data.controllers.AccountDataController;
+import com.manager.assistant.data.save.preference.SearchHistoryPreference;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.automation.broadcast.BroadcastActions;
@@ -31,6 +33,7 @@ import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.file.PictureFileHelper;
+import com.manager.assistant.ui.others.adapters.SearchHistoryAdapter;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
 import com.manager.assistant.ui.sync.account.RunningAccountViewModel;
 import com.manager.assistant.ui.others.bottom_sheets.filter.AccountFilterBottomSheet;
@@ -40,6 +43,7 @@ import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -56,6 +60,7 @@ public class BookKeepingFragment extends Fragment {
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
     private AccountFilterBottomSheet.FilterSetting filterSetting = new AccountFilterBottomSheet.FilterSetting();    //过滤器设置
     private String searchText = "";                         //搜索文本，用于搜索流水备注
+    private SearchView.TransitionListener transitionListener;   //SearchView的变化监听器
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
@@ -99,6 +104,15 @@ public class BookKeepingFragment extends Fragment {
         //取消注册广播接收器
         if (accountUpdatedReceiver != null) {
             requireContext().unregisterReceiver(accountUpdatedReceiver);
+        }
+
+        //清除SearchView的监听器，避免内存泄漏
+        if (requireActivity() instanceof MainActivity) {
+            MainActivity mainActivity = (MainActivity) requireActivity();
+            mainActivity.binding.searchView.getEditText().setOnEditorActionListener(null);      //销毁搜索监听
+            if (transitionListener != null) {
+                mainActivity.binding.searchView.removeTransitionListener(transitionListener);   //销毁transitionListener
+            }
         }
     }
 
@@ -172,13 +186,56 @@ public class BookKeepingFragment extends Fragment {
      * 初始化视图
      */
     private void initViews() {
-        //搜索框
+        //搜索框和SearchView
         if (requireActivity() instanceof MainActivity) {
             //绑定到SearchBar
             MainActivity mainActivity = (MainActivity) requireActivity();
             mainActivity.binding.searchView.setupWithSearchBar(binding.remarkSearchBar);
 
-            //设置监听
+            //实例化搜索历史适配器并推送至SearchView
+            SearchHistoryAdapter searchViewAdapter = new SearchHistoryAdapter(keyWord -> {
+                //更新搜索词
+                searchText = keyWord;
+                binding.remarkSearchBar.setText(searchText);
+
+                //刷新UI
+                refreshAccountRecycler();
+
+                //隐藏SearchView
+                mainActivity.binding.searchView.hide();
+
+                //保存搜索历史
+                List<String> searchHistoryList = SearchHistoryPreference.getHistory(
+                        SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+                        requireContext()
+                );
+                searchHistoryList.remove(searchText);       //移除已存在的项
+                searchHistoryList.add(0, searchText);   //添加新项
+                if (searchHistoryList.size() > 15) {        //限制15条记录
+                    searchHistoryList = searchHistoryList.subList(0, 14);
+                }
+                SearchHistoryPreference.setHistory(
+                        SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+                        searchHistoryList,
+                        requireContext()
+                );
+            });
+            mainActivity.binding.searchHistoryRecycler.setAdapter(searchViewAdapter);
+
+            //设置显示监听，用于初始化常用词与清空提示词按钮
+            transitionListener = (searchView, previousState, newState) -> {
+                //显示时执行的动作
+                if (newState == SearchView.TransitionState.SHOWING) {
+                    List<String> searchHistoryList = SearchHistoryPreference.getHistory(
+                            SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+                            requireContext()
+                    );
+                    searchViewAdapter.refreshSearchHistory(searchHistoryList);
+                }
+            };
+            mainActivity.binding.searchView.addTransitionListener(transitionListener);
+
+            //设置搜索监听
             mainActivity.binding.searchView.getEditText().setOnEditorActionListener((v, actionId, event) -> {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     //获取输入文本
@@ -187,7 +244,21 @@ public class BookKeepingFragment extends Fragment {
                     //将文本显示在SearchBar上
                     binding.remarkSearchBar.setText(searchText);
 
-                    //TODO:保存关键词
+                    //保存搜索关键词
+                    List<String> searchHistoryList = SearchHistoryPreference.getHistory(
+                            SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+                            requireContext()
+                    );
+                    searchHistoryList.remove(searchText);       //移除已存在的项
+                    searchHistoryList.add(0, searchText);   //添加新项
+                    if (searchHistoryList.size() > 15) {        //限制15条记录
+                        searchHistoryList = searchHistoryList.subList(0, 14);
+                    }
+                    SearchHistoryPreference.setHistory(
+                            SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+                            searchHistoryList,
+                            requireContext()
+                    );
 
                     //刷新视图
                     refreshAccountRecycler();

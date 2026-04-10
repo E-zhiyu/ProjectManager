@@ -34,6 +34,13 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- TODO:添加搜索视图的内容，显示常搜素备注 -->
+        <!-- SearchView的搜索历史界面列表 -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/search_history_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            app:layoutManager="com.google.android.flexbox.FlexboxLayoutManager" />
     </com.google.android.material.search.SearchView>
 </androidx.constraintlayout.widget.ConstraintLayout>
