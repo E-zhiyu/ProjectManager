@@ -291,6 +291,13 @@ public class BookKeepingFragment extends Fragment {
                 binding.remarkSearchBar.setText("");
                 searchText = "";
                 mainActivity.binding.searchView.hide();
+
+                SearchHistoryPreference.setHistory(
+                        SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+                        new ArrayList<>(),
+                        requireContext()
+                );
+
                 refreshAccountRecycler();
             });
 
