@@ -130,6 +130,7 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
     public void onDestroy() {
         super.onDestroy();
 
+        binding = null;
         disposables.dispose();
     }
 

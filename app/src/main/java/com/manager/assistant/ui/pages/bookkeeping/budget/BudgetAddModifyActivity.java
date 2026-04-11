@@ -100,10 +100,10 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
         resetFrequency = ResetFrequency.valueOf(frequencyStr);
 
         double initAmount = dataBundle.getDouble(KeyValueStrings.INIT_AMOUNT.getValue());
-        binding.initAmountInput.setText(String.valueOf(initAmount));
+        binding.initAmountInput.setText(String.format(Locale.getDefault(), "%.2f", initAmount));
 
         double leftAmount = dataBundle.getDouble(KeyValueStrings.LEFT_AMOUNT.getValue());
-        binding.leftAmountInput.setText(String.valueOf(leftAmount));
+        binding.leftAmountInput.setText(String.format(Locale.getDefault(), "%.2f", leftAmount));
 
         String startDate = dataBundle.getString(KeyValueStrings.START_DATE.getValue());
         binding.startDateInput.setText(startDate);

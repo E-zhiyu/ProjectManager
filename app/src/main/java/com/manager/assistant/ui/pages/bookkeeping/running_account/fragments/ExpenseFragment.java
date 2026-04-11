@@ -153,7 +153,7 @@ public class ExpenseFragment extends RunningAccountFragmentBase<FragmentExpenseB
 
         double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
-        String date_time = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
+        String dateTime = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
         rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
 
         String tagName = "";
@@ -166,12 +166,10 @@ public class ExpenseFragment extends RunningAccountFragmentBase<FragmentExpenseB
             Toast.makeText(requireContext(), "无法加载该流水记录的标签信息", Toast.LENGTH_SHORT).show();
         }
 
-        binding.amountInput.setText(String.valueOf(amount));                            //金额
-        TextInputEditText remarkInput = binding.remarkInput;                            //备注
-        remarkInput.setText(remark);
-        MaterialAutoCompleteTextView datetimeInput = binding.datetimeInput;             //日期
-        datetimeInput.setText(date_time);
-        binding.tagInput.setText(tagName);                               //标签名称
+        binding.amountInput.setText(String.format(Locale.getDefault(),"%.2f",amount));  //金额
+        binding.remarkInput.setText(remark);                                                    //备注
+        binding.datetimeInput.setText(dateTime);                                                //日期
+        binding.tagInput.setText(tagName);                                                      //标签名称
     }
 
     @Override
