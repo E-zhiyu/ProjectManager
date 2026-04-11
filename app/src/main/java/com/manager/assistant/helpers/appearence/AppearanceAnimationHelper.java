@@ -126,14 +126,15 @@ public class AppearanceAnimationHelper {
      * @param listSize 列表大小
      * @param position 当前视图所处的下标
      */
-    public static void setRecyclerItemRadius(View view, int listSize, int position) {
-        //列表长度为1或者列表为空则不执行任何操作
+    public static void setRecyclerItemRadius(@NonNull View view, int listSize, int position) {
+        //列表长度为1或者列表为空则设置为中等圆角
+        Context context = view.getContext();
         if (listSize == 1 || listSize == 0) {
+            setRadius(context, view, MEDIUM_CARD_RADIUS, MEDIUM_CARD_RADIUS, MEDIUM_CARD_RADIUS, MEDIUM_CARD_RADIUS);
             return;
         }
 
         //设置新的圆角值
-        Context context = view.getContext();
         if (position == 0) {
             setRadius(context, view, MEDIUM_CARD_RADIUS, MEDIUM_CARD_RADIUS, SMALL_CARD_RADIUS, SMALL_CARD_RADIUS);
         } else if (position == listSize - 1) {
