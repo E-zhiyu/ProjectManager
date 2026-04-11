@@ -69,12 +69,12 @@ public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapte
                 break;
         }
         int percentage = oneMonthInfo.getPercentage();
-        String month_name = String.format(Locale.getDefault(), "%d月", position + 1);
+        String monthName = String.format(Locale.getDefault(), "%d月", position + 1);
 
-        holder.binding.sourceNameText.setText(month_name);                 //月份名称
+        holder.binding.sourceNameText.setText(monthName);                   //月份名称
         holder.binding.amountText.setText(String.format(Locale.getDefault(), "%.2f", amount));  //金额
-        String percentage_str = String.format(Locale.getDefault(), "%d%%", percentage);
-        holder.binding.percentageText.setText(percentage_str);             //百分比文本
+        String percentageStr = String.format(Locale.getDefault(), "%d%%", percentage);
+        holder.binding.percentageText.setText(percentageStr);               //百分比文本
         holder.binding.percentageBar.setProgress(percentage);              //百分比进度条
     }
 
@@ -92,9 +92,9 @@ public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapte
     public void refreshMonthAccountInfo(List<MonthAccountInfo> monthAccountInfoList, ReportActivity.MonthAccountInfoType type) {
         this.monthAccountInfoType = type;
 
-        int old_item_count = getItemCount();
+        int oldItemCount = getItemCount();
         this.monthAccountInfoList.clear();
-        notifyItemRangeRemoved(0, old_item_count);
+        notifyItemRangeRemoved(0, oldItemCount);
 
         this.monthAccountInfoList.addAll(monthAccountInfoList);
         notifyItemRangeInserted(0, monthAccountInfoList.size());

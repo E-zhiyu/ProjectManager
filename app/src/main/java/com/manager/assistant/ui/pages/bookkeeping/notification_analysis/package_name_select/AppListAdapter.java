@@ -21,10 +21,25 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppInfoV
     public static class AppInfoViewHolder extends RecyclerView.ViewHolder {
         ViewHolderAppInfoBinding binding;
 
-        public AppInfoViewHolder(@NonNull ViewHolderAppInfoBinding binding) {
+        public AppInfoViewHolder(@NonNull ViewHolderAppInfoBinding binding, ViewHolderListener listener) {
             super(binding.getRoot());
             this.binding = binding;
+
+            //设置触摸动画
+            AppearanceAnimationHelper.attachMorphAnimation(binding.getRoot());
+
+            //设置点击监听
+            binding.getRoot().setOnClickListener(v -> listener.onClicked(getBindingAdapterPosition()));
         }
+    }
+
+    public interface ViewHolderListener {
+        /**
+         * 当ViewHolder被点击时的监听器
+         *
+         * @param position 被点击的ViewHolder在Adapter中的真实下标
+         */
+        void onClicked(int position);
     }
 
     public interface AppClickedListener {
@@ -49,7 +64,10 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppInfoV
                 parent,
                 false
         );
-        return new AppInfoViewHolder(binding);
+        return new AppInfoViewHolder(binding, position -> {
+            AppInfo appInfo = appInfoList.get(position);
+            listener.onAppClicked(appInfo.getPackageName());
+        });
     }
 
     @Override
@@ -67,10 +85,6 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppInfoV
 
         //设置视图圆角
         AppearanceAnimationHelper.setRecyclerItemRadius(holder.itemView, appInfoList.size(), position);
-
-        //设置点击监听
-        AppearanceAnimationHelper.attachMorphAnimation(holder.itemView);
-        holder.itemView.setOnClickListener(v -> listener.onAppClicked(packageName));
     }
 
     @Override

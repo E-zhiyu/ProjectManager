@@ -52,6 +52,24 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         void onDeleteModeSwitched(boolean isDeleteMode);
     }
 
+    public interface ViewHolderListener {
+        /**
+         * 当ViewHolder被点击时的监听器
+         *
+         * @param position 被点击的ViewHolder在Adapter中的真实下标
+         * @param context  上下文
+         */
+        void onClicked(int position, Context context);
+
+        /**
+         * 当ViewHolder被长按时的监听器
+         *
+         * @param position 被点击的ViewHolder在Adapter中的真实下标
+         * @return 是否执行操作
+         */
+        boolean onLongClicked(int position);
+    }
+
     public static class PictureViewHolder extends RecyclerView.ViewHolder {
         ViewHolderPictureBinding binding;
         private final SpringAnimation scaleXAnim;           //X轴缩放动画
@@ -65,7 +83,37 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
             //设置缩放动画
             scaleXAnim = new SpringAnimation(binding.getRoot(), SpringAnimation.SCALE_X);
             scaleYAnim = new SpringAnimation(binding.getRoot(), SpringAnimation.SCALE_Y);
+            initScaleAnimation();
+        }
 
+        public void setListener(ViewHolderListener listener) {
+            //设置监听器
+            binding.imageViewContainer.setOnClickListener(v -> listener.onClicked(
+                    getBindingAdapterPosition(),
+                    binding.getRoot().getContext()
+            ));
+            binding.imageViewContainer.setOnLongClickListener(v -> listener.onLongClicked(getBindingAdapterPosition()));
+        }
+
+        /**
+         * 切换缩放状态
+         *
+         * @param isScaled 是否缩小
+         */
+        public void switchScale(boolean isScaled) {
+            if (isScaled) {
+                scaleXAnim.animateToFinalPosition(PRESSED_SCALE);
+                scaleYAnim.animateToFinalPosition(PRESSED_SCALE);
+            } else {
+                scaleXAnim.animateToFinalPosition(1f);
+                scaleYAnim.animateToFinalPosition(1f);
+            }
+        }
+
+        /**
+         * 初始化缩放动画
+         */
+        private void initScaleAnimation() {
             SpringForce forceX = new SpringForce(1f);
             SpringForce forceY = new SpringForce(1f);
 
@@ -77,16 +125,6 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
 
             scaleXAnim.setSpring(forceX);
             scaleYAnim.setSpring(forceY);
-        }
-
-        public void switchScale(boolean isScaled) {
-            if (isScaled) {
-                scaleXAnim.animateToFinalPosition(PRESSED_SCALE);
-                scaleYAnim.animateToFinalPosition(PRESSED_SCALE);
-            } else {
-                scaleXAnim.animateToFinalPosition(1f);
-                scaleYAnim.animateToFinalPosition(1f);
-            }
         }
 
         /**
@@ -148,7 +186,55 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
                 parent,
                 false
         );
-        return new PictureViewHolder(binding);
+
+        PictureViewHolder viewHolder = new PictureViewHolder(binding);
+        viewHolder.setListener(new ViewHolderListener() {
+            @Override
+            public void onClicked(int position, Context context) {
+                if (!isDeleteMode) {
+                    openPictureCheckActivity(position, context);
+                } else {
+                    viewHolder.binding.checkedTextView.setVisibility(View.VISIBLE);
+                    viewHolder.binding.checkedTextView.toggle();
+
+                    //同步图片选择状态数据
+                    pictureSelectList.set(
+                            viewHolder.getBindingAdapterPosition(),
+                            viewHolder.binding.checkedTextView.isChecked()
+                    );
+
+                    //执行缩放动画
+                    viewHolder.switchScale(viewHolder.binding.checkedTextView.isChecked());
+                }
+            }
+
+            @Override
+            public boolean onLongClicked(int position) {
+                if (!isDeleteMode) {
+                    //更新长按图片下标
+                    longClickPosition = viewHolder.getBindingAdapterPosition();
+
+                    //显示复选框并选中
+                    viewHolder.binding.checkedTextView.setVisibility(View.VISIBLE);
+                    viewHolder.binding.checkedTextView.toggle();
+                    pictureSelectList.set(viewHolder.getBindingAdapterPosition(), true);
+                    viewHolder.switchScale(true);
+
+                    //使用ViewModel通知所有适配器更新状态
+                    viewModel.updateAdapterStat(true);
+
+                    Toast.makeText(
+                            viewHolder.itemView.getContext(),
+                            "返回即可退出图片删除模式",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+        return viewHolder;
     }
 
     @Override
@@ -167,48 +253,6 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
             boolean isChecked = pictureSelectList.get(position);
             holder.binding.checkedTextView.setChecked(isChecked);
             holder.switchScale(isChecked);
-
-            //视图点击监听器
-            holder.binding.imageView.setOnClickListener(v -> {
-                if (!isDeleteMode) {
-                    openPictureCheckActivity(holder.getBindingAdapterPosition(), holder.binding.imageView.getContext());
-                } else {
-                    holder.binding.checkedTextView.setVisibility(View.VISIBLE);
-                    holder.binding.checkedTextView.toggle();
-
-                    //同步图片选择状态数据
-                    pictureSelectList.set(holder.getBindingAdapterPosition(), holder.binding.checkedTextView.isChecked());
-
-                    //执行缩放动画
-                    holder.switchScale(holder.binding.checkedTextView.isChecked());
-                }
-            });
-
-            //视图长按监听器
-            holder.binding.imageView.setOnLongClickListener(v -> {
-                if (!isDeleteMode) {
-                    //更新长按图片下标
-                    longClickPosition = holder.getBindingAdapterPosition();
-
-                    //显示复选框并选中
-                    holder.binding.checkedTextView.setVisibility(View.VISIBLE);
-                    holder.binding.checkedTextView.toggle();
-                    pictureSelectList.set(holder.getBindingAdapterPosition(), true);
-                    holder.switchScale(true);
-
-                    //使用ViewModel通知所有适配器更新状态
-                    viewModel.updateAdapterStat(true);
-
-                    Toast.makeText(
-                            holder.itemView.getContext(),
-                            "返回即可退出图片删除模式",
-                            Toast.LENGTH_SHORT
-                    ).show();
-                    return true;
-                } else {
-                    return false;
-                }
-            });
         }
     }
 

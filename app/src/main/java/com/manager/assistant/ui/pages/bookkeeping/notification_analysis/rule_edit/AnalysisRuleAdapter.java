@@ -1,21 +1,17 @@
 package com.manager.assistant.ui.pages.bookkeeping.notification_analysis.rule_edit;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.shape.Shapeable;
 import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.databinding.ViewHolderAnalysisRuleBinding;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.data.classes.AnalysisRule;
 import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
-import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.data.classes.Tag;
 
@@ -27,19 +23,25 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
 
     public static class AnalysisRuleViewHolder extends RecyclerView.ViewHolder {
         ViewHolderAnalysisRuleBinding binding;
-        SpringAnimationOnTouchListener onTouchListener;
 
-        public AnalysisRuleViewHolder(@NonNull ViewHolderAnalysisRuleBinding binding) {
+        public AnalysisRuleViewHolder(@NonNull ViewHolderAnalysisRuleBinding binding, ViewHolderListener listener) {
             super(binding.getRoot());
             this.binding = binding;
 
-            //设置触摸监听器
-            Shapeable shapeable = binding.getRoot();
-            Vibrator vibrator = (Vibrator) binding.getRoot().getContext()
-                    .getSystemService(Context.VIBRATOR_SERVICE);
-            onTouchListener = new SpringAnimationOnTouchListener(shapeable, vibrator);
-            itemView.setOnTouchListener(onTouchListener);
+            //设置触摸动画
+            AppearanceAnimationHelper.attachMorphAnimation(binding.getRoot());
+
+            binding.getRoot().setOnClickListener(v -> listener.onClicked(getBindingAdapterPosition()));
         }
+    }
+
+    public interface ViewHolderListener {
+        /**
+         * 当ViewHolder被点击时的监听器
+         *
+         * @param position 被点击的ViewHolder在Adapter中的真实下标
+         */
+        void onClicked(int position);
     }
 
     public interface RuleClickedListener {
@@ -65,7 +67,10 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
                 parent,
                 false
         );
-        return new AnalysisRuleViewHolder(binding);
+        return new AnalysisRuleViewHolder(binding, position -> {
+            AnalysisRule rule = ruleList.get(position);
+            listener.onRuleClicked(position, rule);
+        });
     }
 
     @Override
@@ -84,10 +89,6 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
 
         //设置圆角大小
         AppearanceAnimationHelper.setRecyclerItemRadius(holder.itemView, ruleList.size(), position);
-
-        //设置点击监听
-        holder.itemView.setOnClickListener(v ->
-                listener.onRuleClicked(holder.getBindingAdapterPosition(), rule));
     }
 
     @Override

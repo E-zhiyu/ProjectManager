@@ -22,9 +22,11 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<SearchHistoryAdap
     public static class SearchHistoryViewHolder extends RecyclerView.ViewHolder {
         ViewHolderSearchHistoryBinding binding;
 
-        public SearchHistoryViewHolder(@NonNull ViewHolderSearchHistoryBinding binding) {
+        public SearchHistoryViewHolder(@NonNull ViewHolderSearchHistoryBinding binding, ViewHolderListener listener) {
             super(binding.getRoot());
             this.binding = binding;
+
+            binding.titleChip.setOnClickListener(v -> listener.onClicked(getBindingAdapterPosition()));
         }
     }
 
@@ -37,6 +39,15 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<SearchHistoryAdap
         void onClicked(String keyWord);
     }
 
+    public interface ViewHolderListener {
+        /**
+         * 当ViewHolder被点击时的监听器
+         *
+         * @param position 被点击的ViewHolder在Adapter中的真实下标
+         */
+        void onClicked(int position);
+    }
+
     @NonNull
     @Override
     public SearchHistoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -45,16 +56,16 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<SearchHistoryAdap
                 parent,
                 false
         );
-        return new SearchHistoryViewHolder(binding);
+        return new SearchHistoryViewHolder(binding, position -> {
+            String historyKeyWord = searchHistoryList.get(position);
+            listener.onClicked(historyKeyWord);
+        });
     }
 
     @Override
     public void onBindViewHolder(@NonNull SearchHistoryViewHolder holder, int position) {
         String historyKeyWord = searchHistoryList.get(position);
-
         holder.binding.titleChip.setText(historyKeyWord);
-
-        holder.binding.titleChip.setOnClickListener(v -> listener.onClicked(historyKeyWord));
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.manager.assistant.ui.pages.bookkeeping.budget;
 import android.content.Context;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -12,14 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.shape.Shapeable;
 import com.manager.assistant.data.classes.Budget;
 import com.manager.assistant.data.controllers.BudgetDataController;
 import com.manager.assistant.databinding.ViewHolderBudgetBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
-import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
 import com.manager.assistant.ui.sync.budget.BudgetRepository;
 import com.manager.assistant.ui.sync.budget.BudgetUpdateReason;
 
@@ -37,20 +34,39 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
         void onClicked(Budget budget, int position);
     }
 
+    public interface ViewHolderListener {
+        /**
+         * 当ViewHolder被点击时的监听器
+         *
+         * @param position 被点击的ViewHolder在Adapter中的真实下标
+         */
+        void onClicked(int position);
+
+        /**
+         * 重置按钮点击监听
+         *
+         * @param position 被点击的ViewHolder在Adapter中的真实下标
+         * @param context  上下文
+         */
+        void onReset(int position, Context context);
+    }
+
     public static class BudgetViewHolder extends RecyclerView.ViewHolder {
         ViewHolderBudgetBinding binding;
-        SpringAnimationOnTouchListener onTouchListener;
 
-        public BudgetViewHolder(@NonNull ViewHolderBudgetBinding binding) {
+        public BudgetViewHolder(@NonNull ViewHolderBudgetBinding binding, ViewHolderListener listener) {
             super(binding.getRoot());
             this.binding = binding;
 
-            //设置触摸监听器
-            Shapeable shapeable = (Shapeable) itemView;
-            Vibrator vibrator = (Vibrator) itemView.getContext()
-                    .getSystemService(Context.VIBRATOR_SERVICE);
-            onTouchListener = new SpringAnimationOnTouchListener(shapeable, vibrator);
-            itemView.setOnTouchListener(onTouchListener);
+            //设置触摸动画
+            AppearanceAnimationHelper.attachMorphAnimation(binding.getRoot());
+
+            //设置点击监听
+            binding.getRoot().setOnClickListener(v -> listener.onClicked(getBindingAdapterPosition()));
+            binding.resetBtn.setOnClickListener(v -> listener.onReset(
+                    getBindingAdapterPosition(),
+                    binding.getRoot().getContext()
+            ));
         }
     }
 
@@ -66,7 +82,35 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
                 parent,
                 false
         );
-        return new BudgetViewHolder(binding);
+        return new BudgetViewHolder(binding, new ViewHolderListener() {
+            @Override
+            public void onClicked(int position) {
+                Budget budget = budgetList.get(position);
+                listener.onClicked(budget, position);
+            }
+
+            @Override
+            public void onReset(int position, Context context) {
+                Budget budget = budgetList.get(position);
+                new MaterialAlertDialogBuilder(context)
+                        .setTitle("重置预算")
+                        .setMessage("此操作将重置预算的余额并将起算日期设置为今天，确认继续吗？")
+                        .setPositiveButton("确定", (dialog, which) -> {
+                            try {
+                                BudgetDataController.resetBudget(budget.getBno(), context);
+                                Toast.makeText(context, String.format(Locale.getDefault(), "%s已成功重置", budget.getName()), Toast.LENGTH_SHORT).show();
+                            } catch (SQLiteException e) {
+                                Toast.makeText(context, "预算重置失败", Toast.LENGTH_SHORT).show();
+                                ExceptionHelper.showExceptionDialog(context, e);
+                                return;
+                            }
+
+                            onResetDialogConfirmed(position);
+                        })
+                        .setNegativeButton("取消", null)
+                        .show();
+            }
+        });
     }
 
     @Override
