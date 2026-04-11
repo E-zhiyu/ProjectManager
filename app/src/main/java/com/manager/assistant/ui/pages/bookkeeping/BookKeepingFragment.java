@@ -115,6 +115,7 @@ public class BookKeepingFragment extends Fragment {
                 mainActivity.binding.searchView.removeTransitionListener(transitionListener);   //销毁transitionListener
             }
             mainActivity.binding.clearHistoryBtn.setOnClickListener(null);                      //销毁清空历史按钮点击监听
+            mainActivity.binding.searchHistoryRecycler.setAdapter(null);                        //清除适配器
         }
     }
 
@@ -273,6 +274,13 @@ public class BookKeepingFragment extends Fragment {
             });
             mainActivity.binding.searchHistoryRecycler.setAdapter(searchViewAdapter);
 
+            //先刷新一下内容，以应对SearchView展开时的界面重建
+            List<String> historyList = SearchHistoryPreference.getHistory(
+                    SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+                    requireContext()
+            );
+            searchViewAdapter.refreshSearchHistory(historyList);
+
             //设置显示监听，用于初始化常用词与清空提示词按钮
             transitionListener = (searchView, previousState, newState) -> {
                 //显示时执行的动作
@@ -288,17 +296,12 @@ public class BookKeepingFragment extends Fragment {
 
             //设置清除搜索历史按钮点击监听
             mainActivity.binding.clearHistoryBtn.setOnClickListener(v -> {
-                binding.remarkSearchBar.setText("");
-                searchText = "";
-                mainActivity.binding.searchView.hide();
-
                 SearchHistoryPreference.setHistory(
                         SearchHistoryPreference.KEY_ACCOUNT_REMARK,
                         new ArrayList<>(),
                         requireContext()
                 );
-
-                refreshAccountRecycler();
+                searchViewAdapter.refreshSearchHistory(new ArrayList<>());
             });
 
             //设置搜索监听
