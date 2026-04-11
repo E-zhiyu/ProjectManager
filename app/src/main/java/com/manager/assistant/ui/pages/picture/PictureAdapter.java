@@ -9,8 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckedTextView;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,6 +20,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.manager.assistant.data.controllers.PictureDataController;
+import com.manager.assistant.databinding.ViewHolderPictureBinding;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.Picture;
@@ -54,20 +53,18 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     }
 
     public static class PictureViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageView;                                //图像容器视图
-        CheckedTextView checkedTextView;                    //右上角复选框
+        ViewHolderPictureBinding binding;
         private final SpringAnimation scaleXAnim;           //X轴缩放动画
         private final SpringAnimation scaleYAnim;           //Y轴缩放动画
         private static final float PRESSED_SCALE = 0.94f;   //按下时缩放程度
 
-        public PictureViewHolder(@NonNull View view) {
-            super(view);
-            this.imageView = view.findViewById(R.id.image_view);
-            this.checkedTextView = view.findViewById(R.id.checked_text);
+        public PictureViewHolder(@NonNull ViewHolderPictureBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
 
             //设置缩放动画
-            scaleXAnim = new SpringAnimation(view, SpringAnimation.SCALE_X);
-            scaleYAnim = new SpringAnimation(view, SpringAnimation.SCALE_Y);
+            scaleXAnim = new SpringAnimation(binding.getRoot(), SpringAnimation.SCALE_X);
+            scaleYAnim = new SpringAnimation(binding.getRoot(), SpringAnimation.SCALE_Y);
 
             SpringForce forceX = new SpringForce(1f);
             SpringForce forceY = new SpringForce(1f);
@@ -103,7 +100,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
             Glide.with(context)
                     .load(uri)
                     .apply(glideOptions)
-                    .into(imageView);
+                    .into(binding.imageView);
         }
     }
 
@@ -146,9 +143,12 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
     @NonNull
     @Override
     public PictureViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.view_holder_picture, parent, false);
-        return new PictureViewHolder(view);
+        ViewHolderPictureBinding binding = ViewHolderPictureBinding.inflate(
+                LayoutInflater.from(parent.getContext()),
+                parent,
+                false
+        );
+        return new PictureViewHolder(binding);
     }
 
     @Override
@@ -156,43 +156,43 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
         Picture picture = pictureList.get(position);
         Uri pictureUri = picture.getPictureUri();
         if (pictureUri != null) {
-            holder.setPictureRes(holder.imageView.getContext(), pictureUri, glideOptions);
+            holder.setPictureRes(holder.binding.imageView.getContext(), pictureUri, glideOptions);
 
             //设置复选框属性
             if (isDeleteMode) {
-                holder.checkedTextView.setVisibility(View.VISIBLE);
+                holder.binding.checkedTextView.setVisibility(View.VISIBLE);
             } else {
-                holder.checkedTextView.setVisibility(View.GONE);
+                holder.binding.checkedTextView.setVisibility(View.GONE);
             }
             boolean isChecked = pictureSelectList.get(position);
-            holder.checkedTextView.setChecked(isChecked);
+            holder.binding.checkedTextView.setChecked(isChecked);
             holder.switchScale(isChecked);
 
             //视图点击监听器
-            holder.imageView.setOnClickListener(v -> {
+            holder.binding.imageView.setOnClickListener(v -> {
                 if (!isDeleteMode) {
-                    openPictureCheckActivity(holder.getBindingAdapterPosition(), holder.imageView.getContext());
+                    openPictureCheckActivity(holder.getBindingAdapterPosition(), holder.binding.imageView.getContext());
                 } else {
-                    holder.checkedTextView.setVisibility(View.VISIBLE);
-                    holder.checkedTextView.toggle();
+                    holder.binding.checkedTextView.setVisibility(View.VISIBLE);
+                    holder.binding.checkedTextView.toggle();
 
                     //同步图片选择状态数据
-                    pictureSelectList.set(holder.getBindingAdapterPosition(), holder.checkedTextView.isChecked());
+                    pictureSelectList.set(holder.getBindingAdapterPosition(), holder.binding.checkedTextView.isChecked());
 
                     //执行缩放动画
-                    holder.switchScale(holder.checkedTextView.isChecked());
+                    holder.switchScale(holder.binding.checkedTextView.isChecked());
                 }
             });
 
             //视图长按监听器
-            holder.imageView.setOnLongClickListener(v -> {
+            holder.binding.imageView.setOnLongClickListener(v -> {
                 if (!isDeleteMode) {
                     //更新长按图片下标
                     longClickPosition = holder.getBindingAdapterPosition();
 
                     //显示复选框并选中
-                    holder.checkedTextView.setVisibility(View.VISIBLE);
-                    holder.checkedTextView.toggle();
+                    holder.binding.checkedTextView.setVisibility(View.VISIBLE);
+                    holder.binding.checkedTextView.toggle();
                     pictureSelectList.set(holder.getBindingAdapterPosition(), true);
                     holder.switchScale(true);
 
@@ -200,7 +200,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureV
                     viewModel.updateAdapterStat(true);
 
                     Toast.makeText(
-                            holder.imageView.getContext(),
+                            holder.itemView.getContext(),
                             "返回即可退出图片删除模式",
                             Toast.LENGTH_SHORT
                     ).show();

@@ -3,16 +3,13 @@ package com.manager.assistant.ui.others.adapters;
 import android.content.Context;
 import android.os.Vibrator;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.shape.Shapeable;
-import com.manager.assistant.R;
 import com.manager.assistant.data.classes.Tag;
+import com.manager.assistant.databinding.ViewHolderTagBtnBinding;
 import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
 
 import java.util.List;
@@ -23,22 +20,22 @@ public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtn
 
     //标签按钮点击监听接口
     public interface OnTagBtnClickedListener {
-        void onTagBtnClicked(long tag_no, String tagName); //传递标签编号和名称
+        void onTagBtnClicked(long tagNo, String tagName);   //传递标签编号和名称
     }
 
     public static class BtnViewHolder extends RecyclerView.ViewHolder {
-        MaterialButton tagBtn;     //标签按钮
+        ViewHolderTagBtnBinding binding;
         SpringAnimationOnTouchListener onTouchListener; //带有点击动画的监听器
 
-        public BtnViewHolder(@NonNull View view) {
-            super(view);
-            this.tagBtn = view.findViewById(R.id.tag_btn);
+        public BtnViewHolder(@NonNull ViewHolderTagBtnBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
 
             //设置触摸监听器
-            Vibrator vibrator = (Vibrator) view.getContext()
+            Vibrator vibrator = (Vibrator) binding.getRoot().getContext()
                     .getSystemService(Context.VIBRATOR_SERVICE);
-            onTouchListener = new SpringAnimationOnTouchListener((Shapeable) view, vibrator);
-            view.setOnTouchListener(onTouchListener);
+            onTouchListener = new SpringAnimationOnTouchListener(binding.getRoot(), vibrator);
+            binding.getRoot().setOnTouchListener(onTouchListener);
         }
     }
 
@@ -50,9 +47,12 @@ public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtn
     @NonNull
     @Override
     public BtnViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.view_holder_tag_btn, parent, false);
-        return new BtnViewHolder(view);
+        ViewHolderTagBtnBinding binding = ViewHolderTagBtnBinding.inflate(
+                LayoutInflater.from(parent.getContext()),
+                parent,
+                false
+        );
+        return new BtnViewHolder(binding);
     }
 
     @Override
@@ -61,9 +61,9 @@ public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtn
         String tagName = oneTag.getName();
         long tagTno = oneTag.getTno();
 
-        holder.tagBtn.setText(tagName);
+        holder.binding.tagBtn.setText(tagName);
 
-        holder.tagBtn.setOnClickListener(v -> tagBtnClickedListener.onTagBtnClicked(tagTno, tagName));
+        holder.binding.tagBtn.setOnClickListener(v -> tagBtnClickedListener.onTagBtnClicked(tagTno, tagName));
     }
 
     @Override

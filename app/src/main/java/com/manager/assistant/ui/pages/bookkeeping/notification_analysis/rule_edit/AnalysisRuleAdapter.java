@@ -4,16 +4,14 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.shape.Shapeable;
-import com.google.android.material.textview.MaterialTextView;
-import com.manager.assistant.R;
 import com.manager.assistant.data.controllers.TagDataController;
+import com.manager.assistant.databinding.ViewHolderAnalysisRuleBinding;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.data.classes.AnalysisRule;
 import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
@@ -28,19 +26,16 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
     private final List<AnalysisRule> ruleList;  //规则列表
 
     public static class AnalysisRuleViewHolder extends RecyclerView.ViewHolder {
-        MaterialTextView ruleNameText, tagNameText, typeText;
+        ViewHolderAnalysisRuleBinding binding;
         SpringAnimationOnTouchListener onTouchListener;
 
-        public AnalysisRuleViewHolder(@NonNull View itemView) {
-            super(itemView);
-
-            ruleNameText = itemView.findViewById(R.id.rule_name_text);
-            tagNameText = itemView.findViewById(R.id.tag_name_text);
-            typeText = itemView.findViewById(R.id.type_text);
+        public AnalysisRuleViewHolder(@NonNull ViewHolderAnalysisRuleBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
 
             //设置触摸监听器
-            Shapeable shapeable = (Shapeable) itemView;
-            Vibrator vibrator = (Vibrator) itemView.getContext()
+            Shapeable shapeable = binding.getRoot();
+            Vibrator vibrator = (Vibrator) binding.getRoot().getContext()
                     .getSystemService(Context.VIBRATOR_SERVICE);
             onTouchListener = new SpringAnimationOnTouchListener(shapeable, vibrator);
             itemView.setOnTouchListener(onTouchListener);
@@ -65,9 +60,12 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
     @NonNull
     @Override
     public AnalysisRuleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.view_holder_analysis_rule, parent, false);
-        return new AnalysisRuleViewHolder(view);
+        ViewHolderAnalysisRuleBinding binding = ViewHolderAnalysisRuleBinding.inflate(
+                LayoutInflater.from(parent.getContext()),
+                parent,
+                false
+        );
+        return new AnalysisRuleViewHolder(binding);
     }
 
     @Override
@@ -80,9 +78,9 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
 
         //初始化规则视图
         String typeStr = type.getTitle();
-        holder.ruleNameText.setText(ruleName);
-        holder.typeText.setText(typeStr);
-        holder.tagNameText.setText(ruleTag.getName());
+        holder.binding.ruleNameText.setText(ruleName);
+        holder.binding.typeText.setText(typeStr);
+        holder.binding.tagNameText.setText(ruleTag.getName());
 
         //设置圆角大小
         AppearanceAnimationHelper.setRecyclerItemRadius(holder.itemView, ruleList.size(), position);

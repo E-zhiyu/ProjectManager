@@ -5,10 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -16,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
+import com.manager.assistant.databinding.ViewHolderTagGroupBinding;
 import com.manager.assistant.ui.others.animators.ExpandFoldAnimator;
 import com.manager.assistant.ui.others.animators.RotateAnimator;
 import com.manager.assistant.data.classes.Tag;
@@ -25,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecyclerAdapter.TagEditViewHolder> {
+public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecyclerAdapter.TagGroupViewHolder> {
     private final Map<TagGroup, List<Tag>> tagGroupMap;            //标签分组字典
     private final OnTextViewClickedListener textClickedListener;    //标签文本点击事件监听器
 
@@ -50,17 +48,13 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
         void onGroupTextViewClicked(long groupNo, String groupName);
     }
 
-    public static class TagEditViewHolder extends RecyclerView.ViewHolder {
-        MaterialTextView groupNameText;       //分组名称文本视图
-        ImageButton expandFoldView;           //控制卡片展开和折叠的按钮
-        LinearLayout subViewLayout;           //子组件的线性布局管理器
+    public static class TagGroupViewHolder extends RecyclerView.ViewHolder {
+        ViewHolderTagGroupBinding binding;
         boolean isExpanded = true;
 
-        public TagEditViewHolder(@NonNull View itemView) {
-            super(itemView);
-            groupNameText = itemView.findViewById(R.id.tag_group_name_view);
-            subViewLayout = itemView.findViewById(R.id.sub_view_layout);
-            expandFoldView = itemView.findViewById(R.id.expand_fold_btn);
+        public TagGroupViewHolder(@NonNull ViewHolderTagGroupBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
     }
 
@@ -77,14 +71,17 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
     @NonNull
     @Override
-    public TagEditViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.view_holder_tag_group, parent, false);
-        return new TagEditViewHolder(view);
+    public TagGroupViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        ViewHolderTagGroupBinding binding = ViewHolderTagGroupBinding.inflate(
+                LayoutInflater.from(parent.getContext()),
+                parent,
+                false
+        );
+        return new TagGroupViewHolder(binding);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull TagEditViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull TagGroupViewHolder holder, int position) {
         Context context = holder.itemView.getContext();
 
         //获取数据
@@ -95,7 +92,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
         String groupName = currentGroup.getGroupName();
 
         //设置分组名称文本
-        holder.groupNameText.setText(groupName);
+        holder.binding.groupNameText.setText(groupName);
 
         //设置分组名称文本视图点击监听器
         holder.itemView.setOnClickListener(v ->
@@ -103,8 +100,8 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
         );
 
         //设置展开和折叠视图的点击方法
-        RotateAnimator rotateAnimator = new RotateAnimator(holder.expandFoldView, 0f, 180f);
-        holder.expandFoldView.setOnClickListener(v -> {
+        RotateAnimator rotateAnimator = new RotateAnimator(holder.binding.subViewLayout, 0f, 180f);
+        holder.binding.subViewLayout.setOnClickListener(v -> {
             //修改标志位
             holder.isExpanded = !holder.isExpanded;
 
@@ -113,14 +110,14 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
 
             //切换子组件布局的可见性
             if (holder.isExpanded) {
-                ExpandFoldAnimator.expand(holder.subViewLayout);
+                ExpandFoldAnimator.expand(holder.binding.subViewLayout);
             } else {
-                ExpandFoldAnimator.collapse(holder.subViewLayout);
+                ExpandFoldAnimator.collapse(holder.binding.subViewLayout);
             }
         });
 
         //添加标签文本视图
-        holder.subViewLayout.removeAllViews();    //先删除旧视图
+        holder.binding.subViewLayout.removeAllViews();    //先删除旧视图
         List<Tag> tagList = currentEntry.getValue();
         for (Tag oneTag : tagList) {
             String tagName = oneTag.getName();
@@ -158,7 +155,7 @@ public class TagManageRecyclerAdapter extends RecyclerView.Adapter<TagManageRecy
             );
 
             tagTextView.setText(tagName);
-            holder.subViewLayout.addView(tagTextView);
+            holder.binding.subViewLayout.addView(tagTextView);
         }
     }
 

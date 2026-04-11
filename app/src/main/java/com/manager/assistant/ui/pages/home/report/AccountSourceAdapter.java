@@ -2,16 +2,13 @@ package com.manager.assistant.ui.pages.home.report;
 
 import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.progressindicator.LinearProgressIndicator;
-import com.google.android.material.textview.MaterialTextView;
-import com.manager.assistant.R;
 import com.manager.assistant.data.classes.AccountSourceInfo;
+import com.manager.assistant.databinding.ViewHolderAmountProportionBinding;
 import com.manager.assistant.ui.others.animators.StrikeThroughAnimator;
 
 import java.util.ArrayList;
@@ -33,19 +30,12 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
     }
 
     public static class AccountProportionViewHolder extends RecyclerView.ViewHolder {
-        MaterialTextView sourceNameText;        //标签名称文本
-        MaterialTextView proportionText;        //金额占比文本
-        MaterialTextView amountText;            //金额文本
-        LinearProgressIndicator proportionBar;  //占比进度条
+        ViewHolderAmountProportionBinding binding;
         boolean isExcepted = false;               //在统计报表时该项是否被排除
 
-        public AccountProportionViewHolder(@NonNull View itemView) {
-            super(itemView);
-
-            sourceNameText = itemView.findViewById(R.id.source_name_text);
-            proportionText = itemView.findViewById(R.id.percentage_text);
-            amountText = itemView.findViewById(R.id.amount_text);
-            proportionBar = itemView.findViewById(R.id.percentage_bar);
+        public AccountProportionViewHolder(@NonNull ViewHolderAmountProportionBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
     }
 
@@ -57,9 +47,12 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
     @NonNull
     @Override
     public AccountProportionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.view_holder_amount_proportion, parent, false);
-        return new AccountProportionViewHolder(view);
+        ViewHolderAmountProportionBinding binding = ViewHolderAmountProportionBinding.inflate(
+                LayoutInflater.from(parent.getContext()),
+                parent,
+                false
+        );
+        return new AccountProportionViewHolder(binding);
     }
 
     @Override
@@ -74,15 +67,15 @@ public class AccountSourceAdapter extends RecyclerView.Adapter<AccountSourceAdap
         int percentage = info.getPercentage();
         double amount = info.getAmount();
 
-        holder.sourceNameText.setText(source_name);               //来源名称
-        holder.amountText.setText(String.format(Locale.getDefault(), "%.2f", amount));  //金额
+        holder.binding.sourceNameText.setText(source_name);               //来源名称
+        holder.binding.amountText.setText(String.format(Locale.getDefault(), "%.2f", amount));  //金额
         String percentageStr = String.format(Locale.getDefault(), "%d%%", percentage);
-        holder.proportionText.setText(percentageStr);             //百分比文本
-        holder.proportionBar.setProgress(percentage);             //百分比进度条
+        holder.binding.percentageText.setText(percentageStr);             //百分比文本
+        holder.binding.percentageBar.setProgress(percentage);             //百分比进度条
 
         //设置点击监听
         StrikeThroughAnimator strikeThroughAnimator = new StrikeThroughAnimator(
-                holder.sourceNameText,
+                holder.binding.sourceNameText,
                 holder.itemView.getContext()
         );
         holder.itemView.setOnClickListener(v -> {

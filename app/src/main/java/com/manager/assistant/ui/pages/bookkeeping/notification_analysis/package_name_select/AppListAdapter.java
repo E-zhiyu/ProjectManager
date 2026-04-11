@@ -2,16 +2,13 @@ package com.manager.assistant.ui.pages.bookkeeping.notification_analysis.package
 
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.imageview.ShapeableImageView;
-import com.google.android.material.textview.MaterialTextView;
-import com.manager.assistant.R;
 import com.manager.assistant.data.classes.AppInfo;
+import com.manager.assistant.databinding.ViewHolderAppInfoBinding;
 import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 
 import java.util.ArrayList;
@@ -22,15 +19,11 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppInfoV
     private final List<AppInfo> appInfoList;    //应用列表
 
     public static class AppInfoViewHolder extends RecyclerView.ViewHolder {
-        ShapeableImageView appIconView;                 //应用图标视图
-        MaterialTextView appNameText, packageNameText;  //应用名称和包名文本视图
+        ViewHolderAppInfoBinding binding;
 
-        public AppInfoViewHolder(@NonNull View itemView) {
-            super(itemView);
-
-            appIconView = itemView.findViewById(R.id.app_icon_view);
-            appNameText = itemView.findViewById(R.id.app_name_text);
-            packageNameText = itemView.findViewById(R.id.package_name_text);
+        public AppInfoViewHolder(@NonNull ViewHolderAppInfoBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
     }
 
@@ -51,9 +44,12 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppInfoV
     @NonNull
     @Override
     public AppInfoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.view_holder_app_info, parent, false);
-        return new AppInfoViewHolder(view);
+        ViewHolderAppInfoBinding binding = ViewHolderAppInfoBinding.inflate(
+                LayoutInflater.from(parent.getContext()),
+                parent,
+                false
+        );
+        return new AppInfoViewHolder(binding);
     }
 
     @Override
@@ -65,9 +61,9 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppInfoV
         Bitmap appIcon = appInfo.getAppIcon();
 
         //初始化视图
-        holder.appNameText.setText(appName);
-        holder.packageNameText.setText(packageName);
-        holder.appIconView.setImageBitmap(appIcon);
+        holder.binding.appNameText.setText(appName);
+        holder.binding.packageNameText.setText(packageName);
+        holder.binding.appIconView.setImageBitmap(appIcon);
 
         //设置视图圆角
         AppearanceAnimationHelper.setRecyclerItemRadius(holder.itemView, appInfoList.size(), position);

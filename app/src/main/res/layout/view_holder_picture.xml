@@ -26,7 +26,7 @@
     </com.google.android.material.card.MaterialCardView>
 
     <androidx.appcompat.widget.AppCompatCheckedTextView
-        android:id="@+id/checked_text"
+        android:id="@+id/checked_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="3dp"

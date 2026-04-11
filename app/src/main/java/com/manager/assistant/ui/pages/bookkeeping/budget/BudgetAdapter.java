@@ -5,9 +5,7 @@ import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -15,10 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.shape.Shapeable;
-import com.google.android.material.textview.MaterialTextView;
-import com.manager.assistant.R;
 import com.manager.assistant.data.classes.Budget;
 import com.manager.assistant.data.controllers.BudgetDataController;
+import com.manager.assistant.databinding.ViewHolderBudgetBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
@@ -41,17 +38,12 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
     }
 
     public static class BudgetViewHolder extends RecyclerView.ViewHolder {
-        MaterialTextView nameText, startDateText, amountText, resetFrequencyText;
-        ImageButton resetBtn;
+        ViewHolderBudgetBinding binding;
         SpringAnimationOnTouchListener onTouchListener;
 
-        public BudgetViewHolder(@NonNull View itemView) {
-            super(itemView);
-            nameText = itemView.findViewById(R.id.name_text);
-            startDateText = itemView.findViewById(R.id.start_date_text);
-            amountText = itemView.findViewById(R.id.amount_text);
-            resetFrequencyText = itemView.findViewById(R.id.reset_frequency_text);
-            resetBtn = itemView.findViewById(R.id.reset_btn);
+        public BudgetViewHolder(@NonNull ViewHolderBudgetBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
 
             //设置触摸监听器
             Shapeable shapeable = (Shapeable) itemView;
@@ -69,9 +61,12 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
     @NonNull
     @Override
     public BudgetViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.view_holder_budget, parent, false);
-        return new BudgetViewHolder(view);
+        ViewHolderBudgetBinding binding = ViewHolderBudgetBinding.inflate(
+                LayoutInflater.from(parent.getContext()),
+                parent,
+                false
+        );
+        return new BudgetViewHolder(binding);
     }
 
     @Override
@@ -84,11 +79,11 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
         ResetFrequency resetFrequency = budget.getResetFrequency();
 
         //填充各种信息文本
-        holder.nameText.setText(name);
-        holder.startDateText.setText(startDate);
+        holder.binding.nameText.setText(name);
+        holder.binding.startDateText.setText(startDate);
         String amountStr = String.format(Locale.getDefault(), "%.2f/%.2f", leftAmount, initAmount);
-        holder.amountText.setText(amountStr);
-        holder.resetFrequencyText.setText(resetFrequency.getTitle());
+        holder.binding.amountText.setText(amountStr);
+        holder.binding.resetFrequencyText.setText(resetFrequency.getTitle());
 
         //设置圆角
         AppearanceAnimationHelper.setRecyclerItemRadius(holder.itemView, budgetList.size(), position);
@@ -98,7 +93,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
 
         //设置重置按钮点击监听
         Context context = holder.itemView.getContext();
-        holder.resetBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(context)
+        holder.binding.resetBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(context)
                 .setTitle("重置预算")
                 .setMessage("此操作将重置预算的余额并将起算日期设置为今天，确认继续吗？")
                 .setPositiveButton("确定", (dialog, which) -> {
@@ -166,7 +161,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
                 .collect(Collectors.toList());
 
         //更新 UI
-        Budget budget = new Budget(bno,name, initAmount, startDate, resetFrequency, tagNoList);
+        Budget budget = new Budget(bno, name, initAmount, startDate, resetFrequency, tagNoList);
         budgetList.add(budget);
         notifyItemInserted(budgetList.size() - 1);
         notifyItemChanged(budgetList.size() - 2);   //更新尾部卡片圆角

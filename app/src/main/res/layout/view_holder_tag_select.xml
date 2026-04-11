@@ -8,7 +8,7 @@
     android:paddingEnd="20dp">
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tag_group_name_view"
+        android:id="@+id/group_name_text"
         style="@style/LargeTitleTextViewStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
