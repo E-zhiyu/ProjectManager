@@ -34,13 +34,27 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- SearchView的搜索历史界面列表 -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/search_history_recycler"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="10dp"
-            app:layoutManager="com.google.android.flexbox.FlexboxLayoutManager" />
+            android:orientation="vertical">
+
+            <!-- SearchView的搜索历史界面列表 -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/search_history_recycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp"
+                app:layoutManager="com.google.android.flexbox.FlexboxLayoutManager" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/clear_history_btn"
+                style="@style/TextBtnStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/clear_search_history" />
+        </LinearLayout>
     </com.google.android.material.search.SearchView>
 </androidx.constraintlayout.widget.ConstraintLayout>
