@@ -5,7 +5,6 @@ import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.shape.Shapeable;
 import com.manager.assistant.R;
-import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
 
@@ -61,18 +59,11 @@ public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtn
     public void onBindViewHolder(@NonNull BtnViewHolder holder, int position) {
         Tag oneTag = tagList.get(position);
         String tagName = oneTag.getName();
-        long tag_no = oneTag.getTno();
+        long tagTno = oneTag.getTno();
 
         holder.tagBtn.setText(tagName);
 
-        holder.tagBtn.setOnClickListener(v -> {
-            try {
-                tagBtnClickedListener.onTagBtnClicked(tag_no, tagName);
-            } catch (NullPointerException e) {
-                ExceptionHelper.showExceptionDialog(holder.itemView.getContext(), e);
-                Toast.makeText(holder.itemView.getContext(), "标签按钮点击监听器初始化异常", Toast.LENGTH_SHORT).show();
-            }
-        });
+        holder.tagBtn.setOnClickListener(v -> tagBtnClickedListener.onTagBtnClicked(tagTno, tagName));
     }
 
     @Override

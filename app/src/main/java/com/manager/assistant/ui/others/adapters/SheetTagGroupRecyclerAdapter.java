@@ -5,14 +5,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.classes.TagGroup;
-import com.manager.assistant.ui.others.bottom_sheets.tag.GridSpacingItemDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,17 +59,9 @@ public class SheetTagGroupRecyclerAdapter extends RecyclerView.Adapter<SheetTagG
             holder.tagBtnRecycler.setVisibility(View.GONE);
         } else {
             holder.tagGroupNameText.setText(groupName);
+
             SheetTagBtnRecyclerAdapter btnLayoutAdapter = new SheetTagBtnRecyclerAdapter(tagList, listener);
             holder.tagBtnRecycler.setAdapter(btnLayoutAdapter);
-
-            //设置布局器
-            int spanCount = 3;
-            GridLayoutManager layoutManager = new GridLayoutManager(holder.itemView.getContext(), spanCount);
-            holder.tagBtnRecycler.setLayoutManager(layoutManager);
-
-            //设置按钮间隔
-            int spacing = 16; //单位：像素
-            holder.tagBtnRecycler.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing, true));
         }
     }
 
