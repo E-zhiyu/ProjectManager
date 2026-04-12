@@ -302,7 +302,15 @@ public class PackageNameSelectActivity extends AppCompatActivity {
                         .subscribeOn(Schedulers.computation())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
-                                appListAdapter::setAppInfoList,
+                                appInfoList -> {
+                                    appListAdapter.setAppInfoList(appInfoList);
+
+                                    if (appInfoList.isEmpty()) {
+                                        binding.emptyTipText.setVisibility(View.VISIBLE);
+                                    } else {
+                                        binding.emptyTipText.setVisibility(View.GONE);
+                                    }
+                                },
                                 e -> {
                                     ExceptionHelper.showExceptionDialog(this, e);
                                     binding.appListRefreshLayout.setRefreshing(false);
