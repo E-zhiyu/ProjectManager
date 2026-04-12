@@ -2,14 +2,18 @@ package com.manager.assistant.ui.pages.bookkeeping.budget;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
-import android.widget.Toast;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.manager.assistant.data.classes.Budget;
 import com.manager.assistant.data.controllers.BudgetDataController;
@@ -18,8 +22,9 @@ import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.PermissionHelper;
-import com.manager.assistant.helpers.appearence.AnimationHelper;
-import com.manager.assistant.helpers.resourse.ColorHelper;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
+import com.manager.assistant.helpers.appearence.ColorHelper;
+import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -42,12 +47,26 @@ public class BudgetManageActivity extends AppCompatActivity {
         binding = ActivityBudgetManageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+            binding.budgetRecycler.setPadding(0, 0, 0, systemBars.bottom);
+            return insets;
+        });
+        ViewEdgeHelper.setMarginToNavigation(binding.addFloatingBtn, this);
+
         //初始化启动器和视图
         initViews();
         initLaunchers();
 
         //申请权限
         addPermissionRequests();
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        ViewCompat.requestApplyInsets(getWindow().getDecorView());
     }
 
     @Override
@@ -83,7 +102,7 @@ public class BudgetManageActivity extends AppCompatActivity {
     private void initViews() {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
 
-        AnimationHelper.attachMorphAnimation(binding.addFloatingBtn);
+        AppearanceAnimationHelper.attachMorphAnimation(binding.addFloatingBtn);
 
         //获取颜色资源并设置下拉刷新布局的颜色
         int colorPrimary = ColorHelper.getPrimaryColor(this);
@@ -107,7 +126,7 @@ public class BudgetManageActivity extends AppCompatActivity {
         binding.refreshLayout.setOnRefreshListener(this::refreshBudget);
 
         //设置浮动按钮隐藏行为
-        AnimationHelper.setupFloatingBtnBehaviour(binding.budgetRecycler, binding.addFloatingBtn);
+        AppearanceAnimationHelper.setupFloatingBtnBehaviour(binding.budgetRecycler, binding.addFloatingBtn);
     }
 
     /**
@@ -127,7 +146,7 @@ public class BudgetManageActivity extends AppCompatActivity {
                         return;
                     }
 
-                    onBudgetAdded(dataBundle);
+                    adapter.addBudget(dataBundle);
                 }
         );
 
@@ -145,9 +164,9 @@ public class BudgetManageActivity extends AppCompatActivity {
                     }
 
                     if (resultCode == Activity.RESULT_OK) {
-                        onBudgetModified(dataBundle);
+                        adapter.modifyBudget(dataBundle);
                     } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
-                        onBudgetDeleted(dataBundle);
+                        adapter.deleteBudget(dataBundle);
                     }
                 }
         );
@@ -195,7 +214,15 @@ public class BudgetManageActivity extends AppCompatActivity {
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
-                                adapter::refreshBudget,
+                                budgetList -> {
+                                    adapter.refreshBudget(budgetList);
+
+                                    if (budgetList.isEmpty()) {
+                                        binding.emptyTipText.setVisibility(View.VISIBLE);
+                                    } else {
+                                        binding.emptyTipText.setVisibility(View.GONE);
+                                    }
+                                },
                                 e -> ExceptionHelper.showExceptionDialog(this, e),
                                 () -> {
                                     binding.refreshLayout.setRefreshing(false);
@@ -203,35 +230,5 @@ public class BudgetManageActivity extends AppCompatActivity {
                                 }
                         )
         );
-    }
-
-    /**
-     * 处理预算添加的回调
-     *
-     * @param dataBundle 新添加的预算的数据包
-     */
-    private void onBudgetAdded(Bundle dataBundle) {
-        adapter.addBudget(dataBundle, this);
-        Toast.makeText(this, "预算添加成功", Toast.LENGTH_SHORT).show();
-    }
-
-    /**
-     * 预算修改的回调
-     *
-     * @param dataBundle 修改后的数据包
-     */
-    private void onBudgetModified(Bundle dataBundle) {
-        adapter.modifyBudget(dataBundle, this);
-        Toast.makeText(this, "预算修改成功", Toast.LENGTH_SHORT).show();
-    }
-
-    /**
-     * 预算删除的回调
-     *
-     * @param dataBundle 删除预算的数据包
-     */
-    private void onBudgetDeleted(Bundle dataBundle) {
-        adapter.deleteBudget(dataBundle, this);
-        Toast.makeText(this, "预算删除成功", Toast.LENGTH_SHORT).show();
     }
 }

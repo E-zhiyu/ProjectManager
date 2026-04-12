@@ -3,29 +3,27 @@ package com.manager.assistant.ui.others.adapters;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatCheckedTextView;
 import androidx.core.widget.TextViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.manager.assistant.R;
+import com.manager.assistant.databinding.ViewHolderMultichoiceItemBinding;
 
-public class MultiChoiceDialogAdapter extends RecyclerView.Adapter<MultiChoiceDialogAdapter.CheckedTextViewHolder> {
-    private final String[] itemNames;         //多选选项
+public class MultiChoiceDialogAdapter extends RecyclerView.Adapter<MultiChoiceDialogAdapter.MultiChoiceItemViewHolder> {
+    private final String[] itemNames;           //多选选项
     private final boolean[] itemStats;          //选项初始状态
     private final boolean[] itemEnabled;        //选项是否被禁用
     private final OnCheckedListener listener;   //选择行为监听器
 
-    public static class CheckedTextViewHolder extends RecyclerView.ViewHolder {
-        AppCompatCheckedTextView checkedTextView;
+    public static class MultiChoiceItemViewHolder extends RecyclerView.ViewHolder {
+        ViewHolderMultichoiceItemBinding binding;
 
-        public CheckedTextViewHolder(View itemView) {
-            super(itemView);
-            checkedTextView = itemView.findViewById(R.id.checked_text);
+        public MultiChoiceItemViewHolder(@NonNull ViewHolderMultichoiceItemBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
     }
 
@@ -56,14 +54,17 @@ public class MultiChoiceDialogAdapter extends RecyclerView.Adapter<MultiChoiceDi
 
     @NonNull
     @Override
-    public CheckedTextViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.view_holder_multichoice_item, parent, false);
-        return new CheckedTextViewHolder(view);
+    public MultiChoiceItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        ViewHolderMultichoiceItemBinding binding = ViewHolderMultichoiceItemBinding.inflate(
+                LayoutInflater.from(parent.getContext()),
+                parent,
+                false
+        );
+        return new MultiChoiceItemViewHolder(binding);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CheckedTextViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MultiChoiceItemViewHolder holder, int position) {
         boolean isEnabled = true;
         if (itemEnabled != null) {
             isEnabled = itemEnabled[position];
@@ -71,19 +72,22 @@ public class MultiChoiceDialogAdapter extends RecyclerView.Adapter<MultiChoiceDi
         boolean stat = itemStats[position];
 
         //设置选项的可用性
-        holder.checkedTextView.setText(itemNames[position]);
+        holder.binding.checkedText.setText(itemNames[position]);
         if (!isEnabled) {
-            holder.checkedTextView.setEnabled(false);
-            holder.checkedTextView.setChecked(false);
-            TextViewCompat.setCompoundDrawableTintList(holder.checkedTextView, ColorStateList.valueOf(Color.GRAY));  //图标也变成灰色
+            //禁用选项
+            holder.binding.checkedText.setEnabled(false);
+            holder.binding.checkedText.setChecked(false);
+
+            //图标也变成灰色
+            TextViewCompat.setCompoundDrawableTintList(holder.binding.checkedText, ColorStateList.valueOf(Color.GRAY));
         } else {
-            holder.checkedTextView.setChecked(stat);
+            holder.binding.checkedText.setChecked(stat);
         }
 
         //绑定复选框的选择监听器
-        holder.checkedTextView.setOnClickListener(
+        holder.binding.checkedText.setOnClickListener(
                 view -> {
-                    holder.checkedTextView.toggle();
+                    holder.binding.checkedText.toggle();
                     itemStats[position] = !itemStats[position];
                     listener.onChecked(position, itemStats[position]);
                 }

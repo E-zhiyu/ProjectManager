@@ -6,21 +6,27 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 
+import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.manager.assistant.data.controllers.RuleDataController;
-import com.manager.assistant.databinding.ActivityAnalysisRuleManageBinding;
-import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.databinding.ActivityRuleManageBinding;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.PermissionHelper;
-import com.manager.assistant.helpers.resourse.ColorHelper;
+import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.data.classes.AnalysisRule;
+import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 import com.manager.assistant.ui.sync.tag.TagRepository;
 
 import java.util.ArrayList;
@@ -35,19 +41,28 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> ruleAddLauncher;     //添加规则界面的启动器
     private ActivityResultLauncher<Intent> ruleModifyLauncher;  //修改规则的启动器
     private AnalysisRuleAdapter ruleAdapter;                   //规则列表适配器
-    private ActivityAnalysisRuleManageBinding binding;          //XML视图绑定引用
+    private ActivityRuleManageBinding binding;          //XML视图绑定引用
     private final CompositeDisposable disposables = new CompositeDisposable();
     private final PermissionHelper permissionHelper = new PermissionHelper(this);   //权限申请帮助器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
 
-        binding = ActivityAnalysisRuleManageBinding.inflate(getLayoutInflater());
+        binding = ActivityRuleManageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+            binding.ruleRecycler.setPadding(0, 0, 0, systemBars.bottom);
+            return insets;
+        });
+        ViewEdgeHelper.setMarginToNavigation(binding.addFloatingBtn, this);
+
         initViews();
-        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
+        AppearanceAnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
         initLaunchers();
         addPermissionRequests();
 
@@ -108,7 +123,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         binding.ruleRecycler.setAdapter(ruleAdapter);
 
         //设置规则列表滚动监听器
-        AnimationHelper.setupFloatingBtnBehaviour(binding.ruleRecycler, binding.addFloatingBtn);
+        AppearanceAnimationHelper.setupFloatingBtnBehaviour(binding.ruleRecycler, binding.addFloatingBtn);
 
         //设置下拉刷新布局的刷新监听器
         binding.refreshLayout.setOnRefreshListener(this::refreshRuleRecycler);
@@ -216,7 +231,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
             return;
         }
 
-        ruleAdapter.addRule(dataBundle, this);
+        ruleAdapter.addRule(dataBundle);
     }
 
     /**
@@ -234,10 +249,10 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         }
 
         if (resultCode == Activity.RESULT_OK) {
-            ruleAdapter.modifyRule(dataBundle, this);
+            ruleAdapter.modifyRule(dataBundle);
         } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
             int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
-            ruleAdapter.deleteRule(position, this);
+            ruleAdapter.deleteRule(position);
         }
     }
 
@@ -251,7 +266,15 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
-                                ruleList -> ruleAdapter.refreshRuleList(ruleList),
+                                ruleList -> {
+                                    ruleAdapter.refreshRuleList(ruleList);
+
+                                    if (ruleList.isEmpty()) {
+                                        binding.emptyTipText.setVisibility(View.VISIBLE);
+                                    } else {
+                                        binding.emptyTipText.setVisibility(View.GONE);
+                                    }
+                                },
                                 e -> ExceptionHelper.showExceptionDialog(this, e),
                                 () -> {
                                     binding.refreshLayout.setRefreshing(false);

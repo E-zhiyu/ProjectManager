@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.manager.assistant.R;
 import com.manager.assistant.data.controllers.AccountDataController;
 import com.manager.assistant.data.controllers.BudgetDataController;
 import com.manager.assistant.data.controllers.TagDataController;
@@ -25,7 +27,7 @@ import com.manager.assistant.data.save.database.Tables;
 import com.manager.assistant.data.save.preference.BookKeepingStartDatePreference;
 import com.manager.assistant.databinding.FragmentHomeBinding;
 import com.manager.assistant.generic_enums.LogTags;
-import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
 import com.manager.assistant.ui.sync.account.RunningAccountViewModel;
@@ -41,7 +43,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -49,9 +56,10 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class HomeFragment extends Fragment {
-    private FragmentHomeBinding binding;                    //XML视图绑定引用
-    private double dayBalance, dayExpense, dayIncome;    //日结余、日支出、日收入
+    private FragmentHomeBinding binding;                        //XML视图绑定引用
+    private double dayBalance, dayExpense, dayIncome;           //日结余、日支出、日收入
     private final CompositeDisposable disposables = new CompositeDisposable();
+    private final List<String> tipsList = new LinkedList<>();   //提示文本列表
 
     @Nullable
     @Override
@@ -63,6 +71,9 @@ public class HomeFragment extends Fragment {
         initViews();
         startObserveLiveData();
         initBalanceView();
+
+        //显示随机提示文本
+        showRandomTipText();
 
         return binding.getRoot();
     }
@@ -80,12 +91,12 @@ public class HomeFragment extends Fragment {
      */
     private void initViews() {
         //设置按钮的点击监听器
-        AnimationHelper.attachMorphAnimation(binding.reportBalanceCardview);
+        AppearanceAnimationHelper.attachMorphAnimation(binding.reportBalanceCardview);
         binding.reportBalanceCardview.setOnClickListener(v -> {
             Intent skip2Report = new Intent(requireContext(), ReportActivity.class);
             startActivity(skip2Report);
         });
-        AnimationHelper.attachMorphAnimation(binding.tagCard);
+        AppearanceAnimationHelper.attachMorphAnimation(binding.tagCard);
         binding.tagCard.setOnClickListener(v -> {
             Intent skip2TagManage = new Intent(requireContext(), TagManageActivity.class);
             startActivity(skip2TagManage);
@@ -94,7 +105,7 @@ public class HomeFragment extends Fragment {
             Intent skip2BudgetManage = new Intent(requireContext(), BudgetManageActivity.class);
             startActivity(skip2BudgetManage);
         });
-        AnimationHelper.attachMorphAnimation(binding.budgetCard);
+        AppearanceAnimationHelper.attachMorphAnimation(binding.budgetCard);
 
         //初始化记账日期
         String startDateStr = getBookKeepingStartDate();  //获取开始记账的日期
@@ -119,7 +130,21 @@ public class HomeFragment extends Fragment {
             binding.bookkeepingDaysText.setText("这是您记账的第一天");
         }
 
-        //标签数量
+        //随机提示文本
+        binding.tipsCard.setOnClickListener(v -> showRandomTipText());
+        AppearanceAnimationHelper.attachMorphAnimation(binding.tipsCard);
+
+        //报表卡片
+        AppearanceAnimationHelper.setRadius(
+                requireContext(),
+                binding.reportBalanceCardview,
+                AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
+                AppearanceAnimationHelper.SMALL_CARD_RADIUS,
+                AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
+                AppearanceAnimationHelper.SMALL_CARD_RADIUS
+        );
+
+        //标签卡片
         try {
             int tagCount = TagDataController.getDbCount(requireContext());
             binding.tagCountText.setText(String.valueOf(tagCount));
@@ -127,8 +152,16 @@ public class HomeFragment extends Fragment {
             binding.tagCountText.setText(String.valueOf(0));
             Toast.makeText(requireContext(), "无法获取标签数量", Toast.LENGTH_SHORT).show();
         }
+        AppearanceAnimationHelper.setRadius(
+                requireContext(),
+                binding.tagCard,
+                AppearanceAnimationHelper.SMALL_CARD_RADIUS,
+                AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
+                AppearanceAnimationHelper.SMALL_CARD_RADIUS,
+                AppearanceAnimationHelper.SMALL_CARD_RADIUS
+        );
 
-        //预算数量
+        //预算卡片
         try {
             int budgetCount = BudgetDataController.getDbCount(requireContext());
             binding.budgetCountText.setText(String.valueOf(budgetCount));
@@ -136,6 +169,14 @@ public class HomeFragment extends Fragment {
             binding.budgetCountText.setText(String.valueOf(0));
             Toast.makeText(requireContext(), "无法获取预算数量", Toast.LENGTH_SHORT).show();
         }
+        AppearanceAnimationHelper.setRadius(
+                requireContext(),
+                binding.budgetCard,
+                AppearanceAnimationHelper.SMALL_CARD_RADIUS,
+                AppearanceAnimationHelper.SMALL_CARD_RADIUS,
+                AppearanceAnimationHelper.SMALL_CARD_RADIUS,
+                AppearanceAnimationHelper.MEDIUM_CARD_RADIUS
+        );
     }
 
     /**
@@ -384,5 +425,38 @@ public class HomeFragment extends Fragment {
                     }
                 }
         );
+    }
+
+    /**
+     * 显示随机的提示文本
+     */
+    private void showRandomTipText() {
+        //如果提示文本列表为空，则重新获取提示文本资源
+        if (tipsList.isEmpty()) {
+            String[] tipsArray = getResources().getStringArray(R.array.tips_array);
+            tipsList.addAll(Arrays.stream(tipsArray).collect(Collectors.toList()));
+
+            //添加小米专属的提示文本
+            String manufacturer = Build.MANUFACTURER.toLowerCase();
+            if (manufacturer.contains("xiaomi")) {
+                String[] xiaomiTips = getResources().getStringArray(R.array.xiaomi_tips);
+                tipsList.addAll(Arrays.stream(xiaomiTips).collect(Collectors.toList()));
+            }
+        }
+
+        //获取随机下标
+        Random random = new Random();
+        int randomNum = random.nextInt();
+        if (randomNum < 0) {
+            randomNum = -randomNum;
+        }
+        int tipIndex = randomNum % tipsList.size();
+
+        //显示对应的文本
+        String tip = "tip : " + tipsList.get(tipIndex);
+        binding.tipsText.setText(tip);
+
+        //删除刚刚显示的文本防止重复
+        tipsList.remove(tipIndex);
     }
 }

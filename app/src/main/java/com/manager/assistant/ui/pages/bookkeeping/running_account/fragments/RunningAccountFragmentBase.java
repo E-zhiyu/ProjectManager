@@ -35,7 +35,7 @@ import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.helpers.DateTimePickerHelper;
-import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.sync.picture.AccountPictureViewModel;
 import com.manager.assistant.ui.sync.tag.TagRepository;
@@ -114,7 +114,7 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
         binding = getViewBinding(inflater, container);
 
         initViews();
-        AnimationHelper.setupAllChildMorphAnimation((ViewGroup) binding.getRoot());
+        AppearanceAnimationHelper.setupAllChildMorphAnimation((ViewGroup) binding.getRoot());
         initLaunchers();
 
         //传递完初始化数据后设置RecyclerVIew的适配器
@@ -130,6 +130,7 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
     public void onDestroy() {
         super.onDestroy();
 
+        binding = null;
         disposables.dispose();
     }
 

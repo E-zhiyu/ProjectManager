@@ -2,27 +2,33 @@ package com.manager.assistant.ui.pages.bookkeeping.notification_analysis.rule_ed
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
+import com.manager.assistant.automation.broadcast.BroadcastActions;
 import com.manager.assistant.data.controllers.RuleDataController;
 import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.databinding.ActivityRuleAddModifyBinding;
 import com.manager.assistant.generic_enums.RequestResultCode;
-import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.TagString;
@@ -57,14 +63,23 @@ public class RuleAddModifyActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
 
         binding = ActivityRuleAddModifyBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime()
+            );
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
         receiveInitData();
         initViews();
         initLaunchers();
-        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
+        AppearanceAnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
 
         startObserveTag();
     }
@@ -168,13 +183,44 @@ public class RuleAddModifyActivity extends AppCompatActivity {
             packageNameSelectLauncher.launch(skip2PackageNameSelect);
         });
 
-        //其他按钮
+        //输入说明按钮
         binding.inputInstructionBtn.setOnClickListener(v -> showInputInstructionDialog());
+
+        //完成按钮
         binding.finishBtn.setOnClickListener(v -> {
             String err = verifyInput();
             if (err == null) {
-                Intent result2AnalysisRuleActivity = new Intent();
                 Bundle dataBundle = getInputData();
+                if (!isModifyMode) {
+                    try {
+                        ruleNo = RuleDataController.saveNewRule(dataBundle, this);
+                        Toast.makeText(this, "解析规则添加成功", Toast.LENGTH_SHORT).show();
+                        dataBundle.putLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue(), ruleNo);
+
+                        //发送规则更新广播
+                        Intent ruleUpdated = new Intent(BroadcastActions.ACTION_RULES_UPDATED.toString());
+                        sendBroadcast(ruleUpdated);
+                    } catch (SQLiteException e) {
+                        ExceptionHelper.showExceptionDialog(this, e);
+                        Toast.makeText(this, "解析规则保存失败", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                } else {
+                    try {
+                        RuleDataController.modifyRule(dataBundle, this);
+                        Toast.makeText(this, "解析规则修改成功", Toast.LENGTH_SHORT).show();
+
+                        //发送规则更新广播
+                        Intent ruleUpdated = new Intent(BroadcastActions.ACTION_RULES_UPDATED.toString());
+                        sendBroadcast(ruleUpdated);
+                    } catch (SQLiteException e) {
+                        ExceptionHelper.showExceptionDialog(this, e);
+                        Toast.makeText(this, "规则数据保存失败", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+
+                Intent result2AnalysisRuleActivity = new Intent();
                 result2AnalysisRuleActivity.putExtras(dataBundle);
                 setResult(Activity.RESULT_OK, result2AnalysisRuleActivity);
                 finish();
@@ -182,7 +228,37 @@ public class RuleAddModifyActivity extends AppCompatActivity {
                 Toast.makeText(this, err, Toast.LENGTH_SHORT).show();
             }
         });
+
+        //取消按钮
         binding.cancelBtn.setOnClickListener(v -> finish());
+
+        //删除按钮
+        binding.deleteBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(this)
+                .setTitle("删除规则")
+                .setMessage("确定要删除这条规则吗？")
+                .setNegativeButton("取消", null)
+                .setPositiveButton("确定", (dialog, which) -> {
+                    try {
+                        RuleDataController.deleteRule(ruleNo, this);
+                        Toast.makeText(this, "规则删除成功", Toast.LENGTH_SHORT).show();
+
+                        //发送广播
+                        Intent ruleUpdated = new Intent(BroadcastActions.ACTION_RULES_UPDATED.toString());
+                        sendBroadcast(ruleUpdated);
+                    } catch (SQLiteException e) {
+                        ExceptionHelper.showExceptionDialog(this, e);
+                        Toast.makeText(this, "规则删除失败", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    Intent result2AnalysisRuleActivity = new Intent();
+                    Bundle dataBundle = getInputData();
+                    result2AnalysisRuleActivity.putExtras(dataBundle);
+                    setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2AnalysisRuleActivity);
+                    finish();
+                })
+                .show()
+        );
 
         //设置焦点变更监听器
         binding.ruleNameInput.setOnFocusChangeListener((v, hasFocus) -> {
@@ -244,21 +320,6 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         if (initData != null && isModifyMode) {
             MaterialButton deleteBtn = binding.deleteBtn;
             deleteBtn.setVisibility(View.VISIBLE);
-            deleteBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(this)
-                    .setTitle("删除规则")
-                    .setMessage("确定要删除这条规则吗？")
-                    .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
-                    .setPositiveButton("确定", (dialog, which) -> {
-                        Intent result2AnalysisRuleActivity = new Intent();
-                        Bundle dataBundle = new Bundle();
-                        dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), viewHolderPosition);
-                        result2AnalysisRuleActivity.putExtras(dataBundle);
-
-                        setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2AnalysisRuleActivity);
-                        dialog.dismiss();
-                        finish();
-                    })
-                    .show());
 
             binding.toolbar.setTitle(R.string.modify_rule);
 
@@ -312,14 +373,14 @@ public class RuleAddModifyActivity extends AppCompatActivity {
 
     //处理包名选择方法
     private void onPackageNameSelected(@NonNull Intent data) {
-        String package_name = data.getStringExtra(KeyValueStrings.PACKAGE_NAME.getValue());
-        binding.packageNameInput.setText(package_name);
+        String packageName = data.getStringExtra(KeyValueStrings.PACKAGE_NAME.getValue());
+        binding.packageNameInput.setText(packageName);
         binding.packageNameLayout.setError(null);
     }
 
     //处理标签按钮点击事件
-    public void onTagBtnClicked(long tag_no, String tag_name) {
-        this.tagNo = tag_no;
+    public void onTagBtnClicked(long tagNo, String tag_name) {
+        this.tagNo = tagNo;
         binding.tagInput.setText(tag_name);
         tagSheet.dismiss();
     }
@@ -460,18 +521,18 @@ public class RuleAddModifyActivity extends AppCompatActivity {
                 "- 通知内容(正则表达式)：使用正则表达式匹配通知内容，若成功匹配则按照该规则添加新的流水记录。(注意：第一个捕获组务必为金额信息)  \n\n" +
                 "**提示：如果您不会使用正则表达式，请尝试询问AI，跟AI说明哪个数字为金额数据并让其编写使用捕获组捕获该数字的正则表达式，并在[regex101](https://regex101.com/)中测试您得到的正则表达式是否符合要求**";
 
-        View update_dialog_view = LayoutInflater.from(this)
+        View dialogView = LayoutInflater.from(this)
                 .inflate(R.layout.view_markdown_text, null);
-        MaterialTextView text_view = update_dialog_view.findViewById(R.id.md_textview_in_dialog);
+        MaterialTextView textView = dialogView.findViewById(R.id.md_textview_in_dialog);
 
         //使用Markown渲染Markdown文本
         Markwon markwon = Markwon.create(this);
-        markwon.setMarkdown(text_view, instruction);
+        markwon.setMarkdown(textView, instruction);
 
         new MaterialAlertDialogBuilder(this)
                 .setTitle("输入说明")
-                .setView(update_dialog_view)
-                .setNegativeButton("关闭", (dialog, which) -> dialog.dismiss())
+                .setView(dialogView)
+                .setNegativeButton("关闭", null)
                 .show();
     }
 }

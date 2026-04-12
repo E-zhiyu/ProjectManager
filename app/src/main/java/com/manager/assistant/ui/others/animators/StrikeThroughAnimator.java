@@ -16,7 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 
-import com.manager.assistant.helpers.resourse.ColorHelper;
+import com.manager.assistant.helpers.appearence.ColorHelper;
 
 public class StrikeThroughAnimator {
 

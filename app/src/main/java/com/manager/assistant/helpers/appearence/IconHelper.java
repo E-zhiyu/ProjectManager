@@ -1,4 +1,4 @@
-package com.manager.assistant.helpers.resourse;
+package com.manager.assistant.helpers.appearence;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -9,7 +9,6 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.util.DisplayMetrics;
 
 import androidx.annotation.NonNull;
 
@@ -39,17 +38,6 @@ public class IconHelper {
     }
 
     /**
-     * 将dp转换为像素
-     *
-     * @param context 上下文
-     * @return 目标dp对应的像素数量
-     */
-    public static int dpToPx(@NonNull Context context, int dp) {
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
-    }
-
-    /**
      * 获取统一大小的圆角图标
      *
      * @param context  上下文
@@ -58,7 +46,7 @@ public class IconHelper {
      */
     @NonNull
     public static Bitmap getRoundedCornerIcon(Context context, @NonNull Drawable drawable) {
-        int targetSize = dpToPx(context, TARGET_ICON_SIZE);
+        int targetSize = ViewEdgeHelper.dpToPx(context, TARGET_ICON_SIZE);
 
         //将Drawable转换为Bitmap
         Bitmap originalBitmap = drawableToBitmap(drawable, targetSize, targetSize);

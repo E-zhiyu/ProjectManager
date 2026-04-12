@@ -33,18 +33,25 @@ public class AccountDataController {
     /**
      * 加载流水记录
      *
-     * @param setting 过滤器设置
-     * @param context 上下文
+     * @param setting    过滤器设置
+     * @param searchText 备注搜索文本
+     * @param context    上下文
      * @return 包含符合过滤条件的流水记录列表
      */
     @NonNull
-    public static List<RunningAccountBase> loadRunningAccountData(@NonNull AccountFilterBottomSheet.FilterSetting setting, Context context) {
+    public static List<RunningAccountBase> loadRunningAccountData(
+            @NonNull AccountFilterBottomSheet.FilterSetting setting,
+            String searchText,
+            Context context
+    ) {
         BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openReadLink();
 
         //生成selection子句
         StringBuilder selection = new StringBuilder("1=1");
         List<String> selectionArgList = new ArrayList<>();
+
+        //解析过滤器设置
         List<Long> selectedTagList = setting.getSelectedTagList();
         List<Integer> selectedTypeList = setting.getSelectedTypeList();
         LocalDate startDate = setting.getStartDate();
@@ -95,8 +102,22 @@ public class AccountDataController {
             selectionArgList.add(end);
         }
 
+        //生成备注搜索条件
+        if (searchText != null && !searchText.isEmpty()) {
+            //进行转义
+            String safeSearch = searchText.replace("/", "//")
+                    .replace("%", "/%")
+                    .replace("_", "/_");
+
+            selection.append(" AND ");
+            selection.append(Columns.REMARK);
+            selection.append(" LIKE ? ");
+            selection.append("ESCAPE '/'"); //使用“/”进行转义
+            selectionArgList.add("%" + safeSearch + "%");
+        }
+
         //查询流水记录
-        Cursor basic_cursor = db.query(
+        Cursor basicCursor = db.query(
                 Tables.BASIC.toString(),
                 null,
                 selection.toString(),
@@ -108,18 +129,18 @@ public class AccountDataController {
 
         //查询数据
         List<RunningAccountBase> runningAccountList = new ArrayList<>();
-        while (basic_cursor.moveToNext()) {
+        while (basicCursor.moveToNext()) {
             //流水编号
-            long rno = basic_cursor.getLong(basic_cursor.getColumnIndexOrThrow(Columns.RNO.toString()));
+            long rno = basicCursor.getLong(basicCursor.getColumnIndexOrThrow(Columns.RNO.toString()));
             //金额
-            double amount = basic_cursor.getDouble(basic_cursor.getColumnIndexOrThrow(Columns.AMOUNT.toString()));
+            double amount = basicCursor.getDouble(basicCursor.getColumnIndexOrThrow(Columns.AMOUNT.toString()));
             //种类
-            RunningAccountType type = RunningAccountType.valueOf(basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(Columns.TYPE.toString())));
+            RunningAccountType type = RunningAccountType.valueOf(basicCursor.getString(basicCursor.getColumnIndexOrThrow(Columns.TYPE.toString())));
             //备注
-            String remark = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(Columns.REMARK.toString()));
+            String remark = basicCursor.getString(basicCursor.getColumnIndexOrThrow(Columns.REMARK.toString()));
             if (remark == null) remark = "";
             //日期和时间
-            String datetime = basic_cursor.getString(basic_cursor.getColumnIndexOrThrow(Columns.DATETIME.toString()));
+            String datetime = basicCursor.getString(basicCursor.getColumnIndexOrThrow(Columns.DATETIME.toString()));
 
             RunningAccountBase runningAccountView = null;
             switch (type) {
@@ -156,7 +177,7 @@ public class AccountDataController {
                 runningAccountList.add(runningAccountView);
             }
         }
-        basic_cursor.close();
+        basicCursor.close();
         db.close();
 
         return runningAccountList;

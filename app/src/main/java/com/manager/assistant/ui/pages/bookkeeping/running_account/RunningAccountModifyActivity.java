@@ -5,9 +5,13 @@ import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -19,7 +23,7 @@ import com.manager.assistant.databinding.ActivityRunningAccountModifyBinding;
 import com.manager.assistant.generic_enums.DirectoryPaths;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.generic_enums.TagString;
-import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.ui.sync.picture.AccountPictureViewModel;
@@ -43,13 +47,22 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
 
         binding = ActivityRunningAccountModifyBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime()
+            );
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
         receiveInitData();
         initViews();
-        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
+        AppearanceAnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
 
         //只在第一次创建界面时创建新Fragment
         if (savedInstanceState == null) {
@@ -128,8 +141,10 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
         binding.toolbar.setTitle(String.format(Locale.getDefault(), "%s编辑", type.getTitle()));
 
-        //为按钮设置单击监听器
+        //取消按钮
         binding.cancelBtn.setOnClickListener(v -> finish());
+
+        //完成按钮
         binding.finishBtn.setOnClickListener(v -> {
             Intent result2BookKeeping = new Intent();
             String error;
@@ -164,14 +179,27 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
             }
         });
 
+        //删除按钮
         binding.deleteBtn.setOnClickListener(v -> {
             Intent result2BookKeeping = new Intent();
             new MaterialAlertDialogBuilder(this)
                     .setTitle("删除流水记录")
                     .setMessage("此流水记录将会被永久删除，确认继续吗？")
                     .setPositiveButton("确认", (dialog, which) -> {
-                        Bundle dataBundle = new Bundle();
-                        dataBundle.putLong(KeyValueStrings.RNO.getValue(), rno);
+                        //从数据库中删除数据
+                        try {
+                            AccountDataController.deleteAccount(rno, this);
+                        } catch (SQLiteException e) {
+                            ExceptionHelper.showExceptionDialog(this, e);
+                            Toast.makeText(this, "流水记录删除失败", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        //向父界面传递数据
+                        Bundle dataBundle = getInputData();
+                        if (dataBundle == null) {
+                            return;
+                        }
                         result2BookKeeping.putExtras(dataBundle);
                         setResult(RequestResultCode.RESULT_DELETE.ordinal(), result2BookKeeping);
                         finish();

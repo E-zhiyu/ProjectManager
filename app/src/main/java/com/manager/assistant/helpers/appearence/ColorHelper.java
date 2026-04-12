@@ -1,4 +1,4 @@
-package com.manager.assistant.helpers.resourse;
+package com.manager.assistant.helpers.appearence;
 
 import android.content.Context;
 import android.util.TypedValue;

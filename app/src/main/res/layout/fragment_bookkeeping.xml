@@ -18,17 +18,27 @@
             android:orientation="horizontal"
             app:layout_scrollFlags="scroll|enterAlways|snap">
 
+            <com.google.android.material.search.SearchBar
+                android:id="@+id/remark_search_bar"
+                style="@style/SearchBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/search_remark"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/account_num_text"
-                style="@style/LargeTitleTextViewStyle"
+                style="@style/MediumTitleTextViewStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:text="@string/num_of_shown"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toBottomOf="@id/split_btn"
                 app:layout_constraintEnd_toStartOf="@+id/split_btn"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="@id/split_btn" />
 
             <com.google.android.material.button.MaterialSplitButton
                 android:id="@+id/split_btn"
@@ -36,7 +46,7 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toBottomOf="@id/remark_search_bar">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/filter_leading_btn"
@@ -63,6 +73,16 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:contentDescription="@string/add_floating_btn_description" />
+
+    <!-- 空内容提示文本 -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/empty_tip_text"
+        style="@style/MediumBodyTextViewStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/there_is_no_running_account"
+        android:visibility="gone" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/refresh_layout"

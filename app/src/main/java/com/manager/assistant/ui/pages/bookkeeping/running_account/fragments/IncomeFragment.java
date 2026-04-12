@@ -156,22 +156,20 @@ public class IncomeFragment extends RunningAccountFragmentBase<FragmentIncomeBin
         String dateTime = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
         rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
 
-        String tag_name = "";
+        String tagName = "";
         try {
             Tag tag = TagDataController.getTagByRno(rno, requireContext());
             tno = tag.getTno();
-            tag_name = tag.getName();
+            tagName = tag.getName();
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(requireContext(), e);
             Toast.makeText(requireContext(), "无法加载该流水记录的标签信息", Toast.LENGTH_SHORT).show();
         }
 
-        binding.amountInput.setText(String.valueOf(amount));                            //金额
-        TextInputEditText remarkInput = binding.remarkInput;                            //备注
-        remarkInput.setText(remark);
-        MaterialAutoCompleteTextView datetimeInput = binding.datetimeInput;             //日期
-        datetimeInput.setText(dateTime);
-        binding.tagInput.setText(tag_name);                                             //标签名称
+        binding.amountInput.setText(String.format(Locale.getDefault(),"%.2f",amount));  //金额
+        binding.remarkInput.setText(remark);                                                    //备注
+        binding.datetimeInput.setText(dateTime);                                                //日期
+        binding.tagInput.setText(tagName);                                                      //标签名称
     }
 
     @Override

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -16,8 +17,11 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.google.android.material.textview.MaterialTextView;
+import com.google.android.material.search.SearchView;
+import com.manager.assistant.MainActivity;
+import com.manager.assistant.R;
 import com.manager.assistant.data.controllers.AccountDataController;
+import com.manager.assistant.data.save.preference.SearchHistoryPreference;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.automation.broadcast.BroadcastActions;
@@ -25,10 +29,11 @@ import com.manager.assistant.automation.broadcast.bookkeeping.AccountUpdatedRece
 import com.manager.assistant.data.classes.running_account.RunningAccountBase;
 import com.manager.assistant.data.classes.running_account.TransferRunningAccount;
 import com.manager.assistant.databinding.FragmentBookkeepingBinding;
-import com.manager.assistant.helpers.appearence.AnimationHelper;
-import com.manager.assistant.helpers.resourse.ColorHelper;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
+import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.file.PictureFileHelper;
+import com.manager.assistant.ui.others.adapters.SearchHistoryAdapter;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
 import com.manager.assistant.ui.sync.account.RunningAccountViewModel;
 import com.manager.assistant.ui.others.bottom_sheets.filter.AccountFilterBottomSheet;
@@ -38,6 +43,7 @@ import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -53,6 +59,8 @@ public class BookKeepingFragment extends Fragment {
     private AccountUpdatedReceiver accountUpdatedReceiver;  //流水数据更新的广播接收器
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
     private AccountFilterBottomSheet.FilterSetting filterSetting = new AccountFilterBottomSheet.FilterSetting();    //过滤器设置
+    private String searchText = "";                         //搜索文本，用于搜索流水备注
+    private SearchView.TransitionListener transitionListener;   //SearchView的变化监听器
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
@@ -96,6 +104,18 @@ public class BookKeepingFragment extends Fragment {
         //取消注册广播接收器
         if (accountUpdatedReceiver != null) {
             requireContext().unregisterReceiver(accountUpdatedReceiver);
+        }
+
+        //清除SearchView的监听器，避免内存泄漏
+        if (requireActivity() instanceof MainActivity) {
+            MainActivity mainActivity = (MainActivity) requireActivity();
+            mainActivity.binding.searchView.setupWithSearchBar(null);                           //消除与SearchBar的绑定
+            mainActivity.binding.searchView.getEditText().setOnEditorActionListener(null);      //销毁搜索监听
+            if (transitionListener != null) {
+                mainActivity.binding.searchView.removeTransitionListener(transitionListener);   //销毁transitionListener
+            }
+            mainActivity.binding.clearHistoryBtn.setOnClickListener(null);                      //销毁清空历史按钮点击监听
+            mainActivity.binding.searchHistoryRecycler.setAdapter(null);                        //清除适配器
         }
     }
 
@@ -169,13 +189,16 @@ public class BookKeepingFragment extends Fragment {
      * 初始化视图
      */
     private void initViews() {
-        //绑定单击按钮监听器
+        //搜索框和SearchView
+        initSearchComponents();
+
+        //添加按钮
         binding.addFloatingBtn.setOnClickListener(v -> {
             PictureFileHelper.clearTempPictureDir(requireContext());    //清理临时图片目录防止残留干扰
             Intent skip2NewRunningAccount = new Intent(requireContext(), RunningAccountAddActivity.class);
             accountAddLauncher.launch(skip2NewRunningAccount);
         });
-        AnimationHelper.attachMorphAnimation(binding.addFloatingBtn);
+        AppearanceAnimationHelper.attachMorphAnimation(binding.addFloatingBtn);
 
         //绑定过滤器按钮的点击监听器
         binding.filterSelectBtn.setOnClickListener(v -> {
@@ -201,13 +224,125 @@ public class BookKeepingFragment extends Fragment {
         binding.accountRecycler.setAdapter(accountAdapter);
 
         //设置浮动按钮隐藏行为
-        AnimationHelper.setupFloatingBtnBehaviour(binding.accountRecycler, binding.addFloatingBtn);
+        AppearanceAnimationHelper.setupFloatingBtnBehaviour(binding.accountRecycler, binding.addFloatingBtn);
 
         //设置下拉刷新布局的监听器
         binding.refreshLayout.setOnRefreshListener(this::refreshAccountRecycler);
 
         //加载流水记录
         refreshAccountRecycler();
+    }
+
+    /**
+     * 初始化SearchView和SearchBar
+     */
+    private void initSearchComponents() {
+        if (requireActivity() instanceof MainActivity) {
+            //绑定到SearchBar
+            MainActivity mainActivity = (MainActivity) requireActivity();
+            mainActivity.binding.searchView.setupWithSearchBar(binding.remarkSearchBar);
+
+            //实例化搜索历史适配器并推送至SearchView
+            SearchHistoryAdapter searchViewAdapter = new SearchHistoryAdapter(keyWord -> {
+                //更新搜索词
+                searchText = keyWord;
+                binding.remarkSearchBar.setText(keyWord);
+
+                //刷新UI
+                refreshAccountRecycler();
+
+                //隐藏SearchView
+                mainActivity.binding.searchView.hide();
+
+                //保存搜索关键词
+                if (!keyWord.isEmpty()) {
+                    List<String> searchHistoryList = SearchHistoryPreference.getHistory(
+                            SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+                            requireContext()
+                    );
+                    searchHistoryList.remove(searchText);       //移除已存在的项
+                    searchHistoryList.add(0, searchText);   //添加新项
+                    if (searchHistoryList.size() > 15) {        //限制15条记录
+                        searchHistoryList = searchHistoryList.subList(0, 14);
+                    }
+                    SearchHistoryPreference.setHistory(
+                            SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+                            searchHistoryList,
+                            requireContext()
+                    );
+                }
+            });
+            mainActivity.binding.searchHistoryRecycler.setAdapter(searchViewAdapter);
+
+            //先刷新一下内容，以应对SearchView展开时的界面重建
+            List<String> historyList = SearchHistoryPreference.getHistory(
+                    SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+                    requireContext()
+            );
+            searchViewAdapter.refreshSearchHistory(historyList);
+
+            //设置显示监听，用于初始化常用词与清空提示词按钮
+            transitionListener = (searchView, previousState, newState) -> {
+                //显示时执行的动作
+                if (newState == SearchView.TransitionState.SHOWING) {
+                    List<String> searchHistoryList = SearchHistoryPreference.getHistory(
+                            SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+                            requireContext()
+                    );
+                    searchViewAdapter.refreshSearchHistory(searchHistoryList);
+                }
+            };
+            mainActivity.binding.searchView.addTransitionListener(transitionListener);
+
+            //设置清除搜索历史按钮点击监听
+            mainActivity.binding.clearHistoryBtn.setOnClickListener(v -> {
+                SearchHistoryPreference.setHistory(
+                        SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+                        new ArrayList<>(),
+                        requireContext()
+                );
+                searchViewAdapter.refreshSearchHistory(new ArrayList<>());
+            });
+
+            //设置搜索监听
+            mainActivity.binding.searchView.getEditText().setOnEditorActionListener((v, actionId, event) -> {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    //获取输入文本
+                    searchText = mainActivity.binding.searchView.getText().toString();
+
+                    //将文本显示在SearchBar上
+                    binding.remarkSearchBar.setText(searchText);
+
+                    //保存搜索关键词
+                    if (!searchText.isEmpty()) {
+                        List<String> searchHistoryList = SearchHistoryPreference.getHistory(
+                                SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+                                requireContext()
+                        );
+                        searchHistoryList.remove(searchText);       //移除已存在的项
+                        searchHistoryList.add(0, searchText);   //添加新项
+                        if (searchHistoryList.size() > 15) {        //限制15条记录
+                            searchHistoryList = searchHistoryList.subList(0, 14);
+                        }
+                        SearchHistoryPreference.setHistory(
+                                SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+                                searchHistoryList,
+                                requireContext()
+                        );
+                    }
+
+                    //刷新视图
+                    refreshAccountRecycler();
+
+                    //隐藏SearchView
+                    mainActivity.binding.searchView.hide();
+
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+        }
     }
 
     /**
@@ -230,7 +365,7 @@ public class BookKeepingFragment extends Fragment {
      * @param dataBundle 新增流水记录的数据
      */
     private void onNewAccountAdded(Bundle dataBundle) {
-        accountAdapter.addNewRunningAccountAutomatically(dataBundle, requireActivity(), requireContext());
+        accountAdapter.addNewRunningAccountAutomatically(dataBundle, requireActivity());
         binding.accountRecycler.scrollToPosition(0);
         Toast.makeText(requireContext(), "成功添加一条流水记录（自动记账）", Toast.LENGTH_SHORT).show();
 
@@ -251,7 +386,7 @@ public class BookKeepingFragment extends Fragment {
             return;
         }
 
-        accountAdapter.addNewRunningAccount(dataBundle, requireActivity(), requireContext());
+        accountAdapter.addNewRunningAccount(dataBundle, requireActivity());
         binding.accountRecycler.scrollToPosition(0);    //滚动到顶部
         Toast.makeText(requireContext(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
 
@@ -273,7 +408,7 @@ public class BookKeepingFragment extends Fragment {
             return;
         }
 
-        accountAdapter.modifyRunningAccount(dataBundle, requireActivity(), requireContext());
+        accountAdapter.modifyRunningAccount(dataBundle, requireActivity());
         Toast.makeText(requireContext(), "成功修改流水记录", Toast.LENGTH_SHORT).show();
     }
 
@@ -289,8 +424,8 @@ public class BookKeepingFragment extends Fragment {
             return;
         }
 
-        long rno = dataBundle.getLong(KeyValueStrings.RNO.getValue(), -1);
-        accountAdapter.deleteRunningAccount(rno, requireActivity(), requireContext());
+        long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue(), -1);
+        accountAdapter.deleteRunningAccount(rno, requireActivity());
         Toast.makeText(requireContext(), "流水记录已删除", Toast.LENGTH_SHORT).show();
 
         //更新流水记录数量文本
@@ -302,8 +437,7 @@ public class BookKeepingFragment extends Fragment {
      * 刷新流水记录数量文本
      */
     private void refreshAccountNumText() {
-        MaterialTextView accountNumText = binding.accountNumText;
-        accountNumText.setText(String.format(Locale.getDefault(), "显示数量：%d", accountCount));
+        binding.accountNumText.setText(String.format(Locale.getDefault(), "显示数量：%d", accountCount));
     }
 
     /**
@@ -312,7 +446,7 @@ public class BookKeepingFragment extends Fragment {
     private void refreshAccountRecycler() {
         binding.refreshLayout.setRefreshing(true);
         disposables.add(
-                Observable.fromCallable(() -> AccountDataController.loadRunningAccountData(filterSetting, requireContext()))
+                Observable.fromCallable(() -> AccountDataController.loadRunningAccountData(filterSetting, searchText, requireContext()))
                         .subscribeOn(Schedulers.io())               //在IO线程执行查询
                         .observeOn(AndroidSchedulers.mainThread())  //切换到主线程更新 UI
                         .subscribe(
@@ -320,8 +454,18 @@ public class BookKeepingFragment extends Fragment {
                                     accountAdapter.refreshRunningAccount(refreshedAccount);
                                     accountCount = refreshedAccount.size();
                                     refreshAccountNumText();
+
+                                    if (refreshedAccount.isEmpty()) {
+                                        binding.emptyTipText.setVisibility(View.VISIBLE);
+                                    } else {
+                                        binding.emptyTipText.setVisibility(View.GONE);
+                                    }
                                 },  //成功回调
-                                e -> ExceptionHelper.showExceptionDialog(requireContext(), e),  //错误处理
+                                e -> {
+                                    ExceptionHelper.showExceptionDialog(requireContext(), e);
+                                    binding.refreshLayout.setRefreshing(false);
+                                    binding.accountNumText.setText(R.string.count_infinity);
+                                },  //错误处理
                                 () -> {
                                     binding.refreshLayout.setRefreshing(false);
                                     binding.addFloatingBtn.show();

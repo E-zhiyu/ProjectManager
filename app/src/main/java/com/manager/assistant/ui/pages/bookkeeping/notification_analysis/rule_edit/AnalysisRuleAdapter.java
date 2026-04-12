@@ -1,28 +1,17 @@
 package com.manager.assistant.ui.pages.bookkeeping.notification_analysis.rule_edit;
 
-import android.content.Context;
-import android.content.Intent;
-import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.shape.Shapeable;
-import com.google.android.material.textview.MaterialTextView;
-import com.manager.assistant.R;
-import com.manager.assistant.automation.broadcast.BroadcastActions;
-import com.manager.assistant.data.controllers.RuleDataController;
 import com.manager.assistant.data.controllers.TagDataController;
-import com.manager.assistant.helpers.ExceptionHelper;
+import com.manager.assistant.databinding.ViewHolderAnalysisRuleBinding;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.data.classes.AnalysisRule;
-import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.manager.assistant.data.classes.Tag;
 
@@ -33,23 +22,26 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
     private final List<AnalysisRule> ruleList;  //规则列表
 
     public static class AnalysisRuleViewHolder extends RecyclerView.ViewHolder {
-        MaterialTextView ruleNameText, tagNameText, typeText;
-        SpringAnimationOnTouchListener onTouchListener;
+        ViewHolderAnalysisRuleBinding binding;
 
-        public AnalysisRuleViewHolder(@NonNull View itemView) {
-            super(itemView);
+        public AnalysisRuleViewHolder(@NonNull ViewHolderAnalysisRuleBinding binding, ViewHolderListener listener) {
+            super(binding.getRoot());
+            this.binding = binding;
 
-            ruleNameText = itemView.findViewById(R.id.rule_name_text);
-            tagNameText = itemView.findViewById(R.id.tag_name_text);
-            typeText = itemView.findViewById(R.id.type_text);
+            //设置触摸动画
+            AppearanceAnimationHelper.attachMorphAnimation(binding.getRoot());
 
-            //设置触摸监听器
-            Shapeable shapeable = (Shapeable) itemView;
-            Vibrator vibrator = (Vibrator) itemView.getContext()
-                    .getSystemService(Context.VIBRATOR_SERVICE);
-            onTouchListener = new SpringAnimationOnTouchListener(shapeable, vibrator);
-            itemView.setOnTouchListener(onTouchListener);
+            binding.getRoot().setOnClickListener(v -> listener.onClicked(getBindingAdapterPosition()));
         }
+    }
+
+    public interface ViewHolderListener {
+        /**
+         * 当ViewHolder被点击时的监听器
+         *
+         * @param position 被点击的ViewHolder在Adapter中的真实下标
+         */
+        void onClicked(int position);
     }
 
     public interface RuleClickedListener {
@@ -70,25 +62,33 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
     @NonNull
     @Override
     public AnalysisRuleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.view_holder_analysis_rule, parent, false);
-        return new AnalysisRuleViewHolder(view);
+        ViewHolderAnalysisRuleBinding binding = ViewHolderAnalysisRuleBinding.inflate(
+                LayoutInflater.from(parent.getContext()),
+                parent,
+                false
+        );
+        return new AnalysisRuleViewHolder(binding, position -> {
+            AnalysisRule rule = ruleList.get(position);
+            listener.onRuleClicked(position, rule);
+        });
     }
 
     @Override
     public void onBindViewHolder(@NonNull AnalysisRuleViewHolder holder, int position) {
+        //获取规则数据
         AnalysisRule rule = ruleList.get(position);
-        String rule_name = rule.getRuleName();
+        String ruleName = rule.getRuleName();
         RunningAccountType type = rule.getType();
-        Tag rule_tag = TagDataController.getTagByRuleNo(rule.getRuleNo(), holder.itemView.getContext());
+        Tag ruleTag = TagDataController.getTagByRuleNo(rule.getRuleNo(), holder.itemView.getContext());
 
+        //初始化规则视图
         String typeStr = type.getTitle();
-        holder.ruleNameText.setText(rule_name);
-        holder.typeText.setText(typeStr);
-        holder.tagNameText.setText(rule_tag.getName());
+        holder.binding.ruleNameText.setText(ruleName);
+        holder.binding.typeText.setText(typeStr);
+        holder.binding.tagNameText.setText(ruleTag.getName());
 
-        holder.itemView.setOnClickListener(v ->
-                listener.onRuleClicked(holder.getBindingAdapterPosition(), rule));
+        //设置圆角大小
+        AppearanceAnimationHelper.setRecyclerItemRadius(holder.itemView, ruleList.size(), position);
     }
 
     @Override
@@ -100,90 +100,62 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
      * 添加新规则
      *
      * @param newRuleData 新规则数据
-     * @param context     上下文
      */
-    public void addRule(Bundle newRuleData, Context context) {
-        long ruleNo;
-        try {
-            ruleNo = RuleDataController.saveNewRule(newRuleData, context);
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            Toast.makeText(context, "解析规则保存失败", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
+    public void addRule(@NonNull Bundle newRuleData) {
         //解析规则数据
         String ruleName = newRuleData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());
         RunningAccountType type = RunningAccountType.valueOf(newRuleData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
         String packageName = newRuleData.getString(KeyValueStrings.PACKAGE_NAME.getValue());
         String notificationTitle = newRuleData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
         String notificationContent = newRuleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
+        long ruleNo = newRuleData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());
 
         //刷新视图
         AnalysisRule newRule = new AnalysisRule(ruleName, ruleNo, type, packageName, notificationTitle, notificationContent);
         ruleList.add(newRule);
         notifyItemInserted(ruleList.size() - 1);
-        Toast.makeText(context, "解析规则添加成功", Toast.LENGTH_SHORT).show();
 
-        sendRuleUpdatedBroadcast(context);
+        //刷新圆角
+        notifyItemChanged(ruleList.size() - 2);
     }
 
     /**
      * 修改规则
      *
      * @param modifiedRuleData 修改后的规则数据
-     * @param context          上下文
      */
-    public void modifyRule(Bundle modifiedRuleData, Context context) {
-        try {
-            RuleDataController.modifyRule(modifiedRuleData, context);
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            Toast.makeText(context, "规则数据保存失败", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
+    public void modifyRule(@NonNull Bundle modifiedRuleData) {
         //解析规则数据
         int position = modifiedRuleData.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
-        String rule_name = modifiedRuleData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());
-        long rule_no = modifiedRuleData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());
+        String ruleName = modifiedRuleData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());
+        long ruleNo = modifiedRuleData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());
         RunningAccountType type = RunningAccountType.valueOf(modifiedRuleData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-        String package_name = modifiedRuleData.getString(KeyValueStrings.PACKAGE_NAME.getValue());
-        String notification_title = modifiedRuleData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
-        String notification_content = modifiedRuleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
+        String packageName = modifiedRuleData.getString(KeyValueStrings.PACKAGE_NAME.getValue());
+        String notificationTitle = modifiedRuleData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
+        String notificationContent = modifiedRuleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
 
         //更新UI
-        AnalysisRule modifiedRule = new AnalysisRule(rule_name, rule_no, type, package_name, notification_title, notification_content);
+        AnalysisRule modifiedRule = new AnalysisRule(ruleName, ruleNo, type, packageName, notificationTitle, notificationContent);
         ruleList.set(position, modifiedRule);
         notifyItemChanged(position);
-        Toast.makeText(context, "解析规则修改成功", Toast.LENGTH_SHORT).show();
-
-        sendRuleUpdatedBroadcast(context);
     }
 
     /**
      * 删除规则
      *
      * @param position 待删除标签的下标
-     * @param context  上下文
      */
-    public void deleteRule(int position, Context context) {
-        AnalysisRule rule = ruleList.get(position);
-        long rule_no = rule.getRuleNo();
-
-        try {
-            RuleDataController.deleteRule(rule_no, context);
-        } catch (SQLiteException e) {
-            ExceptionHelper.showExceptionDialog(context, e);
-            Toast.makeText(context, "规则删除失败", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
+    public void deleteRule(int position) {
+        //刷新 UI
         ruleList.remove(position);
         notifyItemRemoved(position);
-        Toast.makeText(context, "规则删除成功", Toast.LENGTH_SHORT).show();
 
-        sendRuleUpdatedBroadcast(context);
+        //刷新圆角
+        if (position == ruleList.size()) {
+            notifyItemChanged(ruleList.size() - 1);
+        } else if (position == 0) {
+            notifyItemChanged(0);
+        }
     }
 
     /**
@@ -192,21 +164,11 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
      * @param ruleList 刷新后的列表
      */
     public void refreshRuleList(List<AnalysisRule> ruleList) {
-        int old_count = this.ruleList.size();
+        int oldCount = this.ruleList.size();
         this.ruleList.clear();
-        notifyItemRangeRemoved(0, old_count);
+        notifyItemRangeRemoved(0, oldCount);
 
         this.ruleList.addAll(ruleList);
         notifyItemRangeInserted(0, ruleList.size());
-    }
-
-    /**
-     * 发送规则变更的广播
-     *
-     * @param context 上下文
-     */
-    private void sendRuleUpdatedBroadcast(@NonNull Context context) {
-        Intent ruleUpdated = new Intent(BroadcastActions.ACTION_RULES_UPDATED.toString());
-        context.sendBroadcast(ruleUpdated);
     }
 }

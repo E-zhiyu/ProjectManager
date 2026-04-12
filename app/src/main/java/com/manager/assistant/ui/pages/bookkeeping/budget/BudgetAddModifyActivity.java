@@ -2,6 +2,8 @@ package com.manager.assistant.ui.pages.bookkeeping.budget;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -11,18 +13,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.Tag;
+import com.manager.assistant.data.controllers.BudgetDataController;
 import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.databinding.ActivityBudgetAddModifyBinding;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.helpers.DateTimePickerHelper;
-import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.helpers.ExceptionHelper;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.tag.MultiTagSelectBottomSheet;
 
@@ -50,9 +57,17 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
         binding = ActivityBudgetAddModifyBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime()
+            );
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
         receiveInitData();
         initViews();
-        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
+        AppearanceAnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
     }
 
     @Override
@@ -85,10 +100,10 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
         resetFrequency = ResetFrequency.valueOf(frequencyStr);
 
         double initAmount = dataBundle.getDouble(KeyValueStrings.INIT_AMOUNT.getValue());
-        binding.initAmountInput.setText(String.valueOf(initAmount));
+        binding.initAmountInput.setText(String.format(Locale.getDefault(), "%.2f", initAmount));
 
         double leftAmount = dataBundle.getDouble(KeyValueStrings.LEFT_AMOUNT.getValue());
-        binding.leftAmountInput.setText(String.valueOf(leftAmount));
+        binding.leftAmountInput.setText(String.format(Locale.getDefault(), "%.2f", leftAmount));
 
         String startDate = dataBundle.getString(KeyValueStrings.START_DATE.getValue());
         binding.startDateInput.setText(startDate);
@@ -181,9 +196,31 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
                 return;
             }
 
+            //保存至数据库
+            Bundle dataBundle = getInputData();
+            if (!isModifyMode) {
+                try {
+                    long bno = BudgetDataController.saveNewBudget(dataBundle, this);
+                    dataBundle.putLong(KeyValueStrings.BNO.getValue(), bno);
+                    Toast.makeText(this, "预算添加成功", Toast.LENGTH_SHORT).show();
+                } catch (SQLiteException e) {
+                    ExceptionHelper.showExceptionDialog(this, e);
+                    Toast.makeText(this, "预算添加失败", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } else {
+                try {
+                    BudgetDataController.modifyBudget(dataBundle, this);
+                    Toast.makeText(this, "预算修改成功", Toast.LENGTH_SHORT).show();
+                } catch (SQLException e) {
+                    ExceptionHelper.showExceptionDialog(this, e);
+                    Toast.makeText(this, "预算修改失败", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+
             Intent result2BudgetManage = new Intent();
-            Bundle inputData = getInputData();
-            result2BudgetManage.putExtras(inputData);
+            result2BudgetManage.putExtras(dataBundle);
             setResult(Activity.RESULT_OK, result2BudgetManage);
             finish();
         });
@@ -196,6 +233,15 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
                 .setTitle("删除预算")
                 .setMessage("确认要删除该预算吗？")
                 .setPositiveButton("确定", (dialog, which) -> {
+                    try {
+                        BudgetDataController.deleteBudget(bno, this);
+                        Toast.makeText(this, "预算删除成功", Toast.LENGTH_SHORT).show();
+                    } catch (SQLiteException e) {
+                        ExceptionHelper.showExceptionDialog(this, e);
+                        Toast.makeText(this, "预算删除失败", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     Intent result2BudgetManage = new Intent();
                     Bundle inputData = getInputData();
                     result2BudgetManage.putExtras(inputData);

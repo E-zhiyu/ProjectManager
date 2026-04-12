@@ -3,33 +3,38 @@ package com.manager.assistant.ui.pages.bookkeeping.notification_analysis.package
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import androidx.activity.OnBackPressedCallback;
+import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.search.SearchView;
 import com.manager.assistant.R;
+import com.manager.assistant.data.classes.AppInfo;
+import com.manager.assistant.data.save.preference.SearchHistoryPreference;
 import com.manager.assistant.databinding.ActivityPackageNameSelectBinding;
 import com.manager.assistant.helpers.PermissionHelper;
-import com.manager.assistant.helpers.resourse.ColorHelper;
+import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.helpers.resourse.PackageNameHelper;
+import com.manager.assistant.helpers.AppListHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
-import com.manager.assistant.ui.sync.package_name_search.AppInfoSearchViewModel;
+import com.manager.assistant.ui.others.adapters.SearchHistoryAdapter;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -39,10 +44,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class PackageNameSelectActivity extends AppCompatActivity {
     private boolean isSysAppIncluded = false;                               //应用列表是否包含系统应用
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
-    private SearchView searchView;                                          //搜索视图
-    private AppInfoSearchViewModel searchViewModel;                         //搜索应用的ViewModel
-    private AppListAdapter fullAppAdapter, searchAdapter;                   //完整的应用列表适配器和搜索结果适配器
-    private SwipeRefreshLayout appListRefreshLayout, searchRefreshLayout;   //下拉刷新布局
+    private AppListAdapter appListAdapter;                                  //应用列表适配器
     private ActivityPackageNameSelectBinding binding;                       //绑定的XML视图引用
     private final ActivityResultLauncher<String[]> requestPermissionLauncher =  //权限申请启动器
             registerForActivityResult(
@@ -53,81 +55,29 @@ public class PackageNameSelectActivity extends AppCompatActivity {
             this,
             requestPermissionLauncher
     );
+    private String searchText = "";                                         //搜索文本
+    private final List<AppInfo> fullAppInfoList = new ArrayList<>();            //完整的应用列表
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
 
         binding = ActivityPackageNameSelectBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         //边距设置
-        binding.toolbarContainerLayout.setOnApplyWindowInsetsListener((view, insets) -> {
-            //获取状态栏高度
-            int statusBarHeight = insets.getSystemWindowInsetTop();
-
-            //为根布局设置上边距
-            view.setPadding(
-                    view.getPaddingLeft(),
-                    statusBarHeight,
-                    view.getPaddingRight(),
-                    view.getPaddingBottom()
-            );
-
-            return insets;
-        });
-        binding.rootLayout.setOnApplyWindowInsetsListener((v, insets) -> {
-            //获取系统底部导航栏高度
-            int actionBarHeight = insets.getSystemWindowInsetBottom();
-
-            //设置根布局的下边距
-            v.setPadding(
-                    v.getPaddingLeft(),
-                    v.getPaddingTop(),
-                    v.getPaddingRight(),
-                    actionBarHeight
-            );
-
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbarContainerLayout, (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+            binding.appListRecycler.setPadding(0, 0, 0, systemBars.bottom);
             return insets;
         });
 
         initViews();
 
-        searchViewModel = new ViewModelProvider(this).get(AppInfoSearchViewModel.class);
-        searchViewModel.init();
-        searchView.getEditText().addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!String.valueOf(s).isEmpty()) {
-                    searchRefreshLayout.setRefreshing(true);
-                }
-                searchViewModel.onSearchQueryChanged(String.valueOf(s));
-            }
-        });
-        startObserveSearchResult();
-
         //进入该界面时尝试申请权限
         addPermissionRequests();
-
-        //拦截返回键功能：先关闭搜索界面再返回上一级
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (searchView.isShowing()) {
-                    searchView.hide();
-                } else {
-                    finish();
-                }
-            }
-        });
     }
 
     @Override
@@ -147,39 +97,136 @@ public class PackageNameSelectActivity extends AppCompatActivity {
 
     //初始化视图
     private void initViews() {
-        searchView = binding.searchView;
+        //设置列表视图
+        appListAdapter = new AppListAdapter(this::onAppClicked);
+        binding.appListRecycler.setAdapter(appListAdapter);                 //打开页面时显示的完整应用列表视图
 
-        RecyclerView fullAppListRecycler = binding.appListRecycler;         //打开页面时显示的完整应用列表视图
-        fullAppAdapter = new AppListAdapter(this::onAppClicked);
-        fullAppListRecycler.setAdapter(fullAppAdapter);
-        RecyclerView searchResultRecycler = binding.searchResultRecycler;    //搜索结果列表视图
-        searchAdapter = new AppListAdapter(this::onAppClicked);
-        searchResultRecycler.setAdapter(searchAdapter);
+        //SearchView和SearchBar
+        initSearchViewAndSearchBar();
 
-        //开始加载应用列表
-        appListRefreshLayout = binding.appListRefreshLayout;
-        startLoadAppList();
+        //开始加载应用列表并显示
+        refreshFullAppInfoList();
 
         //设置下拉刷新布局的监听器
-        appListRefreshLayout.setOnRefreshListener(this::startLoadAppList);
-        searchRefreshLayout = binding.searchRefreshLayout;
-        searchRefreshLayout.setOnRefreshListener(() -> {
-            String searchViewText = searchView.getText().toString();
-            searchViewModel.onSearchQueryChanged(searchViewText);
-        });
+        binding.appListRefreshLayout.setOnRefreshListener(this::refreshFullAppInfoList);
 
         //获取颜色资源并设置下拉刷新布局的颜色
         int colorPrimary = ColorHelper.getPrimaryColor(this);
         int colorSecondary = ColorHelper.getSecondaryPrimaryColor(this);
         int colorBackground = ColorHelper.getBackgroundColor(this);
-        appListRefreshLayout.setColorSchemeColors(colorPrimary, colorSecondary);
-        searchRefreshLayout.setColorSchemeColors(colorPrimary, colorSecondary);
-        appListRefreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
-        searchRefreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
+        binding.appListRefreshLayout.setColorSchemeColors(colorPrimary, colorSecondary);
+        binding.appListRefreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
 
         //设置图标按钮点击监听器
         ImageButton expandListBtn = binding.expandListBtn;
         expandListBtn.setOnClickListener(this::showPopupMenu);
+    }
+
+    /**
+     * 初始化SearchView和SearchBar
+     */
+    private void initSearchViewAndSearchBar() {
+        //绑定SearchView和SearchBar
+        binding.searchView.setupWithSearchBar(binding.searchBar);
+
+        //实例化搜索历史适配器
+        SearchHistoryAdapter historyAdapter = new SearchHistoryAdapter(keyWord -> {
+            searchText = keyWord;
+            binding.searchBar.setText(keyWord);
+
+            //刷新UI
+            refreshAppListRecycler();
+
+            //隐藏SearchView
+            binding.searchView.hide();
+
+            //保存关键词
+            if (!keyWord.isEmpty()) {
+                List<String> searchHistoryList = SearchHistoryPreference.getHistory(
+                        SearchHistoryPreference.KEY_APP_NAME,
+                        this
+                );
+                searchHistoryList.remove(searchText);       //移除已存在的项
+                searchHistoryList.add(0, searchText);   //添加新项
+                if (searchHistoryList.size() > 15) {        //限制15条记录
+                    searchHistoryList = searchHistoryList.subList(0, 14);
+                }
+                SearchHistoryPreference.setHistory(
+                        SearchHistoryPreference.KEY_APP_NAME,
+                        searchHistoryList,
+                        this
+                );
+            }
+        });
+        binding.searchHistoryRecycler.setAdapter(historyAdapter);
+
+        //先刷新一下内容，以应对SearchView展开时的界面重建
+        List<String> historyList = SearchHistoryPreference.getHistory(
+                SearchHistoryPreference.KEY_APP_NAME,
+                this
+        );
+        historyAdapter.refreshSearchHistory(historyList);
+
+        //SearchView显示监听
+        binding.searchView.addTransitionListener((searchView, transitionState, newState) -> {
+            //刷新一下历史记录
+            if (newState == SearchView.TransitionState.SHOWING) {
+                List<String> searchHistoryList = SearchHistoryPreference.getHistory(
+                        SearchHistoryPreference.KEY_APP_NAME,
+                        this
+                );
+                historyAdapter.refreshSearchHistory(searchHistoryList);
+            }
+        });
+
+        //设置清除搜索历史按钮点击监听
+        binding.clearHistoryBtn.setOnClickListener(v -> {
+            SearchHistoryPreference.setHistory(
+                    SearchHistoryPreference.KEY_APP_NAME,
+                    new ArrayList<>(),
+                    this
+            );
+            historyAdapter.refreshSearchHistory(new ArrayList<>());
+        });
+
+        //设置搜索监听
+        binding.searchView.getEditText().setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                //获取输入文本
+                searchText = binding.searchView.getText().toString();
+
+                //将文本显示在SearchBar上
+                binding.searchBar.setText(searchText);
+
+                //保存搜索关键词
+                if (!searchText.isEmpty()) {
+                    List<String> searchHistoryList = SearchHistoryPreference.getHistory(
+                            SearchHistoryPreference.KEY_APP_NAME,
+                            this
+                    );
+                    searchHistoryList.remove(searchText);       //移除已存在的项
+                    searchHistoryList.add(0, searchText);   //添加新项
+                    if (searchHistoryList.size() > 15) {        //限制15条记录
+                        searchHistoryList = searchHistoryList.subList(0, 14);
+                    }
+                    SearchHistoryPreference.setHistory(
+                            SearchHistoryPreference.KEY_APP_NAME,
+                            searchHistoryList,
+                            this
+                    );
+                }
+
+                //刷新视图
+                refreshAppListRecycler();
+
+                //隐藏SearchView
+                binding.searchView.hide();
+
+                return true;
+            } else {
+                return false;
+            }
+        });
     }
 
     /**
@@ -204,7 +251,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
         }
 
         if (allGranted) {
-            startLoadAppList();
+            refreshFullAppInfoList();
         } else {
             Toast.makeText(this, "需要应用列表权限才能选择应用", Toast.LENGTH_SHORT).show();
             finish();
@@ -212,39 +259,77 @@ public class PackageNameSelectActivity extends AppCompatActivity {
     }
 
     /**
-     * 在IO线程开始加载应用列表
+     * 刷新完整的应用列表
      */
-    private void startLoadAppList() {
-        appListRefreshLayout.setRefreshing(true);
+    private void refreshFullAppInfoList() {
+        binding.appListRefreshLayout.setRefreshing(true);
         disposables.add(
-                Observable.fromCallable(() -> PackageNameHelper.getInstalledApps(isSysAppIncluded, this))
+                Observable.fromCallable(() -> AppListHelper.getInstalledApps(isSysAppIncluded, this))
                         .subscribeOn(Schedulers.io())               //在IO线程执行查询
                         .observeOn(AndroidSchedulers.mainThread())  //切换到主线程更新 UI
                         .subscribe(
-                                fullAppInfoList -> {
-                                    fullAppAdapter.setAppInfoList(fullAppInfoList);
-                                    searchViewModel.setFullAppInfoList(fullAppInfoList);
-                                },  //成功回调
-                                e -> ExceptionHelper.showExceptionDialog(this, e),  //错误处理
-                                () -> appListRefreshLayout.setRefreshing(false)
+                                appInfoList -> {
+                                    this.fullAppInfoList.clear();
+                                    this.fullAppInfoList.addAll(appInfoList);
+                                },
+                                e -> ExceptionHelper.showExceptionDialog(this, e),
+                                this::refreshAppListRecycler
                         )
         );
     }
 
-    //处理应用选择的方法
-    private void onAppClicked(String package_name) {
-        Intent result2RuleAddActivity = new Intent();
-        result2RuleAddActivity.putExtra(KeyValueStrings.PACKAGE_NAME.getValue(), package_name);
-        setResult(Activity.RESULT_OK, result2RuleAddActivity);
-        finish();
+    /**
+     * 刷新应用列表视图
+     */
+    private void refreshAppListRecycler() {
+        binding.appListRefreshLayout.setRefreshing(true);
+        disposables.add(
+                Observable.fromCallable(() -> {
+                            //获取数据
+                            List<AppInfo> appInfoList;
+                            if (searchText.isEmpty()) {
+                                appInfoList = new ArrayList<>(fullAppInfoList);
+                            } else {
+                                appInfoList = fullAppInfoList.stream()
+                                        .filter(appInfo -> appInfo.getAppName().contains(searchText))
+                                        .collect(Collectors.toList());
+                            }
+
+                            //排序后再返回
+                            appInfoList.sort(Comparator.comparing(AppInfo::getAppName));
+                            return appInfoList;
+                        })
+                        .subscribeOn(Schedulers.computation())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                appInfoList -> {
+                                    appListAdapter.setAppInfoList(appInfoList);
+
+                                    if (appInfoList.isEmpty()) {
+                                        binding.emptyTipText.setVisibility(View.VISIBLE);
+                                    } else {
+                                        binding.emptyTipText.setVisibility(View.GONE);
+                                    }
+                                },
+                                e -> {
+                                    ExceptionHelper.showExceptionDialog(this, e);
+                                    binding.appListRefreshLayout.setRefreshing(false);
+                                },
+                                () -> binding.appListRefreshLayout.setRefreshing(false)
+                        )
+        );
     }
 
-    //开始观察搜索结果变化
-    private void startObserveSearchResult() {
-        searchViewModel.getResultsLiveData().observe(this, result -> {
-            searchAdapter.setAppInfoList(result);
-            searchRefreshLayout.setRefreshing(false);
-        });
+    /**
+     * 应用条目点击回调
+     *
+     * @param packageName 点击的应用的包名
+     */
+    private void onAppClicked(String packageName) {
+        Intent result2RuleAddActivity = new Intent();
+        result2RuleAddActivity.putExtra(KeyValueStrings.PACKAGE_NAME.getValue(), packageName);
+        setResult(Activity.RESULT_OK, result2RuleAddActivity);
+        finish();
     }
 
     /**
@@ -263,7 +348,8 @@ public class PackageNameSelectActivity extends AppCompatActivity {
                 isSysAppIncluded = !isSysAppIncluded;
                 item.setChecked(!item.isChecked());
 
-                startLoadAppList();
+                //刷新应用列表并刷新视图
+                refreshFullAppInfoList();
                 return true;
             }
 

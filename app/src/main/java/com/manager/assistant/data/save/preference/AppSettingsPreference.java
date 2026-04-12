@@ -40,6 +40,6 @@ public class AppSettingsPreference {
 
     public static int getFirstScreen(@NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        return pref.getInt(KEY_FIRST_SCREEN, 0);
+        return pref.getInt(KEY_FIRST_SCREEN, 1);
     }
 }

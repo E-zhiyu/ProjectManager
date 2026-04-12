@@ -25,7 +25,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
     private BottomSheetTagSelectBinding binding;    //绑定的XML视图
-    private long excepted_tag_no = 0;               //被排除的标签编号（不会显示）
+    private long exceptedTagNo = 0;               //被排除的标签编号（不会显示）
     private boolean isTagExcepted = false;          //是否存在被排除的标签
     private final SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener tagBtnClickedListener; //标签按钮点击事件的监听器
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
@@ -44,12 +44,12 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
     /**
      * 指定排除的标签的构造方法
      *
-     * @param listener        标签按钮点击的监听器
-     * @param excepted_tag_no 被排除的标签编号
+     * @param listener      标签按钮点击的监听器
+     * @param exceptedTagNo 被排除的标签编号
      */
-    public TagSelectBottomSheet(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener, long excepted_tag_no) {
+    public TagSelectBottomSheet(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener, long exceptedTagNo) {
         this.tagBtnClickedListener = listener;
-        this.excepted_tag_no = excepted_tag_no;
+        this.exceptedTagNo = exceptedTagNo;
         tagScopeType = null;    //不需要过滤标签作用域
         isTagExcepted = true;
     }
@@ -103,11 +103,16 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
      */
     private void loadTagGroupData(@NonNull SheetTagGroupRecyclerAdapter tagAdapter) {
         disposables.add(
-                Observable.fromCallable(() -> TagGroupDataController.loadTagGroups(requireContext(), excepted_tag_no, tagScopeType))
+                Observable.fromCallable(() -> TagGroupDataController.loadTagGroup(
+                                requireContext(),
+                                exceptedTagNo,
+                                -1,
+                                tagScopeType
+                        ))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
-                                tagAdapter::setTagGroupList,
+                                tagAdapter::setTagGroupMap,
                                 e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
                                 () -> binding.loadingIndicator.setVisibility(View.GONE)
                         )

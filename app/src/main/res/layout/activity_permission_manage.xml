@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/CommonPageStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.pages.setting.PermissionManageActivity">
@@ -17,13 +16,13 @@
         app:title="@string/permissions_setting" />
 
     <ScrollView
-        style="@style/CommonPageStyle"
+        android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:clipToPadding="false"
         android:scrollbars="none"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        tools:context=".ui.pages.setting.SettingFragment">
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
         <com.google.android.material.card.MaterialCardView
             style="@style/ContentCardStyle"

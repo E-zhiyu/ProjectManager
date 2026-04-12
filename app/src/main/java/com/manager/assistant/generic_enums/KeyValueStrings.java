@@ -2,7 +2,6 @@ package com.manager.assistant.generic_enums;
 
 //用作关键字的字符串枚举
 public enum KeyValueStrings {
-    RNO("rno"),                                             //流水编号
     ACCOUNT_TYPE("account_type"),                           //流水种类
     ACCOUNT_REMARK("account_remark"),                       //流水备注
     ACCOUNT_DATETIME("account_datetime"),                   //流水日期和时间
@@ -17,8 +16,8 @@ public enum KeyValueStrings {
     TAG_SCOPE("tag_scope"),                                 //标签作用域
     TAG_GROUP_NAME("tag_group_name"),                       //标签分组名称
     TAG_GROUP_NO("tag_group_no"),                           //标签分组编号
+    TAG_GROUP_NO_NEW("tag_group_no_new"),                   //标签输入界面修改分组后的新的分组编号
     MERGE_TARGET_NO("merged_no"),                           //合并到的分组或标签编号
-    TAG_GROUP_NAME_LIST("tag_group_name_list"),             //标签组名称列表
     ANALYSIS_RULE_NAME("analysis_rule_name"),               //通知解析规则名称
     ANALYSIS_RULE_NO("analysis_rule_no"),                   //通知解析规则编号
     PACKAGE_NAME("package_name"),                           //包名

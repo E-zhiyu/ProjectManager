@@ -1,17 +1,14 @@
 package com.manager.assistant.ui.pages.home.report;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.progressindicator.LinearProgressIndicator;
-import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.data.classes.MonthAccountInfo;
+import com.manager.assistant.databinding.ViewHolderAmountProportionBinding;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,18 +19,11 @@ public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapte
     private ReportActivity.MonthAccountInfoType monthAccountInfoType;               //显示的每月流水数据的种类
 
     public static class MonthAccountViewHolder extends RecyclerView.ViewHolder {
-        MaterialTextView monthNameText;         //月份文本
-        MaterialTextView proportionText;        //金额占比文本
-        MaterialTextView amountText;            //金额文本
-        LinearProgressIndicator proportionBar;  //占比进度条
+        ViewHolderAmountProportionBinding binding;
 
-        public MonthAccountViewHolder(@NonNull View itemView) {
-            super(itemView);
-
-            monthNameText = itemView.findViewById(R.id.source_name_text);
-            proportionText = itemView.findViewById(R.id.percentage_text);
-            amountText = itemView.findViewById(R.id.amount_text);
-            proportionBar = itemView.findViewById(R.id.percentage_bar);
+        public MonthAccountViewHolder(@NonNull ViewHolderAmountProportionBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
     }
 
@@ -49,9 +39,12 @@ public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapte
     @NonNull
     @Override
     public MonthAccountAdapter.MonthAccountViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.view_holder_amount_proportion, parent, false);
-        return new MonthAccountAdapter.MonthAccountViewHolder(view);
+        ViewHolderAmountProportionBinding binding = ViewHolderAmountProportionBinding.inflate(
+                LayoutInflater.from(parent.getContext()),
+                parent,
+                false
+        );
+        return new MonthAccountAdapter.MonthAccountViewHolder(binding);
     }
 
     @Override
@@ -63,10 +56,9 @@ public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapte
                 amount = oneMonthInfo.getIncome() - oneMonthInfo.getExpense();
 
                 if (amount < 0) {   //如果结余为负数，则将进度条设置为红色
-                    holder.proportionBar.setIndicatorColor(ContextCompat.getColor(
-                            holder.itemView.getContext(),
-                            com.google.android.material.R.color.design_default_color_error
-                    ));
+                    holder.binding.percentageBar.setIndicatorColor(
+                            holder.itemView.getContext().getColor(R.color.md_theme_error)
+                    );
                 }
                 break;
             case EXPENSE:
@@ -77,13 +69,13 @@ public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapte
                 break;
         }
         int percentage = oneMonthInfo.getPercentage();
-        String month_name = String.format(Locale.getDefault(), "%d月", position + 1);
+        String monthName = String.format(Locale.getDefault(), "%d月", position + 1);
 
-        holder.monthNameText.setText(month_name);                 //月份名称
-        holder.amountText.setText(String.format(Locale.getDefault(), "%.2f", amount));  //金额
-        String percentage_str = String.format(Locale.getDefault(), "%d%%", percentage);
-        holder.proportionText.setText(percentage_str);             //百分比文本
-        holder.proportionBar.setProgress(percentage);              //百分比进度条
+        holder.binding.sourceNameText.setText(monthName);                   //月份名称
+        holder.binding.amountText.setText(String.format(Locale.getDefault(), "%.2f", amount));  //金额
+        String percentageStr = String.format(Locale.getDefault(), "%d%%", percentage);
+        holder.binding.percentageText.setText(percentageStr);               //百分比文本
+        holder.binding.percentageBar.setProgress(percentage);              //百分比进度条
     }
 
     @Override
@@ -100,9 +92,9 @@ public class MonthAccountAdapter extends RecyclerView.Adapter<MonthAccountAdapte
     public void refreshMonthAccountInfo(List<MonthAccountInfo> monthAccountInfoList, ReportActivity.MonthAccountInfoType type) {
         this.monthAccountInfoType = type;
 
-        int old_item_count = getItemCount();
+        int oldItemCount = getItemCount();
         this.monthAccountInfoList.clear();
-        notifyItemRangeRemoved(0, old_item_count);
+        notifyItemRangeRemoved(0, oldItemCount);
 
         this.monthAccountInfoList.addAll(monthAccountInfoList);
         notifyItemRangeInserted(0, monthAccountInfoList.size());

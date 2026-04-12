@@ -79,7 +79,7 @@
     <string name="running_account_type">流水类型</string>
     <string name="notification_content_regex">通知内容(正则)</string>
     <string name="input_instruction">详细输入说明</string>
-    <string name="search_app">搜索应用……</string>
+    <string name="search_app_name">搜索应用名称……</string>
     <string name="background_setting">后台设置</string>
     <string name="tag_optional">标签(可选)</string>
     <string name="btn_expands_list">展开列表选项的按钮</string>
@@ -166,4 +166,51 @@
     <string name="delete_account">删除记录</string>
     <string name="notification_click_behaviour">通知点击行为</string>
     <string name="none">无</string>
+    <string name="expand_or_fold_menu">展开或折叠菜单</string>
+    <string name="search_remark">搜索备注……</string>
+    <string name="clear_search_history">清除搜索记录</string>
+    <string name="there_is_no_app">没有找到应用ㄟ( ▔, ▔ )ㄏ</string>
+    <string name="there_is_no_budget">还没创建预算呢_(:з)∠)_</string>
+    <string name="there_is_no_analysis_rule">没有通知解析规则哦ㄟ( ▔, ▔ )ㄏ</string>
+    <string name="there_is_no_running_account">还没有产生流水记录(●\'◡\'●)</string>
+    <string-array name="tips_array">
+        <item>在报表界面可以点击某个收支来源以排除它，还不赶快去试试？</item>
+        <item>你知道吗？下面的这些卡片是可以点击的。</item>
+        <item>如果你发现设置项的右侧有一根竖线，那么请长按左侧的文本试试。</item>
+        <item>为什么不试试自动记账呢？在设置界面可以打开自动记账功能，建议在最近任务中锁定本应用。</item>
+        <item>每条流水记录都可以添加若干图片，用于记录当时的交易详情，感谢我的Java老师提供这个想法。</item>
+        <item>为了让软件能在后台正常运行，强烈建议授予自启动权限并忽略电池优化</item>
+        <item>调整魔改系统的省电策略可能无法保活软件，这个时候可以去本软件的设置-权限管理-电池优化策略中调整原生电池优化策略。</item>
+        <item>本软件没有云服务，如果你担心数据丢失，可以在设置界面自行导出数据作为备份。</item>
+        <item>动态色彩支持Android 12以上的系统，能够根据壁纸颜色生成配色方案，当然你也可以在设置界面切换成静态色彩。</item>
+        <item>流水标签非常重要，预算管理、流水记录筛选和自动记账都需要流水标签。</item>
+        <item>本软件的UI采用Material You风格，以后要不要加上MIUI风格的UI呢？</item>
+        <item>设置界面可以调整开屏界面，这样每次打开应用就不用手动跳转记账界面了，但那样谁来看我的提示文本呢？🤔</item>
+        <item>标签管理界面左侧导航栏有最大显示数量，如果分组过多需要展开才能看到全部分组</item>
+
+        <item>这句话是错……误……的😵‍💫</item>
+        <item>手握两把锟斤拷，口中直呼烫烫烫……</item>
+        <item>你说得对，但Material You是由谷歌推出的一套全新动态设计语言系统。它构建于名为「Material Design」的视觉框架之上，通过智能算法实现「以你为本」的个性化体验。在这个充满活力的数字世界中，用户将通过「动态色彩」技术获得专属的视觉风格。</item>
+        <item>软件图标中的角色叫斯莱，是游戏《空洞骑士》中一位很有个性的人物。</item>
+        <item>AI真的太好用了你知道吗？这里几乎所有动画都是AI写的！</item>
+        <item>何意味是什么意思</item>
+        <item>大手子云控中😈……什么？我根本没写云服务？😦</item>
+        <item>System has been destroyed!</item>
+        <item>我方Vibe Coding正在路上</item>
+        <item>Android恩情还不完✋😭🤚</item>
+        <item>Android一定要开放✍️</item>
+        <item>老婆饼没有老婆，“小而美”也不小而美😡</item>
+        <item>先有鸡还是先有蛋？先有编译器还是先有代码？🤔</item>
+    </string-array>
+    <string-array name="xiaomi_tips">
+        <item>两行干碎一加魂，长官我是小米人。</item>
+        <item>2026–3–8被称为“小米解锁节”。</item>
+        <item>Are you OK?</item>
+        <item>你知道吗？只有小米可以直接跳转自启动界面，其他系统只能跳转到设置主界面。</item>
+        <item>小米超级岛(×)金凡帮你岛(√)</item>
+        <item>System UI未响应……</item>
+        <item>雷军！金凡！</item>
+        <item>你是17 Pro Max？我也是17 Pro Max！🥰</item>
+        <item>去问小爱同学“雷军怎么叫”</item>
+    </string-array>
 </resources>

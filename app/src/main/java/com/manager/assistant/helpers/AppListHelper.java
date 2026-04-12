@@ -1,4 +1,4 @@
-package com.manager.assistant.helpers.resourse;
+package com.manager.assistant.helpers;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -9,11 +9,13 @@ import android.graphics.drawable.Drawable;
 import androidx.annotation.NonNull;
 
 import com.manager.assistant.data.classes.AppInfo;
+import com.manager.assistant.helpers.appearence.IconHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class PackageNameHelper {
+public class AppListHelper {
     /**
      * 加载应用列表
      *
@@ -53,14 +55,8 @@ public class PackageNameHelper {
      */
     @NonNull
     public static List<AppInfo> searchInFullAppList(String query, @NonNull List<AppInfo> fullAppInfoList) {
-        List<AppInfo> searchResult = new ArrayList<>();
-
-        for (AppInfo app : fullAppInfoList) {
-            String app_name = app.getAppName();
-            if (app_name.toLowerCase().contains(query.toLowerCase()))
-                searchResult.add(app);
-        }
-
-        return searchResult;
+        return fullAppInfoList.stream()
+                .filter(appInfo -> appInfo.getAppName().contains(query))
+                .collect(Collectors.toList());
     }
 }

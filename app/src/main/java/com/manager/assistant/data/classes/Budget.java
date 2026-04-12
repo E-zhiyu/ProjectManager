@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class Budget {
-    private long bno;                       //预算编号
+    private final long bno;                 //预算编号
     private final String name;              //预算名称
     private final double initAmount;        //初始金额
     private double leftAmount;              //剩余金额
@@ -45,28 +45,7 @@ public class Budget {
     }
 
     /**
-     * 不指定编号的构造方法
-     *
-     * @param name           预算名称
-     * @param initAmount     初始金额
-     * @param leftAmount     剩余金额
-     * @param startDate      起算日期
-     * @param resetFrequency 重置频率
-     * @param tagNoList      标签编号列表
-     */
-    public Budget(
-            String name,
-            double initAmount,
-            double leftAmount,
-            String startDate,
-            ResetFrequency resetFrequency,
-            List<Long> tagNoList
-    ) {
-        this(0, name, initAmount, leftAmount, startDate, resetFrequency, tagNoList);
-    }
-
-    /**
-     * 不指定剩余金额的构造方法(剩余金额与初始金额相等
+     * 不指定剩余金额的构造方法(剩余金额与初始金额相等)
      *
      * @param name           预算名称
      * @param initAmount     初始金额
@@ -75,21 +54,18 @@ public class Budget {
      * @param tagNoList      标签编号列表
      */
     public Budget(
+            long bno,
             String name,
             double initAmount,
             String startDate,
             ResetFrequency resetFrequency,
             List<Long> tagNoList
     ) {
-        this(name, initAmount, initAmount, startDate, resetFrequency, tagNoList);
+        this(bno, name, initAmount, initAmount, startDate, resetFrequency, tagNoList);
     }
 
     public long getBno() {
         return bno;
-    }
-
-    public void setBno(long bno) {
-        this.bno = bno;
     }
 
     public String getName() {

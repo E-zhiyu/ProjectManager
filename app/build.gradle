@@ -10,8 +10,8 @@ android {
         applicationId "com.manager.assitant"
         minSdk 26
         targetSdk 36
-        versionCode 54
-        versionName "1.8.10"
+        versionCode 55
+        versionName "1.8.11"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -61,4 +61,5 @@ dependencies {
     implementation libs.photoview
     implementation libs.groupie
     implementation libs.dynamicanimation
+    implementation libs.flexbox
 }

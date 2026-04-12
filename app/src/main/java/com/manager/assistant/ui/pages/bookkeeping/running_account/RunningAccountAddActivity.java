@@ -5,9 +5,13 @@ import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
@@ -21,7 +25,7 @@ import com.manager.assistant.ui.sync.picture.AccountPictureViewModel;
 import com.manager.assistant.ui.others.adapters.FragmentPagerAdapter;
 import com.manager.assistant.databinding.ActivityRunningAccountAddBinding;
 import com.manager.assistant.generic_enums.DirectoryPaths;
-import com.manager.assistant.helpers.appearence.AnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.ExpenseFragment;
@@ -42,12 +46,21 @@ public class RunningAccountAddActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
 
         binding = ActivityRunningAccountAddBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime()
+            );
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
         initViews();
-        AnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
+        AppearanceAnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
 
         //设置返回监听器
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -149,7 +162,7 @@ public class RunningAccountAddActivity extends AppCompatActivity {
         long rno;
         try {
             rno = AccountDataController.saveNewAccount(dataBundle, this);
-            dataBundle.putLong(KeyValueStrings.RNO.getValue(), rno);
+            dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
             moveTempPictures(rno);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(this, e);
