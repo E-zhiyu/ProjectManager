@@ -79,7 +79,7 @@
     <string name="running_account_type">流水类型</string>
     <string name="notification_content_regex">通知内容(正则)</string>
     <string name="input_instruction">详细输入说明</string>
-    <string name="search_app">搜索应用……</string>
+    <string name="search_app_name">搜索应用名称……</string>
     <string name="background_setting">后台设置</string>
     <string name="tag_optional">标签(可选)</string>
     <string name="btn_expands_list">展开列表选项的按钮</string>

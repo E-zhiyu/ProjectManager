@@ -15,6 +15,11 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<SearchHistoryAdap
     private final List<String> searchHistoryList = new ArrayList<>();   //搜索历史记录列表
     private final OnClickerListener listener;                           //视图的点击监听
 
+    /**
+     * 搜索历史适配器构造方法
+     *
+     * @param listener 搜索历史Chip点击监听器
+     */
     public SearchHistoryAdapter(OnClickerListener listener) {
         this.listener = listener;
     }

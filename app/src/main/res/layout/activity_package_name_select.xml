@@ -29,7 +29,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="@string/search_app" />
+                    android:hint="@string/search_app_name" />
 
                 <ImageButton
                     android:id="@+id/expand_list_btn"
@@ -61,7 +61,7 @@
         android:id="@+id/search_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/search_app"
+        android:hint="@string/search_app_name"
         app:layout_behavior="com.google.android.material.search.SearchView$Behavior"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -70,18 +70,21 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                android:id="@+id/search_refresh_layout"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/search_history_recycler"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp"
+                app:layoutManager="com.google.android.flexbox.FlexboxLayoutManager" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/search_result_recycler"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipToPadding="false"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/clear_history_btn"
+                style="@style/TextBtnStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/clear_search_history" />
         </LinearLayout>
     </com.google.android.material.search.SearchView>
 </androidx.constraintlayout.widget.ConstraintLayout>
