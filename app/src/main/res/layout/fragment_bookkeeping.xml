@@ -74,6 +74,16 @@
         android:layout_gravity="end|bottom"
         android:contentDescription="@string/add_floating_btn_description" />
 
+    <!-- 空内容提示文本 -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/empty_tip_text"
+        style="@style/MediumBodyTextViewStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/there_is_no_running_account"
+        android:visibility="gone" />
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/refresh_layout"
         android:layout_width="match_parent"

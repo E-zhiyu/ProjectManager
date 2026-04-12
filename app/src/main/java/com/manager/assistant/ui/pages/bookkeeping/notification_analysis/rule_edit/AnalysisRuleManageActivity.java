@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -17,7 +18,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.manager.assistant.data.controllers.RuleDataController;
-import com.manager.assistant.databinding.ActivityAnalysisRuleManageBinding;
+import com.manager.assistant.databinding.ActivityRuleManageBinding;
 import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.ColorHelper;
@@ -40,7 +41,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> ruleAddLauncher;     //添加规则界面的启动器
     private ActivityResultLauncher<Intent> ruleModifyLauncher;  //修改规则的启动器
     private AnalysisRuleAdapter ruleAdapter;                   //规则列表适配器
-    private ActivityAnalysisRuleManageBinding binding;          //XML视图绑定引用
+    private ActivityRuleManageBinding binding;          //XML视图绑定引用
     private final CompositeDisposable disposables = new CompositeDisposable();
     private final PermissionHelper permissionHelper = new PermissionHelper(this);   //权限申请帮助器
 
@@ -49,7 +50,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
 
-        binding = ActivityAnalysisRuleManageBinding.inflate(getLayoutInflater());
+        binding = ActivityRuleManageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
@@ -265,7 +266,15 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
-                                ruleList -> ruleAdapter.refreshRuleList(ruleList),
+                                ruleList -> {
+                                    ruleAdapter.refreshRuleList(ruleList);
+
+                                    if (ruleList.isEmpty()) {
+                                        binding.emptyTipText.setVisibility(View.VISIBLE);
+                                    } else {
+                                        binding.emptyTipText.setVisibility(View.GONE);
+                                    }
+                                },
                                 e -> ExceptionHelper.showExceptionDialog(this, e),
                                 () -> {
                                     binding.refreshLayout.setRefreshing(false);

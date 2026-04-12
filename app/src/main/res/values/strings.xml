@@ -170,6 +170,9 @@
     <string name="search_remark">搜索备注……</string>
     <string name="clear_search_history">清除搜索记录</string>
     <string name="there_is_no_app">没有找到应用ㄟ( ▔, ▔ )ㄏ</string>
+    <string name="there_is_no_budget">还没创建预算呢_(:з)∠)_</string>
+    <string name="there_is_no_analysis_rule">没有通知解析规则哦ㄟ( ▔, ▔ )ㄏ</string>
+    <string name="there_is_no_running_account">还没有产生流水记录(●\'◡\'●)</string>
     <string-array name="tips_array">
         <item>在报表界面可以点击某个收支来源以排除它，还不赶快去试试？</item>
         <item>你知道吗？下面的这些卡片是可以点击的。</item>

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -213,7 +214,15 @@ public class BudgetManageActivity extends AppCompatActivity {
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
-                                adapter::refreshBudget,
+                                budgetList -> {
+                                    adapter.refreshBudget(budgetList);
+
+                                    if (budgetList.isEmpty()) {
+                                        binding.emptyTipText.setVisibility(View.VISIBLE);
+                                    } else {
+                                        binding.emptyTipText.setVisibility(View.GONE);
+                                    }
+                                },
                                 e -> ExceptionHelper.showExceptionDialog(this, e),
                                 () -> {
                                     binding.refreshLayout.setRefreshing(false);

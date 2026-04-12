@@ -25,6 +25,19 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- 空内容提示文本 -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/empty_tip_text"
+        style="@style/MediumBodyTextViewStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/there_is_no_analysis_rule"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/refresh_layout"
         android:layout_width="match_parent"

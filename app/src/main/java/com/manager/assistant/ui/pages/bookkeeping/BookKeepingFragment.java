@@ -454,6 +454,12 @@ public class BookKeepingFragment extends Fragment {
                                     accountAdapter.refreshRunningAccount(refreshedAccount);
                                     accountCount = refreshedAccount.size();
                                     refreshAccountNumText();
+
+                                    if (refreshedAccount.isEmpty()) {
+                                        binding.emptyTipText.setVisibility(View.VISIBLE);
+                                    } else {
+                                        binding.emptyTipText.setVisibility(View.GONE);
+                                    }
                                 },  //成功回调
                                 e -> {
                                     ExceptionHelper.showExceptionDialog(requireContext(), e);
