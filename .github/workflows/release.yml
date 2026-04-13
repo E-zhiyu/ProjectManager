@@ -1,0 +1,59 @@
+name: ManagerAssistant Release CI
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      # 1. 从 Secrets 还原签名文件
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.SIGNING_KEY }}" | base64 --decode > app/release.jks
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # 2. 构建已签名的 APK
+      # 我们通过 -P 参数将 Secrets 中的值直接注入 Gradle 属性
+      - name: Build Signed APK
+        run: |
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=$(pwd)/app/release.jks \
+            -Pandroid.injected.signing.store.password=${{ secrets.KEY_STORE_PASSWORD }} \
+            -Pandroid.injected.signing.key.alias=${{ secrets.ALIAS }} \
+            -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
+
+      # 新增步骤：重命名 APK
+      - name: Rename APK
+        run: |
+          # 1. 定义你的自定义前缀
+          APP_NAME="ManagerAssistant"
+          # 2. 获取当前的 Tag 标签名 (例如 v1.0)
+          TAG_NAME="${{ github.ref_name }}"
+          # 3. 执行重命名 (请确保路径与你实际生成的 APK 路径一致)
+          # 通常默认路径是 app/build/outputs/apk/release/app-release.apk
+          mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/${APP_NAME}_${TAG_NAME}.apk
+
+      # 3. 发布到 GitHub Release
+      - name: Create Release and Upload APK
+        uses: softprops/action-gh-release@v2
+        with:
+          files: app/build/outputs/apk/release/*.apk
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
