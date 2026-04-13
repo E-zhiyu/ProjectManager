@@ -20,7 +20,7 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # 1. 从 Secrets 还原签名文件
+      # 从 Secrets 还原签名文件
       - name: Decode Keystore
         run: |
           echo "${{ secrets.SIGNING_KEY }}" | base64 --decode > app/release.jks
@@ -28,7 +28,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # 2. 构建已签名的 APK
+      # 构建已签名的 APK
       # 我们通过 -P 参数将 Secrets 中的值直接注入 Gradle 属性
       - name: Build Signed APK
         run: |
@@ -38,7 +38,7 @@ jobs:
             -Pandroid.injected.signing.key.alias=${{ secrets.ALIAS }} \
             -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
 
-      # 新增步骤：重命名 APK
+      # 重命名 APK
       - name: Rename APK
         run: |
           # 1. 定义你的自定义前缀
@@ -49,11 +49,32 @@ jobs:
           # 通常默认路径是 app/build/outputs/apk/release/app-release.apk
           mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/${APP_NAME}_${TAG_NAME}.apk
 
-      # 3. 发布到 GitHub Release
+      # 解析更新日志文件，然后填充到Release描述中
+      - name: Extract Changelog
+        id: extract_changelog
+        run: |
+          # 1. 获取当前推送的 Tag 名称 (例如 v1.0.0)
+          VERSION="${{ github.ref_name }}"
+          
+          # 2. 找到文件中匹配 "# v1.0.0" 的行号
+          # 注意：这里的 "^# $VERSION" 匹配以 # 开头且后面跟着版本号的行
+          START_LINE=$(grep -nE "^# $VERSION" CHANGELOG.md | cut -d: -f1)
+          
+          if [ -z "$START_LINE" ]; then
+            echo "未在 CHANGELOG.md 中找到版本 $VERSION 的记录"
+            echo "No changelog found for $VERSION" > current_release_notes.md
+          else
+            # 3. 从起始行开始，提取内容，直到遇到下一个以 "# " 开头的版本行（不含该行）
+            # tail 从起始行开始读取，sed 在遇到下一个 # 时停止输出
+            tail -n +$((START_LINE + 1)) CHANGELOG.md | sed -n '/^# /q;p' > current_release_notes.md
+          fi
+
+      # 发布到 GitHub Release
       - name: Create Release and Upload APK
         uses: softprops/action-gh-release@v2
         with:
+          name: Release ${{ github.ref_name }}  # 标题
           files: app/build/outputs/apk/release/*.apk
-          generate_release_notes: true
+          body_path: current_release_notes.md   # 使用刚才提取出的临时文件作为 Release 正文
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
