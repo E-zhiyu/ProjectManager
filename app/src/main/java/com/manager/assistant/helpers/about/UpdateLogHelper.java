@@ -11,7 +11,10 @@ import com.manager.assistant.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String UPDATE_LOG_MD = "# v1.8.11  \n" +
+    private static final String UPDATE_LOG_MD = "# v1.8.12  \n" +
+            "**修改内容**  \n" +
+            "- 修改记账界面的空状态提示文本  \n\n" +
+            "# v1.8.11  \n" +
             "**新增内容**  \n" +
             "- 增加搜索流水备注功能  \n" +
             "- 搜索功能能够记录搜索历史（最多15个）  \n" +

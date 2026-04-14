@@ -172,7 +172,7 @@
     <string name="there_is_no_app">没有找到应用ㄟ( ▔, ▔ )ㄏ</string>
     <string name="there_is_no_budget">还没创建预算呢_(:з)∠)_</string>
     <string name="there_is_no_analysis_rule">没有通知解析规则哦ㄟ( ▔, ▔ )ㄏ</string>
-    <string name="there_is_no_running_account">还没有产生流水记录(●\'◡\'●)</string>
+    <string name="there_is_no_running_account">没有流水记录(●\'◡\'●)</string>
     <string-array name="tips_array">
         <item>在报表界面可以点击某个收支来源以排除它，还不赶快去试试？</item>
         <item>你知道吗？下面的这些卡片是可以点击的。</item>
@@ -196,11 +196,11 @@
         <item>何意味是什么意思</item>
         <item>大手子云控中😈……什么？我根本没写云服务？😦</item>
         <item>System has been destroyed!</item>
-        <item>我方Vibe Coding正在路上</item>
         <item>Android恩情还不完✋😭🤚</item>
         <item>Android一定要开放✍️</item>
         <item>老婆饼没有老婆，“小而美”也不小而美😡</item>
         <item>先有鸡还是先有蛋？先有编译器还是先有代码？🤔</item>
+        <item>好！把他们上市！</item>
     </string-array>
     <string-array name="xiaomi_tips">
         <item>两行干碎一加魂，长官我是小米人。</item>
