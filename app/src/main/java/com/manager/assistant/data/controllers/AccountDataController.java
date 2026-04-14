@@ -104,16 +104,31 @@ public class AccountDataController {
 
         //生成备注搜索条件
         if (searchText != null && !searchText.isEmpty()) {
-            //进行转义
-            String safeSearch = searchText.replace("/", "//")
-                    .replace("%", "/%")
-                    .replace("_", "/_");
-
             selection.append(" AND ");
-            selection.append(Columns.REMARK);
-            selection.append(" LIKE ? ");
-            selection.append("ESCAPE '/'"); //使用“/”进行转义
-            selectionArgList.add("%" + safeSearch + "%");
+
+            //根据空格分割字符串
+            String[] keyWords = searchText.trim().split("\\s+");
+
+            //循环生成多个LIKE子句
+            int index = 0;
+            for (String keyWord : keyWords) {
+                //进行转义
+                String safeWord = keyWord.replace("/", "//")
+                        .replace("%", "/%")
+                        .replace("_", "/_");
+
+                selection.append(Columns.REMARK);
+                selection.append(" LIKE ? ");
+                selection.append("ESCAPE '/'"); //使用“/”进行转义
+                selectionArgList.add("%" + safeWord + "%");
+
+                //添加OR
+                if (index < keyWords.length - 1) {
+                    selection.append(" OR ");
+                }
+
+                index++;
+            }
         }
 
         //查询流水记录
