@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +63,7 @@ public class BookKeepingFragment extends Fragment {
     private AccountFilterBottomSheet.FilterSetting filterSetting = new AccountFilterBottomSheet.FilterSetting();    //过滤器设置
     private String searchText = "";                         //搜索文本，用于搜索流水备注
     private SearchView.TransitionListener transitionListener;   //SearchView的变化监听器
+    private TextWatcher searchTextWatcher;                  //搜索文本变化监听器
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
@@ -116,6 +119,7 @@ public class BookKeepingFragment extends Fragment {
             }
             mainActivity.binding.clearHistoryBtn.setOnClickListener(null);                      //销毁清空历史按钮点击监听
             mainActivity.binding.searchHistoryRecycler.setAdapter(null);                        //清除适配器
+            mainActivity.binding.searchView.getEditText().removeTextChangedListener(searchTextWatcher); //清除文本变化监听器
         }
     }
 
@@ -303,6 +307,29 @@ public class BookKeepingFragment extends Fragment {
                 );
                 searchViewAdapter.refreshSearchHistory(new ArrayList<>());
             });
+
+            //添加文本变化监听器，用于在清空文本后自动清除搜索并刷新视图
+            searchTextWatcher = new TextWatcher() {
+                @Override
+                public void afterTextChanged(Editable s) {
+
+                }
+
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (s.length() == 0) {
+                        searchText = "";
+                        binding.remarkSearchBar.setText("");
+                        refreshAccountRecycler();
+                    }
+                }
+            };
+            mainActivity.binding.searchView.getEditText().addTextChangedListener(searchTextWatcher);
 
             //设置搜索监听
             mainActivity.binding.searchView.getEditText().setOnEditorActionListener((v, actionId, event) -> {
