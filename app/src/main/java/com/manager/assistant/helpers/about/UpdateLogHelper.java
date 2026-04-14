@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String UPDATE_LOG_MD = "# v1.8.12  \n" +
             "**修改内容**  \n" +
+            "- 搜索视图通过输入法清空文本后会自动清除搜索  \n" +
             "- 修改记账界面的空状态提示文本  \n\n" +
             "# v1.8.11  \n" +
             "**新增内容**  \n" +

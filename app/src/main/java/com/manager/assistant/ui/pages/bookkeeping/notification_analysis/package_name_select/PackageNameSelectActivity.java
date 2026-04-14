@@ -3,6 +3,8 @@ package com.manager.assistant.ui.pages.bookkeeping.notification_analysis.package
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ImageButton;
@@ -225,6 +227,28 @@ public class PackageNameSelectActivity extends AppCompatActivity {
                 return true;
             } else {
                 return false;
+            }
+        });
+
+        //添加文本变化监听器，用于在清空文本后自动清除搜索并刷新视图
+        binding.searchView.getEditText().addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() == 0) {
+                    searchText = "";
+                    binding.searchBar.setText("");
+                    refreshAppListRecycler();
+                }
             }
         });
     }
