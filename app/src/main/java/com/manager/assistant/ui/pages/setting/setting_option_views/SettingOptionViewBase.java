@@ -4,9 +4,13 @@ import android.content.Context;
 import android.view.View;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 
 import com.manager.assistant.databinding.ViewSettingOptionBinding;
+import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
+
+import org.jetbrains.annotations.Contract;
 
 /**
  * 设置项基类
@@ -18,6 +22,12 @@ abstract public class SettingOptionViewBase<C, L> {
     protected ViewSettingOptionBinding binding;     //绑定的XML视图引用
     protected C functionComponent;                  //功能组件
 
+    public enum RadiusStyle {
+        TOP,    //顶部
+        MIDDLE, //中部
+        BOTTOM  //底部
+    }
+
     /**
      * 设置项构造方法
      *
@@ -26,13 +36,23 @@ abstract public class SettingOptionViewBase<C, L> {
      * @param title       标题
      * @param description 描述（可选）
      * @param iconId      左侧图标资源ID
+     * @param radiusStyle 圆角类型
      */
-    public SettingOptionViewBase(Context context, ViewSettingOptionBinding binding, @StringRes int title, String description, @DrawableRes int iconId) {
+    public SettingOptionViewBase(
+            Context context,
+            ViewSettingOptionBinding binding,
+            @StringRes int title,
+            String description,
+            @DrawableRes int iconId,
+            RadiusStyle radiusStyle
+    ) {
         this.binding = binding;
         initView(context);
         setTitle(title);
         setDescription(description);
         setIcon(iconId);
+
+        setRadius(radiusStyle, context);
     }
 
     protected void setTitle(@StringRes int title) {
@@ -83,6 +103,48 @@ abstract public class SettingOptionViewBase<C, L> {
             binding.settingViewDivider.setVisibility(View.VISIBLE);
         } else {
             binding.settingViewDivider.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * 设置圆角类型
+     *
+     * @param radiusStyle 圆角类型
+     * @param context     上下文
+     */
+    @Contract(pure = true)
+    public void setRadius(@NonNull RadiusStyle radiusStyle, Context context) {
+        switch (radiusStyle) {
+            case TOP:
+                AppearanceAnimationHelper.setRadius(
+                        context,
+                        binding.getRoot(),
+                        AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
+                        AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
+                        AppearanceAnimationHelper.SMALL_CARD_RADIUS,
+                        AppearanceAnimationHelper.SMALL_CARD_RADIUS
+                );
+                break;
+            case MIDDLE:
+                AppearanceAnimationHelper.setRadius(
+                        context,
+                        binding.getRoot(),
+                        AppearanceAnimationHelper.SMALL_CARD_RADIUS,
+                        AppearanceAnimationHelper.SMALL_CARD_RADIUS,
+                        AppearanceAnimationHelper.SMALL_CARD_RADIUS,
+                        AppearanceAnimationHelper.SMALL_CARD_RADIUS
+                );
+                break;
+            case BOTTOM:
+                AppearanceAnimationHelper.setRadius(
+                        context,
+                        binding.getRoot(),
+                        AppearanceAnimationHelper.SMALL_CARD_RADIUS,
+                        AppearanceAnimationHelper.SMALL_CARD_RADIUS,
+                        AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
+                        AppearanceAnimationHelper.MEDIUM_CARD_RADIUS
+                );
+                break;
         }
     }
 

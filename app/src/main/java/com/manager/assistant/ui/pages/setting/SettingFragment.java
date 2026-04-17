@@ -41,6 +41,7 @@ import com.manager.assistant.helpers.UpdateHelper;
 import com.manager.assistant.helpers.file.UriPathHelper;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.ui.others.animators.ExpandFoldAnimator;
+import com.manager.assistant.ui.pages.setting.setting_option_views.SettingOptionViewBase;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
 import com.manager.assistant.ui.sync.account.RunningAccountViewModel;
 import com.manager.assistant.ui.others.dialogs.MultiChoiceDialog;
@@ -164,7 +165,8 @@ public class SettingFragment extends Fragment {
                 binding.themeModeOption,
                 R.string.theme_mode,
                 "切换深浅色模式",
-                R.drawable.outline_dark_mode_24
+                R.drawable.outline_dark_mode_24,
+                SettingOptionViewBase.RadiusStyle.TOP
         );
         themeModeOption.setFunctionListener(v -> showThemeModeSelectDialog());
 
@@ -174,7 +176,8 @@ public class SettingFragment extends Fragment {
                 binding.dynamicColorOption,
                 R.string.dynamic_color,
                 "将壁纸颜色作为APP主题色",
-                R.drawable.outline_colorize_24
+                R.drawable.outline_colorize_24,
+                SettingOptionViewBase.RadiusStyle.MIDDLE
         );
         dynamicColorOption.setChecked(AppSettingsPreference.getDynamicColorStat(requireContext()));
         dynamicColorOption.setFunctionListener(
@@ -203,7 +206,8 @@ public class SettingFragment extends Fragment {
                 binding.firstScreenOption,
                 R.string.select_first_screen,
                 "选择启动的第一屏",
-                R.drawable.outline_mobile_24
+                R.drawable.outline_mobile_24,
+                SettingOptionViewBase.RadiusStyle.MIDDLE
         );
         String[] firstScreenTitles = {
                 requireContext().getString(R.string.title_bookkeeping),
@@ -245,7 +249,8 @@ public class SettingFragment extends Fragment {
                 binding.permissionsOption,
                 R.string.permissions_setting,
                 "点击进入权限管理界面",
-                R.drawable.outline_settings_24
+                R.drawable.outline_settings_24,
+                SettingOptionViewBase.RadiusStyle.BOTTOM
         );
         permissionsOption.setFunctionListener(v -> {
             Intent skip2PermissionManage = new Intent(requireContext(), PermissionManageActivity.class);
@@ -263,7 +268,8 @@ public class SettingFragment extends Fragment {
                 binding.exportDataOption,
                 R.string.export_data,
                 "将应用数据以文件形式保存",
-                R.drawable.outline_file_export_24
+                R.drawable.outline_file_export_24,
+                SettingOptionViewBase.RadiusStyle.TOP
         );
         exportDataOption.setFunctionListener(v -> onExportDataClicked());
 
@@ -273,7 +279,8 @@ public class SettingFragment extends Fragment {
                 binding.importDataOption,
                 R.string.import_data,
                 "从外部文件导入数据",
-                R.drawable.outline_download_24
+                R.drawable.outline_download_24,
+                SettingOptionViewBase.RadiusStyle.MIDDLE
         );
         importDataOption.setFunctionListener(v -> importData());
 
@@ -283,7 +290,8 @@ public class SettingFragment extends Fragment {
                 binding.clearAccountDataOption,
                 R.string.clear_account_data,
                 "清除流水相关数据",
-                R.drawable.outline_delete_24
+                R.drawable.outline_delete_24,
+                SettingOptionViewBase.RadiusStyle.MIDDLE
         );
         clearRunningAccountOption.setFunctionListener(
                 v -> new MaterialAlertDialogBuilder(requireContext())
@@ -310,16 +318,19 @@ public class SettingFragment extends Fragment {
                 binding.autoBackupOption,
                 R.string.auto_backup,
                 "自动生成备份文件至指定位置",
-                R.drawable.outline_settings_backup_restore_24
+                R.drawable.outline_settings_backup_restore_24,
+                SettingOptionViewBase.RadiusStyle.MIDDLE
         );
         autoBackupHelper.setSwitchOptionView(autoBackupSwitchOption); //设置帮助器的开关视图，以便控制其状态
         String backupDir = AutoBackupPreference.getBackupDirectoryUri(requireContext());
         boolean switchStat = AutoBackupPreference.getSwitchStat(requireContext());
         if (!backupDir.isEmpty() && switchStat) {
             autoBackupSwitchOption.setChecked(true);
+            autoBackupSwitchOption.setRadius(SettingOptionViewBase.RadiusStyle.MIDDLE, requireContext());
             binding.autoBackupLayout.setVisibility(View.VISIBLE);
         } else {
             autoBackupSwitchOption.setChecked(false);
+            autoBackupSwitchOption.setRadius(SettingOptionViewBase.RadiusStyle.BOTTOM, requireContext());
             binding.autoBackupLayout.setVisibility(View.GONE);
         }
         autoBackupSwitchOption.setFunctionListener(
@@ -332,10 +343,11 @@ public class SettingFragment extends Fragment {
                 binding.backupFrequencyOption,
                 R.string.backup_frequency,
                 "自动备份的时间间隔",
-                R.drawable.outline_timer_24
+                R.drawable.outline_timer_24,
+                SettingOptionViewBase.RadiusStyle.MIDDLE
         );
-        int frequency_index = AutoBackupPreference.getBackupFrequency(requireContext());
-        String frequencyName = AutoBackupHelper.BackupFrequency.values()[frequency_index].getName();
+        int frequencyIndex = AutoBackupPreference.getBackupFrequency(requireContext());
+        String frequencyName = AutoBackupHelper.BackupFrequency.values()[frequencyIndex].getName();
         backupFrequencyOption.setSpinnerText(frequencyName);
         backupFrequencyOption.setFunctionListener(v -> {
             PopupMenu frequencyMenu = new PopupMenu(requireContext(), backupFrequencyOption.getFunctionComponent());
@@ -385,7 +397,8 @@ public class SettingFragment extends Fragment {
                 binding.backupDirectoryOption,
                 R.string.backup_directory,
                 "备份文件存储的位置",
-                R.drawable.outline_folder_data_24
+                R.drawable.outline_folder_data_24,
+                SettingOptionViewBase.RadiusStyle.BOTTOM
         );
         backupDirectoryOption.setFunctionListener(
                 v -> autoBackupHelper.selectBackupDirectory(backupDirectorySetLauncher)
@@ -407,7 +420,8 @@ public class SettingFragment extends Fragment {
                 binding.notificationAnalysisSwitchOption,
                 R.string.notification_analysis_mode,
                 "解析通知实现自动记账",
-                R.drawable.outline_notifications_active_24
+                R.drawable.outline_notifications_active_24,
+                SettingOptionViewBase.RadiusStyle.TOP
         );
         notificationAnalysisSwitchOption.setDividerVisibility(true);
         boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getSwitchStat(requireContext());
@@ -439,7 +453,8 @@ public class SettingFragment extends Fragment {
                 binding.ruleManageOption,
                 R.string.notification_analysis_rules_manage,
                 "点击进入规则管理界面",
-                R.drawable.baseline_rule_24
+                R.drawable.baseline_rule_24,
+                SettingOptionViewBase.RadiusStyle.MIDDLE
         );
         ruleManageOption.setFunctionListener(
                 v -> {
@@ -454,7 +469,8 @@ public class SettingFragment extends Fragment {
                 binding.resetRuleOption,
                 R.string.reset_rule,
                 "将现有规则重置为默认状态",
-                R.drawable.outline_reset_settings_24
+                R.drawable.outline_reset_settings_24,
+                SettingOptionViewBase.RadiusStyle.MIDDLE
         );
         resetRuleOption.setFunctionListener(
                 v -> new MaterialAlertDialogBuilder(requireContext())
@@ -474,7 +490,8 @@ public class SettingFragment extends Fragment {
                 binding.notificationCancelBehaviour,
                 R.string.notification_cancel_behaviour,
                 "划走确认通知后执行的操作",
-                R.drawable.outline_comments_disabled_24
+                R.drawable.outline_comments_disabled_24,
+                SettingOptionViewBase.RadiusStyle.MIDDLE
         );
         int[] cancelTitleResId = {
                 R.string.keep_account,
@@ -510,7 +527,8 @@ public class SettingFragment extends Fragment {
                 binding.notificationClickBehaviour,
                 R.string.notification_click_behaviour,
                 "点击确认通知后执行的操作",
-                R.drawable.outline_ads_click_24
+                R.drawable.outline_ads_click_24,
+                SettingOptionViewBase.RadiusStyle.BOTTOM
         );
         int[] clickTitleResId = {
                 R.string.none,
@@ -556,7 +574,8 @@ public class SettingFragment extends Fragment {
                 binding.aboutOption,
                 R.string.about_software,
                 null,
-                R.drawable.outline_info_24
+                R.drawable.outline_info_24,
+                SettingOptionViewBase.RadiusStyle.TOP
         );
         aboutOption.setFunctionListener(
                 v -> AboutHelper.showAboutDialog(requireContext())
@@ -568,7 +587,8 @@ public class SettingFragment extends Fragment {
                 binding.updateLogOption,
                 R.string.update_log,
                 null,
-                R.drawable.outline_lab_profile_24
+                R.drawable.outline_lab_profile_24,
+                SettingOptionViewBase.RadiusStyle.MIDDLE
         );
         updateLogOption.setFunctionListener(
                 v -> UpdateLogHelper.showUpdateLogDialog(requireContext())
@@ -580,7 +600,8 @@ public class SettingFragment extends Fragment {
                 binding.updateCheckOption,
                 R.string.update_check,
                 null,
-                R.drawable.outline_update_24
+                R.drawable.outline_update_24,
+                SettingOptionViewBase.RadiusStyle.BOTTOM
         );
         updateCheckOption.setFunctionListener(
                 v -> {
@@ -892,6 +913,7 @@ public class SettingFragment extends Fragment {
             @NonNull String backupDir
     ) {
         if (backupDir.isEmpty() && isChecked) {    //备份目录无效则先提示设置
+            switchView.setRadius(SettingOptionViewBase.RadiusStyle.MIDDLE, requireContext());
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
                     .setTitle("功能启用提示")
                     .setMessage("该功能需要先设置备份文件存储目录，请点击“确定”按钮设置存储目录")
@@ -904,14 +926,17 @@ public class SettingFragment extends Fragment {
 
             builder.setOnCancelListener(dialog -> {
                 switchView.setChecked(false);
+                switchView.setRadius(SettingOptionViewBase.RadiusStyle.BOTTOM, requireContext());
                 BackupScheduler.cancelPeriodicBackup(requireContext());
             });
             builder.show();
         } else if (isChecked) {
+            switchView.setRadius(SettingOptionViewBase.RadiusStyle.MIDDLE, requireContext());
             int frequencyIndex = AutoBackupPreference.getBackupFrequency(requireContext());
             long intervalMillis = AutoBackupHelper.BackupFrequency.values()[frequencyIndex].getIntervalMillis();
             BackupScheduler.schedulePeriodicBackup(requireContext(), intervalMillis);
         } else {
+            switchView.setRadius(SettingOptionViewBase.RadiusStyle.BOTTOM, requireContext());
             BackupScheduler.cancelPeriodicBackup(requireContext());
         }
 

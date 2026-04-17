@@ -26,9 +26,16 @@ public class SettingSpinnerView extends SettingOptionViewBase<MaterialTextView, 
      * @param title       标题
      * @param description 描述（可选）
      * @param iconId      左侧图标资源
+     * @param radiusStyle 圆角类型
      */
-    public SettingSpinnerView(Context context, ViewSettingOptionBinding binding, @StringRes int title, String description, @DrawableRes int iconId) {
-        super(context, binding, title, description, iconId);
+    public SettingSpinnerView(Context context,
+                              ViewSettingOptionBinding binding,
+                              @StringRes int title,
+                              String description,
+                              @DrawableRes int iconId,
+                              RadiusStyle radiusStyle
+    ) {
+        super(context, binding, title, description, iconId, radiusStyle);
     }
 
     @Override
@@ -63,6 +70,7 @@ public class SettingSpinnerView extends SettingOptionViewBase<MaterialTextView, 
 
     /**
      * 设置右侧文本
+     *
      * @param text 目标文本的ID
      */
     public void setSpinnerText(@StringRes int text) {

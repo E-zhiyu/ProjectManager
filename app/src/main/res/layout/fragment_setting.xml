@@ -8,169 +8,133 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp">
 
-        <com.google.android.material.card.MaterialCardView
-            style="@style/ContentCardStyle"
+        <!-- 主题模式 -->
+        <include
+            android:id="@+id/theme_mode_option"
+            layout="@layout/view_setting_option"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp" />
 
-            <LinearLayout
-                android:id="@+id/app_settings_layout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+        <!-- 动态色彩 -->
+        <include
+            android:id="@+id/dynamic_color_option"
+            layout="@layout/view_setting_option" />
 
-                <com.google.android.material.textview.MaterialTextView
-                    style="@style/LargeTitleTextViewStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/setting" />
+        <!-- 启动界面 -->
+        <include
+            android:id="@+id/first_screen_option"
+            layout="@layout/view_setting_option" />
 
-                <include
-                    android:id="@+id/theme_mode_option"
-                    layout="@layout/view_setting_option" />
+        <!-- 权限管理 -->
+        <include
+            android:id="@+id/permissions_option"
+            layout="@layout/view_setting_option" />
 
-                <include
-                    android:id="@+id/dynamic_color_option"
-                    layout="@layout/view_setting_option" />
-
-                <include
-                    android:id="@+id/first_screen_option"
-                    layout="@layout/view_setting_option" />
-
-                <include
-                    android:id="@+id/permissions_option"
-                    layout="@layout/view_setting_option" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            style="@style/ContentCardStyle"
+        <!-- 导出数据 -->
+        <include
+            android:id="@+id/export_data_option"
+            layout="@layout/view_setting_option"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="10dp" />
 
-            <LinearLayout
-                android:id="@+id/data_manage_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+        <!-- 导入数据 -->
+        <include
+            android:id="@+id/import_data_option"
+            layout="@layout/view_setting_option" />
 
-                <com.google.android.material.textview.MaterialTextView
-                    style="@style/LargeTitleTextViewStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/data_manage" />
+        <!-- 清空流水记录 -->
+        <include
+            android:id="@+id/clear_account_data_option"
+            layout="@layout/view_setting_option" />
 
-                <include
-                    android:id="@+id/export_data_option"
-                    layout="@layout/view_setting_option" />
+        <!-- 自动备份 -->
+        <include
+            android:id="@+id/auto_backup_option"
+            layout="@layout/view_setting_option" />
 
-                <include
-                    android:id="@+id/import_data_option"
-                    layout="@layout/view_setting_option" />
-
-                <include
-                    android:id="@+id/clear_account_data_option"
-                    layout="@layout/view_setting_option" />
-
-                <include
-                    android:id="@+id/auto_backup_option"
-                    layout="@layout/view_setting_option" />
-
-                <LinearLayout
-                    android:id="@+id/auto_backup_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone">
-
-                    <include
-                        android:id="@+id/backup_frequency_option"
-                        layout="@layout/view_setting_option" />
-
-                    <include
-                        android:id="@+id/backup_directory_option"
-                        layout="@layout/view_setting_option" />
-                </LinearLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            style="@style/ContentCardStyle"
+        <LinearLayout
+            android:id="@+id/auto_backup_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
 
-            <LinearLayout
-                android:id="@+id/auto_bookkeeping_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+            <!-- 自动备份频率 -->
+            <include
+                android:id="@+id/backup_frequency_option"
+                layout="@layout/view_setting_option" />
 
-                <com.google.android.material.textview.MaterialTextView
-                    style="@style/LargeTitleTextViewStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/auto_bookkeeping" />
+            <!-- 自动备份目录 -->
+            <include
+                android:id="@+id/backup_directory_option"
+                layout="@layout/view_setting_option" />
+        </LinearLayout>
 
-                <include
-                    android:id="@+id/notification_analysis_switch_option"
-                    layout="@layout/view_setting_option" />
-
-                <LinearLayout
-                    android:id="@+id/rule_manage_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <include
-                        android:id="@+id/rule_manage_option"
-                        layout="@layout/view_setting_option" />
-
-                    <include
-                        android:id="@+id/reset_rule_option"
-                        layout="@layout/view_setting_option" />
-                </LinearLayout>
-
-                <include
-                    android:id="@+id/notification_cancel_behaviour"
-                    layout="@layout/view_setting_option" />
-
-                <include
-                    android:id="@+id/notification_click_behaviour"
-                    layout="@layout/view_setting_option" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            style="@style/ContentCardStyle"
+        <!-- 通知解析开关 -->
+        <include
+            android:id="@+id/notification_analysis_switch_option"
+            layout="@layout/view_setting_option"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="10dp" />
 
-            <LinearLayout
-                android:id="@+id/about_layout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+        <LinearLayout
+            android:id="@+id/rule_manage_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-                <com.google.android.material.textview.MaterialTextView
-                    style="@style/LargeTitleTextViewStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/about" />
+            <!-- 规则管理 -->
+            <include
+                android:id="@+id/rule_manage_option"
+                layout="@layout/view_setting_option" />
 
-                <include
-                    android:id="@+id/about_option"
-                    layout="@layout/view_setting_option" />
+            <!-- 重置规则 -->
+            <include
+                android:id="@+id/reset_rule_option"
+                layout="@layout/view_setting_option" />
+        </LinearLayout>
 
-                <include
-                    android:id="@+id/update_log_option"
-                    layout="@layout/view_setting_option" />
 
-                <include
-                    android:id="@+id/update_check_option"
-                    layout="@layout/view_setting_option" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+        <!-- 通知取消选项 -->
+        <include
+            android:id="@+id/notification_cancel_behaviour"
+            layout="@layout/view_setting_option" />
+
+        <!-- 通知点击选项 -->
+        <include
+            android:id="@+id/notification_click_behaviour"
+            layout="@layout/view_setting_option" />
+
+        <!-- 关于软件 -->
+        <include
+            android:id="@+id/about_option"
+            layout="@layout/view_setting_option"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="10dp" />
+
+        <!-- 更新日志 -->
+        <include
+            android:id="@+id/update_log_option"
+            layout="@layout/view_setting_option" />
+
+        <!-- 检测更新 -->
+        <include
+            android:id="@+id/update_check_option"
+            layout="@layout/view_setting_option" />
     </LinearLayout>
 </ScrollView>

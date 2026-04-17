@@ -24,45 +24,39 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
-        <com.google.android.material.card.MaterialCardView
-            style="@style/ContentCardStyle"
+        <LinearLayout
+            android:id="@+id/app_settings_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <LinearLayout
-                android:id="@+id/app_settings_layout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+            <include
+                android:id="@+id/camera_option"
+                layout="@layout/view_setting_option" />
 
-                <include
-                    android:id="@+id/camera_option"
-                    layout="@layout/view_setting_option" />
+            <include
+                android:id="@+id/app_list_option"
+                layout="@layout/view_setting_option" />
 
-                <include
-                    android:id="@+id/app_list_option"
-                    layout="@layout/view_setting_option" />
+            <include
+                android:id="@+id/notification_option"
+                layout="@layout/view_setting_option" />
 
-                <include
-                    android:id="@+id/notification_option"
-                    layout="@layout/view_setting_option" />
+            <include
+                android:id="@+id/notification_listener_option"
+                layout="@layout/view_setting_option" />
 
-                <include
-                    android:id="@+id/notification_listener_option"
-                    layout="@layout/view_setting_option" />
+            <include
+                android:id="@+id/auto_start_option"
+                layout="@layout/view_setting_option" />
 
-                <include
-                    android:id="@+id/auto_start_option"
-                    layout="@layout/view_setting_option" />
+            <include
+                android:id="@+id/battery_optimizations_option"
+                layout="@layout/view_setting_option" />
 
-                <include
-                    android:id="@+id/battery_optimizations_option"
-                    layout="@layout/view_setting_option" />
-
-                <include
-                    android:id="@+id/alarm_option"
-                    layout="@layout/view_setting_option" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+            <include
+                android:id="@+id/alarm_option"
+                layout="@layout/view_setting_option" />
+        </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
