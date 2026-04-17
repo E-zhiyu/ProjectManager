@@ -4,13 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginStart="10dp"
-    android:layout_marginEnd="10dp"
     android:layout_marginTop="2dp"
+    android:layout_marginEnd="10dp"
     android:layout_marginBottom="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        style="@style/SettingOptionStyle"
         android:id="@+id/constraint_layout"
+        style="@style/SettingOptionStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp">
@@ -30,6 +30,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
             android:visibility="gone"
+            app:dividerColor="?attr/colorOutline"
             app:dividerThickness="1dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/text_layout"
@@ -79,7 +80,7 @@
                 android:focusableInTouchMode="true"
                 android:maxLines="1"
                 android:text="@string/setting"
-                android:textColor="?attr/colorControlNormal" />
+                android:textColor="?attr/colorOutline" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

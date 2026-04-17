@@ -86,7 +86,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="20dp"
             android:layout_marginEnd="10dp" />
 
         <LinearLayout
@@ -106,7 +106,6 @@
                 layout="@layout/view_setting_option" />
         </LinearLayout>
 
-
         <!-- 通知取消选项 -->
         <include
             android:id="@+id/notification_cancel_behaviour"
@@ -124,7 +123,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="20dp"
             android:layout_marginEnd="10dp" />
 
         <!-- 更新日志 -->
