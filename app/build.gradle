@@ -4,8 +4,7 @@ plugins {
 
 android {
     namespace 'com.manager.assistant'
-    //noinspection GradleDependency
-    compileSdkVersion 36
+    compileSdkVersion 37
 
     defaultConfig {
         applicationId "com.manager.assitant"
