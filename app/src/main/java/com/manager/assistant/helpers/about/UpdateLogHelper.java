@@ -12,6 +12,8 @@ import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
     private static final String UPDATE_LOG_MD = "# v1.8.13  \n" +
+            "**BUG修复**  \n" +
+            "- 修复设置描述文本可能与右侧组件重叠的BUG  \n" +
             "**修改内容**  \n" +
             "- 优化流水记录、预算和通知解析规则卡片的布局逻辑  \n" +
             "- 修改设置界面的样式  \n" +
