@@ -15,7 +15,6 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.manager.assistant.R;
 import com.manager.assistant.data.controllers.AccountDataController;
@@ -30,7 +29,7 @@ import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
-import com.manager.assistant.ui.sync.account.RunningAccountViewModel;
+import com.manager.assistant.ui.sync.account.RunningAccountRepository;
 import com.manager.assistant.ui.sync.budget.BudgetRepository;
 import com.manager.assistant.ui.sync.tag.TagRepository;
 import com.manager.assistant.ui.pages.bookkeeping.budget.BudgetManageActivity;
@@ -346,15 +345,15 @@ public class HomeFragment extends Fragment {
         );
 
         //观察流水数据
-        RunningAccountViewModel accountViewModel = new ViewModelProvider(requireActivity()).get(RunningAccountViewModel.class);
-        accountViewModel.getAccountData().observe(
+        RunningAccountRepository accountRepository = RunningAccountRepository.getInstance();
+        accountRepository.getAccountData().observe(
                 requireActivity(),
                 simpleRunningAccount -> {
                     if (simpleRunningAccount == null) {
                         return;
                     }
 
-                    AccountUpdateReason reason = accountViewModel.getUpdateReason();
+                    AccountUpdateReason reason = accountRepository.getUpdateReason();
                     double amount = simpleRunningAccount.amount;
                     String datetime = simpleRunningAccount.datetime;
                     RunningAccountType type = simpleRunningAccount.type;
