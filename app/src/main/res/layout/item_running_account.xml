@@ -15,14 +15,17 @@
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/remark_text"
             style="@style/LargeBodyTextViewStyle"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@string/remark"
+            app:layout_constraintBottom_toTopOf="@+id/type_datetime_textview"
             app:layout_constraintEnd_toStartOf="@id/amount_text"
+            app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/type_datetime_textview"
@@ -30,6 +33,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/date_time"
+            android:textColor="?attr/colorOutline"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/remark_text" />
 
