@@ -238,7 +238,7 @@ public class DataManageActivity extends AppCompatActivity {
                 R.drawable.outline_file_export_24,
                 SettingOptionViewBase.RadiusStyle.TOP
         );
-        exportDataOption.setFunctionListener(v -> onExportDataClicked());
+        exportDataOption.setFunctionListener(v -> exportData());
 
         //导入数据
         SettingClickableTextView importDataOption = new SettingClickableTextView(
@@ -370,9 +370,9 @@ public class DataManageActivity extends AppCompatActivity {
     }
 
     /**
-     * 处理导出数据选项点击的方法
+     * 导出数据
      */
-    private void onExportDataClicked() {
+    private void exportData() {
         //获取选项名称和状态
         String[] itemNames = Arrays.stream(IODataType.values())
                 .map(IODataType::getName)
@@ -388,45 +388,35 @@ public class DataManageActivity extends AppCompatActivity {
                 itemNames,
                 (position, isChecked) -> choiceStats[position] = isChecked
         );
-
-        //设置显示监听器后无需再次设置按钮点击回调
         multiChoiceDialog.buildDialog(() -> {
+            //检测是否一个都没有选择
+            boolean isNonItemChosen = true;
+            for (boolean isChose : choiceStats) {
+                if (isChose) {
+                    isNonItemChosen = false;
+                    break;
+                }
+            }
+
+            if (!isNonItemChosen) {
+                onExportDialogConfirmed(choiceStats);
+                multiChoiceDialog.dismiss();
+            } else {
+                Toast.makeText(this, "请选择至少一个选项", Toast.LENGTH_SHORT).show();
+            }
         }, () -> {
         });
-
-        //设置对话框显示监听
-        AlertDialog alertDialog = multiChoiceDialog.getDialog();
-        alertDialog.setOnShowListener(
-                dialogInterface -> {
-                    Button positiveBtn = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                    positiveBtn.setOnClickListener(view -> {
-                        //检测是否一个都没有选择
-                        boolean isNonItemChosen = true;
-                        for (boolean isChose : choiceStats) {
-                            if (isChose) {
-                                isNonItemChosen = false;
-                                break;
-                            }
-                        }
-
-                        if (!isNonItemChosen) {
-                            exportData(choiceStats);
-                            multiChoiceDialog.dismiss();
-                        } else {
-                            Toast.makeText(this, "请选择至少一个选项", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-        );
 
         //显示对话框
         multiChoiceDialog.show();
     }
 
     /**
-     * 导出数据并创建文件
+     * 导出数据对话框确认回调
+     *
+     * @param choseItem 各数据被选择的情况
      */
-    private void exportData(@NonNull boolean[] choseItem) {
+    private void onExportDialogConfirmed(@NonNull boolean[] choseItem) {
         Log.i(LogTags.SETTING_FRAGMENT.getV(), "开始导出数据");
         List<String> fileNameList = new ArrayList<>();      //用于导出数据的临时文件名列表
         List<String> fileContentList = new ArrayList<>();   //用于导出数据的临时文件内容列表
