@@ -17,6 +17,7 @@ import com.manager.assistant.data.io.helpers.AnalysisRuleDataHelper;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.databinding.ActivityAutoBookkeepingBinding;
 import com.manager.assistant.helpers.PermissionHelper;
+import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 import com.manager.assistant.ui.pages.bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingClickableTextView;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingOptionViewBase;
@@ -36,7 +37,13 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+            binding.scrollView.setPadding(
+                    0,
+                    0,
+                    0,
+                    systemBars.bottom + ViewEdgeHelper.dpToPx(this, 15)
+            );
             return insets;
         });
 

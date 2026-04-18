@@ -34,6 +34,7 @@ import com.manager.assistant.data.save.preference.BookKeepingStartDatePreference
 import com.manager.assistant.databinding.ActivityDataManageBinding;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.helpers.ExceptionHelper;
+import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 import com.manager.assistant.helpers.file.AutoBackupHelper;
 import com.manager.assistant.helpers.file.DataIOHelper;
 import com.manager.assistant.helpers.file.UriPathHelper;
@@ -121,7 +122,13 @@ public class DataManageActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+            binding.scrollView.setPadding(
+                    0,
+                    0,
+                    0,
+                    systemBars.bottom + ViewEdgeHelper.dpToPx(this, 15)
+            );
             return insets;
         });
 

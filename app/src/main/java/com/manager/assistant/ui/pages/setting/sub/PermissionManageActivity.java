@@ -185,7 +185,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                 R.string.alarm_permission,
                 "允许设置定时任务",
                 R.drawable.outline_alarm_24,
-                SettingOptionViewBase.RadiusStyle.MIDDLE
+                SettingOptionViewBase.RadiusStyle.BOTTOM
         );
         alarm.setFunctionListener(v -> showExplanationDialog(
                 R.string.alarm_permission,

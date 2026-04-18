@@ -14,8 +14,11 @@
         app:title="@string/auto_bookkeeping" />
 
     <ScrollView
+        android:id="@+id/scroll_view"
         android:layout_width="match_parent"
+        android:scrollbars="none"
         android:layout_height="0dp"
+        android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
