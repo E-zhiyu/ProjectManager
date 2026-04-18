@@ -9,48 +9,50 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="20dp"
         android:paddingTop="10dp"
-        android:paddingEnd="10dp"
         android:paddingBottom="10dp">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/app_icon_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             android:adjustViewBounds="true"
             android:src="@drawable/outline_info_24"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/app_name_text"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/app_name_text"
-            style="@style/LargeTitleTextViewStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:paddingStart="0dp"
-            android:paddingTop="0dp"
-            android:paddingEnd="0dp"
-            android:paddingBottom="0dp"
             android:text="@string/app_name"
+            android:textAppearance="?attr/textAppearanceTitleLarge"
+            app:layout_constraintBottom_toTopOf="@+id/package_name_text"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/app_icon_view"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/package_name_text"
             style="@style/LargeBodyTextViewStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:paddingBottom="5dp"
             android:text="@string/package_name"
-            app:layout_constraintStart_toEndOf="@id/app_icon_view"
+            android:textColor="?attr/colorOutline"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/app_name_text"
             app:layout_constraintTop_toBottomOf="@id/app_name_text" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

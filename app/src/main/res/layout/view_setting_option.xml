@@ -33,7 +33,7 @@
             app:dividerColor="?attr/colorOutline"
             app:dividerThickness="1dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/text_layout"
+            app:layout_constraintEnd_toStartOf="@id/component_layout"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
@@ -47,40 +47,32 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
-            android:id="@+id/text_layout"
-            android:layout_width="0dp"
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/title_text"
+            style="@style/LargeBodyTextViewStyle"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:ellipsize="end"
+            android:focusableInTouchMode="true"
+            android:maxLines="1"
+            android:text="@string/title_setting"
+            app:layout_constraintBottom_toTopOf="@id/description_text"
+            app:layout_constraintStart_toEndOf="@id/icon_view"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/description_text"
+            style="@style/MediumBodyTextViewStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:focusableInTouchMode="true"
+            android:maxLines="1"
+            android:text="@string/setting"
+            android:textColor="?attr/colorOutline"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/component_layout"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/title_text"
-                style="@style/LargeBodyTextViewStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="40dp"
-                android:ellipsize="end"
-                android:focusableInTouchMode="true"
-                android:maxLines="1"
-                android:text="@string/title_setting" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/description_text"
-                style="@style/MediumBodyTextViewStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="40dp"
-                android:ellipsize="end"
-                android:focusableInTouchMode="true"
-                android:maxLines="1"
-                android:text="@string/setting"
-                android:textColor="?attr/colorOutline" />
-        </LinearLayout>
+            app:layout_constraintStart_toEndOf="@id/icon_view"
+            app:layout_constraintTop_toBottomOf="@id/title_text" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
