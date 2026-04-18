@@ -25,7 +25,8 @@ abstract public class SettingOptionViewBase<C, L> {
     public enum RadiusStyle {
         TOP,    //顶部
         MIDDLE, //中部
-        BOTTOM  //底部
+        BOTTOM, //底部
+        SINGLE, //单独的
     }
 
     /**
@@ -141,6 +142,16 @@ abstract public class SettingOptionViewBase<C, L> {
                         binding.getRoot(),
                         AppearanceAnimationHelper.SMALL_CARD_RADIUS,
                         AppearanceAnimationHelper.SMALL_CARD_RADIUS,
+                        AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
+                        AppearanceAnimationHelper.MEDIUM_CARD_RADIUS
+                );
+                break;
+            case SINGLE:
+                AppearanceAnimationHelper.setRadius(
+                        context,
+                        binding.getRoot(),
+                        AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
+                        AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
                         AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
                         AppearanceAnimationHelper.MEDIUM_CARD_RADIUS
                 );
