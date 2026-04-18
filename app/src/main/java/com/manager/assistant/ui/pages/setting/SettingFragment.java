@@ -19,6 +19,7 @@ import com.manager.assistant.R;
 import com.manager.assistant.databinding.FragmentSettingBinding;
 import com.manager.assistant.helpers.UpdateHelper;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingOptionViewBase;
+import com.manager.assistant.ui.pages.setting.sub.AutoBookkeepingActivity;
 import com.manager.assistant.ui.pages.setting.sub.DataManageActivity;
 import com.manager.assistant.ui.pages.setting.sub.PermissionManageActivity;
 import com.manager.assistant.helpers.about.AboutHelper;
