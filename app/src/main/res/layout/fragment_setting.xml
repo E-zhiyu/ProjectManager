@@ -56,6 +56,11 @@
             android:layout_marginTop="20dp"
             android:layout_marginEnd="10dp" />
 
+        <!-- 最近任务隐藏 -->
+        <include
+            android:id="@+id/hide_recent_task_option"
+            layout="@layout/view_setting_option" />
+
         <!-- 关于软件 -->
         <include
             android:id="@+id/about_option"

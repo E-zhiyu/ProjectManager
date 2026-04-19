@@ -16,6 +16,7 @@ import com.google.android.material.color.DynamicColorsOptions;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.R;
+import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.databinding.FragmentSettingBinding;
 import com.manager.assistant.helpers.UpdateHelper;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingOptionViewBase;
@@ -80,12 +81,28 @@ public class SettingFragment extends Fragment {
                 R.string.auto_bookkeeping,
                 "点击进入自动记账设置界面",
                 R.drawable.outline_checkbook_24,
-                SettingOptionViewBase.RadiusStyle.SINGLE
+                SettingOptionViewBase.RadiusStyle.TOP
         );
         autoBookkeeping.setFunctionListener(view -> {
             Intent intent = new Intent(requireContext(), AutoBookkeepingActivity.class);
             startActivity(intent);
         });
+
+        //最近任务隐藏
+        SettingSwitchView hideRecentTask = new SettingSwitchView(
+                requireContext(),
+                binding.hideRecentTaskOption,
+                R.string.hide_recent_task,
+                "在最近任务列表中隐藏",
+                R.drawable.outline_visibility_off_24,
+                SettingOptionViewBase.RadiusStyle.BOTTOM
+        );
+        boolean isHidden = AutoBookKeepingPreference.getHideRecentTask(requireContext());
+        hideRecentTask.setChecked(isHidden);
+        hideRecentTask.setFunctionListener(
+                (compoundButton, checked) ->
+                        AutoBookKeepingPreference.setHideRecentTask(checked, requireContext())
+        );
 
         //关于
         initAboutSettings();
@@ -189,7 +206,10 @@ public class SettingFragment extends Fragment {
                 SettingOptionViewBase.RadiusStyle.BOTTOM
         );
         permissionsOption.setFunctionListener(v -> {
-            Intent skip2PermissionManage = new Intent(requireContext(), PermissionManageActivity.class);
+            Intent skip2PermissionManage = new Intent(
+                    requireContext(),
+                    PermissionManageActivity.class
+            );
             startActivity(skip2PermissionManage);
         });
     }

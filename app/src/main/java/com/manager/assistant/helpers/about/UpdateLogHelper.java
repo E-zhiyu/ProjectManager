@@ -12,10 +12,12 @@ import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
     private static final String UPDATE_LOG_MD = "# v1.8.13  \n" +
+            "**新增内容**  \n" +
+            "- 重新添加隐藏最近任务开关  \n" +
             "**BUG修复**  \n" +
             "- 修复设置描述文本可能与右侧组件重叠的BUG  \n" +
             "**修改内容**  \n" +
-            "- 将部分设置项移动到单独界面中  \n" +
+            "- 将自动记账和数据管理设置项移动到单独界面中  \n" +
             "- 优化流水记录、预算和通知解析规则卡片的布局逻辑  \n" +
             "- 修改设置界面的样式  \n" +
             "# v1.8.12  \n" +

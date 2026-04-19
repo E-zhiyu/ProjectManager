@@ -1,10 +1,14 @@
 package com.manager.assistant;
 
+import android.app.Activity;
 import android.app.Application;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
@@ -13,6 +17,7 @@ import com.google.android.material.color.DynamicColorsOptions;
 import com.manager.assistant.automation.schedulers.BudgetResetScheduler;
 import com.manager.assistant.data.save.preference.AutoBackupPreference;
 import com.manager.assistant.data.save.preference.AppSettingsPreference;
+import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.data.save.preference.VersionPreference;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.helpers.NotificationHelper;
@@ -20,11 +25,15 @@ import com.manager.assistant.helpers.file.AutoBackupHelper;
 import com.manager.assistant.automation.schedulers.BackupScheduler;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class ManagerAssistant extends Application {
+    private int foregroundActivities = 0; // 前台 Activity 数量
+    private WeakReference<Activity> rootActivityRef; // 任务根 Activity 引用
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -44,6 +53,9 @@ public class ManagerAssistant extends Application {
                 DynamicColors.applyToActivitiesIfAvailable(this, options);
             }
 
+            //注册Activity生命周期监听器
+            registerLifecycleCallbacks();
+
             //安排自动备份任务
             if (AutoBackupPreference.getSwitchStat(this)) {
                 int frequency = AutoBackupPreference.getBackupFrequency(this);
@@ -62,7 +74,7 @@ public class ManagerAssistant extends Application {
                 Log.d(LogTags.WORK_STATS.getV(), "State: " + info.getState());
             }
 
-            //启动时检测是否有需要删除的按转包
+            //启动时检测是否有需要删除的安装包
             String apkUri = VersionPreference.getApkUri(this);
             if (!apkUri.isEmpty()) {
                 File apkFile = new File(Objects.requireNonNull(Uri.parse(apkUri).getPath()));
@@ -74,5 +86,64 @@ public class ManagerAssistant extends Application {
                 }
             }
         }
+    }
+
+    /**
+     * 注册Activity生命周期监听器
+     * 核心思想：当前台Activity计数器为0时，说明应用在后台，根据用户配置决定是否移除根Activity的最近任务卡片
+     */
+    private void registerLifecycleCallbacks() {
+        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
+            @Override
+            public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
+                if (activity.isTaskRoot()) {
+                    // 保存任务根 Activity
+                    rootActivityRef = new WeakReference<>(activity);
+                }
+            }
+
+            @Override
+            public void onActivityDestroyed(@NonNull Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityPaused(@NonNull Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityResumed(@NonNull Activity activity) {
+
+            }
+
+            @Override
+            public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle bundle) {
+
+            }
+
+            @Override
+            public void onActivityStarted(@NonNull Activity activity) {
+                //前台活动计数器+1
+                foregroundActivities++;
+            }
+
+            @Override
+            public void onActivityStopped(@NonNull Activity activity) {
+                //前台活动计数器-1
+                foregroundActivities--;
+
+                //判断前台是否还有活动
+                if (foregroundActivities == 0) {
+                    Activity rootActivity = rootActivityRef != null ? rootActivityRef.get() : null;
+                    boolean isHidden = AutoBookKeepingPreference.getHideRecentTask(ManagerAssistant.this);
+                    if (rootActivity != null && isHidden) {
+                        // 移除整个任务，隐藏最近任务
+                        rootActivity.finishAndRemoveTask();
+                        rootActivityRef = null; // 避免重复引用
+                    }
+                }
+            }
+        });
     }
 }
