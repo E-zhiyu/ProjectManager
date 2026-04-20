@@ -4,14 +4,15 @@ plugins {
 
 android {
     namespace 'com.manager.assistant'
-    compileSdkVersion 36
+    compileSdkVersion 37
 
     defaultConfig {
         applicationId "com.manager.assitant"
         minSdk 26
+        //noinspection OldTargetApi
         targetSdk 36
         versionCode 56
-        versionName "1.8.12"
+        versionName "1.8.13"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

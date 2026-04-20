@@ -76,8 +76,8 @@
         <item name="cardBackgroundColor">@color/card_background_color</item>
     </style>
 
-    <!-- 圆角卡片容器器样式 -->
-    <style name="RoundCardStyle" parent="CardStyleBase">
+    <!-- 大圆角卡片容器器样式 -->
+    <style name="LargeRadiusCardStyle" parent="CardStyleBase">
         <item name="cardCornerRadius">50dp</item>
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:layout_marginStart">10dp</item>
@@ -85,20 +85,23 @@
         <item name="android:layout_marginBottom">10dp</item>
     </style>
 
-    <!-- 带有多项内容的卡片容器 -->
-    <style name="ContentCardStyle" parent="CardStyleBase">
-        <item name="cardCornerRadius">15dp</item>
+    <!-- 中等圆角卡片容器 -->
+    <style name="MediumRadiusCardStyle" parent="CardStyleBase">
+        <item name="cardCornerRadius">20dp</item>
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:layout_marginStart">10dp</item>
         <item name="android:layout_marginEnd">10dp</item>
         <item name="android:layout_marginBottom">10dp</item>
     </style>
 
-    <!-- 设置项样式 -->
-    <style name="SettingOptionStyle">
-        <item name="android:clickable">true</item>
-        <item name="android:focusable">true</item>
-        <item name="android:background">@drawable/ripple_rectangle</item>
+    <!-- 淡色中等圆角卡片容器 -->
+    <style name="LightMediumRadiusCardStyle" parent="CardStyleBase">
+        <item name="cardCornerRadius">20dp</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginStart">10dp</item>
+        <item name="android:layout_marginEnd">10dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="cardBackgroundColor">@color/light_card_background_color</item>
     </style>
 
     <!-- 开关样式 -->

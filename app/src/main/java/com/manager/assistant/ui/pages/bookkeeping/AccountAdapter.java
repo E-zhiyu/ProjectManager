@@ -6,8 +6,6 @@ import android.os.Vibrator;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStoreOwner;
 
 import com.google.android.material.shape.Shapeable;
 import com.google.android.material.textview.MaterialTextView;
@@ -20,7 +18,7 @@ import com.manager.assistant.data.classes.running_account.TransferRunningAccount
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
-import com.manager.assistant.ui.sync.account.RunningAccountViewModel;
+import com.manager.assistant.ui.sync.account.RunningAccountRepository;
 import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 import com.xwray.groupie.GroupAdapter;
@@ -143,11 +141,9 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
      * 添加新流水视图
      *
      * @param dataBundle 新建流水的数据包
-     * @param owner      ViewModel提供者
      */
     public void addNewRunningAccount(
-            @NonNull Bundle dataBundle,
-            ViewModelStoreOwner owner
+            @NonNull Bundle dataBundle
     ) {
         RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
         String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
@@ -158,8 +154,8 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
         if (rno == 0) return;   //如果为0则说明数据库保存失败，直接结束该方法
 
         //使用ViewModel刷新UI（主页的简易报表）
-        RunningAccountViewModel viewModel = new ViewModelProvider(owner).get(RunningAccountViewModel.class);
-        viewModel.onAccountUpdated(amount, datetime, type, AccountUpdateReason.ADD);
+        RunningAccountRepository accountRepository = RunningAccountRepository.getInstance();
+        accountRepository.onAccountUpdated(amount, datetime, type, AccountUpdateReason.ADD);
 
         //获取特殊数据并实例化流水类
         RunningAccountBase runningAccount;
@@ -203,11 +199,9 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
      * 在界面中添加新流水记录视图但是不保存到数据库(用于自动记账防止重复保存)
      *
      * @param dataBundle 新流水记录数据包
-     * @param owner      ViewModel提供者
      */
     public void addNewRunningAccountAutomatically(
-            @NonNull Bundle dataBundle,
-            ViewModelStoreOwner owner
+            @NonNull Bundle dataBundle
     ) {
         //解析数据
         long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
@@ -218,8 +212,8 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
         String datetime = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
 
         //使用ViewModel刷新UI（主页的简易报表）
-        RunningAccountViewModel viewModel = new ViewModelProvider(owner).get(RunningAccountViewModel.class);
-        viewModel.onAccountUpdated(amount, datetime, type, AccountUpdateReason.ADD);
+        RunningAccountRepository accountRepository = RunningAccountRepository.getInstance();
+        accountRepository.onAccountUpdated(amount, datetime, type, AccountUpdateReason.ADD);
 
         //实例化流水类
         RunningAccountBase runningAccount;
@@ -263,9 +257,8 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
      * 修改指定下标的流水视图
      *
      * @param dataBundle 修改后的流水数据
-     * @param owner      ViewModel提供者
      */
-    public void modifyRunningAccount(@NonNull Bundle dataBundle, ViewModelStoreOwner owner) {
+    public void modifyRunningAccount(@NonNull Bundle dataBundle) {
         //解析数据
         long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
         RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
@@ -275,8 +268,8 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
         String datetime = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
 
         //使用ViewModel刷新UI（主页的简易报表）
-        RunningAccountViewModel viewModel = new ViewModelProvider(owner).get(RunningAccountViewModel.class);
-        viewModel.onAccountUpdated(amount, datetime, type, AccountUpdateReason.MODIFIED);
+        RunningAccountRepository accountRepository = RunningAccountRepository.getInstance();
+        accountRepository.onAccountUpdated(amount, datetime, type, AccountUpdateReason.MODIFIED);
 
         //实例化流水类
         RunningAccountBase runningAccount;
@@ -363,9 +356,8 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
      * 删除指定下标的流水记录
      *
      * @param rnoDelete 待删除的流水记录的编号
-     * @param owner     ViewModel的提供者
      */
-    public void deleteRunningAccount(long rnoDelete, ViewModelStoreOwner owner) {
+    public void deleteRunningAccount(long rnoDelete) {
         if (rnoDelete == -1) {
             Log.e(LogTags.ACCOUNT_ADAPTER.getV(), "未获取到合法的流水编号，无法删除流水记录");
             return;
@@ -384,8 +376,8 @@ public class AccountAdapter extends GroupAdapter<GroupieViewHolder> {
                 double amount = runningAccount.getAmount();
                 String datetime = runningAccount.getDatetime();
                 RunningAccountType type = runningAccount.getType();
-                RunningAccountViewModel viewModel = new ViewModelProvider(owner).get(RunningAccountViewModel.class);
-                viewModel.onAccountUpdated(amount, datetime, type, AccountUpdateReason.DELETE);
+                RunningAccountRepository accountRepository = RunningAccountRepository.getInstance();
+                accountRepository.onAccountUpdated(amount, datetime, type, AccountUpdateReason.DELETE);
 
                 date = runningAccount.getDatetime().substring(0, 10);
                 accountList.remove(index);

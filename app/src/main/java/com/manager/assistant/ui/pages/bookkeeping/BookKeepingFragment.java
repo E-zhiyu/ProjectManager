@@ -17,7 +17,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.search.SearchView;
 import com.manager.assistant.MainActivity;
@@ -37,7 +36,7 @@ import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.file.PictureFileHelper;
 import com.manager.assistant.ui.others.adapters.SearchHistoryAdapter;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
-import com.manager.assistant.ui.sync.account.RunningAccountViewModel;
+import com.manager.assistant.ui.sync.account.RunningAccountRepository;
 import com.manager.assistant.ui.others.bottom_sheets.filter.AccountFilterBottomSheet;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.RunningAccountModifyActivity;
 import com.manager.assistant.ui.pages.bookkeeping.running_account.RunningAccountAddActivity;
@@ -72,15 +71,15 @@ public class BookKeepingFragment extends Fragment {
         initViews();
         setupBroadcastReceiver();
 
-        RunningAccountViewModel viewModel = new ViewModelProvider(requireActivity()).get(RunningAccountViewModel.class);
-        viewModel.getAccountData().observe(
+        RunningAccountRepository accountRepository = RunningAccountRepository.getInstance();
+        accountRepository.getAccountData().observe(
                 getViewLifecycleOwner(),
                 simpleRunningAccount -> {
                     if (simpleRunningAccount == null) {
                         return;
                     }
 
-                    AccountUpdateReason reason = viewModel.getUpdateReason();
+                    AccountUpdateReason reason = accountRepository.getUpdateReason();
                     switch (reason) {
                         case CLEAR:
                             accountCount = 0;
@@ -392,7 +391,7 @@ public class BookKeepingFragment extends Fragment {
      * @param dataBundle 新增流水记录的数据
      */
     private void onNewAccountAdded(Bundle dataBundle) {
-        accountAdapter.addNewRunningAccountAutomatically(dataBundle, requireActivity());
+        accountAdapter.addNewRunningAccountAutomatically(dataBundle);
         binding.accountRecycler.scrollToPosition(0);
         Toast.makeText(requireContext(), "成功添加一条流水记录（自动记账）", Toast.LENGTH_SHORT).show();
 
@@ -413,7 +412,7 @@ public class BookKeepingFragment extends Fragment {
             return;
         }
 
-        accountAdapter.addNewRunningAccount(dataBundle, requireActivity());
+        accountAdapter.addNewRunningAccount(dataBundle);
         binding.accountRecycler.scrollToPosition(0);    //滚动到顶部
         Toast.makeText(requireContext(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
 
@@ -435,7 +434,7 @@ public class BookKeepingFragment extends Fragment {
             return;
         }
 
-        accountAdapter.modifyRunningAccount(dataBundle, requireActivity());
+        accountAdapter.modifyRunningAccount(dataBundle);
         Toast.makeText(requireContext(), "成功修改流水记录", Toast.LENGTH_SHORT).show();
     }
 
@@ -452,7 +451,7 @@ public class BookKeepingFragment extends Fragment {
         }
 
         long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue(), -1);
-        accountAdapter.deleteRunningAccount(rno, requireActivity());
+        accountAdapter.deleteRunningAccount(rno);
         Toast.makeText(requireContext(), "流水记录已删除", Toast.LENGTH_SHORT).show();
 
         //更新流水记录数量文本

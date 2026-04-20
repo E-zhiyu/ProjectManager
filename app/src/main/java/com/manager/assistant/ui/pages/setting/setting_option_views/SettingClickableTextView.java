@@ -21,9 +21,17 @@ public class SettingClickableTextView extends SettingOptionViewBase<ImageView, V
      * @param title       标题
      * @param description 描述（可选）
      * @param iconId      左侧图标资源
+     * @param radiusStyle 圆角类型
      */
-    public SettingClickableTextView(Context context, ViewSettingOptionBinding binding, @StringRes int title, String description, @DrawableRes int iconId) {
-        super(context, binding, title, description, iconId);
+    public SettingClickableTextView(
+            Context context,
+            ViewSettingOptionBinding binding,
+            @StringRes int title,
+            String description,
+            @DrawableRes int iconId,
+            RadiusStyle radiusStyle
+    ) {
+        super(context, binding, title, description, iconId, radiusStyle);
     }
 
     @Override
@@ -37,6 +45,6 @@ public class SettingClickableTextView extends SettingOptionViewBase<ImageView, V
 
     @Override
     public void setFunctionListener(View.OnClickListener listener) {
-        binding.constraintLayout.setOnClickListener(listener);
+        binding.getRoot().setOnClickListener(listener);
     }
 }

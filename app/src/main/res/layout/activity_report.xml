@@ -54,7 +54,7 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/report_balance_cardview"
-                style="@style/ContentCardStyle"
+                style="@style/MediumRadiusCardStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -102,7 +102,7 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/income_source_card"
-                style="@style/ContentCardStyle"
+                style="@style/MediumRadiusCardStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone">
@@ -131,7 +131,7 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/expense_source_card"
-                style="@style/ContentCardStyle"
+                style="@style/MediumRadiusCardStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone">
@@ -161,7 +161,7 @@
             <!-- 展示每月流水信息 -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/month_account_card"
-                style="@style/ContentCardStyle"
+                style="@style/MediumRadiusCardStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 

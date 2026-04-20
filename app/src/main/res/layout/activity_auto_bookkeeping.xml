@@ -4,58 +4,52 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.pages.setting.sub.PermissionManageActivity">
+    tools:context=".ui.pages.setting.sub.AutoBookkeepingActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="@string/permissions_setting" />
+        app:title="@string/auto_bookkeeping" />
 
     <ScrollView
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
+        android:scrollbars="none"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:scrollbars="none"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
         <LinearLayout
-            android:id="@+id/app_settings_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- 通知解析开关 -->
             <include
-                android:id="@+id/camera_option"
+                android:id="@+id/notification_analysis_switch_option"
                 layout="@layout/view_setting_option" />
 
+            <!-- 规则管理 -->
             <include
-                android:id="@+id/app_list_option"
+                android:id="@+id/rule_manage_option"
                 layout="@layout/view_setting_option" />
 
+            <!-- 重置规则 -->
             <include
-                android:id="@+id/notification_option"
+                android:id="@+id/reset_rule_option"
                 layout="@layout/view_setting_option" />
 
+            <!-- 通知取消选项 -->
             <include
-                android:id="@+id/notification_listener_option"
+                android:id="@+id/notification_cancel_behaviour"
                 layout="@layout/view_setting_option" />
 
+            <!-- 通知点击选项 -->
             <include
-                android:id="@+id/auto_start_option"
-                layout="@layout/view_setting_option" />
-
-            <include
-                android:id="@+id/battery_optimizations_option"
-                layout="@layout/view_setting_option" />
-
-            <include
-                android:id="@+id/alarm_option"
+                android:id="@+id/notification_click_behaviour"
                 layout="@layout/view_setting_option" />
         </LinearLayout>
     </ScrollView>

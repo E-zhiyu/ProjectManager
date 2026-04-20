@@ -42,7 +42,13 @@
         android:theme="@style/Theme.ManagerAssistant.Static"
         tools:targetApi="33">
         <activity
-            android:name=".ui.pages.setting.PermissionManageActivity"
+            android:name=".ui.pages.setting.sub.DataManageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.pages.setting.sub.AutoBookkeepingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.pages.setting.sub.PermissionManageActivity"
             android:exported="false" />
         <activity
             android:name=".ui.pages.bookkeeping.budget.BudgetAddModifyActivity"
@@ -79,18 +85,17 @@
             android:exported="false" />
         <activity
             android:name=".ui.pages.bookkeeping.running_account.RunningAccountModifyActivity"
-            android:excludeFromRecents="true"
             android:exported="false" />
         <activity
             android:name=".ui.pages.bookkeeping.running_account.RunningAccountAddActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:excludeFromRecents="true"
             android:exported="true"
             android:label="@string/title_activity_main">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

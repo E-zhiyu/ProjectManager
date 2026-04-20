@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.setting;
+package com.manager.assistant.ui.pages.setting.sub;
 
 import android.Manifest;
 import android.content.Intent;
@@ -28,6 +28,7 @@ import com.manager.assistant.databinding.ActivityPermissionManageBinding;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingClickableTextView;
+import com.manager.assistant.ui.pages.setting.setting_option_views.SettingOptionViewBase;
 
 import io.noties.markwon.Markwon;
 
@@ -75,7 +76,8 @@ public class PermissionManageActivity extends AppCompatActivity {
                 binding.cameraOption,
                 R.string.camera_permission,
                 "允许使用摄像头",
-                R.drawable.baseline_photo_camera_24
+                R.drawable.baseline_photo_camera_24,
+                SettingOptionViewBase.RadiusStyle.TOP
         );
         camera.setFunctionListener(v -> showExplanationDialog(
                 R.string.camera_permission,
@@ -90,7 +92,8 @@ public class PermissionManageActivity extends AppCompatActivity {
                 binding.appListOption,
                 R.string.app_list_option,
                 "允许获取应用列表",
-                R.drawable.outline_apps_24
+                R.drawable.outline_apps_24,
+                SettingOptionViewBase.RadiusStyle.MIDDLE
         );
         appList.setFunctionListener(v -> showExplanationDialog(
                 R.string.app_list_option,
@@ -105,13 +108,14 @@ public class PermissionManageActivity extends AppCompatActivity {
                 binding.notificationOption,
                 R.string.notification_permission,
                 "允许发送通知",
-                R.drawable.outline_notification_settings_24
+                R.drawable.outline_notification_settings_24,
+                SettingOptionViewBase.RadiusStyle.MIDDLE
         );
         notification.setFunctionListener(v -> showExplanationDialog(
                         R.string.notification_permission,
                         "该权限允许应用发送通知，应用范围如下：\n" +
                                 "- 预算余额低时发送提醒通知\n" +
-                                "- 触发自动记账后发送通知决定是否保留\n",
+                                "- 触发自动记账后发送确认通知\n",
                         () -> {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                                 requestRuntimePermission(Manifest.permission.POST_NOTIFICATIONS);
@@ -128,7 +132,8 @@ public class PermissionManageActivity extends AppCompatActivity {
                 binding.notificationListenerOption,
                 R.string.notification_listener_permission,
                 "允许监听其他应用的通知",
-                R.drawable.outline_notifications_active_24
+                R.drawable.outline_notifications_active_24,
+                SettingOptionViewBase.RadiusStyle.MIDDLE
         );
         notificationListener.setFunctionListener(v -> showExplanationDialog(
                 R.string.notification_listener_permission,
@@ -143,7 +148,8 @@ public class PermissionManageActivity extends AppCompatActivity {
                 binding.autoStartOption,
                 R.string.auto_start_permission,
                 "允许在后台启动服务",
-                R.drawable.outline_autorenew_24
+                R.drawable.outline_autorenew_24,
+                SettingOptionViewBase.RadiusStyle.MIDDLE
         );
         autoStart.setFunctionListener(v -> showExplanationDialog(
                         R.string.auto_start_permission,
@@ -159,7 +165,8 @@ public class PermissionManageActivity extends AppCompatActivity {
                 binding.batteryOptimizationsOption,
                 R.string.battery_optimization,
                 "设置安卓原生的电池优化策略",
-                R.drawable.outline_battery_android_frame_3_24
+                R.drawable.outline_battery_android_frame_3_24,
+                SettingOptionViewBase.RadiusStyle.MIDDLE
         );
         batteryOptimizations.setFunctionListener(v -> showExplanationDialog(
                 R.string.battery_optimization,
@@ -177,7 +184,8 @@ public class PermissionManageActivity extends AppCompatActivity {
                 binding.alarmOption,
                 R.string.alarm_permission,
                 "允许设置定时任务",
-                R.drawable.outline_alarm_24
+                R.drawable.outline_alarm_24,
+                SettingOptionViewBase.RadiusStyle.BOTTOM
         );
         alarm.setFunctionListener(v -> showExplanationDialog(
                 R.string.alarm_permission,

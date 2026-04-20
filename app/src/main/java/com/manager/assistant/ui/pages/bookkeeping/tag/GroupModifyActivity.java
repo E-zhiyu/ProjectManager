@@ -123,7 +123,7 @@ public class GroupModifyActivity extends AppCompatActivity {
                     //获取所有分组
                     List<TagGroup> groupList;
                     try {
-                        groupList = TagGroupDataController.getTagGroup(this, -1);
+                        groupList = TagGroupDataController.getTagGroup(this);
                     } catch (SQLiteException e) {
                         ExceptionHelper.showExceptionDialog(this, e);
                         Toast.makeText(this, "无法加载分组列表", Toast.LENGTH_SHORT).show();

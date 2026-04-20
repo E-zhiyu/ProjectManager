@@ -2,18 +2,17 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.pages.setting.sub.PermissionManageActivity">
+    tools:context=".ui.pages.setting.sub.DataManageActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="@string/permissions_setting" />
+        app:title="@string/data_manage" />
 
     <ScrollView
         android:id="@+id/scroll_view"
@@ -25,37 +24,47 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
         <LinearLayout
-            android:id="@+id/app_settings_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- 导出数据 -->
             <include
-                android:id="@+id/camera_option"
+                android:id="@+id/export_data_option"
+                layout="@layout/view_setting_option"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp" />
+
+            <!-- 导入数据 -->
+            <include
+                android:id="@+id/import_data_option"
                 layout="@layout/view_setting_option" />
 
+            <!-- 清空流水记录 -->
             <include
-                android:id="@+id/app_list_option"
+                android:id="@+id/clear_account_data_option"
                 layout="@layout/view_setting_option" />
 
+            <!-- 自动备份 -->
             <include
-                android:id="@+id/notification_option"
+                android:id="@+id/auto_backup_option"
+                layout="@layout/view_setting_option"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="10dp" />
+
+            <!-- 自动备份频率 -->
+            <include
+                android:id="@+id/backup_frequency_option"
                 layout="@layout/view_setting_option" />
 
+            <!-- 自动备份目录 -->
             <include
-                android:id="@+id/notification_listener_option"
-                layout="@layout/view_setting_option" />
-
-            <include
-                android:id="@+id/auto_start_option"
-                layout="@layout/view_setting_option" />
-
-            <include
-                android:id="@+id/battery_optimizations_option"
-                layout="@layout/view_setting_option" />
-
-            <include
-                android:id="@+id/alarm_option"
+                android:id="@+id/backup_directory_option"
                 layout="@layout/view_setting_option" />
         </LinearLayout>
     </ScrollView>

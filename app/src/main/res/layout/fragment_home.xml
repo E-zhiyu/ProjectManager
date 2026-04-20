@@ -12,7 +12,7 @@
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/welcome_card"
-            style="@style/RoundCardStyle"
+            style="@style/LargeRadiusCardStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent">
@@ -43,7 +43,7 @@
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/tips_card"
-            style="@style/ContentCardStyle"
+            style="@style/MediumRadiusCardStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toTopOf="@id/report_balance_cardview"
@@ -66,7 +66,7 @@
         <!-- 结余卡片 -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/report_balance_cardview"
-            style="@style/ContentCardStyle"
+            style="@style/MediumRadiusCardStyle"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="0dp"
@@ -125,7 +125,7 @@
         <!-- 标签卡片 -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/tag_card"
-            style="@style/ContentCardStyle"
+            style="@style/MediumRadiusCardStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="3dp"
@@ -164,7 +164,7 @@
         <!-- 预算卡片 -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/budget_card"
-            style="@style/ContentCardStyle"
+            style="@style/MediumRadiusCardStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="0dp"

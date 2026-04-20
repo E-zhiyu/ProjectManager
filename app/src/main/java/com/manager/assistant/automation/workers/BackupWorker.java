@@ -11,8 +11,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.helpers.file.DataIOHelper;
-import com.manager.assistant.ui.pages.setting.SettingFragment;
 import com.manager.assistant.data.io.helpers.DataHelperBase;
+import com.manager.assistant.ui.pages.setting.sub.DataManageActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ public class BackupWorker extends Worker {
 
         //获取APP数据
         List<String> fileNameList = new ArrayList<>(), fileContentList = new ArrayList<>();
-        for (SettingFragment.IODataType dataType : SettingFragment.IODataType.values()) {
+        for (DataManageActivity.IODataType dataType : DataManageActivity.IODataType.values()) {
             DataHelperBase<BookkeepingDbHelper, ?> dataHelper = dataType.getDataHelper(context);
 
             try {

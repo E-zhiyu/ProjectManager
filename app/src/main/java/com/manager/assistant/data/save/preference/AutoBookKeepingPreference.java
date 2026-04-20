@@ -14,6 +14,7 @@ public class AutoBookKeepingPreference {
     private static final String KEY_HINT_AUTO_START = "hint_auto_start";            //是否提示打开自启动权限
     private static final String KEY_NOTIFICATION_CANCEL = "notification_cancel";    //自动记账通知点击行为
     private static final String KEY_NOTIFICATION_CLICK = "notification_click";      //自动记账确认通知点击行为
+    private static final String KEY_HIDE_RECENT_TASK = "hide_recent_task";          //在最近任务中隐藏
 
     public static void setSwitchStat(boolean isOpened, @NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -77,5 +78,27 @@ public class AutoBookKeepingPreference {
     public static int getNotificationClickBehaviour(@NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return pref.getInt(KEY_NOTIFICATION_CLICK, 0);
+    }
+
+    /**
+     * 写入是否隐藏最近任务
+     *
+     * @param isHidden 是否隐藏
+     * @param context  上下文
+     */
+    public static void setHideRecentTask(boolean isHidden, @NonNull Context context) {
+        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        pref.edit().putBoolean(KEY_HIDE_RECENT_TASK, isHidden).apply();
+    }
+
+    /**
+     * 读取是否隐藏最近任务
+     *
+     * @param context 上下文
+     * @return 是否隐藏
+     */
+    public static boolean getHideRecentTask(@NonNull Context context) {
+        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return pref.getBoolean(KEY_HIDE_RECENT_TASK, false);
     }
 }

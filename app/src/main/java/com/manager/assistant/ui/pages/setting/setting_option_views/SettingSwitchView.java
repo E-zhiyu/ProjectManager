@@ -20,15 +20,22 @@ public class SettingSwitchView extends SettingOptionViewBase<MaterialSwitch, Com
      * @param title       标题
      * @param description 描述（可选）
      * @param iconId      左侧图标资源
+     * @param radiusStyle 圆角类型
      */
-    public SettingSwitchView(Context context, ViewSettingOptionBinding binding, @StringRes int title, String description, @DrawableRes int iconId) {
-        super(context, binding, title, description, iconId);
+    public SettingSwitchView(Context context,
+                             ViewSettingOptionBinding binding,
+                             @StringRes int title,
+                             String description,
+                             @DrawableRes int iconId,
+                             RadiusStyle radiusStyle
+    ) {
+        super(context, binding, title, description, iconId, radiusStyle);
     }
 
     @Override
     protected void initView(Context context) {
         functionComponent = new MaterialSwitch(new ContextThemeWrapper(context, R.style.SwitchBtnStyle));
-        binding.constraintLayout.setOnClickListener(v -> functionComponent.toggle());
+        binding.getRoot().setOnClickListener(v -> functionComponent.toggle());
         binding.componentLayout.addView(functionComponent);
     }
 

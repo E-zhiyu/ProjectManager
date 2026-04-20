@@ -2,12 +2,12 @@ package com.manager.assistant.ui.sync.account;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
 
-public class RunningAccountViewModel extends ViewModel {
-    private AccountUpdateReason updateReason;
+public class RunningAccountRepository {
+    private static RunningAccountRepository instance;    //自身实例
+    private AccountUpdateReason updateReason;           //更新原因
     private final MutableLiveData<SimpleRunningAccount> accountData = new MutableLiveData<>();
 
     public static class SimpleRunningAccount {
@@ -20,6 +20,13 @@ public class RunningAccountViewModel extends ViewModel {
             this.datetime = datetime;
             this.type = type;
         }
+    }
+
+    public static RunningAccountRepository getInstance() {
+        if (instance == null) {
+            instance = new RunningAccountRepository();
+        }
+        return instance;
     }
 
     public AccountUpdateReason getUpdateReason() {

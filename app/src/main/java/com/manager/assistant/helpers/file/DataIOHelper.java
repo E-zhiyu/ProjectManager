@@ -20,7 +20,7 @@ import com.manager.assistant.helpers.about.AboutHelper;
 import com.manager.assistant.generic_enums.DirectoryPaths;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.data.save.preference.AutoBackupPreference;
-import com.manager.assistant.ui.pages.setting.SettingFragment;
+import com.manager.assistant.ui.pages.setting.sub.DataManageActivity;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -484,8 +484,8 @@ public class DataIOHelper {
         ContentResolver resolver = context.getContentResolver();
 
         //生成合法文件名列表
-        List<String> legalEntryNameList = Arrays.stream(SettingFragment.IODataType.values())
-                .map(SettingFragment.IODataType::getDefaultFileName)
+        List<String> legalEntryNameList = Arrays.stream(DataManageActivity.IODataType.values())
+                .map(DataManageActivity.IODataType::getDefaultFileName)
                 .collect(Collectors.toList());
         String pictureZipName = String.format(Locale.getDefault(), "%s.zip", DirectoryPaths.PICTURE.getChildDirName());
         legalEntryNameList.add(pictureZipName);
