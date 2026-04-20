@@ -87,7 +87,7 @@
 
     <!-- 中等圆角卡片容器 -->
     <style name="MediumRadiusCardStyle" parent="CardStyleBase">
-        <item name="cardCornerRadius">15dp</item>
+        <item name="cardCornerRadius">20dp</item>
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:layout_marginStart">10dp</item>
         <item name="android:layout_marginEnd">10dp</item>
@@ -96,7 +96,7 @@
 
     <!-- 淡色中等圆角卡片容器 -->
     <style name="LightMediumRadiusCardStyle" parent="CardStyleBase">
-        <item name="cardCornerRadius">15dp</item>
+        <item name="cardCornerRadius">20dp</item>
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:layout_marginStart">10dp</item>
         <item name="android:layout_marginEnd">10dp</item>

@@ -20,7 +20,7 @@ import com.manager.assistant.ui.others.listeners.SpringAnimationOnTouchListener;
  */
 public class AppearanceAnimationHelper {
     public static final int SMALL_CARD_RADIUS = 5;     //小卡片圆角大小（dp）
-    public static final int MEDIUM_CARD_RADIUS = 15;   //中等卡片圆角大小（dp）
+    public static final int MEDIUM_CARD_RADIUS = 20;   //中等卡片圆角大小（dp）
 
     /**
      * 设置下滑隐藏浮动按钮
