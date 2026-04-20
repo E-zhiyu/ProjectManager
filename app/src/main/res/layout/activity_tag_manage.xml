@@ -49,7 +49,7 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/tag_group_recycler"
+            android:id="@+id/tag_recycler"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:clipToPadding="false"
