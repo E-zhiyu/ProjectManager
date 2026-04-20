@@ -45,6 +45,6 @@ public class SettingClickableTextView extends SettingOptionViewBase<ImageView, V
 
     @Override
     public void setFunctionListener(View.OnClickListener listener) {
-        binding.constraintLayout.setOnClickListener(listener);
+        binding.getRoot().setOnClickListener(listener);
     }
 }

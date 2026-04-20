@@ -35,7 +35,7 @@ public class SettingSwitchView extends SettingOptionViewBase<MaterialSwitch, Com
     @Override
     protected void initView(Context context) {
         functionComponent = new MaterialSwitch(new ContextThemeWrapper(context, R.style.SwitchBtnStyle));
-        binding.constraintLayout.setOnClickListener(v -> functionComponent.toggle());
+        binding.getRoot().setOnClickListener(v -> functionComponent.toggle());
         binding.componentLayout.addView(functionComponent);
     }
 

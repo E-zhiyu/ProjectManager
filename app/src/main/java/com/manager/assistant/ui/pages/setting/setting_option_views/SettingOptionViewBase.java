@@ -41,7 +41,7 @@ abstract public class SettingOptionViewBase<C, L> {
      */
     public SettingOptionViewBase(
             Context context,
-            ViewSettingOptionBinding binding,
+            @NonNull ViewSettingOptionBinding binding,
             @StringRes int title,
             String description,
             @DrawableRes int iconId,
@@ -54,6 +54,9 @@ abstract public class SettingOptionViewBase<C, L> {
         setIcon(iconId);
 
         setRadius(radiusStyle, context);
+
+        //设置触摸动画
+        AppearanceAnimationHelper.attachMorphAnimation(binding.getRoot());
     }
 
     protected void setTitle(@StringRes int title) {
@@ -82,7 +85,7 @@ abstract public class SettingOptionViewBase<C, L> {
      * @param listener 长按监听器
      */
     public void setOnLongClickListener(View.OnLongClickListener listener) {
-        binding.constraintLayout.setOnLongClickListener(listener);
+        binding.getRoot().setOnLongClickListener(listener);
     }
 
     /**
@@ -91,7 +94,7 @@ abstract public class SettingOptionViewBase<C, L> {
      * @param visibility 可见性代码
      */
     public void setVisibility(int visibility) {
-        binding.constraintLayout.setVisibility(visibility);
+        binding.getRoot().setVisibility(visibility);
     }
 
     /**

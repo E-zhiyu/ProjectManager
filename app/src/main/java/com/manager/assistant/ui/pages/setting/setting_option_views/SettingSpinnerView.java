@@ -56,7 +56,7 @@ public class SettingSpinnerView extends SettingOptionViewBase<MaterialTextView, 
 
     @Override
     public void setFunctionListener(View.OnClickListener listener) {
-        binding.constraintLayout.setOnClickListener(listener);
+        binding.getRoot().setOnClickListener(listener);
     }
 
     /**

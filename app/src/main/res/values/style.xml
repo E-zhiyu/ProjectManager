@@ -104,13 +104,6 @@
         <item name="cardBackgroundColor">@color/light_card_background_color</item>
     </style>
 
-    <!-- 设置项样式 -->
-    <style name="SettingOptionStyle">
-        <item name="android:clickable">true</item>
-        <item name="android:focusable">true</item>
-        <item name="android:background">@drawable/ripple_rectangle</item>
-    </style>
-
     <!-- 开关样式 -->
     <style name="SwitchBtnStyle" parent="Widget.Material3.CompoundButton.MaterialSwitch">
         <item name="android:drawablePadding">5dp</item>
