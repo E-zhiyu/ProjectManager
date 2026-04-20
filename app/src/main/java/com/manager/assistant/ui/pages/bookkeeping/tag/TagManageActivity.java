@@ -117,6 +117,26 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
         modifyGroupLauncher.launch(skip2GroupModify);
     }
 
+    @Override
+    public void onExpandStatueChanged(long groupNo, boolean isExpanded) {
+        //获取下标和适配器容器
+        int index = 0;
+        for (Map.Entry<Long, AdapterContainer> entry : adapterContainerMap.entrySet()) {
+            long key = entry.getKey();
+            if (key == groupNo) {
+                AdapterContainer container = entry.getValue();
+
+                if (isExpanded) {
+                    adapter.addAdapter(index * 2 + 1, container.tagAdapter);
+                } else {
+                    adapter.removeAdapter(container.tagAdapter);
+                }
+                break;
+            }
+            index++;
+        }
+    }
+
     //初始化视图
     private void initViews() {
         //设置标题栏的图标点击监听器

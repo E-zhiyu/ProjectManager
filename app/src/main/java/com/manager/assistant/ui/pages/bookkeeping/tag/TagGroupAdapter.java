@@ -1,13 +1,18 @@
 package com.manager.assistant.ui.pages.bookkeeping.tag;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.manager.assistant.databinding.ViewHolderTagGroupBinding;
 import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
+import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 import com.manager.assistant.ui.others.animators.RotateAnimator;
 import com.manager.assistant.data.classes.TagGroup;
 
@@ -22,20 +27,33 @@ public class TagGroupAdapter extends RecyclerView.Adapter<TagGroupAdapter.TagGro
          * @param group 标签分组实例
          */
         void onGroupClicked(TagGroup group);
+
+        /**
+         * 标签分组展开状态变化回调
+         *
+         * @param groupNo    分组编号
+         * @param isExpanded 是否展开
+         */
+        void onExpandStatueChanged(long groupNo, boolean isExpanded);
     }
 
     public interface ViewHolderListener {
         /**
          * 当ViewHolder被点击时的监听器
-         *
-         * @param position 被点击的ViewHolder在Adapter中的真实下标
          */
-        void onGroupClicked(int position);
+        void onGroupClicked();
+
+        /**
+         * 标签分组展开状态变化回调
+         */
+        void onExpandStatueChanged(boolean isExpanded);
     }
 
     public static class TagGroupViewHolder extends RecyclerView.ViewHolder {
         ViewHolderTagGroupBinding binding;
         boolean isExpanded = true;
+        private static final int KEY_RADIUS_ANIMATOR = 0x7F0B0002;  //动画执行器的Tag
+        private static final int ANIMATION_DURATION = 200;          //圆角动画持续时间（ms）
 
         public TagGroupViewHolder(@NonNull ViewHolderTagGroupBinding binding, ViewHolderListener listener) {
             super(binding.getRoot());
@@ -53,11 +71,76 @@ public class TagGroupAdapter extends RecyclerView.Adapter<TagGroupAdapter.TagGro
                 //旋转分组名称文本右侧的图标
                 rotateAnimator.toggle();
 
-                //TODO:完成可见性切换功能
+                //修改圆角
+                updateRadius(isExpanded);
+
+                //触发监听器
+                listener.onExpandStatueChanged(isExpanded);
             });
 
             //设置根视图点击方法
-            binding.getRoot().setOnClickListener(v -> listener.onGroupClicked(getBindingAdapterPosition()));
+            binding.getRoot().setOnClickListener(v -> listener.onGroupClicked());
+        }
+
+        /**
+         * 更新圆角（带动画）
+         *
+         * @param isExpanded 是否展开
+         */
+        private void updateRadius(boolean isExpanded) {
+            ValueAnimator radiusAnimator = (ValueAnimator) binding.getRoot().getTag(KEY_RADIUS_ANIMATOR);
+            if (radiusAnimator == null) {
+                radiusAnimator = ValueAnimator.ofFloat(0f, 1f);
+                radiusAnimator.setDuration(ANIMATION_DURATION);
+                radiusAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+
+                //通过Tag保存引用
+                binding.getRoot().setTag(KEY_RADIUS_ANIMATOR, radiusAnimator);
+
+                //设置取消和结束监听器
+                radiusAnimator.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        binding.getRoot().setTag(KEY_RADIUS_ANIMATOR, null);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+                        binding.getRoot().setTag(KEY_RADIUS_ANIMATOR, null);
+                    }
+                });
+
+                //设置过程监听器
+                radiusAnimator.addUpdateListener(animation -> {
+                    //获取动画进度
+                    float process = animation.getAnimatedFraction();
+
+                    //计算当前的圆角值
+                    int small = AppearanceAnimationHelper.SMALL_CARD_RADIUS;
+                    int medium = AppearanceAnimationHelper.MEDIUM_CARD_RADIUS;
+                    float currentDp = isExpanded ?
+                            medium - (medium - small) * process :
+                            small + (medium - small) * process;
+
+                    //转换为像素值
+                    float currentPx = ViewEdgeHelper.dpToPx(binding.getRoot().getContext(), currentDp);
+
+                    //应用计算得到的圆角值
+                    binding.getRoot().setShapeAppearanceModel(
+                            binding.getRoot().getShapeAppearanceModel()
+                                    .toBuilder()
+                                    .setBottomLeftCornerSize(currentPx)
+                                    .setBottomRightCornerSize(currentPx)
+                                    .build()
+                    );
+                });
+
+                radiusAnimator.start();
+            } else {
+                if (radiusAnimator.isRunning()) {
+                    radiusAnimator.reverse();
+                }
+            }
         }
     }
 
@@ -83,7 +166,17 @@ public class TagGroupAdapter extends RecyclerView.Adapter<TagGroupAdapter.TagGro
 
         return new TagGroupViewHolder(
                 binding,
-                position -> listener.onGroupClicked(tagGroup)
+                new ViewHolderListener() {
+                    @Override
+                    public void onGroupClicked() {
+                        listener.onGroupClicked(tagGroup);
+                    }
+
+                    @Override
+                    public void onExpandStatueChanged(boolean isExpanded) {
+                        listener.onExpandStatueChanged(tagGroup.getGroupNo(), isExpanded);
+                    }
+                }
         );
     }
 
