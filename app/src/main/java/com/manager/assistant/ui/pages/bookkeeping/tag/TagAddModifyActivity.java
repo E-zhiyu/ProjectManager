@@ -205,7 +205,7 @@ public class TagAddModifyActivity extends AppCompatActivity {
      */
     private void initTagGroupInput() {
         disposables.add(
-                Observable.fromCallable(() -> TagGroupDataController.getTagGroup(this, -1))
+                Observable.fromCallable(() -> TagGroupDataController.getTagGroup(this))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(tagGroupList -> {

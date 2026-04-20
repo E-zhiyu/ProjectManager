@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -18,10 +16,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.ConcatAdapter;
 
-import com.manager.assistant.R;
 import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.ActivityTagManageBinding;
-import com.manager.assistant.databinding.ViewRailHeaderBinding;
 import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.generic_enums.RequestResultCode;
@@ -36,7 +32,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -49,8 +44,6 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
     private final CompositeDisposable disposables = new CompositeDisposable();                      //订阅列表（便于取消订阅）
     private ActivityResultLauncher<Intent> tagAddLauncher, tagModifyLauncher, modifyGroupLauncher;  //活动启动器
     private ActivityTagManageBinding binding;                                                       //绑定的XML视图的引用
-    private final Map<Integer, Long> itemIdAndGroupNoMap = new HashMap<>();                         //保存左侧导航栏Item的ID与标签分组编号映射的Map
-    private Long currentGroupNo = -1L;                                                              //当前显示的标签分组编号
 
     /**
      * 分组与标签适配器对
@@ -144,7 +137,7 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
 
         //设置刷新监听器
-        binding.refreshLayout.setOnRefreshListener(() -> refreshUI(false));
+        binding.refreshLayout.setOnRefreshListener(this::refreshUI);
 
         //获取标签分组数据
         Map<TagGroup, List<Tag>> tagGroupMap;
@@ -155,40 +148,6 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
             Toast.makeText(this, "标签数据读取失败", Toast.LENGTH_SHORT).show();
             tagGroupMap = new LinkedHashMap<>();
         }
-
-        //左侧标签分组抽屉
-        ViewRailHeaderBinding headerBinding = ViewRailHeaderBinding.inflate(getLayoutInflater());
-        headerBinding.headerBtn.setOnClickListener(v -> {   //设置头部视图点击监听
-            if (binding.tagGroupNaviRail.isExpanded()) {
-                binding.tagGroupNaviRail.collapse();
-            } else {
-                binding.tagGroupNaviRail.expand();
-            }
-        });
-        binding.tagGroupNaviRail.addHeaderView(headerBinding.getRoot());
-        int index = 1;
-        Menu groupMenu = binding.tagGroupNaviRail.getMenu();
-        MenuItem menuItem = groupMenu.add(Menu.NONE, 0, Menu.NONE, "显示所有");
-        menuItem.setIcon(R.drawable.outline_select_all_24);
-        itemIdAndGroupNoMap.put(0, -1L);
-        for (TagGroup group : tagGroupMap.keySet()) {
-            menuItem = groupMenu.add(Menu.NONE, index, Menu.NONE, group.getGroupName());
-            menuItem.setIcon(R.drawable.outline_tab_group_24);
-
-            //将index与groupNo的映射保存到Map中
-            itemIdAndGroupNoMap.put(index, group.getGroupNo());
-            index++;
-        }
-        binding.tagGroupNaviRail.setOnItemSelectedListener(item -> {
-            Long targetGroupNo = itemIdAndGroupNoMap.get(item.getItemId());
-            if (!Objects.equals(currentGroupNo, targetGroupNo) && targetGroupNo != null) {
-                //刷新标签列表
-                currentGroupNo = targetGroupNo;
-                refreshUI(false);
-                return true;
-            } else
-                return targetGroupNo == null;    //如果targetGroupNo为null，说明是手动刷新RailView时触发的监听器，需要返回true
-        });
 
         //初始化RecyclerView
         adapter = new ConcatAdapter();
@@ -303,33 +262,27 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
             return;
         }
 
-        //只有当标签的分组与当前显示的分组一致时，或者当前显示所有分组时才更新RecyclerView
-        if (groupNo == currentGroupNo || currentGroupNo == -1) {
-            //通过适配器刷新UI
-            Tag newTag = new Tag(tagName, tagNo, tagScope);
-            AdapterContainer container = adapterContainerMap.get(groupNo);
-            if (container != null) {
-                container.tagAdapter.addTag(newTag);
-            } else {
-                //添加新分组
-                TagGroup newGroup = new TagGroup(groupName, groupNo);
-                TagGroupAdapter groupAdapter = new TagGroupAdapter(newGroup, this);
+        //通过适配器刷新UI
+        Tag newTag = new Tag(tagName, tagNo, tagScope);
+        AdapterContainer container = adapterContainerMap.get(groupNo);
+        if (container != null) {
+            container.tagAdapter.addTag(newTag);
+        } else {
+            //添加新分组
+            TagGroup newGroup = new TagGroup(groupName, groupNo);
+            TagGroupAdapter groupAdapter = new TagGroupAdapter(newGroup, this);
 
-                //添加新标签Adapter
-                List<Tag> tagList = new ArrayList<>();
-                tagList.add(new Tag(tagName, tagNo, tagScope));
-                TagAdapter tagAdapter = new TagAdapter(newGroup, tagList, this);
+            //添加新标签Adapter
+            List<Tag> tagList = new ArrayList<>();
+            tagList.add(new Tag(tagName, tagNo, tagScope));
+            TagAdapter tagAdapter = new TagAdapter(newGroup, tagList, this);
 
-                //添加到RecyclerView中
-                container = new AdapterContainer(groupAdapter, tagAdapter);
-                adapterContainerMap.put(groupNo, container);    //保存新引用
-                adapter.addAdapter(groupAdapter);
-                adapter.addAdapter(tagAdapter);
-            }
+            //添加到RecyclerView中
+            container = new AdapterContainer(groupAdapter, tagAdapter);
+            adapterContainerMap.put(groupNo, container);    //保存新引用
+            adapter.addAdapter(groupAdapter);
+            adapter.addAdapter(tagAdapter);
         }
-
-        //刷新RailView
-        refreshRailView();
     }
 
     /**
@@ -360,7 +313,6 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
 
         //执行操作
         if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
-            refreshRailView();
             if (oldGroupNo == newGroupNo) {
                 AdapterContainer container = adapterContainerMap.get(oldGroupNo);
                 if (container != null) {
@@ -438,101 +390,56 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
             }
 
             //更新RailView中的选项Title
-            for (Map.Entry<Integer, Long> entry : itemIdAndGroupNoMap.entrySet()) {
-                int itemIndex = entry.getKey();     //MenuItem的Id就是下标
-                long mapGroupNo = entry.getValue();
-                if (mapGroupNo == groupNo) {
-                    Menu railMenu = binding.tagGroupNaviRail.getMenu();
-                    railMenu.getItem(itemIndex).setTitle(newGroupName);
-                    break;
-                }
-            }
+//            for (Map.Entry<Integer, Long> entry : itemIdAndGroupNoMap.entrySet()) {
+//                int itemIndex = entry.getKey();     //MenuItem的Id就是下标
+//                long mapGroupNo = entry.getValue();
+//                if (mapGroupNo == groupNo) {
+//                    Menu railMenu = binding.tagGroupNaviRail.getMenu();
+//                    railMenu.getItem(itemIndex).setTitle(newGroupName);
+//                    break;
+//                }
+//            }
         } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
-            if (currentGroupNo != -1L) {
-                refreshUI(true);    //显示单个分组时直接刷新整个界面
-            } else {
-                //删除Recycler中对应的适配器
-                AdapterContainer container = adapterContainerMap.get(groupNo);
-                if (container != null) {
-                    adapter.removeAdapter(container.groupAdapter);
-                    adapter.removeAdapter(container.tagAdapter);
-                }
-
-                refreshRailView();                //显示所有分组时只需要刷新RailView以保证有动画
+            //删除Recycler中对应的适配器
+            AdapterContainer container = adapterContainerMap.get(groupNo);
+            if (container != null) {
+                adapter.removeAdapter(container.groupAdapter);
+                adapter.removeAdapter(container.tagAdapter);
             }
         } else if (resultCode == RequestResultCode.RESULT_MERGE.ordinal()) {
-            if (currentGroupNo != -1L) {
-                refreshUI(true);
-            } else {
-                //删除Recycler中对应的旧适配器
-                AdapterContainer oldContainer = adapterContainerMap.get(groupNo);
-                if (oldContainer == null) {
-                    return;
-                }
+            //删除Recycler中对应的旧适配器
+            AdapterContainer oldContainer = adapterContainerMap.get(groupNo);
+            if (oldContainer == null) {
+                return;
+            }
 
-                //删除旧的适配器
-                List<Tag> tagList = oldContainer.tagAdapter.getTagList();  //获取被合并分组的标签列表
-                adapter.removeAdapter(oldContainer.groupAdapter);
-                adapter.removeAdapter(oldContainer.tagAdapter);
+            //删除旧的适配器
+            List<Tag> tagList = oldContainer.tagAdapter.getTagList();  //获取被合并分组的标签列表
+            adapter.removeAdapter(oldContainer.groupAdapter);
+            adapter.removeAdapter(oldContainer.tagAdapter);
 
-                //更新现有的适配器
-                long mergeTargetNo = dataBundle.getLong(KeyValueStrings.MERGE_TARGET_NO.getValue());
-                AdapterContainer newContainer = adapterContainerMap.get(mergeTargetNo);
-                if (newContainer != null) {
-                    newContainer.tagAdapter.addTag(tagList);
-                }
-
-                refreshRailView();                //显示所有分组时只需要刷新RailView以保证有动画
+            //更新现有的适配器
+            long mergeTargetNo = dataBundle.getLong(KeyValueStrings.MERGE_TARGET_NO.getValue());
+            AdapterContainer newContainer = adapterContainerMap.get(mergeTargetNo);
+            if (newContainer != null) {
+                newContainer.tagAdapter.addTag(tagList);
             }
         }
     }
 
     /**
      * 视图刷新回调
-     *
-     * @param refreshRailView 是否需要刷新左侧导航栏
      */
-    private void refreshUI(boolean refreshRailView) {
-        if (refreshRailView) {
-            currentGroupNo = -1L;
-        }
+    private void refreshUI() {
         disposables.add(
                 Observable.fromCallable(() -> TagGroupDataController.loadTagGroup(
                                 this,
                                 0,
-                                currentGroupNo,
                                 null
                         ))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(tagGroupListMap -> {
-                                    refreshRecyclerView(tagGroupListMap);
-
-                                    if (!refreshRailView) {
-                                        return;
-                                    }
-
-                                    //清空
-                                    Menu groupMenu = binding.tagGroupNaviRail.getMenu();
-                                    groupMenu.clear();
-                                    itemIdAndGroupNoMap.clear();
-
-                                    //添加显示所有的选项
-                                    MenuItem menuItem = groupMenu.add(Menu.NONE, 0, Menu.NONE, "显示所有");
-                                    menuItem.setIcon(R.drawable.outline_select_all_24);
-                                    itemIdAndGroupNoMap.put(0, -1L);
-
-                                    //遍历添加分组选项
-                                    int index = 1;
-                                    for (TagGroup group : tagGroupListMap.keySet()) {
-                                        menuItem = groupMenu.add(Menu.NONE, index, Menu.NONE, group.getGroupName());
-                                        menuItem.setIcon(R.drawable.outline_tab_group_24);
-
-                                        //将index与groupNo的映射保存到Map中
-                                        itemIdAndGroupNoMap.put(index, group.getGroupNo());
-                                        index++;
-                                    }
-                                },
+                        .subscribe(this::refreshRecyclerView,
                                 e -> {
                                     ExceptionHelper.showExceptionDialog(this, e);
                                     Toast.makeText(this, "标签列表刷新失败", Toast.LENGTH_SHORT).show();
@@ -542,44 +449,6 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
                                     binding.addFloatingBtn.show();
                                 }
                         )
-        );
-    }
-
-    /**
-     * 只刷新RailView
-     */
-    private void refreshRailView() {
-        disposables.add(
-                Observable.fromCallable(() -> TagGroupDataController.getTagGroup(this, -1))
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe(tagGroupList -> {
-                            //先清空
-                            Menu groupMenu = binding.tagGroupNaviRail.getMenu();
-                            groupMenu.clear();
-                            itemIdAndGroupNoMap.clear();
-
-                            //添加“显示所有”
-                            MenuItem menuItem = groupMenu.add(Menu.NONE, 0, Menu.NONE, "显示所有");
-                            menuItem.setIcon(R.drawable.outline_select_all_24);
-                            itemIdAndGroupNoMap.put(0, -1L);
-
-                            //遍历添加选项
-                            int index = 1;
-                            for (TagGroup group : tagGroupList) {
-                                menuItem = groupMenu.add(Menu.NONE, index, Menu.NONE, group.getGroupName());
-                                menuItem.setIcon(R.drawable.outline_tab_group_24);
-
-                                //重新选中当前分组（放在这里是为了让监听器中获得到的groupNo为null，避免重复刷新RecyclerView）
-                                if (currentGroupNo == group.getGroupNo()) {
-                                    binding.tagGroupNaviRail.setSelectedItemId(index);
-                                }
-
-                                //将index与groupNo的映射保存到Map中
-                                itemIdAndGroupNoMap.put(index, group.getGroupNo());
-                                index++;
-                            }
-                        })
         );
     }
 }

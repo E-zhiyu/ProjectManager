@@ -91,14 +91,13 @@ public class TagGroupDataController {
      */
     @NonNull
     public static Map<TagGroup, List<Tag>> loadTagGroup(Context context) throws SQLiteException {
-        return loadTagGroup(context, 0, -1, null);
+        return loadTagGroup(context, 0, null);
     }
 
     /**
      * 加载所有标签分组并排除某个标签
      *
      * @param context       用于打开数据库的上下文
-     * @param targetGroupNo 需要查询单个分组时对应分组的编号（传递-1以忽略该选择条件）
      * @param excludedTagNo 被排除的标签编号（传递0以忽略该选择条件）
      * @param scopeType     标签作用域
      * @return 标签分组字典，并按照分组编号升序排序（k:标签分组，v:标签列表）
@@ -108,14 +107,13 @@ public class TagGroupDataController {
     public static Map<TagGroup, List<Tag>> loadTagGroup(
             Context context,
             long excludedTagNo,
-            long targetGroupNo,
             @Nullable RunningAccountType scopeType
     ) throws SQLiteException {
         BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openReadLink();
 
         //查询所有分组
-        List<TagGroup> groupList = getTagGroup(db, targetGroupNo);
+        List<TagGroup> groupList = getTagGroup(db);
 
         //根据分组编号依次查询组内标签
         Map<TagGroup, List<Tag>> groupMap = new LinkedHashMap<>();
@@ -132,17 +130,16 @@ public class TagGroupDataController {
     /**
      * 获取指定编号的分组实例
      *
-     * @param context       上下文
-     * @param targetGroupNo 分组编号（传递-1不限制分组）
+     * @param context 上下文
      * @return 包含所有标签分组的列表
      * @throws SQLiteException 数据读取失败引发的异常
      */
     @NonNull
-    public static List<TagGroup> getTagGroup(Context context, long targetGroupNo) throws SQLiteException {
+    public static List<TagGroup> getTagGroup(Context context) throws SQLiteException {
         BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openReadLink();
 
-        List<TagGroup> groupList = getTagGroup(db, targetGroupNo);
+        List<TagGroup> groupList = getTagGroup(db);
 
         db.close();
         return groupList;
@@ -151,29 +148,18 @@ public class TagGroupDataController {
     /**
      * 获取指定编号的分组实例
      *
-     * @param db            数据库实例
-     * @param targetGroupNo 分组编号（传递-1不限制分组）
+     * @param db 数据库实例
      * @return 包含所有标签分组的列表
      * @throws SQLiteException 数据读取失败引发的异常
      */
     @NonNull
-    public static List<TagGroup> getTagGroup(@NonNull SQLiteDatabase db, long targetGroupNo) throws SQLiteException {
-        StringBuilder selectionBuilder = new StringBuilder("1=1");
-        List<String> selectionArgs = new ArrayList<>();
-
-        if (targetGroupNo != -1) {
-            selectionBuilder.append(" AND ");
-            selectionBuilder.append(Columns.GROUP_NO);
-            selectionBuilder.append("=?");
-            selectionArgs.add(String.valueOf(targetGroupNo));
-        }
-
+    public static List<TagGroup> getTagGroup(@NonNull SQLiteDatabase db) throws SQLiteException {
         //生成游标
         Cursor groupCursor = db.query(
                 Tables.TAG_GROUP.toString(),
                 null,
-                selectionBuilder.toString(),
-                selectionArgs.toArray(new String[0]),
+                null,
+                null,
                 null,
                 null,
                 Columns.GROUP_NO.toString() //分组编号升序排序

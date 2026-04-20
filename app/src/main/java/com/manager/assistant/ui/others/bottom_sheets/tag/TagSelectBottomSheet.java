@@ -106,7 +106,6 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
                 Observable.fromCallable(() -> TagGroupDataController.loadTagGroup(
                                 requireContext(),
                                 exceptedTagNo,
-                                -1,
                                 tagScopeType
                         ))
                         .subscribeOn(Schedulers.io())
