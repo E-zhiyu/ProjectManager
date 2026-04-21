@@ -14,7 +14,7 @@ import com.manager.assistant.data.classes.TagGroup;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.Tables;
-import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
+import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

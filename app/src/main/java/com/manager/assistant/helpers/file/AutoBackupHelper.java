@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.RecentTaskManager;
 import com.manager.assistant.data.save.preference.AutoBackupPreference;
-import com.manager.assistant.ui.pages.setting.setting_option_views.SettingSwitchView;
+import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingSwitchView;
 import com.manager.assistant.automation.schedulers.BackupScheduler;
 
 public class AutoBackupHelper {

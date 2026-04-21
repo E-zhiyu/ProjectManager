@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.pages.home.HomeFragment">
+    tools:context=".ui.pages.main.home.HomeFragment">
 
     <!-- 主内容布局 -->
     <androidx.constraintlayout.widget.ConstraintLayout

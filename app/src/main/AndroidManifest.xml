@@ -42,19 +42,19 @@
         android:theme="@style/Theme.ManagerAssistant.Static"
         tools:targetApi="33">
         <activity
-            android:name=".ui.pages.setting.sub.DataManageActivity"
+            android:name=".ui.pages.main.setting.sub.DataManageActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.setting.sub.AutoBookkeepingActivity"
+            android:name=".ui.pages.main.setting.sub.AutoBookkeepingActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.setting.sub.PermissionManageActivity"
+            android:name=".ui.pages.main.setting.sub.PermissionManageActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.bookkeeping.budget.BudgetAddModifyActivity"
+            android:name=".ui.pages.budget.BudgetAddModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.bookkeeping.budget.BudgetManageActivity"
+            android:name=".ui.pages.budget.BudgetManageActivity"
             android:exported="false" />
         <activity
             android:name=".ui.pages.picture.FullScreenImageActivity"
@@ -63,34 +63,34 @@
             android:name=".ui.pages.picture.CameraActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.bookkeeping.notification_analysis.package_name_select.PackageNameSelectActivity"
+            android:name=".ui.pages.package_name_select.PackageNameSelectActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.bookkeeping.notification_analysis.rule_edit.RuleAddModifyActivity"
+            android:name=".ui.pages.notification_analysis.RuleAddModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.bookkeeping.notification_analysis.rule_edit.AnalysisRuleManageActivity"
+            android:name=".ui.pages.notification_analysis.AnalysisRuleManageActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.bookkeeping.tag.GroupModifyActivity"
+            android:name=".ui.pages.tag.GroupModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.bookkeeping.tag.TagManageActivity"
+            android:name=".ui.pages.tag.TagManageActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.bookkeeping.tag.TagAddModifyActivity"
+            android:name=".ui.pages.tag.TagAddModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.home.report.ReportActivity"
+            android:name=".ui.pages.report.ReportActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.bookkeeping.running_account.RunningAccountModifyActivity"
+            android:name=".ui.pages.main.bookkeeping.RunningAccountModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.bookkeeping.running_account.RunningAccountAddActivity"
+            android:name=".ui.pages.main.bookkeeping.RunningAccountAddActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.pages.main.MainActivity"
             android:exported="true"
             android:label="@string/title_activity_main">
             <intent-filter>

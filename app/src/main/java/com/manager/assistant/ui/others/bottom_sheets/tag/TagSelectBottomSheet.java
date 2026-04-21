@@ -15,8 +15,8 @@ import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.adapters.SheetTagBtnRecyclerAdapter;
 import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.BaseBottomSheetDialogFragment;
-import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
-import com.manager.assistant.ui.pages.bookkeeping.tag.TagManageActivity;
+import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.ui.pages.tag.TagManageActivity;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;

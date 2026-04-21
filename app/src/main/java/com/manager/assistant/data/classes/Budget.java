@@ -1,6 +1,6 @@
 package com.manager.assistant.data.classes;
 
-import com.manager.assistant.ui.pages.bookkeeping.budget.ResetFrequency;
+import com.manager.assistant.ui.pages.budget.ResetFrequency;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

@@ -31,7 +31,7 @@ import com.manager.assistant.data.classes.AnalysisRule;
 import com.manager.assistant.generic_enums.NotificationID;
 import com.manager.assistant.generic_enums.PendingRequestCode;
 import com.manager.assistant.helpers.NotificationHelper;
-import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
+import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;

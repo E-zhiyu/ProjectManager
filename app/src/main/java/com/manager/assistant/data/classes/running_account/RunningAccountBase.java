@@ -1,6 +1,6 @@
 package com.manager.assistant.data.classes.running_account;
 
-import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
+import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
 
 public abstract class RunningAccountBase {
     protected String title;             //名称
