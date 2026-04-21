@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.bookkeeping.tag;
+package com.manager.assistant.ui.pages.bookkeeping.tag.adapters;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -15,9 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TagAdapter extends RecyclerView.Adapter<TagAdapter.TagViewHolder> {
-    private final List<Tag> tagList = new ArrayList<>();    //数据源列表
-    private final OnClickedListener listener;               //点击监听器
-    private TagGroup group;                                 //标签分组实例
+    private List<Tag> tagList = new ArrayList<>();              //数据源列表
+    private List<Tag> backTagList;                              //用于隐藏ViewHolder的标签列表
+    private final OnClickedListener listener;                   //点击监听器
+    private TagGroup group;                                     //标签分组实例
 
     public static class TagViewHolder extends RecyclerView.ViewHolder {
         ViewHolderTagBinding binding;
@@ -109,6 +110,7 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.TagViewHolder> {
     public void addTag(Tag tag) {
         tagList.add(tag);
         notifyItemInserted(tagList.size() - 1);
+        notifyItemChanged(tagList.size() - 2);  //通知之前的尾部改变圆角
     }
 
     /**
@@ -120,6 +122,7 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.TagViewHolder> {
         int oldCount = this.tagList.size();
         this.tagList.addAll(tagList);
         notifyItemRangeInserted(oldCount, tagList.size());
+        notifyItemChanged(oldCount - 1);        //通知之前的尾部改变圆角
     }
 
     /**
@@ -150,6 +153,7 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.TagViewHolder> {
             if (t.getTno() == tagNo) {
                 tagList.remove(index);
                 notifyItemRemoved(index);
+                notifyItemChanged(tagList.size() - 1);  //通知尾部改变圆角
                 break;
             }
             index++;
@@ -163,5 +167,22 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.TagViewHolder> {
      */
     public void onGroupModified(@NonNull TagGroup group) {
         this.group = group;
+    }
+
+    /**
+     * 切换展开状态
+     *
+     * @param isExpanded 是否展开
+     */
+    public void changeExpandStatue(boolean isExpanded) {
+        if (isExpanded && backTagList != null) {
+            tagList = backTagList;
+            backTagList = null;
+            notifyItemRangeInserted(0, tagList.size());
+        } else if (!isExpanded && tagList != null) {
+            backTagList = tagList;
+            tagList = null;
+            notifyItemRangeRemoved(0, backTagList.size());
+        }
     }
 }

@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 
+import com.manager.assistant.RecentTaskManager;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.about.AboutHelper;
 import com.manager.assistant.generic_enums.DirectoryPaths;
@@ -349,14 +350,14 @@ public class DataIOHelper {
         //获取当前日期和时间并生成默认文件名
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd(HHmmss)");
-        String now_date = formatter.format(now);
-        String targetFileName = String.format(Locale.getDefault(), "ManagerAssistantData_%s.zip", now_date);
+        String nowDate = formatter.format(now);
+        String targetFileName = String.format(Locale.getDefault(), "ManagerAssistantData_%s.zip", nowDate);
 
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("application/zip");
         intent.putExtra(Intent.EXTRA_TITLE, targetFileName);
-        launcher.launch(intent);
+        RecentTaskManager.startExternalActivity(launcher, intent);
 
         Log.d(LogTags.DATA_IO_HELPER.getV(), "SAF启动成功");
     }
@@ -463,7 +464,7 @@ public class DataIOHelper {
             intent.setType("*/*");
             String[] fileTypes = {"application/json", "application/zip"};
             intent.putExtra(Intent.EXTRA_MIME_TYPES, fileTypes);    //限制只能打开JSON和zip文件
-            launcher.launch(intent);
+            RecentTaskManager.startExternalActivity(launcher, intent);
             Log.d(LogTags.DATA_IO_HELPER.getV(), "SAF启动成功");
         } catch (Exception e) {
             ExceptionHelper.showExceptionDialog(context, e);

@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.manager.assistant.RecentTaskManager;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.generic_enums.LogTags;
 
@@ -188,7 +189,7 @@ public class PermissionHelper {
 
         //先处理运行时权限，再处理特殊应用权限
         if (!deniedPermissions.isEmpty()) {
-            runtimeLauncher.launch(deniedPermissions.toArray(new String[0]));
+            runtimeLauncher.launch(deniedPermissions.toArray(new String[0]));   //运行时权限不需要后台隐藏豁免
         } else {
             processNextSpecial();
         }
@@ -198,6 +199,7 @@ public class PermissionHelper {
      * 处理队下一个特殊应用权限
      */
     private void processNextSpecial() {
+        //判断特殊权限是否申请完毕
         if (specialQueue.isEmpty()) {
             Log.i(LogTags.PERMISSION_HELPER.getV(), "特殊应用权限申请完毕");
             return;
@@ -257,7 +259,8 @@ public class PermissionHelper {
                     .setMessage(request.customMessage)
                     .setPositiveButton("去设置", (d, w) -> {
                         isSpecialProcessing = false;    //未直接调用processNextSpecial()，需要标记为未处理
-                        activity.startActivity(type.getIntent(activity));
+
+                        RecentTaskManager.startExternalActivity(activity, type.getIntent(activity));
                     })
                     .setNegativeButton("取消", (d, w) -> processNextSpecial())
                     .setCancelable(false)
@@ -301,9 +304,9 @@ public class PermissionHelper {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         try {
-            // 根据设备厂商跳转到不同的设置页面
+            //根据设备厂商跳转到不同的设置页面
             if (manufacturer.contains("xiaomi")) {
-                // 小米设备
+                //小米设备
                 intent.setComponent(new ComponentName(
                         "com.miui.securitycenter",
                         "com.miui.permcenter.autostart.AutoStartManagementActivity"));
@@ -312,11 +315,13 @@ public class PermissionHelper {
                 intent.setAction(Settings.ACTION_SETTINGS);
                 Toast.makeText(context, "请前往自启动管理页进行授权", Toast.LENGTH_SHORT).show();
             }
-            context.startActivity(intent);
+            RecentTaskManager.startExternalActivity(context, intent);
         } catch (Exception e) {
             //如果出现异常，跳转到设置
             intent.setAction(Settings.ACTION_SETTINGS);
             intent.setData(Uri.fromParts("package", context.getPackageName(), null));
+            Toast.makeText(context, "请前往自启动管理页进行授权", Toast.LENGTH_SHORT).show();
+            RecentTaskManager.startExternalActivity(context, intent);
         }
     }
 }

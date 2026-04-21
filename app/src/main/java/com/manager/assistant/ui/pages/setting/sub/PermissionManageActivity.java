@@ -24,6 +24,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
+import com.manager.assistant.RecentTaskManager;
 import com.manager.assistant.databinding.ActivityPermissionManageBinding;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
@@ -254,6 +255,6 @@ public class PermissionManageActivity extends AppCompatActivity {
         }
 
         permissionIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(permissionIntent);
+        RecentTaskManager.startExternalActivity(this, permissionIntent);
     }
 }

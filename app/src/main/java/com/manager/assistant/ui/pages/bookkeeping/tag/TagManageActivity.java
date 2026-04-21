@@ -26,6 +26,8 @@ import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.classes.TagGroup;
 import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
+import com.manager.assistant.ui.pages.bookkeeping.tag.adapters.TagAdapter;
+import com.manager.assistant.ui.pages.bookkeeping.tag.adapters.TagGroupAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -120,21 +122,13 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
     @Override
     public void onExpandStatueChanged(long groupNo, boolean isExpanded) {
         //获取下标和适配器容器
-        int index = 0;
-        for (Map.Entry<Long, AdapterContainer> entry : adapterContainerMap.entrySet()) {
-            long key = entry.getKey();
-            if (key == groupNo) {
-                AdapterContainer container = entry.getValue();
-
-                if (isExpanded) {
-                    adapter.addAdapter(index * 2 + 1, container.tagAdapter);
-                } else {
-                    adapter.removeAdapter(container.tagAdapter);
-                }
-                break;
-            }
-            index++;
+        AdapterContainer container = adapterContainerMap.get(groupNo);
+        if (container == null) {
+            return;
         }
+
+        //通知适配器折叠或展开标签
+        container.tagAdapter.changeExpandStatue(isExpanded);
     }
 
     //初始化视图
@@ -408,17 +402,6 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
                 container.groupAdapter.onGroupModified(newGroup);
                 container.tagAdapter.onGroupModified(newGroup);
             }
-
-            //更新RailView中的选项Title
-//            for (Map.Entry<Integer, Long> entry : itemIdAndGroupNoMap.entrySet()) {
-//                int itemIndex = entry.getKey();     //MenuItem的Id就是下标
-//                long mapGroupNo = entry.getValue();
-//                if (mapGroupNo == groupNo) {
-//                    Menu railMenu = binding.tagGroupNaviRail.getMenu();
-//                    railMenu.getItem(itemIndex).setTitle(newGroupName);
-//                    break;
-//                }
-//            }
         } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
             //删除Recycler中对应的适配器
             AdapterContainer container = adapterContainerMap.get(groupNo);
