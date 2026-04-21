@@ -191,7 +191,7 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
             TagGroup group = entry.getKey();
             List<Tag> tagList = entry.getValue();
 
-            TagGroupAdapter groupAdapter = new TagGroupAdapter(group, this);
+            TagGroupAdapter groupAdapter = new TagGroupAdapter(group, tagList.size(), this);
             TagAdapter tagAdapter = new TagAdapter(group, tagList, this);
 
             adapter.addAdapter(groupAdapter);
@@ -281,14 +281,19 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
         AdapterContainer container = adapterContainerMap.get(groupNo);
         if (container != null) {
             container.tagAdapter.addTag(newTag);
-        } else {
-            //添加新分组
-            TagGroup newGroup = new TagGroup(groupName, groupNo);
-            TagGroupAdapter groupAdapter = new TagGroupAdapter(newGroup, this);
 
-            //添加新标签Adapter
+            //更新分组适配器中保存的标签数量
+            int currentTagCount = container.tagAdapter.getItemCount();
+            container.groupAdapter.onTagCountChanged(currentTagCount);
+        } else {
             List<Tag> tagList = new ArrayList<>();
             tagList.add(new Tag(tagName, tagNo, tagScope));
+
+            //添加新分组
+            TagGroup newGroup = new TagGroup(groupName, groupNo);
+            TagGroupAdapter groupAdapter = new TagGroupAdapter(newGroup, tagList.size(), this);
+
+            //添加新标签Adapter
             TagAdapter tagAdapter = new TagAdapter(newGroup, tagList, this);
 
             //添加到RecyclerView中
@@ -337,20 +342,29 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
                 AdapterContainer oldContainer = adapterContainerMap.get(oldGroupNo);
                 if (oldContainer != null) {
                     oldContainer.tagAdapter.deleteTag(tagNo);
+
+                    //更新分组适配器中保存的标签数量
+                    int currentTagCount = oldContainer.tagAdapter.getItemCount();
+                    oldContainer.groupAdapter.onTagCountChanged(currentTagCount);
                 }
 
                 //新分组中添加标签
                 AdapterContainer newContainer = adapterContainerMap.get(newGroupNo);
                 if (newContainer != null) {
                     newContainer.tagAdapter.addTag(new Tag(tagName, tagNo, tagScope));
-                } else {
-                    //添加新分组
-                    TagGroup newGroup = new TagGroup(groupName, newGroupNo);
-                    TagGroupAdapter groupAdapter = new TagGroupAdapter(newGroup, this);
 
-                    //添加新标签Adapter
+                    //更新分组适配器中保存的标签数量
+                    int currentTagCount = newContainer.tagAdapter.getItemCount();
+                    newContainer.groupAdapter.onTagCountChanged(currentTagCount);
+                } else {
                     List<Tag> tagList = new ArrayList<>();
                     tagList.add(new Tag(tagName, tagNo, tagScope));
+
+                    //添加新分组
+                    TagGroup newGroup = new TagGroup(groupName, newGroupNo);
+                    TagGroupAdapter groupAdapter = new TagGroupAdapter(newGroup, tagList.size(), this);
+
+                    //添加新标签Adapter
                     TagAdapter tagAdapter = new TagAdapter(newGroup, tagList, this);
 
                     //添加到RecyclerView中
@@ -364,11 +378,19 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
             AdapterContainer container = adapterContainerMap.get(oldGroupNo);
             if (container != null) {
                 container.tagAdapter.deleteTag(tagNo);
+
+                //更新分组适配器中保存的标签数量
+                int currentTagCount = container.tagAdapter.getItemCount();
+                container.groupAdapter.onTagCountChanged(currentTagCount);
             }
         } else if (resultCode == RequestResultCode.RESULT_MERGE.ordinal()) {
             AdapterContainer container = adapterContainerMap.get(oldGroupNo);
             if (container != null) {
                 container.tagAdapter.deleteTag(tagNo);
+
+                //更新分组适配器中保存的标签数量
+                int currentTagCount = container.tagAdapter.getItemCount();
+                container.groupAdapter.onTagCountChanged(currentTagCount);
             }
         }
     }
@@ -426,6 +448,10 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
             AdapterContainer newContainer = adapterContainerMap.get(mergeTargetNo);
             if (newContainer != null) {
                 newContainer.tagAdapter.addTag(tagList);
+
+                //更新分组适配器中保存的标签数量
+                int currentTagCount = newContainer.tagAdapter.getItemCount();
+                newContainer.groupAdapter.onTagCountChanged(currentTagCount);
             }
         }
     }
