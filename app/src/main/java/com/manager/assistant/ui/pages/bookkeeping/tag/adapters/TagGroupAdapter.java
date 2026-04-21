@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.bookkeeping.tag;
+package com.manager.assistant.ui.pages.bookkeeping.tag.adapters;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
