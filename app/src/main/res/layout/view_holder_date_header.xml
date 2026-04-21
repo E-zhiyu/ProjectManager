@@ -5,7 +5,7 @@
     android:layout_height="wrap_content">
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/header_title"
+        android:id="@+id/date_text"
         style="@style/MediumTitleTextViewStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

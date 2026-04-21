@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +18,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ConcatAdapter;
 
 import com.google.android.material.search.SearchView;
+import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.ui.pages.main.MainActivity;
 import com.manager.assistant.R;
 import com.manager.assistant.data.controllers.AccountDataController;
@@ -35,6 +38,8 @@ import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.file.PictureFileHelper;
 import com.manager.assistant.ui.others.adapters.SearchHistoryAdapter;
+import com.manager.assistant.ui.pages.main.bookkeeping.adapters.AccountAdapter;
+import com.manager.assistant.ui.pages.main.bookkeeping.adapters.DateHeaderAdapter;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
 import com.manager.assistant.ui.sync.account.RunningAccountRepository;
 import com.manager.assistant.ui.others.bottom_sheets.filter.AccountFilterBottomSheet;
@@ -42,25 +47,38 @@ import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class BookKeepingFragment extends Fragment {
-    private AccountAdapter accountAdapter;                  //流水列表适配器
+public class BookKeepingFragment extends Fragment implements AccountAdapter.OnViewClickListener {
+    private ConcatAdapter adapter;                          //流水列表适配器
+    private final Map<String, AdapterContainer> adapterContainerMap = new LinkedHashMap<>();    //适配器引用Map
     private ActivityResultLauncher<Intent> accountAddLauncher, accountModifyLauncher;   //子活动启动器
     private int accountCount;                               //流水记录数量
     private FragmentBookkeepingBinding binding;             //绑定的XML视图
     private AccountUpdatedReceiver accountUpdatedReceiver;  //流水数据更新的广播接收器
-    private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
+    private final CompositeDisposable disposables = new CompositeDisposable();  //订阅列表（便于取消订阅）
     private AccountFilterBottomSheet.FilterSetting filterSetting = new AccountFilterBottomSheet.FilterSetting();    //过滤器设置
     private String searchText = "";                         //搜索文本，用于搜索流水备注
-    private SearchView.TransitionListener transitionListener;   //SearchView的变化监听器
+    private SearchView.TransitionListener searchViewTransitionListener;         //SearchView的变化监听器
     private TextWatcher searchTextWatcher;                  //搜索文本变化监听器
+
+    static class AdapterContainer {
+        DateHeaderAdapter headerAdapter;
+        AccountAdapter accountAdapter;
+
+        public AdapterContainer(DateHeaderAdapter headerAdapter, AccountAdapter accountAdapter) {
+            this.headerAdapter = headerAdapter;
+            this.accountAdapter = accountAdapter;
+        }
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
@@ -80,12 +98,20 @@ public class BookKeepingFragment extends Fragment {
                     AccountUpdateReason reason = accountRepository.getUpdateReason();
                     switch (reason) {
                         case CLEAR:
+                            //清零计数文本
                             accountCount = 0;
                             refreshAccountNumText();
-                            accountAdapter.refreshRunningAccount(new ArrayList<>());
+
+                            //清除适配器及其引用
+                            for (Map.Entry<String, AdapterContainer> entry : adapterContainerMap.entrySet()) {
+                                AdapterContainer adapterContainer = entry.getValue();
+                                adapter.removeAdapter(adapterContainer.headerAdapter);
+                                adapter.removeAdapter(adapterContainer.accountAdapter);
+                            }
+                            adapterContainerMap.clear();
                             break;
                         case REFRESH:
-                            refreshAccountRecycler();
+                            refreshUI();
                             break;
                     }
                 }
@@ -111,8 +137,8 @@ public class BookKeepingFragment extends Fragment {
             MainActivity mainActivity = (MainActivity) requireActivity();
             mainActivity.binding.searchView.setupWithSearchBar(null);                           //消除与SearchBar的绑定
             mainActivity.binding.searchView.getEditText().setOnEditorActionListener(null);      //销毁搜索监听
-            if (transitionListener != null) {
-                mainActivity.binding.searchView.removeTransitionListener(transitionListener);   //销毁transitionListener
+            if (searchViewTransitionListener != null) {
+                mainActivity.binding.searchView.removeTransitionListener(searchViewTransitionListener);   //销毁transitionListener
             }
             mainActivity.binding.clearHistoryBtn.setOnClickListener(null);                      //销毁清空历史按钮点击监听
             mainActivity.binding.searchHistoryRecycler.setAdapter(null);                        //清除适配器
@@ -125,7 +151,8 @@ public class BookKeepingFragment extends Fragment {
      *
      * @param runningAccount 点击的流水数据实例
      */
-    public void onRunningAccountViewClick(@NonNull RunningAccountBase runningAccount) {
+    @Override
+    public void onRunningAccountClick(@NonNull RunningAccountBase runningAccount) {
         PictureFileHelper.clearTempPictureDir(requireContext());    //清理临时图片目录防止残留干扰
 
         Intent skip2RunningAccountModify = new Intent(requireContext(), RunningAccountModifyActivity.class);
@@ -207,7 +234,7 @@ public class BookKeepingFragment extends Fragment {
                     filterSetting,
                     setting -> {
                         filterSetting = setting != null ? setting : new AccountFilterBottomSheet.FilterSetting();
-                        refreshAccountRecycler();
+                        refreshUI();
                     });
             filterBottomSheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
             filterBottomSheet.setOnDismissListener(() -> binding.filterSelectBtn.setChecked(false));
@@ -220,18 +247,96 @@ public class BookKeepingFragment extends Fragment {
         int colorBackground = ColorHelper.getBackgroundColor(requireContext());
         binding.refreshLayout.setProgressBackgroundColorSchemeColor(colorBackground);
 
-        //设置适配器
-        accountAdapter = new AccountAdapter(this::onRunningAccountViewClick);
-        binding.accountRecycler.setAdapter(accountAdapter);
+        //流水记录RecyclerView
+        adapter = new ConcatAdapter();
+        binding.accountRecycler.setAdapter(adapter);
+        refreshUI();
 
         //设置浮动按钮隐藏行为
         AppearanceAnimationHelper.setupFloatingBtnBehaviour(binding.accountRecycler, binding.addFloatingBtn);
 
         //设置下拉刷新布局的监听器
-        binding.refreshLayout.setOnRefreshListener(this::refreshAccountRecycler);
+        binding.refreshLayout.setOnRefreshListener(this::refreshUI);
 
         //加载流水记录
-        refreshAccountRecycler();
+        refreshUI();
+    }
+
+    /**
+     * 刷新流水记录列表
+     *
+     * @param accountListMap 按照日期分类的流水记录数据（k:流水日期，v:该日期内的流水记录列表）
+     */
+    private void refreshRecyclerView(@NonNull Map<String, List<RunningAccountBase>> accountListMap) {
+        //清除适配器及其引用
+        for (Map.Entry<String, AdapterContainer> entry : adapterContainerMap.entrySet()) {
+            AdapterContainer adapterContainer = entry.getValue();
+            adapter.removeAdapter(adapterContainer.headerAdapter);
+            adapter.removeAdapter(adapterContainer.accountAdapter);
+        }
+        adapterContainerMap.clear();
+
+        //根据数据源是否为空显示空状态提示文本
+        if (accountListMap.isEmpty()) {
+            binding.emptyTipText.setVisibility(View.VISIBLE);
+            return;
+        } else {
+            binding.emptyTipText.setVisibility(View.GONE);
+        }
+
+        //添加适配器到RecyclerView中
+        for (Map.Entry<String, List<RunningAccountBase>> entry : accountListMap.entrySet()) {
+            String date = entry.getKey();
+            List<RunningAccountBase> accountList = entry.getValue();
+
+            //实例化适配器并添加到RecyclerView中
+            DateHeaderAdapter headerAdapter = new DateHeaderAdapter(date);
+            adapter.addAdapter(headerAdapter);
+            AccountAdapter accountAdapter = new AccountAdapter(accountList, this);
+            adapter.addAdapter(accountAdapter);
+
+            //保存适配器引用
+            AdapterContainer container = new AdapterContainer(headerAdapter, accountAdapter);
+            adapterContainerMap.put(date, container);
+        }
+    }
+
+    /**
+     * 刷新流水记录数量文本
+     */
+    private void refreshAccountNumText() {
+        binding.accountNumText.setText(String.format(Locale.getDefault(), "显示数量：%d", accountCount));
+    }
+
+    /**
+     * 刷新UI方法
+     */
+    private void refreshUI() {
+        binding.refreshLayout.setRefreshing(true);
+        disposables.add(
+                Observable.fromCallable(() -> AccountDataController.loadRunningAccountData(filterSetting, searchText, requireContext()))
+                        .subscribeOn(Schedulers.io())               //在IO线程执行查询
+                        .observeOn(AndroidSchedulers.mainThread())  //切换到主线程更新 UI
+                        .subscribe(
+                                accountListMap -> {
+                                    //刷新RecyclerView
+                                    refreshRecyclerView(accountListMap);
+
+                                    //刷新数量文本
+                                    accountCount = accountListMap.size();
+                                    refreshAccountNumText();
+                                },  //成功回调
+                                e -> {
+                                    ExceptionHelper.showExceptionDialog(requireContext(), e);
+                                    binding.refreshLayout.setRefreshing(false);
+                                    binding.accountNumText.setText(R.string.count_infinity);
+                                },  //错误处理
+                                () -> {
+                                    binding.refreshLayout.setRefreshing(false);
+                                    binding.addFloatingBtn.show();
+                                }
+                        )
+        );
     }
 
     /**
@@ -250,7 +355,7 @@ public class BookKeepingFragment extends Fragment {
                 binding.remarkSearchBar.setText(keyWord);
 
                 //刷新UI
-                refreshAccountRecycler();
+                refreshUI();
 
                 //隐藏SearchView
                 mainActivity.binding.searchView.hide();
@@ -283,7 +388,7 @@ public class BookKeepingFragment extends Fragment {
             searchViewAdapter.refreshSearchHistory(historyList);
 
             //设置显示监听，用于初始化常用词与清空提示词按钮
-            transitionListener = (searchView, previousState, newState) -> {
+            searchViewTransitionListener = (searchView, previousState, newState) -> {
                 //显示时执行的动作
                 if (newState == SearchView.TransitionState.SHOWING) {
                     List<String> searchHistoryList = SearchHistoryPreference.getHistory(
@@ -293,7 +398,7 @@ public class BookKeepingFragment extends Fragment {
                     searchViewAdapter.refreshSearchHistory(searchHistoryList);
                 }
             };
-            mainActivity.binding.searchView.addTransitionListener(transitionListener);
+            mainActivity.binding.searchView.addTransitionListener(searchViewTransitionListener);
 
             //设置清除搜索历史按钮点击监听
             mainActivity.binding.clearHistoryBtn.setOnClickListener(v -> {
@@ -322,7 +427,7 @@ public class BookKeepingFragment extends Fragment {
                     if (s.length() == 0) {
                         searchText = "";
                         binding.remarkSearchBar.setText("");
-                        refreshAccountRecycler();
+                        refreshUI();
                     }
                 }
             };
@@ -356,7 +461,7 @@ public class BookKeepingFragment extends Fragment {
                     }
 
                     //刷新视图
-                    refreshAccountRecycler();
+                    refreshUI();
 
                     //隐藏SearchView
                     mainActivity.binding.searchView.hide();
@@ -388,8 +493,22 @@ public class BookKeepingFragment extends Fragment {
      *
      * @param dataBundle 新增流水记录的数据
      */
-    private void onNewAccountAdded(Bundle dataBundle) {
-        accountAdapter.addNewRunningAccountAutomatically(dataBundle);
+    private void onNewAccountAdded(@NonNull Bundle dataBundle) {
+        //获取日期
+        String dateTime = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
+        if (dateTime == null) {
+            return;
+        }
+        String date = dateTime.substring(0, 10);
+
+        //获取对应的适配器
+        AdapterContainer container = adapterContainerMap.get(date);
+        if (container == null) {
+            return;
+        }
+
+        //通过适配器更新Recycler
+        container.accountAdapter.addRunningAccount(dataBundle);
         binding.accountRecycler.scrollToPosition(0);
         Toast.makeText(requireContext(), "成功添加一条流水记录（自动记账）", Toast.LENGTH_SHORT).show();
 
@@ -403,16 +522,42 @@ public class BookKeepingFragment extends Fragment {
      * @param resultIntent 包含流水数据的意图对象
      */
     private void onNewAccountAdded(@NonNull Intent resultIntent) {
+        //获取日期
         Bundle dataBundle = resultIntent.getExtras();
         if (dataBundle == null) {
-            NullPointerException e = new NullPointerException("无法获取新建的流水数据");
-            ExceptionHelper.showExceptionDialog(requireContext(), e);
+            Log.e(LogTags.ACCOUNT_FRAGMENT.getV(), "无法获取流水数据");
             return;
         }
+        String dateTime = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
+        if (dateTime == null) {
+            return;
+        }
+        String date = dateTime.substring(0, 10);
 
-        accountAdapter.addNewRunningAccount(dataBundle);
-        binding.accountRecycler.scrollToPosition(0);    //滚动到顶部
+        //获取对应的适配器
+        AdapterContainer container = adapterContainerMap.get(date);
+        if (container == null) {
+            //实例化适配器并添加到界面中
+            DateHeaderAdapter headerAdapter = new DateHeaderAdapter(date);
+            AccountAdapter accountAdapter = new AccountAdapter(new ArrayList<>(), this);
+            adapter.addAdapter(0, accountAdapter);
+            adapter.addAdapter(0, headerAdapter);
+
+            //保存引用
+            container = new AdapterContainer(headerAdapter, accountAdapter);
+            adapterContainerMap.put(date, container);
+        }
+
+        //通过适配器更新Recycler
+        container.accountAdapter.addRunningAccount(dataBundle);
+        binding.accountRecycler.scrollToPosition(0);
         Toast.makeText(requireContext(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
+
+        //更新主页报表
+        double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue());
+        RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
+        RunningAccountRepository accountRepository = RunningAccountRepository.getInstance();
+        accountRepository.onAccountUpdated(amount, dateTime, type, AccountUpdateReason.ADD);
 
         //更新记录数量
         accountCount++;
@@ -427,13 +572,56 @@ public class BookKeepingFragment extends Fragment {
     private void onAccountModified(@NonNull Intent resultIntent) {
         Bundle dataBundle = resultIntent.getExtras();
         if (dataBundle == null) {
-            NullPointerException e = new NullPointerException("无法获取修改后的流水数据");
-            ExceptionHelper.showExceptionDialog(requireContext(), e);
+            Log.e(LogTags.ACCOUNT_FRAGMENT.getV(), "无法获取流水数据");
             return;
         }
+        String oldDateTime = dataBundle.getString(KeyValueStrings.ACCOUNT_OLD_DATETIME.getValue());
+        String newDateTime = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
+        if (newDateTime == null || oldDateTime == null) {
+            return;
+        }
+        String newDate = newDateTime.substring(0, 10);
+        String oldDate = oldDateTime.substring(0, 10);
 
-        accountAdapter.modifyRunningAccount(dataBundle);
+        //通过适配器更新Recycler
+        if (!newDate.equals(oldDate)) {
+            AdapterContainer newContainer = adapterContainerMap.get(newDate);
+            AdapterContainer oldContainer = adapterContainerMap.get(oldDate);
+            if (newContainer == null && oldContainer == null) {
+                return;
+            }
+
+            if (newContainer != null) {
+                newContainer.accountAdapter.addRunningAccount(dataBundle);
+            }
+            if (oldContainer != null) {
+                long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
+                oldContainer.accountAdapter.deleteRunningAccount(rno);
+
+                //如果删除后为空，则删除整个适配器
+                if (oldContainer.accountAdapter.getItemCount() == 0) {
+                    adapter.removeAdapter(oldContainer.headerAdapter);
+                    adapter.removeAdapter(oldContainer.accountAdapter);
+
+                    //移除引用
+                    adapterContainerMap.remove(oldDate);
+                }
+            }
+        } else {
+            AdapterContainer container = adapterContainerMap.get(newDate);
+            if (container == null) {
+                return;
+            }
+
+            container.accountAdapter.modifyRunningAccount(dataBundle);
+        }
         Toast.makeText(requireContext(), "成功修改流水记录", Toast.LENGTH_SHORT).show();
+
+        //更新主页报表
+        double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue());
+        RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
+        RunningAccountRepository accountRepository = RunningAccountRepository.getInstance();
+        accountRepository.onAccountUpdated(amount, newDateTime, type, AccountUpdateReason.MODIFIED);
     }
 
     /**
@@ -441,60 +629,44 @@ public class BookKeepingFragment extends Fragment {
      */
     private void onAccountDeleted(@NonNull Intent resultIntent) {
         Bundle dataBundle = resultIntent.getExtras();
-
         if (dataBundle == null) {
-            NullPointerException e = new NullPointerException("无法获取流水记录下标");
-            ExceptionHelper.showExceptionDialog(requireContext(), e);
+            Log.e(LogTags.ACCOUNT_FRAGMENT.getV(), "无法获取流水数据");
+            return;
+        }
+        String dateTime = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
+        if (dateTime == null) {
+            return;
+        }
+        String date = dateTime.substring(0, 10);
+
+        //获取对应的适配器
+        AdapterContainer container = adapterContainerMap.get(date);
+        if (container == null) {
             return;
         }
 
+        //通过适配器更新Recycler
         long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue(), -1);
-        accountAdapter.deleteRunningAccount(rno);
+        container.accountAdapter.deleteRunningAccount(rno);
         Toast.makeText(requireContext(), "流水记录已删除", Toast.LENGTH_SHORT).show();
+
+        //如果删除后为空，则删除整个适配器
+        if (container.accountAdapter.getItemCount() == 0) {
+            adapter.removeAdapter(container.headerAdapter);
+            adapter.removeAdapter(container.accountAdapter);
+
+            //移除引用
+            adapterContainerMap.remove(date);
+        }
+
+        //更新主页报表
+        double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue());
+        RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
+        RunningAccountRepository accountRepository = RunningAccountRepository.getInstance();
+        accountRepository.onAccountUpdated(amount, dateTime, type, AccountUpdateReason.DELETE);
 
         //更新流水记录数量文本
         accountCount--;
         refreshAccountNumText();
-    }
-
-    /**
-     * 刷新流水记录数量文本
-     */
-    private void refreshAccountNumText() {
-        binding.accountNumText.setText(String.format(Locale.getDefault(), "显示数量：%d", accountCount));
-    }
-
-    /**
-     * 刷新UI方法
-     */
-    private void refreshAccountRecycler() {
-        binding.refreshLayout.setRefreshing(true);
-        disposables.add(
-                Observable.fromCallable(() -> AccountDataController.loadRunningAccountData(filterSetting, searchText, requireContext()))
-                        .subscribeOn(Schedulers.io())               //在IO线程执行查询
-                        .observeOn(AndroidSchedulers.mainThread())  //切换到主线程更新 UI
-                        .subscribe(
-                                refreshedAccount -> {
-                                    accountAdapter.refreshRunningAccount(refreshedAccount);
-                                    accountCount = refreshedAccount.size();
-                                    refreshAccountNumText();
-
-                                    if (refreshedAccount.isEmpty()) {
-                                        binding.emptyTipText.setVisibility(View.VISIBLE);
-                                    } else {
-                                        binding.emptyTipText.setVisibility(View.GONE);
-                                    }
-                                },  //成功回调
-                                e -> {
-                                    ExceptionHelper.showExceptionDialog(requireContext(), e);
-                                    binding.refreshLayout.setRefreshing(false);
-                                    binding.accountNumText.setText(R.string.count_infinity);
-                                },  //错误处理
-                                () -> {
-                                    binding.refreshLayout.setRefreshing(false);
-                                    binding.addFloatingBtn.show();
-                                }
-                        )
-        );
     }
 }

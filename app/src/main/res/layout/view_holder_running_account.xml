@@ -20,7 +20,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@string/remark"
-            app:layout_constraintBottom_toTopOf="@+id/type_datetime_textview"
+            app:layout_constraintBottom_toTopOf="@+id/type_datetime_text"
             app:layout_constraintEnd_toStartOf="@id/amount_text"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="parent"
@@ -28,7 +28,7 @@
             app:layout_constraintVertical_chainStyle="packed" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/type_datetime_textview"
+            android:id="@+id/type_datetime_text"
             style="@style/MediumBodyTextViewStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

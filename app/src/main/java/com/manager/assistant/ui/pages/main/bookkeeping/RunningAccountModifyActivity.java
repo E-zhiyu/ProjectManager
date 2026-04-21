@@ -41,6 +41,7 @@ import java.util.Locale;
 
 public class RunningAccountModifyActivity extends AppCompatActivity {
     private RunningAccountType type = null;                         //流水种类
+    private String oldDateTime;                                     //修改前的日期和时间
     private long rno;                                               //流水编号
     private ActivityRunningAccountModifyBinding binding;            //绑定的XML视图引用
 
@@ -127,6 +128,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
         Bundle dataBundle = getIntent().getExtras();
         if (dataBundle != null) {
             type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
+            oldDateTime = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
             rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
         } else {
             NullPointerException e = new NullPointerException("编辑流水时无法读取原有的数据");
@@ -224,6 +226,7 @@ public class RunningAccountModifyActivity extends AppCompatActivity {
 
         dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());     //流水种类
         dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);                     //流水编号
+        dataBundle.putString(KeyValueStrings.ACCOUNT_OLD_DATETIME.getValue(), oldDateTime); //修改前的日期和时间
 
         return dataBundle;
     }
