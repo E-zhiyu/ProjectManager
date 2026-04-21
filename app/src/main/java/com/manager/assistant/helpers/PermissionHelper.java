@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.generic_enums.LogTags;
 
@@ -198,10 +199,15 @@ public class PermissionHelper {
      * 处理队下一个特殊应用权限
      */
     private void processNextSpecial() {
+        //判断特殊权限是否申请完毕
         if (specialQueue.isEmpty()) {
             Log.i(LogTags.PERMISSION_HELPER.getV(), "特殊应用权限申请完毕");
             return;
         }
+
+        //豁免一次后台隐藏
+        ManagerAssistant app = (ManagerAssistant) activity.getApplication();
+        app.exemptionHideRecentOnce();
 
         //从队列中取出一个特殊应用权限请求
         Log.d(LogTags.PERMISSION_HELPER.getV(), "正在处理下个特殊应用权限");

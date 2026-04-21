@@ -22,6 +22,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.R;
 import com.manager.assistant.automation.schedulers.BackupScheduler;
 import com.manager.assistant.data.io.helpers.AnalysisRuleDataHelper;
@@ -245,7 +246,13 @@ public class DataManageActivity extends AppCompatActivity {
                 R.drawable.outline_file_export_24,
                 SettingOptionViewBase.RadiusStyle.TOP
         );
-        exportDataOption.setFunctionListener(v -> exportData());
+        exportDataOption.setFunctionListener(v -> {
+            //豁免一次后台隐藏
+            ManagerAssistant app = (ManagerAssistant) getApplication();
+            app.exemptionHideRecentOnce();
+
+            exportData();
+        });
 
         //导入数据
         SettingClickableTextView importDataOption = new SettingClickableTextView(
@@ -256,7 +263,13 @@ public class DataManageActivity extends AppCompatActivity {
                 R.drawable.outline_download_24,
                 SettingOptionViewBase.RadiusStyle.MIDDLE
         );
-        importDataOption.setFunctionListener(v -> importData());
+        importDataOption.setFunctionListener(v -> {
+            //豁免一次后台隐藏
+            ManagerAssistant app = (ManagerAssistant) getApplication();
+            app.exemptionHideRecentOnce();
+
+            importData();
+        });
 
         //清空流水数据
         SettingClickableTextView clearRunningAccountOption = new SettingClickableTextView(
@@ -366,9 +379,13 @@ public class DataManageActivity extends AppCompatActivity {
                 R.drawable.outline_folder_data_24,
                 SettingOptionViewBase.RadiusStyle.BOTTOM
         );
-        backupDirectoryOption.setFunctionListener(
-                v -> autoBackupHelper.selectBackupDirectory(backupDirectorySetLauncher)
-        );
+        backupDirectoryOption.setFunctionListener(v -> {
+            //豁免一次后台隐藏
+            ManagerAssistant app = (ManagerAssistant) getApplication();
+            app.exemptionHideRecentOnce();
+
+            autoBackupHelper.selectBackupDirectory(backupDirectorySetLauncher);
+        });
         String uriStr = AutoBackupPreference.getBackupDirectoryUri(this);
         if (!uriStr.isEmpty()) {
             String path = UriPathHelper.getDisplayPathFromSAFUri(this, Uri.parse(uriStr));
@@ -745,9 +762,13 @@ public class DataManageActivity extends AppCompatActivity {
                     .setMessage("该功能需要先设置备份文件存储目录，请点击“确定”按钮设置存储目录")
                     .setNegativeButton("取消", (dialog, which) -> dialog.cancel())
                     .setPositiveButton("确定",
-                            (dialog, which) -> autoBackupHelper.selectBackupDirectory(
-                                    backupDirectorySetLauncher
-                            )
+                            (dialog, which) -> {
+                                //豁免一次后台隐藏
+                                ManagerAssistant app = (ManagerAssistant) getApplication();
+                                app.exemptionHideRecentOnce();
+
+                                autoBackupHelper.selectBackupDirectory(backupDirectorySetLauncher);
+                            }
                     );
 
             builder.setOnCancelListener(dialog -> {

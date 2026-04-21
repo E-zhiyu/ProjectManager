@@ -23,6 +23,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textview.MaterialTextView;
+import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.R;
 import com.manager.assistant.databinding.ActivityPermissionManageBinding;
 import com.manager.assistant.helpers.PermissionHelper;
@@ -155,7 +156,13 @@ public class PermissionManageActivity extends AppCompatActivity {
                         R.string.auto_start_permission,
                         "该权限是定制安卓中特有的权限，其允许应用在后台启动服务，应用范围如下：\n" +
                                 "- 在退出应用后自动启动通知监听服务，确保自动记账功能能够运行\n",
-                        () -> PermissionHelper.requestAutoStartPermission(this)
+                        () -> {
+                            //豁免一次后台隐藏
+                            ManagerAssistant app = (ManagerAssistant) getApplication();
+                            app.exemptionHideRecentOnce();
+
+                            PermissionHelper.requestAutoStartPermission(this);
+                        }
                 )
         );
 
@@ -192,6 +199,10 @@ public class PermissionManageActivity extends AppCompatActivity {
                 "该权限允许应用执行某些定时任务，以实现一些自动化功能，应用范围如下：\n" +
                         "- 每日0点自动检查并重置预算\n",
                 () -> {
+                    //豁免一次后台隐藏
+                    ManagerAssistant app = (ManagerAssistant) getApplication();
+                    app.exemptionHideRecentOnce();
+
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         requestSpecialPermission(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, true);
                     } else {
@@ -246,6 +257,10 @@ public class PermissionManageActivity extends AppCompatActivity {
      * @param needPackageUri 是否需要在构建Intent的时候添加package:开头的Uri，以便直接跳转到该应用的设置界面
      */
     private void requestSpecialPermission(String permission, boolean needPackageUri) {
+        //豁免一次后台隐藏
+        ManagerAssistant app = (ManagerAssistant) getApplication();
+        app.exemptionHideRecentOnce();
+
         Intent permissionIntent;
         if (needPackageUri) {
             permissionIntent = new Intent(permission, Uri.parse("package:" + getPackageName()));

@@ -11,6 +11,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.R;
 import com.manager.assistant.automation.broadcast.BroadcastActions;
 import com.manager.assistant.data.io.helpers.AnalysisRuleDataHelper;
@@ -79,9 +80,13 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
 
         //开关左侧文本长按功能
         notificationAnalysisSwitchOption.setOnLongClickListener(v -> {
+            //豁免一次后台隐藏
+            ManagerAssistant app = (ManagerAssistant) getApplication();
+            app.exemptionHideRecentOnce();
+
             Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            this.startActivity(intent);
+            startActivity(intent);
             return true;
         });
 
@@ -224,14 +229,14 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                         //申请通知监听权限
                         Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        this.startActivity(intent);
+                        startActivity(intent);
                     })
                     .setNegativeButton("取消", null)
                     .show();
         } else {
             //发送功能开关变更广播
             Intent functionSwitched = new Intent(BroadcastActions.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString());
-            this.sendBroadcast(functionSwitched);
+            sendBroadcast(functionSwitched);
         }
     }
 }

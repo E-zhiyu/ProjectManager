@@ -31,8 +31,9 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class ManagerAssistant extends Application {
-    private int foregroundActivities = 0; // 前台 Activity 数量
-    private WeakReference<Activity> rootActivityRef; // 任务根 Activity 引用
+    private int foregroundActivities = 0;               // 前台 Activity 数量
+    private boolean doNotHideOnce = true;              // 临时不隐藏后台一次（后台隐藏豁免）
+    private WeakReference<Activity> rootActivityRef;    // 任务根 Activity 引用
 
     @Override
     public void onCreate() {
@@ -137,13 +138,30 @@ public class ManagerAssistant extends Application {
                 if (foregroundActivities == 0) {
                     Activity rootActivity = rootActivityRef != null ? rootActivityRef.get() : null;
                     boolean isHidden = AutoBookKeepingPreference.getHideRecentTask(ManagerAssistant.this);
+
+                    //判断是否启用了隐藏后台以及是否保存了根Activity引用
                     if (rootActivity != null && isHidden) {
-                        // 移除整个任务，隐藏最近任务
+                        //只有需要隐藏后台时才判断是否豁免
+                        if (doNotHideOnce) {
+                            doNotHideOnce = false;
+                            return;
+                        }
+
+                        //移除整个任务，隐藏最近任务
                         rootActivity.finishAndRemoveTask();
-                        rootActivityRef = null; // 避免重复引用
+                        rootActivityRef = null; //避免重复引用
+                    } else {
+                        doNotHideOnce = false;  //豁免标识归位
                     }
                 }
             }
         });
+    }
+
+    /**
+     * 豁免一次隐藏最近任务
+     */
+    public void exemptionHideRecentOnce() {
+        doNotHideOnce = true;
     }
 }

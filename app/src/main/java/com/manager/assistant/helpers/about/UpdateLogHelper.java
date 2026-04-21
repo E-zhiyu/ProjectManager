@@ -14,6 +14,7 @@ public class UpdateLogHelper {
     private static final String UPDATE_LOG_MD = "# v1.8.14  \n" +
             "### BUG修复  \n" +
             "- 修复标签管理界面折叠多个分组后，再展开分组后会错位的BUG  \n" +
+            "- 修复开启自动隐藏后台时，因业务逻辑跳转到其他界面后会清除任务的BUG  \n" +
             "# v1.8.13  \n" +
             "### 新增内容  \n" +
             "- 重新添加隐藏最近任务开关  \n" +
