@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String UPDATE_LOG_MD = "# v1.8.14  \n" +
             "### BUG修复  \n" +
+            "- 修复未开启自动备份时设置备份路径也会触发一次备份行为的BUG  \n" +
             "- 修复标签分组合并时标签可能放错分组的BUG  \n" +
             "- 修复标签管理界面添加或删除标签后分组尾部的卡片圆角不对的BUG  \n" +
             "- 修复标签管理界面折叠多个分组后，再展开分组后会错位的BUG  \n" +

@@ -342,13 +342,17 @@ public class DataManageActivity extends AppCompatActivity {
                     AutoBackupHelper.BackupFrequency frequency = AutoBackupHelper.BackupFrequency.values()[itemIndex];
                     String title = frequency.getName();
                     backupFrequencyOption.setSpinnerText(title);
-
                     AutoBackupPreference.setBackupFrequency(this, itemIndex);
-                    long intervalMillis = frequency.getIntervalMillis();
-                    BackupScheduler.schedulePeriodicBackup(this, intervalMillis);   //更新工作内容
 
-                    //立即备份一次
-                    BackupScheduler.executeBackupNow(this);
+                    //只有开关打开时才更新工作内容并安排一次备份
+                    if (AutoBackupPreference.getSwitchStat(this)) {
+                        //更新工作内容
+                        long intervalMillis = frequency.getIntervalMillis();
+                        BackupScheduler.schedulePeriodicBackup(this, intervalMillis);
+
+                        //立即备份一次
+                        BackupScheduler.executeBackupNow(this);
+                    }
                 }
 
                 return isItemClicked;
@@ -757,7 +761,7 @@ public class DataManageActivity extends AppCompatActivity {
         } else if (isChecked) {
             int frequencyIndex = AutoBackupPreference.getBackupFrequency(this);
             long intervalMillis = AutoBackupHelper.BackupFrequency.values()[frequencyIndex].getIntervalMillis();
-            BackupScheduler.schedulePeriodicBackup(this, intervalMillis);
+            BackupScheduler.schedulePeriodicBackup(this, intervalMillis);   //开关打开后立刻安排备份任务
         } else {
             BackupScheduler.cancelPeriodicBackup(this);
         }
