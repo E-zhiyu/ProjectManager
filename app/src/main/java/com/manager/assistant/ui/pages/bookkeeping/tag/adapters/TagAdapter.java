@@ -110,6 +110,7 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.TagViewHolder> {
     public void addTag(Tag tag) {
         tagList.add(tag);
         notifyItemInserted(tagList.size() - 1);
+        notifyItemChanged(tagList.size() - 2);  //通知之前的尾部改变圆角
     }
 
     /**
@@ -121,6 +122,7 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.TagViewHolder> {
         int oldCount = this.tagList.size();
         this.tagList.addAll(tagList);
         notifyItemRangeInserted(oldCount, tagList.size());
+        notifyItemChanged(oldCount - 1);        //通知之前的尾部改变圆角
     }
 
     /**
@@ -151,6 +153,7 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.TagViewHolder> {
             if (t.getTno() == tagNo) {
                 tagList.remove(index);
                 notifyItemRemoved(index);
+                notifyItemChanged(tagList.size() - 1);  //通知尾部改变圆角
                 break;
             }
             index++;
