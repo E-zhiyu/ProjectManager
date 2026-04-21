@@ -11,8 +11,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.R;
+import com.manager.assistant.RecentTaskManager;
 import com.manager.assistant.automation.broadcast.BroadcastActions;
 import com.manager.assistant.data.io.helpers.AnalysisRuleDataHelper;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
@@ -80,13 +80,9 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
 
         //开关左侧文本长按功能
         notificationAnalysisSwitchOption.setOnLongClickListener(v -> {
-            //豁免一次后台隐藏
-            ManagerAssistant app = (ManagerAssistant) getApplication();
-            app.exemptionHideRecentOnce();
-
             Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
+            RecentTaskManager.startExternalActivity(this, intent);
             return true;
         });
 
@@ -101,8 +97,8 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
         );
         ruleManageOption.setFunctionListener(
                 v -> {
-                    Intent skip2NotificationRulesActivity = new Intent(this, AnalysisRuleManageActivity.class);
-                    startActivity(skip2NotificationRulesActivity);
+                    Intent intent = new Intent(this, AnalysisRuleManageActivity.class);
+                    RecentTaskManager.startExternalActivity(this, intent);
                 }
         );
 
@@ -229,7 +225,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                         //申请通知监听权限
                         Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
+                        RecentTaskManager.startExternalActivity(this, intent);
                     })
                     .setNegativeButton("取消", null)
                     .show();

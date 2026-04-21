@@ -11,6 +11,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 
 import com.google.android.material.textview.MaterialTextView;
+import com.manager.assistant.RecentTaskManager;
 import com.manager.assistant.data.save.preference.AutoBackupPreference;
 import com.manager.assistant.ui.pages.setting.setting_option_views.SettingSwitchView;
 import com.manager.assistant.automation.schedulers.BackupScheduler;
@@ -64,7 +65,7 @@ public class AutoBackupHelper {
         if (backupDirUri != null) {
             intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, backupDirUri);  //设置初始目录为已保存的目录
         }
-        launcher.launch(intent);
+        RecentTaskManager.startExternalActivity(launcher, intent);
     }
 
     /**
