@@ -402,17 +402,6 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
                 container.groupAdapter.onGroupModified(newGroup);
                 container.tagAdapter.onGroupModified(newGroup);
             }
-
-            //更新RailView中的选项Title
-//            for (Map.Entry<Integer, Long> entry : itemIdAndGroupNoMap.entrySet()) {
-//                int itemIndex = entry.getKey();     //MenuItem的Id就是下标
-//                long mapGroupNo = entry.getValue();
-//                if (mapGroupNo == groupNo) {
-//                    Menu railMenu = binding.tagGroupNaviRail.getMenu();
-//                    railMenu.getItem(itemIndex).setTitle(newGroupName);
-//                    break;
-//                }
-//            }
         } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
             //删除Recycler中对应的适配器
             AdapterContainer container = adapterContainerMap.get(groupNo);

@@ -28,6 +28,7 @@ import com.manager.assistant.ui.sync.tag.TagUpdateReason;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class GroupModifyActivity extends AppCompatActivity {
     private long groupNo;                       //分组编号
@@ -123,7 +124,9 @@ public class GroupModifyActivity extends AppCompatActivity {
                     //获取所有分组
                     List<TagGroup> groupList;
                     try {
-                        groupList = TagGroupDataController.getTagGroup(this);
+                        groupList = TagGroupDataController.getTagGroup(this).stream()
+                                .filter(group -> group.getGroupNo() != groupNo) //排除掉正在编辑的分组
+                                .collect(Collectors.toList());
                     } catch (SQLiteException e) {
                         ExceptionHelper.showExceptionDialog(this, e);
                         Toast.makeText(this, "无法加载分组列表", Toast.LENGTH_SHORT).show();
@@ -132,7 +135,6 @@ public class GroupModifyActivity extends AppCompatActivity {
 
                     //转换为分组名称数组
                     String[] groupNames = groupList.stream()
-                            .filter(tagGroup -> tagGroup.getGroupNo() != groupNo)
                             .map(TagGroup::getGroupName)
                             .toArray(String[]::new);
 
