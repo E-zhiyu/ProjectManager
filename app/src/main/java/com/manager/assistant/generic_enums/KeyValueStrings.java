@@ -4,6 +4,7 @@ package com.manager.assistant.generic_enums;
 public enum KeyValueStrings {
     ACCOUNT_TYPE("account_type"),                           //流水种类
     ACCOUNT_REMARK("account_remark"),                       //流水备注
+    ACCOUNT_OLD_DATETIME("account_old_datetime"),           //流水记录修改前的日期和时间
     ACCOUNT_DATETIME("account_datetime"),                   //流水日期和时间
     ACCOUNT_AMOUNT("account_amount"),                       //流水金额
     ACCOUNT_NO("account_no"),                               //流水编号

@@ -18,7 +18,7 @@ import com.manager.assistant.generic_enums.ChannelInfo;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.PendingRequestCode;
 import com.manager.assistant.helpers.NotificationHelper;
-import com.manager.assistant.ui.pages.bookkeeping.running_account.RunningAccountModifyActivity;
+import com.manager.assistant.ui.pages.main.bookkeeping.RunningAccountModifyActivity;
 
 import java.util.Locale;
 

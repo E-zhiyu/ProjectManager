@@ -113,7 +113,6 @@
 ## 使用到的第三方库
 
 - [Material Components](https://github.com/material-components/material-components-android)
-- [Groupie](https://github.com/lisawray/groupie)
 - [RxJava](https://github.com/ReactiveX/RxJava)
 - [Glide](https://github.com/bumptech/glide)
 - [PhotoView](https://github.com/Baseflow/PhotoView)

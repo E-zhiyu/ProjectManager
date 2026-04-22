@@ -24,9 +24,9 @@ import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.NotificationID;
 import com.manager.assistant.generic_enums.PendingRequestCode;
 import com.manager.assistant.helpers.NotificationHelper;
-import com.manager.assistant.ui.pages.bookkeeping.budget.BudgetManageActivity;
-import com.manager.assistant.ui.pages.bookkeeping.budget.ResetFrequency;
-import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
+import com.manager.assistant.ui.pages.budget.BudgetManageActivity;
+import com.manager.assistant.ui.pages.budget.ResetFrequency;
+import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

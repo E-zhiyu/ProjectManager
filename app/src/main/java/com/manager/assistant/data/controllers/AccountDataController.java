@@ -19,14 +19,16 @@ import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.Tables;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.ui.others.bottom_sheets.filter.AccountFilterBottomSheet;
-import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
+import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AccountDataController {
@@ -36,10 +38,10 @@ public class AccountDataController {
      * @param setting    过滤器设置
      * @param searchText 备注搜索文本
      * @param context    上下文
-     * @return 包含符合过滤条件的流水记录列表
+     * @return 按照日期分类的流水记录数据（k:流水日期，v:该日期内的流水记录列表）
      */
     @NonNull
-    public static List<RunningAccountBase> loadRunningAccountData(
+    public static Map<String, List<RunningAccountBase>> loadRunningAccountData(
             @NonNull AccountFilterBottomSheet.FilterSetting setting,
             String searchText,
             Context context
@@ -143,7 +145,7 @@ public class AccountDataController {
         );
 
         //查询数据
-        List<RunningAccountBase> runningAccountList = new ArrayList<>();
+        Map<String, List<RunningAccountBase>> accountMap = new LinkedHashMap<>();
         while (basicCursor.moveToNext()) {
             //流水编号
             long rno = basicCursor.getLong(basicCursor.getColumnIndexOrThrow(Columns.RNO.toString()));
@@ -157,45 +159,55 @@ public class AccountDataController {
             //日期和时间
             String datetime = basicCursor.getString(basicCursor.getColumnIndexOrThrow(Columns.DATETIME.toString()));
 
-            RunningAccountBase runningAccountView = null;
+            //判断种类
+            RunningAccountBase runningAccount = null;
             switch (type) {
                 case EXPENSE:
-                    runningAccountView = new ExpenseRunningAccount(rno, remark, datetime, amount);
+                    runningAccount = new ExpenseRunningAccount(rno, remark, datetime, amount);
                     break;
                 case INCOME:
-                    runningAccountView = new IncomeRunningAccount(rno, remark, datetime, amount);
+                    runningAccount = new IncomeRunningAccount(rno, remark, datetime, amount);
                     break;
                 case TRANSFER:
                     String[] columns = {Columns.EXPORT.toString(), Columns.IMPORT.toString()};
-                    String transfer_selection = Columns.RNO + "=?";
-                    String[] transfer_selectionArgs = {String.valueOf(rno)};
+                    String transferSelection = Columns.RNO + "=?";
+                    String[] transferSelectionArgs = {String.valueOf(rno)};
 
-                    Cursor transfer_cursor = db.query(
+                    Cursor transferCursor = db.query(
                             Tables.TRANSFER.toString(),
                             columns,
-                            transfer_selection,
-                            transfer_selectionArgs,
+                            transferSelection,
+                            transferSelectionArgs,
                             null,
                             null,
                             null
                     );
 
-                    while (transfer_cursor.moveToNext()) {
-                        String exportAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(Columns.EXPORT.toString()));
-                        String importAccount = transfer_cursor.getString(transfer_cursor.getColumnIndexOrThrow(Columns.IMPORT.toString()));
-                        transfer_cursor.close();
-                        runningAccountView = new TransferRunningAccount(rno, remark, datetime, amount, exportAccount, importAccount);
+                    while (transferCursor.moveToNext()) {
+                        String exportAccount = transferCursor.getString(transferCursor.getColumnIndexOrThrow(Columns.EXPORT.toString()));
+                        String importAccount = transferCursor.getString(transferCursor.getColumnIndexOrThrow(Columns.IMPORT.toString()));
+                        transferCursor.close();
+                        runningAccount = new TransferRunningAccount(rno, remark, datetime, amount, exportAccount, importAccount);
                     }
                     break;
+                default:
+                    continue;
             }
-            if (runningAccountView != null) {
-                runningAccountList.add(runningAccountView);
+
+            //添加到Map中
+            List<RunningAccountBase> accountList = accountMap.get(datetime.substring(0, 10));
+            if (accountList == null) {
+                accountList = new ArrayList<>();
+                accountMap.put(datetime.substring(0, 10), accountList);
+                accountList.add(runningAccount);
+            } else {
+                accountList.add(runningAccount);
             }
         }
+
         basicCursor.close();
         db.close();
-
-        return runningAccountList;
+        return accountMap;
     }
 
     /**
@@ -206,8 +218,8 @@ public class AccountDataController {
      * @throws SQLiteException 读取失败引发的数据库异常
      */
     public static String getEarliestAccountDate(Context context) throws SQLiteException {
-        BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = db_helper.openReadLink();
+        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
+        SQLiteDatabase db = dbHelper.openReadLink();
 
         String[] columns = {Columns.DATETIME.toString()};
         Cursor basicCursor = db.query(

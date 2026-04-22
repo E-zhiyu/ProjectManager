@@ -19,7 +19,7 @@ import com.manager.assistant.helpers.DateTimePickerHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.BaseBottomSheetDialogFragment;
-import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
+import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
 
 import java.time.Instant;
 import java.time.LocalDate;

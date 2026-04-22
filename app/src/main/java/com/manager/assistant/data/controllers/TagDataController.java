@@ -16,7 +16,7 @@ import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.Tables;
 import com.manager.assistant.generic_enums.KeyValueStrings;
-import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
+import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
 
 import org.jetbrains.annotations.Contract;
 

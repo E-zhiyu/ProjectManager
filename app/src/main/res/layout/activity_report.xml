@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.pages.home.report.ReportActivity">
+    tools:context=".ui.pages.report.ReportActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -58,17 +58,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical">
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp">
 
                     <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/balance_title_text"
                         style="@style/LargeTitleTextViewStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="5dp"
-                        android:text="@string/balance" />
+                        android:text="@string/balance"
+                        app:layout_constraintBottom_toTopOf="@id/date_range_text"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/date_range_text"
@@ -77,7 +82,10 @@
                         android:layout_height="wrap_content"
                         android:paddingTop="0dp"
                         android:paddingBottom="5dp"
-                        android:text="@string/this_month" />
+                        android:text="@string/this_month"
+                        app:layout_constraintBottom_toTopOf="@id/balance_text"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/balance_title_text" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/balance_text"
@@ -86,7 +94,10 @@
                         android:layout_height="wrap_content"
                         android:paddingTop="0dp"
                         android:paddingBottom="5dp"
-                        android:text="@string/balance" />
+                        android:text="@string/balance"
+                        app:layout_constraintBottom_toTopOf="@id/expense_income_text"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/date_range_text" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/expense_income_text"
@@ -96,8 +107,11 @@
                         android:paddingStart="10dp"
                         android:paddingEnd="0dp"
                         android:paddingBottom="10dp"
-                        android:text="@string/expense_and_income" />
-                </LinearLayout>
+                        android:text="@string/expense_and_income"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/balance_text" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
@@ -167,13 +181,15 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="5dp">
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/month_account_text"
                         style="@style/LargeTitleTextViewStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
                         android:text="@string/running_account_every_month"
                         app:layout_constraintBottom_toBottomOf="@id/month_account_type_btn_group"
                         app:layout_constraintStart_toStartOf="parent"
@@ -183,7 +199,7 @@
                         android:id="@+id/month_account_type_btn_group"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="7dp"
+                        android:layout_marginEnd="10dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
 
@@ -207,7 +223,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:nestedScrollingEnabled="false"
-                        android:paddingBottom="5dp"
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                         app:layout_constraintTop_toBottomOf="@+id/month_account_type_btn_group" />
                 </androidx.constraintlayout.widget.ConstraintLayout>

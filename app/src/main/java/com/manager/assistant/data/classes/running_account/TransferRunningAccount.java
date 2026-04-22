@@ -2,7 +2,7 @@ package com.manager.assistant.data.classes.running_account;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
+import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
 
 /**
  * 转账流水类

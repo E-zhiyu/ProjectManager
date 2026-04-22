@@ -1,6 +1,6 @@
 package com.manager.assistant.data.classes;
 
-import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
+import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
 
 public class AnalysisRule {
     private final String ruleName;                //规则名称

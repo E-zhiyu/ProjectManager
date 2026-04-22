@@ -3,7 +3,7 @@ package com.manager.assistant.ui.sync.account;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
+import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
 
 public class RunningAccountRepository {
     private static RunningAccountRepository instance;    //自身实例

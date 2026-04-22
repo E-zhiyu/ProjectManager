@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.ui.pages.bookkeeping.running_account.fragments.RunningAccountType;
+import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
 
 public class BookkeepingDbHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "running_account.db";   //数据库名称

@@ -11,7 +11,14 @@ import com.manager.assistant.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String UPDATE_LOG_MD = "# v1.8.14  \n" +
+    private static final String UPDATE_LOG_MD = "# v1.8.15  \n" +
+            "### 新增内容  \n" +
+            "- 流水列表会显示每天有多少条流水记录  \n" +
+            "### 修改和优化的内容  \n" +
+            "- 优化增大卡片圆角后报表界面内容的显示效果  \n" +
+            "- 删除Groupie依赖，用ConcatAdapter替代其实现流水记录列表  \n" +
+            "- 标签分组中标签数量为0时不再能折叠分组  \n" +
+            "# v1.8.14  \n" +
             "### BUG修复  \n" +
             "- 修复未开启自动备份时设置备份路径也会触发一次备份行为的BUG  \n" +
             "- 修复标签分组合并时标签可能放错分组的BUG  \n" +
