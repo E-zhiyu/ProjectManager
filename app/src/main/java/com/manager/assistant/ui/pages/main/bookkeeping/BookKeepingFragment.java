@@ -290,7 +290,7 @@ public class BookKeepingFragment extends Fragment implements AccountAdapter.OnVi
             List<RunningAccountBase> accountList = entry.getValue();
 
             //实例化适配器并添加到RecyclerView中
-            DateHeaderAdapter headerAdapter = new DateHeaderAdapter(date);
+            DateHeaderAdapter headerAdapter = new DateHeaderAdapter(accountList.size(), date);
             adapter.addAdapter(headerAdapter);
             AccountAdapter accountAdapter = new AccountAdapter(accountList, this);
             adapter.addAdapter(accountAdapter);
@@ -509,6 +509,8 @@ public class BookKeepingFragment extends Fragment implements AccountAdapter.OnVi
 
         //通过适配器更新Recycler
         container.accountAdapter.addRunningAccount(dataBundle);
+        int currentCount = container.accountAdapter.getItemCount();
+        container.headerAdapter.onAccountCountChanged(currentCount);
         binding.accountRecycler.scrollToPosition(0);
         Toast.makeText(requireContext(), "成功添加一条流水记录（自动记账）", Toast.LENGTH_SHORT).show();
 
@@ -538,7 +540,7 @@ public class BookKeepingFragment extends Fragment implements AccountAdapter.OnVi
         AdapterContainer container = adapterContainerMap.get(date);
         if (container == null) {
             //实例化适配器并添加到界面中
-            DateHeaderAdapter headerAdapter = new DateHeaderAdapter(date);
+            DateHeaderAdapter headerAdapter = new DateHeaderAdapter(0, date);
             AccountAdapter accountAdapter = new AccountAdapter(new ArrayList<>(), this);
             adapter.addAdapter(0, accountAdapter);
             adapter.addAdapter(0, headerAdapter);
@@ -550,6 +552,8 @@ public class BookKeepingFragment extends Fragment implements AccountAdapter.OnVi
 
         //通过适配器更新Recycler
         container.accountAdapter.addRunningAccount(dataBundle);
+        int currentCount = container.accountAdapter.getItemCount();
+        container.headerAdapter.onAccountCountChanged(currentCount);
         binding.accountRecycler.scrollToPosition(0);
         Toast.makeText(requireContext(), "成功添加一条流水记录", Toast.LENGTH_SHORT).show();
 
@@ -593,10 +597,14 @@ public class BookKeepingFragment extends Fragment implements AccountAdapter.OnVi
 
             if (newContainer != null) {
                 newContainer.accountAdapter.addRunningAccount(dataBundle);
+                int currentCount = newContainer.accountAdapter.getItemCount();
+                newContainer.headerAdapter.onAccountCountChanged(currentCount);
             }
             if (oldContainer != null) {
                 long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
                 oldContainer.accountAdapter.deleteRunningAccount(rno);
+                int currentCount = oldContainer.accountAdapter.getItemCount();
+                oldContainer.headerAdapter.onAccountCountChanged(currentCount);
 
                 //如果删除后为空，则删除整个适配器
                 if (oldContainer.accountAdapter.getItemCount() == 0) {
@@ -648,6 +656,8 @@ public class BookKeepingFragment extends Fragment implements AccountAdapter.OnVi
         //通过适配器更新Recycler
         long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue(), -1);
         container.accountAdapter.deleteRunningAccount(rno);
+        int currentCount = container.accountAdapter.getItemCount();
+        container.headerAdapter.onAccountCountChanged(currentCount);
         Toast.makeText(requireContext(), "流水记录已删除", Toast.LENGTH_SHORT).show();
 
         //如果删除后为空，则删除整个适配器
