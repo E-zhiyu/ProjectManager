@@ -2,7 +2,6 @@ package com.manager.assistant;
 
 import android.app.Application;
 import android.net.Uri;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.work.WorkInfo;
@@ -35,7 +34,7 @@ public class ManagerAssistant extends Application {
         //注册通知渠道
         NotificationHelper.createNotificationChannels(this);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && getProcessName().equals(getPackageName())) {
+        if (getProcessName().equals(getPackageName())) {
             //初始化动态配色
             if (AppSettingsPreference.getDynamicColorStat(this)) {
                 DynamicColorsOptions options = new DynamicColorsOptions.Builder()
