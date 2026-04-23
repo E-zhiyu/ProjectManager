@@ -1,6 +1,7 @@
 package com.manager.assistant.ui.pages.main;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -15,6 +16,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.manager.assistant.R;
 import com.manager.assistant.data.save.preference.VersionPreference;
 import com.manager.assistant.databinding.ActivityMainBinding;
+import com.manager.assistant.helpers.BiometricHelper;
 import com.manager.assistant.helpers.appearence.ThemeModeHelper;
 import com.manager.assistant.data.save.preference.AppSettingsPreference;
 import com.manager.assistant.helpers.UpdateHelper;
@@ -61,6 +63,19 @@ public class MainActivity extends AppCompatActivity {
         } else {
             UpdateHelper.showMandatoryUpdateDialog(this);
         }
+
+        BiometricHelper.showBiometricPrompt(this, new BiometricHelper.AuthCallback() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(MainActivity.this, "身份验证成功", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError() {
+                Toast.makeText(MainActivity.this, "身份验证失败", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        });
     }
 
     @Override

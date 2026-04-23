@@ -20,7 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.manager.assistant.RecentTaskManager;
+import com.manager.assistant.LifecycleManager;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.generic_enums.LogTags;
 
@@ -260,7 +260,7 @@ public class PermissionHelper {
                     .setPositiveButton("去设置", (d, w) -> {
                         isSpecialProcessing = false;    //未直接调用processNextSpecial()，需要标记为未处理
 
-                        RecentTaskManager.startExternalActivity(activity, type.getIntent(activity));
+                        LifecycleManager.startExternalActivity(activity, type.getIntent(activity));
                     })
                     .setNegativeButton("取消", (d, w) -> processNextSpecial())
                     .setCancelable(false)
@@ -315,13 +315,13 @@ public class PermissionHelper {
                 intent.setAction(Settings.ACTION_SETTINGS);
                 Toast.makeText(context, "请前往自启动管理页进行授权", Toast.LENGTH_SHORT).show();
             }
-            RecentTaskManager.startExternalActivity(context, intent);
+            LifecycleManager.startExternalActivity(context, intent);
         } catch (Exception e) {
             //如果出现异常，跳转到设置
             intent.setAction(Settings.ACTION_SETTINGS);
             intent.setData(Uri.fromParts("package", context.getPackageName(), null));
             Toast.makeText(context, "请前往自启动管理页进行授权", Toast.LENGTH_SHORT).show();
-            RecentTaskManager.startExternalActivity(context, intent);
+            LifecycleManager.startExternalActivity(context, intent);
         }
     }
 }

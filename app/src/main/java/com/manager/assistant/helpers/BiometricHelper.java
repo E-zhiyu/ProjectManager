@@ -1,11 +1,15 @@
 package com.manager.assistant.helpers;
 
+import android.util.Log;
+
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+
+import com.manager.assistant.generic_enums.LogTags;
 
 import java.util.concurrent.Executor;
 
@@ -28,24 +32,38 @@ public class BiometricHelper {
      * @param activity 需要弹出身份验证对话框的活动界面
      * @param callback 身份验证回调
      */
-    public static void showBiometricPrompt(FragmentActivity activity, AuthCallback callback) {
-        // 1. 获取主线程执行器
+    public static void showBiometricPrompt(@NonNull FragmentActivity activity, AuthCallback callback) {
+        //获取主线程执行器
         Executor executor = ContextCompat.getMainExecutor(activity);
 
-        // 2. 定义验证结果回调
+        //定义验证结果回调
         BiometricPrompt biometricPrompt = getBiometricPrompt(activity, callback, executor);
 
-        // 4. 配置对话框信息
+        BiometricManager biometricManager = BiometricManager.from(activity);
+        int result = biometricManager.canAuthenticate(
+                BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL
+        );
+
+        //配置对话框信息
         BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
                 .setTitle("您已开启身份验证")
                 .setSubtitle("请使用指纹或面部识别")
-                .setNegativeButtonText("使用锁屏密码") // 点击此按钮将切换到系统锁屏验证
                 .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG |
                         BiometricManager.Authenticators.DEVICE_CREDENTIAL)
                 .build();
 
-        // 5. 显示验证界面
-        biometricPrompt.authenticate(promptInfo);
+        //显示身份验证对话框
+        if (result == BiometricManager.BIOMETRIC_SUCCESS) {
+            biometricPrompt.authenticate(promptInfo);
+        } else {
+            if (result == BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE) {
+                Log.e(LogTags.BIOMETRIC_HELPER.getV(), "设备不支持生物识别");
+            } else if (result == BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE) {
+                Log.e(LogTags.BIOMETRIC_HELPER.getV(), "硬件忙或不可用");
+            } else if (result == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED) {
+                Log.e(LogTags.BIOMETRIC_HELPER.getV(), "用户未设置指纹或锁屏密码");
+            }
+        }
     }
 
     @NonNull

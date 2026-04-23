@@ -12,7 +12,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
-import com.manager.assistant.RecentTaskManager;
+import com.manager.assistant.LifecycleManager;
 import com.manager.assistant.automation.broadcast.BroadcastActions;
 import com.manager.assistant.data.io.helpers.AnalysisRuleDataHelper;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
@@ -82,7 +82,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
         notificationAnalysisSwitchOption.setOnLongClickListener(v -> {
             Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            RecentTaskManager.startExternalActivity(this, intent);
+            LifecycleManager.startExternalActivity(this, intent);
             return true;
         });
 
@@ -98,7 +98,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
         ruleManageOption.setFunctionListener(
                 v -> {
                     Intent intent = new Intent(this, AnalysisRuleManageActivity.class);
-                    RecentTaskManager.startExternalActivity(this, intent);
+                    LifecycleManager.startExternalActivity(this, intent);
                 }
         );
 
@@ -225,7 +225,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                         //申请通知监听权限
                         Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        RecentTaskManager.startExternalActivity(this, intent);
+                        LifecycleManager.startExternalActivity(this, intent);
                     })
                     .setNegativeButton("取消", null)
                     .show();

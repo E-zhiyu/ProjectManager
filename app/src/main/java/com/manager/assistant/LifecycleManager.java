@@ -13,14 +13,13 @@ import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 
 import java.lang.ref.WeakReference;
 
-public class RecentTaskManager implements Application.ActivityLifecycleCallbacks {
-
-    private static RecentTaskManager instance;
+public class LifecycleManager implements Application.ActivityLifecycleCallbacks {
+    private static LifecycleManager instance;
     private boolean doNotHideOnce = false;      //豁免一次后台隐藏
     private int foregroundCount = 0;
     private WeakReference<Activity> rootActivityRef;
 
-    private RecentTaskManager(@NonNull Application app) {
+    private LifecycleManager(@NonNull Application app) {
         app.registerActivityLifecycleCallbacks(this);
     }
 
@@ -31,16 +30,16 @@ public class RecentTaskManager implements Application.ActivityLifecycleCallbacks
      */
     public static void init(Application app) {
         if (instance == null) {
-            instance = new RecentTaskManager(app);
+            instance = new LifecycleManager(app);
         }
     }
 
     /**
-     * 获取{@link RecentTaskManager}实例
+     * 获取{@link LifecycleManager}实例
      *
-     * @return {@link RecentTaskManager}实例
+     * @return {@link LifecycleManager}实例
      */
-    private static RecentTaskManager get() {
+    private static LifecycleManager get() {
         if (instance == null) {
             throw new IllegalStateException("RecentTaskManager not initialized");
         }
@@ -52,28 +51,28 @@ public class RecentTaskManager implements Application.ActivityLifecycleCallbacks
     // =========================
 
     /**
-     * 跳转到外部活动
+     * 跳转到外部活动并豁免一次后台隐藏
      *
      * @param context 上下文
      * @param intent  意图
      */
     public static void startExternalActivity(@NonNull Context context, Intent intent) {
         //设置豁免标识
-        RecentTaskManager manager = get();
+        LifecycleManager manager = get();
         manager.doNotHideOnce = true;
 
         context.startActivity(intent);
     }
 
     /**
-     * 启动有回调的外部活动
+     * 启动有回调的外部活动并豁免一次后台隐藏
      *
      * @param launcher 活动启动器
      * @param intent   意图
      */
     public static void startExternalActivity(@NonNull ActivityResultLauncher<Intent> launcher, Intent intent) {
         //设置豁免标识
-        RecentTaskManager manager = get();
+        LifecycleManager manager = get();
         manager.doNotHideOnce = true;
 
         launcher.launch(intent);
@@ -85,6 +84,7 @@ public class RecentTaskManager implements Application.ActivityLifecycleCallbacks
 
     @Override
     public void onActivityCreated(@NonNull Activity activity, Bundle savedInstanceState) {
+        //保存根 Activity 依赖
         if (activity.isTaskRoot()) {
             rootActivityRef = new WeakReference<>(activity);
         }

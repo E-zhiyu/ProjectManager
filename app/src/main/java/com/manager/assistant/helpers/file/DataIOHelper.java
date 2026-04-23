@@ -15,7 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 
-import com.manager.assistant.RecentTaskManager;
+import com.manager.assistant.LifecycleManager;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.about.AboutHelper;
 import com.manager.assistant.generic_enums.DirectoryPaths;
@@ -357,7 +357,7 @@ public class DataIOHelper {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("application/zip");
         intent.putExtra(Intent.EXTRA_TITLE, targetFileName);
-        RecentTaskManager.startExternalActivity(launcher, intent);
+        LifecycleManager.startExternalActivity(launcher, intent);
 
         Log.d(LogTags.DATA_IO_HELPER.getV(), "SAF启动成功");
     }
@@ -464,7 +464,7 @@ public class DataIOHelper {
             intent.setType("*/*");
             String[] fileTypes = {"application/json", "application/zip"};
             intent.putExtra(Intent.EXTRA_MIME_TYPES, fileTypes);    //限制只能打开JSON和zip文件
-            RecentTaskManager.startExternalActivity(launcher, intent);
+            LifecycleManager.startExternalActivity(launcher, intent);
             Log.d(LogTags.DATA_IO_HELPER.getV(), "SAF启动成功");
         } catch (Exception e) {
             ExceptionHelper.showExceptionDialog(context, e);

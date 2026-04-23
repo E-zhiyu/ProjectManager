@@ -44,7 +44,7 @@ public class ManagerAssistant extends Application {
             }
 
             //注册Activity生命周期监听器
-            RecentTaskManager.init(this);
+            LifecycleManager.init(this);
 
             //安排自动备份任务
             if (AutoBackupPreference.getSwitchStat(this)) {
