@@ -1,7 +1,6 @@
 package com.manager.assistant.ui.pages.main;
 
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -16,7 +15,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.manager.assistant.R;
 import com.manager.assistant.data.save.preference.VersionPreference;
 import com.manager.assistant.databinding.ActivityMainBinding;
-import com.manager.assistant.helpers.BiometricHelper;
 import com.manager.assistant.helpers.appearence.ThemeModeHelper;
 import com.manager.assistant.data.save.preference.AppSettingsPreference;
 import com.manager.assistant.helpers.UpdateHelper;

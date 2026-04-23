@@ -22,6 +22,7 @@ import java.util.Locale;
 public class LifecycleManager implements Application.ActivityLifecycleCallbacks {
     private static LifecycleManager instance;
     private boolean doNotHideOnce = false;      //豁免一次后台隐藏
+    private boolean userLeft = true;            //用户离开应用（即前台活动数量为0）
     private int foregroundCount = 0;
     private WeakReference<Activity> rootActivityRef;
 
@@ -102,18 +103,25 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
         foregroundCount++;
 
         //TODO:采用时间间隔法判断，时间到了进入Activity就要身份验证
-//        BiometricHelper.showBiometricPrompt((FragmentActivity) activity, new BiometricHelper.AuthCallback() {
-//            @Override
-//            public void onSuccess() {
-//                Toast.makeText(activity, "身份验证成功", Toast.LENGTH_SHORT).show();
-//            }
-//
-//            @Override
-//            public void onError() {
-//                Toast.makeText(activity, "身份验证失败", Toast.LENGTH_SHORT).show();
-//                activity.finish();
-//            }
-//        });
+        if (userLeft) {
+            BiometricHelper.showBiometricPrompt((FragmentActivity) activity, new BiometricHelper.AuthCallback() {
+                @Override
+                public void onSuccess() {
+                    Toast.makeText(activity, "身份验证成功", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onError() {
+                    Toast.makeText(activity, "身份验证失败", Toast.LENGTH_SHORT).show();
+
+                    //强制退出但是保持后台运行
+                    if (rootActivityRef != null) {
+                        rootActivityRef.get().finishAndRemoveTask();
+                    }
+                }
+            });
+        }
+        userLeft = false;
     }
 
     @Override
@@ -123,7 +131,8 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
 
         Log.d(LogTags.LIFECYCLE_MANAGER.getV(), String.format(Locale.getDefault(), "前台活动数：%d", foregroundCount));
         if (foregroundCount == 0) {
-            Log.i(LogTags.LIFECYCLE_MANAGER.getV(), "触发后台隐藏逻辑");
+            Log.i(LogTags.LIFECYCLE_MANAGER.getV(), "用户离开应用");
+            userLeft = true;
             handleAppToBackground(activity);
         }
     }
