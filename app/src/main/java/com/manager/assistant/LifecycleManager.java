@@ -5,13 +5,19 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
 
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
+import com.manager.assistant.generic_enums.LogTags;
+import com.manager.assistant.helpers.BiometricHelper;
 
 import java.lang.ref.WeakReference;
+import java.util.Locale;
 
 public class LifecycleManager implements Application.ActivityLifecycleCallbacks {
     private static LifecycleManager instance;
@@ -92,14 +98,32 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
 
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
+        Log.d(LogTags.LIFECYCLE_MANAGER.getV(), "活动启动");
         foregroundCount++;
+
+        //TODO:采用时间间隔法判断，时间到了进入Activity就要身份验证
+//        BiometricHelper.showBiometricPrompt((FragmentActivity) activity, new BiometricHelper.AuthCallback() {
+//            @Override
+//            public void onSuccess() {
+//                Toast.makeText(activity, "身份验证成功", Toast.LENGTH_SHORT).show();
+//            }
+//
+//            @Override
+//            public void onError() {
+//                Toast.makeText(activity, "身份验证失败", Toast.LENGTH_SHORT).show();
+//                activity.finish();
+//            }
+//        });
     }
 
     @Override
     public void onActivityStopped(@NonNull Activity activity) {
+        Log.d(LogTags.LIFECYCLE_MANAGER.getV(), "活动停止");
         foregroundCount--;
 
+        Log.d(LogTags.LIFECYCLE_MANAGER.getV(), String.format(Locale.getDefault(), "前台活动数：%d", foregroundCount));
         if (foregroundCount == 0) {
+            Log.i(LogTags.LIFECYCLE_MANAGER.getV(), "触发后台隐藏逻辑");
             handleAppToBackground(activity);
         }
     }
@@ -127,8 +151,13 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
 
         //在合适情况下清除最近任务
         if (rootActivity != null && !rootActivity.isFinishing()) {
+            Log.i(LogTags.LIFECYCLE_MANAGER.getV(), "结束根活动并隐藏后台");
             rootActivity.finishAndRemoveTask();
             rootActivityRef = null;
+        } else if (rootActivity == null) {
+            Log.e(LogTags.LIFECYCLE_MANAGER.getV(), "无法定位根Activity");
+        } else {
+            Log.e(LogTags.LIFECYCLE_MANAGER.getV(), "根Activity正在Finishing");
         }
     }
 

@@ -63,19 +63,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             UpdateHelper.showMandatoryUpdateDialog(this);
         }
-
-        BiometricHelper.showBiometricPrompt(this, new BiometricHelper.AuthCallback() {
-            @Override
-            public void onSuccess() {
-                Toast.makeText(MainActivity.this, "身份验证成功", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onError() {
-                Toast.makeText(MainActivity.this, "身份验证失败", Toast.LENGTH_SHORT).show();
-                finish();
-            }
-        });
     }
 
     @Override

@@ -19,7 +19,8 @@ public enum LogTags {
     BUDGET_RESET_RECEIVER("BudgetResetReceiver"),
     BOOT_RECEIVER("BootReceiver"),
     PERMISSION_HELPER("PermissionHelper"),
-    BIOMETRIC_HELPER("BiometricHelper");
+    BIOMETRIC_HELPER("BiometricHelper"),
+    LIFECYCLE_MANAGER("LifecycleManager");
     private final String v;
 
     LogTags(String v) {
