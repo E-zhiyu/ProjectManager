@@ -18,6 +18,7 @@ import com.manager.assistant.data.io.helpers.AnalysisRuleDataHelper;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.databinding.ActivityAutoBookkeepingBinding;
 import com.manager.assistant.generic_enums.options.NotificationCancelBehaviour;
+import com.manager.assistant.generic_enums.options.NotificationClickBehaviour;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 import com.manager.assistant.ui.pages.notification_analysis.AnalysisRuleManageActivity;
@@ -183,34 +184,38 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                 R.drawable.outline_ads_click_24,
                 SettingOptionViewBase.RadiusStyle.BOTTOM
         );
-        int[] clickTitleResId = {
-                R.string.none,
-                R.string.keep_account,
-                R.string.delete_account
-        };
         int clickBehaviourCode = AutoBookKeepingPreference.getNotificationClickBehaviour(this);
-        notificationClickBehaviour.setSpinnerText(clickTitleResId[clickBehaviourCode]);
+        notificationClickBehaviour.setSpinnerText(
+                NotificationClickBehaviour.values()[clickBehaviourCode].getTitle()
+        );
         notificationClickBehaviour.setFunctionListener(v -> {
             PopupMenu behaviourMenu = new PopupMenu(this, notificationClickBehaviour.getFunctionComponent());
-            behaviourMenu.getMenuInflater().inflate(R.menu.popup_menu_notification_click_behaviour, behaviourMenu.getMenu());
 
+            //填充选项
+            for (NotificationClickBehaviour behaviour : NotificationClickBehaviour.values()) {
+                int groupId = behaviour.getGroupId();
+                int itemId = behaviour.getItemId();
+                int order = behaviour.getOrder();
+                String title = behaviour.getTitle();
+                behaviourMenu.getMenu().add(groupId, itemId, order, title);
+            }
+
+            //设置监听
             behaviourMenu.setOnMenuItemClickListener(item -> {
-                boolean isItemClicked = false;
-                if (item.getItemId() == R.id.action_none) {
-                    AutoBookKeepingPreference.setNotificationClickBehaviour(0, this);
-                    notificationClickBehaviour.setSpinnerText(clickTitleResId[0]);
-                    isItemClicked = true;
-                } else if (item.getItemId() == R.id.action_keep) {
-                    AutoBookKeepingPreference.setNotificationClickBehaviour(1, this);
-                    notificationClickBehaviour.setSpinnerText(clickTitleResId[1]);
-                    isItemClicked = true;
-                } else if (item.getItemId() == R.id.action_delete) {
-                    AutoBookKeepingPreference.setNotificationClickBehaviour(2, this);
-                    notificationClickBehaviour.setSpinnerText(clickTitleResId[2]);
-                    isItemClicked = true;
-                }
+                //获取选项编号列表
+                List<Integer> itemIdList = Arrays.stream(NotificationClickBehaviour.values())
+                        .map(NotificationClickBehaviour::getItemId)
+                        .collect(Collectors.toList());
 
-                return isItemClicked;
+                //判断是否选中
+                if (itemIdList.contains(item.getItemId())) {
+                    int index = itemIdList.indexOf(item.getItemId());
+                    AutoBookKeepingPreference.setNotificationClickBehaviour(this, index);
+                    notificationClickBehaviour.setSpinnerText(item.getTitle());
+                    return true;
+                } else {
+                    return false;
+                }
             });
 
             behaviourMenu.show();
