@@ -17,6 +17,7 @@ import com.manager.assistant.automation.broadcast.BroadcastActions;
 import com.manager.assistant.data.io.helpers.AnalysisRuleDataHelper;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.databinding.ActivityAutoBookkeepingBinding;
+import com.manager.assistant.generic_enums.options.NotificationCancelBehaviour;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 import com.manager.assistant.ui.pages.notification_analysis.AnalysisRuleManageActivity;
@@ -24,6 +25,10 @@ import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingC
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingOptionViewBase;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingSpinnerView;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingSwitchView;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class AutoBookkeepingActivity extends AppCompatActivity {
     private ActivityAutoBookkeepingBinding binding; //绑定的XML布局
@@ -132,29 +137,38 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                 R.drawable.outline_comments_disabled_24,
                 SettingOptionViewBase.RadiusStyle.MIDDLE
         );
-        int[] cancelTitleResId = {
-                R.string.keep_account,
-                R.string.delete_account
-        };
         int cancelBehaviourCode = AutoBookKeepingPreference.getNotificationCancelBehaviour(this);
-        notificationCancelBehaviour.setSpinnerText(cancelTitleResId[cancelBehaviourCode]);
+        notificationCancelBehaviour.setSpinnerText(
+                NotificationCancelBehaviour.values()[cancelBehaviourCode].getTitle()
+        );
         notificationCancelBehaviour.setFunctionListener(v -> {
             PopupMenu behaviourMenu = new PopupMenu(this, notificationCancelBehaviour.getFunctionComponent());
-            behaviourMenu.getMenuInflater().inflate(R.menu.popup_menu_notification_cancel_behaviour, behaviourMenu.getMenu());
 
+            //填充选项
+            for (NotificationCancelBehaviour behaviour : NotificationCancelBehaviour.values()) {
+                int groupId = behaviour.getGroupId();
+                int itemId = behaviour.getItemId();
+                int order = behaviour.getOrder();
+                String title = behaviour.getTitle();
+                behaviourMenu.getMenu().add(groupId, itemId, order, title);
+            }
+
+            //设置监听
             behaviourMenu.setOnMenuItemClickListener(item -> {
-                boolean isItemClicked = false;
-                if (item.getItemId() == R.id.action_keep) {
-                    AutoBookKeepingPreference.setNotificationCancelBehaviour(0, this);
-                    notificationCancelBehaviour.setSpinnerText(cancelTitleResId[0]);
-                    isItemClicked = true;
-                } else if (item.getItemId() == R.id.action_delete) {
-                    AutoBookKeepingPreference.setNotificationCancelBehaviour(1, this);
-                    notificationCancelBehaviour.setSpinnerText(cancelTitleResId[1]);
-                    isItemClicked = true;
-                }
+                //获取选项编号列表
+                List<Integer> itemIdList = Arrays.stream(NotificationCancelBehaviour.values())
+                        .map(NotificationCancelBehaviour::getItemId)
+                        .collect(Collectors.toList());
 
-                return isItemClicked;
+                //判断是否选中
+                if (itemIdList.contains(item.getItemId())) {
+                    int index = itemIdList.indexOf(item.getItemId());
+                    AutoBookKeepingPreference.setNotificationCancelBehaviour(this, index);
+                    notificationCancelBehaviour.setSpinnerText(item.getTitle());
+                    return true;
+                } else {
+                    return false;
+                }
             });
 
             behaviourMenu.show();

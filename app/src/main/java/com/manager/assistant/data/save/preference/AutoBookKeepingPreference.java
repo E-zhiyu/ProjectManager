@@ -39,10 +39,10 @@ public class AutoBookKeepingPreference {
     /**
      * 设置通知划走后是否保存流水记录
      *
-     * @param behaviour 是否保存流水记录（0：保留，1：不保留）
      * @param context   上下文
+     * @param behaviour 是否保存流水记录（0：保留，1：不保留）
      */
-    public static void setNotificationCancelBehaviour(int behaviour, @NonNull Context context) {
+    public static void setNotificationCancelBehaviour(@NonNull Context context, int behaviour) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         pref.edit().putInt(KEY_NOTIFICATION_CANCEL, behaviour).apply();
     }
