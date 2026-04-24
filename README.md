@@ -96,7 +96,7 @@
 
 ## 📱支持的设备
 
-软件的targetAPI等级为36，minApi等级为28，理论支持Android 9及以上的设备，推荐使用不低于Android 12的设备以获得最佳的使用体验。
+软件的targetAPI等级为36，minAPI等级为28，理论支持Android 9及以上的设备，推荐使用不低于Android 12的设备以获得最佳的使用体验。
 
 ## 🔗软件下载
 
