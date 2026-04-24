@@ -315,7 +315,9 @@ public class PackageNameSelectActivity extends AppCompatActivity {
                                 appInfoList = new ArrayList<>(fullAppInfoList);
                             } else {
                                 appInfoList = fullAppInfoList.stream()
-                                        .filter(appInfo -> appInfo.getAppName().contains(searchText))
+                                        .filter(appInfo -> appInfo.getAppName().toLowerCase()
+                                                .contains(searchText.toLowerCase())
+                                        )
                                         .collect(Collectors.toList());
                             }
 
