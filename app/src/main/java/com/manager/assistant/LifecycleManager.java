@@ -1,6 +1,7 @@
 package com.manager.assistant;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
@@ -19,7 +20,7 @@ import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.generic_enums.options.AuthOpportunity;
 import com.manager.assistant.helpers.BiometricHelper;
 
-import java.lang.ref.WeakReference;
+import java.util.List;
 import java.util.Locale;
 
 public class LifecycleManager implements Application.ActivityLifecycleCallbacks {
@@ -28,7 +29,6 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
     private boolean userLeft = true;            //用户离开应用（即前台活动数量为0）
     private long lastAuthTimeMilli = 0;         //上次进行身份验证的时间戳
     private int foregroundCount = 0;
-    private WeakReference<Activity> rootActivityRef;
 
     private LifecycleManager(@NonNull Application app) {
         app.registerActivityLifecycleCallbacks(this);
@@ -95,10 +95,6 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
 
     @Override
     public void onActivityCreated(@NonNull Activity activity, Bundle savedInstanceState) {
-        //保存根 Activity 依赖
-        if (activity.isTaskRoot()) {
-            rootActivityRef = new WeakReference<>(activity);
-        }
     }
 
     @Override
@@ -128,8 +124,14 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
                         Toast.makeText(activity, errStr, Toast.LENGTH_SHORT).show();
 
                         //强制退出但是保持后台运行
-                        if (rootActivityRef != null) {
-                            rootActivityRef.get().finishAndRemoveTask();
+                        ActivityManager am = (ActivityManager) activity.getSystemService(Context.ACTIVITY_SERVICE);
+                        if (am != null) {
+                            List<ActivityManager.AppTask> taskList = am.getAppTasks();
+                            if (taskList != null) {
+                                for (ActivityManager.AppTask task : taskList) {
+                                    task.finishAndRemoveTask();
+                                }
+                            }
                         }
                     }
                 }
@@ -174,18 +176,16 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
             return;
         }
 
-        //获取 root Activity
-        Activity rootActivity = rootActivityRef != null ? rootActivityRef.get() : null;
-
         //在合适情况下清除最近任务
-        if (rootActivity != null && !rootActivity.isFinishing()) {
-            Log.i(LogTags.LIFECYCLE_MANAGER.getV(), "结束根活动并隐藏后台");
-            rootActivity.finishAndRemoveTask();
-            rootActivityRef = null;
-        } else if (rootActivity == null) {
-            Log.e(LogTags.LIFECYCLE_MANAGER.getV(), "无法定位根Activity");
-        } else {
-            Log.e(LogTags.LIFECYCLE_MANAGER.getV(), "根Activity正在Finishing");
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        if (am != null) {
+            List<ActivityManager.AppTask> taskList = am.getAppTasks();
+            if (taskList != null) {
+                for (ActivityManager.AppTask task : taskList) {
+                    // 将当前应用的 Task 从最近任务列表中彻底移除
+                    task.finishAndRemoveTask();
+                }
+            }
         }
     }
 
