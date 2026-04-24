@@ -13,35 +13,13 @@ import androidx.annotation.Nullable;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.LifecycleManager;
 import com.manager.assistant.data.save.preference.AutoBackupPreference;
+import com.manager.assistant.generic_enums.options.BackupFrequency;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingSwitchView;
 import com.manager.assistant.automation.schedulers.BackupScheduler;
 
 public class AutoBackupHelper {
     private final Context context;              //上下文
     private SettingSwitchView switchOptionView; //设置界面的开关选项
-
-    public enum BackupFrequency {
-        MIN_15("每15分钟", 1000 * 60 * 15),                //每15分钟
-        DAY("每天", 24L * 60 * 60 * 1000),                //每天
-        WEEK("每星期", 24L * 60 * 60 * 1000 * 7),          //每个星期
-        MONTH("每个月", 24L * 60 * 60 * 1000 * 7 * 30);    //每月
-
-        private final String name;          //选项名称
-        private final long intervalMillis;  //备份间隔时间(毫秒)
-
-        BackupFrequency(String name, long intervalMillis) {
-            this.name = name;
-            this.intervalMillis = intervalMillis;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public long getIntervalMillis() {
-            return intervalMillis;
-        }
-    }
 
     public AutoBackupHelper(Context context) {
         this.context = context;
@@ -100,8 +78,8 @@ public class AutoBackupHelper {
 
             //第一次设置备份目录时创建自动备份定时任务
             if (oldDirUriStr == null) {
-                int frequency_index = AutoBackupPreference.getBackupFrequency(context);
-                long intervalMillis = AutoBackupHelper.BackupFrequency.values()[frequency_index].getIntervalMillis();
+                int frequencyIndex = AutoBackupPreference.getBackupFrequency(context);
+                long intervalMillis = BackupFrequency.values()[frequencyIndex].getIntervalMillis();
                 BackupScheduler.schedulePeriodicBackup(context, intervalMillis);
             }
         } else {

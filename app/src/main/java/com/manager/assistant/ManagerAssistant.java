@@ -14,8 +14,8 @@ import com.manager.assistant.data.save.preference.AutoBackupPreference;
 import com.manager.assistant.data.save.preference.AppSettingsPreference;
 import com.manager.assistant.data.save.preference.VersionPreference;
 import com.manager.assistant.generic_enums.LogTags;
+import com.manager.assistant.generic_enums.options.BackupFrequency;
 import com.manager.assistant.helpers.NotificationHelper;
-import com.manager.assistant.helpers.file.AutoBackupHelper;
 import com.manager.assistant.automation.schedulers.BackupScheduler;
 
 import java.io.File;
@@ -49,7 +49,7 @@ public class ManagerAssistant extends Application {
             //安排自动备份任务
             if (AutoBackupPreference.getSwitchStat(this)) {
                 int frequency = AutoBackupPreference.getBackupFrequency(this);
-                long intervalMillis = AutoBackupHelper.BackupFrequency.values()[frequency].getIntervalMillis();
+                long intervalMillis = BackupFrequency.values()[frequency].getIntervalMillis();
                 BackupScheduler.schedulePeriodicBackup(this, intervalMillis);
 
                 //打印任务状态日志

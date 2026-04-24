@@ -231,8 +231,6 @@ public class SettingFragment extends Fragment {
      * 初始化安全设置
      */
     private void initSecuritySettings() {
-        //TODO:将所有下拉式选择设置改为用枚举类控制
-
         //身份验证开关
         SettingSwitchView authenticationSwitch = new SettingSwitchView(
                 requireContext(),
