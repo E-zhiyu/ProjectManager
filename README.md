@@ -6,14 +6,14 @@
 
 <table>
 <tr>
-<td style="vertical-align:top;width:50%">
+<td width="50%" style="vertical-align:top">
 
 ### 记录流水
 
 记录金额、备注、日期、收支种类等流水数据，并且支持为每条流水记录添加若干图片。
 
 </td>
-<td style="vertical-align:top;width:50%">
+<td width="50%" style="vertical-align:top">
 
 ### 自动记账
 
@@ -22,14 +22,14 @@
 </td>
 </tr>
 <tr>
-<td style="vertical-align:top;width:50%">
+<td width="50%" style="vertical-align:top">
 
 ### 预算管理
 
 用户可以设置若干预算条目，产生新流水记录或修改现有流水记录时更新预算余额，余额不足时发送通知提醒用户，预算余额支持手动重置与自动重置两种方式。
 
 </td>
-<td style="vertical-align:top;width:50%">
+<td width="50%" style="vertical-align:top">
 
 ### 流水标签
 
@@ -38,14 +38,14 @@
 </td>
 </tr>
 <tr>
-<td style="vertical-align:top;width:50%">
+<td width="50%" style="vertical-align:top">
 
 ### 报表统计
 
 在应用主页会生成简易的每日报表，用户点击该报表视图可以跳转到详细报表界面，支持查看某一时间段的收支情况以及每月流水总结。
 
 </td>
-<td style="vertical-align:top;width:50%">
+<td width="50%" style="vertical-align:top">
 
 ### 数据管理与隐私保护
 
@@ -54,7 +54,7 @@
 </td>
 </tr>
 <tr>
-<td style="vertical-align:top;width:50%">
+<td width="50%" style="vertical-align:top">
 
 ### 界面显示
 
