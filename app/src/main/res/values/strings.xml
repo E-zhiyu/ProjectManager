@@ -155,6 +155,8 @@
     <string name="select_date">选择日期</string>
     <string name="backend_popup">后台弹窗</string>
     <string name="permissions_setting">权限设置</string>
+    <string name="authentication">身份验证</string>
+    <string name="authentication_opportunity">验证时机</string>
     <string name="notification_permission">通知权限</string>
     <string name="notification_listener_permission">通知使用权限</string>
     <string name="auto_start_permission">自启动权限</string>

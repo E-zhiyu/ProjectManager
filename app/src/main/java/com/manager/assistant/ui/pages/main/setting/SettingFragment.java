@@ -5,10 +5,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
+import androidx.biometric.BiometricManager;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.color.DynamicColors;
@@ -17,7 +19,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.R;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
+import com.manager.assistant.data.save.preference.SecurityPreference;
 import com.manager.assistant.databinding.FragmentSettingBinding;
+import com.manager.assistant.generic_enums.options.AuthOpportunity;
+import com.manager.assistant.helpers.BiometricHelper;
 import com.manager.assistant.helpers.UpdateHelper;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingOptionViewBase;
 import com.manager.assistant.ui.pages.main.setting.sub.AutoBookkeepingActivity;
@@ -30,6 +35,10 @@ import com.manager.assistant.data.save.preference.AppSettingsPreference;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingClickableTextView;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingSpinnerView;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingSwitchView;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
@@ -73,6 +82,8 @@ public class SettingFragment extends Fragment {
             Intent intent = new Intent(requireContext(), DataManageActivity.class);
             startActivity(intent);
         });
+
+        initSecuritySettings();
 
         //自动记账
         SettingClickableTextView autoBookkeeping = new SettingClickableTextView(
@@ -211,6 +222,121 @@ public class SettingFragment extends Fragment {
                     PermissionManageActivity.class
             );
             startActivity(skip2PermissionManage);
+        });
+    }
+
+    /**
+     * 初始化安全设置
+     */
+    private void initSecuritySettings() {
+        //TODO:将所有下拉式选择设置改为用枚举类控制
+
+        //身份验证开关
+        SettingSwitchView authenticationSwitch = new SettingSwitchView(
+                requireContext(),
+                binding.authenticationSwitch,
+                R.string.authentication,
+                "进入APP时需要进行身份验证",
+                R.drawable.outline_security_24,
+                SettingOptionViewBase.RadiusStyle.TOP
+        );
+        boolean isAuthOpened = SecurityPreference.getAuthSwitchStat(requireContext());
+        authenticationSwitch.setChecked(isAuthOpened);
+        authenticationSwitch.setFunctionListener(new CompoundButton.OnCheckedChangeListener() {
+            private boolean isBlocked = false;  //监听器是否阻塞
+
+            @Override
+            public void onCheckedChanged(@NonNull CompoundButton compoundButton, boolean b) {
+                //被阻塞时不执行操作，防止无限递归
+                if (isBlocked) {
+                    return;
+                }
+
+                String title = b ? "启用身份验证" : "关闭身份验证";
+
+                BiometricHelper.showBiometricPrompt(
+                        title,
+                        "请验证您的身份",
+                        requireActivity(),
+                        new BiometricHelper.AuthCallback() {
+                            @Override
+                            public void onSuccess() {
+                                SecurityPreference.setAuthSwitchStat(requireContext(), b);
+                                Toast.makeText(requireContext(), b ? "已启用身份验证" : "已关闭身份验证", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onError(int errCode, CharSequence errStr) {
+                                Toast.makeText(requireContext(), errStr, Toast.LENGTH_SHORT).show();
+
+                                isBlocked = true;
+                                if (errCode == BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE
+                                        || errCode == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED
+                                ) {
+                                    //设备无锁屏/不支持生物验证时关闭身份验证
+                                    SecurityPreference.setAuthSwitchStat(requireContext(), false);
+
+                                    //开关设置为关闭
+                                    authenticationSwitch.setChecked(false);
+                                } else {
+                                    //开关设置为原始状态
+                                    authenticationSwitch.setChecked(!b);
+                                }
+                                isBlocked = false;
+                            }
+
+                            @Override
+                            public void onFailed() {
+
+                            }
+                        }
+                );
+            }
+        });
+
+        //身份验证时机
+        SettingSpinnerView authenticationOpportunity = new SettingSpinnerView(
+                requireContext(),
+                binding.authenticationOpportunityOption,
+                R.string.authentication_opportunity,
+                "进行身份验证的时机",
+                R.drawable.outline_safety_check_24,
+                SettingOptionViewBase.RadiusStyle.BOTTOM
+        );
+        int opportunityCode = SecurityPreference.getAuthOpportunity(requireContext());
+        authenticationOpportunity.setSpinnerText(AuthOpportunity.values()[opportunityCode].getTitle());
+        authenticationOpportunity.setFunctionListener(view -> {
+            PopupMenu opportunityMenu = new PopupMenu(requireContext(), authenticationOpportunity.getFunctionComponent());
+            opportunityMenu.getMenuInflater().inflate(R.menu.popup_menu_empty, opportunityMenu.getMenu());
+
+            //初始化菜单项
+            for (AuthOpportunity opportunity : AuthOpportunity.values()) {
+                int groupId = opportunity.getGroupId();
+                int itemId = opportunity.getItemId();
+                int order = opportunity.getOrder();
+                String title = opportunity.getTitle();
+                opportunityMenu.getMenu().add(groupId, itemId, order, title);
+            }
+
+            //设置选项点击监听
+            opportunityMenu.setOnMenuItemClickListener(item -> {
+                //获取选项编号列表
+                List<Integer> itemIdList = Arrays.stream(AuthOpportunity.values())
+                        .map(AuthOpportunity::getItemId)
+                        .collect(Collectors.toList());
+
+                //判断是否选中
+                if (itemIdList.contains(item.getItemId())) {
+                    int index = itemIdList.indexOf(item.getItemId());
+                    SecurityPreference.setAuthOpportunity(requireContext(), index);
+                    authenticationOpportunity.setSpinnerText(item.getTitle());
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+
+            opportunityMenu.show();
         });
     }
 

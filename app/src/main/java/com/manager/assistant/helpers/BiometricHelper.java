@@ -1,6 +1,7 @@
 package com.manager.assistant.helpers;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
@@ -21,9 +22,17 @@ public class BiometricHelper {
         void onSuccess();
 
         /**
+         * 验证出错回调
+         *
+         * @param errCode 错误代码，详见{@link BiometricPrompt}中的静态错误代码
+         * @param errStr  错误提示
+         */
+        void onError(int errCode, CharSequence errStr);
+
+        /**
          * 验证失败回调
          */
-        void onError();
+        void onFailed();
     }
 
     /**
@@ -32,7 +41,27 @@ public class BiometricHelper {
      * @param activity 需要弹出身份验证对话框的活动界面
      * @param callback 身份验证回调
      */
-    public static void showBiometricPrompt(@NonNull FragmentActivity activity, AuthCallback callback) {
+    public static void showBiometricPrompt(
+            @NonNull FragmentActivity activity,
+            AuthCallback callback
+    ) {
+        showBiometricPrompt("您已启用身份验证", "请验证您的身份", activity, callback);
+    }
+
+    /**
+     * 进行身份验证
+     *
+     * @param title    对话框标题
+     * @param subTitle 对话框副标题
+     * @param activity 需要弹出身份验证对话框的活动界面
+     * @param callback 身份验证回调
+     */
+    public static void showBiometricPrompt(
+            String title,
+            String subTitle,
+            @NonNull FragmentActivity activity,
+            AuthCallback callback
+    ) {
         //获取主线程执行器
         Executor executor = ContextCompat.getMainExecutor(activity);
 
@@ -44,24 +73,28 @@ public class BiometricHelper {
                 BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL
         );
 
-        //配置对话框信息
-        BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                .setTitle("您已开启身份验证")
-                .setSubtitle("请使用指纹或面部识别")
-                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG |
-                        BiometricManager.Authenticators.DEVICE_CREDENTIAL)
-                .build();
-
         //显示身份验证对话框
         if (result == BiometricManager.BIOMETRIC_SUCCESS) {
+            //配置对话框信息
+            BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                    .setTitle(title)
+                    .setSubtitle(subTitle)
+                    .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG |
+                            BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+                    .build();
+
+            //开始验证
             biometricPrompt.authenticate(promptInfo);
         } else {
             if (result == BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE) {
                 Log.e(LogTags.BIOMETRIC_HELPER.getV(), "设备不支持生物识别");
+                Toast.makeText(activity, "您的设备不支持生物识别", Toast.LENGTH_SHORT).show();
             } else if (result == BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE) {
                 Log.e(LogTags.BIOMETRIC_HELPER.getV(), "硬件忙或不可用");
+                Toast.makeText(activity, "身份验证不可用，请稍后重试", Toast.LENGTH_SHORT).show();
             } else if (result == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED) {
                 Log.e(LogTags.BIOMETRIC_HELPER.getV(), "用户未设置指纹或锁屏密码");
+                Toast.makeText(activity, "您还未设置任何锁屏验证方式", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -72,7 +105,7 @@ public class BiometricHelper {
             @Override
             public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
-                callback.onError();
+                callback.onError(errorCode, errString);
             }
 
             @Override
@@ -84,7 +117,7 @@ public class BiometricHelper {
             @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
-                // 此时指纹/面部未识别成功，可以给用户提示
+                callback.onFailed();
             }
         };
 

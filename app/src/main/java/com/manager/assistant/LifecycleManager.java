@@ -10,10 +10,13 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
+import androidx.biometric.BiometricManager;
 import androidx.fragment.app.FragmentActivity;
 
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
+import com.manager.assistant.data.save.preference.SecurityPreference;
 import com.manager.assistant.generic_enums.LogTags;
+import com.manager.assistant.generic_enums.options.AuthOpportunity;
 import com.manager.assistant.helpers.BiometricHelper;
 
 import java.lang.ref.WeakReference;
@@ -23,6 +26,7 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
     private static LifecycleManager instance;
     private boolean doNotHideOnce = false;      //豁免一次后台隐藏
     private boolean userLeft = true;            //用户离开应用（即前台活动数量为0）
+    private long lastAuthTimeMilli = 0;         //上次进行身份验证的时间戳
     private int foregroundCount = 0;
     private WeakReference<Activity> rootActivityRef;
 
@@ -102,22 +106,37 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
         Log.d(LogTags.LIFECYCLE_MANAGER.getV(), "活动启动");
         foregroundCount++;
 
-        //TODO:采用时间间隔法判断，时间到了进入Activity就要身份验证
-        if (userLeft) {
+        boolean isAuthOpened = SecurityPreference.getAuthSwitchStat(activity);
+        AuthOpportunity authOpportunity = AuthOpportunity.values()[SecurityPreference.getAuthOpportunity(activity)];
+        if (userLeft && isAuthOpened && System.currentTimeMillis() - lastAuthTimeMilli >= authOpportunity.getTimeMilli()) {
             BiometricHelper.showBiometricPrompt((FragmentActivity) activity, new BiometricHelper.AuthCallback() {
                 @Override
                 public void onSuccess() {
                     Toast.makeText(activity, "身份验证成功", Toast.LENGTH_SHORT).show();
+                    lastAuthTimeMilli = System.currentTimeMillis();
                 }
 
                 @Override
-                public void onError() {
-                    Toast.makeText(activity, "身份验证失败", Toast.LENGTH_SHORT).show();
+                public void onError(int errCode, CharSequence errStr) {
+                    if (errCode == BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE
+                            || errCode == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED
+                    ) {
+                        //设备无锁屏/不支持生物验证时关闭身份验证，否则用户可能无法进入APP
+                        Toast.makeText(activity, errStr + "，已自动关闭身份验证", Toast.LENGTH_SHORT).show();
+                        SecurityPreference.setAuthSwitchStat(activity, false);
+                    } else {
+                        Toast.makeText(activity, errStr, Toast.LENGTH_SHORT).show();
 
-                    //强制退出但是保持后台运行
-                    if (rootActivityRef != null) {
-                        rootActivityRef.get().finishAndRemoveTask();
+                        //强制退出但是保持后台运行
+                        if (rootActivityRef != null) {
+                            rootActivityRef.get().finishAndRemoveTask();
+                        }
                     }
+                }
+
+                @Override
+                public void onFailed() {
+
                 }
             });
         }

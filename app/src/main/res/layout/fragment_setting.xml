@@ -46,6 +46,21 @@
             android:layout_marginTop="20dp"
             android:layout_marginEnd="10dp" />
 
+        <!-- 身份验证开关 -->
+        <include
+            android:id="@+id/authentication_switch"
+            layout="@layout/view_setting_option"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="10dp" />
+
+        <!-- 身份验证时机 -->
+        <include
+            android:id="@+id/authentication_opportunity_option"
+            layout="@layout/view_setting_option" />
+
         <!-- 自动记账 -->
         <include
             android:id="@+id/auto_bookkeeping_option"

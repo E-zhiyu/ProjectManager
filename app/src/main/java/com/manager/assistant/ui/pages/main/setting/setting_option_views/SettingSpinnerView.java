@@ -64,7 +64,7 @@ public class SettingSpinnerView extends SettingOptionViewBase<MaterialTextView, 
      *
      * @param text 目标文本
      */
-    public void setSpinnerText(String text) {
+    public void setSpinnerText(CharSequence text) {
         functionComponent.setText(text);
     }
 
