@@ -22,6 +22,7 @@ import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.data.save.preference.SecurityPreference;
 import com.manager.assistant.databinding.FragmentSettingBinding;
 import com.manager.assistant.generic_enums.options.AuthOpportunity;
+import com.manager.assistant.generic_enums.options.FirstScreen;
 import com.manager.assistant.helpers.BiometricHelper;
 import com.manager.assistant.helpers.UpdateHelper;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingOptionViewBase;
@@ -173,35 +174,36 @@ public class SettingFragment extends Fragment {
                 R.drawable.outline_mobile_24,
                 SettingOptionViewBase.RadiusStyle.MIDDLE
         );
-        String[] firstScreenTitles = {
-                requireContext().getString(R.string.title_bookkeeping),
-                requireContext().getString(R.string.title_home)
-        };
         int screenCode = AppSettingsPreference.getFirstScreen(requireContext());
-        firstScreenOption.setSpinnerText(firstScreenTitles[screenCode]);
+        firstScreenOption.setSpinnerText(FirstScreen.values()[screenCode].getTitle());
         firstScreenOption.setFunctionListener(v -> {
             PopupMenu firstScreenMenu = new PopupMenu(requireContext(), firstScreenOption.getFunctionComponent());
-            firstScreenMenu.getMenuInflater().inflate(R.menu.popup_menu_first_screen, firstScreenMenu.getMenu());
 
+            //填充菜单选项
+            for (FirstScreen firstScreen:FirstScreen.values()) {
+                int groupId = firstScreen.getGroupId();
+                int itemId = firstScreen.getItemId();
+                int order = firstScreen.getOrder();
+                String title = firstScreen.getTitle();
+                firstScreenMenu.getMenu().add(groupId, itemId, order, title);
+            }
+
+            //设置点击监听
             firstScreenMenu.setOnMenuItemClickListener(item -> {
-                boolean isItemClicked = false;
+                //获取选项编号列表
+                List<Integer> itemIdList = Arrays.stream(FirstScreen.values())
+                        .map(FirstScreen::getItemId)
+                        .collect(Collectors.toList());
 
-                int item_index = -1;
-                int old_screen_code = AppSettingsPreference.getFirstScreen(requireContext());
-                if (item.getItemId() == R.id.bookkeeping) {
-                    item_index = 0;
-                    isItemClicked = true;
-                } else if (item.getItemId() == R.id.home) {
-                    item_index = 1;
-                    isItemClicked = true;
+                //判断是否选中
+                if (itemIdList.contains(item.getItemId())) {
+                    int index = itemIdList.indexOf(item.getItemId());
+                    AppSettingsPreference.setFirstScreen(requireContext(), index);
+                    firstScreenOption.setSpinnerText(item.getTitle());
+                    return true;
+                } else {
+                    return false;
                 }
-
-                if (isItemClicked && item_index != old_screen_code) {
-                    AppSettingsPreference.setFirstScreen(requireContext(), item_index);
-                    firstScreenOption.setSpinnerText(firstScreenTitles[item_index]);
-                }
-
-                return isItemClicked;
             });
 
             firstScreenMenu.show();
@@ -307,7 +309,6 @@ public class SettingFragment extends Fragment {
         authenticationOpportunity.setSpinnerText(AuthOpportunity.values()[opportunityCode].getTitle());
         authenticationOpportunity.setFunctionListener(view -> {
             PopupMenu opportunityMenu = new PopupMenu(requireContext(), authenticationOpportunity.getFunctionComponent());
-            opportunityMenu.getMenuInflater().inflate(R.menu.popup_menu_empty, opportunityMenu.getMenu());
 
             //初始化菜单项
             for (AuthOpportunity opportunity : AuthOpportunity.values()) {
