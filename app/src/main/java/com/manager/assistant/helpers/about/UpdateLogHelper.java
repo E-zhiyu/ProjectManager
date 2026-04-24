@@ -15,6 +15,7 @@ public class UpdateLogHelper {
             "### 新增内容  \n" +
             "- 新增身份验证选项，在用户离开APP后要求进行身份验证  \n" +
             "### BUG修复  \n" +
+            "- 修复流水记录数量显示的实际是记了账的天数的BUG  \n" +
             "- 修复包名选择界面搜索应用名称不会忽视大小写的BUG  \n" +
             "# v1.8.15  \n" +
             "### 新增内容  \n" +
@@ -419,18 +420,18 @@ public class UpdateLogHelper {
      * @param context 上下文
      */
     public static void showUpdateLogDialog(Context context) {
-        View update_dialog_view = LayoutInflater.from(context)
+        View updateDialogView = LayoutInflater.from(context)
                 .inflate(R.layout.view_markdown_text, null);
-        MaterialTextView text_view = update_dialog_view.findViewById(R.id.md_textview_in_dialog);
+        MaterialTextView textView = updateDialogView.findViewById(R.id.md_textview_in_dialog);
 
         //使用Markown渲染Markdown文本
         Markwon markwon = Markwon.create(context);
-        markwon.setMarkdown(text_view, UPDATE_LOG_MD);
+        markwon.setMarkdown(textView, UPDATE_LOG_MD);
 
         new MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.update_log)
-                .setView(update_dialog_view)
-                .setPositiveButton("关闭", ((dialog, which) -> dialog.dismiss()))
+                .setView(updateDialogView)
+                .setPositiveButton("关闭", null)
                 .show();
     }
 }

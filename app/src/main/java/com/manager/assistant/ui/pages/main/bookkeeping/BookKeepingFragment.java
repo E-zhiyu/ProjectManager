@@ -285,6 +285,7 @@ public class BookKeepingFragment extends Fragment implements AccountAdapter.OnVi
         }
 
         //添加适配器到RecyclerView中
+        accountCount = 0;
         for (Map.Entry<String, List<RunningAccountBase>> entry : accountListMap.entrySet()) {
             String date = entry.getKey();
             List<RunningAccountBase> accountList = entry.getValue();
@@ -298,7 +299,13 @@ public class BookKeepingFragment extends Fragment implements AccountAdapter.OnVi
             //保存适配器引用
             AdapterContainer container = new AdapterContainer(headerAdapter, accountAdapter);
             adapterContainerMap.put(date, container);
+
+            //增加显示数量文本
+            accountCount += accountList.size();
         }
+
+        //刷新流水记录数量
+        refreshAccountNumText();
     }
 
     /**
@@ -313,19 +320,13 @@ public class BookKeepingFragment extends Fragment implements AccountAdapter.OnVi
      */
     private void refreshUI() {
         binding.refreshLayout.setRefreshing(true);
+        //刷新RecyclerView
         disposables.add(
                 Observable.fromCallable(() -> AccountDataController.loadRunningAccountData(filterSetting, searchText, requireContext()))
                         .subscribeOn(Schedulers.io())               //在IO线程执行查询
                         .observeOn(AndroidSchedulers.mainThread())  //切换到主线程更新 UI
                         .subscribe(
-                                accountListMap -> {
-                                    //刷新RecyclerView
-                                    refreshRecyclerView(accountListMap);
-
-                                    //刷新数量文本
-                                    accountCount = accountListMap.size();
-                                    refreshAccountNumText();
-                                },  //成功回调
+                                this::refreshRecyclerView,
                                 e -> {
                                     ExceptionHelper.showExceptionDialog(requireContext(), e);
                                     binding.refreshLayout.setRefreshing(false);
