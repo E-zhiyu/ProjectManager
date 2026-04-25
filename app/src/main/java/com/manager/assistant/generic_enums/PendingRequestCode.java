@@ -8,4 +8,5 @@ public enum PendingRequestCode {
     SKIP_TO_ACCOUNT_INPUT,                  //自动记账保留记录后，点击通知跳转至流水输入界面
     AUTO_BOOKKEEPING_NOTIFICATION_CLICK,    //点击自动记账确认通知
     AUTO_BOOKKEEPING_NOTIFICATION_DELETE,   //删除自动记账确认通知
+    AUTO_BOOKKEEPING_ERROR,                 //自动记账出错
 }

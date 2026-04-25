@@ -32,6 +32,7 @@ import com.manager.assistant.generic_enums.NotificationID;
 import com.manager.assistant.generic_enums.PendingRequestCode;
 import com.manager.assistant.helpers.NotificationHelper;
 import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.ui.pages.notification_analysis.AnalysisRuleManageActivity;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -297,15 +298,37 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
             ).show();
             return null;
         } catch (NumberFormatException e) {
-            Toast.makeText(
+            //发送错误提示通知
+            int notificationID = NotificationID.AUTO_BOOKKEEPING_ERROR.ordinal() + Math.toIntExact(ruleNo);
+            Intent skip2RuleManage = new Intent(getApplicationContext(), AnalysisRuleManageActivity.class);
+            PendingIntent pi = PendingIntent.getActivity(
                     getApplicationContext(),
-                    String.format(
-                            Locale.getDefault(),
-                            "规则“%s”的捕获组无法正确捕获金额数据",
-                            ruleName
-                    ),
-                    Toast.LENGTH_SHORT
-            ).show();
+                    PendingRequestCode.AUTO_BOOKKEEPING_ERROR.ordinal() + Math.toIntExact(ruleNo),
+                    skip2RuleManage,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+            );
+
+            //实例化构建器
+            String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(
+                    getApplicationContext(),
+                    channelID
+            )
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle("自动记账出错")
+                    .setContentText(String.format(Locale.getDefault(), "规则“%s”无法获取金额数据", ruleName))
+                    .setContentIntent(pi)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setCategory(NotificationCompat.CATEGORY_ALARM)
+                    .setAutoCancel(true);
+
+            //发送通知
+            NotificationHelper.sendNotification(
+                    notificationID,
+                    builder,
+                    getApplicationContext()
+            );
+
             return null;
         }
 
