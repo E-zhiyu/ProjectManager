@@ -74,11 +74,11 @@
 ## 🎞️效果展示
 
 <div style="display: flex; justify-content: center; gap: 10px;">
-  <img src="https://github.com/user-attachments/assets/6fc0e0bb-3f68-49e8-a49a-02103183db15" width="19%" alt="记账"/>
-  <img src="https://github.com/user-attachments/assets/7dbc4e12-3a2e-4c0c-915d-97be9071f32c" width="19%" alt="主页"/>
-  <img src="https://github.com/user-attachments/assets/54acae40-c0e3-4001-89ee-84da27e06b91" width="19%" alt="报表"/>
-  <img src="https://github.com/user-attachments/assets/b72f4eb5-832b-4f02-a88d-abce51c23dd2" width="19%" alt="标签管理"/>
-  <img src="https://github.com/user-attachments/assets/7e56588f-cfa6-46d1-9409-9d8794a7a0fb" width="19%" alt="解析规则管理"/>
+  <img src="https://github.com/user-attachments/assets/ecf2c159-e31a-40ee-b796-51b7e020fd25" width="19%" alt="记账"/>
+  <img src="https://github.com/user-attachments/assets/8e34addd-ff29-4f4a-a7c1-379a99253dea" width="19%" alt="主页"/>
+  <img src="https://github.com/user-attachments/assets/7998983a-d556-4369-a26b-9261924bd6a9" width="19%" alt="设置"/>
+  <img src="https://github.com/user-attachments/assets/9a96a196-4de3-467b-87e7-a4ca0881b1fd" width="19%" alt="报表"/>
+  <img src="https://github.com/user-attachments/assets/9ed82846-98ee-4e0c-9f2f-fbecdaf206c4" width="19%" alt="标签管理"/>
 </div>
 
 ## 🛡️需要用到的权限
