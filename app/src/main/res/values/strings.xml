@@ -47,7 +47,6 @@
     <string name="this_year">这一年</string>
     <string name="percentage_100">100%</string>
     <string name="tag_add">新建标签</string>
-    <string name="version_name">版本名称</string>
     <string name="setting">应用设置</string>
     <string name="theme_mode">主题模式</string>
     <string name="dynamic_color">动态色彩</string>
@@ -155,6 +154,8 @@
     <string name="select_date">选择日期</string>
     <string name="backend_popup">后台弹窗</string>
     <string name="permissions_setting">权限设置</string>
+    <string name="authentication">身份验证</string>
+    <string name="authentication_opportunity">验证时机</string>
     <string name="notification_permission">通知权限</string>
     <string name="notification_listener_permission">通知使用权限</string>
     <string name="auto_start_permission">自启动权限</string>
@@ -175,6 +176,11 @@
     <string name="there_is_no_analysis_rule">没有通知解析规则哦ㄟ( ▔, ▔ )ㄏ</string>
     <string name="there_is_no_running_account">没有流水记录(●\'◡\'●)</string>
     <string name="right_arrow_of_tag_card">标签卡片的右侧箭头</string>
+    <string name="app_description">这是一款极简的个人记账工具，界面采用Material You风格，无多余功能，为用户提供清爽的记账体验。</string>
+    <string name="author_name">E_zhiyu</string>
+    <string name="author_of_app">软件创作者</string>
+    <string name="project_address">项目地址</string>
+    <string name="click_skip_to_repository">点击跳转至项目仓库</string>
     <string-array name="tips_array">
         <item>在报表界面可以点击某个收支来源以排除它，还不赶快去试试？</item>
         <item>你知道吗？下面的这些卡片是可以点击的。</item>

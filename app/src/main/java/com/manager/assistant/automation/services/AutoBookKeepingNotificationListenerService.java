@@ -32,9 +32,9 @@ import com.manager.assistant.generic_enums.NotificationID;
 import com.manager.assistant.generic_enums.PendingRequestCode;
 import com.manager.assistant.helpers.NotificationHelper;
 import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.ui.pages.notification_analysis.AnalysisRuleManageActivity;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -170,10 +170,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         if (text == null || title == null) return;
 
         //同一应用发送太频繁直接不运行
-        LocalDateTime now = LocalDateTime.now();
-        long currentEpochMilli = now.atZone(ZoneId.systemDefault())
-                .toInstant()
-                .toEpochMilli();
+        long currentEpochMilli = System.currentTimeMillis();
         long difference = currentEpochMilli - lastReceiveEpochMilli;        //求时间差
         lastReceiveEpochMilli = currentEpochMilli;
         boolean isSamePackageName = packageName.equals(lastPackageName);    //判断是否包名相同
@@ -205,15 +202,12 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                     matcher = pattern.matcher(text);
                 } catch (PatternSyntaxException e) {                    //处理无法编译为Matcher的情况
                     Log.e(LogTags.NOTIFICATION_SERVICE.getV(), "正则表达式编译出错");
-                    Toast.makeText(
-                            getApplicationContext(),
-                            String.format(
-                                    Locale.getDefault(),
-                                    "规则“%s”的正则表达式编译出错",
-                                    ruleName
-                            ),
-                            Toast.LENGTH_SHORT
-                    ).show();
+                    String err = String.format(
+                            Locale.getDefault(),
+                            "规则“%s”的正则表达式编译出错",
+                            ruleName
+                    );
+                    sendErrorNotification(err, ruleNo);
                     continue;
                 }
 
@@ -286,26 +280,12 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         try {
             amount = Double.parseDouble(Objects.requireNonNull(matcher.group(1)));
         } catch (IndexOutOfBoundsException e) { //处理没有捕获组的情况
-            Toast.makeText(
-                    getApplicationContext(),
-                    String.format(
-                            Locale.getDefault(),
-                            "规则“%s”没有金额捕获组",
-                            ruleName
-                    ),
-                    Toast.LENGTH_SHORT
-            ).show();
+            String err = String.format(Locale.getDefault(), "规则“%s”没有设置金额捕获组", ruleName);
+            sendErrorNotification(err, ruleNo);
             return null;
         } catch (NumberFormatException e) {
-            Toast.makeText(
-                    getApplicationContext(),
-                    String.format(
-                            Locale.getDefault(),
-                            "规则“%s”的捕获组无法正确捕获金额数据",
-                            ruleName
-                    ),
-                    Toast.LENGTH_SHORT
-            ).show();
+            String error = String.format(Locale.getDefault(), "规则“%s”无法获取金额数据", ruleName);
+            sendErrorNotification(error, ruleNo);
             return null;
         }
 
@@ -370,6 +350,45 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         }
 
         return ruleHashMap;
+    }
+
+    /**
+     * 发送错误警告通知
+     *
+     * @param content 通知内容
+     * @param ruleNo  出错的规则编号
+     */
+    private void sendErrorNotification(String content, long ruleNo) {
+        //发送错误提示通知
+        int notificationID = NotificationID.AUTO_BOOKKEEPING_ERROR.ordinal() + Math.toIntExact(ruleNo);
+        Intent skip2RuleManage = new Intent(getApplicationContext(), AnalysisRuleManageActivity.class);
+        PendingIntent pi = PendingIntent.getActivity(
+                getApplicationContext(),
+                PendingRequestCode.AUTO_BOOKKEEPING_ERROR.ordinal() + Math.toIntExact(ruleNo),
+                skip2RuleManage,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        //实例化构建器
+        String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(
+                getApplicationContext(),
+                channelID
+        )
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("自动记账出错")
+                .setContentText(content)
+                .setContentIntent(pi)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setAutoCancel(true);
+
+        //发送通知
+        NotificationHelper.sendNotification(
+                notificationID,
+                builder,
+                getApplicationContext()
+        );
     }
 
     /**

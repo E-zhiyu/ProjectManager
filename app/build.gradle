@@ -8,11 +8,11 @@ android {
 
     defaultConfig {
         applicationId "com.manager.assitant"
-        minSdk 26
+        minSdk 28
         //noinspection OldTargetApi
         targetSdk 36
-        versionCode 59
-        versionName "1.8.15"
+        versionCode 60
+        versionName "1.8.16"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -43,6 +43,7 @@ dependencies {
     implementation libs.navigation.ui
     implementation libs.activity
     implementation libs.materialdatetimepicker
+    implementation libs.biometric
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core

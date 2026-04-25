@@ -2,7 +2,6 @@ package com.manager.assistant;
 
 import android.app.Application;
 import android.net.Uri;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.work.WorkInfo;
@@ -15,8 +14,8 @@ import com.manager.assistant.data.save.preference.AutoBackupPreference;
 import com.manager.assistant.data.save.preference.AppSettingsPreference;
 import com.manager.assistant.data.save.preference.VersionPreference;
 import com.manager.assistant.generic_enums.LogTags;
+import com.manager.assistant.generic_enums.options.BackupFrequency;
 import com.manager.assistant.helpers.NotificationHelper;
-import com.manager.assistant.helpers.file.AutoBackupHelper;
 import com.manager.assistant.automation.schedulers.BackupScheduler;
 
 import java.io.File;
@@ -35,7 +34,7 @@ public class ManagerAssistant extends Application {
         //注册通知渠道
         NotificationHelper.createNotificationChannels(this);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && getProcessName().equals(getPackageName())) {
+        if (getProcessName().equals(getPackageName())) {
             //初始化动态配色
             if (AppSettingsPreference.getDynamicColorStat(this)) {
                 DynamicColorsOptions options = new DynamicColorsOptions.Builder()
@@ -45,12 +44,12 @@ public class ManagerAssistant extends Application {
             }
 
             //注册Activity生命周期监听器
-            RecentTaskManager.init(this);
+            LifecycleManager.init(this);
 
             //安排自动备份任务
             if (AutoBackupPreference.getSwitchStat(this)) {
                 int frequency = AutoBackupPreference.getBackupFrequency(this);
-                long intervalMillis = AutoBackupHelper.BackupFrequency.values()[frequency].getIntervalMillis();
+                long intervalMillis = BackupFrequency.values()[frequency].getIntervalMillis();
                 BackupScheduler.schedulePeriodicBackup(this, intervalMillis);
 
                 //打印任务状态日志

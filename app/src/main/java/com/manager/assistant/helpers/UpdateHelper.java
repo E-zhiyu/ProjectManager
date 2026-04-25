@@ -138,9 +138,9 @@ public class UpdateHelper {
         ObjectMapper mapper = new ObjectMapper();
         VersionInfo versionInfo = mapper.readValue(versionInfoJson, VersionInfo.class);
 
-        int latestVersionCode = versionInfo.getVersionCode();                   //新版本的版本代码
-        int currentVersionCode = AboutHelper.getVersionCode(context);           //当前版本代码
-        int skipVersionCode = VersionPreference.getSkipVersionCode(context);    //跳过的版本代码
+        long latestVersionCode = versionInfo.getVersionCode();                  //新版本的版本代码
+        long currentVersionCode = AboutHelper.getVersionCode(context);          //当前版本代码
+        long skipVersionCode = VersionPreference.getSkipVersionCode(context);   //跳过的版本代码
         if (latestVersionCode > currentVersionCode && (ignoreSkipVersion || latestVersionCode > skipVersionCode)) {
             boolean isMandatory = versionInfo.isMandatory();
             String downloadUrl = versionInfo.getDownloadUrl();
@@ -177,7 +177,7 @@ public class UpdateHelper {
             String downloadUrl,
             String updateLog,
             String versionName,
-            int latestVersionCode,
+            long latestVersionCode,
             boolean isMandatory) {
         View markdownDialog = LayoutInflater.from(context)
                 .inflate(R.layout.view_markdown_text, null);
@@ -324,7 +324,7 @@ public class UpdateHelper {
      * @param context     上下文
      * @param versionCode 被跳过的版本的版本代码
      */
-    private static void skipNextVersion(Context context, int versionCode) {
+    private static void skipNextVersion(Context context, long versionCode) {
         VersionPreference.setSkipVersionCode(context, versionCode);
     }
 
@@ -363,7 +363,7 @@ public class UpdateHelper {
 }
 
 class VersionInfo {
-    private int versionCode;                //版本代码
+    private long versionCode;               //版本代码
     private String versionName;             //版本名称
     private String downloadUrl;             //下载链接
     private String updateLog;               //更新日志内容
@@ -372,11 +372,11 @@ class VersionInfo {
     public VersionInfo() {
     }
 
-    public int getVersionCode() {
+    public long getVersionCode() {
         return versionCode;
     }
 
-    public void setVersionCode(int versionCode) {
+    public void setVersionCode(long versionCode) {
         this.versionCode = versionCode;
     }
 

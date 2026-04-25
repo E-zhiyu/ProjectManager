@@ -33,6 +33,7 @@ import com.manager.assistant.data.save.preference.AutoBackupPreference;
 import com.manager.assistant.data.save.preference.BookKeepingStartDatePreference;
 import com.manager.assistant.databinding.ActivityDataManageBinding;
 import com.manager.assistant.generic_enums.LogTags;
+import com.manager.assistant.generic_enums.options.BackupFrequency;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 import com.manager.assistant.helpers.file.AutoBackupHelper;
@@ -56,6 +57,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -313,45 +315,52 @@ public class DataManageActivity extends AppCompatActivity {
                 SettingOptionViewBase.RadiusStyle.MIDDLE
         );
         int frequencyIndex = AutoBackupPreference.getBackupFrequency(this);
-        String frequencyName = AutoBackupHelper.BackupFrequency.values()[frequencyIndex].getName();
-        backupFrequencyOption.setSpinnerText(frequencyName);
+        backupFrequencyOption.setSpinnerText(
+                BackupFrequency.values()[frequencyIndex].getTitle()
+        );
         backupFrequencyOption.setFunctionListener(v -> {
             PopupMenu frequencyMenu = new PopupMenu(this, backupFrequencyOption.getFunctionComponent());
-            frequencyMenu.getMenuInflater().inflate(R.menu.popup_menu_backup_frequency, frequencyMenu.getMenu());
 
+            //填充选项
+            for (BackupFrequency frequency : BackupFrequency.values()) {
+                int groupId = frequency.getGroupId();
+                int itemId = frequency.getItemId();
+                int order = frequency.getOrder();
+                String title = frequency.getTitle();
+                frequencyMenu.getMenu().add(groupId, itemId, order, title);
+            }
+
+            //设置监听
             frequencyMenu.setOnMenuItemClickListener(item -> {
                 boolean isItemClicked = false;
 
-                int oldIndex = AutoBackupPreference.getBackupFrequency(this);  //获取之前的频率代码防止重复更新工作
-                int itemIndex = -1;
-                if (item.getItemId() == R.id.every_15_min) {
-                    isItemClicked = true;
-                    itemIndex = 0;
-                } else if (item.getItemId() == R.id.every_day) {
-                    isItemClicked = true;
-                    itemIndex = 1;
-                } else if (item.getItemId() == R.id.every_week) {
-                    isItemClicked = true;
-                    itemIndex = 2;
-                } else if (item.getItemId() == R.id.every_month) {
-                    isItemClicked = true;
-                    itemIndex = 3;
-                }
+                //获取选项编号列表
+                List<Integer> itemIdList = Arrays.stream(BackupFrequency.values())
+                        .map(BackupFrequency::getItemId)
+                        .collect(Collectors.toList());
 
-                if (isItemClicked && oldIndex != itemIndex) {
-                    AutoBackupHelper.BackupFrequency frequency = AutoBackupHelper.BackupFrequency.values()[itemIndex];
-                    String title = frequency.getName();
-                    backupFrequencyOption.setSpinnerText(title);
-                    AutoBackupPreference.setBackupFrequency(this, itemIndex);
+                //判断是否选中
+                if (itemIdList.contains(item.getItemId())) {
+                    int index = itemIdList.indexOf(item.getItemId());
+                    backupFrequencyOption.setSpinnerText(item.getTitle());
+                    isItemClicked = true;
 
-                    //只有开关打开时才更新工作内容并安排一次备份
-                    if (AutoBackupPreference.getSwitchStat(this)) {
-                        //更新工作内容
-                        long intervalMillis = frequency.getIntervalMillis();
-                        BackupScheduler.schedulePeriodicBackup(this, intervalMillis);
+                    int oldIndex = AutoBackupPreference.getBackupFrequency(this);  //获取之前的频率代码防止重复更新工作
+                    if (oldIndex != index) {
+                        BackupFrequency frequency = BackupFrequency.values()[index];
+                        String title = frequency.getTitle();
+                        backupFrequencyOption.setSpinnerText(title);
+                        AutoBackupPreference.setBackupFrequency(this, index);
 
-                        //立即备份一次
-                        BackupScheduler.executeBackupNow(this);
+                        //只有开关打开时才更新工作内容并安排一次备份
+                        if (AutoBackupPreference.getSwitchStat(this)) {
+                            //更新工作内容
+                            long intervalMillis = frequency.getIntervalMillis();
+                            BackupScheduler.schedulePeriodicBackup(this, intervalMillis);
+
+                            //立即备份一次
+                            BackupScheduler.executeBackupNow(this);
+                        }
                     }
                 }
 
@@ -760,7 +769,7 @@ public class DataManageActivity extends AppCompatActivity {
             builder.show();
         } else if (isChecked) {
             int frequencyIndex = AutoBackupPreference.getBackupFrequency(this);
-            long intervalMillis = AutoBackupHelper.BackupFrequency.values()[frequencyIndex].getIntervalMillis();
+            long intervalMillis = BackupFrequency.values()[frequencyIndex].getIntervalMillis();
             BackupScheduler.schedulePeriodicBackup(this, intervalMillis);   //开关打开后立刻安排备份任务
         } else {
             BackupScheduler.cancelPeriodicBackup(this);

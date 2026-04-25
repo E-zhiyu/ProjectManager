@@ -12,11 +12,13 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
-import com.manager.assistant.RecentTaskManager;
+import com.manager.assistant.LifecycleManager;
 import com.manager.assistant.automation.broadcast.BroadcastActions;
 import com.manager.assistant.data.io.helpers.AnalysisRuleDataHelper;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.databinding.ActivityAutoBookkeepingBinding;
+import com.manager.assistant.generic_enums.options.NotificationCancelBehaviour;
+import com.manager.assistant.generic_enums.options.NotificationClickBehaviour;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 import com.manager.assistant.ui.pages.notification_analysis.AnalysisRuleManageActivity;
@@ -24,6 +26,10 @@ import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingC
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingOptionViewBase;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingSpinnerView;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingSwitchView;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class AutoBookkeepingActivity extends AppCompatActivity {
     private ActivityAutoBookkeepingBinding binding; //绑定的XML布局
@@ -82,7 +88,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
         notificationAnalysisSwitchOption.setOnLongClickListener(v -> {
             Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            RecentTaskManager.startExternalActivity(this, intent);
+            LifecycleManager.startExternalActivity(this, intent);
             return true;
         });
 
@@ -98,7 +104,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
         ruleManageOption.setFunctionListener(
                 v -> {
                     Intent intent = new Intent(this, AnalysisRuleManageActivity.class);
-                    RecentTaskManager.startExternalActivity(this, intent);
+                    LifecycleManager.startExternalActivity(this, intent);
                 }
         );
 
@@ -132,29 +138,38 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                 R.drawable.outline_comments_disabled_24,
                 SettingOptionViewBase.RadiusStyle.MIDDLE
         );
-        int[] cancelTitleResId = {
-                R.string.keep_account,
-                R.string.delete_account
-        };
         int cancelBehaviourCode = AutoBookKeepingPreference.getNotificationCancelBehaviour(this);
-        notificationCancelBehaviour.setSpinnerText(cancelTitleResId[cancelBehaviourCode]);
+        notificationCancelBehaviour.setSpinnerText(
+                NotificationCancelBehaviour.values()[cancelBehaviourCode].getTitle()
+        );
         notificationCancelBehaviour.setFunctionListener(v -> {
             PopupMenu behaviourMenu = new PopupMenu(this, notificationCancelBehaviour.getFunctionComponent());
-            behaviourMenu.getMenuInflater().inflate(R.menu.popup_menu_notification_cancel_behaviour, behaviourMenu.getMenu());
 
+            //填充选项
+            for (NotificationCancelBehaviour behaviour : NotificationCancelBehaviour.values()) {
+                int groupId = behaviour.getGroupId();
+                int itemId = behaviour.getItemId();
+                int order = behaviour.getOrder();
+                String title = behaviour.getTitle();
+                behaviourMenu.getMenu().add(groupId, itemId, order, title);
+            }
+
+            //设置监听
             behaviourMenu.setOnMenuItemClickListener(item -> {
-                boolean isItemClicked = false;
-                if (item.getItemId() == R.id.action_keep) {
-                    AutoBookKeepingPreference.setNotificationCancelBehaviour(0, this);
-                    notificationCancelBehaviour.setSpinnerText(cancelTitleResId[0]);
-                    isItemClicked = true;
-                } else if (item.getItemId() == R.id.action_delete) {
-                    AutoBookKeepingPreference.setNotificationCancelBehaviour(1, this);
-                    notificationCancelBehaviour.setSpinnerText(cancelTitleResId[1]);
-                    isItemClicked = true;
-                }
+                //获取选项编号列表
+                List<Integer> itemIdList = Arrays.stream(NotificationCancelBehaviour.values())
+                        .map(NotificationCancelBehaviour::getItemId)
+                        .collect(Collectors.toList());
 
-                return isItemClicked;
+                //判断是否选中
+                if (itemIdList.contains(item.getItemId())) {
+                    int index = itemIdList.indexOf(item.getItemId());
+                    AutoBookKeepingPreference.setNotificationCancelBehaviour(this, index);
+                    notificationCancelBehaviour.setSpinnerText(item.getTitle());
+                    return true;
+                } else {
+                    return false;
+                }
             });
 
             behaviourMenu.show();
@@ -169,34 +184,38 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                 R.drawable.outline_ads_click_24,
                 SettingOptionViewBase.RadiusStyle.BOTTOM
         );
-        int[] clickTitleResId = {
-                R.string.none,
-                R.string.keep_account,
-                R.string.delete_account
-        };
         int clickBehaviourCode = AutoBookKeepingPreference.getNotificationClickBehaviour(this);
-        notificationClickBehaviour.setSpinnerText(clickTitleResId[clickBehaviourCode]);
+        notificationClickBehaviour.setSpinnerText(
+                NotificationClickBehaviour.values()[clickBehaviourCode].getTitle()
+        );
         notificationClickBehaviour.setFunctionListener(v -> {
             PopupMenu behaviourMenu = new PopupMenu(this, notificationClickBehaviour.getFunctionComponent());
-            behaviourMenu.getMenuInflater().inflate(R.menu.popup_menu_notification_click_behaviour, behaviourMenu.getMenu());
 
+            //填充选项
+            for (NotificationClickBehaviour behaviour : NotificationClickBehaviour.values()) {
+                int groupId = behaviour.getGroupId();
+                int itemId = behaviour.getItemId();
+                int order = behaviour.getOrder();
+                String title = behaviour.getTitle();
+                behaviourMenu.getMenu().add(groupId, itemId, order, title);
+            }
+
+            //设置监听
             behaviourMenu.setOnMenuItemClickListener(item -> {
-                boolean isItemClicked = false;
-                if (item.getItemId() == R.id.action_none) {
-                    AutoBookKeepingPreference.setNotificationClickBehaviour(0, this);
-                    notificationClickBehaviour.setSpinnerText(clickTitleResId[0]);
-                    isItemClicked = true;
-                } else if (item.getItemId() == R.id.action_keep) {
-                    AutoBookKeepingPreference.setNotificationClickBehaviour(1, this);
-                    notificationClickBehaviour.setSpinnerText(clickTitleResId[1]);
-                    isItemClicked = true;
-                } else if (item.getItemId() == R.id.action_delete) {
-                    AutoBookKeepingPreference.setNotificationClickBehaviour(2, this);
-                    notificationClickBehaviour.setSpinnerText(clickTitleResId[2]);
-                    isItemClicked = true;
-                }
+                //获取选项编号列表
+                List<Integer> itemIdList = Arrays.stream(NotificationClickBehaviour.values())
+                        .map(NotificationClickBehaviour::getItemId)
+                        .collect(Collectors.toList());
 
-                return isItemClicked;
+                //判断是否选中
+                if (itemIdList.contains(item.getItemId())) {
+                    int index = itemIdList.indexOf(item.getItemId());
+                    AutoBookKeepingPreference.setNotificationClickBehaviour(this, index);
+                    notificationClickBehaviour.setSpinnerText(item.getTitle());
+                    return true;
+                } else {
+                    return false;
+                }
             });
 
             behaviourMenu.show();
@@ -225,7 +244,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                         //申请通知监听权限
                         Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        RecentTaskManager.startExternalActivity(this, intent);
+                        LifecycleManager.startExternalActivity(this, intent);
                     })
                     .setNegativeButton("取消", null)
                     .show();
