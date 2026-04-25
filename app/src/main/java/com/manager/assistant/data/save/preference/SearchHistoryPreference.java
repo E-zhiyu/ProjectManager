@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
@@ -32,7 +32,13 @@ public class SearchHistoryPreference {
         //将JSON转换为列表
         ObjectMapper mapper = new ObjectMapper();
         List<String> historyList;
-        historyList = new ArrayList<>();
+        try {
+            JavaType javaType = mapper.getTypeFactory()
+                    .constructCollectionType(List.class, String.class);
+            historyList = mapper.readValue(json, javaType);
+        } catch (JsonProcessingException e) {
+            historyList = new ArrayList<>();
+        }
 
         return historyList;
     }
