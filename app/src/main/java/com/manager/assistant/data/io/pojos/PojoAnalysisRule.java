@@ -1,8 +1,11 @@
 package com.manager.assistant.data.io.pojos;
 
+import androidx.annotation.Keep;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true) // 忽略JSON中多余字段
+@Keep
 public class PojoAnalysisRule {
     private String ruleName;    //规则名称
     private long ruleNo;        //规则编号

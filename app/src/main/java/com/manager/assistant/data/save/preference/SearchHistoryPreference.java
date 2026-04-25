@@ -32,12 +32,7 @@ public class SearchHistoryPreference {
         //将JSON转换为列表
         ObjectMapper mapper = new ObjectMapper();
         List<String> historyList;
-        try {
-            historyList = mapper.readValue(json, new TypeReference<>() {
-            });
-        } catch (JsonProcessingException e) {
-            historyList = new ArrayList<>();
-        }
+        historyList = new ArrayList<>();
 
         return historyList;
     }

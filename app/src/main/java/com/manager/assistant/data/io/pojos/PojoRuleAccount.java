@@ -1,8 +1,11 @@
 package com.manager.assistant.data.io.pojos;
 
+import androidx.annotation.Keep;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true) // 忽略JSON中多余字段
+@Keep
 public class PojoRuleAccount {
     private long ruleNo;
     private String exportAccount;
