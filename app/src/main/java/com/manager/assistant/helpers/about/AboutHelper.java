@@ -47,10 +47,10 @@ public class AboutHelper {
      * @return 版本代码整数值
      * @throws PackageManager.NameNotFoundException 包名未找到引发的异常
      */
-    public static int getVersionCode(@NonNull Context context) throws PackageManager.NameNotFoundException {
+    public static long getVersionCode(@NonNull Context context) throws PackageManager.NameNotFoundException {
         PackageInfo packageInfo = context.getPackageManager()
                 .getPackageInfo(context.getPackageName(), 0);
-        return packageInfo.versionCode;
+        return packageInfo.getLongVersionCode();
     }
 
     /**

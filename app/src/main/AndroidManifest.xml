@@ -43,6 +43,9 @@
         android:theme="@style/Theme.ManagerAssistant.Static"
         tools:targetApi="33">
         <activity
+            android:name=".ui.pages.main.setting.sub.AboutActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.pages.main.setting.sub.DataManageActivity"
             android:exported="false" />
         <activity

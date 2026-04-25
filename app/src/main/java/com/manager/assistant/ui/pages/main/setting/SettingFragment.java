@@ -26,10 +26,10 @@ import com.manager.assistant.generic_enums.options.FirstScreen;
 import com.manager.assistant.helpers.BiometricHelper;
 import com.manager.assistant.helpers.UpdateHelper;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingOptionViewBase;
+import com.manager.assistant.ui.pages.main.setting.sub.AboutActivity;
 import com.manager.assistant.ui.pages.main.setting.sub.AutoBookkeepingActivity;
 import com.manager.assistant.ui.pages.main.setting.sub.DataManageActivity;
 import com.manager.assistant.ui.pages.main.setting.sub.PermissionManageActivity;
-import com.manager.assistant.helpers.about.AboutHelper;
 import com.manager.assistant.helpers.appearence.ThemeModeHelper;
 import com.manager.assistant.helpers.about.UpdateLogHelper;
 import com.manager.assistant.data.save.preference.AppSettingsPreference;
@@ -180,7 +180,7 @@ public class SettingFragment extends Fragment {
             PopupMenu firstScreenMenu = new PopupMenu(requireContext(), firstScreenOption.getFunctionComponent());
 
             //填充菜单选项
-            for (FirstScreen firstScreen:FirstScreen.values()) {
+            for (FirstScreen firstScreen : FirstScreen.values()) {
                 int groupId = firstScreen.getGroupId();
                 int itemId = firstScreen.getItemId();
                 int order = firstScreen.getOrder();
@@ -352,9 +352,10 @@ public class SettingFragment extends Fragment {
                 R.drawable.outline_info_24,
                 SettingOptionViewBase.RadiusStyle.TOP
         );
-        aboutOption.setFunctionListener(
-                v -> AboutHelper.showAboutDialog(requireContext())
-        );
+        aboutOption.setFunctionListener(v -> {
+            Intent skip2About = new Intent(requireContext(), AboutActivity.class);
+            startActivity(skip2About);
+        });
 
         //更新日志
         SettingClickableTextView updateLogOption = new SettingClickableTextView(

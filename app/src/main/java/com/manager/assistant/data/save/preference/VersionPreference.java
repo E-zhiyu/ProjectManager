@@ -19,12 +19,12 @@ public class VersionPreference {
     /**
      * 设置跳过的版本代码
      *
-     * @param context      上下文
-     * @param version_code 版本代码
+     * @param context     上下文
+     * @param versionCode 版本代码
      */
-    public static void setSkipVersionCode(@NonNull Context context, int version_code) {
+    public static void setSkipVersionCode(@NonNull Context context, long versionCode) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        pref.edit().putInt(KEY_SKIP_VERSION_CODE, version_code).apply();
+        pref.edit().putLong(KEY_SKIP_VERSION_CODE, versionCode).apply();
     }
 
     /**
@@ -33,9 +33,9 @@ public class VersionPreference {
      * @param context 上下文
      * @return 跳过的版本代码
      */
-    public static int getSkipVersionCode(@NonNull Context context) {
+    public static long getSkipVersionCode(@NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        return pref.getInt(KEY_SKIP_VERSION_CODE, 0);
+        return pref.getLong(KEY_SKIP_VERSION_CODE, 0);
     }
 
     /**
