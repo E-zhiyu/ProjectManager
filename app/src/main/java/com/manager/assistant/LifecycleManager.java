@@ -154,8 +154,16 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
 
         Log.d(LogTags.LIFECYCLE_MANAGER.getV(), String.format(Locale.getDefault(), "前台活动数：%d", foregroundCount));
         if (foregroundCount == 0) {
-            Log.i(LogTags.LIFECYCLE_MANAGER.getV(), "用户离开应用");
-            userLeft = true;
+            Log.i(LogTags.LIFECYCLE_MANAGER.getV(), "前台活动数量为0");
+
+            //延迟修改用户离开标志位
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                if (foregroundCount == 0) {
+                    Log.i(LogTags.LIFECYCLE_MANAGER.getV(), "判定为用户离开应用");
+                    userLeft = true;
+                }
+            }, 500);
+
             handleAppToBackground(activity);
         }
     }
