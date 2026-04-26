@@ -12,6 +12,8 @@ import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
     private static final String UPDATE_LOG_MD = "# v1.8.17  \n" +
+            "### BUG修复  \n" +
+            "- 修复没有设置自动备份路径时更新软件会导致崩溃的BUG  \n" +
             "### 修改和优化的内容  \n" +
             "- 显示每天流水数量的文本颜色变淡  \n" +
             "- 规范化关于界面的文字显示效果  \n" +

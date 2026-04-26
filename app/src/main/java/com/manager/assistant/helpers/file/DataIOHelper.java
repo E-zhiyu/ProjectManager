@@ -131,8 +131,9 @@ public class DataIOHelper {
             createTempJsonFile(file_name, file_content);
         }
 
+        //获取备份目录并备份应用数据
         String autoBackupDirUriStr = AutoBackupPreference.getBackupDirectoryUri(context);
-        if (autoBackupDirUriStr != null) {
+        if (!autoBackupDirUriStr.isEmpty()) {
             Uri backupDirUri = Uri.parse(autoBackupDirUriStr);
             createZipFile(backupDirUri);
         } else {

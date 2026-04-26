@@ -27,6 +27,8 @@ import com.manager.assistant.data.save.preference.VersionPreference;
 import com.manager.assistant.automation.schedulers.BackupScheduler;
 import com.manager.assistant.helpers.about.AboutHelper;
 
+import org.jetbrains.annotations.Unmodifiable;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -37,6 +39,8 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -47,7 +51,13 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class UpdateHelper {
-    private static final String versionInfoUrL = "https://gitee.com/e-zhiyu/manager-assistant-web/raw/main/version_info.json";
+    private static final String VERSION_INFO_URL = "https://gitee.com/e-zhiyu/manager-assistant-web/raw/main/version_info.json";
+    private static final String UPDATE_LOG_INFO_URL = "https://gitee.com/e-zhiyu/manager-assistant-web/raw/main/CHANGELOG.md";
+
+    static class UpdateInfo {
+        String versionInfo = "";    //版本信息文件内容
+        String updateLogInfo = "";  //更新日志文件内容
+    }
 
     /**
      * 检查更新
@@ -63,14 +73,10 @@ public class UpdateHelper {
             boolean isHaveToast,
             boolean ignoreSkipVersion
     ) {
-        disposables.add(Observable.fromCallable(
-                        () -> {
-                            URL versionInfoUrl = new URL(versionInfoUrL);
-                            return getVersionInfo(versionInfoUrl);
-                        })
+        disposables.add(Observable.fromCallable(UpdateHelper::getVersionInfo)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(versionInfoJson -> analyseVersionInfo(context, versionInfoJson, ignoreSkipVersion),
+                .subscribe(updateInfo -> analyseVersionInfo(context, updateInfo, ignoreSkipVersion),
                         e -> {
                             if (e instanceof ProtocolException) {
                                 if (isHaveToast) {
@@ -78,7 +84,7 @@ public class UpdateHelper {
                                 }
                             } else if (e instanceof SocketTimeoutException) {
                                 if (isHaveToast) {
-                                    Toast.makeText(context, "无法获取最新版本：连接超时", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(context, "连接超时，无法获取最新版本", Toast.LENGTH_SHORT).show();
                                 }
                             } else if (e instanceof ConnectException || e instanceof UnknownHostException) {
                                 if (isHaveToast) {
@@ -99,54 +105,89 @@ public class UpdateHelper {
     /**
      * 获取版本信息
      *
-     * @param versionInfoUrl 版本信息文件的链接
      * @return 包含版本信息的字JSON符串
-     * @throws IOException 无法读取文件信息时的异常
+     * @throws ConnectException       无法创建连接时抛出的异常
+     * @throws UnknownHostException   无法解析主机名时抛出的异常（例如没有网络时）
+     * @throws SocketTimeoutException 连接超时异常
      */
     @NonNull
-    private static String getVersionInfo(@NonNull URL versionInfoUrl) throws IOException {
-        HttpsURLConnection connection = (HttpsURLConnection) versionInfoUrl.openConnection();
-        connection.setRequestMethod("GET");
-        connection.setConnectTimeout(5_000);    //设置连接超时
-        connection.setReadTimeout(5_000);       //设置读取超时
+    private static @Unmodifiable UpdateInfo getVersionInfo() throws IOException {
+        //获取版本数据
+        URL versionInfoUrl = new URL(VERSION_INFO_URL);
+        String versionInfo = readFromUrl(versionInfoUrl);
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        StringBuilder versionInfoContent = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            versionInfoContent.append(line);
-            versionInfoContent.append("\n");
+        //获取更新日志数据
+        URL updateLogInfoUrl = new URL(UPDATE_LOG_INFO_URL);
+        String updateLogInfo = readFromUrl(updateLogInfoUrl);
+
+        //将两个数据打包到一起
+        UpdateInfo updateInfo = new UpdateInfo();
+        updateInfo.versionInfo = versionInfo;
+        updateInfo.updateLogInfo = updateLogInfo;
+        return updateInfo;
+    }
+
+    /**
+     * 从URL中读取文本
+     *
+     * @param url 需要读取的URL链接
+     * @return 读取到的字符串
+     * @throws ConnectException       无法创建连接时抛出的异常
+     * @throws UnknownHostException   无法解析主机名时抛出的异常（例如没有网络时）
+     * @throws SocketTimeoutException 连接超时异常
+     */
+    @NonNull
+    private static String readFromUrl(@NonNull URL url) throws IOException {
+        //获取连接
+        HttpsURLConnection versionConnection = (HttpsURLConnection) url.openConnection();
+        versionConnection.setRequestMethod("GET");
+        versionConnection.setConnectTimeout(5_000);    //设置连接超时
+        versionConnection.setReadTimeout(5_000);       //设置读取超时
+
+        //生成字符串
+        BufferedReader reader = new BufferedReader(new InputStreamReader(versionConnection.getInputStream()));
+        StringBuilder content = new StringBuilder();
+        String versionLine;
+        while ((versionLine = reader.readLine()) != null) {
+            content.append(versionLine);
+            content.append("\n");
         }
         reader.close();
 
-        return versionInfoContent.toString();
+        return content.toString();
     }
 
     /**
      * 解析版本信息文本
      *
      * @param context           上下文
-     * @param versionInfoJson   从服务端获取的最新版本信息
+     * @param updateInfo        从服务端获取的版本更新信息
      * @param ignoreSkipVersion 是否跳过忽视的软件版本
      * @throws PackageManager.NameNotFoundException 无法获取版本代码时引发的异常
      */
     private static void analyseVersionInfo(
             Context context,
-            String versionInfoJson,
+            @NonNull UpdateInfo updateInfo,
             boolean ignoreSkipVersion
     ) throws JsonProcessingException, PackageManager.NameNotFoundException {
         ObjectMapper mapper = new ObjectMapper();
-        VersionInfo versionInfo = mapper.readValue(versionInfoJson, VersionInfo.class);
+        VersionInfo versionInfo = mapper.readValue(updateInfo.versionInfo, VersionInfo.class);
 
+        //获取版本信息
         long latestVersionCode = versionInfo.getVersionCode();                  //新版本的版本代码
         long currentVersionCode = AboutHelper.getVersionCode(context);          //当前版本代码
         long skipVersionCode = VersionPreference.getSkipVersionCode(context);   //跳过的版本代码
-        if (latestVersionCode > currentVersionCode && (ignoreSkipVersion || latestVersionCode > skipVersionCode)) {
-            boolean isMandatory = versionInfo.isMandatory();
-            String downloadUrl = versionInfo.getDownloadUrl();
-            String updateLog = versionInfo.getUpdateLog();
-            String versionName = versionInfo.getVersionName();
+        boolean isMandatory = versionInfo.isMandatory();                        //是否强制更新
+        String downloadUrl = versionInfo.getDownloadUrl();                      //更新链接
+        String versionName = versionInfo.getVersionName();                      //版本名称
 
+        //TODO:加上自动生成更新链接的逻辑
+
+        //处理更新日志文件的内容
+        String cutUpdateLog = getUpdateContentByVersion(updateInfo.updateLogInfo, versionName);
+        String updateLog = cutUpdateLog.isEmpty() ? versionInfo.getUpdateLog() : cutUpdateLog;
+
+        if (latestVersionCode > currentVersionCode && (ignoreSkipVersion || latestVersionCode > skipVersionCode)) {
             //保存强制更新数据
             VersionPreference.setFindMandatoryUpdate(context, isMandatory);
             if (isMandatory) {
@@ -160,6 +201,31 @@ public class UpdateHelper {
         } else {
             throw new RuntimeException("当前已是最新版本"); //抛出异常是为了在subscribe语句中处理Toast提示
         }
+    }
+
+    /**
+     * 对获取的更新日志内容进行切片
+     *
+     * @param fullLog 从网络上下载的完整更新日志
+     * @param version 需要获取更新日志的目标版本名称
+     * @return 目标版本名称对应的更新日志（包含版本名称）
+     */
+    @NonNull
+    private static String getUpdateContentByVersion(String fullLog, String version) {
+        // 正则解释：
+        // ^#\s+VERSION : 匹配以 "# " 开头后接目标版本的行
+        // ([\s\S]*?)    : 非贪婪匹配后续所有内容（包括换行符）
+        // (?=^#\s+\d|$) : 环视(Lookahead)，匹配直到遇到下一个 "# " 开头的版本行 或者 字符串末尾
+        String regex = "(?m)^#\\s+" + Pattern.quote(version) + "\\s*\\n([\\s\\S]*?)(?=(^#\\s+\\d)|$)";
+
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(fullLog);
+
+        if (matcher.find()) {
+            return Objects.requireNonNullElse(matcher.group(1), "");
+        }
+
+        return ""; // 未找到对应版本
     }
 
     /**
@@ -193,14 +259,20 @@ public class UpdateHelper {
                 .setView(markdownDialog)
                 .setPositiveButton(
                         "更新",
-                        (dialog, which) -> downloadLatestFile(context, downloadUrl, versionName)
+                        (dialog, which) -> {
+                            try {
+                                downloadLatestFile(context, downloadUrl, versionName);
+                            } catch (IllegalArgumentException e) {
+                                Toast.makeText(context, "下载链接失效，无法下载安装包", Toast.LENGTH_SHORT).show();
+                            }
+                        }
                 );
         if (!isMandatory) {
             dialogBuilder.setNegativeButton("跳过此版本", (dialog, which) -> skipNextVersion(context, latestVersionCode));
         } else {
             dialogBuilder.setNegativeButton("退出", (dialog, which) -> dialog.cancel());
             dialogBuilder.setCancelable(false);     //强制更新不能取消
-            dialogBuilder.setOnCancelListener(dialog -> android.os.Process.killProcess(android.os.Process.myPid()));
+            dialogBuilder.setOnCancelListener(dialog -> System.exit(0));
         }
 
         dialogBuilder.show();
@@ -212,8 +284,13 @@ public class UpdateHelper {
      * @param context     上下文
      * @param downloadUrl 下载链接
      * @param versionName 版本名称
+     * @throws IllegalArgumentException 更新链接无效时引发的异常
      */
-    private static void downloadLatestFile(@NonNull Context context, String downloadUrl, String versionName) {
+    private static void downloadLatestFile(
+            @NonNull Context context,
+            String downloadUrl,
+            String versionName
+    ) throws IllegalArgumentException {
         Toast.makeText(context, "正在下载安装包，请勿关闭本APP", Toast.LENGTH_SHORT).show();
 
         //下载安装包时就自动备份一次，防止数据丢失(备份文件存放至ExternalCache中)
@@ -237,7 +314,7 @@ public class UpdateHelper {
         DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
         long downloadId = downloadManager.enqueue(request);
 
-        //注册下载完成的广播接收器
+        //实例化下载完成的广播接收器
         BroadcastReceiver downloadFinishReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, @NonNull Intent intent) {
@@ -253,7 +330,7 @@ public class UpdateHelper {
                             //获取下载状态
                             int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
                             if (columnIndex == -1)
-                                throw new RuntimeException("无法获取安装包下载状态");
+                                throw new RuntimeException("无法获取安装包状态，请手动安装安装包");
                             int status = cursor.getInt(columnIndex);
 
                             if (status == DownloadManager.STATUS_SUCCESSFUL) {
@@ -272,10 +349,10 @@ public class UpdateHelper {
                                         .setNegativeButton("取消", null)
                                         .show();
                             } else {
-                                throw new RuntimeException("安装包下载失败");
+                                throw new IllegalArgumentException("安装包下载失败");
                             }
                         } catch (Exception e) {
-                            ExceptionHelper.showExceptionDialog(context, e);
+                            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
                     cursor.close();
@@ -285,6 +362,8 @@ public class UpdateHelper {
                 context.unregisterReceiver(this);
             }
         };
+
+        //注册下载完毕监听器
         IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             context.registerReceiver(downloadFinishReceiver, filter, Context.RECEIVER_EXPORTED);
@@ -353,7 +432,13 @@ public class UpdateHelper {
                 .setCancelable(false)   //强制更新不可取消
                 .setPositiveButton(
                         "更新",
-                        (dialog, which) -> downloadLatestFile(context, MandatoryDownloadUrl, MandatoryVersionName)
+                        (dialog, which) -> {
+                            try {
+                                downloadLatestFile(context, MandatoryDownloadUrl, MandatoryVersionName);
+                            } catch (IllegalArgumentException e) {
+                                Toast.makeText(context, "下载链接失效，无法下载安装包", Toast.LENGTH_SHORT).show();
+                            }
+                        }
                 );
         dialogBuilder.setNegativeButton("退出", (dialog, which) -> dialog.cancel());
         dialogBuilder.setOnCancelListener(dialog -> System.exit(0));
@@ -361,6 +446,7 @@ public class UpdateHelper {
         dialogBuilder.show();
     }
 }
+
 class VersionInfo {
     private long versionCode;               //版本代码
     private String versionName;             //版本名称
