@@ -6,6 +6,8 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -176,17 +178,23 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
             return;
         }
 
-        //在合适情况下清除最近任务
-        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        if (am != null) {
-            List<ActivityManager.AppTask> taskList = am.getAppTasks();
-            if (taskList != null) {
-                for (ActivityManager.AppTask task : taskList) {
-                    // 将当前应用的 Task 从最近任务列表中彻底移除
-                    task.finishAndRemoveTask();
+        //延迟清除最近任务，防止重新创建活动时误执行
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            if (foregroundCount != 0) {
+                return;
+            }
+
+            ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+            if (am != null) {
+                List<ActivityManager.AppTask> taskList = am.getAppTasks();
+                if (taskList != null) {
+                    for (ActivityManager.AppTask task : taskList) {
+                        // 将当前应用的 Task 从最近任务列表中彻底移除
+                        task.finishAndRemoveTask();
+                    }
                 }
             }
-        }
+        }, 3000);
     }
 
     // =========================

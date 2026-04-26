@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String UPDATE_LOG_MD = "# v1.8.17  \n" +
             "### BUG修复  \n" +
+            "- 修复开启最近任务隐藏后执行翻转屏幕、切换深浅色、切换动态配色等需要重建UI的动作时意外退出的BUG  \n" +
             "- 修复没有设置自动备份路径时更新软件会导致崩溃的BUG  \n" +
             "### 修改和优化的内容  \n" +
             "- 显示每天流水数量的文本颜色变淡  \n" +
