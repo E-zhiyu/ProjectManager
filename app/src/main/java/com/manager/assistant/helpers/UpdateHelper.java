@@ -361,7 +361,6 @@ public class UpdateHelper {
         dialogBuilder.show();
     }
 }
-
 class VersionInfo {
     private long versionCode;               //版本代码
     private String versionName;             //版本名称

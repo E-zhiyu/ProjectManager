@@ -1,7 +1,5 @@
 package com.manager.assistant.data.io.maps;
 
-import androidx.annotation.Keep;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.manager.assistant.data.io.pojos.PojoAnalysisRule;
 import com.manager.assistant.data.io.pojos.PojoRuleAccount;
@@ -9,7 +7,6 @@ import com.manager.assistant.data.io.pojos.PojoRuleAccount;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true) // 忽略JSON中多余字段
-@Keep
 public class TotalRuleDataMap {
     private List<PojoAnalysisRule> rule_data;
     private List<PojoRuleAccount> rule_account;

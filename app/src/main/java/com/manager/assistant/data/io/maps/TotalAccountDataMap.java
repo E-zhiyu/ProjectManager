@@ -1,7 +1,5 @@
 package com.manager.assistant.data.io.maps;
 
-import androidx.annotation.Keep;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.manager.assistant.data.io.pojos.PojoBasicRunningAccount;
 import com.manager.assistant.data.io.pojos.PojoPicture;
@@ -13,7 +11,6 @@ import java.util.List;
 
 //数据最外层Map结构（该POJO类被序列化后成为最外层的JSON字典）
 @JsonIgnoreProperties(ignoreUnknown = true) // 忽略JSON中多余字段
-@Keep
 public class TotalAccountDataMap {
     private List<PojoBasicRunningAccount> basic_data;           //基本流水数据
     private List<PojoTransferRunningAccount> transfer_data;     //转账特有的数据
