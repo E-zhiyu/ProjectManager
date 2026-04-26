@@ -11,7 +11,11 @@ import com.manager.assistant.R;
 import io.noties.markwon.Markwon;
 
 public class UpdateLogHelper {
-    private static final String UPDATE_LOG_MD = "# v1.8.16  \n" +
+    private static final String UPDATE_LOG_MD = "# v1.8.17  \n" +
+            "### 修改和优化的内容  \n" +
+            "- 显示每天流水数量的文本颜色变淡  \n" +
+            "- 启用代码混淆，极大压缩安装包的体积  \n" +
+            "# v1.8.16  \n" +
             "### 新增内容  \n" +
             "- 新增身份验证选项，在用户离开APP后要求进行身份验证  \n" +
             "### BUG修复  \n" +

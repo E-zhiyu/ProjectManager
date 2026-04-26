@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.manager.assistant.databinding.ViewHolderDateHeaderBinding;
+import com.manager.assistant.databinding.ViewHolderAccountHeaderBinding;
 
 import java.util.Locale;
 
@@ -20,9 +20,9 @@ public class DateHeaderAdapter extends RecyclerView.Adapter<DateHeaderAdapter.Da
     }
 
     public static class DateHeaderViewHolder extends RecyclerView.ViewHolder {
-        ViewHolderDateHeaderBinding binding;
+        ViewHolderAccountHeaderBinding binding;
 
-        public DateHeaderViewHolder(@NonNull ViewHolderDateHeaderBinding binding) {
+        public DateHeaderViewHolder(@NonNull ViewHolderAccountHeaderBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
@@ -31,7 +31,7 @@ public class DateHeaderAdapter extends RecyclerView.Adapter<DateHeaderAdapter.Da
     @NonNull
     @Override
     public DateHeaderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ViewHolderDateHeaderBinding binding = ViewHolderDateHeaderBinding.inflate(
+        ViewHolderAccountHeaderBinding binding = ViewHolderAccountHeaderBinding.inflate(
                 LayoutInflater.from(parent.getContext()),
                 parent,
                 false
