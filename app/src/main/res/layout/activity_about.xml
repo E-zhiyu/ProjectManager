@@ -96,8 +96,8 @@
 
                     <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/author_head"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
                         android:adjustViewBounds="true"
                         android:src="@drawable/author"
                         app:layout_constraintBottom_toBottomOf="parent"
