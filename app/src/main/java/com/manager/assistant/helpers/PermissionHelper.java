@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
@@ -40,37 +41,31 @@ public class PermissionHelper {
     private ActivityResultLauncher<String[]> runtimeLauncher;   //申请运行时权限的启动器
     private boolean isSpecialProcessing = false;                //是否正在处理特殊权限，防止在处理权限时重复调用权限申请方法
 
-    public enum SpecialType {
+    public enum SpecialPermissionType {
         //精确闹钟权限
         ALARM(
-                ctx -> Build.VERSION.SDK_INT < Build.VERSION_CODES.S || ctx.getSystemService(android.app.AlarmManager.class).canScheduleExactAlarms(),
-                ctx -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        return new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + ctx.getPackageName()));
-                    }
-                    return null;
-                }
+                PermissionHelper::isExactAlarmEnabled,
+                PermissionHelper::buildExactAlarmIntent
         ),
         //电池优化
         @SuppressLint("BatteryLife") BATTERY(
-                ctx -> ((android.os.PowerManager) ctx.getSystemService(Context.POWER_SERVICE)).isIgnoringBatteryOptimizations(ctx.getPackageName()),
-                ctx -> new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                PermissionHelper::isIgnoringBatteryOptimizations,
+                PermissionHelper::buildIgnoringBatteryOptimizationsIntent
         ),
         //通知监听权限
         NOTIFICATION_LISTENER(
                 PermissionHelper::isNotificationServiceEnabled,
-                c -> {
-                    Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    return intent;
-                }
+                c -> buildNotificationListenerIntent()
         ),
         //自启动权限
-        AUTO_START(context -> false, context -> null);
-        private final Checker checker;
-        private final IntentBuilder intentBuilder;
+        AUTO_START(
+                context -> false,
+                PermissionHelper::buildAutoStartPermissionIntent
+        );
+        private final Checker checker;              //如何检查权限是否授予
+        private final IntentBuilder intentBuilder;  //跳转权限界面所需的Intent构建器
 
-        SpecialType(Checker c, IntentBuilder i) {
+        SpecialPermissionType(Checker c, IntentBuilder i) {
             this.checker = c;
             this.intentBuilder = i;
         }
@@ -148,11 +143,11 @@ public class PermissionHelper {
     /**
      * 添加权限请求（使用自定义文案）
      *
-     * @param permission 需要申请的权限（类型为{@link String}表示运行时权限，{@link SpecialType}表示特殊应用权限
+     * @param permission 需要申请的权限（类型为{@link String}表示运行时权限，{@link SpecialPermissionType}表示特殊应用权限
      * @param title      对话框标题
      * @param message    提示文本
      */
-    public void addPermission(SpecialType permission, String title, String message) {
+    public void addPermission(SpecialPermissionType permission, String title, String message) {
         specialQueue.add(new SpecialRequest(permission, title, message));
     }
 
@@ -182,7 +177,7 @@ public class PermissionHelper {
         //筛选没有授权的运行时权限
         List<String> deniedPermissions = new ArrayList<>();
         for (String p : runtimePermissions) {
-            if (ContextCompat.checkSelfPermission(activity, p) != PackageManager.PERMISSION_GRANTED) {
+            if (!isRuntimePermissionGranted(p, activity)) {
                 deniedPermissions.add(p);
             }
         }
@@ -224,36 +219,16 @@ public class PermissionHelper {
      * @param request 权限请求
      */
     private void handleSpecialPermission(@NonNull SpecialRequest request) {
-        SpecialType type = (SpecialType) request.permission;
+        SpecialPermissionType type = (SpecialPermissionType) request.permission;
         Log.d(LogTags.PERMISSION_HELPER.getV(), request.customTitle);
-        if (type == SpecialType.AUTO_START) {
-            //单独处理自启动权限
-            if (!AutoBookKeepingPreference.getHintAutoStart(activity)) {
-                AutoBookKeepingPreference.setHintAutoStart(true, activity);
-
-                //弹出提示框
-                new MaterialAlertDialogBuilder(activity)
-                        .setTitle(request.customTitle)
-                        .setMessage(request.customMessage)
-                        .setNegativeButton(
-                                "取消",
-                                (dialog, which) -> processNextSpecial()
-                        )
-                        .setPositiveButton(
-                                "前往设置",
-                                (dialog, which) -> {
-                                    isSpecialProcessing = false;    //未直接调用processNextSpecial()，需要标记为未处理
-                                    PermissionHelper.requestAutoStartPermission(activity);
-                                }
-                        )
-                        .setCancelable(false)
-                        .show();
-            } else {
-                processNextSpecial();
-            }
-        } else if (type.isGranted(activity)) {
+        if (type.isGranted(activity)) {
             processNextSpecial();
         } else {
+            //以后不再提示申请自启动权限
+            if (type == SpecialPermissionType.AUTO_START) {
+                AutoBookKeepingPreference.setHintAutoStart(true, activity);
+            }
+
             new MaterialAlertDialogBuilder(activity)
                     .setTitle(request.customTitle)
                     .setMessage(request.customMessage)
@@ -266,6 +241,28 @@ public class PermissionHelper {
                     .setCancelable(false)
                     .show();
         }
+    }
+
+    /**
+     * 判断运行时权限是否已经授予
+     *
+     * @param permission 运行时权限字符串
+     * @param context    上下文
+     * @return 是否授予运行时权限
+     */
+    public static boolean isRuntimePermissionGranted(String permission, Context context) {
+        return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /**
+     * 检查是否有精确闹钟权限
+     *
+     * @param context 上下文
+     * @return 是否拥有精确闹钟权限
+     */
+    public static boolean isExactAlarmEnabled(Context context) {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
+                context.getSystemService(android.app.AlarmManager.class).canScheduleExactAlarms();
     }
 
     /**
@@ -293,35 +290,81 @@ public class PermissionHelper {
     }
 
     /**
-     * 检查并引导用户开启自启动权限
+     * 判断是否在电池优化白名单中
      *
      * @param context 上下文
+     * @return 是否在电池优化白名单
      */
-    public static void requestAutoStartPermission(Context context) {
-        String manufacturer = Build.MANUFACTURER.toLowerCase();
+    public static boolean isIgnoringBatteryOptimizations(@NonNull Context context) {
+        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        return pm.isIgnoringBatteryOptimizations(context.getPackageName());
+    }
 
-        Intent intent = new Intent();
+    /**
+     * 构建精确闹钟权限Intent
+     *
+     * @param context 上下文
+     * @return 用于申请精确闹钟权限的Intent
+     */
+    @Nullable
+    public static Intent buildExactAlarmIntent(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return new Intent(
+                    Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                    Uri.parse("package:" + context.getPackageName())
+            );
+        }
+        return null;
+    }
+
+    /**
+     * 构建申请通知监听权限的Intent
+     *
+     * @return 申请通知监听权限的Intent
+     */
+    @NonNull
+    public static Intent buildNotificationListenerIntent() {
+        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        return intent;
+    }
 
-        try {
-            //根据设备厂商跳转到不同的设置页面
-            if (manufacturer.contains("xiaomi")) {
-                //小米设备
-                intent.setComponent(new ComponentName(
-                        "com.miui.securitycenter",
-                        "com.miui.permcenter.autostart.AutoStartManagementActivity"));
-            } else {
-                //其他设备跳转到设置界面
-                intent.setAction(Settings.ACTION_SETTINGS);
-                Toast.makeText(context, "请前往自启动管理页进行授权", Toast.LENGTH_SHORT).show();
-            }
-            LifecycleManager.startExternalActivity(context, intent);
-        } catch (Exception e) {
-            //如果出现异常，跳转到设置
-            intent.setAction(Settings.ACTION_SETTINGS);
-            intent.setData(Uri.fromParts("package", context.getPackageName(), null));
-            Toast.makeText(context, "请前往自启动管理页进行授权", Toast.LENGTH_SHORT).show();
-            LifecycleManager.startExternalActivity(context, intent);
+    /**
+     * 构建用于申请电池优化白名单的Intent
+     *
+     * @param context 上下文
+     * @return 用于申请电池优化白名单的Intent
+     */
+    @NonNull
+    public static Intent buildIgnoringBatteryOptimizationsIntent(Context context) {
+        String manufacturer = Build.MANUFACTURER.toLowerCase();
+        if (manufacturer.contains("oppo") || manufacturer.contains("oneplus")) {
+            @SuppressLint("BatteryLife") Intent intent = new Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+            intent.setData(android.net.Uri.parse("package:" + context.getPackageName()));
+            return intent;
+        } else {
+            return new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+        }
+    }
+
+    /**
+     * 构建跳转自启动界面的Intent
+     *
+     * @param context 上下文
+     * @return 跳转自启动界面的Intent
+     */
+    @NonNull
+    public static Intent buildAutoStartPermissionIntent(Context context) {
+        String manufacturer = Build.MANUFACTURER.toLowerCase();
+        if (manufacturer.contains("xiaomi")) {
+            Intent intent = new Intent();
+            intent.setComponent(new ComponentName(
+                    "com.miui.securitycenter",
+                    "com.miui.permcenter.autostart.AutoStartManagementActivity"));
+            return intent;
+        } else {
+            Toast.makeText(context, "请手动前往自启动界面授权", Toast.LENGTH_SHORT).show();
+            return new Intent(Settings.ACTION_SETTINGS);
         }
     }
 }

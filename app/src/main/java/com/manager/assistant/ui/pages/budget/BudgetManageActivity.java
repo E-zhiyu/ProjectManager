@@ -1,8 +1,10 @@
 package com.manager.assistant.ui.pages.budget;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
@@ -88,9 +90,11 @@ public class BudgetManageActivity extends AppCompatActivity {
      * 申请一些必要的权限
      */
     private void addPermissionRequests() {
-        permissionHelper.addPermission("android.permission.POST_NOTIFICATIONS");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissionHelper.addPermission(Manifest.permission.POST_NOTIFICATIONS);
+        }
         permissionHelper.addPermission(
-                PermissionHelper.SpecialType.ALARM,
+                PermissionHelper.SpecialPermissionType.ALARM,
                 "精确闹钟权限",
                 "自动重置预算需要精确闹钟权限，以确保每天0点能够检查并重置预算"
         );

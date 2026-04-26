@@ -2,8 +2,6 @@ package com.manager.assistant.ui.pages.main.setting.sub;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -16,7 +14,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -140,7 +137,10 @@ public class PermissionManageActivity extends AppCompatActivity {
                 R.string.notification_listener_permission,
                 "该权限允许应用读取其他应用发送的通知，本应用不会利用该权限获取用户隐私。该权限应用范围如下：\n" +
                         "- 读取其他应用的通知实现自动记账\n",
-                () -> requestSpecialPermission(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS, false)
+                () -> {
+                    Intent skip2NotificationListener = PermissionHelper.buildNotificationListenerIntent();
+                    LifecycleManager.startExternalActivity(this, skip2NotificationListener);
+                }
         ));
 
         //自启动权限
@@ -156,7 +156,10 @@ public class PermissionManageActivity extends AppCompatActivity {
                         R.string.auto_start_permission,
                         "该权限是定制安卓中特有的权限，其允许应用在后台启动服务，应用范围如下：\n" +
                                 "- 在退出应用后自动启动通知监听服务，确保自动记账功能能够运行\n",
-                        () -> PermissionHelper.requestAutoStartPermission(this)
+                        () -> {
+                            Intent skip2AutoStartPermission = PermissionHelper.buildAutoStartPermissionIntent(this);
+                            LifecycleManager.startExternalActivity(this, skip2AutoStartPermission);
+                        }
                 )
         );
 
@@ -176,8 +179,21 @@ public class PermissionManageActivity extends AppCompatActivity {
                         "影响范围如下：\n" +
                         "- 自动记账的通知监听服务能否在后台保持运行\n" +
                         "- 自动记账触发后能否第一时间发送通知\n",
-                () -> requestSpecialPermission(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS, false)
+                () -> {
+                    if (PermissionHelper.isIgnoringBatteryOptimizations(this)) {
+                        Toast.makeText(this, "已忽略电池优化，长按强制跳转电池优化界面", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    Intent skip2IgnoringBatteryOptimizations = PermissionHelper.buildIgnoringBatteryOptimizationsIntent(this);
+                    LifecycleManager.startExternalActivity(this, skip2IgnoringBatteryOptimizations);
+                }
         ));
+        batteryOptimizations.setOnLongClickListener(view -> {
+            Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+            LifecycleManager.startExternalActivity(this, intent);
+            return true;
+        });
 
         //精确闹钟权限
         SettingClickableTextView alarm = new SettingClickableTextView(
@@ -193,11 +209,8 @@ public class PermissionManageActivity extends AppCompatActivity {
                 "该权限允许应用执行某些定时任务，以实现一些自动化功能，应用范围如下：\n" +
                         "- 每日0点自动检查并重置预算\n",
                 () -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        requestSpecialPermission(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, true);
-                    } else {
-                        Toast.makeText(this, "权限已授予", Toast.LENGTH_SHORT).show();
-                    }
+                    Intent skip2ExactAlarm = PermissionHelper.buildExactAlarmIntent(this);
+                    LifecycleManager.startExternalActivity(this, skip2ExactAlarm);
                 }
         ));
     }
@@ -233,28 +246,10 @@ public class PermissionManageActivity extends AppCompatActivity {
      * @param permission 运行时权限
      */
     private void requestRuntimePermission(String permission) {
-        if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) {
+        if (PermissionHelper.isRuntimePermissionGranted(permission, this)) {
             Toast.makeText(this, "权限已授予", Toast.LENGTH_SHORT).show();
         } else {
             runtimeLauncher.launch(permission);
         }
-    }
-
-    /**
-     * 跳转到特殊应用权限设置界面
-     *
-     * @param permission     特殊应用权限
-     * @param needPackageUri 是否需要在构建Intent的时候添加package:开头的Uri，以便直接跳转到该应用的设置界面
-     */
-    private void requestSpecialPermission(String permission, boolean needPackageUri) {
-        Intent permissionIntent;
-        if (needPackageUri) {
-            permissionIntent = new Intent(permission, Uri.parse("package:" + getPackageName()));
-        } else {
-            permissionIntent = new Intent(permission);
-        }
-
-        permissionIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        LifecycleManager.startExternalActivity(this, permissionIntent);
     }
 }

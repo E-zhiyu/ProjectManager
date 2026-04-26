@@ -40,8 +40,8 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class AnalysisRuleManageActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> ruleAddLauncher;     //添加规则界面的启动器
     private ActivityResultLauncher<Intent> ruleModifyLauncher;  //修改规则的启动器
-    private AnalysisRuleAdapter ruleAdapter;                   //规则列表适配器
-    private ActivityRuleManageBinding binding;          //XML视图绑定引用
+    private AnalysisRuleAdapter ruleAdapter;                    //规则列表适配器
+    private ActivityRuleManageBinding binding;                  //XML布局
     private final CompositeDisposable disposables = new CompositeDisposable();
     private final PermissionHelper permissionHelper = new PermissionHelper(this);   //权限申请帮助器
 
@@ -138,12 +138,12 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
             permissionHelper.addPermission(Manifest.permission.POST_NOTIFICATIONS);
         }
         permissionHelper.addPermission(
-                PermissionHelper.SpecialType.AUTO_START,
+                PermissionHelper.SpecialPermissionType.AUTO_START,
                 "自启动权限",
                 "该功能需要在后台运行通知监听服务，如果系统中有自启动权限，请为本应用授权，否则该功能可能无法正常运行。为了进一步保障在后台正常运行，建议您在最近任务锁定本应用"
         );
         permissionHelper.addPermission(
-                PermissionHelper.SpecialType.BATTERY,
+                PermissionHelper.SpecialPermissionType.BATTERY,
                 "电池优化",
                 "为保证软件退出后仍然可以自动监听通知实现自动记账，请将本应用的电池优化策略改为“无限制”"
         );

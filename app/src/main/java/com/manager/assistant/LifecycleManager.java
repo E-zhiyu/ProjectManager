@@ -70,6 +70,10 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
      * @param intent  意图
      */
     public static void startExternalActivity(@NonNull Context context, Intent intent) {
+        if (intent == null) {
+            return;
+        }
+
         //设置豁免标识
         LifecycleManager manager = get();
         manager.doNotHideOnce = true;
@@ -84,6 +88,10 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
      * @param intent   意图
      */
     public static void startExternalActivity(@NonNull ActivityResultLauncher<Intent> launcher, Intent intent) {
+        if (intent == null) {
+            return;
+        }
+
         //设置豁免标识
         LifecycleManager manager = get();
         manager.doNotHideOnce = true;

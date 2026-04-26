@@ -4,13 +4,11 @@ import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.RingtoneManager;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
+import androidx.annotation.RequiresPermission;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -85,15 +83,12 @@ public class NotificationHelper {
      * @param builder        已经设置好的通知构建器
      * @param context        上下文
      */
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     public static void sendNotification(
             int notificationID,
             @NonNull NotificationCompat.Builder builder,
             @NonNull Context context
     ) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(context, "通知发送失败，请授予通知权限", Toast.LENGTH_SHORT).show();
-            return;
-        }
         NotificationManagerCompat.from(context).notify(notificationID, builder.build());
     }
 }
