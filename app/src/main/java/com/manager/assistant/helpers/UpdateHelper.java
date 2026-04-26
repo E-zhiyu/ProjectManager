@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -38,6 +39,7 @@ import java.net.ProtocolException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -178,16 +180,22 @@ public class UpdateHelper {
         long currentVersionCode = AboutHelper.getVersionCode(context);          //当前版本代码
         long skipVersionCode = VersionPreference.getSkipVersionCode(context);   //跳过的版本代码
         boolean isMandatory = versionInfo.isMandatory();                        //是否强制更新
-        String downloadUrl = versionInfo.getDownloadUrl();                      //更新链接
         String versionName = versionInfo.getVersionName();                      //版本名称
 
-        //TODO:加上自动生成更新链接的逻辑
-
-        //处理更新日志文件的内容
-        String cutUpdateLog = getUpdateContentByVersion(updateInfo.updateLogInfo, versionName);
-        String updateLog = cutUpdateLog.isEmpty() ? versionInfo.getUpdateLog() : cutUpdateLog;
-
+        //判断是否需要更新
         if (latestVersionCode > currentVersionCode && (ignoreSkipVersion || latestVersionCode > skipVersionCode)) {
+            //根据版本名称生成下载链接
+            String filled = versionName.startsWith("v") ? versionName : "v" + versionName;
+            String downloadUrl = String.format(
+                    Locale.getDefault(),
+                    "https://gitee.com/e-zhiyu/manager-assistant-web/releases/download/%s/ManagerAssistant_%s.apk",
+                    filled, filled
+            );
+
+            //处理更新日志文件的内容
+            String cutUpdateLog = getUpdateContentByVersion(updateInfo.updateLogInfo, versionName);
+            String updateLog = cutUpdateLog.isEmpty() ? versionInfo.getUpdateLog() : cutUpdateLog;
+
             //保存强制更新数据
             VersionPreference.setFindMandatoryUpdate(context, isMandatory);
             if (isMandatory) {
@@ -447,10 +455,10 @@ public class UpdateHelper {
     }
 }
 
+@JsonIgnoreProperties(ignoreUnknown = true) // 忽略JSON中多余字段
 class VersionInfo {
     private long versionCode;               //版本代码
     private String versionName;             //版本名称
-    private String downloadUrl;             //下载链接
     private String updateLog;               //更新日志内容
     private boolean isMandatory;            //是否强制更新
 
@@ -471,14 +479,6 @@ class VersionInfo {
 
     public void setVersionName(String versionName) {
         this.versionName = versionName;
-    }
-
-    public String getDownloadUrl() {
-        return downloadUrl;
-    }
-
-    public void setDownloadUrl(String downloadUrl) {
-        this.downloadUrl = downloadUrl;
     }
 
     public String getUpdateLog() {
