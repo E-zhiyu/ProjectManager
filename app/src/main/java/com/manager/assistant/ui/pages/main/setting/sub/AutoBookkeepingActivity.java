@@ -61,6 +61,8 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
      * 初始化自动记账设置项
      */
     private void initAutoBookkeepingSettings() {
+        binding.toolbar.setNavigationOnClickListener(view -> finish());
+
         //通知解析自动记账
         SettingSwitchView notificationAnalysisSwitchOption = new SettingSwitchView(
                 this,
