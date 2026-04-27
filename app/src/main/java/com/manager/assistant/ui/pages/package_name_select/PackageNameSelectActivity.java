@@ -8,12 +8,10 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.graphics.Insets;
@@ -48,17 +46,9 @@ public class PackageNameSelectActivity extends AppCompatActivity {
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
     private AppListAdapter appListAdapter;                                  //应用列表适配器
     private ActivityPackageNameSelectBinding binding;                       //绑定的XML视图引用
-    private final ActivityResultLauncher<String[]> requestPermissionLauncher =  //权限申请启动器
-            registerForActivityResult(
-                    new ActivityResultContracts.RequestMultiplePermissions(),
-                    this::onPermissionResult
-            );
-    private final PermissionHelper permissionHelper = new PermissionHelper(    //权限申请器
-            this,
-            requestPermissionLauncher
-    );
     private String searchText = "";                                         //搜索文本
-    private final List<AppInfo> fullAppInfoList = new ArrayList<>();            //完整的应用列表
+    private PermissionHelper permissionHelper = null;                       //权限帮助器
+    private final List<AppInfo> fullAppInfoList = new ArrayList<>();        //完整的应用列表
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +84,9 @@ public class PackageNameSelectActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        permissionHelper.start();
+        if (permissionHelper != null) {
+            permissionHelper.start();
+        }
     }
 
     //初始化视图
@@ -257,32 +249,33 @@ public class PackageNameSelectActivity extends AppCompatActivity {
      * 添加权限申请
      */
     private void addPermissionRequests() {
+        ActivityResultLauncher<String[]> requestPermissionLauncher =  //权限申请启动器
+                registerForActivityResult(
+                        new ActivityResultContracts.RequestMultiplePermissions(),
+                        permissionMap -> {
+                            boolean allGranted = true;
+                            for (Map.Entry<String, Boolean> entry : permissionMap.entrySet()) {
+                                if (!entry.getValue()) {
+                                    allGranted = false;
+                                    break;
+                                }
+                            }
+
+                            if (allGranted) {
+                                refreshFullAppInfoList();
+                            }
+                        }
+                );
+
+        permissionHelper = new PermissionHelper(    //权限申请器
+                this,
+                requestPermissionLauncher
+        );
+
         permissionHelper.addPermission(
                 "com.android.permission.GET_INSTALLED_APPS",
                 "应用列表权限：读取已安装的应用"
         );
-    }
-
-    /**
-     * 处理权限授予情况的方法
-     *
-     * @param permissions K:权限名称,V:权限是否被授予
-     */
-    private void onPermissionResult(@NonNull Map<String, Boolean> permissions) {
-        boolean allGranted = true;
-        for (Map.Entry<String, Boolean> entry : permissions.entrySet()) {
-            if (!entry.getValue()) {
-                allGranted = false;
-                break;
-            }
-        }
-
-        if (allGranted) {
-            refreshFullAppInfoList();
-        } else {
-            Toast.makeText(this, "需要应用列表权限才能选择应用", Toast.LENGTH_SHORT).show();
-            finish();
-        }
     }
 
     /**

@@ -85,20 +85,24 @@ public class PermissionManageActivity extends AppCompatActivity {
         ));
 
         //应用列表权限
-        SettingClickableTextView appList = new SettingClickableTextView(
-                this,
-                binding.appListOption,
-                R.string.app_list_option,
-                "允许获取应用列表",
-                R.drawable.outline_apps_24,
-                SettingOptionViewBase.RadiusStyle.MIDDLE
-        );
-        appList.setFunctionListener(v -> showExplanationDialog(
-                R.string.app_list_option,
-                "该权限允许应用读取应用列表，应用范围如下：\n" +
-                        "- 在输入通知解析规则时读取应用列表以便快速输入包名\n",
-                () -> requestRuntimePermission("com.android.permission.GET_INSTALLED_APPS")
-        ));
+        if (PermissionHelper.isRuntimePermissionDefined("com.android.permission.GET_INSTALLED_APPS", this)) {
+            SettingClickableTextView appList = new SettingClickableTextView(
+                    this,
+                    binding.appListOption,
+                    R.string.app_list_option,
+                    "允许获取应用列表",
+                    R.drawable.outline_apps_24,
+                    SettingOptionViewBase.RadiusStyle.MIDDLE
+            );
+            appList.setFunctionListener(v -> showExplanationDialog(
+                    R.string.app_list_option,
+                    "该权限允许应用读取应用列表，应用范围如下：\n" +
+                            "- 在输入通知解析规则时读取应用列表以便快速输入包名\n",
+                    () -> requestRuntimePermission("com.android.permission.GET_INSTALLED_APPS")
+            ));
+        } else {
+            binding.appListOption.getRoot().setVisibility(View.GONE);
+        }
 
         //通知权限
         SettingClickableTextView notification = new SettingClickableTextView(

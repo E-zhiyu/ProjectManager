@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.PermissionInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.PowerManager;
@@ -70,7 +71,7 @@ public class PermissionHelper {
         ),
         //自启动权限
         AUTO_START(
-                context -> false,
+                PermissionHelper::isAutoStartHinted,
                 PermissionHelper::buildAutoStartPermissionIntent
         );
         private final Checker checker;              //如何检查权限是否授予
@@ -178,7 +179,10 @@ public class PermissionHelper {
      * @param message    用户拒绝过一次后，再次申请前显示的解释对话框的提示信息
      */
     public void addPermission(String permission, String message) {
-        if (!isRuntimePermissionGranted(permission, activity)) {
+        //当权限未授予并且在系统中定义时（特别处理“应用列表权限”等原生安卓没有的权限）添加到申请列表中
+        if (!isRuntimePermissionGranted(permission, activity)
+                && isRuntimePermissionDefined(permission, activity)
+        ) {
             runtimePermissions.add(permission);
             runtimePermissionMessageMap.put(permission, message);   //保存运行时权限解释文本的引用
         }
@@ -300,6 +304,23 @@ public class PermissionHelper {
     }
 
     /**
+     * 判断运行时权限是否定义
+     *
+     * @param permission 运行时权限字符串
+     * @param context    上下文
+     * @return 权限在系统中是否定义
+     */
+    public static boolean isRuntimePermissionDefined(String permission, @NonNull Context context) {
+        PackageManager pm = context.getPackageManager();
+        try {
+            PermissionInfo permissionInfo = pm.getPermissionInfo(permission, 0);
+            return permissionInfo != null; // 判断系统是否支持该权限
+        } catch (PackageManager.NameNotFoundException e) {
+            return false; // 权限未定义，通常是因为系统版本太低或该权限属于特定厂商
+        }
+    }
+
+    /**
      * 判断运行时权限是否已经授予
      *
      * @param permission 运行时权限字符串
@@ -319,6 +340,16 @@ public class PermissionHelper {
     public static boolean isExactAlarmEnabled(Context context) {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
                 context.getSystemService(android.app.AlarmManager.class).canScheduleExactAlarms();
+    }
+
+    /**
+     * 判断是否提醒过自启动权限
+     *
+     * @param context 上下文
+     * @return 是否提醒过用户启用自启动权限
+     */
+    public static boolean isAutoStartHinted(Context context) {
+        return AutoBookKeepingPreference.getHintAutoStart(context);
     }
 
     /**
