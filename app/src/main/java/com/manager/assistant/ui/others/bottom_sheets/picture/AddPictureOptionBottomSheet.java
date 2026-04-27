@@ -1,32 +1,34 @@
 package com.manager.assistant.ui.others.bottom_sheets.picture;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.manager.assistant.databinding.BottomSheetPictureAddOptionBinding;
 import com.manager.assistant.ui.others.bottom_sheets.BaseBottomSheetDialogFragment;
-import com.manager.assistant.ui.pages.picture.CameraActivity;
 
 public class AddPictureOptionBottomSheet extends BaseBottomSheetDialogFragment {
-    private final Context context;                                //上下文
-    private final ActivityResultLauncher<Intent> cameraLauncher;  //启动相机界面的启动器
-    private final ActivityResultLauncher<String> albumLauncher;   //相册图片选择器启动器
+    private final TakePictureListener takePictureListener;
+    private final OpenAlbumListener openAlbumListener;
+
+    public interface TakePictureListener {
+        void takePicture();
+    }
+
+    public interface OpenAlbumListener {
+        void openAlbum();
+    }
 
     public AddPictureOptionBottomSheet(
-            Context context,
-            ActivityResultLauncher<Intent> cameraLauncher,
-            ActivityResultLauncher<String> albumLauncher) {
-        this.context = context;
-        this.cameraLauncher = cameraLauncher;
-        this.albumLauncher = albumLauncher;
+            TakePictureListener takePictureListener,
+            OpenAlbumListener openAlbumListener
+    ) {
+        this.takePictureListener = takePictureListener;
+        this.openAlbumListener = openAlbumListener;
     }
 
     @Nullable
@@ -36,13 +38,12 @@ public class AddPictureOptionBottomSheet extends BaseBottomSheetDialogFragment {
         BottomSheetPictureAddOptionBinding binding = BottomSheetPictureAddOptionBinding.inflate(inflater, container, false);
 
         binding.addViaCamera.setOnClickListener(v -> {
-            Intent skip2CameraActivity = new Intent(context, CameraActivity.class);
-            cameraLauncher.launch(skip2CameraActivity);
+            takePictureListener.takePicture();
             dismiss();
         });
 
         binding.addViaAlbum.setOnClickListener(v -> {
-            albumLauncher.launch("image/*");
+            openAlbumListener.openAlbum();
             dismiss();
         });
 

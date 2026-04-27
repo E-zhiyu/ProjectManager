@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
+    <!-- 下载目录，用于下载安装包 -->
     <external-path
         name="download"
         path="Download/" />
 
+    <!-- 流水图片目录，用于保存流水记录里的图片 -->
     <external-files-path
         name="account_pictures"
         path="pictures" />
+
+    <!-- 照片临时目录，用于临时保存拍摄的照片文件 -->
+    <external-cache-path
+        name="picture_temp"
+        path="picture_temp" />
 </paths>

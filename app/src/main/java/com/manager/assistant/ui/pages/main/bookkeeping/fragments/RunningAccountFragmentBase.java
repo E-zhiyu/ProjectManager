@@ -1,7 +1,6 @@
 package com.manager.assistant.ui.pages.main.bookkeeping.fragments;
 
-import android.app.Activity;
-import android.content.Intent;
+import android.Manifest;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,9 +12,12 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -23,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.loadingindicator.LoadingIndicator;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputLayout;
@@ -31,10 +34,10 @@ import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.controllers.PictureDataController;
 import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.generic_enums.DirectoryPaths;
-import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.helpers.DateTimePickerHelper;
+import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.sync.picture.AccountPictureViewModel;
@@ -48,13 +51,16 @@ import com.manager.assistant.ui.pages.picture.PictureAdapter;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -80,11 +86,13 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
     protected long tno = 0;                                     //用户选择的标签编号（默认无标签则为0）
     protected long rno = 0;                                     //流水编号
     protected TagSelectBottomSheet tagSheet;                    //标签选择弹窗
-    protected ActivityResultLauncher<Intent> cameraLauncher;    //拍照Activity启动器
-    protected ActivityResultLauncher<String> albumLauncher;     //相册图片选择启动器
     protected PictureAdapter pictureAdapter;                    //图片RecyclerView的适配器
     protected final CompositeDisposable disposables = new CompositeDisposable();    //多线程任务列表
     protected boolean viewModelRefreshPictureEnabled = true;    //是否能够通过ViewModel刷新图片视图
+    protected ActivityResultLauncher<PickVisualMediaRequest> albumLauncher;     //相册图片选择启动器
+    protected ActivityResultLauncher<Uri> takePictureLauncher;  //调用系统相机的启动器
+    protected Uri tempPictureUri;                                 //临时图片文件的Uri
+    private ActivityResultLauncher<String> permissionLauncher;  //权限申请启动器
 
     /**
      * 流水记录输入界面基类构造方法
@@ -170,21 +178,42 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
      * 初始化启动器
      */
     private void initLaunchers() {
-        cameraLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    Intent data = result.getData();
-                    int resultCode = result.getResultCode();
+        albumLauncher = registerForActivityResult(
+                new ActivityResultContracts.PickMultipleVisualMedia(),
+                this::onAlbumPictureUrisReceived
+        );
 
-                    if (resultCode == Activity.RESULT_OK && data != null) {
-                        onCameraPictureUriReceived(data);
+        takePictureLauncher = registerForActivityResult(
+                new ActivityResultContracts.TakePicture(),
+                result -> {
+                    if (result) {
+                        onCameraPictureUriReceived(tempPictureUri);
+                    } else {
+                        Toast.makeText(requireContext(), "拍照失败，请重试", Toast.LENGTH_SHORT).show();
                     }
                 }
         );
 
-        albumLauncher = registerForActivityResult(
-                new ActivityResultContracts.GetMultipleContents(),
-                this::onAlbumPictureUrisReceived
+        permissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                result -> {
+                    if (result) {
+                        launchSystemCamera();
+                    } else if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.CAMERA)) {
+                        //弹出解释对话框
+                        new MaterialAlertDialogBuilder(requireContext())
+                                .setTitle("申请权限")
+                                .setMessage("使用相机拍照需要先授予摄像头权限")
+                                .setNegativeButton("取消", null)
+                                .setPositiveButton(
+                                        "确定",
+                                        (dialogInterface, i) -> requestCameraPermission()
+                                )
+                                .show();
+                    } else {
+                        Toast.makeText(requireContext(), "请授予相机权限后再拍照", Toast.LENGTH_SHORT).show();
+                    }
+                }
         );
     }
 
@@ -380,25 +409,70 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
      */
     protected void showAddPictureBottomSheet() {
         AddPictureOptionBottomSheet sheet = new AddPictureOptionBottomSheet(
-                requireContext(),
-                cameraLauncher,
-                albumLauncher
+                () -> {
+                    if (PermissionHelper.isRuntimePermissionGranted(
+                            Manifest.permission.CAMERA,
+                            requireContext()
+                    )) {
+                        launchSystemCamera();
+                    } else {
+                        requestCameraPermission();
+                    }
+                },
+                () -> albumLauncher.launch(new PickVisualMediaRequest.Builder()
+                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                        .build()
+                )
         );
         sheet.show(getParentFragmentManager(), TagString.PICTURE_ADD_SHEET.getValue());
     }
 
     /**
+     * 申请相机权限
+     */
+    private void requestCameraPermission() {
+        permissionLauncher.launch(Manifest.permission.CAMERA);
+    }
+
+    /**
+     * 启动系统相机拍照
+     */
+    private void launchSystemCamera() {
+        try {
+            //在缓存目录下创建一个临时文件
+            File photoFile = File.createTempFile(
+                    "IMG_",
+                    ".jpg",
+                    DirectoryPaths.PICTURE_TEMP.getDir(requireContext())
+            );
+
+            //通过 FileProvider 获取 Content URI
+            tempPictureUri = FileProvider.getUriForFile(
+                    requireContext(),
+                    requireContext().getPackageName() + ".fileprovider",
+                    photoFile
+            );
+
+            //启动相机
+            takePictureLauncher.launch(tempPictureUri);
+        } catch (IOException e) {
+            Toast.makeText(requireContext(), "无法创建相片文件", Toast.LENGTH_SHORT).show();
+        } catch (SecurityException e) {
+            Toast.makeText(requireContext(), "请授予相机权限后再拍照", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
      * 处理拍照后
      *
-     * @param intent 包含图片Uri的Intent
+     * @param pictureUri 拍照完成后照片的Uri
      */
-    private void onCameraPictureUriReceived(@NonNull Intent intent) {
-        String uriStr = intent.getStringExtra(KeyValueStrings.FILE_URI.getValue());
-        if (uriStr == null) return;
+    private void onCameraPictureUriReceived(@NonNull Uri pictureUri) {
+        Toast.makeText(requireContext(), "拍照成功", Toast.LENGTH_SHORT).show();
 
-        Uri pictureUri = Uri.parse(uriStr);
         Picture newPicture = new Picture(pictureUri, rno);
 
+        //通过ViewModel更新视图
         AccountPictureViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountPictureViewModel.class);
         viewModel.addPicture(newPicture);
     }
@@ -502,34 +576,26 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
      */
     @Nullable
     private File copySinglePicture(Uri imageUri, int index, File targetDir) {
-        try (InputStream inputStream = requireContext().getContentResolver().openInputStream(imageUri)) {
+        //使用 UUID 确保唯一性
+        String fileName = String.format(Locale.getDefault(), "album_%d_%s.jpg",
+                index, UUID.randomUUID().toString().substring(0, 8));
+        File destinationFile = new File(targetDir, fileName);
+
+        try (InputStream inputStream = requireContext().getContentResolver().openInputStream(imageUri);
+             OutputStream outputStream = new FileOutputStream(destinationFile)) {
+
             if (inputStream == null) return null;
 
-            // 生成唯一的文件名
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd(HHmmss)");
-            LocalDateTime now = LocalDateTime.now();
-            String fileName = String.format(
-                    Locale.getDefault(),
-                    "album_%s_%d.jpg",
-                    formatter.format(now),
-                    index
-            );
-
-            // 创建目标文件
-            File destinationFile = new File(targetDir, fileName);
-
-            // 复制文件
-            try (FileOutputStream outputStream = new FileOutputStream(destinationFile)) {
-                byte[] buffer = new byte[4096];
-                int bytesRead;
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    outputStream.write(buffer, 0, bytesRead);
-                }
+            //使用 Android 内置的工具类更简洁，性能也更好
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
             }
-
             return destinationFile;
-        } catch (Exception e) {
-            ExceptionHelper.showExceptionDialog(requireContext(), e);
+        } catch (IOException e) {
+            //TODO:定义一个容器，容器中存放错误信息
+            Log.e(LogTags.ACCOUNT_FRAGMENT.getV(), "图片文件复制出错", e);
             return null;
         }
     }
