@@ -344,13 +344,28 @@ public class PermissionHelper {
     }
 
     /**
-     * 判断是否提醒过自启动权限
+     * 判断是否提醒了需要开启自启动权限
      *
      * @param context 上下文
-     * @return 是否提醒过用户启用自启动权限
+     * @return 是否提醒了需要开启自启动权限
      */
     public static boolean isAutoStartHinted(Context context) {
-        return AutoBookKeepingPreference.getHintAutoStart(context);
+        return !isAutoStartDefined() || AutoBookKeepingPreference.getHintAutoStart(context);
+    }
+
+    /**
+     * 判断是否定义了自启动权限
+     *
+     * @return 是否定义了自启动权限
+     */
+    public static boolean isAutoStartDefined() {
+        //如果能被识别但是没有自启动权限，返回false
+        if (DeviceOs.isOneUi() || DeviceOs.isMyOs() || DeviceOs.isZuxOs() || DeviceOs.isZui()) {
+            return false;
+        }
+
+        //判断系统名称是否为空，为空说明为类原生系统，否则为拥有自启动设置的定制安卓
+        return !DeviceOs.getOsName().isEmpty();
     }
 
     /**
@@ -386,6 +401,15 @@ public class PermissionHelper {
     public static boolean isIgnoringBatteryOptimizations(@NonNull Context context) {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         return pm.isIgnoringBatteryOptimizations(context.getPackageName());
+    }
+
+    /**
+     * 判断是否能够跳转到原生忽略电池优化白名单界面
+     *
+     * @return 是否能跳转原生界面
+     */
+    public static boolean canSkip2ProtogeneticBatteryOptimizationsPage() {
+        return !DeviceOs.isHyperOs() && !DeviceOs.isMiui(); //目前测试只有米米的系统无法跳转，会被拦截至魔改界面
     }
 
     /**
@@ -432,19 +456,6 @@ public class PermissionHelper {
         } else {
             return new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
         }
-    }
-
-    /**
-     * 判断是否能够跳转到原生忽略电池优化白名单界面
-     *
-     * @return 是否能跳转原生界面
-     */
-    public static boolean canSkip2ProtogeneticBatteryOptimizationsPage() {
-        String manufacturer = Build.MANUFACTURER.toLowerCase();
-        return DeviceOs.isH2Os() ||
-                DeviceOs.isColorOs() ||
-                DeviceOs.isOxygenOs() ||
-                manufacturer.contains("google");
     }
 
     /**
