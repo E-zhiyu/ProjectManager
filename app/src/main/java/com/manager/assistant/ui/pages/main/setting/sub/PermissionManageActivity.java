@@ -184,7 +184,9 @@ public class PermissionManageActivity extends AppCompatActivity {
                         "- 自动记账的通知监听服务能否在后台保持运行\n" +
                         "- 自动记账触发后能否第一时间发送通知\n",
                 () -> {
-                    if (PermissionHelper.isIgnoringBatteryOptimizations(this)) {
+                    if (PermissionHelper.isIgnoringBatteryOptimizations(this) &&
+                            PermissionHelper.canSkip2ProtogeneticBatteryOptimizationsPage()
+                    ) {
                         Toast.makeText(this, "已忽略电池优化，长按强制跳转电池优化界面", Toast.LENGTH_SHORT).show();
                         return;
                     }

@@ -67,5 +67,6 @@ dependencies {
     implementation libs.glide
     implementation libs.photoview
     implementation libs.dynamicanimation
-    implementation libs.flexbox
+    implementation libs.flexbox                     //Web上的Flex布局
+    implementation libs.devicecompat                //系统名称判断
 }

@@ -4,6 +4,7 @@ cameraCore = "1.5.3"
 cameraCamera2 = "1.5.3"
 cameraLifecycle = "1.5.3"
 core = "4.6.2"
+devicecompat = "2.6"
 documentfile = "1.1.0"
 dynamicanimation = "1.1.0"
 flexbox = "3.0.0"
@@ -37,6 +38,7 @@ camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cam
 camera-core = { module = "androidx.camera:camera-core", version.ref = "cameraCore" }
 camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraCore" }
 core = { module = "io.noties.markwon:core", version.ref = "core" }
+devicecompat = { module = "com.github.getActivity:DeviceCompat", version.ref = "devicecompat" }
 documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
 dynamicanimation = { module = "androidx.dynamicanimation:dynamicanimation", version.ref = "dynamicanimation" }
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }

@@ -26,6 +26,7 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textview.MaterialTextView;
+import com.hjq.device.compat.DeviceOs;
 import com.manager.assistant.LifecycleManager;
 import com.manager.assistant.R;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
@@ -424,14 +425,26 @@ public class PermissionHelper {
      */
     @NonNull
     public static Intent buildIgnoringBatteryOptimizationsIntent(Context context) {
-        String manufacturer = Build.MANUFACTURER.toLowerCase();
-        if (manufacturer.contains("oppo") || manufacturer.contains("oneplus")) {
+        if (canSkip2ProtogeneticBatteryOptimizationsPage()) {
             @SuppressLint("BatteryLife") Intent intent = new Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
             intent.setData(android.net.Uri.parse("package:" + context.getPackageName()));
             return intent;
         } else {
             return new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
         }
+    }
+
+    /**
+     * 判断是否能够跳转到原生忽略电池优化白名单界面
+     *
+     * @return 是否能跳转原生界面
+     */
+    public static boolean canSkip2ProtogeneticBatteryOptimizationsPage() {
+        String manufacturer = Build.MANUFACTURER.toLowerCase();
+        return DeviceOs.isH2Os() ||
+                DeviceOs.isColorOs() ||
+                DeviceOs.isOxygenOs() ||
+                manufacturer.contains("google");
     }
 
     /**
