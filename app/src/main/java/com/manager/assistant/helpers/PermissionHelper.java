@@ -11,6 +11,8 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.ComponentActivity;
@@ -22,25 +24,31 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.LifecycleManager;
+import com.manager.assistant.R;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.generic_enums.LogTags;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
+import io.noties.markwon.Markwon;
+
 /**
  * 在打开Activity时申请权限的工具类
  */
 public class PermissionHelper {
     private final ComponentActivity activity;   //需要申请权限的Activity
-    private final List<String> runtimePermissions = new ArrayList<>();          //运行时权限列表
-    private final List<String> rationaleRuntimePermissions = new ArrayList<>(); //可以再次申请的运行时权限
-    private final Queue<PermissionRequest> specialQueue = new LinkedList<>();   //特殊权限队列
+    private final Map<String, String> runtimePermissionMessageMap = new HashMap<>(); //运行时权限解释文本
+    private final List<String> runtimePermissions = new ArrayList<>();              //运行时权限列表
+    private final List<String> rationaleRuntimePermissions = new ArrayList<>();     //可以再次申请的运行时权限
+    private final Queue<PermissionRequest> specialQueue = new LinkedList<>();       //特殊权限队列
     private ActivityResultLauncher<String[]> runtimeLauncher;   //申请运行时权限的启动器
     private boolean isProcessing = false;                       //是否正在处理权限，防止在处理权限时重复调用权限申请方法
 
@@ -91,18 +99,14 @@ public class PermissionHelper {
     }
 
     private static class PermissionRequest {
-        Object permission;      //权限（可以是运行时权限字符串，也可以是SpecialPermissionType
-        String customTitle;     //对话框标题
-        String customMessage;   //自定义对话框消息
+        SpecialPermissionType permission;   //特殊权限
+        String customTitle;                 //对话框标题
+        String customMessage;               //自定义对话框消息
 
-        PermissionRequest(Object permission, String title, String message) {
+        PermissionRequest(SpecialPermissionType permission, String title, String message) {
             this.permission = permission;
             this.customTitle = title;
             this.customMessage = message;
-        }
-
-        PermissionRequest(Object permission, String message) {
-            this(permission, "", message);
         }
     }
 
@@ -176,6 +180,7 @@ public class PermissionHelper {
     public void addPermission(String permission, String message) {
         if (!isRuntimePermissionGranted(permission, activity)) {
             runtimePermissions.add(permission);
+            runtimePermissionMessageMap.put(permission, message);   //保存运行时权限解释文本的引用
         }
     }
 
@@ -237,7 +242,7 @@ public class PermissionHelper {
      * @param request 权限请求
      */
     private void handleSpecialPermission(@NonNull PermissionRequest request) {
-        SpecialPermissionType type = (SpecialPermissionType) request.permission;
+        SpecialPermissionType type = request.permission;
         Log.d(LogTags.PERMISSION_HELPER.getV(), request.customTitle);
         if (type.isGranted(activity)) {
             processNextSpecial();
@@ -266,10 +271,29 @@ public class PermissionHelper {
      *
      * @param permissions 需要一次性申请的运行时权限
      */
-    private void showRationaleDialog(String[] permissions) {
+    private void showRationaleDialog(@NonNull String[] permissions) {
+        //构建解释消息
+        StringBuilder messageBuilder = new StringBuilder("为了提供完整的功能，请授予以下权限：  \n");
+        for (String permission : permissions) {
+            String message = runtimePermissionMessageMap.get(permission);
+            if (message != null) {
+                messageBuilder.append("- ");
+                messageBuilder.append(message);
+                messageBuilder.append("  \n");
+            }
+        }
+
+        //显示为Markdown
+        View updateDialogView = LayoutInflater.from(activity)
+                .inflate(R.layout.view_markdown_text, null);
+        MaterialTextView textView = updateDialogView.findViewById(R.id.md_textview_in_dialog);
+        Markwon markwon = Markwon.create(activity);
+        markwon.setMarkdown(textView, messageBuilder.toString());
+
+        //显示对话框
         new MaterialAlertDialogBuilder(activity)
                 .setTitle("需要权限")
-                .setMessage("为了提供完整的功能，我们需要以下权限，请您授权。")
+                .setView(updateDialogView)
                 .setPositiveButton("确定", (dialog, which) -> runtimeLauncher.launch(permissions))
                 .setNegativeButton("取消", null)
                 .show();
