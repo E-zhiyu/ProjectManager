@@ -148,24 +148,28 @@ public class PermissionManageActivity extends AppCompatActivity {
         ));
 
         //自启动权限
-        SettingClickableTextView autoStart = new SettingClickableTextView(
-                this,
-                binding.autoStartOption,
-                R.string.auto_start_permission,
-                "允许在后台启动服务",
-                R.drawable.outline_autorenew_24,
-                SettingOptionViewBase.RadiusStyle.MIDDLE
-        );
-        autoStart.setFunctionListener(v -> showExplanationDialog(
-                        R.string.auto_start_permission,
-                        "该权限是定制安卓中特有的权限，其允许应用在后台启动服务，应用范围如下：\n" +
-                                "- 在退出应用后自动启动通知监听服务，确保自动记账功能能够运行\n",
-                        () -> {
-                            Intent skip2AutoStartPermission = PermissionHelper.buildAutoStartPermissionIntent(this);
-                            LifecycleManager.startExternalActivity(this, skip2AutoStartPermission);
-                        }
-                )
-        );
+        if (PermissionHelper.isAutoStartDefined()) {
+            SettingClickableTextView autoStart = new SettingClickableTextView(
+                    this,
+                    binding.autoStartOption,
+                    R.string.auto_start_permission,
+                    "允许在后台启动服务",
+                    R.drawable.outline_autorenew_24,
+                    SettingOptionViewBase.RadiusStyle.MIDDLE
+            );
+            autoStart.setFunctionListener(v -> showExplanationDialog(
+                            R.string.auto_start_permission,
+                            "该权限是定制安卓中特有的权限，其允许应用在后台启动服务，应用范围如下：\n" +
+                                    "- 在退出应用后自动启动通知监听服务，确保自动记账功能能够运行\n",
+                            () -> {
+                                Intent skip2AutoStartPermission = PermissionHelper.buildAutoStartPermissionIntent(this);
+                                LifecycleManager.startExternalActivity(this, skip2AutoStartPermission);
+                            }
+                    )
+            );
+        } else {
+            binding.autoStartOption.getRoot().setVisibility(View.GONE);
+        }
 
         //电池优化策略
         SettingClickableTextView batteryOptimizations = new SettingClickableTextView(
