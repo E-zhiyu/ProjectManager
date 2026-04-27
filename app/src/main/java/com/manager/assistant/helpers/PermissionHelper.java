@@ -18,6 +18,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -30,16 +31,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.stream.Collectors;
 
 /**
  * 在打开Activity时申请权限的工具类
  */
 public class PermissionHelper {
     private final ComponentActivity activity;   //需要申请权限的Activity
-    private final List<String> runtimePermissions = new ArrayList<>();      //运行时权限列表
-    private final Queue<SpecialRequest> specialQueue = new LinkedList<>();  //特殊权限队列
+    private final List<String> runtimePermissions = new ArrayList<>();          //运行时权限列表
+    private final List<String> rationaleRuntimePermissions = new ArrayList<>(); //可以再次申请的运行时权限
+    private final Queue<PermissionRequest> specialQueue = new LinkedList<>();   //特殊权限队列
     private ActivityResultLauncher<String[]> runtimeLauncher;   //申请运行时权限的启动器
-    private boolean isSpecialProcessing = false;                //是否正在处理特殊权限，防止在处理权限时重复调用权限申请方法
+    private boolean isProcessing = false;                       //是否正在处理权限，防止在处理权限时重复调用权限申请方法
 
     public enum SpecialPermissionType {
         //精确闹钟权限
@@ -87,15 +90,19 @@ public class PermissionHelper {
         }
     }
 
-    private static class SpecialRequest {
-        Object permission; // 可以是 String (运行时) 或 SpecialType (特殊)
-        String customTitle;
-        String customMessage;
+    private static class PermissionRequest {
+        Object permission;      //权限（可以是运行时权限字符串，也可以是SpecialPermissionType
+        String customTitle;     //对话框标题
+        String customMessage;   //自定义对话框消息
 
-        SpecialRequest(Object permission, String title, String message) {
+        PermissionRequest(Object permission, String title, String message) {
             this.permission = permission;
             this.customTitle = title;
             this.customMessage = message;
+        }
+
+        PermissionRequest(Object permission, String message) {
+            this(permission, "", message);
         }
     }
 
@@ -132,8 +139,15 @@ public class PermissionHelper {
                 result -> {
                     //如果运行时权限被拒绝了，那就不要继续申请
                     for (Map.Entry<String, Boolean> entry : result.entrySet()) {
-                        if (!entry.getValue()) {
-                            runtimePermissions.remove(entry.getKey());
+                        String permission = entry.getKey();
+
+                        runtimePermissions.remove(permission);
+                        if (!entry.getValue() && ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
+                            //如果用户没有授权，但是又可以再次申请，说明没有被永久拒绝，转移到再次申请列表中
+                            rationaleRuntimePermissions.add(permission);
+                        } else {
+                            //如果用户没有授权，但是又不能再次申请，则说明权限被永久拒绝，不要再申请，完全删除这个权限
+                            rationaleRuntimePermissions.remove(permission);
                         }
                     }
                 }
@@ -147,17 +161,22 @@ public class PermissionHelper {
      * @param title      对话框标题
      * @param message    提示文本
      */
-    public void addPermission(SpecialPermissionType permission, String title, String message) {
-        specialQueue.add(new SpecialRequest(permission, title, message));
+    public void addPermission(@NonNull SpecialPermissionType permission, String title, String message) {
+        if (!permission.isGranted(activity)) {
+            specialQueue.add(new PermissionRequest(permission, title, message));
+        }
     }
 
     /**
      * 添加权限申请请求
      *
-     * @param permission 运行时权限
+     * @param permission 运行时权限字符串
+     * @param message    用户拒绝过一次后，再次申请前显示的解释对话框的提示信息
      */
-    public void addPermission(String permission) {
-        runtimePermissions.add(permission);
+    public void addPermission(String permission, String message) {
+        if (!isRuntimePermissionGranted(permission, activity)) {
+            runtimePermissions.add(permission);
+        }
     }
 
     /**
@@ -165,7 +184,7 @@ public class PermissionHelper {
      */
     public void start() {
         //检查是否正在处理权限，如果是则直接结束
-        if (isSpecialProcessing) {
+        if (isProcessing) {
             return;
         }
 
@@ -175,16 +194,15 @@ public class PermissionHelper {
         }
 
         //筛选没有授权的运行时权限
-        List<String> deniedPermissions = new ArrayList<>();
-        for (String p : runtimePermissions) {
-            if (!isRuntimePermissionGranted(p, activity)) {
-                deniedPermissions.add(p);
-            }
-        }
+        List<String> deniedPermissions = runtimePermissions.stream()
+                .filter(permission -> !isRuntimePermissionGranted(permission, activity))
+                .collect(Collectors.toList());
 
-        //先处理运行时权限，再处理特殊应用权限
+        //先处理运行时权限，再处理需要解释一次的运行时权限，最后处理特殊应用权限
         if (!deniedPermissions.isEmpty()) {
-            runtimeLauncher.launch(deniedPermissions.toArray(new String[0]));   //运行时权限不需要后台隐藏豁免
+            runtimeLauncher.launch(deniedPermissions.toArray(new String[0]));
+        } else if (!rationaleRuntimePermissions.isEmpty()) {
+            showRationaleDialog(rationaleRuntimePermissions.toArray(new String[0]));
         } else {
             processNextSpecial();
         }
@@ -202,10 +220,10 @@ public class PermissionHelper {
 
         //从队列中取出一个特殊应用权限请求
         Log.d(LogTags.PERMISSION_HELPER.getV(), "正在处理下个特殊应用权限");
-        isSpecialProcessing = true;         //标记为正在处理
-        SpecialRequest request = specialQueue.poll();
+        isProcessing = true;         //标记为正在处理
+        PermissionRequest request = specialQueue.poll();
         if (request == null) {
-            isSpecialProcessing = false;    //如果没有特殊权限了，那就标记为未处理
+            isProcessing = false;    //如果没有特殊权限了，那就标记为未处理
             return;
         }
 
@@ -218,7 +236,7 @@ public class PermissionHelper {
      *
      * @param request 权限请求
      */
-    private void handleSpecialPermission(@NonNull SpecialRequest request) {
+    private void handleSpecialPermission(@NonNull PermissionRequest request) {
         SpecialPermissionType type = (SpecialPermissionType) request.permission;
         Log.d(LogTags.PERMISSION_HELPER.getV(), request.customTitle);
         if (type.isGranted(activity)) {
@@ -233,7 +251,7 @@ public class PermissionHelper {
                     .setTitle(request.customTitle)
                     .setMessage(request.customMessage)
                     .setPositiveButton("去设置", (d, w) -> {
-                        isSpecialProcessing = false;    //未直接调用processNextSpecial()，需要标记为未处理
+                        isProcessing = false;    //未直接调用processNextSpecial()，需要标记为未处理
 
                         LifecycleManager.startExternalActivity(activity, type.getIntent(activity));
                     })
@@ -241,6 +259,20 @@ public class PermissionHelper {
                     .setCancelable(false)
                     .show();
         }
+    }
+
+    /**
+     * 显示用户拒绝过一次的运行时权限解释对话框
+     *
+     * @param permissions 需要一次性申请的运行时权限
+     */
+    private void showRationaleDialog(String[] permissions) {
+        new MaterialAlertDialogBuilder(activity)
+                .setTitle("需要权限")
+                .setMessage("为了提供完整的功能，我们需要以下权限，请您授权。")
+                .setPositiveButton("确定", (dialog, which) -> runtimeLauncher.launch(permissions))
+                .setNegativeButton("取消", null)
+                .show();
     }
 
     /**

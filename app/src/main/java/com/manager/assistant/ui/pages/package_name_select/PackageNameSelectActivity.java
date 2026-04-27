@@ -257,7 +257,10 @@ public class PackageNameSelectActivity extends AppCompatActivity {
      * 添加权限申请
      */
     private void addPermissionRequests() {
-        permissionHelper.addPermission("com.android.permission.GET_INSTALLED_APPS");
+        permissionHelper.addPermission(
+                "com.android.permission.GET_INSTALLED_APPS",
+                "应用列表权限：读取已安装的应用"
+        );
     }
 
     /**

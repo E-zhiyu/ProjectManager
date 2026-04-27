@@ -135,7 +135,10 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
     private void addPermissionRequests() {
         //添加权限申请
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissionHelper.addPermission(Manifest.permission.POST_NOTIFICATIONS);
+            permissionHelper.addPermission(
+                    Manifest.permission.POST_NOTIFICATIONS,
+                    "通知权限：触发自动记账后发送确认通知"
+            );
         }
         permissionHelper.addPermission(
                 PermissionHelper.SpecialPermissionType.AUTO_START,

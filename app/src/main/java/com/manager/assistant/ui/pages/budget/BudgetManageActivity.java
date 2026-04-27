@@ -91,7 +91,10 @@ public class BudgetManageActivity extends AppCompatActivity {
      */
     private void addPermissionRequests() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissionHelper.addPermission(Manifest.permission.POST_NOTIFICATIONS);
+            permissionHelper.addPermission(
+                    Manifest.permission.POST_NOTIFICATIONS,
+                    "通知权限：预算不足时发送提醒"
+            );
         }
         permissionHelper.addPermission(
                 PermissionHelper.SpecialPermissionType.ALARM,

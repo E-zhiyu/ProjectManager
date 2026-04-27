@@ -49,9 +49,6 @@ public class CameraActivity extends AppCompatActivity {
     private ExecutorService cameraExecutor; //相机执行器
     private final CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;  //相机选择器（主摄）
     private ImageCapture imageCapture;      //图像捕捉器
-    private final String[] permissions = {  //权限
-            Manifest.permission.CAMERA
-    };
     private final ActivityResultLauncher<String[]> requestPermissionLauncher =  //权限申请启动器
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(),
                     this::onPermissionResult);
@@ -128,9 +125,10 @@ public class CameraActivity extends AppCompatActivity {
      * 添加权限申请
      */
     private void addPermissionRequests() {
-        for (String permission : permissions) {
-            permissionHelper.addPermission(permission);
-        }
+        permissionHelper.addPermission(
+                Manifest.permission.CAMERA,
+                "相机权限：允许调用摄像头进行拍照"
+        );
     }
 
     /**
