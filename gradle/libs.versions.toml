@@ -1,8 +1,5 @@
 [versions]
 agp = "9.1.1"
-cameraCore = "1.5.3"
-cameraCamera2 = "1.5.3"
-cameraLifecycle = "1.5.3"
 core = "4.6.2"
 devicecompat = "2.6"
 documentfile = "1.1.0"
@@ -33,10 +30,6 @@ workRuntime = "2.11.2"
 biometric = "1.1.0"
 
 [libraries]
-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraLifecycle" }
-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
-camera-core = { module = "androidx.camera:camera-core", version.ref = "cameraCore" }
-camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraCore" }
 core = { module = "io.noties.markwon:core", version.ref = "core" }
 devicecompat = { module = "com.github.getActivity:DeviceCompat", version.ref = "devicecompat" }
 documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
