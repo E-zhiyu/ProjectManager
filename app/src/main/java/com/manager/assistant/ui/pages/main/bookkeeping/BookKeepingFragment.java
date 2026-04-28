@@ -62,6 +62,7 @@ public class BookKeepingFragment extends Fragment implements AccountAdapter.OnVi
     private AccountUpdatedReceiver accountUpdatedReceiver;  //流水数据更新的广播接收器
     private final CompositeDisposable disposables = new CompositeDisposable();  //订阅列表（便于取消订阅）
     private AccountFilterBottomSheet.FilterSetting filterSetting = new AccountFilterBottomSheet.FilterSetting();    //过滤器设置
+    private long lastRefreshTimeMilli = 0;                  //上次调用RefreshUI()方法的时间戳
 
     static class AdapterContainer {
         DateHeaderAdapter headerAdapter;
@@ -306,6 +307,13 @@ public class BookKeepingFragment extends Fragment implements AccountAdapter.OnVi
      * 刷新UI方法
      */
     private void refreshUI() {
+        long currentTimeMilli = System.currentTimeMillis();
+        if (currentTimeMilli - lastRefreshTimeMilli <= 100) {
+            Log.d(LogTags.ACCOUNT_FRAGMENT.getV(), "间隔时间过短，不刷新界面");
+            return;
+        }
+        lastRefreshTimeMilli = currentTimeMilli;
+
         Log.d(LogTags.ACCOUNT_FRAGMENT.getV(), "刷新界面中……");
         binding.refreshLayout.setRefreshing(true);
 
