@@ -13,6 +13,7 @@ import io.noties.markwon.Markwon;
 public class UpdateLogHelper {
     private static final String UPDATE_LOG_MD = "# v1.8.17  \n" +
             "### BUG修复  \n" +
+            "- 去掉删除流水记录时重复的Toast提示  \n" +
             "- 修复数据管理和自动记账设置界面无法通过工具栏返回上一级的BUG  \n" +
             "- 修复没有设置屏幕解锁方式就启用身份验证其开关视觉上无法自动关闭的BUG  \n" +
             "- 修复开启身份验证后执行翻转屏幕、切换深浅色、切换动态配色等需要重建UI的动作时误触发身份验证的BUG  \n" +
