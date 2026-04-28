@@ -76,6 +76,12 @@ public class ProgressDialog extends CustomDialogBase {
      * @param indeterminate 是否为不确定模式
      */
     public void setIndeterminate(boolean indeterminate) {
+        //如果当前状态与目标状态相同，则不执行任何操作
+        if (progressIndicator.isIndeterminate() == indeterminate) {
+            return;
+        }
+
+        //修改状态
         if (progressIndicator != null) {
             progressIndicator.setIndeterminate(indeterminate);
 

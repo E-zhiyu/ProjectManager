@@ -3,8 +3,6 @@ package com.manager.assistant.ui.pages.main.bookkeeping.fragments;
 import android.Manifest;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +13,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
@@ -61,6 +58,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -93,6 +91,43 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
     protected ActivityResultLauncher<Uri> takePictureLauncher;  //调用系统相机的启动器
     protected Uri tempPictureUri;                                 //临时图片文件的Uri
     private ActivityResultLauncher<String> permissionLauncher;  //权限申请启动器
+
+    /**
+     * 图片复制结果
+     */
+    static class PictureCopyResult {
+        Uri copiedFileUri;      //复制的文件的Uri
+        String tipStr;        //复制成功的文件名
+        boolean isSuccessful;   //是否复制成功
+        int currentCount;       //当前复制的图片在第几个
+        int totalCount;         //一共有几个
+        Throwable exception;    //复制失败产生的异常
+
+        /**
+         * 复制成功构造方法
+         *
+         * @param copiedFileUri 复制成功的文件的Uri
+         * @param currentCount  当前复制的文件是第几个
+         * @param totalCount    一共有多少文件需要复制
+         */
+        public PictureCopyResult(Uri copiedFileUri, String tipStr, int currentCount, int totalCount) {
+            this.copiedFileUri = copiedFileUri;
+            this.tipStr = tipStr;
+            this.currentCount = currentCount;
+            this.totalCount = totalCount;
+            this.isSuccessful = true;
+            this.exception = null;
+        }
+
+        public PictureCopyResult(String errTip, int currentCount, int totalCount, Throwable exception) {
+            this.tipStr = errTip;
+            this.copiedFileUri = null;
+            this.currentCount = currentCount;
+            this.totalCount = totalCount;
+            this.isSuccessful = false;
+            this.exception = exception;
+        }
+    }
 
     /**
      * 流水记录输入界面基类构造方法
@@ -505,64 +540,52 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
         processDialog.show();
 
         //在IO线程完成文件复制并在主线程刷新UI
+        AtomicInteger errFileCount = new AtomicInteger(0);
+        List<Uri> successfulUriList = new ArrayList<>();
         disposables.add(
-                Observable.fromCallable(() -> {
-                            List<File> copiedFIleList = new ArrayList<>();
-                            boolean switchedOffIndeterminate = false;   //标记是否切换到确定模式
-                            for (int i = 0; i < uriList.size(); i++) {
-                                Uri pictureUri = uriList.get(i);
-
-                                //复制单个图片
-                                File copiedFile = copySinglePicture(pictureUri, i, tempPictureDir);
-                                if (copiedFile != null && copiedFile.exists()) {
-                                    copiedFIleList.add(copiedFile);
-
-                                    //如果是第一张图片，切换到确定模式
-                                    if (!switchedOffIndeterminate) {
-                                        switchedOffIndeterminate = true;
-                                        new Handler(Looper.getMainLooper()).post(() ->
-                                                processDialog.setIndeterminate(false)
-                                        );
-                                    }
-
-                                    //更新进度
-                                    final int current = i + 1;
-                                    final String fileName = copiedFile.getName();
-                                    new Handler(Looper.getMainLooper()).post(() ->
-                                            processDialog.updateProgress(current, uriList.size(), fileName)
-                                    );
-                                }
-                            }
-
-                            //返回复制成功的图片列表
-                            return copiedFIleList.stream()
-                                    .map(Uri::fromFile)
-                                    .map(uri -> new Picture(uri, rno))
-                                    .collect(Collectors.toList());
+                Observable.range(0, uriList.size())
+                        .flatMap(index -> {
+                            Uri uri = uriList.get(index);
+                            return Observable.fromCallable(() -> copySinglePicture(uri, tempPictureDir))
+                                    .map(fileName -> new PictureCopyResult(uri, fileName, index + 1, uriList.size()))
+                                    .onErrorReturn(throwable -> new PictureCopyResult("文件复制出错！", index + 1, uriList.size(), throwable))
+                                    .subscribeOn(Schedulers.io());
                         })
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe(
-                                pictureList -> {
-                                    if (pictureList.isEmpty()) {
-                                        return;
-                                    }
+                        .doOnComplete(() -> {
+                            //全部完成后弹出Toast
+                            String tipStr = String.format(
+                                    Locale.getDefault(),
+                                    "图片复制完毕，成功%d个，失败%d个",
+                                    successfulUriList.size(),
+                                    errFileCount.get()
+                            );
+                            Toast.makeText(requireContext(), tipStr, Toast.LENGTH_SHORT).show();
 
-                                    Toast.makeText(
-                                            requireContext(),
-                                            String.format(
-                                                    Locale.getDefault(),
-                                                    "已添加%d张图片",
-                                                    pictureList.size()
-                                            ), Toast.LENGTH_SHORT
-                                    ).show();
+                            //让进度对话框消失
+                            processDialog.dismiss();
 
-                                    AccountPictureViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountPictureViewModel.class);
-                                    viewModel.addPicture(pictureList);
-                                },
-                                e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
-                                processDialog::dismiss
-                        )
+                            //将图片显示在UI中
+                            List<Picture> successfulPictureList = successfulUriList.stream()
+                                    .map(uri -> new Picture(uri, rno))
+                                    .collect(Collectors.toList());
+                            AccountPictureViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountPictureViewModel.class);
+                            viewModel.addPicture(successfulPictureList);
+                        })
+                        .subscribe(result -> {
+                            //将进度条对话框切换为确定模式
+                            processDialog.setIndeterminate(false);
+
+                            //更新进度条
+                            processDialog.updateProgress(result.currentCount, result.totalCount, result.tipStr);
+
+                            //统计成功与失败的文件数量
+                            if (result.isSuccessful && result.copiedFileUri != null) {
+                                successfulUriList.add(result.copiedFileUri);
+                            } else {
+                                errFileCount.set(errFileCount.get() + 1);
+                            }
+                        })
         );
     }
 
@@ -570,21 +593,22 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
      * 复制单个图片
      *
      * @param imageUri  图片Uri
-     * @param index     图片的下标(外部调用的循环中的下标)
      * @param targetDir 目标目录
-     * @return 复制完成的文件
+     * @return 复制成功的文件名
+     * @throws IOException 文件复制出错引发的异常
      */
-    @Nullable
-    private File copySinglePicture(Uri imageUri, int index, File targetDir) {
+    private String copySinglePicture(Uri imageUri, File targetDir) throws IOException {
         //使用 UUID 确保唯一性
-        String fileName = String.format(Locale.getDefault(), "album_%d_%s.jpg",
-                index, UUID.randomUUID().toString().substring(0, 8));
+        String fileName = String.format(Locale.getDefault(), "album_%s.jpg",
+                UUID.randomUUID().toString().substring(0, 8));
         File destinationFile = new File(targetDir, fileName);
 
         try (InputStream inputStream = requireContext().getContentResolver().openInputStream(imageUri);
-             OutputStream outputStream = new FileOutputStream(destinationFile)) {
-
-            if (inputStream == null) return null;
+             OutputStream outputStream = new FileOutputStream(destinationFile)
+        ) {
+            if (inputStream == null) {
+                throw new IOException("无法正确打开文件输入流");
+            }
 
             //使用 Android 内置的工具类更简洁，性能也更好
             byte[] buffer = new byte[8192];
@@ -592,11 +616,11 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
             while ((bytesRead = inputStream.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, bytesRead);
             }
-            return destinationFile;
+
+            return fileName;
         } catch (IOException e) {
-            //TODO:定义一个容器，容器中存放错误信息
             Log.e(LogTags.ACCOUNT_FRAGMENT.getV(), "图片文件复制出错", e);
-            return null;
+            throw e;
         }
     }
 }
