@@ -213,22 +213,25 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
      * 初始化启动器
      */
     private void initLaunchers() {
+        //从相册选择图片启动器
         albumLauncher = registerForActivityResult(
                 new ActivityResultContracts.PickMultipleVisualMedia(),
                 this::onAlbumPictureUrisReceived
         );
 
+        //系统相机拍照启动器
         takePictureLauncher = registerForActivityResult(
                 new ActivityResultContracts.TakePicture(),
                 result -> {
                     if (result) {
                         onCameraPictureUriReceived(tempPictureUri);
                     } else {
-                        Toast.makeText(requireContext(), "拍照失败，请重试", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), "拍照已取消", Toast.LENGTH_SHORT).show();
                     }
                 }
         );
 
+        //权限申请启动器
         permissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestPermission(),
                 result -> {
