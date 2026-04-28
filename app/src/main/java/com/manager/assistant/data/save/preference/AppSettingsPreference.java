@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.helpers.appearence.ThemeModeHelper;
+import com.manager.assistant.generic_enums.options.ThemeMode;
 
 public class AppSettingsPreference {
     private static final String PREF_NAME = "ThemePreference";
@@ -20,7 +20,7 @@ public class AppSettingsPreference {
 
     public static int getThemeMode(@NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        return pref.getInt(KEY_THEME_MODE, ThemeModeHelper.FOLLOW_SYSTEM);
+        return pref.getInt(KEY_THEME_MODE, ThemeMode.FOLLOW_SYSTEM.ordinal());
     }
 
     public static void setDynamicColorStat(@NonNull Context context, boolean isOpened) {

@@ -1,5 +1,6 @@
 package com.manager.assistant.helpers.appearence;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Color;
 import android.view.View;
@@ -8,39 +9,27 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 
-public class ThemeModeHelper {
-    //可选的App主题模式
-    public static final int LIGHT_MODE = 0;
-    public static final int DARK_MODE = 1;
-    public static final int FOLLOW_SYSTEM = 2;
+import com.manager.assistant.generic_enums.options.ThemeMode;
 
+public class ThemeModeHelper {
     /**
      * 应用当前选定的主题
      *
-     * @param themeMode 深色模式代码
+     * @param themeMode {@link ThemeMode}的枚举序数
      */
+    @SuppressLint("WrongConstant")
     public static void applyTheme(int themeMode) {
-        switch (themeMode) {
-            case LIGHT_MODE:
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                break;
-            case DARK_MODE:
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                break;
-            case FOLLOW_SYSTEM:
-            default:
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-                break;
-        }
+        int mode = ThemeMode.values()[themeMode].getCode();
+        AppCompatDelegate.setDefaultNightMode(mode);
     }
 
     /**
      * 切换深色模式并播放过渡动画
      *
      * @param activity  当前显示的活动界面
-     * @param nightMode 深色模式代码
+     * @param modeIndex {@link ThemeMode}的枚举序数
      */
-    public static void switchNightModeWithAnimation(@NonNull Activity activity, int nightMode) {
+    public static void switchNightModeWithAnimation(@NonNull Activity activity, int modeIndex) {
         // 1. 获取根布局
         ViewGroup rootView = (ViewGroup) activity.getWindow().getDecorView().getRootView();
 
@@ -60,7 +49,7 @@ public class ThemeModeHelper {
                 .setDuration(200) // 可以调整时长
                 .withEndAction(() -> {
                     // 4. 切换夜间模式
-                    applyTheme(nightMode);
+                    applyTheme(modeIndex);
 
                     // 5. 淡出动画
                     overlay.animate()

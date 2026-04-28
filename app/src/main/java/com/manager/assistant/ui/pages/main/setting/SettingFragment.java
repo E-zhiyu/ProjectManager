@@ -23,6 +23,7 @@ import com.manager.assistant.data.save.preference.SecurityPreference;
 import com.manager.assistant.databinding.FragmentSettingBinding;
 import com.manager.assistant.generic_enums.options.AuthOpportunity;
 import com.manager.assistant.generic_enums.options.FirstScreen;
+import com.manager.assistant.generic_enums.options.ThemeMode;
 import com.manager.assistant.helpers.BiometricHelper;
 import com.manager.assistant.helpers.UpdateHelper;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingOptionViewBase;
@@ -391,7 +392,9 @@ public class SettingFragment extends Fragment {
      * 显示主题模式选择对话框
      */
     private void showThemeModeSelectDialog() {
-        String[] themeModeStr = {"浅色模式", "深色模式", "跟随系统"};
+        String[] themeModeStr = Arrays.stream(ThemeMode.values())
+                .map(ThemeMode::getTitle)
+                .toArray(String[]::new);
         int themeMode = AppSettingsPreference.getThemeMode(requireContext());
 
         new MaterialAlertDialogBuilder(requireContext())
