@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 静态配色主题 -->
     <style name="Theme.ManagerAssistant.Static" parent="Theme.Material3.Dark.NoActionBar">
@@ -53,9 +54,9 @@
         <item name="colorControlActivated">?attr/colorPrimary</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>
+        <item name="android:windowLightNavigationBar">false</item>
     </style>
 
-    <!-- 动态配色主题 -->
     <style name="Theme.ManagerAssistant.Dynamic" parent="Theme.Material3.DynamicColors.Dark.NoActionBar">
         <!-- 自定义颜色和样式 -->
         <item name="toolbarStyle">@style/ToolBarStyle</item>
@@ -65,5 +66,6 @@
 
         <item name="android:statusBarColor">?attr/colorSurface</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>
+        <item name="android:windowLightNavigationBar">false</item>
     </style>
 </resources>

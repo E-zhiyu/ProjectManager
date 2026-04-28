@@ -1,5 +1,11 @@
 package com.manager.assistant.helpers.appearence;
 
+import android.app.Activity;
+import android.graphics.Color;
+import android.view.View;
+import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 
 public class ThemeModeHelper {
@@ -10,6 +16,8 @@ public class ThemeModeHelper {
 
     /**
      * 应用当前选定的主题
+     *
+     * @param themeMode 深色模式代码
      */
     public static void applyTheme(int themeMode) {
         switch (themeMode) {
@@ -24,5 +32,43 @@ public class ThemeModeHelper {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
                 break;
         }
+    }
+
+    /**
+     * 切换深色模式并播放过渡动画
+     *
+     * @param activity  当前显示的活动界面
+     * @param nightMode 深色模式代码
+     */
+    public static void switchNightModeWithAnimation(@NonNull Activity activity, int nightMode) {
+        // 1. 获取根布局
+        ViewGroup rootView = (ViewGroup) activity.getWindow().getDecorView().getRootView();
+
+        // 2. 创建覆盖 View
+        View overlay = new View(activity);
+        overlay.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        ));
+        overlay.setBackgroundColor(Color.BLACK);
+        overlay.setAlpha(0f);
+        rootView.addView(overlay);
+
+        // 3. 淡入动画
+        overlay.animate()
+                .alpha(1f)
+                .setDuration(200) // 可以调整时长
+                .withEndAction(() -> {
+                    // 4. 切换夜间模式
+                    applyTheme(nightMode);
+
+                    // 5. 淡出动画
+                    overlay.animate()
+                            .alpha(0f)
+                            .setDuration(200)
+                            .withEndAction(() -> rootView.removeView(overlay))
+                            .start();
+                })
+                .start();
     }
 }

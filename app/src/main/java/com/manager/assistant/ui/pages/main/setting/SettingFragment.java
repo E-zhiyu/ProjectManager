@@ -392,15 +392,15 @@ public class SettingFragment extends Fragment {
      */
     private void showThemeModeSelectDialog() {
         String[] themeModeStr = {"浅色模式", "深色模式", "跟随系统"};
-        int theme_mode = AppSettingsPreference.getThemeMode(requireContext());
+        int themeMode = AppSettingsPreference.getThemeMode(requireContext());
 
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("主题模式")
-                .setSingleChoiceItems(themeModeStr, theme_mode, ((dialog, which) -> {
+                .setSingleChoiceItems(themeModeStr, themeMode, (dialog, which) -> {
                     AppSettingsPreference.setThemeMode(requireContext(), which);
-                    ThemeModeHelper.applyTheme(which);
+                    ThemeModeHelper.switchNightModeWithAnimation(requireActivity(),  which);
                     dialog.dismiss();
-                }))
+                })
                 .setNegativeButton("关闭", null)
                 .show();
     }
