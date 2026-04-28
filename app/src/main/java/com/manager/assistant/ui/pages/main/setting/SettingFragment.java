@@ -13,10 +13,7 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.biometric.BiometricManager;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.color.DynamicColors;
-import com.google.android.material.color.DynamicColorsOptions;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.R;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.data.save.preference.SecurityPreference;
@@ -31,7 +28,7 @@ import com.manager.assistant.ui.pages.main.setting.sub.AboutActivity;
 import com.manager.assistant.ui.pages.main.setting.sub.AutoBookkeepingActivity;
 import com.manager.assistant.ui.pages.main.setting.sub.DataManageActivity;
 import com.manager.assistant.ui.pages.main.setting.sub.PermissionManageActivity;
-import com.manager.assistant.helpers.appearence.ThemeModeHelper;
+import com.manager.assistant.helpers.appearence.ThemeHelper;
 import com.manager.assistant.helpers.about.UpdateLogHelper;
 import com.manager.assistant.data.save.preference.AppSettingsPreference;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingClickableTextView;
@@ -149,20 +146,7 @@ public class SettingFragment extends Fragment {
         dynamicColorOption.setFunctionListener(
                 (buttonView, isChecked) -> {
                     AppSettingsPreference.setDynamicColorStat(requireContext(), isChecked);
-
-                    ManagerAssistant app = (ManagerAssistant) requireActivity().getApplication();
-                    DynamicColorsOptions options;
-                    if (isChecked) {
-                        options = new DynamicColorsOptions.Builder()
-                                .setThemeOverlay(R.style.Theme_ManagerAssistant_Dynamic)
-                                .build();
-                    } else {
-                        options = new DynamicColorsOptions.Builder()
-                                .setThemeOverlay(R.style.Theme_ManagerAssistant_Static)
-                                .build();
-                    }
-                    DynamicColors.applyToActivitiesIfAvailable(app, options);
-                    requireActivity().recreate();
+                    ThemeHelper.switchDynamicColorWithAnimation(requireActivity(), isChecked);
                 }
         );
 
@@ -401,7 +385,7 @@ public class SettingFragment extends Fragment {
                 .setTitle("主题模式")
                 .setSingleChoiceItems(themeModeStr, themeMode, (dialog, which) -> {
                     AppSettingsPreference.setThemeMode(requireContext(), which);
-                    ThemeModeHelper.switchNightModeWithAnimation(requireActivity(),  which);
+                    ThemeHelper.switchNightModeWithAnimation(requireActivity(), which);
                     dialog.dismiss();
                 })
                 .setNegativeButton("关闭", null)

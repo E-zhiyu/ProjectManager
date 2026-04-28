@@ -15,7 +15,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.manager.assistant.R;
 import com.manager.assistant.data.save.preference.VersionPreference;
 import com.manager.assistant.databinding.ActivityMainBinding;
-import com.manager.assistant.helpers.appearence.ThemeModeHelper;
+import com.manager.assistant.helpers.appearence.ThemeHelper;
 import com.manager.assistant.data.save.preference.AppSettingsPreference;
 import com.manager.assistant.helpers.UpdateHelper;
 import com.manager.assistant.ui.others.adapters.FragmentPagerAdapter;
@@ -122,6 +122,6 @@ public class MainActivity extends AppCompatActivity {
     //初始化深浅色主题模式
     private void initThemeMode() {
         int themeMode = AppSettingsPreference.getThemeMode(this);
-        ThemeModeHelper.applyTheme(themeMode);
+        ThemeHelper.applyTheme(themeMode);
     }
 }
