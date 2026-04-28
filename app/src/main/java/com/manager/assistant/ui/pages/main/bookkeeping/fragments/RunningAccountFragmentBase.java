@@ -87,9 +87,9 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
     protected PictureAdapter pictureAdapter;                    //图片RecyclerView的适配器
     protected final CompositeDisposable disposables = new CompositeDisposable();    //多线程任务列表
     protected boolean viewModelRefreshPictureEnabled = true;    //是否能够通过ViewModel刷新图片视图
-    protected ActivityResultLauncher<PickVisualMediaRequest> albumLauncher;     //相册图片选择启动器
-    protected ActivityResultLauncher<Uri> takePictureLauncher;  //调用系统相机的启动器
-    protected Uri tempPictureUri;                                 //临时图片文件的Uri
+    private ActivityResultLauncher<PickVisualMediaRequest> albumLauncher;   //相册图片选择启动器
+    private ActivityResultLauncher<Uri> takePictureLauncher;    //调用系统相机的启动器
+    protected Uri tempPictureUri;                               //临时图片文件的Uri
     private ActivityResultLauncher<String> permissionLauncher;  //权限申请启动器
 
     /**
@@ -97,7 +97,7 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
      */
     static class PictureCopyResult {
         Uri copiedFileUri;      //复制的文件的Uri
-        String tipStr;        //复制成功的文件名
+        String tipStr;          //复制成功的文件名
         boolean isSuccessful;   //是否复制成功
         int currentCount;       //当前复制的图片在第几个
         int totalCount;         //一共有几个
@@ -557,12 +557,21 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
                         .observeOn(AndroidSchedulers.mainThread())
                         .doOnComplete(() -> {
                             //全部完成后弹出Toast
-                            String tipStr = String.format(
-                                    Locale.getDefault(),
-                                    "图片复制完毕，成功%d个，失败%d个",
-                                    successfulUriList.size(),
-                                    errFileCount.get()
-                            );
+                            String tipStr;
+                            if (errFileCount.get() == 0) {
+                                tipStr = String.format(
+                                        Locale.getDefault(),
+                                        "%d张图片全部复制成功",
+                                        successfulUriList.size()
+                                );
+                            } else {
+                                tipStr = String.format(
+                                        Locale.getDefault(),
+                                        "图片复制完毕，成功%d个，失败%d个",
+                                        successfulUriList.size(),
+                                        errFileCount.get()
+                                );
+                            }
                             Toast.makeText(requireContext(), tipStr, Toast.LENGTH_SHORT).show();
 
                             //让进度对话框消失
