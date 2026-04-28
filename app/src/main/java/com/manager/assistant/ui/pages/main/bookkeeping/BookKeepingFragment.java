@@ -5,27 +5,23 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ConcatAdapter;
 
-import com.google.android.material.search.SearchView;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.ui.pages.main.MainActivity;
 import com.manager.assistant.R;
 import com.manager.assistant.data.controllers.AccountDataController;
-import com.manager.assistant.data.save.preference.SearchHistoryPreference;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.automation.broadcast.BroadcastActions;
@@ -37,9 +33,9 @@ import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.file.PictureFileHelper;
-import com.manager.assistant.ui.others.adapters.SearchHistoryAdapter;
 import com.manager.assistant.ui.pages.main.bookkeeping.adapters.AccountAdapter;
 import com.manager.assistant.ui.pages.main.bookkeeping.adapters.DateHeaderAdapter;
+import com.manager.assistant.ui.sync.AccountSearchViewModel;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
 import com.manager.assistant.ui.sync.account.RunningAccountRepository;
 import com.manager.assistant.ui.others.bottom_sheets.filter.AccountFilterBottomSheet;
@@ -66,9 +62,6 @@ public class BookKeepingFragment extends Fragment implements AccountAdapter.OnVi
     private AccountUpdatedReceiver accountUpdatedReceiver;  //流水数据更新的广播接收器
     private final CompositeDisposable disposables = new CompositeDisposable();  //订阅列表（便于取消订阅）
     private AccountFilterBottomSheet.FilterSetting filterSetting = new AccountFilterBottomSheet.FilterSetting();    //过滤器设置
-    private String searchText = "";                         //搜索文本，用于搜索流水备注
-    private SearchView.TransitionListener searchViewTransitionListener;         //SearchView的变化监听器
-    private TextWatcher searchTextWatcher;                  //搜索文本变化监听器
 
     static class AdapterContainer {
         DateHeaderAdapter headerAdapter;
@@ -82,6 +75,7 @@ public class BookKeepingFragment extends Fragment implements AccountAdapter.OnVi
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
+        Log.d(LogTags.ACCOUNT_FRAGMENT.getV(), "开始创建界面……");
 
         initActivityLauncher();
         initViews();
@@ -135,14 +129,10 @@ public class BookKeepingFragment extends Fragment implements AccountAdapter.OnVi
         //清除SearchView的监听器，避免内存泄漏
         if (requireActivity() instanceof MainActivity) {
             MainActivity mainActivity = (MainActivity) requireActivity();
-            mainActivity.binding.searchView.setupWithSearchBar(null);                           //消除与SearchBar的绑定
-            mainActivity.binding.searchView.getEditText().setOnEditorActionListener(null);      //销毁搜索监听
-            if (searchViewTransitionListener != null) {
-                mainActivity.binding.searchView.removeTransitionListener(searchViewTransitionListener);   //销毁transitionListener
+            if (mainActivity.binding != null) {
+                mainActivity.binding.searchView.setupWithSearchBar(null);                           //消除与SearchBar的绑定
+                Log.d(LogTags.ACCOUNT_FRAGMENT.getV(), "SearchView与SearchBar解绑");
             }
-            mainActivity.binding.clearHistoryBtn.setOnClickListener(null);                      //销毁清空历史按钮点击监听
-            mainActivity.binding.searchHistoryRecycler.setAdapter(null);                        //清除适配器
-            mainActivity.binding.searchView.getEditText().removeTextChangedListener(searchTextWatcher); //清除文本变化监听器
         }
     }
 
@@ -257,9 +247,6 @@ public class BookKeepingFragment extends Fragment implements AccountAdapter.OnVi
 
         //设置下拉刷新布局的监听器
         binding.refreshLayout.setOnRefreshListener(this::refreshUI);
-
-        //加载流水记录
-        refreshUI();
     }
 
     /**
@@ -319,10 +306,16 @@ public class BookKeepingFragment extends Fragment implements AccountAdapter.OnVi
      * 刷新UI方法
      */
     private void refreshUI() {
+        Log.d(LogTags.ACCOUNT_FRAGMENT.getV(), "刷新界面中……");
         binding.refreshLayout.setRefreshing(true);
+
         //刷新RecyclerView
         disposables.add(
-                Observable.fromCallable(() -> AccountDataController.loadRunningAccountData(filterSetting, searchText, requireContext()))
+                Observable.fromCallable(() -> AccountDataController.loadRunningAccountData(
+                                filterSetting,
+                                binding.remarkSearchBar.getText().toString(),
+                                requireContext()
+                        ))
                         .subscribeOn(Schedulers.io())               //在IO线程执行查询
                         .observeOn(AndroidSchedulers.mainThread())  //切换到主线程更新 UI
                         .subscribe(
@@ -349,129 +342,16 @@ public class BookKeepingFragment extends Fragment implements AccountAdapter.OnVi
             MainActivity mainActivity = (MainActivity) requireActivity();
             mainActivity.binding.searchView.setupWithSearchBar(binding.remarkSearchBar);
 
-            //实例化搜索历史适配器并推送至SearchView
-            SearchHistoryAdapter searchViewAdapter = new SearchHistoryAdapter(keyWord -> {
-                //更新搜索词
-                searchText = keyWord;
-                binding.remarkSearchBar.setText(keyWord);
-
-                //刷新UI
-                refreshUI();
-
-                //隐藏SearchView
-                mainActivity.binding.searchView.hide();
-
-                //保存搜索关键词
-                if (!keyWord.isEmpty()) {
-                    List<String> searchHistoryList = SearchHistoryPreference.getHistory(
-                            SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-                            requireContext()
-                    );
-                    searchHistoryList.remove(searchText);       //移除已存在的项
-                    searchHistoryList.add(0, searchText);   //添加新项
-                    if (searchHistoryList.size() > 15) {        //限制15条记录
-                        searchHistoryList = searchHistoryList.subList(0, 14);
-                    }
-                    SearchHistoryPreference.setHistory(
-                            SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-                            searchHistoryList,
-                            requireContext()
-                    );
-                }
-            });
-            mainActivity.binding.searchHistoryRecycler.setAdapter(searchViewAdapter);
-
-            //先刷新一下内容，以应对SearchView展开时的界面重建
-            List<String> historyList = SearchHistoryPreference.getHistory(
-                    SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-                    requireContext()
-            );
-            searchViewAdapter.refreshSearchHistory(historyList);
-
-            //设置显示监听，用于初始化常用词与清空提示词按钮
-            searchViewTransitionListener = (searchView, previousState, newState) -> {
-                //显示时执行的动作
-                if (newState == SearchView.TransitionState.SHOWING) {
-                    List<String> searchHistoryList = SearchHistoryPreference.getHistory(
-                            SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-                            requireContext()
-                    );
-                    searchViewAdapter.refreshSearchHistory(searchHistoryList);
-                }
-            };
-            mainActivity.binding.searchView.addTransitionListener(searchViewTransitionListener);
-
-            //设置清除搜索历史按钮点击监听
-            mainActivity.binding.clearHistoryBtn.setOnClickListener(v -> {
-                SearchHistoryPreference.setHistory(
-                        SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-                        new ArrayList<>(),
-                        requireContext()
-                );
-                searchViewAdapter.refreshSearchHistory(new ArrayList<>());
-            });
-
-            //添加文本变化监听器，用于在清空文本后自动清除搜索并刷新视图
-            searchTextWatcher = new TextWatcher() {
-                @Override
-                public void afterTextChanged(Editable s) {
-
-                }
-
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (s.length() == 0) {
-                        searchText = "";
-                        binding.remarkSearchBar.setText("");
+            //观察搜索文本
+            AccountSearchViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountSearchViewModel.class);
+            viewModel.getSearchTextData().observe(
+                    getViewLifecycleOwner(),
+                    keyWord -> {
+                        Log.d(LogTags.ACCOUNT_FRAGMENT.getV(), "搜索文本更新");
+                        binding.remarkSearchBar.setText(keyWord);
                         refreshUI();
                     }
-                }
-            };
-            mainActivity.binding.searchView.getEditText().addTextChangedListener(searchTextWatcher);
-
-            //设置搜索监听
-            mainActivity.binding.searchView.getEditText().setOnEditorActionListener((v, actionId, event) -> {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    //获取输入文本
-                    searchText = mainActivity.binding.searchView.getText().toString();
-
-                    //将文本显示在SearchBar上
-                    binding.remarkSearchBar.setText(searchText);
-
-                    //保存搜索关键词
-                    if (!searchText.isEmpty()) {
-                        List<String> searchHistoryList = SearchHistoryPreference.getHistory(
-                                SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-                                requireContext()
-                        );
-                        searchHistoryList.remove(searchText);       //移除已存在的项
-                        searchHistoryList.add(0, searchText);   //添加新项
-                        if (searchHistoryList.size() > 15) {        //限制15条记录
-                            searchHistoryList = searchHistoryList.subList(0, 14);
-                        }
-                        SearchHistoryPreference.setHistory(
-                                SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-                                searchHistoryList,
-                                requireContext()
-                        );
-                    }
-
-                    //刷新视图
-                    refreshUI();
-
-                    //隐藏SearchView
-                    mainActivity.binding.searchView.hide();
-
-                    return true;
-                } else {
-                    return false;
-                }
-            });
+            );
         }
     }
 

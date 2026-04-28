@@ -14,6 +14,14 @@ import androidx.lifecycle.Observer;
 public class UnPeekLiveData<T> extends MutableLiveData<T> {
     private int mVersion = 0;  // 全局版本号，每次 setValue 递增
 
+    public UnPeekLiveData(T value) {
+        super(value);
+    }
+
+    public UnPeekLiveData() {
+        super();
+    }
+
     @MainThread
     @Override
     public void setValue(T value) {
