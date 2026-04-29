@@ -20,13 +20,14 @@ public class BookkeepingDbHelper extends SQLiteOpenHelper {
     private final Context context;                                      //上下文
     public static final String defaultGroupName = "默认分组";           //默认分组名称
 
-    public String getDatabaseName() {
-        return DATABASE_NAME;
-    }
-
     public BookkeepingDbHelper(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.context = context;
+    }
+
+    @Override
+    public String getDatabaseName() {
+        return DATABASE_NAME;
     }
 
     /**
