@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabaseLockedException;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -408,7 +407,6 @@ public class RunningAccountDataHelper extends DataHelperBase<BookkeepingDbHelper
      * @param context 用于打开数据库的上下文
      */
     public static void deleteAllData(@NonNull Context context) {
-        String tipStr = "数据清除失败，原因未知";
         try (BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context)) {
             SQLiteDatabase db = dbHelper.openWriteLink();
 
@@ -439,13 +437,11 @@ public class RunningAccountDataHelper extends DataHelperBase<BookkeepingDbHelper
             //删除预算的标签数据
             db.delete(Tables.BUDGET_TAG.toString(), null, null);
 
-            tipStr = "数据清除成功";
             db.close();
+            Log.d(LogTags.ACCOUNT_DATA_HELPER.getV(), "流水数据删除成功");
         } catch (SQLiteDatabaseLockedException e) {
-            tipStr = "数据清除失败：数据库异常";
+            Log.e(LogTags.ACCOUNT_DATA_HELPER.getV(), "流水记录删除失败：数据库异常");
         } finally {
-            Toast.makeText(context, tipStr, Toast.LENGTH_SHORT).show();
-
             //更新主页标签数量
             TagRepository tagRepository = TagRepository.getInstance();
             tagRepository.updateTag(TagUpdateReason.CLEAR);

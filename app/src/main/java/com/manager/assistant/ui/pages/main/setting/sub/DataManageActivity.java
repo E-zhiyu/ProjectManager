@@ -238,6 +238,8 @@ public class DataManageActivity extends AppCompatActivity {
      * 初始化数据管理条目
      */
     private void initDataManageSettings() {
+        binding.toolbar.setNavigationOnClickListener(view -> finish());
+
         //导出数据
         SettingClickableTextView exportDataOption = new SettingClickableTextView(
                 this,

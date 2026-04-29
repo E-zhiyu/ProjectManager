@@ -1,11 +1,8 @@
 package com.manager.assistant.ui.pages.main.bookkeeping.fragments;
 
-import android.app.Activity;
-import android.content.Intent;
+import android.Manifest;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,9 +10,11 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -23,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.loadingindicator.LoadingIndicator;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputLayout;
@@ -31,10 +31,10 @@ import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.controllers.PictureDataController;
 import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.generic_enums.DirectoryPaths;
-import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.helpers.DateTimePickerHelper;
+import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.sync.picture.AccountPictureViewModel;
@@ -48,13 +48,17 @@ import com.manager.assistant.ui.pages.picture.PictureAdapter;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -80,11 +84,50 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
     protected long tno = 0;                                     //用户选择的标签编号（默认无标签则为0）
     protected long rno = 0;                                     //流水编号
     protected TagSelectBottomSheet tagSheet;                    //标签选择弹窗
-    protected ActivityResultLauncher<Intent> cameraLauncher;    //拍照Activity启动器
-    protected ActivityResultLauncher<String> albumLauncher;     //相册图片选择启动器
     protected PictureAdapter pictureAdapter;                    //图片RecyclerView的适配器
     protected final CompositeDisposable disposables = new CompositeDisposable();    //多线程任务列表
     protected boolean viewModelRefreshPictureEnabled = true;    //是否能够通过ViewModel刷新图片视图
+    private ActivityResultLauncher<PickVisualMediaRequest> albumLauncher;   //相册图片选择启动器
+    private ActivityResultLauncher<Uri> takePictureLauncher;    //调用系统相机的启动器
+    protected Uri tempPictureUri;                               //临时图片文件的Uri
+    private ActivityResultLauncher<String> permissionLauncher;  //权限申请启动器
+
+    /**
+     * 图片复制结果
+     */
+    static class PictureCopyResult {
+        Uri copiedFileUri;      //复制的文件的Uri
+        String tipStr;          //复制成功的文件名
+        boolean isSuccessful;   //是否复制成功
+        int currentCount;       //当前复制的图片在第几个
+        int totalCount;         //一共有几个
+        Throwable exception;    //复制失败产生的异常
+
+        /**
+         * 复制成功构造方法
+         *
+         * @param copiedFileUri 复制成功的文件的Uri
+         * @param currentCount  当前复制的文件是第几个
+         * @param totalCount    一共有多少文件需要复制
+         */
+        public PictureCopyResult(Uri copiedFileUri, String tipStr, int currentCount, int totalCount) {
+            this.copiedFileUri = copiedFileUri;
+            this.tipStr = tipStr;
+            this.currentCount = currentCount;
+            this.totalCount = totalCount;
+            this.isSuccessful = true;
+            this.exception = null;
+        }
+
+        public PictureCopyResult(String errTip, int currentCount, int totalCount, Throwable exception) {
+            this.tipStr = errTip;
+            this.copiedFileUri = null;
+            this.currentCount = currentCount;
+            this.totalCount = totalCount;
+            this.isSuccessful = false;
+            this.exception = exception;
+        }
+    }
 
     /**
      * 流水记录输入界面基类构造方法
@@ -170,21 +213,45 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
      * 初始化启动器
      */
     private void initLaunchers() {
-        cameraLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    Intent data = result.getData();
-                    int resultCode = result.getResultCode();
+        //从相册选择图片启动器
+        albumLauncher = registerForActivityResult(
+                new ActivityResultContracts.PickMultipleVisualMedia(),
+                this::onAlbumPictureUrisReceived
+        );
 
-                    if (resultCode == Activity.RESULT_OK && data != null) {
-                        onCameraPictureUriReceived(data);
+        //系统相机拍照启动器
+        takePictureLauncher = registerForActivityResult(
+                new ActivityResultContracts.TakePicture(),
+                result -> {
+                    if (result) {
+                        onCameraPictureUriReceived(tempPictureUri);
+                    } else {
+                        Toast.makeText(requireContext(), "拍照已取消", Toast.LENGTH_SHORT).show();
                     }
                 }
         );
 
-        albumLauncher = registerForActivityResult(
-                new ActivityResultContracts.GetMultipleContents(),
-                this::onAlbumPictureUrisReceived
+        //权限申请启动器
+        permissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                result -> {
+                    if (result) {
+                        launchSystemCamera();
+                    } else if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.CAMERA)) {
+                        //弹出解释对话框
+                        new MaterialAlertDialogBuilder(requireContext())
+                                .setTitle("申请权限")
+                                .setMessage("使用相机拍照需要先授予摄像头权限")
+                                .setNegativeButton("取消", null)
+                                .setPositiveButton(
+                                        "确定",
+                                        (dialogInterface, i) -> requestCameraPermission()
+                                )
+                                .show();
+                    } else {
+                        Toast.makeText(requireContext(), "请授予相机权限后再拍照", Toast.LENGTH_SHORT).show();
+                    }
+                }
         );
     }
 
@@ -380,25 +447,70 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
      */
     protected void showAddPictureBottomSheet() {
         AddPictureOptionBottomSheet sheet = new AddPictureOptionBottomSheet(
-                requireContext(),
-                cameraLauncher,
-                albumLauncher
+                () -> {
+                    if (PermissionHelper.isRuntimePermissionGranted(
+                            Manifest.permission.CAMERA,
+                            requireContext()
+                    )) {
+                        launchSystemCamera();
+                    } else {
+                        requestCameraPermission();
+                    }
+                },
+                () -> albumLauncher.launch(new PickVisualMediaRequest.Builder()
+                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                        .build()
+                )
         );
         sheet.show(getParentFragmentManager(), TagString.PICTURE_ADD_SHEET.getValue());
     }
 
     /**
+     * 申请相机权限
+     */
+    private void requestCameraPermission() {
+        permissionLauncher.launch(Manifest.permission.CAMERA);
+    }
+
+    /**
+     * 启动系统相机拍照
+     */
+    private void launchSystemCamera() {
+        try {
+            //在缓存目录下创建一个临时文件
+            File photoFile = File.createTempFile(
+                    "IMG_",
+                    ".jpg",
+                    DirectoryPaths.PICTURE_TEMP.getDir(requireContext())
+            );
+
+            //通过 FileProvider 获取 Content URI
+            tempPictureUri = FileProvider.getUriForFile(
+                    requireContext(),
+                    requireContext().getPackageName() + ".fileprovider",
+                    photoFile
+            );
+
+            //启动相机
+            takePictureLauncher.launch(tempPictureUri);
+        } catch (IOException e) {
+            Toast.makeText(requireContext(), "无法创建相片文件", Toast.LENGTH_SHORT).show();
+        } catch (SecurityException e) {
+            Toast.makeText(requireContext(), "请授予相机权限后再拍照", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
      * 处理拍照后
      *
-     * @param intent 包含图片Uri的Intent
+     * @param pictureUri 拍照完成后照片的Uri
      */
-    private void onCameraPictureUriReceived(@NonNull Intent intent) {
-        String uriStr = intent.getStringExtra(KeyValueStrings.FILE_URI.getValue());
-        if (uriStr == null) return;
+    private void onCameraPictureUriReceived(@NonNull Uri pictureUri) {
+        Toast.makeText(requireContext(), "拍照成功", Toast.LENGTH_SHORT).show();
 
-        Uri pictureUri = Uri.parse(uriStr);
         Picture newPicture = new Picture(pictureUri, rno);
 
+        //通过ViewModel更新视图
         AccountPictureViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountPictureViewModel.class);
         viewModel.addPicture(newPicture);
     }
@@ -431,64 +543,61 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
         processDialog.show();
 
         //在IO线程完成文件复制并在主线程刷新UI
+        AtomicInteger errFileCount = new AtomicInteger(0);
+        List<Uri> successfulUriList = new ArrayList<>();
         disposables.add(
-                Observable.fromCallable(() -> {
-                            List<File> copiedFIleList = new ArrayList<>();
-                            boolean switchedOffIndeterminate = false;   //标记是否切换到确定模式
-                            for (int i = 0; i < uriList.size(); i++) {
-                                Uri pictureUri = uriList.get(i);
-
-                                //复制单个图片
-                                File copiedFile = copySinglePicture(pictureUri, i, tempPictureDir);
-                                if (copiedFile != null && copiedFile.exists()) {
-                                    copiedFIleList.add(copiedFile);
-
-                                    //如果是第一张图片，切换到确定模式
-                                    if (!switchedOffIndeterminate) {
-                                        switchedOffIndeterminate = true;
-                                        new Handler(Looper.getMainLooper()).post(() ->
-                                                processDialog.setIndeterminate(false)
-                                        );
-                                    }
-
-                                    //更新进度
-                                    final int current = i + 1;
-                                    final String fileName = copiedFile.getName();
-                                    new Handler(Looper.getMainLooper()).post(() ->
-                                            processDialog.updateProgress(current, uriList.size(), fileName)
-                                    );
-                                }
-                            }
-
-                            //返回复制成功的图片列表
-                            return copiedFIleList.stream()
-                                    .map(Uri::fromFile)
-                                    .map(uri -> new Picture(uri, rno))
-                                    .collect(Collectors.toList());
+                Observable.range(0, uriList.size())
+                        .flatMap(index -> {
+                            Uri uri = uriList.get(index);
+                            return Observable.fromCallable(() -> copySinglePicture(uri, tempPictureDir))
+                                    .map(fileName -> new PictureCopyResult(uri, fileName, index + 1, uriList.size()))
+                                    .onErrorReturn(throwable -> new PictureCopyResult("文件复制出错！", index + 1, uriList.size(), throwable))
+                                    .subscribeOn(Schedulers.io());
                         })
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe(
-                                pictureList -> {
-                                    if (pictureList.isEmpty()) {
-                                        return;
-                                    }
+                        .doOnComplete(() -> {
+                            //全部完成后弹出Toast
+                            String tipStr;
+                            if (errFileCount.get() == 0) {
+                                tipStr = String.format(
+                                        Locale.getDefault(),
+                                        "%d张图片全部复制成功",
+                                        successfulUriList.size()
+                                );
+                            } else {
+                                tipStr = String.format(
+                                        Locale.getDefault(),
+                                        "图片复制完毕，成功%d个，失败%d个",
+                                        successfulUriList.size(),
+                                        errFileCount.get()
+                                );
+                            }
+                            Toast.makeText(requireContext(), tipStr, Toast.LENGTH_SHORT).show();
 
-                                    Toast.makeText(
-                                            requireContext(),
-                                            String.format(
-                                                    Locale.getDefault(),
-                                                    "已添加%d张图片",
-                                                    pictureList.size()
-                                            ), Toast.LENGTH_SHORT
-                                    ).show();
+                            //让进度对话框消失
+                            processDialog.dismiss();
 
-                                    AccountPictureViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountPictureViewModel.class);
-                                    viewModel.addPicture(pictureList);
-                                },
-                                e -> ExceptionHelper.showExceptionDialog(requireContext(), e),
-                                processDialog::dismiss
-                        )
+                            //将图片显示在UI中
+                            List<Picture> successfulPictureList = successfulUriList.stream()
+                                    .map(uri -> new Picture(uri, rno))
+                                    .collect(Collectors.toList());
+                            AccountPictureViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountPictureViewModel.class);
+                            viewModel.addPicture(successfulPictureList);
+                        })
+                        .subscribe(result -> {
+                            //将进度条对话框切换为确定模式
+                            processDialog.setIndeterminate(false);
+
+                            //更新进度条
+                            processDialog.updateProgress(result.currentCount, result.totalCount, result.tipStr);
+
+                            //统计成功与失败的文件数量
+                            if (result.isSuccessful && result.copiedFileUri != null) {
+                                successfulUriList.add(result.copiedFileUri);
+                            } else {
+                                errFileCount.set(errFileCount.get() + 1);
+                            }
+                        })
         );
     }
 
@@ -496,41 +605,34 @@ public abstract class RunningAccountFragmentBase<B extends ViewBinding> extends 
      * 复制单个图片
      *
      * @param imageUri  图片Uri
-     * @param index     图片的下标(外部调用的循环中的下标)
      * @param targetDir 目标目录
-     * @return 复制完成的文件
+     * @return 复制成功的文件名
+     * @throws IOException 文件复制出错引发的异常
      */
-    @Nullable
-    private File copySinglePicture(Uri imageUri, int index, File targetDir) {
-        try (InputStream inputStream = requireContext().getContentResolver().openInputStream(imageUri)) {
-            if (inputStream == null) return null;
+    private String copySinglePicture(Uri imageUri, File targetDir) throws IOException {
+        //使用 UUID 确保唯一性
+        String fileName = String.format(Locale.getDefault(), "album_%s.jpg",
+                UUID.randomUUID().toString().substring(0, 8));
+        File destinationFile = new File(targetDir, fileName);
 
-            // 生成唯一的文件名
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd(HHmmss)");
-            LocalDateTime now = LocalDateTime.now();
-            String fileName = String.format(
-                    Locale.getDefault(),
-                    "album_%s_%d.jpg",
-                    formatter.format(now),
-                    index
-            );
-
-            // 创建目标文件
-            File destinationFile = new File(targetDir, fileName);
-
-            // 复制文件
-            try (FileOutputStream outputStream = new FileOutputStream(destinationFile)) {
-                byte[] buffer = new byte[4096];
-                int bytesRead;
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    outputStream.write(buffer, 0, bytesRead);
-                }
+        try (InputStream inputStream = requireContext().getContentResolver().openInputStream(imageUri);
+             OutputStream outputStream = new FileOutputStream(destinationFile)
+        ) {
+            if (inputStream == null) {
+                throw new IOException("无法正确打开文件输入流");
             }
 
-            return destinationFile;
-        } catch (Exception e) {
-            ExceptionHelper.showExceptionDialog(requireContext(), e);
-            return null;
+            //使用 Android 内置的工具类更简洁，性能也更好
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+
+            return fileName;
+        } catch (IOException e) {
+            Log.e(LogTags.ACCOUNT_FRAGMENT.getV(), "图片文件复制出错", e);
+            throw e;
         }
     }
 }

@@ -5,11 +5,15 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.PermissionInfo;
 import android.net.Uri;
 import android.os.Build;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.ComponentActivity;
@@ -17,60 +21,64 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textview.MaterialTextView;
+import com.hjq.device.compat.DeviceOs;
 import com.manager.assistant.LifecycleManager;
+import com.manager.assistant.R;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.generic_enums.LogTags;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.stream.Collectors;
+
+import io.noties.markwon.Markwon;
 
 /**
  * 在打开Activity时申请权限的工具类
  */
 public class PermissionHelper {
     private final ComponentActivity activity;   //需要申请权限的Activity
-    private final List<String> runtimePermissions = new ArrayList<>();      //运行时权限列表
-    private final Queue<SpecialRequest> specialQueue = new LinkedList<>();  //特殊权限队列
+    private final Map<String, String> runtimePermissionMessageMap = new HashMap<>(); //运行时权限解释文本
+    private final List<String> runtimePermissions = new ArrayList<>();              //运行时权限列表
+    private final List<String> rationaleRuntimePermissions = new ArrayList<>();     //可以再次申请的运行时权限
+    private final Queue<PermissionRequest> specialQueue = new LinkedList<>();       //特殊权限队列
     private ActivityResultLauncher<String[]> runtimeLauncher;   //申请运行时权限的启动器
-    private boolean isSpecialProcessing = false;                //是否正在处理特殊权限，防止在处理权限时重复调用权限申请方法
+    private boolean isProcessing = false;                       //是否正在处理权限，防止在处理权限时重复调用权限申请方法
 
-    public enum SpecialType {
+    public enum SpecialPermissionType {
         //精确闹钟权限
         ALARM(
-                ctx -> Build.VERSION.SDK_INT < Build.VERSION_CODES.S || ctx.getSystemService(android.app.AlarmManager.class).canScheduleExactAlarms(),
-                ctx -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        return new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + ctx.getPackageName()));
-                    }
-                    return null;
-                }
+                PermissionHelper::isExactAlarmEnabled,
+                PermissionHelper::buildExactAlarmIntent
         ),
         //电池优化
         @SuppressLint("BatteryLife") BATTERY(
-                ctx -> ((android.os.PowerManager) ctx.getSystemService(Context.POWER_SERVICE)).isIgnoringBatteryOptimizations(ctx.getPackageName()),
-                ctx -> new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                PermissionHelper::isIgnoringBatteryOptimizations,
+                PermissionHelper::buildIgnoringBatteryOptimizationsIntent
         ),
         //通知监听权限
         NOTIFICATION_LISTENER(
                 PermissionHelper::isNotificationServiceEnabled,
-                c -> {
-                    Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    return intent;
-                }
+                c -> buildNotificationListenerIntent()
         ),
         //自启动权限
-        AUTO_START(context -> false, context -> null);
-        private final Checker checker;
-        private final IntentBuilder intentBuilder;
+        AUTO_START(
+                PermissionHelper::isAutoStartHinted,
+                PermissionHelper::buildAutoStartPermissionIntent
+        );
+        private final Checker checker;              //如何检查权限是否授予
+        private final IntentBuilder intentBuilder;  //跳转权限界面所需的Intent构建器
 
-        SpecialType(Checker c, IntentBuilder i) {
+        SpecialPermissionType(Checker c, IntentBuilder i) {
             this.checker = c;
             this.intentBuilder = i;
         }
@@ -92,12 +100,12 @@ public class PermissionHelper {
         }
     }
 
-    private static class SpecialRequest {
-        Object permission; // 可以是 String (运行时) 或 SpecialType (特殊)
-        String customTitle;
-        String customMessage;
+    private static class PermissionRequest {
+        SpecialPermissionType permission;   //特殊权限
+        String customTitle;                 //对话框标题
+        String customMessage;               //自定义对话框消息
 
-        SpecialRequest(Object permission, String title, String message) {
+        PermissionRequest(SpecialPermissionType permission, String title, String message) {
             this.permission = permission;
             this.customTitle = title;
             this.customMessage = message;
@@ -137,8 +145,15 @@ public class PermissionHelper {
                 result -> {
                     //如果运行时权限被拒绝了，那就不要继续申请
                     for (Map.Entry<String, Boolean> entry : result.entrySet()) {
-                        if (!entry.getValue()) {
-                            runtimePermissions.remove(entry.getKey());
+                        String permission = entry.getKey();
+
+                        runtimePermissions.remove(permission);
+                        if (!entry.getValue() && ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
+                            //如果用户没有授权，但是又可以再次申请，说明没有被永久拒绝，转移到再次申请列表中
+                            rationaleRuntimePermissions.add(permission);
+                        } else {
+                            //如果用户没有授权，但是又不能再次申请，则说明权限被永久拒绝，不要再申请，完全删除这个权限
+                            rationaleRuntimePermissions.remove(permission);
                         }
                     }
                 }
@@ -148,21 +163,30 @@ public class PermissionHelper {
     /**
      * 添加权限请求（使用自定义文案）
      *
-     * @param permission 需要申请的权限（类型为{@link String}表示运行时权限，{@link SpecialType}表示特殊应用权限
+     * @param permission 需要申请的权限（类型为{@link String}表示运行时权限，{@link SpecialPermissionType}表示特殊应用权限
      * @param title      对话框标题
      * @param message    提示文本
      */
-    public void addPermission(SpecialType permission, String title, String message) {
-        specialQueue.add(new SpecialRequest(permission, title, message));
+    public void addPermission(@NonNull SpecialPermissionType permission, String title, String message) {
+        if (!permission.isGranted(activity)) {
+            specialQueue.add(new PermissionRequest(permission, title, message));
+        }
     }
 
     /**
      * 添加权限申请请求
      *
-     * @param permission 运行时权限
+     * @param permission 运行时权限字符串
+     * @param message    用户拒绝过一次后，再次申请前显示的解释对话框的提示信息
      */
-    public void addPermission(String permission) {
-        runtimePermissions.add(permission);
+    public void addPermission(String permission, String message) {
+        //当权限未授予并且在系统中定义时（特别处理“应用列表权限”等原生安卓没有的权限）添加到申请列表中
+        if (!isRuntimePermissionGranted(permission, activity)
+                && isRuntimePermissionDefined(permission, activity)
+        ) {
+            runtimePermissions.add(permission);
+            runtimePermissionMessageMap.put(permission, message);   //保存运行时权限解释文本的引用
+        }
     }
 
     /**
@@ -170,7 +194,7 @@ public class PermissionHelper {
      */
     public void start() {
         //检查是否正在处理权限，如果是则直接结束
-        if (isSpecialProcessing) {
+        if (isProcessing) {
             return;
         }
 
@@ -180,16 +204,15 @@ public class PermissionHelper {
         }
 
         //筛选没有授权的运行时权限
-        List<String> deniedPermissions = new ArrayList<>();
-        for (String p : runtimePermissions) {
-            if (ContextCompat.checkSelfPermission(activity, p) != PackageManager.PERMISSION_GRANTED) {
-                deniedPermissions.add(p);
-            }
-        }
+        List<String> deniedPermissions = runtimePermissions.stream()
+                .filter(permission -> !isRuntimePermissionGranted(permission, activity))
+                .collect(Collectors.toList());
 
-        //先处理运行时权限，再处理特殊应用权限
+        //先处理运行时权限，再处理需要解释一次的运行时权限，最后处理特殊应用权限
         if (!deniedPermissions.isEmpty()) {
-            runtimeLauncher.launch(deniedPermissions.toArray(new String[0]));   //运行时权限不需要后台隐藏豁免
+            runtimeLauncher.launch(deniedPermissions.toArray(new String[0]));
+        } else if (!rationaleRuntimePermissions.isEmpty()) {
+            showRationaleDialog(rationaleRuntimePermissions.toArray(new String[0]));
         } else {
             processNextSpecial();
         }
@@ -207,10 +230,10 @@ public class PermissionHelper {
 
         //从队列中取出一个特殊应用权限请求
         Log.d(LogTags.PERMISSION_HELPER.getV(), "正在处理下个特殊应用权限");
-        isSpecialProcessing = true;         //标记为正在处理
-        SpecialRequest request = specialQueue.poll();
+        isProcessing = true;         //标记为正在处理
+        PermissionRequest request = specialQueue.poll();
         if (request == null) {
-            isSpecialProcessing = false;    //如果没有特殊权限了，那就标记为未处理
+            isProcessing = false;    //如果没有特殊权限了，那就标记为未处理
             return;
         }
 
@@ -223,42 +246,22 @@ public class PermissionHelper {
      *
      * @param request 权限请求
      */
-    private void handleSpecialPermission(@NonNull SpecialRequest request) {
-        SpecialType type = (SpecialType) request.permission;
+    private void handleSpecialPermission(@NonNull PermissionRequest request) {
+        SpecialPermissionType type = request.permission;
         Log.d(LogTags.PERMISSION_HELPER.getV(), request.customTitle);
-        if (type == SpecialType.AUTO_START) {
-            //单独处理自启动权限
-            if (!AutoBookKeepingPreference.getHintAutoStart(activity)) {
-                AutoBookKeepingPreference.setHintAutoStart(true, activity);
-
-                //弹出提示框
-                new MaterialAlertDialogBuilder(activity)
-                        .setTitle(request.customTitle)
-                        .setMessage(request.customMessage)
-                        .setNegativeButton(
-                                "取消",
-                                (dialog, which) -> processNextSpecial()
-                        )
-                        .setPositiveButton(
-                                "前往设置",
-                                (dialog, which) -> {
-                                    isSpecialProcessing = false;    //未直接调用processNextSpecial()，需要标记为未处理
-                                    PermissionHelper.requestAutoStartPermission(activity);
-                                }
-                        )
-                        .setCancelable(false)
-                        .show();
-            } else {
-                processNextSpecial();
-            }
-        } else if (type.isGranted(activity)) {
+        if (type.isGranted(activity)) {
             processNextSpecial();
         } else {
+            //以后不再提示申请自启动权限
+            if (type == SpecialPermissionType.AUTO_START) {
+                AutoBookKeepingPreference.setHintAutoStart(true, activity);
+            }
+
             new MaterialAlertDialogBuilder(activity)
                     .setTitle(request.customTitle)
                     .setMessage(request.customMessage)
                     .setPositiveButton("去设置", (d, w) -> {
-                        isSpecialProcessing = false;    //未直接调用processNextSpecial()，需要标记为未处理
+                        isProcessing = false;    //未直接调用processNextSpecial()，需要标记为未处理
 
                         LifecycleManager.startExternalActivity(activity, type.getIntent(activity));
                     })
@@ -266,6 +269,103 @@ public class PermissionHelper {
                     .setCancelable(false)
                     .show();
         }
+    }
+
+    /**
+     * 显示用户拒绝过一次的运行时权限解释对话框
+     *
+     * @param permissions 需要一次性申请的运行时权限
+     */
+    private void showRationaleDialog(@NonNull String[] permissions) {
+        //构建解释消息
+        StringBuilder messageBuilder = new StringBuilder("为了提供完整的功能，请授予以下权限：  \n");
+        for (String permission : permissions) {
+            String message = runtimePermissionMessageMap.get(permission);
+            if (message != null) {
+                messageBuilder.append("- ");
+                messageBuilder.append(message);
+                messageBuilder.append("  \n");
+            }
+        }
+
+        //显示为Markdown
+        View updateDialogView = LayoutInflater.from(activity)
+                .inflate(R.layout.view_markdown_text, null);
+        MaterialTextView textView = updateDialogView.findViewById(R.id.md_textview_in_dialog);
+        Markwon markwon = Markwon.create(activity);
+        markwon.setMarkdown(textView, messageBuilder.toString());
+
+        //显示对话框
+        new MaterialAlertDialogBuilder(activity)
+                .setTitle("需要权限")
+                .setView(updateDialogView)
+                .setPositiveButton("确定", (dialog, which) -> runtimeLauncher.launch(permissions))
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    /**
+     * 判断运行时权限是否定义
+     *
+     * @param permission 运行时权限字符串
+     * @param context    上下文
+     * @return 权限在系统中是否定义
+     */
+    public static boolean isRuntimePermissionDefined(String permission, @NonNull Context context) {
+        PackageManager pm = context.getPackageManager();
+        try {
+            PermissionInfo permissionInfo = pm.getPermissionInfo(permission, 0);
+            return permissionInfo != null; // 判断系统是否支持该权限
+        } catch (PackageManager.NameNotFoundException e) {
+            return false; // 权限未定义，通常是因为系统版本太低或该权限属于特定厂商
+        }
+    }
+
+    /**
+     * 判断运行时权限是否已经授予
+     *
+     * @param permission 运行时权限字符串
+     * @param context    上下文
+     * @return 是否授予运行时权限
+     */
+    public static boolean isRuntimePermissionGranted(String permission, Context context) {
+        return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /**
+     * 检查是否有精确闹钟权限
+     *
+     * @param context 上下文
+     * @return 是否拥有精确闹钟权限
+     */
+    public static boolean isExactAlarmEnabled(Context context) {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
+                context.getSystemService(android.app.AlarmManager.class).canScheduleExactAlarms();
+    }
+
+    /**
+     * 判断是否提醒了需要开启自启动权限
+     *
+     * @param context 上下文
+     * @return 是否提醒了需要开启自启动权限
+     */
+    public static boolean isAutoStartHinted(Context context) {
+        return !isAutoStartDefined() || AutoBookKeepingPreference.getHintAutoStart(context);
+    }
+
+    /**
+     * 判断是否定义了自启动权限
+     *
+     * @return 是否定义了自启动权限
+     */
+    public static boolean isAutoStartDefined() {
+        //如果能被识别但是没有自启动权限，返回false
+        if (DeviceOs.isOneUi() || DeviceOs.isMyOs() || DeviceOs.isZuxOs() || DeviceOs.isZui()) {
+            return false;
+        }
+
+        //判断系统名称是否为空，为空说明为类原生系统，否则为拥有自启动设置的定制安卓
+        return !DeviceOs.getOsName().isEmpty();
     }
 
     /**
@@ -293,35 +393,89 @@ public class PermissionHelper {
     }
 
     /**
-     * 检查并引导用户开启自启动权限
+     * 判断是否在电池优化白名单中
      *
      * @param context 上下文
+     * @return 是否在电池优化白名单
      */
-    public static void requestAutoStartPermission(Context context) {
-        String manufacturer = Build.MANUFACTURER.toLowerCase();
+    public static boolean isIgnoringBatteryOptimizations(@NonNull Context context) {
+        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        return pm.isIgnoringBatteryOptimizations(context.getPackageName());
+    }
 
-        Intent intent = new Intent();
+    /**
+     * 判断是否能够跳转到原生忽略电池优化白名单界面
+     *
+     * @return 是否能跳转原生界面
+     */
+    public static boolean canSkip2ProtogeneticBatteryOptimizationsPage() {
+        return !DeviceOs.isHyperOs() && !DeviceOs.isMiui(); //目前测试只有米米的系统无法跳转，会被拦截至魔改界面
+    }
+
+    /**
+     * 构建精确闹钟权限Intent
+     *
+     * @param context 上下文
+     * @return 用于申请精确闹钟权限的Intent
+     */
+    @Nullable
+    public static Intent buildExactAlarmIntent(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return new Intent(
+                    Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                    Uri.parse("package:" + context.getPackageName())
+            );
+        }
+        return null;
+    }
+
+    /**
+     * 构建申请通知监听权限的Intent
+     *
+     * @return 申请通知监听权限的Intent
+     */
+    @NonNull
+    public static Intent buildNotificationListenerIntent() {
+        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        return intent;
+    }
 
-        try {
-            //根据设备厂商跳转到不同的设置页面
-            if (manufacturer.contains("xiaomi")) {
-                //小米设备
-                intent.setComponent(new ComponentName(
-                        "com.miui.securitycenter",
-                        "com.miui.permcenter.autostart.AutoStartManagementActivity"));
-            } else {
-                //其他设备跳转到设置界面
-                intent.setAction(Settings.ACTION_SETTINGS);
-                Toast.makeText(context, "请前往自启动管理页进行授权", Toast.LENGTH_SHORT).show();
-            }
-            LifecycleManager.startExternalActivity(context, intent);
-        } catch (Exception e) {
-            //如果出现异常，跳转到设置
-            intent.setAction(Settings.ACTION_SETTINGS);
-            intent.setData(Uri.fromParts("package", context.getPackageName(), null));
-            Toast.makeText(context, "请前往自启动管理页进行授权", Toast.LENGTH_SHORT).show();
-            LifecycleManager.startExternalActivity(context, intent);
+    /**
+     * 构建用于申请电池优化白名单的Intent
+     *
+     * @param context 上下文
+     * @return 用于申请电池优化白名单的Intent
+     */
+    @NonNull
+    public static Intent buildIgnoringBatteryOptimizationsIntent(Context context) {
+        if (canSkip2ProtogeneticBatteryOptimizationsPage()) {
+            @SuppressLint("BatteryLife") Intent intent = new Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+            intent.setData(android.net.Uri.parse("package:" + context.getPackageName()));
+            return intent;
+        } else {
+            return new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+        }
+    }
+
+    /**
+     * 构建跳转自启动界面的Intent
+     *
+     * @param context 上下文
+     * @return 跳转自启动界面的Intent
+     */
+    @NonNull
+    public static Intent buildAutoStartPermissionIntent(Context context) {
+        String manufacturer = Build.MANUFACTURER.toLowerCase();
+        if (manufacturer.contains("xiaomi")) {
+            Intent intent = new Intent();
+            intent.setComponent(new ComponentName(
+                    "com.miui.securitycenter",
+                    "com.miui.permcenter.autostart.AutoStartManagementActivity"));
+            return intent;
+        } else {
+            Toast.makeText(context, "请手动前往自启动界面授权", Toast.LENGTH_SHORT).show();
+            return new Intent(Settings.ACTION_SETTINGS);
         }
     }
 }

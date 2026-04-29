@@ -13,16 +13,14 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.biometric.BiometricManager;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.color.DynamicColors;
-import com.google.android.material.color.DynamicColorsOptions;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.R;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.data.save.preference.SecurityPreference;
 import com.manager.assistant.databinding.FragmentSettingBinding;
 import com.manager.assistant.generic_enums.options.AuthOpportunity;
 import com.manager.assistant.generic_enums.options.FirstScreen;
+import com.manager.assistant.generic_enums.options.ThemeMode;
 import com.manager.assistant.helpers.BiometricHelper;
 import com.manager.assistant.helpers.UpdateHelper;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingOptionViewBase;
@@ -30,7 +28,7 @@ import com.manager.assistant.ui.pages.main.setting.sub.AboutActivity;
 import com.manager.assistant.ui.pages.main.setting.sub.AutoBookkeepingActivity;
 import com.manager.assistant.ui.pages.main.setting.sub.DataManageActivity;
 import com.manager.assistant.ui.pages.main.setting.sub.PermissionManageActivity;
-import com.manager.assistant.helpers.appearence.ThemeModeHelper;
+import com.manager.assistant.helpers.appearence.ThemeHelper;
 import com.manager.assistant.helpers.about.UpdateLogHelper;
 import com.manager.assistant.data.save.preference.AppSettingsPreference;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingClickableTextView;
@@ -148,20 +146,7 @@ public class SettingFragment extends Fragment {
         dynamicColorOption.setFunctionListener(
                 (buttonView, isChecked) -> {
                     AppSettingsPreference.setDynamicColorStat(requireContext(), isChecked);
-
-                    ManagerAssistant app = (ManagerAssistant) requireActivity().getApplication();
-                    DynamicColorsOptions options;
-                    if (isChecked) {
-                        options = new DynamicColorsOptions.Builder()
-                                .setThemeOverlay(R.style.Theme_ManagerAssistant_Dynamic)
-                                .build();
-                    } else {
-                        options = new DynamicColorsOptions.Builder()
-                                .setThemeOverlay(R.style.Theme_ManagerAssistant_Static)
-                                .build();
-                    }
-                    DynamicColors.applyToActivitiesIfAvailable(app, options);
-                    requireActivity().recreate();
+                    ThemeHelper.switchDynamicColorWithAnimation(requireActivity(), isChecked);
                 }
         );
 
@@ -391,16 +376,18 @@ public class SettingFragment extends Fragment {
      * 显示主题模式选择对话框
      */
     private void showThemeModeSelectDialog() {
-        String[] themeModeStr = {"浅色模式", "深色模式", "跟随系统"};
-        int theme_mode = AppSettingsPreference.getThemeMode(requireContext());
+        String[] themeModeStr = Arrays.stream(ThemeMode.values())
+                .map(ThemeMode::getTitle)
+                .toArray(String[]::new);
+        int themeMode = AppSettingsPreference.getThemeMode(requireContext());
 
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("主题模式")
-                .setSingleChoiceItems(themeModeStr, theme_mode, ((dialog, which) -> {
+                .setSingleChoiceItems(themeModeStr, themeMode, (dialog, which) -> {
                     AppSettingsPreference.setThemeMode(requireContext(), which);
-                    ThemeModeHelper.applyTheme(which);
+                    ThemeHelper.switchNightModeWithAnimation(requireActivity(), which);
                     dialog.dismiss();
-                }))
+                })
                 .setNegativeButton("关闭", null)
                 .show();
     }

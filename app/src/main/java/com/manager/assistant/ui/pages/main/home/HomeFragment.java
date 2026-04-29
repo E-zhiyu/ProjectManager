@@ -332,7 +332,7 @@ public class HomeFragment extends Fragment {
         //观察标签数据
         TagRepository tagRepository = TagRepository.getInstance();
         tagRepository.getChangedTagList().observe(
-                requireActivity(),
+                getViewLifecycleOwner(),
                 tags -> {
                     try {
                         int tagCount = TagDataController.getDbCount(requireContext());
@@ -347,7 +347,7 @@ public class HomeFragment extends Fragment {
         //观察流水数据
         RunningAccountRepository accountRepository = RunningAccountRepository.getInstance();
         accountRepository.getAccountData().observe(
-                requireActivity(),
+                getViewLifecycleOwner(),
                 simpleRunningAccount -> {
                     if (simpleRunningAccount == null) {
                         return;
@@ -413,13 +413,13 @@ public class HomeFragment extends Fragment {
         //观察预算数据
         BudgetRepository budgetRepository = BudgetRepository.getInstance();
         budgetRepository.getChangedBudget().observe(
-                requireActivity(),
+                getViewLifecycleOwner(),
                 budget -> {
                     try {
                         int budgetCount = BudgetDataController.getDbCount(requireContext());
                         binding.budgetCountText.setText(String.valueOf(budgetCount));
                     } catch (SQLiteException e) {
-                        binding.budgetCountText.setText(0);
+                        binding.budgetCountText.setText(String.valueOf(0));
                         Toast.makeText(requireContext(), "无法获取预算数量", Toast.LENGTH_SHORT).show();
                     }
                 }

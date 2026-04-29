@@ -11,15 +11,20 @@ android {
         minSdk 28
         //noinspection OldTargetApi
         targetSdk 36
-        versionCode 60
-        versionName "1.8.16"
+        versionCode 61
+        versionName "1.8.17"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -55,12 +60,9 @@ dependencies {
     implementation libs.swiperefreshlayout
     implementation libs.documentfile
     implementation libs.work.runtime
-    implementation libs.camera.core
-    implementation libs.camera.camera2
-    implementation libs.camera.lifecycle
-    implementation libs.camera.view
     implementation libs.glide
     implementation libs.photoview
     implementation libs.dynamicanimation
-    implementation libs.flexbox
+    implementation libs.flexbox                     //Web上的Flex布局
+    implementation libs.devicecompat                //系统名称判断
 }

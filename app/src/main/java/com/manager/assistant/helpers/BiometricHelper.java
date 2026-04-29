@@ -1,7 +1,6 @@
 package com.manager.assistant.helpers;
 
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
@@ -86,16 +85,18 @@ public class BiometricHelper {
             //开始验证
             biometricPrompt.authenticate(promptInfo);
         } else {
+            String errTip = "未知错误，无法使用身份验证";
             if (result == BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE) {
+                errTip = "您的设备不支持生物识别";
                 Log.e(LogTags.BIOMETRIC_HELPER.getV(), "设备不支持生物识别");
-                Toast.makeText(activity, "您的设备不支持生物识别", Toast.LENGTH_SHORT).show();
             } else if (result == BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE) {
                 Log.e(LogTags.BIOMETRIC_HELPER.getV(), "硬件忙或不可用");
-                Toast.makeText(activity, "身份验证不可用，请稍后重试", Toast.LENGTH_SHORT).show();
+                errTip = "身份验证不可用，请稍后重试";
             } else if (result == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED) {
                 Log.e(LogTags.BIOMETRIC_HELPER.getV(), "用户未设置指纹或锁屏密码");
-                Toast.makeText(activity, "您还未设置任何锁屏验证方式", Toast.LENGTH_SHORT).show();
+                errTip = "您还未设置任何锁屏验证方式";
             }
+            callback.onError(result, errTip);
         }
     }
 

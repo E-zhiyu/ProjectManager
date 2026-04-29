@@ -52,6 +52,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/app_name_text" />
@@ -95,8 +96,8 @@
 
                     <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/author_head"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
                         android:adjustViewBounds="true"
                         android:src="@drawable/author"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -122,6 +123,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/author_of_app"
                         android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?attr/colorOutline"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="@id/author_name_text"
                         app:layout_constraintTop_toBottomOf="@id/author_name_text" />
@@ -169,6 +171,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/click_skip_to_repository"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?attr/colorOutline"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="@id/project_address_title_text"
                         app:layout_constraintTop_toBottomOf="@id/project_address_title_text" />

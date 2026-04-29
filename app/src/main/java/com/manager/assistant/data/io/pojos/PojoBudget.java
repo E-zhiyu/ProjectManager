@@ -1,13 +1,10 @@
 package com.manager.assistant.data.io.pojos;
 
-import androidx.annotation.Keep;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true) // 忽略JSON中多余字段
-@Keep
 public class PojoBudget {
     private long bno;
     private String name;

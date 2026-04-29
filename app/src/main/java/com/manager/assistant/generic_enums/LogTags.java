@@ -20,7 +20,8 @@ public enum LogTags {
     BOOT_RECEIVER("BootReceiver"),
     PERMISSION_HELPER("PermissionHelper"),
     BIOMETRIC_HELPER("BiometricHelper"),
-    LIFECYCLE_MANAGER("LifecycleManager");
+    LIFECYCLE_MANAGER("LifecycleManager"),
+    MAIN_ACTIVITY("MainActivity");
     private final String v;
 
     LogTags(String v) {

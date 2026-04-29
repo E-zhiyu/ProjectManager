@@ -17,6 +17,7 @@ import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.generic_enums.options.BackupFrequency;
 import com.manager.assistant.helpers.NotificationHelper;
 import com.manager.assistant.automation.schedulers.BackupScheduler;
+import com.manager.assistant.helpers.appearence.ThemeHelper;
 
 import java.io.File;
 import java.util.Locale;
@@ -42,6 +43,9 @@ public class ManagerAssistant extends Application {
                         .build();
                 DynamicColors.applyToActivitiesIfAvailable(this, options);
             }
+
+            //初始化主题模式
+            initThemeMode();
 
             //注册Activity生命周期监听器
             LifecycleManager.init(this);
@@ -78,4 +82,11 @@ public class ManagerAssistant extends Application {
         }
     }
 
+    /**
+     * 初始化深浅色主题模式
+     */
+    private void initThemeMode() {
+        int themeMode = AppSettingsPreference.getThemeMode(this);
+        ThemeHelper.applyTheme(themeMode);
+    }
 }
