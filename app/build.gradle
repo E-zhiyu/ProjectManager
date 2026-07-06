@@ -7,12 +7,12 @@ android {
     compileSdkVersion 37
 
     defaultConfig {
-        applicationId "com.manager.assitant"
+        applicationId 'com.manager.assistant'
         minSdk 28
         //noinspection OldTargetApi
         targetSdk 36
-        versionCode 61
-        versionName "1.8.17"
+        versionCode 62
+        versionName '1.9.0'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
