@@ -1,4 +1,4 @@
-package com.manager.assistant.data.save.db.entity;
+package com.manager.assistant.data.save.db.entities;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -16,7 +16,8 @@ import androidx.room.PrimaryKey;
         ),
         indices = {
                 @Index(value = "tagId"),
-                @Index(value = "scope")
+                @Index(value = "scope"),
+                @Index(value = "groupId")
         }
 )
 public class TagEntity {

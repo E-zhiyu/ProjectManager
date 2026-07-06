@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.ConcatAdapter;
 
 import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.ActivityTagManageBinding;
-import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
@@ -79,7 +78,6 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
 
         initLaunchers();
         initViews();
-        AppearanceAnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
     }
 
     @Override
@@ -167,9 +165,6 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
         adapter = new ConcatAdapter();
         binding.tagRecycler.setAdapter(adapter);
         refreshRecyclerView(tagGroupMap);
-
-        //添加RecyclerView滚动监听器，用以控制添加按钮的显示与否
-        AppearanceAnimationHelper.setupFloatingBtnBehaviour(binding.tagRecycler, binding.addFloatingBtn);
     }
 
     /**

@@ -25,7 +25,6 @@ import com.manager.assistant.ui.sync.picture.AccountPictureViewModel;
 import com.manager.assistant.ui.others.adapters.FragmentPagerAdapter;
 import com.manager.assistant.databinding.ActivityRunningAccountAddBinding;
 import com.manager.assistant.generic_enums.DirectoryPaths;
-import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.ui.pages.main.bookkeeping.fragments.ExpenseFragment;
@@ -60,7 +59,6 @@ public class RunningAccountAddActivity extends AppCompatActivity {
         });
 
         initViews();
-        AppearanceAnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
 
         //设置返回监听器
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {

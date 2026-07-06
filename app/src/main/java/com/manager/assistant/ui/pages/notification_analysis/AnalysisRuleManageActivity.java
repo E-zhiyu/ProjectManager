@@ -19,7 +19,6 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.manager.assistant.data.controllers.RuleDataController;
 import com.manager.assistant.databinding.ActivityRuleManageBinding;
-import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.generic_enums.RequestResultCode;
@@ -62,7 +61,6 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         ViewEdgeHelper.setMarginToNavigation(binding.addFloatingBtn, this);
 
         initViews();
-        AppearanceAnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
         initLaunchers();
         addPermissionRequests();
 
@@ -121,9 +119,6 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         ruleAdapter = new AnalysisRuleAdapter(ruleList, this::onRuleClicked);
         binding.refreshLayout.setRefreshing(false);
         binding.ruleRecycler.setAdapter(ruleAdapter);
-
-        //设置规则列表滚动监听器
-        AppearanceAnimationHelper.setupFloatingBtnBehaviour(binding.ruleRecycler, binding.addFloatingBtn);
 
         //设置下拉刷新布局的刷新监听器
         binding.refreshLayout.setOnRefreshListener(this::refreshRuleRecycler);

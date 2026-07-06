@@ -1,4 +1,4 @@
-package com.manager.assistant.data.save.db.entity;
+package com.manager.assistant.data.save.db.entities;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;

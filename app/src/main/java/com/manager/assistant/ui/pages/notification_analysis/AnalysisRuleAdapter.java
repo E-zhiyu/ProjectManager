@@ -11,7 +11,7 @@ import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.databinding.ViewHolderAnalysisRuleBinding;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.data.classes.AnalysisRule;
-import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
 import com.manager.assistant.data.classes.Tag;
 
@@ -29,7 +29,7 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
             this.binding = binding;
 
             //设置触摸动画
-            AppearanceAnimationHelper.attachMorphAnimation(binding.getRoot());
+            AppearanceHelper.attachMorphAnimation(binding.getRoot());
 
             binding.getRoot().setOnClickListener(v -> listener.onClicked(getBindingAdapterPosition()));
         }
@@ -88,7 +88,7 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         holder.binding.tagNameText.setText(ruleTag.getName());
 
         //设置圆角大小
-        AppearanceAnimationHelper.setRecyclerItemRadius(holder.itemView, ruleList.size(), position);
+        AppearanceHelper.setRecyclerItemRadius(holder.itemView, ruleList.size(), position);
     }
 
     @Override

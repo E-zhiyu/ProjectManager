@@ -1,4 +1,4 @@
-package com.manager.assistant.data.save.db.entity;
+package com.manager.assistant.data.save.db.entities;
 
 import androidx.room.Entity;
 import androidx.room.Index;
@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey;
 import java.time.LocalDateTime;
 
 @Entity(
-        tableName = "runningAccounts",
+        tableName = "accounts",
         indices = {
                 @Index(value = "accountId"),
                 @Index(value = "remark"),
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
                 @Index(value = "dateTime")
         }
 )
-public class RunningAccountEntity {
+public class AccountEntity {
     @PrimaryKey(autoGenerate = true)
     private long accountId;         //主键
     private double amount;          //金额
@@ -23,7 +23,7 @@ public class RunningAccountEntity {
     private int type;               //种类
     private LocalDateTime dateTime; //日期和时间
 
-    public RunningAccountEntity(double amount, String remark, int type, LocalDateTime dateTime) {
+    public AccountEntity(double amount, String remark, int type, LocalDateTime dateTime) {
         this.amount = amount;
         this.remark = remark;
         this.type = type;

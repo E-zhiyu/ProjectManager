@@ -27,7 +27,6 @@ import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
 import com.manager.assistant.ui.sync.tag.TagUpdateReason;
@@ -68,7 +67,6 @@ public class TagAddModifyActivity extends AppCompatActivity {
 
         receiveInitData();
         initViews();
-        AppearanceAnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
     }
 
     @Override

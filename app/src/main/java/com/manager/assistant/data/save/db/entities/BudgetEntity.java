@@ -1,7 +1,8 @@
-package com.manager.assistant.data.save.db.entity;
+package com.manager.assistant.data.save.db.entities;
 
 import androidx.room.Entity;
 import androidx.room.Index;
+import androidx.room.PrimaryKey;
 
 import java.time.LocalDate;
 
@@ -13,6 +14,7 @@ import java.time.LocalDate;
         }
 )
 public class BudgetEntity {
+    @PrimaryKey(autoGenerate = true)
     private long budgetId;          //主键
     private String name;            //名称
     private double initAmount;      //初始金额

@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.classes.TagGroup;
 import com.manager.assistant.databinding.ViewHolderTagBinding;
-import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.TagViewHolder> {
             this.binding = binding;
 
             //设置触摸动画
-            AppearanceAnimationHelper.attachMorphAnimation(binding.getRoot());
+            AppearanceHelper.attachMorphAnimation(binding.getRoot());
 
             //设置监听器
             binding.getRoot().setOnClickListener(view -> listener.onClicked(getBindingAdapterPosition()));
@@ -90,7 +90,7 @@ public class TagAdapter extends RecyclerView.Adapter<TagAdapter.TagViewHolder> {
         holder.binding.tagNameText.setText(tag.getName());
 
         //设置圆角
-        AppearanceAnimationHelper.setRecyclerItemRadius(holder.itemView, tagList.size() + 1, position + 1);
+        AppearanceHelper.setRecyclerItemRadius(holder.itemView, tagList.size() + 1, position + 1);
     }
 
     @Override

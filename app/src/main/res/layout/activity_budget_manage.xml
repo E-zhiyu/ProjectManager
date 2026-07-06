@@ -28,7 +28,7 @@
         style="@style/MediumBodyTextViewStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/there_is_no_budget"
+        android:text="@string/no_budget"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -16,7 +16,7 @@ import com.manager.assistant.data.controllers.BudgetDataController;
 import com.manager.assistant.databinding.ViewHolderBudgetBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
-import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.ui.sync.budget.BudgetRepository;
 import com.manager.assistant.ui.sync.budget.BudgetUpdateReason;
 
@@ -59,7 +59,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
             this.binding = binding;
 
             //设置触摸动画
-            AppearanceAnimationHelper.attachMorphAnimation(binding.getRoot());
+            AppearanceHelper.attachMorphAnimation(binding.getRoot());
 
             //设置点击监听
             binding.getRoot().setOnClickListener(v -> listener.onClicked(getBindingAdapterPosition()));
@@ -130,7 +130,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
         holder.binding.resetFrequencyText.setText(resetFrequency.getTitle());
 
         //设置圆角
-        AppearanceAnimationHelper.setRecyclerItemRadius(holder.itemView, budgetList.size(), position);
+        AppearanceHelper.setRecyclerItemRadius(holder.itemView, budgetList.size(), position);
 
         //设置点击监听
         holder.itemView.setOnClickListener(v -> listener.onClicked(budget, position));

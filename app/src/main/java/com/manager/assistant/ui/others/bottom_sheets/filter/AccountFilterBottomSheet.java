@@ -102,6 +102,7 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
 
     public AccountFilterBottomSheet(FilterSetting setting, OnFilterApplyListener listener) {
         this.setting = setting;
+        //TODO:重构为无参
         this.listener = listener;
     }
 

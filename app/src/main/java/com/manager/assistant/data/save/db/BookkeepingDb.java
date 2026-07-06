@@ -9,15 +9,17 @@ import androidx.room.TypeConverters;
 
 import com.manager.assistant.data.save.db.converters.DateTimeConverter;
 import com.manager.assistant.data.save.db.converters.UriConverter;
-import com.manager.assistant.data.save.db.entity.BudgetEntity;
-import com.manager.assistant.data.save.db.entity.BudgetTagRefEntity;
-import com.manager.assistant.data.save.db.entity.MediaEntity;
-import com.manager.assistant.data.save.db.entity.NotificationRuleEntity;
-import com.manager.assistant.data.save.db.entity.RunningAccountEntity;
-import com.manager.assistant.data.save.db.entity.TagEntity;
-import com.manager.assistant.data.save.db.entity.TagGroupEntity;
-import com.manager.assistant.data.save.db.entity.TransferAccountEntity;
-import com.manager.assistant.data.save.db.entity.TransferRuleAccountEntity;
+import com.manager.assistant.data.save.db.daos.AccountDao;
+import com.manager.assistant.data.save.db.entities.AccountTagRefEntity;
+import com.manager.assistant.data.save.db.entities.BudgetEntity;
+import com.manager.assistant.data.save.db.entities.BudgetTagRefEntity;
+import com.manager.assistant.data.save.db.entities.MediaEntity;
+import com.manager.assistant.data.save.db.entities.NotificationRuleEntity;
+import com.manager.assistant.data.save.db.entities.AccountEntity;
+import com.manager.assistant.data.save.db.entities.TagEntity;
+import com.manager.assistant.data.save.db.entities.TagGroupEntity;
+import com.manager.assistant.data.save.db.entities.TransferAccountEntity;
+import com.manager.assistant.data.save.db.entities.TransferRuleAccountEntity;
 
 @Database(
         entities = {
@@ -25,7 +27,8 @@ import com.manager.assistant.data.save.db.entity.TransferRuleAccountEntity;
                 BudgetTagRefEntity.class,
                 MediaEntity.class,
                 NotificationRuleEntity.class,
-                RunningAccountEntity.class,
+                AccountEntity.class,
+                AccountTagRefEntity.class,
                 TagEntity.class,
                 TagGroupEntity.class,
                 TransferAccountEntity.class,
@@ -55,7 +58,7 @@ public abstract class BookkeepingDb extends RoomDatabase {
                                     BookkeepingDb.class,
                                     "bookkeeping_database"
                             )
-//                            .addMigrations()
+                            .addMigrations()
                             .build();
                 }
             }
@@ -63,4 +66,6 @@ public abstract class BookkeepingDb extends RoomDatabase {
 
         return INSTANCE;
     }
+
+    public abstract AccountDao accountDao();
 }

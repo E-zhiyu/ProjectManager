@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.databinding.ViewHolderTagBtnBinding;
-import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceHelper;
 
 import java.util.List;
 
@@ -43,7 +43,7 @@ public class SheetTagBtnRecyclerAdapter extends RecyclerView.Adapter<SheetTagBtn
             this.binding = binding;
 
             //设置触摸监听器
-            AppearanceAnimationHelper.attachMorphAnimation(binding.getRoot());
+            AppearanceHelper.attachMorphAnimation(binding.getRoot());
 
             //设置按钮的点击监听
             binding.tagBtn.setOnClickListener(v -> listener.onClicked(getBindingAdapterPosition()));

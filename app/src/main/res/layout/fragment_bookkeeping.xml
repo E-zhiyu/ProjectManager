@@ -73,7 +73,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
-        android:contentDescription="@string/add_floating_btn_description" />
+        android:contentDescription="@string/add_floating_btn_description"
+        app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior" />
 
     <!-- 空内容提示文本 -->
     <com.google.android.material.textview.MaterialTextView
@@ -82,21 +83,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@string/there_is_no_running_account"
+        android:text="@string/no_running_account"
         android:visibility="gone" />
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/refresh_layout"
+    <!-- 流水列表视图 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/account_recycler"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <!-- 流水列表视图 -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/account_recycler"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,33 +1,26 @@
-package com.manager.assistant.data.save.db.entity;
+package com.manager.assistant.data.save.db.entities;
 
 import androidx.room.Entity;
-import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 @Entity(
-        tableName = "transferAccounts",
-        foreignKeys = @ForeignKey(
-                entity = RunningAccountEntity.class,
-                parentColumns = "accountId",
-                childColumns = "accountId",
-                onDelete = ForeignKey.CASCADE
-        ),
+        tableName = "transferRuleAccounts",
         indices = {
-                @Index(value = "accountId")
+                @Index(value = "ruleId")
         }
 )
-public class TransferAccountEntity {
+public class TransferRuleAccountEntity {
     @PrimaryKey(autoGenerate = true)
     private long transferId;        //主键
-    private long accountId;         //流水账 ID
+    private long ruleId;            //规则编号
     private String exportAccount;   //转出账户
     private String importAccount;   //转入账户
 
-    public TransferAccountEntity(long accountId, String exportAccount, String importAccount) {
-        this.accountId = accountId;
-        this.exportAccount = exportAccount;
+    public TransferRuleAccountEntity(long ruleId, String importAccount, String exportAccount) {
+        this.ruleId = ruleId;
         this.importAccount = importAccount;
+        this.exportAccount = exportAccount;
     }
 
     public long getTransferId() {
@@ -38,12 +31,12 @@ public class TransferAccountEntity {
         this.transferId = transferId;
     }
 
-    public long getAccountId() {
-        return accountId;
+    public long getRuleId() {
+        return ruleId;
     }
 
-    public void setAccountId(long accountId) {
-        this.accountId = accountId;
+    public void setRuleId(long ruleId) {
+        this.ruleId = ruleId;
     }
 
     public String getExportAccount() {

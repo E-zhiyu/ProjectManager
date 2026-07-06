@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.manager.assistant.data.classes.AppInfo;
 import com.manager.assistant.databinding.ViewHolderAppInfoBinding;
-import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppInfoV
             this.binding = binding;
 
             //设置触摸动画
-            AppearanceAnimationHelper.attachMorphAnimation(binding.getRoot());
+            AppearanceHelper.attachMorphAnimation(binding.getRoot());
 
             //设置点击监听
             binding.getRoot().setOnClickListener(v -> listener.onClicked(getBindingAdapterPosition()));
@@ -84,7 +84,7 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppInfoV
         holder.binding.appIconView.setImageBitmap(appIcon);
 
         //设置视图圆角
-        AppearanceAnimationHelper.setRecyclerItemRadius(holder.itemView, appInfoList.size(), position);
+        AppearanceHelper.setRecyclerItemRadius(holder.itemView, appInfoList.size(), position);
     }
 
     @Override

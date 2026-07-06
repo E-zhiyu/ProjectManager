@@ -20,7 +20,6 @@ import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.ActivityGroupModifyBinding;
 import com.manager.assistant.generic_enums.RequestResultCode;
-import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.ui.sync.tag.TagRepository;
@@ -51,7 +50,6 @@ public class GroupModifyActivity extends AppCompatActivity {
         });
 
         initViews();
-        AppearanceAnimationHelper.setupAllChildMorphAnimation(binding.getRoot());
     }
 
     @Override

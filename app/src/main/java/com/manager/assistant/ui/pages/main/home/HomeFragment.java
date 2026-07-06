@@ -26,7 +26,7 @@ import com.manager.assistant.data.save.database.Tables;
 import com.manager.assistant.data.save.preference.BookKeepingStartDatePreference;
 import com.manager.assistant.databinding.FragmentHomeBinding;
 import com.manager.assistant.generic_enums.LogTags;
-import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
 import com.manager.assistant.ui.sync.account.RunningAccountRepository;
@@ -90,12 +90,12 @@ public class HomeFragment extends Fragment {
      */
     private void initViews() {
         //设置按钮的点击监听器
-        AppearanceAnimationHelper.attachMorphAnimation(binding.reportBalanceCardview);
+        AppearanceHelper.attachMorphAnimation(binding.reportBalanceCardview);
         binding.reportBalanceCardview.setOnClickListener(v -> {
             Intent skip2Report = new Intent(requireContext(), ReportActivity.class);
             startActivity(skip2Report);
         });
-        AppearanceAnimationHelper.attachMorphAnimation(binding.tagCard);
+        AppearanceHelper.attachMorphAnimation(binding.tagCard);
         binding.tagCard.setOnClickListener(v -> {
             Intent skip2TagManage = new Intent(requireContext(), TagManageActivity.class);
             startActivity(skip2TagManage);
@@ -104,7 +104,7 @@ public class HomeFragment extends Fragment {
             Intent skip2BudgetManage = new Intent(requireContext(), BudgetManageActivity.class);
             startActivity(skip2BudgetManage);
         });
-        AppearanceAnimationHelper.attachMorphAnimation(binding.budgetCard);
+        AppearanceHelper.attachMorphAnimation(binding.budgetCard);
 
         //初始化记账日期
         String startDateStr = getBookKeepingStartDate();  //获取开始记账的日期
@@ -131,16 +131,16 @@ public class HomeFragment extends Fragment {
 
         //随机提示文本
         binding.tipsCard.setOnClickListener(v -> showRandomTipText());
-        AppearanceAnimationHelper.attachMorphAnimation(binding.tipsCard);
+        AppearanceHelper.attachMorphAnimation(binding.tipsCard);
 
         //报表卡片
-        AppearanceAnimationHelper.setRadius(
+        AppearanceHelper.setRadius(
                 requireContext(),
                 binding.reportBalanceCardview,
-                AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
-                AppearanceAnimationHelper.SMALL_CARD_RADIUS,
-                AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
-                AppearanceAnimationHelper.SMALL_CARD_RADIUS
+                AppearanceHelper.MEDIUM_CARD_RADIUS,
+                AppearanceHelper.SMALL_CARD_RADIUS,
+                AppearanceHelper.MEDIUM_CARD_RADIUS,
+                AppearanceHelper.SMALL_CARD_RADIUS
         );
 
         //标签卡片
@@ -151,13 +151,13 @@ public class HomeFragment extends Fragment {
             binding.tagCountText.setText(String.valueOf(0));
             Toast.makeText(requireContext(), "无法获取标签数量", Toast.LENGTH_SHORT).show();
         }
-        AppearanceAnimationHelper.setRadius(
+        AppearanceHelper.setRadius(
                 requireContext(),
                 binding.tagCard,
-                AppearanceAnimationHelper.SMALL_CARD_RADIUS,
-                AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
-                AppearanceAnimationHelper.SMALL_CARD_RADIUS,
-                AppearanceAnimationHelper.SMALL_CARD_RADIUS
+                AppearanceHelper.SMALL_CARD_RADIUS,
+                AppearanceHelper.MEDIUM_CARD_RADIUS,
+                AppearanceHelper.SMALL_CARD_RADIUS,
+                AppearanceHelper.SMALL_CARD_RADIUS
         );
 
         //预算卡片
@@ -168,13 +168,13 @@ public class HomeFragment extends Fragment {
             binding.budgetCountText.setText(String.valueOf(0));
             Toast.makeText(requireContext(), "无法获取预算数量", Toast.LENGTH_SHORT).show();
         }
-        AppearanceAnimationHelper.setRadius(
+        AppearanceHelper.setRadius(
                 requireContext(),
                 binding.budgetCard,
-                AppearanceAnimationHelper.SMALL_CARD_RADIUS,
-                AppearanceAnimationHelper.SMALL_CARD_RADIUS,
-                AppearanceAnimationHelper.SMALL_CARD_RADIUS,
-                AppearanceAnimationHelper.MEDIUM_CARD_RADIUS
+                AppearanceHelper.SMALL_CARD_RADIUS,
+                AppearanceHelper.SMALL_CARD_RADIUS,
+                AppearanceHelper.SMALL_CARD_RADIUS,
+                AppearanceHelper.MEDIUM_CARD_RADIUS
         );
     }
 

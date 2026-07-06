@@ -14,7 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.manager.assistant.databinding.ActivityAboutBinding;
 import com.manager.assistant.helpers.about.AboutHelper;
-import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceHelper;
 
 public class AboutActivity extends AppCompatActivity {
     private ActivityAboutBinding binding;
@@ -54,7 +54,7 @@ public class AboutActivity extends AppCompatActivity {
             Intent skip2GitHub = new Intent(Intent.ACTION_VIEW, uri);
             startActivity(skip2GitHub);
         });
-        AppearanceAnimationHelper.attachMorphAnimation(binding.authorCard);
+        AppearanceHelper.attachMorphAnimation(binding.authorCard);
 
         //项目地址卡片
         binding.projectAddressCard.setOnClickListener(view -> {
@@ -62,6 +62,6 @@ public class AboutActivity extends AppCompatActivity {
             Intent skip2Project = new Intent(Intent.ACTION_VIEW, uri);
             startActivity(skip2Project);
         });
-        AppearanceAnimationHelper.attachMorphAnimation(binding.projectAddressCard);
+        AppearanceHelper.attachMorphAnimation(binding.projectAddressCard);
     }
 }

@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.manager.assistant.databinding.ViewHolderTagGroupBinding;
-import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 import com.manager.assistant.ui.others.animators.RotateAnimator;
 import com.manager.assistant.data.classes.TagGroup;
@@ -62,7 +62,7 @@ public class TagGroupAdapter extends RecyclerView.Adapter<TagGroupAdapter.TagGro
             this.binding = binding;
 
             //设置触摸动画
-            AppearanceAnimationHelper.attachMorphAnimation(binding.getRoot());
+            AppearanceHelper.attachMorphAnimation(binding.getRoot());
 
             //设置展开和折叠视图的点击方法
             rotateAnimator = new RotateAnimator(binding.expandFoldBtn, 0f, 180f);
@@ -133,22 +133,22 @@ public class TagGroupAdapter extends RecyclerView.Adapter<TagGroupAdapter.TagGro
         holder.binding.groupNameText.setText(groupName);
 
         if (holder.isExpanded && tagCount > 0) {
-            AppearanceAnimationHelper.setRadius(
+            AppearanceHelper.setRadius(
                     holder.itemView.getContext(),
                     holder.itemView,
-                    AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
-                    AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
-                    AppearanceAnimationHelper.SMALL_CARD_RADIUS,
-                    AppearanceAnimationHelper.SMALL_CARD_RADIUS
+                    AppearanceHelper.MEDIUM_CARD_RADIUS,
+                    AppearanceHelper.MEDIUM_CARD_RADIUS,
+                    AppearanceHelper.SMALL_CARD_RADIUS,
+                    AppearanceHelper.SMALL_CARD_RADIUS
             );
         } else {
-            AppearanceAnimationHelper.setRadius(
+            AppearanceHelper.setRadius(
                     holder.itemView.getContext(),
                     holder.itemView,
-                    AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
-                    AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
-                    AppearanceAnimationHelper.MEDIUM_CARD_RADIUS,
-                    AppearanceAnimationHelper.MEDIUM_CARD_RADIUS
+                    AppearanceHelper.MEDIUM_CARD_RADIUS,
+                    AppearanceHelper.MEDIUM_CARD_RADIUS,
+                    AppearanceHelper.MEDIUM_CARD_RADIUS,
+                    AppearanceHelper.MEDIUM_CARD_RADIUS
             );
         }
     }
@@ -214,8 +214,8 @@ public class TagGroupAdapter extends RecyclerView.Adapter<TagGroupAdapter.TagGro
                 float process = animation.getAnimatedFraction();
 
                 //计算当前的圆角值
-                int small = AppearanceAnimationHelper.SMALL_CARD_RADIUS;
-                int medium = AppearanceAnimationHelper.MEDIUM_CARD_RADIUS;
+                int small = AppearanceHelper.SMALL_CARD_RADIUS;
+                int medium = AppearanceHelper.MEDIUM_CARD_RADIUS;
                 float currentDp = isExpanded ?
                         medium - (medium - small) * process :
                         small + (medium - small) * process;

@@ -24,7 +24,7 @@ import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyValueStrings;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.PermissionHelper;
-import com.manager.assistant.helpers.appearence.AppearanceAnimationHelper;
+import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 
@@ -109,7 +109,7 @@ public class BudgetManageActivity extends AppCompatActivity {
     private void initViews() {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
 
-        AppearanceAnimationHelper.attachMorphAnimation(binding.addFloatingBtn);
+        AppearanceHelper.attachMorphAnimation(binding.addFloatingBtn);
 
         //获取颜色资源并设置下拉刷新布局的颜色
         int colorPrimary = ColorHelper.getPrimaryColor(this);
@@ -131,9 +131,6 @@ public class BudgetManageActivity extends AppCompatActivity {
 
         //设置刷新布局的功能
         binding.refreshLayout.setOnRefreshListener(this::refreshBudget);
-
-        //设置浮动按钮隐藏行为
-        AppearanceAnimationHelper.setupFloatingBtnBehaviour(binding.budgetRecycler, binding.addFloatingBtn);
     }
 
     /**
