@@ -182,6 +182,7 @@
     <string name="project_address">项目地址</string>
     <string name="click_skip_to_repository">点击跳转至项目仓库</string>
     <string name="not_applicable">N/A</string>
+    <string name="filter_account">筛选流水记录</string>
     <string-array name="tips_array">
         <item>在报表界面可以点击某个收支来源以排除它，还不赶快去试试？</item>
         <item>你知道吗？下面的这些卡片是可以点击的。</item>

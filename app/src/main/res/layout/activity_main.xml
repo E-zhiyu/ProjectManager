@@ -26,7 +26,6 @@
     <!-- 记账界面的搜索视图，放在此处用于覆盖全屏 -->
     <com.google.android.material.search.SearchView
         android:id="@+id/search_view"
-        style="@style/SearchViewStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/search_remark"

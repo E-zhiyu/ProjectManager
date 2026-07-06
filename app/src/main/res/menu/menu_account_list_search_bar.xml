@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_filter_account"
+        android:icon="@drawable/outline_filter_alt_24"
+        android:title="@string/filter_account"
+        app:showAsAction="ifRoom" />
+</menu>

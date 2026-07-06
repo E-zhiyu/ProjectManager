@@ -13,7 +13,6 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.appbar.AppBarLayout
-            style="@style/AppBarLayoutStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -25,7 +24,7 @@
 
                 <com.google.android.material.search.SearchBar
                     android:id="@+id/search_bar"
-                    style="@style/SearchBarStyle"
+                    style="@style/Widget.Material3Expressive.SearchBar"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"

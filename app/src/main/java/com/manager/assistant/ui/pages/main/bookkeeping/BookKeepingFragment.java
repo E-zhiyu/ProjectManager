@@ -56,7 +56,7 @@ public class BookKeepingFragment extends Fragment {
      * 初始化视图
      */
     private void initViews() {
-        //搜索框和SearchView
+        //TODO:搜索框和SearchView
 //        initSearchComponents();
 
         //添加按钮
@@ -67,17 +67,7 @@ public class BookKeepingFragment extends Fragment {
         });
         AppearanceHelper.attachMorphAnimation(binding.addFloatingBtn);
 
-        //绑定过滤器按钮的点击监听器
-        binding.filterSelectBtn.setOnClickListener(v -> {
-//            AccountFilterBottomSheet filterBottomSheet = new AccountFilterBottomSheet(
-//                    filterSetting,
-//                    setting -> {
-//                        filterSetting = setting != null ? setting : new AccountFilterBottomSheet.FilterSetting();
-//                        refreshUI();
-//                    });
-//            filterBottomSheet.show(getParentFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
-//            filterBottomSheet.setOnDismissListener(() -> binding.filterSelectBtn.setChecked(false));
-        });
+        //TODO:绑定过滤器按钮的点击监听器
 
         //流水列表
         AccountAdapter adapter = new AccountAdapter(
