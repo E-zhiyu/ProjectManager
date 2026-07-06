@@ -49,21 +49,27 @@ dependencies {
     implementation libs.navigation.ui
     implementation libs.activity
     implementation libs.materialdatetimepicker
-    implementation libs.biometric
+    implementation libs.biometric                   //生物验证依赖
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
     implementation libs.jackson.databind
     implementation libs.viewpager2
-    implementation libs.core
-    implementation libs.rxandroid
+    implementation libs.core                        //多线程
+    implementation libs.rxandroid                   //线程切换
     implementation libs.rxjava
     implementation libs.swiperefreshlayout
     implementation libs.documentfile
     implementation libs.work.runtime
-    implementation libs.glide
+    implementation libs.glide                       //图片显示
     implementation libs.photoview
     implementation libs.dynamicanimation
     implementation libs.flexbox                     //Web上的Flex布局
     implementation libs.devicecompat                //系统名称判断
+    implementation libs.room.runtime                // Room 核心库
+    implementation libs.room.paging                 // Room 的Paging 3支持
+    annotationProcessor libs.room.compiler          // Room 注解处理器
+    implementation libs.room.rxjava3                // Room的 RxJava 支持
+    implementation libs.mapstruct                   // Pojo 与 Entity 转换
+    annotationProcessor libs.mapstruct.processor    // Mapstruct 注解处理器
 }
