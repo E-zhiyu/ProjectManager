@@ -15,10 +15,10 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tag_name_text"
-            style="@style/LargeBodyTextViewStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/account_tag"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/right_arrow_image_view"
             app:layout_constraintHorizontal_bias="0"

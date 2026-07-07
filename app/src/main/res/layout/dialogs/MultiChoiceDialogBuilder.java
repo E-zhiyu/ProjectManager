@@ -1,10 +1,10 @@
-package com.manager.assistant.ui.others.dialogs;
+package com.wanderer.journal.ui.others.dialogs;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 
-import com.manager.assistant.databinding.DialogMultichoiceBinding;
-import com.manager.assistant.ui.others.adapters.MultiChoiceDialogAdapter;
+import com.wanderer.journal.databinding.DialogMultichoiceBinding;
+import com.wanderer.journal.ui.others.adapters.MultiChoiceDialogAdapter;
 
 import java.util.List;
 

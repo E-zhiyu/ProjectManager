@@ -1,12 +1,15 @@
 package com.manager.assistant.automation.broadcast.bookkeeping;
 
+import android.Manifest;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
 
@@ -89,11 +92,13 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
                 .setAutoCancel(true);
 
         //发送通知
-        NotificationHelper.sendNotification(
-                notificationID,
-                builder,
-                context
-        );
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            NotificationHelper.sendNotification(
+                    notificationID,
+                    builder,
+                    context
+            );
+        }
     }
 
     /**
@@ -127,11 +132,13 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
                 .setAutoCancel(true);
 
         //发送通知
-        NotificationHelper.sendNotification(
-                notificationID,
-                builder,
-                context
-        );
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            NotificationHelper.sendNotification(
+                    notificationID,
+                    builder,
+                    context
+            );
+        }
     }
 
     /**
@@ -155,11 +162,13 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
                 .setAutoCancel(true);
 
         //发送通知
-        NotificationHelper.sendNotification(
-                notificationID,
-                builder,
-                context
-        );
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            NotificationHelper.sendNotification(
+                    notificationID,
+                    builder,
+                    context
+            );
+        }
     }
 
     /**
@@ -218,11 +227,13 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
                     .setAutoCancel(true);
 
             //发送通知
-            NotificationHelper.sendNotification(
-                    notificationID,
-                    builder,
-                    context
-            );
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                NotificationHelper.sendNotification(
+                        notificationID,
+                        builder,
+                        context
+                );
+            }
         } else if (behaviour == 2) {
             //创建通知构建器
             String content = String.format(Locale.getDefault(), "已删除由“%s”触发的记录", ruleName);

@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.others.dialogs;
+package com.wanderer.journal.ui.others.dialogs;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,7 +8,7 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
-import com.manager.assistant.databinding.DialogProgressBinding;
+import com.wanderer.journal.databinding.DialogProgressBinding;
 
 import java.util.Locale;
 

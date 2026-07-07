@@ -4,16 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:paddingTop="20dp"
+    android:paddingBottom="40dp">
 
     <!-- 进度条 -->
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/progress_indicator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="40dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="20dp"
+        android:layout_marginEnd="40dp"
         android:layout_marginBottom="16dp"
         android:indeterminate="false"
         app:trackThickness="4dp" />
@@ -26,20 +27,18 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="8dp"
         android:text="@string/progress_0"
-        android:textAppearance="?attr/textAppearanceBodySmall"
-        android:textSize="15sp" />
+        android:textAppearance="?attr/textAppearanceBodyMedium" />
 
     <!-- 标题（可显示文件名等内容） -->
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/sub_title_text"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:ellipsize="middle"
         android:gravity="center"
         android:maxLines="2"
         android:text="@string/progressing"
-        android:textAppearance="?attr/textAppearanceBodySmall"
-        android:textColor="?android:attr/textColorSecondary"
-        android:textSize="15sp" />
-
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?android:attr/textColorSecondary" />
 </LinearLayout>

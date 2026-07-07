@@ -88,12 +88,8 @@
             android:name=".ui.pages.main.bookkeeping.RunningAccountInputActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.main.bookkeeping.RunningAccountAddActivity"
-            android:exported="false" />
-        <activity
             android:name=".ui.pages.main.MainActivity"
-            android:exported="true"
-            android:label="@string/title_activity_main">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

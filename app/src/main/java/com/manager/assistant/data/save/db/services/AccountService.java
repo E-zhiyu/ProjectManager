@@ -1,7 +1,5 @@
 package com.manager.assistant.data.save.db.services;
 
-import android.net.Uri;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.sqlite.db.SimpleSQLiteQuery;

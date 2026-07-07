@@ -1,9 +1,11 @@
 package com.manager.assistant.data.controllers;
 
+import android.Manifest;
 import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -12,6 +14,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
 import com.manager.assistant.R;
@@ -421,7 +424,9 @@ public class BudgetDataController {
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setCategory(NotificationCompat.CATEGORY_ALARM)
                     .setAutoCancel(true);
-            NotificationHelper.sendNotification(NotificationID.BUDGET_AMOUNT_WARNING.ordinal(), builder, context);
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                NotificationHelper.sendNotification(NotificationID.BUDGET_AMOUNT_WARNING.ordinal(), builder, context);
+            }
         }
     }
 

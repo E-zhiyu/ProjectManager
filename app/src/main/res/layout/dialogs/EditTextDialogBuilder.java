@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.others.dialogs;
+package com.wanderer.journal.ui.others.dialogs;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -7,8 +7,8 @@ import android.view.LayoutInflater;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
-import com.manager.assistant.databinding.DialogEdittextBinding;
-import com.manager.assistant.helpers.ImmHelper;
+import com.wanderer.journal.databinding.DialogEdittextBinding;
+import com.wanderer.journal.helpers.ImmHelper;
 
 public class EditTextDialogBuilder
         extends CustomDialogBuilderBase<

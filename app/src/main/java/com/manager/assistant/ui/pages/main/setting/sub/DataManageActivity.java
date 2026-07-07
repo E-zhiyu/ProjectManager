@@ -39,8 +39,6 @@ import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 import com.manager.assistant.helpers.file.AutoBackupHelper;
 import com.manager.assistant.helpers.file.DataIOHelper;
 import com.manager.assistant.helpers.file.UriPathHelper;
-import com.manager.assistant.ui.others.dialogs.MultiChoiceDialog;
-import com.manager.assistant.ui.others.dialogs.ProgressDialog;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingClickableTextView;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingOptionViewBase;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingSpinnerView;

@@ -65,12 +65,12 @@ public class AccountTagAdapter extends ListAdapter<TagEntity, AccountTagAdapter.
                 new ChipViewHolderListener() {
                     @Override
                     public void onClick(int pos, View anchor) {
-
                     }
 
                     @Override
                     public void onClose(int pos, View anchor) {
-
+                        TagEntity tag = getItem(pos);
+                        closeListener.onClose(tag, anchor, AccountTagAdapter.this);
                     }
                 }
         );

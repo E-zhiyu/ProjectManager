@@ -176,6 +176,7 @@
     <string name="media_manage">媒体管理</string>
     <string name="btn_of_media_delete">媒体删除按钮</string>
     <string name="btn_of_media_add">媒体添加按钮</string>
+    <string name="not_included">未包含</string>
     <string-array name="tips_array">
         <item>在报表界面可以点击某个收支来源以排除它，还不赶快去试试？</item>
         <item>你知道吗？下面的这些卡片是可以点击的。</item>

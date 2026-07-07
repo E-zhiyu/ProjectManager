@@ -1,9 +1,11 @@
 package com.manager.assistant.automation.services;
 
+import android.Manifest;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
 
@@ -384,11 +387,13 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                 .setAutoCancel(true);
 
         //发送通知
-        NotificationHelper.sendNotification(
-                notificationID,
-                builder,
-                getApplicationContext()
-        );
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            NotificationHelper.sendNotification(
+                    notificationID,
+                    builder,
+                    getApplicationContext()
+            );
+        }
     }
 
     /**
@@ -495,11 +500,13 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         }
 
         //发送通知
-        NotificationHelper.sendNotification(
-                notificationID, //确保多个记录的通知ID不同
-                builder,
-                context
-        );
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            NotificationHelper.sendNotification(
+                    notificationID,
+                    builder,
+                    context
+            );
+        }
     }
 
     /**
