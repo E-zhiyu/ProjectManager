@@ -143,93 +143,93 @@ public class DataManageActivity extends AppCompatActivity {
      * 初始化活动启动器
      */
     private void initActivityLaunchers() {
-        exportDataLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    int resultCode = result.getResultCode();
-                    Intent data = result.getData();
-                    if (resultCode != Activity.RESULT_OK || data == null || data.getData() == null) {
-                        dataIOHelper.clearTempFile();
-                        return;
-                    }
-
-                    ProgressDialog progressDialog = new ProgressDialog(this, "导出数据", "正在导出数据……");
-                    progressDialog.buildDialog(
-                            null,
-                            () -> {
-                                disposables.clear();
-                                Toast.makeText(this, "已取消数据导出", Toast.LENGTH_SHORT).show();
-                            },
-                            false);
-                    progressDialog.show();
-
-                    disposables.add(
-                            Observable.fromCallable(() -> {
-                                        dataIOHelper.handleExportResult(data.getData());
-                                        return true;
-                                    })
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(b -> Toast.makeText(this, "数据导出成功", Toast.LENGTH_SHORT).show(),
-                                            e -> {
-                                                ExceptionHelper.showExceptionDialog(this, e);
-                                                progressDialog.dismiss();
-                                            },
-                                            progressDialog::dismiss
-                                    )
-                    );
-                }
-        );
-
-        importDataLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    int resultCode = result.getResultCode();
-                    Intent data = result.getData();
-                    if (resultCode != Activity.RESULT_OK || data == null || data.getData() == null) {
-                        dataIOHelper.clearTempFile();
-                        return;
-                    }
-
-                    ProgressDialog progressDialog = new ProgressDialog(this, "导入数据", "正在扫描备份文件……");
-                    progressDialog.buildDialog(
-                            null,
-                            () -> {
-                                disposables.clear();
-                                Toast.makeText(this, "已取消数据导入", Toast.LENGTH_SHORT).show();
-                            },
-                            false);
-                    progressDialog.show();
-
-                    disposables.add(
-                            Observable.fromCallable(() -> {
-                                        dataIOHelper.handleImportResul(data.getData());
-                                        return true;
-                                    })
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(b -> {
-                                            },
-                                            e -> {
-                                                ExceptionHelper.showExceptionDialog(this, e);
-                                                progressDialog.dismiss();
-                                            },
-                                            progressDialog::dismiss
-                                    )
-                    );
-
-                }
-        );
-
-        backupDirectorySetLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    int resultCode = result.getResultCode();
-                    Intent data = result.getData();
-
-                    autoBackupHelper.handleActivityResult(resultCode, data, binding.backupDirectoryOption.descriptionText);
-                }
-        );
+//        exportDataLauncher = registerForActivityResult(
+//                new ActivityResultContracts.StartActivityForResult(),
+//                result -> {
+//                    int resultCode = result.getResultCode();
+//                    Intent data = result.getData();
+//                    if (resultCode != Activity.RESULT_OK || data == null || data.getData() == null) {
+//                        dataIOHelper.clearTempFile();
+//                        return;
+//                    }
+//
+//                    ProgressDialog progressDialog = new ProgressDialog(this, "导出数据", "正在导出数据……");
+//                    progressDialog.buildDialog(
+//                            null,
+//                            () -> {
+//                                disposables.clear();
+//                                Toast.makeText(this, "已取消数据导出", Toast.LENGTH_SHORT).show();
+//                            },
+//                            false);
+//                    progressDialog.show();
+//
+//                    disposables.add(
+//                            Observable.fromCallable(() -> {
+//                                        dataIOHelper.handleExportResult(data.getData());
+//                                        return true;
+//                                    })
+//                                    .subscribeOn(Schedulers.io())
+//                                    .observeOn(AndroidSchedulers.mainThread())
+//                                    .subscribe(b -> Toast.makeText(this, "数据导出成功", Toast.LENGTH_SHORT).show(),
+//                                            e -> {
+//                                                ExceptionHelper.showExceptionDialog(this, e);
+//                                                progressDialog.dismiss();
+//                                            },
+//                                            progressDialog::dismiss
+//                                    )
+//                    );
+//                }
+//        );
+//
+//        importDataLauncher = registerForActivityResult(
+//                new ActivityResultContracts.StartActivityForResult(),
+//                result -> {
+//                    int resultCode = result.getResultCode();
+//                    Intent data = result.getData();
+//                    if (resultCode != Activity.RESULT_OK || data == null || data.getData() == null) {
+//                        dataIOHelper.clearTempFile();
+//                        return;
+//                    }
+//
+//                    ProgressDialog progressDialog = new ProgressDialog(this, "导入数据", "正在扫描备份文件……");
+//                    progressDialog.buildDialog(
+//                            null,
+//                            () -> {
+//                                disposables.clear();
+//                                Toast.makeText(this, "已取消数据导入", Toast.LENGTH_SHORT).show();
+//                            },
+//                            false);
+//                    progressDialog.show();
+//
+//                    disposables.add(
+//                            Observable.fromCallable(() -> {
+//                                        dataIOHelper.handleImportResul(data.getData());
+//                                        return true;
+//                                    })
+//                                    .subscribeOn(Schedulers.io())
+//                                    .observeOn(AndroidSchedulers.mainThread())
+//                                    .subscribe(b -> {
+//                                            },
+//                                            e -> {
+//                                                ExceptionHelper.showExceptionDialog(this, e);
+//                                                progressDialog.dismiss();
+//                                            },
+//                                            progressDialog::dismiss
+//                                    )
+//                    );
+//
+//                }
+//        );
+//
+//        backupDirectorySetLauncher = registerForActivityResult(
+//                new ActivityResultContracts.StartActivityForResult(),
+//                result -> {
+//                    int resultCode = result.getResultCode();
+//                    Intent data = result.getData();
+//
+//                    autoBackupHelper.handleActivityResult(resultCode, data, binding.backupDirectoryOption.descriptionText);
+//                }
+//        );
     }
 
     /**
@@ -400,35 +400,35 @@ public class DataManageActivity extends AppCompatActivity {
         boolean[] choiceStats = new boolean[itemNames.length];
         Arrays.fill(choiceStats, true);
 
-        //显示多选对话框
-        MultiChoiceDialog multiChoiceDialog = new MultiChoiceDialog(
-                this,
-                "导出数据",
-                choiceStats,
-                itemNames,
-                (position, isChecked) -> choiceStats[position] = isChecked
-        );
-        multiChoiceDialog.buildDialog(() -> {
-            //检测是否一个都没有选择
-            boolean isNonItemChosen = true;
-            for (boolean isChose : choiceStats) {
-                if (isChose) {
-                    isNonItemChosen = false;
-                    break;
-                }
-            }
-
-            if (!isNonItemChosen) {
-                onExportDialogConfirmed(choiceStats);
-                multiChoiceDialog.dismiss();
-            } else {
-                Toast.makeText(this, "请选择至少一个选项", Toast.LENGTH_SHORT).show();
-            }
-        }, () -> {
-        });
-
-        //显示对话框
-        multiChoiceDialog.show();
+//        //显示多选对话框
+//        MultiChoiceDialog multiChoiceDialog = new MultiChoiceDialog(
+//                this,
+//                "导出数据",
+//                choiceStats,
+//                itemNames,
+//                (position, isChecked) -> choiceStats[position] = isChecked
+//        );
+//        multiChoiceDialog.buildDialog(() -> {
+//            //检测是否一个都没有选择
+//            boolean isNonItemChosen = true;
+//            for (boolean isChose : choiceStats) {
+//                if (isChose) {
+//                    isNonItemChosen = false;
+//                    break;
+//                }
+//            }
+//
+//            if (!isNonItemChosen) {
+//                onExportDialogConfirmed(choiceStats);
+//                multiChoiceDialog.dismiss();
+//            } else {
+//                Toast.makeText(this, "请选择至少一个选项", Toast.LENGTH_SHORT).show();
+//            }
+//        }, () -> {
+//        });
+//
+//        //显示对话框
+//        multiChoiceDialog.show();
     }
 
     /**
@@ -586,88 +586,88 @@ public class DataManageActivity extends AppCompatActivity {
             boolean[] choiceStats,
             boolean[] isItemEnabled,
             String[] choiceItems) {
-        MultiChoiceDialog multiChoiceDialog = new MultiChoiceDialog(
-                this,
-                "导入数据",
-                isItemEnabled,
-                choiceStats,
-                choiceItems,
-                (position, isChecked) -> choiceStats[position] = isChecked
-        );
-        multiChoiceDialog.buildDialog(() -> {
-        }, () -> {
-        });
-
-        //设置对话框的显示监听器
-        AlertDialog alertDialog = multiChoiceDialog.getDialog();
-        alertDialog.setOnShowListener(dialog -> {
-            Button positiveBtn = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            positiveBtn.setOnClickListener(v -> {
-                //检测是否一个都没有选择
-                boolean isNonItemChosen = true;
-                for (boolean isChose : choiceStats) {
-                    if (isChose) {
-                        isNonItemChosen = false;
-                        break;
-                    }
-                }
-
-                if (!isNonItemChosen) {
-                    Log.i(LogTags.SETTING_FRAGMENT.n(), "用户选择需要导入的数据并确认进行下一步");
-                    dialog.dismiss();   //仅当满足要求时才关闭
-
-                    //显示进度条对话框
-                    ProgressDialog progressDialog = new ProgressDialog(this, "导入数据", "正在导入数据……");
-                    progressDialog.buildDialog(
-                            null,
-                            () -> {
-                                Toast.makeText(this, "已取消数据导入", Toast.LENGTH_SHORT).show();
-                                disposables.clear();
-
-                                //清空流水记录和开始记账日期
-                                RunningAccountDataHelper.deleteAllData(this);
-                                BookKeepingStartDatePreference.saveStartDate("", this); //清空已保存的开始记账的日期
-
-                                //重置通知解析数据
-                                AnalysisRuleDataHelper.resetRule(this);
-
-                                RunningAccountRepository accountRepository = RunningAccountRepository.getInstance();
-                                accountRepository.onAccountUpdated(0, "", null, AccountUpdateReason.CLEAR);
-                            },
-                            false);
-                    progressDialog.show();
-
-                    disposables.add(
-                            Observable.fromCallable(() -> writeDataIntoDb(choiceStats))
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribeOn(Schedulers.io())
-                                    .subscribe(isSuccessful -> {
-                                        if (isSuccessful) {
-                                            Toast.makeText(this, "数据导入成功", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }, e -> {
-                                        Toast.makeText(this, "数据导入失败", Toast.LENGTH_SHORT).show();
-                                        ExceptionHelper.showExceptionDialog(this, e);
-
-                                        //清空流水记录和开始记账日期
-                                        RunningAccountDataHelper.deleteAllData(this);
-                                        BookKeepingStartDatePreference.saveStartDate("", this); //清空已保存的开始记账的日期
-
-                                        //重置通知解析数据
-                                        AnalysisRuleDataHelper.resetRule(this);
-                                    }, () -> {
-                                        progressDialog.dismiss();
-                                        dataIOHelper.clearTempFile();
-                                    })
-                    );
-                } else {
-                    Toast.makeText(this, "请选择至少一个选项", Toast.LENGTH_SHORT).show();
-                }
-            });
-        });
-
-        //设置对话框隐藏监听
-        multiChoiceDialog.show();
+//        MultiChoiceDialog multiChoiceDialog = new MultiChoiceDialog(
+//                this,
+//                "导入数据",
+//                isItemEnabled,
+//                choiceStats,
+//                choiceItems,
+//                (position, isChecked) -> choiceStats[position] = isChecked
+//        );
+//        multiChoiceDialog.buildDialog(() -> {
+//        }, () -> {
+//        });
+//
+//        //设置对话框的显示监听器
+//        AlertDialog alertDialog = multiChoiceDialog.getDialog();
+//        alertDialog.setOnShowListener(dialog -> {
+//            Button positiveBtn = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+//            positiveBtn.setOnClickListener(v -> {
+//                //检测是否一个都没有选择
+//                boolean isNonItemChosen = true;
+//                for (boolean isChose : choiceStats) {
+//                    if (isChose) {
+//                        isNonItemChosen = false;
+//                        break;
+//                    }
+//                }
+//
+//                if (!isNonItemChosen) {
+//                    Log.i(LogTags.SETTING_FRAGMENT.n(), "用户选择需要导入的数据并确认进行下一步");
+//                    dialog.dismiss();   //仅当满足要求时才关闭
+//
+//                    //显示进度条对话框
+//                    ProgressDialog progressDialog = new ProgressDialog(this, "导入数据", "正在导入数据……");
+//                    progressDialog.buildDialog(
+//                            null,
+//                            () -> {
+//                                Toast.makeText(this, "已取消数据导入", Toast.LENGTH_SHORT).show();
+//                                disposables.clear();
+//
+//                                //清空流水记录和开始记账日期
+//                                RunningAccountDataHelper.deleteAllData(this);
+//                                BookKeepingStartDatePreference.saveStartDate("", this); //清空已保存的开始记账的日期
+//
+//                                //重置通知解析数据
+//                                AnalysisRuleDataHelper.resetRule(this);
+//
+//                                RunningAccountRepository accountRepository = RunningAccountRepository.getInstance();
+//                                accountRepository.onAccountUpdated(0, "", null, AccountUpdateReason.CLEAR);
+//                            },
+//                            false);
+//                    progressDialog.show();
+//
+//                    disposables.add(
+//                            Observable.fromCallable(() -> writeDataIntoDb(choiceStats))
+//                                    .observeOn(AndroidSchedulers.mainThread())
+//                                    .subscribeOn(Schedulers.io())
+//                                    .subscribe(isSuccessful -> {
+//                                        if (isSuccessful) {
+//                                            Toast.makeText(this, "数据导入成功", Toast.LENGTH_SHORT).show();
+//                                        }
+//                                    }, e -> {
+//                                        Toast.makeText(this, "数据导入失败", Toast.LENGTH_SHORT).show();
+//                                        ExceptionHelper.showExceptionDialog(this, e);
+//
+//                                        //清空流水记录和开始记账日期
+//                                        RunningAccountDataHelper.deleteAllData(this);
+//                                        BookKeepingStartDatePreference.saveStartDate("", this); //清空已保存的开始记账的日期
+//
+//                                        //重置通知解析数据
+//                                        AnalysisRuleDataHelper.resetRule(this);
+//                                    }, () -> {
+//                                        progressDialog.dismiss();
+//                                        dataIOHelper.clearTempFile();
+//                                    })
+//                    );
+//                } else {
+//                    Toast.makeText(this, "请选择至少一个选项", Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//        });
+//
+//        //设置对话框隐藏监听
+//        multiChoiceDialog.show();
     }
 
     /**
