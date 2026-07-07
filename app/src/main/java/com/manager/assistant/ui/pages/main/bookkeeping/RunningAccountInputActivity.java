@@ -21,6 +21,7 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.recyclerview.selection.SelectionPredicates;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.transition.Fade;
 import androidx.transition.TransitionManager;
 import androidx.transition.TransitionSet;
@@ -83,10 +84,8 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
-            Insets systemBars = insets.getInsets(
-                    WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime()
-            );
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, 0, systemBars.right, 0);
             return insets;
         });
 
@@ -128,12 +127,17 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         binding.tagRecycler.setAdapter(tagAdapter);
 
         //媒体 Recycler
+        int spanCount = 3;  //显示3列
+        int size = binding.getRoot().getWidth() / spanCount;
+        GridLayoutManager layoutManager = new GridLayoutManager(this, spanCount);
+        binding.mediaRecycler.setLayoutManager(layoutManager);
         mediaAdapter = new AccountMediaAdapter(
-                this,
+                size,
                 (entity, anchor) -> {
                     //TODO:显示大图
                 }
         );
+        binding.mediaRecycler.setAdapter(mediaAdapter);
         selectionTracker = new SelectionTracker.Builder<>(
                 TagString.MEDIA_SELECTION.getTag(),
                 binding.mediaRecycler,
@@ -215,7 +219,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         //金额
         binding.amountInput.setOnFocusChangeListener((view, b) -> {
             if (b) {
-                binding.amountInput.setError(null);
+                binding.amountLayout.setError(null);
             } else {
                 String input = String.valueOf(binding.amountInput.getText());
                 if (input.trim().isEmpty()) {
@@ -258,10 +262,12 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         );
 
         //日期和时间
+        binding.datetimeInput.setText(LocalDateTime.now().format(FORMATTER));
         binding.datetimeInput.setOnClickListener(v -> showMaterialDatePicker());
         binding.datetimeInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 showMaterialDatePicker();
+                binding.datetimeLayout.setError(null);
             }
         });
 
@@ -379,6 +385,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
     private String verifyInput() {
         String err = null;
         String amount = String.valueOf(binding.amountInput.getText());
+        String dateTimeStr = String.valueOf(binding.datetimeInput.getText());
 
         if (amount.isEmpty()) {
             err = "金额不能为空";
@@ -386,6 +393,9 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         } else if (Double.parseDouble(amount) == 0.0) {
             err = "金额不能为0";
             binding.amountLayout.setError(err);
+        } else if (dateTimeStr.isEmpty()) {
+            err = "日期和时间不能为空";
+            binding.datetimeLayout.setError(err);
         }
 
         return err;
@@ -462,7 +472,9 @@ public class RunningAccountInputActivity extends AppCompatActivity {
     private void showMaterialDatePicker() {
         //解析已输入的时间
         String datetimeStr = String.valueOf(binding.datetimeInput.getText());
-        LocalDateTime inputDatetime = LocalDateTime.parse(datetimeStr, FORMATTER);
+        LocalDateTime inputDatetime = datetimeStr.isEmpty() ?
+                LocalDateTime.now() :
+                LocalDateTime.parse(datetimeStr, FORMATTER);
         LocalDate date = inputDatetime.toLocalDate();
 
         //显示日期选择对话框

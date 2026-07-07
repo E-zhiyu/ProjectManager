@@ -56,8 +56,8 @@ dependencies {
     implementation libs.navigation.ui
     implementation libs.activity
     implementation libs.materialdatetimepicker
-    implementation libs.biometric
-    implementation libs.recyclerview.selection//生物验证依赖
+    implementation libs.biometric                   //生物验证依赖
+    implementation libs.recyclerview.selection      // Recycler 多选支持
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core

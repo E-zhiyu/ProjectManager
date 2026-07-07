@@ -1,6 +1,5 @@
 package com.manager.assistant.ui.pages.main.bookkeeping;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +22,6 @@ import com.manager.assistant.auxiliary.interfaces.adapter.AdapterOnClickListener
 import com.manager.assistant.auxiliary.interfaces.adapter.ViewHolderListener;
 import com.manager.assistant.data.save.db.entities.MediaEntity;
 import com.manager.assistant.databinding.ViewHolderMediaBinding;
-import com.manager.assistant.helpers.appearence.AppearanceHelper;
 
 public class AccountMediaAdapter extends ListAdapter<MediaEntity, AccountMediaAdapter.MediaViewHolder> {
     private final static DiffUtil.ItemCallback<MediaEntity> ITEM_CALLBACK = new DiffUtil.ItemCallback<>() {
@@ -136,7 +134,7 @@ public class AccountMediaAdapter extends ListAdapter<MediaEntity, AccountMediaAd
         }
     }
 
-    public AccountMediaAdapter(Context context, AdapterOnClickListener<MediaEntity> clickListener) {
+    public AccountMediaAdapter(int size, AdapterOnClickListener<MediaEntity> clickListener) {
         super(ITEM_CALLBACK);
         this.clickListener = clickListener;
 
@@ -144,10 +142,7 @@ public class AccountMediaAdapter extends ListAdapter<MediaEntity, AccountMediaAd
                 .centerCrop()
                 .error(R.drawable.outline_error_24)             //错误图
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC) //缓存策略
-                .override(
-                        AppearanceHelper.dpToPx(context, 200),
-                        AppearanceHelper.dpToPx(context, 200)
-                );                                              //图片尺寸
+                .override(size, size);                          //图片尺寸
     }
 
     public void setSelectionTracker(SelectionTracker<Long> selectionTracker) {
