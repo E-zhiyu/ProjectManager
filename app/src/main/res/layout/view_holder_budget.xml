@@ -38,7 +38,7 @@
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/name_text"
-                style="@style/LargeBodyTextViewStyle"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
@@ -53,7 +53,7 @@
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/start_date_text"
-                style="@style/MediumBodyTextViewStyle"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/start_date"
@@ -64,7 +64,7 @@
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/amount_text"
-                style="@style/LargeBodyTextViewStyle"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -76,7 +76,7 @@
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/reset_frequency_text"
-                style="@style/MediumBodyTextViewStyle"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/reset_frequency"

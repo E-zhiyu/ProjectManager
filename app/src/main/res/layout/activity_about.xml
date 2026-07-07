@@ -70,7 +70,7 @@
                     android:padding="15dp">
 
                     <com.google.android.material.textview.MaterialTextView
-                        style="@style/MediumBodyTextViewStyle"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/app_description"

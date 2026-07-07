@@ -12,7 +12,7 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/group_name_text"
-            style="@style/LargeTitleTextViewStyle"
+            android:textAppearance="?attr/textAppearanceTitleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"

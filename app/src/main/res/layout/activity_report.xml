@@ -66,48 +66,48 @@
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/balance_title_text"
-                        style="@style/LargeTitleTextViewStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="5dp"
                         android:text="@string/balance"
+                        android:textAppearance="?attr/textAppearanceTitleLarge"
                         app:layout_constraintBottom_toTopOf="@id/date_range_text"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/date_range_text"
-                        style="@style/MediumTitleTextViewStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingTop="0dp"
                         android:paddingBottom="5dp"
                         android:text="@string/this_month"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
                         app:layout_constraintBottom_toTopOf="@id/balance_text"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/balance_title_text" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/balance_text"
-                        style="@style/LargeTitleTextViewStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingTop="0dp"
                         android:paddingBottom="5dp"
                         android:text="@string/balance"
+                        android:textAppearance="?attr/textAppearanceTitleLarge"
                         app:layout_constraintBottom_toTopOf="@id/expense_income_text"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/date_range_text" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/expense_income_text"
-                        style="@style/MediumBodyTextViewStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingStart="10dp"
                         android:paddingEnd="0dp"
                         android:paddingBottom="10dp"
                         android:text="@string/expense_and_income"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/balance_text" />
@@ -127,10 +127,10 @@
                     android:orientation="vertical">
 
                     <com.google.android.material.textview.MaterialTextView
-                        style="@style/LargeTitleTextViewStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/income" />
+                        android:text="@string/income"
+                        android:textAppearance="?attr/textAppearanceTitleLarge" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/income_source_recycler"
@@ -156,10 +156,10 @@
                     android:orientation="vertical">
 
                     <com.google.android.material.textview.MaterialTextView
-                        style="@style/LargeTitleTextViewStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/expense" />
+                        android:text="@string/expense"
+                        android:textAppearance="?attr/textAppearanceTitleLarge" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/expense_source_recycler"
@@ -186,11 +186,11 @@
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/month_account_text"
-                        style="@style/LargeTitleTextViewStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="5dp"
                         android:text="@string/running_account_every_month"
+                        android:textAppearance="?attr/textAppearanceTitleLarge"
                         app:layout_constraintBottom_toBottomOf="@id/month_account_type_btn_group"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="@+id/month_account_type_btn_group" />

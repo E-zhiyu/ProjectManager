@@ -14,7 +14,7 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/remark_text"
-            style="@style/LargeBodyTextViewStyle"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
@@ -29,7 +29,7 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/type_datetime_text"
-            style="@style/MediumBodyTextViewStyle"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/date_time"
@@ -40,7 +40,7 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/amount_text"
-            style="@style/MediumBodyTextViewStyle"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"

@@ -77,23 +77,17 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textview.MaterialTextView
-                style="@style/MediumTitleTextViewStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingStart="0dp"
                 android:paddingEnd="0dp"
-                android:text="@string/tag_scope" />
+                android:text="@string/tag_scope"
+                android:textAppearance="?attr/textAppearanceTitleMedium" />
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/scope_select_chip_group"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
-
-            <com.google.android.material.textview.MaterialTextView
-                style="@style/TipTextViewStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/tag_new_modify_tip" />
         </LinearLayout>
     </ScrollView>
 

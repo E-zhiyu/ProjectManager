@@ -7,11 +7,11 @@
     android:paddingBottom="20dp">
 
     <com.google.android.material.textview.MaterialTextView
-        style="@style/MediumTitleTextViewStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@string/add_picture" />
+        android:text="@string/add_picture"
+        android:textAppearance="?attr/textAppearanceTitleMedium" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/add_via_camera"

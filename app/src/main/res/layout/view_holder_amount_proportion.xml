@@ -11,37 +11,37 @@
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/source_name_text"
-        style="@style/LargeBodyTextViewStyle"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_marginStart="10dp"
         android:layout_marginBottom="0dp"
         android:layout_weight="1"
         android:text="@string/tag_name"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/amount_text"
-        style="@style/MediumBodyTextViewStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginBottom="7dp"
         android:layout_weight="1"
         android:text="@string/amount"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/source_name_text" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/percentage_text"
-        style="@style/MediumBodyTextViewStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingStart="0dp"
         android:paddingEnd="10dp"
         android:paddingBottom="7dp"
         android:text="@string/percentage_100"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/source_name_text" />
 
