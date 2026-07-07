@@ -439,7 +439,7 @@ public class DataManageActivity extends AppCompatActivity {
      * @param choseItem 各数据被选择的情况
      */
     private void onExportDialogConfirmed(@NonNull boolean[] choseItem) {
-        Log.i(LogTags.SETTING_FRAGMENT.getV(), "开始导出数据");
+        Log.i(LogTags.SETTING_FRAGMENT.n(), "开始导出数据");
         List<String> fileNameList = new ArrayList<>();      //用于导出数据的临时文件名列表
         List<String> fileContentList = new ArrayList<>();   //用于导出数据的临时文件内容列表
 
@@ -475,7 +475,7 @@ public class DataManageActivity extends AppCompatActivity {
      * 从文件导入数据
      */
     private void importData() {
-        Log.i(LogTags.SETTING_FRAGMENT.getV(), "开始导入数据……");
+        Log.i(LogTags.SETTING_FRAGMENT.n(), "开始导入数据……");
         dataIOHelper.openFileViaSAF(
                 new DataIOHelper.ImportCallback() {
                     @Override
@@ -530,37 +530,37 @@ public class DataManageActivity extends AppCompatActivity {
                         } catch (IOException e) {
                             ExceptionHelper.showExceptionDialog(DataManageActivity.this, e);
                             Toast.makeText(DataManageActivity.this, "临时文件读取失败，请重试", Toast.LENGTH_SHORT).show();
-                            Log.e(LogTags.SETTING_FRAGMENT.getV(), "临时文件读取失败");
+                            Log.e(LogTags.SETTING_FRAGMENT.n(), "临时文件读取失败");
                         }
 
                         //根据文件内容判断数据类型
                         String contentStr = content_builder.toString();
                         if (contentStr.startsWith("{\"basic_data\"")) {
-                            Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据类型：流水记录数据");
+                            Log.i(LogTags.SETTING_FRAGMENT.n(), "数据类型：流水记录数据");
                             RunningAccountDataHelper dataHelper = new RunningAccountDataHelper(DataManageActivity.this);
                             if (dataHelper.saveJsonDataToDb(contentStr)) {
                                 //清空已保存的开始记账的日期
                                 BookKeepingStartDatePreference.saveStartDate("", DataManageActivity.this);
 
                                 Toast.makeText(DataManageActivity.this, "流水记录数据导入成功", Toast.LENGTH_SHORT).show();
-                                Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据导入成功");
+                                Log.i(LogTags.SETTING_FRAGMENT.n(), "数据导入成功");
                             } else {
                                 Toast.makeText(DataManageActivity.this, "无法解析文件内容", Toast.LENGTH_SHORT).show();
                             }
                         } else if (contentStr.startsWith("{\"rule_data\"")) {
-                            Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据类型：通知解析规则数据");
+                            Log.i(LogTags.SETTING_FRAGMENT.n(), "数据类型：通知解析规则数据");
                             AnalysisRuleDataHelper dataHelper = new AnalysisRuleDataHelper(DataManageActivity.this);
                             if (dataHelper.saveJsonDataToDb(contentStr)) {
                                 //清空已保存的开始记账的日期
                                 BookKeepingStartDatePreference.saveStartDate("", DataManageActivity.this);
 
                                 Toast.makeText(DataManageActivity.this, "通知解析规则数据导入成功", Toast.LENGTH_SHORT).show();
-                                Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据导入成功");
+                                Log.i(LogTags.SETTING_FRAGMENT.n(), "数据导入成功");
                             } else {
                                 Toast.makeText(DataManageActivity.this, "无法解析文件内容", Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            Log.e(LogTags.SETTING_FRAGMENT.getV(), "数据类型：未知");
+                            Log.e(LogTags.SETTING_FRAGMENT.n(), "数据类型：未知");
                             Toast.makeText(DataManageActivity.this, "无法解析文件内容", Toast.LENGTH_SHORT).show();
                         }
 
@@ -615,7 +615,7 @@ public class DataManageActivity extends AppCompatActivity {
                 }
 
                 if (!isNonItemChosen) {
-                    Log.i(LogTags.SETTING_FRAGMENT.getV(), "用户选择需要导入的数据并确认进行下一步");
+                    Log.i(LogTags.SETTING_FRAGMENT.n(), "用户选择需要导入的数据并确认进行下一步");
                     dialog.dismiss();   //仅当满足要求时才关闭
 
                     //显示进度条对话框
@@ -686,7 +686,7 @@ public class DataManageActivity extends AppCompatActivity {
         //获取解压得到的临时JSON文件
         List<File> tempJsonFileList = dataIOHelper.copyZipToTempAndUnpack();
         if (tempJsonFileList == null) {
-            Log.e(LogTags.SETTING_FRAGMENT.getV(), "无法获取解压得到的临时JSON文件");
+            Log.e(LogTags.SETTING_FRAGMENT.n(), "无法获取解压得到的临时JSON文件");
             throw new NullPointerException("无法获取解压得到的临时JSON文件");
         }
 
@@ -713,7 +713,7 @@ public class DataManageActivity extends AppCompatActivity {
             for (File file : tempJsonFileList) {
                 if (targetFileName.equals(file.getName())) {
                     //将数据保存至数据库
-                    Log.i(LogTags.SETTING_FRAGMENT.getV(), String.format(Locale.getDefault(), "正在尝试读取临时文件%s", targetFileName));
+                    Log.i(LogTags.SETTING_FRAGMENT.n(), String.format(Locale.getDefault(), "正在尝试读取临时文件%s", targetFileName));
                     StringBuilder content = new StringBuilder();
                     try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                         String line;
@@ -734,10 +734,10 @@ public class DataManageActivity extends AppCompatActivity {
             //清空已保存的开始记账的日期
             BookKeepingStartDatePreference.saveStartDate("", this);
 
-            Log.i(LogTags.SETTING_FRAGMENT.getV(), "数据已成功导入");
+            Log.i(LogTags.SETTING_FRAGMENT.n(), "数据已成功导入");
             return true;
         } else {
-            Log.w(LogTags.SETTING_FRAGMENT.getV(), "无法解析文件内容");
+            Log.w(LogTags.SETTING_FRAGMENT.n(), "无法解析文件内容");
             throw new RuntimeException("无法解析文件内容");
         }
     }

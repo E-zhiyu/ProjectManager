@@ -37,14 +37,14 @@ public class PictureFileHelper {
      * @param context 上下文
      */
     public static void clearTempPictureDir(Context context) {
-        Log.d(LogTags.PICTURE_HELPER.getV(), "开始清理临时图片目录");
+        Log.d(LogTags.PICTURE_HELPER.n(), "开始清理临时图片目录");
 
         //删除临时图片目录文件
-        File tempPictureDir = DirectoryPaths.PICTURE_TEMP.getDir(context);
+        File tempPictureDir = DirectoryPaths.MEDIA_TEMP.getDir(context);
         if (tempPictureDir != null) {
             File[] files = tempPictureDir.listFiles();
             if (files != null) {
-                Log.d(LogTags.PICTURE_HELPER.getV(), String.format(Locale.getDefault(), "清理%d个临时图片", files.length));
+                Log.d(LogTags.PICTURE_HELPER.n(), String.format(Locale.getDefault(), "清理%d个临时图片", files.length));
                 boolean isAllTempFileDeleted = true;
                 for (File tempPicture : files) {
                     if (!tempPicture.delete()) {
@@ -53,7 +53,7 @@ public class PictureFileHelper {
                 }
 
                 if (!isAllTempFileDeleted) {
-                    Log.w(LogTags.PICTURE_HELPER.getV(), "临时图片未完全删除");
+                    Log.w(LogTags.PICTURE_HELPER.n(), "临时图片未完全删除");
                 }
             }
         }

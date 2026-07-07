@@ -20,13 +20,13 @@ import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.Tables;
 import com.manager.assistant.generic_enums.ChannelInfo;
-import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.generic_enums.NotificationID;
 import com.manager.assistant.generic_enums.PendingRequestCode;
 import com.manager.assistant.helpers.NotificationHelper;
 import com.manager.assistant.ui.pages.budget.BudgetManageActivity;
 import com.manager.assistant.ui.pages.budget.ResetFrequency;
-import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.auxiliary.enums.AccountType;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -237,11 +237,11 @@ public class BudgetDataController {
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         //解析数据
-        String name = dataBundle.getString(KeyValueStrings.BUDGET_NAME.getValue());
-        double initAmount = dataBundle.getDouble(KeyValueStrings.INIT_AMOUNT.getValue());
-        String startDate = dataBundle.getString(KeyValueStrings.START_DATE.getValue());
-        ResetFrequency resetFrequency = ResetFrequency.valueOf(dataBundle.getString(KeyValueStrings.BUDGET_RESET_FREQUENCY.getValue()));
-        long[] tagNos = dataBundle.getLongArray(KeyValueStrings.TAG_NO.getValue());
+        String name = dataBundle.getString(KeyStrings.BUDGET_NAME.v());
+        double initAmount = dataBundle.getDouble(KeyStrings.INIT_AMOUNT.v());
+        String startDate = dataBundle.getString(KeyStrings.START_DATE.v());
+        ResetFrequency resetFrequency = ResetFrequency.valueOf(dataBundle.getString(KeyStrings.BUDGET_RESET_FREQUENCY.v()));
+        long[] tagNos = dataBundle.getLongArray(KeyStrings.TAG_NO.v());
         if (tagNos == null) {
             throw new SQLiteException("标签编号列表为空");
         }
@@ -275,13 +275,13 @@ public class BudgetDataController {
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         //解析数据
-        long bno = dataBundle.getLong(KeyValueStrings.BNO.getValue());
-        String name = dataBundle.getString(KeyValueStrings.BUDGET_NAME.getValue());
-        double initAmount = dataBundle.getDouble(KeyValueStrings.INIT_AMOUNT.getValue());
-        double leftAmount = dataBundle.getDouble(KeyValueStrings.LEFT_AMOUNT.getValue());
-        String startDate = dataBundle.getString(KeyValueStrings.START_DATE.getValue());
-        ResetFrequency resetFrequency = ResetFrequency.valueOf(dataBundle.getString(KeyValueStrings.BUDGET_RESET_FREQUENCY.getValue()));
-        long[] tagNos = dataBundle.getLongArray(KeyValueStrings.TAG_NO.getValue());
+        long bno = dataBundle.getLong(KeyStrings.BNO.v());
+        String name = dataBundle.getString(KeyStrings.BUDGET_NAME.v());
+        double initAmount = dataBundle.getDouble(KeyStrings.INIT_AMOUNT.v());
+        double leftAmount = dataBundle.getDouble(KeyStrings.LEFT_AMOUNT.v());
+        String startDate = dataBundle.getString(KeyStrings.START_DATE.v());
+        ResetFrequency resetFrequency = ResetFrequency.valueOf(dataBundle.getString(KeyStrings.BUDGET_RESET_FREQUENCY.v()));
+        long[] tagNos = dataBundle.getLongArray(KeyStrings.TAG_NO.v());
         if (tagNos == null) {
             throw new SQLiteException("标签编号列表为空");
         }
@@ -509,7 +509,7 @@ public class BudgetDataController {
             long tagNo,
             double oldAmount,
             double amount,
-            RunningAccountType type,
+            AccountType type,
             String oldDatetime,
             String datetime,
             SQLiteDatabase db,

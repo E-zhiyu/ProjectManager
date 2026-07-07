@@ -26,7 +26,7 @@ import com.manager.assistant.data.save.database.Tables;
 import com.manager.assistant.databinding.ActivityReportBinding;
 import com.manager.assistant.helpers.DateTimePickerHelper;
 import com.manager.assistant.ui.others.animators.ScaleAnimator;
-import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.auxiliary.enums.AccountType;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -63,19 +63,19 @@ public class ReportActivity extends AppCompatActivity {
     }
 
     static class ReportRunningAccountData {
-        private final RunningAccountType type;  //流水种类
+        private final AccountType type;  //流水种类
         private final double amount;            //金额
         private final long tagNo;               //标签编号
         private final int month;                //月份
 
-        public ReportRunningAccountData(RunningAccountType type, double amount, long tagNo, int month) {
+        public ReportRunningAccountData(AccountType type, double amount, long tagNo, int month) {
             this.type = type;
             this.amount = amount;
             this.tagNo = tagNo;
             this.month = month;
         }
 
-        public RunningAccountType getType() {
+        public AccountType getType() {
             return type;
         }
 
@@ -259,7 +259,7 @@ public class ReportActivity extends AppCompatActivity {
         );
 
         while (basicCursor.moveToNext()) {
-            RunningAccountType type = RunningAccountType.valueOf(basicCursor.getString(basicCursor.getColumnIndexOrThrow(Columns.TYPE.toString())));
+            AccountType type = AccountType.valueOf(basicCursor.getString(basicCursor.getColumnIndexOrThrow(Columns.TYPE.toString())));
             double amount = basicCursor.getDouble(basicCursor.getColumnIndexOrThrow(Columns.AMOUNT.toString()));
             long tagNo = basicCursor.getLong(basicCursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
             String datetime = basicCursor.getString(basicCursor.getColumnIndexOrThrow(Columns.DATETIME.toString()));
@@ -297,7 +297,7 @@ public class ReportActivity extends AppCompatActivity {
 
         //解析新数据
         for (ReportRunningAccountData data : dataList) {
-            RunningAccountType type = data.getType();
+            AccountType type = data.getType();
             double amount = data.getAmount();
             long tagNo = data.getTagNo();
 
@@ -450,7 +450,7 @@ public class ReportActivity extends AppCompatActivity {
 
         //读取数据并计算每月收支金额以及年度收支金额
         for (ReportRunningAccountData data : dataList) {
-            RunningAccountType type = data.getType();
+            AccountType type = data.getType();
             double amount = data.getAmount();
             int month = data.getMonth();
 

@@ -2,7 +2,7 @@ package com.manager.assistant.data.classes.running_account;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.auxiliary.enums.AccountType;
 
 public class IncomeRunningAccount extends RunningAccountBase {
     /**
@@ -15,7 +15,7 @@ public class IncomeRunningAccount extends RunningAccountBase {
     public IncomeRunningAccount(@NonNull String remark, String date_time, double amount) {
         super();
         this.rno = -1;
-        this.type = RunningAccountType.INCOME;
+        this.type = AccountType.INCOME;
         this.title = "收入";
         this.remark = remark;
         this.datetime = date_time;
@@ -33,7 +33,7 @@ public class IncomeRunningAccount extends RunningAccountBase {
     public IncomeRunningAccount(long rno, @NonNull String remark, String date_time, double amount) {
         super();
         this.rno = rno;
-        this.type = RunningAccountType.INCOME;
+        this.type = AccountType.INCOME;
         this.title = "收入";
         this.remark = remark;
         this.datetime = date_time;

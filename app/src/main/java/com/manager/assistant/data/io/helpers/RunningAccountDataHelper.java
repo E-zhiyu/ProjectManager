@@ -417,13 +417,13 @@ public class RunningAccountDataHelper extends DataHelperBase<BookkeepingDbHelper
             db.delete(Tables.PICTURE.toString(), null, null);
 
             //删除旧图片
-            File pictureDir = DirectoryPaths.PICTURE.getDir(context);
+            File pictureDir = DirectoryPaths.MEDIA.getDir(context);
             if (pictureDir != null) {
                 File[] oldPictureFiles = pictureDir.listFiles();
                 if (oldPictureFiles != null) {
                     for (File oldPicture : oldPictureFiles) {
                         if (!oldPicture.delete()) {
-                            Log.w(LogTags.ACCOUNT_DATA_HELPER.getV(), String.format(Locale.getDefault(), "“%s”删除失败", oldPicture.getName()));
+                            Log.w(LogTags.ACCOUNT_DATA_HELPER.n(), String.format(Locale.getDefault(), "“%s”删除失败", oldPicture.getName()));
                         }
                     }
                 }
@@ -438,9 +438,9 @@ public class RunningAccountDataHelper extends DataHelperBase<BookkeepingDbHelper
             db.delete(Tables.BUDGET_TAG.toString(), null, null);
 
             db.close();
-            Log.d(LogTags.ACCOUNT_DATA_HELPER.getV(), "流水数据删除成功");
+            Log.d(LogTags.ACCOUNT_DATA_HELPER.n(), "流水数据删除成功");
         } catch (SQLiteDatabaseLockedException e) {
-            Log.e(LogTags.ACCOUNT_DATA_HELPER.getV(), "流水记录删除失败：数据库异常");
+            Log.e(LogTags.ACCOUNT_DATA_HELPER.n(), "流水记录删除失败：数据库异常");
         } finally {
             //更新主页标签数量
             TagRepository tagRepository = TagRepository.getInstance();

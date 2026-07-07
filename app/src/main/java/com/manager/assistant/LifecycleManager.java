@@ -109,7 +109,7 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
 
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
-        Log.d(LogTags.LIFECYCLE_MANAGER.getV(), "活动启动");
+        Log.d(LogTags.LIFECYCLE_MANAGER.n(), "活动启动");
         foregroundCount++;
 
         boolean isAuthOpened = SecurityPreference.getAuthSwitchStat(activity);
@@ -157,17 +157,17 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
 
     @Override
     public void onActivityStopped(@NonNull Activity activity) {
-        Log.d(LogTags.LIFECYCLE_MANAGER.getV(), "活动停止");
+        Log.d(LogTags.LIFECYCLE_MANAGER.n(), "活动停止");
         foregroundCount--;
 
-        Log.d(LogTags.LIFECYCLE_MANAGER.getV(), String.format(Locale.getDefault(), "前台活动数：%d", foregroundCount));
+        Log.d(LogTags.LIFECYCLE_MANAGER.n(), String.format(Locale.getDefault(), "前台活动数：%d", foregroundCount));
         if (foregroundCount == 0) {
-            Log.i(LogTags.LIFECYCLE_MANAGER.getV(), "前台活动数量为0");
+            Log.i(LogTags.LIFECYCLE_MANAGER.n(), "前台活动数量为0");
 
             //延迟修改用户离开标志位
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 if (foregroundCount == 0) {
-                    Log.i(LogTags.LIFECYCLE_MANAGER.getV(), "判定为用户离开应用");
+                    Log.i(LogTags.LIFECYCLE_MANAGER.n(), "判定为用户离开应用");
                     userLeft = true;
                 }
             }, 500);

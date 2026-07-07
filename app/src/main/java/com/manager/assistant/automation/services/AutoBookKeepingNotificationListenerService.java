@@ -26,13 +26,13 @@ import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.automation.broadcast.RuleUpdateReceiver;
 import com.manager.assistant.automation.broadcast.BroadcastActions;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
-import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.data.classes.AnalysisRule;
 import com.manager.assistant.generic_enums.NotificationID;
 import com.manager.assistant.generic_enums.PendingRequestCode;
 import com.manager.assistant.helpers.NotificationHelper;
-import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
-import com.manager.assistant.ui.pages.notification_analysis.AnalysisRuleManageActivity;
+import com.manager.assistant.auxiliary.enums.AccountType;
+import com.manager.assistant.ui.pages.rule.AnalysisRuleManageActivity;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -83,10 +83,10 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
     private static class RuleValue {
         private final String ruleName;          //规则名称
         private final String content;           //通知内容正则表达式
-        private final RunningAccountType type;  //通知种类
+        private final AccountType type;  //通知种类
         private final long rule_no;             //规则编号
 
-        public RuleValue(String ruleName, String content, RunningAccountType type, long rule_no) {
+        public RuleValue(String ruleName, String content, AccountType type, long rule_no) {
             this.ruleName = ruleName;
             this.content = content;
             this.type = type;
@@ -101,7 +101,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
             return content;
         }
 
-        public RunningAccountType getType() {
+        public AccountType getType() {
             return type;
         }
 
@@ -112,7 +112,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "服务已启动");
+        Log.d(LogTags.NOTIFICATION_SERVICE.n(), "服务已启动");
         return START_STICKY;
     }
 
@@ -141,14 +141,14 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
 
         //发送通知监听服务已运行的通知
         sendBroadcast(new Intent(BroadcastActions.ACTION_NOTIFICATION_LISTENER_ENABLED.toString()));
-        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "服务已创建");
+        Log.d(LogTags.NOTIFICATION_SERVICE.n(), "服务已创建");
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
 
-        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "服务已关闭");
+        Log.d(LogTags.NOTIFICATION_SERVICE.n(), "服务已关闭");
         //注销广播接收器防止重复刷新UI
         if (ruleUpdateReceiver != null) {
             unregisterReceiver(ruleUpdateReceiver);
@@ -159,7 +159,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
     public void onNotificationPosted(@NonNull StatusBarNotification sbn) {
         //未开启通知监听功能则不运行
         if (!isFunctionOpened) {
-            Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "自动记账功能未启用");
+            Log.d(LogTags.NOTIFICATION_SERVICE.n(), "自动记账功能未启用");
             return;
         }
 
@@ -178,13 +178,13 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         boolean isSameTitle = title.equals(lastTitle);                      //判断标题是否相同
         lastTitle = title;
         if (difference <= 1500 && isSameTitle && isSamePackageName) {
-            Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "同一应用发送通知过于频繁，不执行任何操作");
+            Log.d(LogTags.NOTIFICATION_SERVICE.n(), "同一应用发送通知过于频繁，不执行任何操作");
             return;
         }
 
-        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), String.format("通知发送者包名：%s", packageName));
-        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), String.format("通知标题：%s", title));
-        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), String.format("通知内容：%s", text));
+        Log.d(LogTags.NOTIFICATION_SERVICE.n(), String.format("通知发送者包名：%s", packageName));
+        Log.d(LogTags.NOTIFICATION_SERVICE.n(), String.format("通知标题：%s", title));
+        Log.d(LogTags.NOTIFICATION_SERVICE.n(), String.format("通知内容：%s", text));
 
         //处理通知内容
         RuleKey key = new RuleKey(packageName, title);
@@ -193,7 +193,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
             for (RuleValue value : valueList) {
                 String content = value.getContent();
                 String ruleName = value.getRuleName();
-                RunningAccountType type = value.getType();
+                AccountType type = value.getType();
                 long ruleNo = value.getRule_no();
 
                 Matcher matcher;                                        //通知内容匹配器
@@ -201,7 +201,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                     Pattern pattern = Pattern.compile(content);         //编译为正则表达式
                     matcher = pattern.matcher(text);
                 } catch (PatternSyntaxException e) {                    //处理无法编译为Matcher的情况
-                    Log.e(LogTags.NOTIFICATION_SERVICE.getV(), "正则表达式编译出错");
+                    Log.e(LogTags.NOTIFICATION_SERVICE.n(), "正则表达式编译出错");
                     String err = String.format(
                             Locale.getDefault(),
                             "规则“%s”的正则表达式编译出错",
@@ -212,7 +212,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                 }
 
                 if (matcher.find()) {
-                    Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "成功匹配正则表达式");
+                    Log.d(LogTags.NOTIFICATION_SERVICE.n(), "成功匹配正则表达式");
 
                     //生成流水数据包
                     long tagNo = TagDataController.getTagByRuleNo(ruleNo, getApplicationContext()).getTno();
@@ -220,12 +220,12 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
                     if (dataBundle == null) {
                         return;
                     }
-                    Log.i(LogTags.NOTIFICATION_SERVICE.getV(), "流水数据生成成功");
+                    Log.i(LogTags.NOTIFICATION_SERVICE.n(), "流水数据生成成功");
 
                     //发送确认自动记账的通知，在通知中决定保留还是删除
                     sendNotificationToConfirm(dataBundle, ruleName, getApplicationContext());
                 } else {
-                    Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "正则表达式不匹配");
+                    Log.d(LogTags.NOTIFICATION_SERVICE.n(), "正则表达式不匹配");
                 }
             }
         }
@@ -237,11 +237,11 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
     @Override
     public void onRuleUpdated() {
         try {
-            Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "收到规则更新广播，正在更新规则……");
+            Log.d(LogTags.NOTIFICATION_SERVICE.n(), "收到规则更新广播，正在更新规则……");
             ruleHashMap.putAll(loadRulesInHashMap());
-            Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "规则更新成功");
+            Log.d(LogTags.NOTIFICATION_SERVICE.n(), "规则更新成功");
         } catch (SQLiteException e) {
-            Log.w(LogTags.NOTIFICATION_SERVICE.getV(), "规则更新失败");
+            Log.w(LogTags.NOTIFICATION_SERVICE.n(), "规则更新失败");
             Toast.makeText(getApplicationContext(), "自动记账出错：无法获取更新的规则", Toast.LENGTH_SHORT).show();
         }
     }
@@ -251,9 +251,9 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
      */
     @Override
     public void onFunctionSwitched() {
-        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "收到功能开关状态变更广播");
+        Log.d(LogTags.NOTIFICATION_SERVICE.n(), "收到功能开关状态变更广播");
         isFunctionOpened = AutoBookKeepingPreference.getSwitchStat(getApplicationContext());
-        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "通知解析功能：" + isFunctionOpened);
+        Log.d(LogTags.NOTIFICATION_SERVICE.n(), "通知解析功能：" + isFunctionOpened);
     }
 
     /**
@@ -270,7 +270,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
     @Nullable
     private Bundle getNewAccountData(
             @NonNull Matcher matcher,
-            @NonNull RunningAccountType type,
+            @NonNull AccountType type,
             long tagNo,
             String ruleName,
             long ruleNo
@@ -299,18 +299,18 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
 
         //生成流水记录数据包
         Bundle dataBundle = new Bundle();
-        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tagNo);
-        dataBundle.putString(KeyValueStrings.ACCOUNT_DATETIME.getValue(), timeStr);
-        dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());
-        dataBundle.putDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), amount);
-        dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
-        if (type == RunningAccountType.TRANSFER) {
+        dataBundle.putLong(KeyStrings.TAG_NO.v(), tagNo);
+        dataBundle.putString(KeyStrings.ACCOUNT_DATETIME.v(), timeStr);
+        dataBundle.putString(KeyStrings.ACCOUNT_TYPE.v(), type.toString());
+        dataBundle.putDouble(KeyStrings.ACCOUNT_AMOUNT.v(), amount);
+        dataBundle.putString(KeyStrings.ACCOUNT_REMARK.v(), remark);
+        if (type == AccountType.TRANSFER) {
             List<String> transferAccountInfo = RuleDataController.getTransferAccounts(ruleNo, getApplicationContext());
             if (!transferAccountInfo.isEmpty()) {
                 String exportAccount = transferAccountInfo.get(0);
                 String importAccount = transferAccountInfo.get(1);
-                dataBundle.putString(KeyValueStrings.ACCOUNT_EXPORT.getValue(), exportAccount);
-                dataBundle.putString(KeyValueStrings.ACCOUNT_IMPORT.getValue(), importAccount);
+                dataBundle.putString(KeyStrings.ACCOUNT_EXPORT.v(), exportAccount);
+                dataBundle.putString(KeyStrings.ACCOUNT_IMPORT.v(), importAccount);
             }
         }
 
@@ -325,14 +325,14 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
      */
     @NonNull
     private HashMap<RuleKey, List<RuleValue>> loadRulesInHashMap() throws SQLiteException {
-        Log.d(LogTags.NOTIFICATION_SERVICE.getV(), "开始加载通知解析规则");
+        Log.d(LogTags.NOTIFICATION_SERVICE.n(), "开始加载通知解析规则");
 
         HashMap<RuleKey, List<RuleValue>> ruleHashMap = new HashMap<>();
         List<AnalysisRule> ruleList = RuleDataController.loadAnalysisRule(getApplicationContext());
         for (AnalysisRule rule : ruleList) {
             String ruleName = rule.getRuleName();
             long ruleNo = rule.getRuleNo();
-            RunningAccountType type = rule.getType();
+            AccountType type = rule.getType();
             String packageName = rule.getPackageName();
             String title = rule.getNotificationTitle();
             String content = rule.getNotificationContent();
@@ -414,7 +414,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         );
 
         //创建备注输入Action
-        RemoteInput remarkRemoteInput = new RemoteInput.Builder(KeyValueStrings.ACCOUNT_REMARK.getValue())
+        RemoteInput remarkRemoteInput = new RemoteInput.Builder(KeyStrings.ACCOUNT_REMARK.v())
                 .setLabel("输入备注")
                 .build();
         NotificationCompat.Action remarkInputAction = createAction(
@@ -442,11 +442,11 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         Intent notificationDeletedIntent = new Intent(context, AutoBookkeepingActionsReceiver.class);
         notificationDeletedIntent.setAction(BroadcastActions.ACTION_AUTO_BOOKKEEPING_NOTIFICATION_DELETED.toString());
         notificationDeletedIntent.putExtra(
-                KeyValueStrings.NOTIFICATION_ID.getValue(),
+                KeyStrings.NOTIFICATION_ID.v(),
                 notificationID
         );
         notificationDeletedIntent.putExtras(dataBundle);                                               //发送流水记录数据包
-        notificationDeletedIntent.putExtra(KeyValueStrings.ANALYSIS_RULE_NAME.getValue(), ruleName);   //发送规则名称
+        notificationDeletedIntent.putExtra(KeyStrings.ANALYSIS_RULE_NAME.v(), ruleName);   //发送规则名称
         int pendingDeletedID = dataBundle.hashCode() * 10 + PendingRequestCode.AUTO_BOOKKEEPING_NOTIFICATION_DELETE.ordinal();
         PendingIntent deletePendingIntent = PendingIntent.getBroadcast(
                 context,
@@ -476,11 +476,11 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
             Intent notificationClickIntent = new Intent(context, AutoBookkeepingActionsReceiver.class);
             notificationClickIntent.setAction(BroadcastActions.ACTION_AUTO_BOOKKEEPING_NOTIFICATION_CLICKED.toString());
             notificationClickIntent.putExtra(
-                    KeyValueStrings.NOTIFICATION_ID.getValue(),
+                    KeyStrings.NOTIFICATION_ID.v(),
                     notificationID
             );
             notificationClickIntent.putExtras(dataBundle);                                                  //发送流水记录数据
-            notificationClickIntent.putExtra(KeyValueStrings.ANALYSIS_RULE_NAME.getValue(), ruleName);      //发送规则名称
+            notificationClickIntent.putExtra(KeyStrings.ANALYSIS_RULE_NAME.v(), ruleName);      //发送规则名称
             int pendingClickedID = dataBundle.hashCode() * 10 + PendingRequestCode.AUTO_BOOKKEEPING_NOTIFICATION_CLICK.ordinal();
             PendingIntent clickPendingIntent = PendingIntent.getBroadcast(
                     context,
@@ -528,9 +528,9 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
         Intent intent = new Intent(context, AutoBookkeepingActionsReceiver.class);
         intent.setAction(actionID);
         int notificationID = NotificationID.AUTO_BOOKKEEPING_CONFIRM.ordinal() + dataBundle.hashCode() * 10;
-        intent.putExtra(KeyValueStrings.NOTIFICATION_ID.getValue(), notificationID);
+        intent.putExtra(KeyStrings.NOTIFICATION_ID.v(), notificationID);
         intent.putExtras(dataBundle);                                               //发送流水记录数据包
-        intent.putExtra(KeyValueStrings.ANALYSIS_RULE_NAME.getValue(), ruleName);   //发送规则名称
+        intent.putExtra(KeyStrings.ANALYSIS_RULE_NAME.v(), ruleName);   //发送规则名称
 
         //创建PendingIntent
         int dataHash = dataBundle.hashCode();

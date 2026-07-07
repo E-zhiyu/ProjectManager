@@ -1,13 +1,13 @@
-package com.manager.assistant.ui.pages.main.bookkeeping.fragments;
+package com.manager.assistant.auxiliary.enums;
 
-public enum RunningAccountType {
+public enum AccountType {
     EXPENSE("支出", -1),
     INCOME("收入", 1),
     TRANSFER("转账", 0);
     private final String title; //名称
     private final int flag;     //是否为收入/支出种类的标识符
 
-    RunningAccountType(String title, int flag) {
+    AccountType(String title, int flag) {
         this.title = title;
         this.flag = flag;
     }

@@ -21,7 +21,7 @@ import com.manager.assistant.generic_enums.options.NotificationCancelBehaviour;
 import com.manager.assistant.generic_enums.options.NotificationClickBehaviour;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
-import com.manager.assistant.ui.pages.notification_analysis.AnalysisRuleManageActivity;
+import com.manager.assistant.ui.pages.rule.AnalysisRuleManageActivity;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingClickableTextView;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingOptionViewBase;
 import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingSpinnerView;

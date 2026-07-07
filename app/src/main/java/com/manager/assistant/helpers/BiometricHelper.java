@@ -88,12 +88,12 @@ public class BiometricHelper {
             String errTip = "未知错误，无法使用身份验证";
             if (result == BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE) {
                 errTip = "您的设备不支持生物识别";
-                Log.e(LogTags.BIOMETRIC_HELPER.getV(), "设备不支持生物识别");
+                Log.e(LogTags.BIOMETRIC_HELPER.n(), "设备不支持生物识别");
             } else if (result == BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE) {
-                Log.e(LogTags.BIOMETRIC_HELPER.getV(), "硬件忙或不可用");
+                Log.e(LogTags.BIOMETRIC_HELPER.n(), "硬件忙或不可用");
                 errTip = "身份验证不可用，请稍后重试";
             } else if (result == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED) {
-                Log.e(LogTags.BIOMETRIC_HELPER.getV(), "用户未设置指纹或锁屏密码");
+                Log.e(LogTags.BIOMETRIC_HELPER.n(), "用户未设置指纹或锁屏密码");
                 errTip = "您还未设置任何锁屏验证方式";
             }
             callback.onError(result, errTip);

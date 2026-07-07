@@ -1,10 +1,10 @@
 package com.manager.assistant.data.classes.running_account;
 
-import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.auxiliary.enums.AccountType;
 
 public abstract class RunningAccountBase {
     protected String title;             //名称
-    protected RunningAccountType type;  //种类
+    protected AccountType type;  //种类
     protected String remark;            //备注
     protected String defaultRemark;     //默认备注
     protected String datetime;          //日期和时间
@@ -19,7 +19,7 @@ public abstract class RunningAccountBase {
         return title;
     }
 
-    public RunningAccountType getType() {
+    public AccountType getType() {
         return type;
     }
 

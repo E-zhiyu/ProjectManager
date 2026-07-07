@@ -21,7 +21,7 @@ import com.manager.assistant.data.classes.Budget;
 import com.manager.assistant.data.controllers.BudgetDataController;
 import com.manager.assistant.databinding.ActivityBudgetManageBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
@@ -194,14 +194,14 @@ public class BudgetManageActivity extends AppCompatActivity {
                 .toArray();
 
         Bundle dataBundle = new Bundle();
-        dataBundle.putLong(KeyValueStrings.BNO.getValue(), bno);
-        dataBundle.putString(KeyValueStrings.BUDGET_NAME.getValue(), name);
-        dataBundle.putDouble(KeyValueStrings.INIT_AMOUNT.getValue(), initAmount);
-        dataBundle.putDouble(KeyValueStrings.LEFT_AMOUNT.getValue(), leftAmount);
-        dataBundle.putString(KeyValueStrings.START_DATE.getValue(), startDate);
-        dataBundle.putString(KeyValueStrings.BUDGET_RESET_FREQUENCY.getValue(), resetFrequency.toString());
-        dataBundle.putLongArray(KeyValueStrings.TAG_NO.getValue(), tagNos);
-        dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), position);
+        dataBundle.putLong(KeyStrings.BNO.v(), bno);
+        dataBundle.putString(KeyStrings.BUDGET_NAME.v(), name);
+        dataBundle.putDouble(KeyStrings.INIT_AMOUNT.v(), initAmount);
+        dataBundle.putDouble(KeyStrings.LEFT_AMOUNT.v(), leftAmount);
+        dataBundle.putString(KeyStrings.START_DATE.v(), startDate);
+        dataBundle.putString(KeyStrings.BUDGET_RESET_FREQUENCY.v(), resetFrequency.toString());
+        dataBundle.putLongArray(KeyStrings.TAG_NO.v(), tagNos);
+        dataBundle.putInt(KeyStrings.VIEW_HOLDER_POSITION.v(), position);
 
         Intent skip2BudgetModify = new Intent(this, BudgetAddModifyActivity.class);
         skip2BudgetModify.putExtras(dataBundle);

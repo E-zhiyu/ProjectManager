@@ -31,6 +31,7 @@ biometric = "1.1.0"
 roomRuntime = "2.8.4"
 roomCompiler = "2.8.4"
 mapstruct = "1.6.3"
+recyclerviewSelection = "1.2.0"
 
 [libraries]
 core = { module = "io.noties.markwon:core", version.ref = "core" }
@@ -67,6 +68,7 @@ room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRunti
 room-rxjava3 = { module = "androidx.room:room-rxjava3", version.ref = "roomRuntime" }
 mapstruct = { module = "org.mapstruct:mapstruct", version.ref = "mapstruct" }
 mapstruct-processor = { module = "org.mapstruct:mapstruct-processor", version.ref = "mapstruct" }
+recyclerview-selection = { group = "androidx.recyclerview", name = "recyclerview-selection", version.ref = "recyclerviewSelection" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -21,7 +21,7 @@ import com.manager.assistant.databinding.ViewHolderRunningAccountListBinding;
 import com.manager.assistant.databinding.ViewHolderSeparatorTextChipBinding;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.ui.others.decoration.sticky.StickyHeaderAdapter;
-import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.auxiliary.enums.AccountType;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -192,7 +192,7 @@ public class AccountAdapter extends ListAdapter<AccountUiModel, RecyclerView.Vie
             ItemViewHolder itemHolder = (ItemViewHolder) holder;
 
             //获取流水数据
-            String type = RunningAccountType.values()[account.getType()].getTitle();
+            String type = AccountType.values()[account.getType()].getTitle();
             String datetime = account.getDateTime().format(FORMATTER);
             String typeAndDatetime = String.format(Locale.getDefault(), "%s·%s", type, datetime);
             String remark = account.getRemark();

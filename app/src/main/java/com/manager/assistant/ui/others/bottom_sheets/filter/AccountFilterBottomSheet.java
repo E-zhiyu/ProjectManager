@@ -19,7 +19,7 @@ import com.manager.assistant.helpers.DateTimePickerHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.BaseBottomSheetDialogFragment;
-import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.auxiliary.enums.AccountType;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -153,8 +153,8 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
         }
 
         //流水种类ChipGroup
-        String[] accountTypeTitles = Arrays.stream(RunningAccountType.values())
-                .map(RunningAccountType::getTitle)
+        String[] accountTypeTitles = Arrays.stream(AccountType.values())
+                .map(AccountType::getTitle)
                 .toArray(String[]::new);
         int index = 0;
         List<Integer> selectedTypeList = setting.getSelectedTypeList();

@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.notification_analysis;
+package com.manager.assistant.ui.pages.rule;
 
 import android.Manifest;
 import android.app.Activity;
@@ -23,7 +23,7 @@ import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.data.classes.AnalysisRule;
 import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 import com.manager.assistant.ui.sync.tag.TagRepository;
@@ -96,7 +96,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         //添加规则按钮
         binding.addFloatingBtn.setOnClickListener(v -> {
             Intent skip2RuleAdd = new Intent(this, RuleAddModifyActivity.class);
-            skip2RuleAdd.putExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), false);
+            skip2RuleAdd.putExtra(KeyStrings.IS_MODIFY_MODE.v(), false);
             ruleAddLauncher.launch(skip2RuleAdd);
         });
 
@@ -203,16 +203,16 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         String notification_title = rule.getNotificationTitle();        //通知标题
         String notification_content = rule.getNotificationContent();    //通知内容
 
-        dataBundle.putString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue(), rule_name);
-        dataBundle.putLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue(), rule_no);
-        dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), account_type);
-        dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), position);
-        dataBundle.putString(KeyValueStrings.PACKAGE_NAME.getValue(), package_name);
-        dataBundle.putString(KeyValueStrings.NOTIFICATION_TITLE.getValue(), notification_title);
-        dataBundle.putString(KeyValueStrings.NOTIFICATION_CONTENT.getValue(), notification_content);
+        dataBundle.putString(KeyStrings.ANALYSIS_RULE_NAME.v(), rule_name);
+        dataBundle.putLong(KeyStrings.ANALYSIS_RULE_NO.v(), rule_no);
+        dataBundle.putString(KeyStrings.ACCOUNT_TYPE.v(), account_type);
+        dataBundle.putInt(KeyStrings.VIEW_HOLDER_POSITION.v(), position);
+        dataBundle.putString(KeyStrings.PACKAGE_NAME.v(), package_name);
+        dataBundle.putString(KeyStrings.NOTIFICATION_TITLE.v(), notification_title);
+        dataBundle.putString(KeyStrings.NOTIFICATION_CONTENT.v(), notification_content);
 
         skip2RuleModify.putExtras(dataBundle);
-        skip2RuleModify.putExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), true);
+        skip2RuleModify.putExtra(KeyStrings.IS_MODIFY_MODE.v(), true);
         ruleModifyLauncher.launch(skip2RuleModify);
     }
 
@@ -249,7 +249,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
         if (resultCode == Activity.RESULT_OK) {
             ruleAdapter.modifyRule(dataBundle);
         } else if (resultCode == RequestResultCode.RESULT_DELETE.ordinal()) {
-            int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
+            int position = dataBundle.getInt(KeyStrings.VIEW_HOLDER_POSITION.v());
             ruleAdapter.deleteRule(position);
         }
     }

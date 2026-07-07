@@ -21,7 +21,7 @@ import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.ActivityGroupModifyBinding;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.ui.sync.tag.TagRepository;
 import com.manager.assistant.ui.sync.tag.TagUpdateReason;
 
@@ -162,7 +162,7 @@ public class GroupModifyActivity extends AppCompatActivity {
                                 //返回数据
                                 Bundle dataBundle = getInputData();
                                 Intent result2EditActivity = new Intent();
-                                dataBundle.putLong(KeyValueStrings.MERGE_TARGET_NO.getValue(), targetGroupNo);
+                                dataBundle.putLong(KeyStrings.MERGE_TARGET_NO.v(), targetGroupNo);
                                 result2EditActivity.putExtras(dataBundle);
                                 setResult(RequestResultCode.RESULT_MERGE.ordinal(), result2EditActivity);
                                 finish();
@@ -201,8 +201,8 @@ public class GroupModifyActivity extends AppCompatActivity {
         //加载传入的数据
         Bundle dataBundle = getIntent().getExtras();
         if (dataBundle != null) {
-            groupNo = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());
-            String group_name = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
+            groupNo = dataBundle.getLong(KeyStrings.TAG_GROUP_NO.v());
+            String group_name = dataBundle.getString(KeyStrings.TAG_GROUP_NAME.v());
             binding.tagGroupInput.setText(group_name);
         } else {
             Toast.makeText(this, "无法初始化分组信息", Toast.LENGTH_SHORT).show();
@@ -247,8 +247,8 @@ public class GroupModifyActivity extends AppCompatActivity {
         Bundle dataBundle = new Bundle();
 
         String newGroupName = String.valueOf(binding.tagGroupInput.getText());
-        dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), newGroupName);  //分组名称
-        dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), groupNo);           //分组编号
+        dataBundle.putString(KeyStrings.TAG_GROUP_NAME.v(), newGroupName);  //分组名称
+        dataBundle.putLong(KeyStrings.TAG_GROUP_NO.v(), groupNo);           //分组编号
 
         return dataBundle;
     }

@@ -3,7 +3,7 @@ package com.manager.assistant.ui.sync.account;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.auxiliary.enums.AccountType;
 
 public class RunningAccountRepository {
     private static RunningAccountRepository instance;    //自身实例
@@ -13,9 +13,9 @@ public class RunningAccountRepository {
     public static class SimpleRunningAccount {
         public double amount;
         public String datetime;
-        public RunningAccountType type;
+        public AccountType type;
 
-        public SimpleRunningAccount(double amount, String datetime, RunningAccountType type) {
+        public SimpleRunningAccount(double amount, String datetime, AccountType type) {
             this.amount = amount;
             this.datetime = datetime;
             this.type = type;
@@ -48,7 +48,7 @@ public class RunningAccountRepository {
     public void onAccountUpdated(
             double amount,
             String datetime,
-            RunningAccountType type,
+            AccountType type,
             AccountUpdateReason reason) {
         updateReason = reason;
         SimpleRunningAccount runningAccount = new SimpleRunningAccount(amount, datetime, type);

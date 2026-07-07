@@ -28,7 +28,7 @@ public class BookKeepingFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
-        Log.d(LogTags.ACCOUNT_FRAGMENT.getV(), "开始创建界面……");
+        Log.d(LogTags.ACCOUNT_FRAGMENT.n(), "开始创建界面……");
 
         initViews();
 
@@ -47,7 +47,7 @@ public class BookKeepingFragment extends Fragment {
             MainActivity mainActivity = (MainActivity) requireActivity();
             if (mainActivity.binding != null) {
                 mainActivity.binding.searchView.setupWithSearchBar(null);                           //消除与SearchBar的绑定
-                Log.d(LogTags.ACCOUNT_FRAGMENT.getV(), "SearchView与SearchBar解绑");
+                Log.d(LogTags.ACCOUNT_FRAGMENT.n(), "SearchView与SearchBar解绑");
             }
         }
     }

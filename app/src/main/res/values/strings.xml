@@ -1,28 +1,18 @@
 <resources>
     <string name="app_name">经理助手</string>
-
-    <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
-
-    <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
-
-    <!-- Sync Preferences -->
-    <string name="title_activity_main">@string/app_name</string>
     <string name="title_bookkeeping">记账</string>
     <string name="title_setting">设置</string>
     <string name="title_report">报表统计</string>
     <string name="title_manage_tag">标签管理</string>
     <string name="title_new_tag">新建标签</string>
     <string name="title_modify_tag">标签修改</string>
-    <string name="running_account_add">新建流水</string>
+    <string name="add_running_account">新建流水</string>
+    <string name="modify_running_account">修改流水</string>
     <string name="finish">完成</string>
     <string name="amount">金额</string>
     <string name="remark">备注</string>
     <string name="date_time">日期和时间</string>
-    <string name="tag">标签</string>
+    <string name="account_tag">流水标签</string>
     <string name="export_account">转出账户</string>
     <string name="import_account">转入账户</string>
     <string name="delete">删除</string>
@@ -38,7 +28,7 @@
     <string name="tag_group">标签分组</string>
     <string name="manage_tag">标签管理</string>
     <string name="clear_input">清除输入</string>
-    <string name="select_tag">标签选择</string>
+    <string name="select_tag">选择标签</string>
     <string name="expand_fold_btn">press_to_expand_or_fold</string>
     <string name="group_name">分组名称</string>
     <string name="today">这一天</string>
@@ -107,7 +97,6 @@
     <string name="add_picture_via_album">从相册中添加</string>
     <string name="progress_0">0/0 (0%)</string>
     <string name="progressing">正在处理……</string>
-    <string name="purchase_bulletin">采购公告</string>
     <string name="add_floating_btn_description">添加按钮</string>
     <string name="show_rule_input_instruction">输入项说明按钮</string>
     <string name="rule_name_help_text">该通知解析规则的名称</string>
@@ -117,7 +106,7 @@
     <string name="rule_notification_title_help">通知的标题</string>
     <string name="rule_notification_content_help">正则表达式，用首个捕获组捕获金额信息</string>
     <string name="account_amount_help">流水金额</string>
-    <string name="account_remark_help">简单描述该流水记录的备注</string>
+    <string name="account_remark_help">简单描述该流水记录</string>
     <string name="account_datetime_help">产生该条记录的具体时间</string>
     <string name="account_tag_help">标记该流水记录的标签</string>
     <string name="account_export_help">您名下的转出账户名称</string>
@@ -183,6 +172,10 @@
     <string name="click_skip_to_repository">点击跳转至项目仓库</string>
     <string name="not_applicable">N/A</string>
     <string name="filter_account">筛选流水记录</string>
+    <string name="confirm_btn">确认按钮</string>
+    <string name="media_manage">媒体管理</string>
+    <string name="btn_of_media_delete">媒体删除按钮</string>
+    <string name="btn_of_media_add">媒体添加按钮</string>
     <string-array name="tips_array">
         <item>在报表界面可以点击某个收支来源以排除它，还不赶快去试试？</item>
         <item>你知道吗？下面的这些卡片是可以点击的。</item>

@@ -24,14 +24,14 @@ import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.ActivityTagAddModifyBinding;
 import com.manager.assistant.generic_enums.RequestResultCode;
-import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
 import com.manager.assistant.ui.sync.tag.TagUpdateReason;
 import com.manager.assistant.ui.sync.tag.TagRepository;
-import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.auxiliary.enums.AccountType;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -165,14 +165,14 @@ public class TagAddModifyActivity extends AppCompatActivity {
                 .setMessage("此操作会将本标签与其他标签合并，使用本标签标记的流水记录将自动替换为用合并后的标签标记，并且本标签将被永久删除，确认继续吗？")
                 .setPositiveButton("确认", (dialog, which) -> {
                     tagSheet = new TagSelectBottomSheet(this::onTagMergeConfirmed, tagNo);
-                    tagSheet.show(getSupportFragmentManager(), TagString.TAG_MERGE_SHEET.getValue());
+                    tagSheet.show(getSupportFragmentManager(), TagString.TAG_MERGE_SHEET.getTag());
                 })
                 .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
                 .show()
         );
 
         //标签作用域选择
-        for (RunningAccountType type : RunningAccountType.values()) {
+        for (AccountType type : AccountType.values()) {
             Chip scopeChip = new Chip(this);
             scopeChip.setCheckable(true);
             scopeChip.setCheckedIconVisible(true);
@@ -228,7 +228,7 @@ public class TagAddModifyActivity extends AppCompatActivity {
     private void receiveInitData() {
         //加载传入的数据
         Bundle tagData = getIntent().getExtras();
-        isModifyMode = getIntent().getBooleanExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), false);
+        isModifyMode = getIntent().getBooleanExtra(KeyStrings.IS_MODIFY_MODE.v(), false);
         if (tagData != null && isModifyMode) {
             MaterialToolbar toolbar = binding.toolbar;
             toolbar.setTitle(R.string.title_modify_tag);
@@ -237,11 +237,11 @@ public class TagAddModifyActivity extends AppCompatActivity {
             binding.deleteBtn.setVisibility(View.VISIBLE);
             binding.mergeBtn.setVisibility(View.VISIBLE);
 
-            tagNo = tagData.getLong(KeyValueStrings.TAG_NO.getValue());                         //该标签编号
-            groupNo = tagData.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());                 //所属分组编号
-            scope = tagData.getInt(KeyValueStrings.TAG_SCOPE.getValue());                       //标签作用域
-            String tagName = tagData.getString(KeyValueStrings.TAG_NAME.getValue());            //该标签名称
-            String groupName = tagData.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());    //所属分组名称
+            tagNo = tagData.getLong(KeyStrings.TAG_NO.v());                         //该标签编号
+            groupNo = tagData.getLong(KeyStrings.TAG_GROUP_NO.v());                 //所属分组编号
+            scope = tagData.getInt(KeyStrings.TAG_SCOPE.v());                       //标签作用域
+            String tagName = tagData.getString(KeyStrings.TAG_NAME.v());            //该标签名称
+            String groupName = tagData.getString(KeyStrings.TAG_GROUP_NAME.v());    //所属分组名称
 
             binding.tagNameInput.setText(tagName);
             binding.tagGroupInput.setText(groupName);
@@ -274,7 +274,7 @@ public class TagAddModifyActivity extends AppCompatActivity {
         //将数据传递给父界面
         Intent result2TagEdit = new Intent();
         Bundle dataBundle = getInputData(); //获取输入内容，包括了被合并的标签编号和分组编号
-        dataBundle.putLong(KeyValueStrings.MERGE_TARGET_NO.getValue(), tagNo);
+        dataBundle.putLong(KeyStrings.MERGE_TARGET_NO.v(), tagNo);
         result2TagEdit.putExtras(dataBundle);
         setResult(RequestResultCode.RESULT_MERGE.ordinal(), result2TagEdit);
         finish();
@@ -316,12 +316,12 @@ public class TagAddModifyActivity extends AppCompatActivity {
 
         //放入数据
         String tagName = String.valueOf(binding.tagNameInput.getText());
-        dataBundle.putString(KeyValueStrings.TAG_NAME.getValue(), tagName);         //标签名
+        dataBundle.putString(KeyStrings.TAG_NAME.v(), tagName);         //标签名
         String groupName = String.valueOf(binding.tagGroupInput.getText());
-        dataBundle.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), groupName); //分组名称
-        dataBundle.putInt(KeyValueStrings.TAG_SCOPE.getValue(), scope);             //标签作用域
-        dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), groupNo);       //分组编号
-        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tagNo);               //标签编号
+        dataBundle.putString(KeyStrings.TAG_GROUP_NAME.v(), groupName); //分组名称
+        dataBundle.putInt(KeyStrings.TAG_SCOPE.v(), scope);             //标签作用域
+        dataBundle.putLong(KeyStrings.TAG_GROUP_NO.v(), groupNo);       //分组编号
+        dataBundle.putLong(KeyStrings.TAG_NO.v(), tagNo);               //标签编号
 
         return dataBundle;
     }
@@ -347,10 +347,10 @@ public class TagAddModifyActivity extends AppCompatActivity {
             }
 
             //保存至数据包中
-            dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), groupNo);
+            dataBundle.putLong(KeyStrings.TAG_GROUP_NO.v(), groupNo);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(this, e);
-            dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), 0L);
+            dataBundle.putLong(KeyStrings.TAG_GROUP_NO.v(), 0L);
             Toast.makeText(this, "分组出错，保存至默认分组", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -358,7 +358,7 @@ public class TagAddModifyActivity extends AppCompatActivity {
         //保存数据
         try {
             long tagNo = TagDataController.saveNewTag(dataBundle, this);
-            dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tagNo);
+            dataBundle.putLong(KeyStrings.TAG_NO.v(), tagNo);
             Toast.makeText(this, "标签添加成功", Toast.LENGTH_SHORT).show();
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(this, e);
@@ -393,10 +393,10 @@ public class TagAddModifyActivity extends AppCompatActivity {
             }
 
             //保存至数据包中
-            dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO_NEW.getValue(), groupNo);
+            dataBundle.putLong(KeyStrings.TAG_GROUP_NO_NEW.v(), groupNo);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(this, e);
-            dataBundle.putLong(KeyValueStrings.TAG_GROUP_NO_NEW.getValue(), 0L);
+            dataBundle.putLong(KeyStrings.TAG_GROUP_NO_NEW.v(), 0L);
             Toast.makeText(this, "分组出错，保存至默认分组", Toast.LENGTH_SHORT).show();
             return;
         }

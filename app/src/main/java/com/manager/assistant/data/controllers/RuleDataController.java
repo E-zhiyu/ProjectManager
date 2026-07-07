@@ -13,8 +13,8 @@ import com.manager.assistant.data.classes.AnalysisRule;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.Tables;
-import com.manager.assistant.generic_enums.KeyValueStrings;
-import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.generic_enums.KeyStrings;
+import com.manager.assistant.auxiliary.enums.AccountType;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -47,7 +47,7 @@ public class RuleDataController {
         while (ruleCursor.moveToNext()) {
             String name = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(Columns.RULE_NAME.toString()));
             long ruleNo = ruleCursor.getLong(ruleCursor.getColumnIndexOrThrow(Columns.RULE_NO.toString()));
-            RunningAccountType type = RunningAccountType.valueOf(ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(Columns.TYPE.toString())));
+            AccountType type = AccountType.valueOf(ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(Columns.TYPE.toString())));
             String packageName = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(Columns.PACKAGE_NAME.toString()));
             String title = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(Columns.NOTIFICATION_TITLE.toString()));
             String content = ruleCursor.getString(ruleCursor.getColumnIndexOrThrow(Columns.NOTIFICATION_CONTENT.toString()));
@@ -74,12 +74,12 @@ public class RuleDataController {
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         //解析规则数据
-        String ruleName = newRuleData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());
-        String type = newRuleData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue());
-        long tagNo = newRuleData.getLong(KeyValueStrings.TAG_NO.getValue());
-        String packageName = newRuleData.getString(KeyValueStrings.PACKAGE_NAME.getValue());
-        String notificationTitle = newRuleData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
-        String notificationContent = newRuleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
+        String ruleName = newRuleData.getString(KeyStrings.ANALYSIS_RULE_NAME.v());
+        String type = newRuleData.getString(KeyStrings.ACCOUNT_TYPE.v());
+        long tagNo = newRuleData.getLong(KeyStrings.TAG_NO.v());
+        String packageName = newRuleData.getString(KeyStrings.PACKAGE_NAME.v());
+        String notificationTitle = newRuleData.getString(KeyStrings.NOTIFICATION_TITLE.v());
+        String notificationContent = newRuleData.getString(KeyStrings.NOTIFICATION_CONTENT.v());
 
         //将数据写入数据库
         ContentValues ruleValues = new ContentValues();
@@ -92,9 +92,9 @@ public class RuleDataController {
         long ruleNo = db.insert(Tables.ANALYSIS_RULE.toString(), null, ruleValues);    //获取自增主键值
 
         //写入转账类型特有的数据
-        if (type != null && type.equals(RunningAccountType.TRANSFER.toString())) {
-            String exportAccount = newRuleData.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());
-            String importAccount = newRuleData.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());
+        if (type != null && type.equals(AccountType.TRANSFER.toString())) {
+            String exportAccount = newRuleData.getString(KeyStrings.ACCOUNT_EXPORT.v());
+            String importAccount = newRuleData.getString(KeyStrings.ACCOUNT_IMPORT.v());
 
             ContentValues accountValues = new ContentValues();
             accountValues.put(Columns.EXPORT.toString(), exportAccount);
@@ -119,13 +119,13 @@ public class RuleDataController {
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         //解析规则数据
-        String ruleName = ruleData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());
-        long ruleNo = ruleData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());
-        String type = ruleData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue());
-        long tagNo = ruleData.getLong(KeyValueStrings.TAG_NO.getValue());
-        String packageName = ruleData.getString(KeyValueStrings.PACKAGE_NAME.getValue());
-        String notificationTitle = ruleData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
-        String notificationContent = ruleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
+        String ruleName = ruleData.getString(KeyStrings.ANALYSIS_RULE_NAME.v());
+        long ruleNo = ruleData.getLong(KeyStrings.ANALYSIS_RULE_NO.v());
+        String type = ruleData.getString(KeyStrings.ACCOUNT_TYPE.v());
+        long tagNo = ruleData.getLong(KeyStrings.TAG_NO.v());
+        String packageName = ruleData.getString(KeyStrings.PACKAGE_NAME.v());
+        String notificationTitle = ruleData.getString(KeyStrings.NOTIFICATION_TITLE.v());
+        String notificationContent = ruleData.getString(KeyStrings.NOTIFICATION_CONTENT.v());
 
         String where = Columns.RULE_NO + "=?";
         String[] whereArgs = {String.valueOf(ruleNo)};
@@ -139,9 +139,9 @@ public class RuleDataController {
         db.update(Tables.ANALYSIS_RULE.toString(), ruleValues, where, whereArgs);
 
         //修改记账类型专有的数据
-        if (type != null && type.equals(RunningAccountType.TRANSFER.toString())) {
-            String exportAccount = ruleData.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());
-            String importAccount = ruleData.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());
+        if (type != null && type.equals(AccountType.TRANSFER.toString())) {
+            String exportAccount = ruleData.getString(KeyStrings.ACCOUNT_EXPORT.v());
+            String importAccount = ruleData.getString(KeyStrings.ACCOUNT_IMPORT.v());
 
             ContentValues accountValues = new ContentValues();
             accountValues.put(Columns.EXPORT.toString(), exportAccount);

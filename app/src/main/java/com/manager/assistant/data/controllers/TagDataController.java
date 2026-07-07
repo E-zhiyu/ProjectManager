@@ -15,8 +15,8 @@ import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.Tables;
-import com.manager.assistant.generic_enums.KeyValueStrings;
-import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.generic_enums.KeyStrings;
+import com.manager.assistant.auxiliary.enums.AccountType;
 
 import org.jetbrains.annotations.Contract;
 
@@ -59,7 +59,7 @@ public class TagDataController {
             SQLiteDatabase db,
             long targetGroupNo,
             long excludedTagNo,
-            @Nullable RunningAccountType scopeType
+            @Nullable AccountType scopeType
     ) throws SQLiteException {
         StringBuilder selectionBuilder = new StringBuilder("1=1");
         List<String> selectionArgs = new ArrayList<>();
@@ -257,9 +257,9 @@ public class TagDataController {
         BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openWriteLink();
 
-        String tagName = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
-        int tagScope = dataBundle.getInt(KeyValueStrings.TAG_SCOPE.getValue());
-        long groupNo = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());
+        String tagName = dataBundle.getString(KeyStrings.TAG_NAME.v());
+        int tagScope = dataBundle.getInt(KeyStrings.TAG_SCOPE.v());
+        long groupNo = dataBundle.getLong(KeyStrings.TAG_GROUP_NO.v());
 
         ContentValues tagValues = new ContentValues();
         tagValues.put(Columns.TAG_NAME.toString(), tagName);
@@ -280,10 +280,10 @@ public class TagDataController {
      */
     public static void modifyTag(@NonNull Bundle dataBundle, Context context) throws SQLiteException {
         //解析数据包
-        String tagName = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
-        int tagScope = dataBundle.getInt(KeyValueStrings.TAG_SCOPE.getValue());
-        long newGroupNo = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO_NEW.getValue());
-        long tagNo = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
+        String tagName = dataBundle.getString(KeyStrings.TAG_NAME.v());
+        int tagScope = dataBundle.getInt(KeyStrings.TAG_SCOPE.v());
+        long newGroupNo = dataBundle.getLong(KeyStrings.TAG_GROUP_NO_NEW.v());
+        long tagNo = dataBundle.getLong(KeyStrings.TAG_NO.v());
 
         ContentValues tagValues = new ContentValues();
         tagValues.put(Columns.TAG_NAME.toString(), tagName);

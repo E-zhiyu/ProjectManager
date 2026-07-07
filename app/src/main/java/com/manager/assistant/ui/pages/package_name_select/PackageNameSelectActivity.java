@@ -27,7 +27,7 @@ import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.AppListHelper;
-import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.ui.others.adapters.SearchHistoryAdapter;
 
 import java.util.ArrayList;
@@ -349,7 +349,7 @@ public class PackageNameSelectActivity extends AppCompatActivity {
      */
     private void onAppClicked(String packageName) {
         Intent result2RuleAddActivity = new Intent();
-        result2RuleAddActivity.putExtra(KeyValueStrings.PACKAGE_NAME.getValue(), packageName);
+        result2RuleAddActivity.putExtra(KeyStrings.PACKAGE_NAME.v(), packageName);
         setResult(Activity.RESULT_OK, result2RuleAddActivity);
         finish();
     }

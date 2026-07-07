@@ -65,7 +65,7 @@ public class ManagerAssistant extends Application {
                 } catch (ExecutionException | InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                Log.d(LogTags.WORK_STATS.getV(), "State: " + info.getState());
+                Log.d(LogTags.WORK_STATS.n(), "State: " + info.getState());
             }
 
             //启动时检测是否有需要删除的安装包
@@ -73,10 +73,10 @@ public class ManagerAssistant extends Application {
             if (!apkUri.isEmpty()) {
                 File apkFile = new File(Objects.requireNonNull(Uri.parse(apkUri).getPath()));
                 if (apkFile.exists() && apkFile.delete()) {
-                    Log.d(LogTags.APPLICATION.getV(), String.format(Locale.getDefault(), "成功删除“%s”", apkFile.getName()));
+                    Log.d(LogTags.APPLICATION.n(), String.format(Locale.getDefault(), "成功删除“%s”", apkFile.getName()));
                     VersionPreference.setApkUri(this, "");
                 } else {
-                    Log.w(LogTags.APPLICATION.getV(), String.format(Locale.getDefault(), "“%s”删除失败", apkFile.getName()));
+                    Log.w(LogTags.APPLICATION.n(), String.format(Locale.getDefault(), "“%s”删除失败", apkFile.getName()));
                 }
             }
         }

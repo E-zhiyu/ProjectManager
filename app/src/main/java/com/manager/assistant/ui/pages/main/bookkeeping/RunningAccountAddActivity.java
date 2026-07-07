@@ -26,13 +26,12 @@ import com.manager.assistant.ui.others.adapters.FragmentPagerAdapter;
 import com.manager.assistant.databinding.ActivityRunningAccountAddBinding;
 import com.manager.assistant.generic_enums.DirectoryPaths;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.ui.pages.main.bookkeeping.fragments.ExpenseFragment;
 import com.manager.assistant.ui.pages.main.bookkeeping.fragments.IncomeFragment;
 import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountFragmentBase;
 import com.manager.assistant.ui.pages.main.bookkeeping.fragments.TransferFragment;
 import com.manager.assistant.generic_enums.RequestResultCode;
-import com.manager.assistant.ui.pages.picture.PictureAdapter;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -71,8 +70,8 @@ public class RunningAccountAddActivity extends AppCompatActivity {
                         finish();
                         return;
                     }
-                    PictureAdapter pictureAdapter = fragment.getPictureAdapter();
-                    if (pictureAdapter.isDeleteMode()) {
+                    AccountPictureAdapter accountPictureAdapter = fragment.getPictureAdapter();
+                    if (accountPictureAdapter.isDeleteMode()) {
                         //使用ViewModel通知所有适配器更新状态
                         AccountPictureViewModel viewModel = new ViewModelProvider(RunningAccountAddActivity.this).get(AccountPictureViewModel.class);
                         viewModel.updateAdapterStat(false);
@@ -160,7 +159,7 @@ public class RunningAccountAddActivity extends AppCompatActivity {
         long rno;
         try {
             rno = AccountDataController.saveNewAccount(dataBundle, this);
-            dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
+            dataBundle.putLong(KeyStrings.ACCOUNT_ID.v(), rno);
             moveTempPictures(rno);
         } catch (SQLiteException e) {
             ExceptionHelper.showExceptionDialog(this, e);
@@ -179,8 +178,8 @@ public class RunningAccountAddActivity extends AppCompatActivity {
      */
     private void moveTempPictures(long rno) {
         //获取文件目录
-        File tempPictureDir = DirectoryPaths.PICTURE_TEMP.getDir(this);
-        File permanentPictureDir = DirectoryPaths.PICTURE.getDir(this);
+        File tempPictureDir = DirectoryPaths.MEDIA_TEMP.getDir(this);
+        File permanentPictureDir = DirectoryPaths.MEDIA.getDir(this);
 
         //移动文件
         List<File> filesOnMovedList = new ArrayList<>();    //成功移动的文件列表

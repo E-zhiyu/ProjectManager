@@ -1,6 +1,8 @@
 package com.manager.assistant.generic_enums;
 
 public enum LogTags {
+    FILE_HELPER("FileHelper"),
+    ACCOUNT_INPUT("RunningAccountInputActivity"),
     HOME_PAGE("HomePage"),
     NOTIFICATION_SERVICE("NotificationService"),
     RULE_UPDATE_RECEIVER("RuleUpdateReceiver"),
@@ -8,14 +10,11 @@ public enum LogTags {
     SETTING_FRAGMENT("SettingFragment"),
     BACKUP_WORKER("BackupWorker"),
     WORK_STATS("WorkStats"),
-    CAMERA_ACTIVITY("CameraActivity"),
     PICTURE_HELPER("PictureHelper"),
     ACCOUNT_FRAGMENT("AccountFragment"),
-    PICTURE_ADAPTER("PictureAdapter"),
     ACCOUNT_DATA_HELPER("AccountDataHelper"),
     DB("Database"),
     APPLICATION("Application"),
-    ACCOUNT_ADAPTER("AccountRecyclerAdapter"),
     BUDGET_RESET_RECEIVER("BudgetResetReceiver"),
     BOOT_RECEIVER("BootReceiver"),
     PERMISSION_HELPER("PermissionHelper"),
@@ -28,7 +27,7 @@ public enum LogTags {
         this.v = v;
     }
 
-    public String getV() {
+    public String n() {
         return v;
     }
 }

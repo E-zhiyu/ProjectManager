@@ -53,4 +53,13 @@ public class MediaEntity {
     public void setAccountId(long accountId) {
         this.accountId = accountId;
     }
+
+    /**
+     * 获取与 Uri 相关的哈希值作为适配器多选的 ID，由于不含主键，因此还适用于临时媒体文件阶段
+     *
+     * @return {@link #fileUri#hashCode()}得到的哈希值
+     */
+    public long getItemId() {
+        return fileUri.hashCode();
+    }
 }

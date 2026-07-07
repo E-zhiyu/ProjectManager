@@ -183,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() == 0 && binding.searchView.getEditText().hasFocus()) {
-                    Log.d(LogTags.MAIN_ACTIVITY.getV(), "搜索结果变为空，请求刷新界面");
+                    Log.d(LogTags.MAIN_ACTIVITY.n(), "搜索结果变为空，请求刷新界面");
                     AccountSearchViewModel viewModel = new ViewModelProvider(MainActivity.this).get(AccountSearchViewModel.class);
                     viewModel.updateSearchText("");
                 }

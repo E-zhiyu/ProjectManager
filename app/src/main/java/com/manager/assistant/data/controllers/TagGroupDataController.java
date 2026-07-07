@@ -14,7 +14,7 @@ import com.manager.assistant.data.classes.TagGroup;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.Tables;
-import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.auxiliary.enums.AccountType;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -107,7 +107,7 @@ public class TagGroupDataController {
     public static Map<TagGroup, List<Tag>> loadTagGroup(
             Context context,
             long excludedTagNo,
-            @Nullable RunningAccountType scopeType
+            @Nullable AccountType scopeType
     ) throws SQLiteException {
         BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
         SQLiteDatabase db = dbHelper.openReadLink();

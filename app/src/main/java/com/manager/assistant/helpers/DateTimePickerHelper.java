@@ -17,6 +17,7 @@ import com.manager.assistant.generic_enums.TagString;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneOffset;
 
 public class DateTimePickerHelper {
@@ -75,7 +76,7 @@ public class DateTimePickerHelper {
         dateRangePicker.addOnPositiveButtonClickListener(listener);
 
         //显示对话框
-        dateRangePicker.show(fragmentManager, TagString.DATE_PICKER.getValue());
+        dateRangePicker.show(fragmentManager, TagString.DATE_PICKER.getTag());
     }
 
     /**
@@ -111,17 +112,17 @@ public class DateTimePickerHelper {
         datePicker.addOnPositiveButtonClickListener(listener);
 
         //显示对话框
-        datePicker.show(fragmentManager, TagString.DATE_PICKER.getValue());
+        datePicker.show(fragmentManager, TagString.DATE_PICKER.getTag());
     }
 
     /**
      * 选择日期和时间
      *
-     * @param dateTime        初始化的日期和时间
+     * @param initTime        初始化的时间
      * @param fragmentManager 显示对话框所需的FragmentManager
      */
     public static void selectDateTime(
-            LocalDateTime dateTime,
+            LocalTime initTime,
             FragmentManager fragmentManager,
             OnTimePickerPositiveBtnClickedListener listener
     ) {
@@ -132,10 +133,10 @@ public class DateTimePickerHelper {
         timeBuilder.setTitleText("选择时间");
 
         //初始化选择的时间
-        if (dateTime != null) {
-            int initHour = dateTime.getHour();                  //获取小时
+        if (initTime != null) {
+            int initHour = initTime.getHour();                  //获取小时
             timeBuilder.setHour(initHour);
-            int initMinute = dateTime.getMinute();              //获取分钟
+            int initMinute = initTime.getMinute();              //获取分钟
             timeBuilder.setMinute(initMinute);
         }
 
@@ -144,7 +145,7 @@ public class DateTimePickerHelper {
         timePicker.addOnPositiveButtonClickListener(v -> listener.onClicked(timePicker));
 
         //显示时间选择器
-        timePicker.show(fragmentManager, TagString.TIME_PICKER.getValue());
+        timePicker.show(fragmentManager, TagString.TIME_PICKER.getTag());
     }
 
     /**

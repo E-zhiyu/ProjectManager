@@ -21,7 +21,7 @@ import com.manager.assistant.databinding.ActivityTagManageBinding;
 import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.classes.TagGroup;
 import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
@@ -94,14 +94,14 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
         Intent skip2ModifyTag = new Intent(this, TagAddModifyActivity.class);
         Bundle clickedTagData = new Bundle();
 
-        clickedTagData.putString(KeyValueStrings.TAG_NAME.getValue(), tag.getName());
-        clickedTagData.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), group.getGroupName());
-        clickedTagData.putLong(KeyValueStrings.TAG_NO.getValue(), tag.getTno());
-        clickedTagData.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), group.getGroupNo());
-        clickedTagData.putInt(KeyValueStrings.TAG_SCOPE.getValue(), tag.getScope());
+        clickedTagData.putString(KeyStrings.TAG_NAME.v(), tag.getName());
+        clickedTagData.putString(KeyStrings.TAG_GROUP_NAME.v(), group.getGroupName());
+        clickedTagData.putLong(KeyStrings.TAG_NO.v(), tag.getTno());
+        clickedTagData.putLong(KeyStrings.TAG_GROUP_NO.v(), group.getGroupNo());
+        clickedTagData.putInt(KeyStrings.TAG_SCOPE.v(), tag.getScope());
 
         skip2ModifyTag.putExtras(clickedTagData);
-        skip2ModifyTag.putExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), true);
+        skip2ModifyTag.putExtra(KeyStrings.IS_MODIFY_MODE.v(), true);
         tagModifyLauncher.launch(skip2ModifyTag);
     }
 
@@ -110,8 +110,8 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
         Intent skip2GroupModify = new Intent(this, GroupModifyActivity.class);
         Bundle clickedGroupData = new Bundle();
 
-        clickedGroupData.putString(KeyValueStrings.TAG_GROUP_NAME.getValue(), group.getGroupName());
-        clickedGroupData.putLong(KeyValueStrings.TAG_GROUP_NO.getValue(), group.getGroupNo());
+        clickedGroupData.putString(KeyStrings.TAG_GROUP_NAME.v(), group.getGroupName());
+        clickedGroupData.putLong(KeyStrings.TAG_GROUP_NO.v(), group.getGroupNo());
 
         skip2GroupModify.putExtras(clickedGroupData);
         modifyGroupLauncher.launch(skip2GroupModify);
@@ -137,7 +137,7 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
         //设置按钮点击监听
         binding.addFloatingBtn.setOnClickListener(v -> {
             Intent skip2TagAdd = new Intent(this, TagAddModifyActivity.class);
-            skip2TagAdd.putExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), false);
+            skip2TagAdd.putExtra(KeyStrings.IS_MODIFY_MODE.v(), false);
             tagAddLauncher.launch(skip2TagAdd);
         });
 
@@ -262,11 +262,11 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
             return;
         }
 
-        String tagName = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());
-        String groupName = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
-        int tagScope = dataBundle.getInt(KeyValueStrings.TAG_SCOPE.getValue());
-        long tagNo = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue(), 0L);
-        long groupNo = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue(), 0L);
+        String tagName = dataBundle.getString(KeyStrings.TAG_NAME.v());
+        String groupName = dataBundle.getString(KeyStrings.TAG_GROUP_NAME.v());
+        int tagScope = dataBundle.getInt(KeyStrings.TAG_SCOPE.v());
+        long tagNo = dataBundle.getLong(KeyStrings.TAG_NO.v(), 0L);
+        long groupNo = dataBundle.getLong(KeyStrings.TAG_GROUP_NO.v(), 0L);
         if (tagNo == 0L) {
             return;
         }
@@ -318,12 +318,12 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
         }
 
         //解析数据包
-        long tagNo = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());                     //标签编号
-        long oldGroupNo = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());          //原分组编号
-        long newGroupNo = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO_NEW.getValue());      //新分组编号
-        String groupName = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());     //分组名称
-        String tagName = dataBundle.getString(KeyValueStrings.TAG_NAME.getValue());             //标签名称
-        int tagScope = dataBundle.getInt(KeyValueStrings.TAG_SCOPE.getValue());                 //标签作用域
+        long tagNo = dataBundle.getLong(KeyStrings.TAG_NO.v());                     //标签编号
+        long oldGroupNo = dataBundle.getLong(KeyStrings.TAG_GROUP_NO.v());          //原分组编号
+        long newGroupNo = dataBundle.getLong(KeyStrings.TAG_GROUP_NO_NEW.v());      //新分组编号
+        String groupName = dataBundle.getString(KeyStrings.TAG_GROUP_NAME.v());     //分组名称
+        String tagName = dataBundle.getString(KeyStrings.TAG_NAME.v());             //标签名称
+        int tagScope = dataBundle.getInt(KeyStrings.TAG_SCOPE.v());                 //标签作用域
 
         //执行操作
         if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
@@ -408,9 +408,9 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
             return;
         }
 
-        long groupNo = dataBundle.getLong(KeyValueStrings.TAG_GROUP_NO.getValue());
+        long groupNo = dataBundle.getLong(KeyStrings.TAG_GROUP_NO.v());
         if (resultCode == RequestResultCode.RESULT_OK.ordinal()) {
-            String newGroupName = dataBundle.getString(KeyValueStrings.TAG_GROUP_NAME.getValue());
+            String newGroupName = dataBundle.getString(KeyStrings.TAG_GROUP_NAME.v());
 
             //修改视图中的分组并保存
             AdapterContainer container = adapterContainerMap.get(groupNo);
@@ -439,7 +439,7 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
             adapter.removeAdapter(oldContainer.tagAdapter);
 
             //更新现有的适配器
-            long mergeTargetNo = dataBundle.getLong(KeyValueStrings.MERGE_TARGET_NO.getValue());
+            long mergeTargetNo = dataBundle.getLong(KeyStrings.MERGE_TARGET_NO.v());
             AdapterContainer newContainer = adapterContainerMap.get(mergeTargetNo);
             if (newContainer != null) {
                 newContainer.tagAdapter.addTag(tagList);

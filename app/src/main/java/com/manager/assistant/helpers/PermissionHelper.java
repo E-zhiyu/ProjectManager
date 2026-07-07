@@ -224,12 +224,12 @@ public class PermissionHelper {
     private void processNextSpecial() {
         //判断特殊权限是否申请完毕
         if (specialQueue.isEmpty()) {
-            Log.i(LogTags.PERMISSION_HELPER.getV(), "特殊应用权限申请完毕");
+            Log.i(LogTags.PERMISSION_HELPER.n(), "特殊应用权限申请完毕");
             return;
         }
 
         //从队列中取出一个特殊应用权限请求
-        Log.d(LogTags.PERMISSION_HELPER.getV(), "正在处理下个特殊应用权限");
+        Log.d(LogTags.PERMISSION_HELPER.n(), "正在处理下个特殊应用权限");
         isProcessing = true;         //标记为正在处理
         PermissionRequest request = specialQueue.poll();
         if (request == null) {
@@ -248,7 +248,7 @@ public class PermissionHelper {
      */
     private void handleSpecialPermission(@NonNull PermissionRequest request) {
         SpecialPermissionType type = request.permission;
-        Log.d(LogTags.PERMISSION_HELPER.getV(), request.customTitle);
+        Log.d(LogTags.PERMISSION_HELPER.n(), request.customTitle);
         if (type.isGranted(activity)) {
             processNextSpecial();
         } else {

@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.notification_analysis;
+package com.manager.assistant.ui.pages.rule;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,10 +9,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.databinding.ViewHolderAnalysisRuleBinding;
-import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.data.classes.AnalysisRule;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
-import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.auxiliary.enums.AccountType;
 import com.manager.assistant.data.classes.Tag;
 
 import java.util.List;
@@ -78,7 +78,7 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
         //获取规则数据
         AnalysisRule rule = ruleList.get(position);
         String ruleName = rule.getRuleName();
-        RunningAccountType type = rule.getType();
+        AccountType type = rule.getType();
         Tag ruleTag = TagDataController.getTagByRuleNo(rule.getRuleNo(), holder.itemView.getContext());
 
         //初始化规则视图
@@ -103,12 +103,12 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
      */
     public void addRule(@NonNull Bundle newRuleData) {
         //解析规则数据
-        String ruleName = newRuleData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());
-        RunningAccountType type = RunningAccountType.valueOf(newRuleData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-        String packageName = newRuleData.getString(KeyValueStrings.PACKAGE_NAME.getValue());
-        String notificationTitle = newRuleData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
-        String notificationContent = newRuleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
-        long ruleNo = newRuleData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());
+        String ruleName = newRuleData.getString(KeyStrings.ANALYSIS_RULE_NAME.v());
+        AccountType type = AccountType.valueOf(newRuleData.getString(KeyStrings.ACCOUNT_TYPE.v()));
+        String packageName = newRuleData.getString(KeyStrings.PACKAGE_NAME.v());
+        String notificationTitle = newRuleData.getString(KeyStrings.NOTIFICATION_TITLE.v());
+        String notificationContent = newRuleData.getString(KeyStrings.NOTIFICATION_CONTENT.v());
+        long ruleNo = newRuleData.getLong(KeyStrings.ANALYSIS_RULE_NO.v());
 
         //刷新视图
         AnalysisRule newRule = new AnalysisRule(ruleName, ruleNo, type, packageName, notificationTitle, notificationContent);
@@ -126,13 +126,13 @@ public class AnalysisRuleAdapter extends RecyclerView.Adapter<AnalysisRuleAdapte
      */
     public void modifyRule(@NonNull Bundle modifiedRuleData) {
         //解析规则数据
-        int position = modifiedRuleData.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
-        String ruleName = modifiedRuleData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());
-        long ruleNo = modifiedRuleData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());
-        RunningAccountType type = RunningAccountType.valueOf(modifiedRuleData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-        String packageName = modifiedRuleData.getString(KeyValueStrings.PACKAGE_NAME.getValue());
-        String notificationTitle = modifiedRuleData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());
-        String notificationContent = modifiedRuleData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());
+        int position = modifiedRuleData.getInt(KeyStrings.VIEW_HOLDER_POSITION.v());
+        String ruleName = modifiedRuleData.getString(KeyStrings.ANALYSIS_RULE_NAME.v());
+        long ruleNo = modifiedRuleData.getLong(KeyStrings.ANALYSIS_RULE_NO.v());
+        AccountType type = AccountType.valueOf(modifiedRuleData.getString(KeyStrings.ACCOUNT_TYPE.v()));
+        String packageName = modifiedRuleData.getString(KeyStrings.PACKAGE_NAME.v());
+        String notificationTitle = modifiedRuleData.getString(KeyStrings.NOTIFICATION_TITLE.v());
+        String notificationContent = modifiedRuleData.getString(KeyStrings.NOTIFICATION_CONTENT.v());
 
         //更新UI
         AnalysisRule modifiedRule = new AnalysisRule(ruleName, ruleNo, type, packageName, notificationTitle, notificationContent);

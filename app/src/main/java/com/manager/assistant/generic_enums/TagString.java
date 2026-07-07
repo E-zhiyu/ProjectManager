@@ -2,6 +2,7 @@ package com.manager.assistant.generic_enums;
 
 //用作视图Tag的枚举类
 public enum TagString {
+    MEDIA_SELECTION("media_selection"),     //媒体多选追踪器
     ACCOUNT_FRAGMENT("account_fragment"),   //流水记录输入Fragment
     TIME_PICKER("time_picker"),             //时间选择弹窗
     DATE_PICKER("date_picker"),             //日期选择弹窗
@@ -15,7 +16,7 @@ public enum TagString {
         this.value = value;
     }
 
-    public String getValue() {
+    public String getTag() {
         return value;
     }
 }

@@ -1,11 +1,26 @@
 package com.manager.assistant.data.save.db.entities;
 
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.Index;
 
 @Entity(
         tableName = "accountTagRef",
         primaryKeys = {"accountId", "tagId"},
+        foreignKeys = {
+                @ForeignKey(
+                        entity = AccountEntity.class,
+                        parentColumns = "accountId",
+                        childColumns = "accountId",
+                        onDelete = ForeignKey.CASCADE
+                ),
+                @ForeignKey(
+                        entity = TagEntity.class,
+                        parentColumns = "tagId",
+                        childColumns = "tagId",
+                        onDelete = ForeignKey.CASCADE
+                )
+        },
         indices = {
                 @Index(value = "accountId"),
                 @Index(value = "tagId")

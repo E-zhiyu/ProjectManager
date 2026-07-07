@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.notification_analysis;
+package com.manager.assistant.ui.pages.rule;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -29,12 +29,12 @@ import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.databinding.ActivityRuleAddModifyBinding;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.animators.ExpandFoldAnimator;
 import com.manager.assistant.ui.pages.package_name_select.PackageNameSelectActivity;
-import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.auxiliary.enums.AccountType;
 import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
 import com.manager.assistant.ui.sync.tag.TagUpdateReason;
@@ -54,7 +54,7 @@ public class RuleAddModifyActivity extends AppCompatActivity {
     private int viewHolderPosition;                                 //规则ViewHolder下标
     private long ruleNo;                                            //规则编号
     private long tagNo = 0;                                         //标签编号
-    private RunningAccountType type = RunningAccountType.EXPENSE;   //流水种类
+    private AccountType type = AccountType.EXPENSE;   //流水种类
     private TagSelectBottomSheet tagSheet;                          //标签选择弹出菜单
     private ActivityResultLauncher<Intent> packageNameSelectLauncher;   //包名选择启动器
     private ActivityRuleAddModifyBinding binding;                   //绑定的XML视图引用
@@ -98,21 +98,21 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         //流水种类
         NoFilteringArrayAdapter<String> typeAdapter = new NoFilteringArrayAdapter<>(
                 this,
-                Arrays.stream(RunningAccountType.values())
-                        .map(RunningAccountType::getTitle)
+                Arrays.stream(AccountType.values())
+                        .map(AccountType::getTitle)
                         .toArray(String[]::new)
         );
         binding.typeInput.setText(type.getTitle());
         binding.typeInput.setAdapter(typeAdapter);
         binding.typeInput.setOnItemClickListener(
                 (parent, view, position, id) -> {
-                    if (position == RunningAccountType.TRANSFER.ordinal() && type != RunningAccountType.TRANSFER) {
+                    if (position == AccountType.TRANSFER.ordinal() && type != AccountType.TRANSFER) {
                         ExpandFoldAnimator.expand(binding.transferInputLayout);
-                    } else if (position != RunningAccountType.TRANSFER.ordinal() && type == RunningAccountType.TRANSFER) {
+                    } else if (position != AccountType.TRANSFER.ordinal() && type == AccountType.TRANSFER) {
                         ExpandFoldAnimator.collapse(binding.transferInputLayout);
                     }
 
-                    type = RunningAccountType.values()[position];
+                    type = AccountType.values()[position];
                 }
         );
 
@@ -154,12 +154,12 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         binding.tagInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, type);
-                tagSheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
+                tagSheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getTag());
             }
         });
         binding.tagInput.setOnClickListener(v -> {
             tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, type);
-            tagSheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getValue());
+            tagSheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getTag());
         });
 
         //包名
@@ -193,7 +193,7 @@ public class RuleAddModifyActivity extends AppCompatActivity {
                     try {
                         ruleNo = RuleDataController.saveNewRule(dataBundle, this);
                         Toast.makeText(this, "解析规则添加成功", Toast.LENGTH_SHORT).show();
-                        dataBundle.putLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue(), ruleNo);
+                        dataBundle.putLong(KeyStrings.ANALYSIS_RULE_NO.v(), ruleNo);
 
                         //发送规则更新广播
                         Intent ruleUpdated = new Intent(BroadcastActions.ACTION_RULES_UPDATED.toString());
@@ -314,7 +314,7 @@ public class RuleAddModifyActivity extends AppCompatActivity {
      */
     private void receiveInitData() {
         Bundle initData = getIntent().getExtras();
-        isModifyMode = getIntent().getBooleanExtra(KeyValueStrings.IS_MODIFY_MODE.getValue(), false);
+        isModifyMode = getIntent().getBooleanExtra(KeyStrings.IS_MODIFY_MODE.v(), false);
         if (initData != null && isModifyMode) {
             MaterialButton deleteBtn = binding.deleteBtn;
             deleteBtn.setVisibility(View.VISIBLE);
@@ -322,16 +322,16 @@ public class RuleAddModifyActivity extends AppCompatActivity {
             binding.toolbar.setTitle(R.string.modify_rule);
 
             //解析数据
-            String ruleName = initData.getString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue());                //规则名称
-            ruleNo = initData.getLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue());                            //规则编号
-            viewHolderPosition = initData.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());              //视图下标
-            type = RunningAccountType.valueOf(initData.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));     //流水种类
+            String ruleName = initData.getString(KeyStrings.ANALYSIS_RULE_NAME.v());                //规则名称
+            ruleNo = initData.getLong(KeyStrings.ANALYSIS_RULE_NO.v());                            //规则编号
+            viewHolderPosition = initData.getInt(KeyStrings.VIEW_HOLDER_POSITION.v());              //视图下标
+            type = AccountType.valueOf(initData.getString(KeyStrings.ACCOUNT_TYPE.v()));     //流水种类
             Tag ruleTag = TagDataController.getTagByRuleNo(ruleNo, this);                              //标签
             tagNo = ruleTag.getTno();
-            String packageName = initData.getString(KeyValueStrings.PACKAGE_NAME.getValue());                   //包名
-            String notificationTitle = initData.getString(KeyValueStrings.NOTIFICATION_TITLE.getValue());       //通知标题
-            String notificationContent = initData.getString(KeyValueStrings.NOTIFICATION_CONTENT.getValue());   //通知内容
-            if (type == RunningAccountType.TRANSFER) {                                                          //转账账户信息
+            String packageName = initData.getString(KeyStrings.PACKAGE_NAME.v());                   //包名
+            String notificationTitle = initData.getString(KeyStrings.NOTIFICATION_TITLE.v());       //通知标题
+            String notificationContent = initData.getString(KeyStrings.NOTIFICATION_CONTENT.v());   //通知内容
+            if (type == AccountType.TRANSFER) {                                                          //转账账户信息
                 binding.transferInputLayout.setVisibility(View.VISIBLE);
                 List<String> transferAccountInfo = RuleDataController.getTransferAccounts(ruleNo, this);
                 if (!transferAccountInfo.isEmpty()) {
@@ -371,7 +371,7 @@ public class RuleAddModifyActivity extends AppCompatActivity {
 
     //处理包名选择方法
     private void onPackageNameSelected(@NonNull Intent data) {
-        String packageName = data.getStringExtra(KeyValueStrings.PACKAGE_NAME.getValue());
+        String packageName = data.getStringExtra(KeyStrings.PACKAGE_NAME.v());
         binding.packageNameInput.setText(packageName);
         binding.packageNameLayout.setError(null);
     }
@@ -429,10 +429,10 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         if (String.valueOf(binding.ruleNameInput.getText()).isEmpty()) {
             errLayout = binding.ruleNameLayout;
             err = "规则名称不能为空";
-        } else if (String.valueOf(binding.exportAccountInput.getText()).isEmpty() && type == RunningAccountType.TRANSFER) {
+        } else if (String.valueOf(binding.exportAccountInput.getText()).isEmpty() && type == AccountType.TRANSFER) {
             errLayout = binding.exportAccountLayout;
             err = "转出账户不能为空";
-        } else if (String.valueOf(binding.importAccountInput.getText()).isEmpty() && type == RunningAccountType.TRANSFER) {
+        } else if (String.valueOf(binding.importAccountInput.getText()).isEmpty() && type == AccountType.TRANSFER) {
             errLayout = binding.importAccountLayout;
             err = "转入账户不能为空";
         } else if (String.valueOf(binding.packageNameInput.getText()).isEmpty()) {
@@ -482,24 +482,24 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         String notificationTitle = String.valueOf(binding.notificationTitleInput.getText());
         String notificationContent = String.valueOf(binding.notificationContentInput.getText());
 
-        dataBundle.putString(KeyValueStrings.ANALYSIS_RULE_NAME.getValue(), ruleName);
-        dataBundle.putString(KeyValueStrings.ACCOUNT_TYPE.getValue(), type.toString());
-        dataBundle.putLong(KeyValueStrings.TAG_NO.getValue(), tagNo);
-        dataBundle.putString(KeyValueStrings.PACKAGE_NAME.getValue(), packageName);
-        dataBundle.putString(KeyValueStrings.NOTIFICATION_TITLE.getValue(), notificationTitle);
-        dataBundle.putString(KeyValueStrings.NOTIFICATION_CONTENT.getValue(), notificationContent);
+        dataBundle.putString(KeyStrings.ANALYSIS_RULE_NAME.v(), ruleName);
+        dataBundle.putString(KeyStrings.ACCOUNT_TYPE.v(), type.toString());
+        dataBundle.putLong(KeyStrings.TAG_NO.v(), tagNo);
+        dataBundle.putString(KeyStrings.PACKAGE_NAME.v(), packageName);
+        dataBundle.putString(KeyStrings.NOTIFICATION_TITLE.v(), notificationTitle);
+        dataBundle.putString(KeyStrings.NOTIFICATION_CONTENT.v(), notificationContent);
 
         //写入转账相关的数据
-        if (type == RunningAccountType.TRANSFER) {
+        if (type == AccountType.TRANSFER) {
             String exportAccount = String.valueOf(binding.exportAccountInput.getText());
             String importAccount = String.valueOf(binding.importAccountInput.getText());
-            dataBundle.putString(KeyValueStrings.ACCOUNT_EXPORT.getValue(), exportAccount);
-            dataBundle.putString(KeyValueStrings.ACCOUNT_IMPORT.getValue(), importAccount);
+            dataBundle.putString(KeyStrings.ACCOUNT_EXPORT.v(), exportAccount);
+            dataBundle.putString(KeyStrings.ACCOUNT_IMPORT.v(), importAccount);
         }
 
         if (isModifyMode) {
-            dataBundle.putInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), viewHolderPosition);
-            dataBundle.putLong(KeyValueStrings.ANALYSIS_RULE_NO.getValue(), ruleNo);
+            dataBundle.putInt(KeyStrings.VIEW_HOLDER_POSITION.v(), viewHolderPosition);
+            dataBundle.putLong(KeyStrings.ANALYSIS_RULE_NO.v(), ruleNo);
         }
 
         return dataBundle;

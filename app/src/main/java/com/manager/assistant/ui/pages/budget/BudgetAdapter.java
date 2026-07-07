@@ -15,7 +15,7 @@ import com.manager.assistant.data.classes.Budget;
 import com.manager.assistant.data.controllers.BudgetDataController;
 import com.manager.assistant.databinding.ViewHolderBudgetBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.ui.sync.budget.BudgetRepository;
 import com.manager.assistant.ui.sync.budget.BudgetUpdateReason;
@@ -192,13 +192,13 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
      * @param dataBundle 新预算的数据包
      */
     public void addBudget(@NonNull Bundle dataBundle) {
-        long bno = dataBundle.getLong(KeyValueStrings.BNO.getValue());                                      //预算编号
-        String name = dataBundle.getString(KeyValueStrings.BUDGET_NAME.getValue());                         //预算名称
-        double initAmount = dataBundle.getDouble(KeyValueStrings.INIT_AMOUNT.getValue());                   //初始金额
-        String startDate = dataBundle.getString(KeyValueStrings.START_DATE.getValue());                     //起算日期
-        String resetFrequencyStr = dataBundle.getString(KeyValueStrings.BUDGET_RESET_FREQUENCY.getValue()); //重置频率
+        long bno = dataBundle.getLong(KeyStrings.BNO.v());                                      //预算编号
+        String name = dataBundle.getString(KeyStrings.BUDGET_NAME.v());                         //预算名称
+        double initAmount = dataBundle.getDouble(KeyStrings.INIT_AMOUNT.v());                   //初始金额
+        String startDate = dataBundle.getString(KeyStrings.START_DATE.v());                     //起算日期
+        String resetFrequencyStr = dataBundle.getString(KeyStrings.BUDGET_RESET_FREQUENCY.v()); //重置频率
         ResetFrequency resetFrequency = ResetFrequency.valueOf(resetFrequencyStr);
-        long[] tagNos = dataBundle.getLongArray(KeyValueStrings.TAG_NO.getValue());                         //预算标签
+        long[] tagNos = dataBundle.getLongArray(KeyStrings.TAG_NO.v());                         //预算标签
         if (tagNos == null) return;
         List<Long> tagNoList = Arrays.stream(tagNos)
                 .boxed()
@@ -219,21 +219,21 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
      * @param dataBundle 修改后的预算的数据包
      */
     public void modifyBudget(@NonNull Bundle dataBundle) {
-        long bno = dataBundle.getLong(KeyValueStrings.BNO.getValue());
-        String name = dataBundle.getString(KeyValueStrings.BUDGET_NAME.getValue());
-        double initAmount = dataBundle.getDouble(KeyValueStrings.INIT_AMOUNT.getValue());
-        double leftAmount = dataBundle.getDouble(KeyValueStrings.LEFT_AMOUNT.getValue());
-        String startDate = dataBundle.getString(KeyValueStrings.START_DATE.getValue());
-        String resetFrequencyStr = dataBundle.getString(KeyValueStrings.BUDGET_RESET_FREQUENCY.getValue());
+        long bno = dataBundle.getLong(KeyStrings.BNO.v());
+        String name = dataBundle.getString(KeyStrings.BUDGET_NAME.v());
+        double initAmount = dataBundle.getDouble(KeyStrings.INIT_AMOUNT.v());
+        double leftAmount = dataBundle.getDouble(KeyStrings.LEFT_AMOUNT.v());
+        String startDate = dataBundle.getString(KeyStrings.START_DATE.v());
+        String resetFrequencyStr = dataBundle.getString(KeyStrings.BUDGET_RESET_FREQUENCY.v());
         ResetFrequency resetFrequency = ResetFrequency.valueOf(resetFrequencyStr);
-        long[] tagNos = dataBundle.getLongArray(KeyValueStrings.TAG_NO.getValue());
+        long[] tagNos = dataBundle.getLongArray(KeyStrings.TAG_NO.v());
         if (tagNos == null) return;
         List<Long> tagNoList = Arrays.stream(tagNos)
                 .boxed()
                 .collect(Collectors.toList());
 
         //更新 UI
-        int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
+        int position = dataBundle.getInt(KeyStrings.VIEW_HOLDER_POSITION.v());
         Budget budget = new Budget(bno, name, initAmount, leftAmount, startDate, resetFrequency, tagNoList);
         budgetList.set(position, budget);
         notifyItemChanged(position);
@@ -248,7 +248,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
      */
     public void deleteBudget(@NonNull Bundle dataBundle) {
         //更新 UI
-        int position = dataBundle.getInt(KeyValueStrings.VIEW_HOLDER_POSITION.getValue());
+        int position = dataBundle.getInt(KeyStrings.VIEW_HOLDER_POSITION.v());
         budgetList.remove(position);
         notifyItemRemoved(position);
         BudgetRepository repository = BudgetRepository.getInstance();

@@ -54,7 +54,7 @@ public class BackupScheduler {
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-        Log.d(LogTags.WORK_STATS.getV(), "State: " + info.getState());
+        Log.d(LogTags.WORK_STATS.n(), "State: " + info.getState());
     }
 
     /**

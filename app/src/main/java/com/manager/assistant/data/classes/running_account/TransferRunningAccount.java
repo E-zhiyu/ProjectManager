@@ -2,7 +2,7 @@ package com.manager.assistant.data.classes.running_account;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.auxiliary.enums.AccountType;
 
 /**
  * 转账流水类
@@ -31,7 +31,7 @@ public class TransferRunningAccount extends RunningAccountBase {
     public TransferRunningAccount(@NonNull String remark, String dateTime, double amount, String exportAccount, String importAccount) {
         super();
         this.rno = -1;
-        this.type = RunningAccountType.TRANSFER;
+        this.type = AccountType.TRANSFER;
         this.title = "转账";
         this.remark = remark;
         this.datetime = dateTime;
@@ -53,7 +53,7 @@ public class TransferRunningAccount extends RunningAccountBase {
     public TransferRunningAccount(long rno, @NonNull String remark, String date_time, double amount, String exportAccount, String importAccount) {
         super();
         this.rno = rno;
-        this.type = RunningAccountType.TRANSFER;
+        this.type = AccountType.TRANSFER;
         this.title = "转账";
         this.remark = remark;
         this.datetime = date_time;

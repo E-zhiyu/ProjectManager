@@ -9,67 +9,11 @@
         <item name="titleTextAppearance">?attr/textAppearanceHeadlineSmall</item>
     </style>
 
-    <!-- 文本样式基类 -->
-    <style name="TextViewStyleBase">
-        <item name="android:paddingStart">10dp</item>
-        <item name="android:paddingEnd">10dp</item>
-        <item name="android:paddingTop">10dp</item>
-        <item name="android:paddingBottom">10dp</item>
-    </style>
-
-    <!-- 中等标题文本视图样式 -->
-    <style name="MediumTitleTextViewStyle" parent="TextViewStyleBase">
-        <item name="android:textAppearance">?attr/textAppearanceTitleMedium</item>
-    </style>
-
-    <!-- 大标题文本视图样式 -->
-    <style name="LargeTitleTextViewStyle" parent="TextViewStyleBase">
-        <item name="android:textAppearance">?attr/textAppearanceTitleLarge</item>
-    </style>
-
-    <!-- 大字号内容文本视图样式 -->
-    <style name="LargeBodyTextViewStyle" parent="TextViewStyleBase">
-        <item name="android:paddingStart">0dp</item>
-        <item name="android:paddingBottom">0dp</item>
-        <item name="android:paddingEnd">0dp</item>
-        <item name="android:paddingTop">0dp</item>
-        <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
-    </style>
-
-    <!-- 中等字号内容文本视图样式 -->
-    <style name="MediumBodyTextViewStyle" parent="TextViewStyleBase">
-        <item name="android:paddingStart">0dp</item>
-        <item name="android:paddingBottom">0dp</item>
-        <item name="android:paddingEnd">0dp</item>
-        <item name="android:paddingTop">0dp</item>
-        <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
-    </style>
-
-    <!-- 可点击的文本框样式 -->
-    <style name="ClickableTextViewStyle">
-        <item name="android:background">?attr/selectableItemBackground</item>
-        <item name="android:focusable">true</item>
-        <item name="android:clickable">true</item>
-        <item name="android:paddingTop">15dp</item>
-        <item name="android:paddingBottom">15dp</item>
-        <item name="android:textSize">17sp</item>
-        <item name="android:drawablePadding">15dp</item>
-        <item name="android:paddingStart">20dp</item>
-    </style>
-
-    <!-- 缩小版标签文本样式 -->
-    <style name="SmallTitleTextViewStyle" parent="TextViewStyleBase">
-        <item name="android:textAppearance">?attr/textAppearanceTitleSmall</item>
-    </style>
-
-    <!-- 提示文本视图样式 -->
-    <style name="TipTextViewStyle">
-        <item name="android:paddingTop">10dp</item>
-        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
-        <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
-        <item name="android:drawablePadding">10dp</item>
-        <item name="android:drawableStart">@drawable/outline_info_24</item>
-        <item name="drawableTint">?attr/colorOnSurfaceVariant</item>
+    <!-- 折叠标题栏布局样式 -->
+    <style name="CollapsingToolbarLayoutStyle" parent="Widget.Material3.CollapsingToolbar.Medium">
+        <item name="collapsedTitleGravity">start</item>
+        <item name="expandedTitleGravity">center_horizontal|bottom</item>
+        <item name="layout_scrollFlags">scroll|exitUntilCollapsed|snap</item>
     </style>
 
     <style name="CardStyleBase" parent="Widget.Material3.CardView.Filled">
@@ -171,9 +115,6 @@
 
     <!-- 普通文本框布局样式 -->
     <style name="CommonTextInputLayoutStyle" parent="Widget.Material3.TextInputLayout.OutlinedBox.Dense">
-        <item name="errorEnabled">true</item>
-        <item name="counterEnabled">true</item>
-        <item name="helperTextEnabled">true</item>
         <item name="android:layout_marginTop">4dp</item>
         <item name="android:layout_marginBottom">4dp</item>
         <item name="endIconDrawable">@drawable/baseline_clear_24</item>

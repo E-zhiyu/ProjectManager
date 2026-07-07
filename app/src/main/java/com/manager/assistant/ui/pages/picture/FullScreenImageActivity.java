@@ -10,7 +10,7 @@ import androidx.core.content.ContextCompat;
 
 import com.manager.assistant.databinding.ActivityFullScreenImageBinding;
 import com.manager.assistant.helpers.file.PictureFileHelper;
-import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.KeyStrings;
 
 import java.io.File;
 import java.util.Locale;
@@ -34,7 +34,7 @@ public class FullScreenImageActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         //获取传递的图片URI
-        pictureUriStrings = getIntent().getStringArrayExtra(KeyValueStrings.FILE_URI.getValue());
+        pictureUriStrings = getIntent().getStringArrayExtra(KeyStrings.FILE_URI.v());
 
         initViews();
     }
@@ -43,7 +43,7 @@ public class FullScreenImageActivity extends AppCompatActivity {
         FullScreenPictureAdapter adapter = new FullScreenPictureAdapter(pictureUriStrings);
         binding.viewPager2.setAdapter(adapter);
 
-        int start_index = getIntent().getIntExtra(KeyValueStrings.VIEW_HOLDER_POSITION.getValue(), 0);
+        int start_index = getIntent().getIntExtra(KeyStrings.VIEW_HOLDER_POSITION.v(), 0);
         binding.viewPager2.setCurrentItem(start_index, false);
 
         binding.savePictureBtn.setOnClickListener(v -> savePicture());

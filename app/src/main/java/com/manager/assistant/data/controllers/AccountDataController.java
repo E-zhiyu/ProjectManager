@@ -17,9 +17,9 @@ import com.manager.assistant.data.classes.running_account.TransferRunningAccount
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.Tables;
-import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.ui.others.bottom_sheets.filter.AccountFilterBottomSheet;
-import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.auxiliary.enums.AccountType;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -68,8 +68,8 @@ public class AccountDataController {
             selection.append(")");
 
             List<String> typeStringList = selectedTypeList.stream()
-                    .map(ordinal -> RunningAccountType.values()[ordinal])
-                    .map(RunningAccountType::toString)
+                    .map(ordinal -> AccountType.values()[ordinal])
+                    .map(AccountType::toString)
                     .collect(Collectors.toList());
             selectionArgList.addAll(typeStringList);
         }
@@ -152,7 +152,7 @@ public class AccountDataController {
             //金额
             double amount = basicCursor.getDouble(basicCursor.getColumnIndexOrThrow(Columns.AMOUNT.toString()));
             //种类
-            RunningAccountType type = RunningAccountType.valueOf(basicCursor.getString(basicCursor.getColumnIndexOrThrow(Columns.TYPE.toString())));
+            AccountType type = AccountType.valueOf(basicCursor.getString(basicCursor.getColumnIndexOrThrow(Columns.TYPE.toString())));
             //备注
             String remark = basicCursor.getString(basicCursor.getColumnIndexOrThrow(Columns.REMARK.toString()));
             if (remark == null) remark = "";
@@ -258,12 +258,12 @@ public class AccountDataController {
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         //读取数据包的数据
-        RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-        String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
+        AccountType type = AccountType.valueOf(dataBundle.getString(KeyStrings.ACCOUNT_TYPE.v()));
+        String remark = dataBundle.getString(KeyStrings.ACCOUNT_REMARK.v());
         if (remark == null) remark = "";
-        double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
-        String datetime = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
-        long tagNo = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
+        double amount = dataBundle.getDouble(KeyStrings.ACCOUNT_AMOUNT.v(), -1);
+        String datetime = dataBundle.getString(KeyStrings.ACCOUNT_DATETIME.v());
+        long tagNo = dataBundle.getLong(KeyStrings.TAG_NO.v());
 
         //生成ContentValues
         ContentValues basicValues = new ContentValues();
@@ -277,9 +277,9 @@ public class AccountDataController {
         long rno = db.insert(Tables.BASIC.toString(), null, basicValues);
 
         //判断是否为特殊类型
-        if (type == RunningAccountType.TRANSFER) {
-            String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());
-            String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());
+        if (type == AccountType.TRANSFER) {
+            String exportAccount = dataBundle.getString(KeyStrings.ACCOUNT_EXPORT.v());
+            String importAccount = dataBundle.getString(KeyStrings.ACCOUNT_IMPORT.v());
 
             ContentValues specialValues = new ContentValues();
             specialValues.put(Columns.EXPORT.toString(), exportAccount);
@@ -307,13 +307,13 @@ public class AccountDataController {
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         //解析数据
-        long rno = dataBundle.getLong(KeyValueStrings.ACCOUNT_NO.getValue());
-        RunningAccountType type = RunningAccountType.valueOf(dataBundle.getString(KeyValueStrings.ACCOUNT_TYPE.getValue()));
-        double amount = dataBundle.getDouble(KeyValueStrings.ACCOUNT_AMOUNT.getValue(), -1);
-        String remark = dataBundle.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
+        long rno = dataBundle.getLong(KeyStrings.ACCOUNT_ID.v());
+        AccountType type = AccountType.valueOf(dataBundle.getString(KeyStrings.ACCOUNT_TYPE.v()));
+        double amount = dataBundle.getDouble(KeyStrings.ACCOUNT_AMOUNT.v(), -1);
+        String remark = dataBundle.getString(KeyStrings.ACCOUNT_REMARK.v());
         if (remark == null) remark = "";
-        String datetime = dataBundle.getString(KeyValueStrings.ACCOUNT_DATETIME.getValue());
-        long tagNo = dataBundle.getLong(KeyValueStrings.TAG_NO.getValue());
+        String datetime = dataBundle.getString(KeyStrings.ACCOUNT_DATETIME.v());
+        long tagNo = dataBundle.getLong(KeyStrings.TAG_NO.v());
 
         //读取旧数据以便修改预算数据
         String[] columns = {
@@ -360,9 +360,9 @@ public class AccountDataController {
 
         //修改特殊数据
         ContentValues specialValues = new ContentValues();
-        if (type == RunningAccountType.TRANSFER) {
-            String exportAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_EXPORT.getValue());
-            String importAccount = dataBundle.getString(KeyValueStrings.ACCOUNT_IMPORT.getValue());
+        if (type == AccountType.TRANSFER) {
+            String exportAccount = dataBundle.getString(KeyStrings.ACCOUNT_EXPORT.v());
+            String importAccount = dataBundle.getString(KeyStrings.ACCOUNT_IMPORT.v());
 
             specialValues.put(Columns.EXPORT.toString(), exportAccount);
             specialValues.put(Columns.IMPORT.toString(), importAccount);
@@ -412,12 +412,12 @@ public class AccountDataController {
         long tagNo = 0;
         double amount = 0;
         String datetime = "1970-01-01 00:00";
-        RunningAccountType type = RunningAccountType.TRANSFER;
+        AccountType type = AccountType.TRANSFER;
         if (oldDataCursor.moveToFirst()) {
             tagNo = oldDataCursor.getLong(oldDataCursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
             amount = oldDataCursor.getDouble(oldDataCursor.getColumnIndexOrThrow(Columns.AMOUNT.toString()));
             datetime = oldDataCursor.getString(oldDataCursor.getColumnIndexOrThrow(Columns.DATETIME.toString()));
-            type = RunningAccountType.valueOf(oldDataCursor.getString(oldDataCursor.getColumnIndexOrThrow(Columns.TYPE.toString())));
+            type = AccountType.valueOf(oldDataCursor.getString(oldDataCursor.getColumnIndexOrThrow(Columns.TYPE.toString())));
         }
         oldDataCursor.close();
 

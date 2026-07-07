@@ -134,7 +134,7 @@ public class PictureDataController {
             File pictureFile = new File(Objects.requireNonNull(Uri.parse(uriStr).getPath()));
 
             if (!pictureFile.exists() || !pictureFile.delete()) {
-                Log.w(LogTags.DB.getV(), String.format(Locale.getDefault(), "“%s”删除失败", pictureFile.getName()));
+                Log.w(LogTags.DB.n(), String.format(Locale.getDefault(), "“%s”删除失败", pictureFile.getName()));
             }
         }
 

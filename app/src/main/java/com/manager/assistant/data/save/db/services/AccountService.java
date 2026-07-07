@@ -1,5 +1,7 @@
 package com.manager.assistant.data.save.db.services;
 
+import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.sqlite.db.SimpleSQLiteQuery;
@@ -8,6 +10,7 @@ import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.converters.DateTimeConverter;
 import com.manager.assistant.data.save.db.daos.AccountDao;
 import com.manager.assistant.data.save.db.entities.AccountEntity;
+import com.manager.assistant.data.save.db.entities.MediaEntity;
 import com.manager.assistant.data.save.db.entities.composite.ui.AccountUiModel;
 
 import java.time.LocalDate;
@@ -19,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 
 public class AccountService {
@@ -27,10 +31,10 @@ public class AccountService {
      *
      * @param filterTagSet  标签白名单的 ID 列表
      * @param filterTypeSet 种类白名单的编号列表
-     * @param start          起始日期（包含）
-     * @param end            结束日期（包含）
-     * @param keyword        搜索关键词
-     * @param db             数据库实例
+     * @param start         起始日期（包含）
+     * @param end           结束日期（包含）
+     * @param keyword       搜索关键词
+     * @param db            数据库实例
      * @return 符合过滤条件的流水记录数据，支持响应式更新
      */
     public static Flowable<List<AccountUiModel>> loadAccountListDataFlowable(
@@ -134,5 +138,37 @@ public class AccountService {
 
                     return resultList;
                 });
+    }
+
+    /**
+     * 插入新流水记录
+     *
+     * @param account         新流水记录
+     * @param mediaEntityList 位于永久目录下的媒体文件实体列表
+     * @param tagIdList       与该记录绑定的标签的 ID 列表
+     * @param db              数据库实例
+     * @return 是否完成
+     */
+    public static Completable addNewAccount(AccountEntity account, List<MediaEntity> mediaEntityList, List<Long> tagIdList, BookkeepingDb db) {
+        return Completable.defer(() -> {
+            db.accountDao().addAccount(account, mediaEntityList, tagIdList);
+            return Completable.complete();
+        });
+    }
+
+    /**
+     * 修改流水记录
+     *
+     * @param account         修改后的流水记录
+     * @param mediaEntityList 位于永久目录下的媒体文件实体列表，可能包含新添加的媒体
+     * @param tagIdList       与该记录绑定的标签的 Id 列表
+     * @param db              数据库实例
+     * @return 是否完成
+     */
+    public static Completable modifyAccount(AccountEntity account, List<MediaEntity> mediaEntityList, List<Long> tagIdList, BookkeepingDb db) {
+        return Completable.defer(() -> {
+            db.accountDao().modifyAccount(account, mediaEntityList, tagIdList);
+            return Completable.complete();
+        });
     }
 }

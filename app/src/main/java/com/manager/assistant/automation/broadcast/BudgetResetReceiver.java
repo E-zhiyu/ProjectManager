@@ -12,7 +12,7 @@ import com.manager.assistant.generic_enums.LogTags;
 public class BudgetResetReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(LogTags.BUDGET_RESET_RECEIVER.getV(), "预算重置闹钟已触发");
+        Log.d(LogTags.BUDGET_RESET_RECEIVER.n(), "预算重置闹钟已触发");
         BudgetDataController.resetAutomaticallyIfNeed(context);
         BudgetResetScheduler.scheduleNextMidnight(context);
     }

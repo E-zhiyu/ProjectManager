@@ -35,7 +35,7 @@ import com.manager.assistant.ui.sync.tag.TagRepository;
 import com.manager.assistant.ui.pages.budget.BudgetManageActivity;
 import com.manager.assistant.ui.pages.tag.TagManageActivity;
 import com.manager.assistant.ui.pages.report.ReportActivity;
-import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.auxiliary.enums.AccountType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -238,7 +238,7 @@ public class HomeFragment extends Fragment {
         dayExpense = 0;
         dayIncome = 0;
         while (basicCursor.moveToNext()) {
-            RunningAccountType type = RunningAccountType.valueOf(basicCursor.getString(basicCursor.getColumnIndexOrThrow(Columns.TYPE.toString())));
+            AccountType type = AccountType.valueOf(basicCursor.getString(basicCursor.getColumnIndexOrThrow(Columns.TYPE.toString())));
             double amount = basicCursor.getDouble(basicCursor.getColumnIndexOrThrow(Columns.AMOUNT.toString()));
 
             if (type.isExpenseType()) {
@@ -356,7 +356,7 @@ public class HomeFragment extends Fragment {
                     AccountUpdateReason reason = accountRepository.getUpdateReason();
                     double amount = simpleRunningAccount.amount;
                     String datetime = simpleRunningAccount.datetime;
-                    RunningAccountType type = simpleRunningAccount.type;
+                    AccountType type = simpleRunningAccount.type;
 
                     //判断这笔帐是否在这一天内
                     try {
@@ -364,11 +364,11 @@ public class HomeFragment extends Fragment {
                         LocalDateTime accountDateTime = LocalDateTime.from(formatter.parse(datetime));
                         LocalDate today = LocalDate.now();
                         if (!accountDateTime.isAfter(today.atStartOfDay()) || !accountDateTime.isBefore(today.plusDays(1).atStartOfDay())) {
-                            Log.i(LogTags.HOME_PAGE.getV(), "日期不在当日，不执行任何操作");
+                            Log.i(LogTags.HOME_PAGE.n(), "日期不在当日，不执行任何操作");
                             return;
                         }
                     } catch (DateTimeParseException e) {
-                        Log.w(LogTags.HOME_PAGE.getV(), "无法确定流水日期和时间");
+                        Log.w(LogTags.HOME_PAGE.n(), "无法确定流水日期和时间");
                     }
 
                     switch (reason) {

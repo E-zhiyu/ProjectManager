@@ -67,10 +67,10 @@
             android:name=".ui.pages.package_name_select.PackageNameSelectActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.notification_analysis.RuleAddModifyActivity"
+            android:name=".ui.pages.rule.RuleAddModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.notification_analysis.AnalysisRuleManageActivity"
+            android:name=".ui.pages.rule.AnalysisRuleManageActivity"
             android:exported="false" />
         <activity
             android:name=".ui.pages.tag.GroupModifyActivity"
@@ -85,7 +85,7 @@
             android:name=".ui.pages.report.ReportActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.main.bookkeeping.RunningAccountModifyActivity"
+            android:name=".ui.pages.main.bookkeeping.RunningAccountInputActivity"
             android:exported="false" />
         <activity
             android:name=".ui.pages.main.bookkeeping.RunningAccountAddActivity"

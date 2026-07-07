@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.auxiliary.enums.AccountType;
 
 public class BookkeepingDbHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "running_account.db";   //数据库名称
@@ -383,7 +383,7 @@ public class BookkeepingDbHelper extends SQLiteOpenHelper {
         //微信支付
         ContentValues rule_values = new ContentValues();
         rule_values.put(Columns.RULE_NAME.toString(), "微信支付");                       //名称
-        rule_values.put(Columns.TYPE.toString(), RunningAccountType.EXPENSE.toString());//流水种类
+        rule_values.put(Columns.TYPE.toString(), AccountType.EXPENSE.toString());//流水种类
         rule_values.put(Columns.PACKAGE_NAME.toString(), "com.tencent.mm");              //包名
         rule_values.put(Columns.NOTIFICATION_TITLE.toString(), "微信支付");              //通知标题
         rule_values.put(Columns.NOTIFICATION_CONTENT.toString(), "已支付.(\\d+\\.?\\d{0,2})"); //匹配通知内容
@@ -392,7 +392,7 @@ public class BookkeepingDbHelper extends SQLiteOpenHelper {
         //支付宝支付
         rule_values.clear();
         rule_values.put(Columns.RULE_NAME.toString(), "支付宝支付");                       //名称
-        rule_values.put(Columns.TYPE.toString(), RunningAccountType.EXPENSE.toString());//流水种类
+        rule_values.put(Columns.TYPE.toString(), AccountType.EXPENSE.toString());//流水种类
         rule_values.put(Columns.PACKAGE_NAME.toString(), "com.eg.android.AlipayGphone");//包名
         rule_values.put(Columns.NOTIFICATION_TITLE.toString(), "交易提醒");              //通知标题
         rule_values.put(Columns.NOTIFICATION_CONTENT.toString(), "有一笔(\\d+\\.?\\d{0,2})元的支出"); //匹配通知内容

@@ -15,7 +15,7 @@ import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.adapters.SheetTagBtnRecyclerAdapter;
 import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;
 import com.manager.assistant.ui.others.bottom_sheets.BaseBottomSheetDialogFragment;
-import com.manager.assistant.ui.pages.main.bookkeeping.fragments.RunningAccountType;
+import com.manager.assistant.auxiliary.enums.AccountType;
 import com.manager.assistant.ui.pages.tag.TagManageActivity;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -29,14 +29,14 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
     private boolean isTagExcepted = false;          //是否存在被排除的标签
     private final SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener tagBtnClickedListener; //标签按钮点击事件的监听器
     private final CompositeDisposable disposables = new CompositeDisposable();    //订阅列表（便于取消订阅）
-    private final RunningAccountType tagScopeType;  //标签作用域种类（即流水记录种类）
+    private final AccountType tagScopeType;  //标签作用域种类（即流水记录种类）
 
     /**
      * 标签选择菜单构造方法
      *
      * @param listener 标签按钮点击监听器
      */
-    public TagSelectBottomSheet(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener, RunningAccountType tagScopeType) {
+    public TagSelectBottomSheet(SheetTagBtnRecyclerAdapter.OnTagBtnClickedListener listener, AccountType tagScopeType) {
         this.tagBtnClickedListener = listener;
         this.tagScopeType = tagScopeType;
     }

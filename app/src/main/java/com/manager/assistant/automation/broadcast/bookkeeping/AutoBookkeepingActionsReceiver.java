@@ -15,10 +15,10 @@ import com.manager.assistant.automation.broadcast.BroadcastActions;
 import com.manager.assistant.data.controllers.AccountDataController;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.generic_enums.ChannelInfo;
-import com.manager.assistant.generic_enums.KeyValueStrings;
+import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.generic_enums.PendingRequestCode;
 import com.manager.assistant.helpers.NotificationHelper;
-import com.manager.assistant.ui.pages.main.bookkeeping.RunningAccountModifyActivity;
+import com.manager.assistant.ui.pages.main.bookkeeping.RunningAccountInputActivity;
 
 import java.util.Locale;
 
@@ -26,8 +26,8 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, @NonNull Intent intent) {
         Bundle dataBundle = intent.getExtras();
-        String ruleName = intent.getStringExtra(KeyValueStrings.ANALYSIS_RULE_NAME.getValue()); //规则名称
-        int notificationID = intent.getIntExtra(KeyValueStrings.NOTIFICATION_ID.getValue(), -1);
+        String ruleName = intent.getStringExtra(KeyStrings.ANALYSIS_RULE_NAME.v()); //规则名称
+        int notificationID = intent.getIntExtra(KeyStrings.NOTIFICATION_ID.v(), -1);
         String action = intent.getAction();
         if (action == null || dataBundle == null || notificationID == -1) {
             return;
@@ -40,7 +40,7 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
                 return;
             }
 
-            String remark = inputResults.getString(KeyValueStrings.ACCOUNT_REMARK.getValue());
+            String remark = inputResults.getString(KeyStrings.ACCOUNT_REMARK.v());
             if (remark == null) {
                 return;
             }
@@ -107,7 +107,7 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
      */
     private void onRemarkInput(Context context, int notificationID, String remark, @NonNull Bundle dataBundle, String ruleName) {
         //修改数据包中的备注
-        dataBundle.putString(KeyValueStrings.ACCOUNT_REMARK.getValue(), remark);
+        dataBundle.putString(KeyStrings.ACCOUNT_REMARK.v(), remark);
 
         //保存数据并更新UI
         writeDataAndBroadcast(dataBundle, context);
@@ -174,7 +174,7 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
         if (behaviour == 0) {
             //将数据写入数据库
             long rno = AccountDataController.saveNewAccount(dataBundle, context);
-            dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
+            dataBundle.putLong(KeyStrings.ACCOUNT_ID.v(), rno);
 
             //发送本地广播更新UI
             Intent accountAdded = new Intent(BroadcastActions.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
@@ -196,7 +196,7 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
         if (behaviour == 1) {
             //将数据写入数据库
             long rno = AccountDataController.saveNewAccount(dataBundle, context);
-            dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
+            dataBundle.putLong(KeyStrings.ACCOUNT_ID.v(), rno);
 
             //发送本地广播更新UI
             Intent accountAdded = new Intent(BroadcastActions.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
@@ -254,7 +254,7 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
     private void writeDataAndBroadcast(Bundle dataBundle, Context context) {
         //将数据写入数据库
         long rno = AccountDataController.saveNewAccount(dataBundle, context);
-        dataBundle.putLong(KeyValueStrings.ACCOUNT_NO.getValue(), rno);
+        dataBundle.putLong(KeyStrings.ACCOUNT_ID.v(), rno);
 
         //发送本地广播以保存数据
         Intent accountAdded = new Intent(BroadcastActions.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
@@ -270,7 +270,7 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
      * @return 能够跳转到流水记录输入界面的PendingInten
      */
     private PendingIntent getAccountDetailPendingIntent(Bundle dataBundle, Context context) {
-        Intent skip2AccountModify = new Intent(context, RunningAccountModifyActivity.class);
+        Intent skip2AccountModify = new Intent(context, RunningAccountInputActivity.class);
         skip2AccountModify.putExtras(dataBundle);
 
         //传递标识：新建任务并清除旧任务

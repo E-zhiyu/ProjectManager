@@ -9,8 +9,8 @@ import java.util.function.Function;
 
 public enum DirectoryPaths {
     DATA_TEMP(Context::getExternalCacheDir, "data_temp"),
-    PICTURE(context -> context.getExternalFilesDir(null), "pictures"),
-    PICTURE_TEMP(Context::getExternalCacheDir, "picture_temp"),
+    MEDIA(context -> context.getExternalFilesDir(null), "medias"),
+    MEDIA_TEMP(Context::getExternalCacheDir, "media_temp"),
     UPDATE_BACKUP(Context::getExternalCacheDir, "update_backup");
 
     private final Function<Context, File> contextFileFunction;
