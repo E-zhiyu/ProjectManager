@@ -39,12 +39,8 @@ public interface AccountDao {
      * @param accountId 需要获取的流水记录的 ID
      * @return 带有标签的流水记录
      */
-    @Query("SELECT a.*, " +
-            "(SELECT * FROM tags t WHERE t.tagId = ref.tagId) AS tagList, " +
-            "(SELECT * FROM medias m WHERE m.accountId = a.accountId) AS mediaList " +
-            "FROM accounts a " +
-            "JOIN accountTagRef ref ON a.accountId = ref.accountId " +
-            "WHERE accountId = :accountId")
+    @Transaction
+    @Query("SELECT * FROM accounts WHERE accountId = :accountId")
     Single<Optional<AccountWithTagAndMediaModel>> getAccountWithTagAndMediaSingleById(long accountId);
 
     /**
