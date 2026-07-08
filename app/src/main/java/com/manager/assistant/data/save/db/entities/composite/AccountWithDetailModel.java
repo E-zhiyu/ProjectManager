@@ -11,7 +11,7 @@ import com.manager.assistant.data.save.db.entities.TagEntity;
 
 import java.util.List;
 
-public class AccountWithTagAndMediaModel {
+public class AccountWithDetailModel {
     @Embedded
     private final AccountEntity account;
     @Relation(
@@ -27,7 +27,7 @@ public class AccountWithTagAndMediaModel {
     )
     private final List<MediaEntity> mediaList;
 
-    public AccountWithTagAndMediaModel(AccountEntity account, List<TagEntity> tagList, List<MediaEntity> mediaList) {
+    public AccountWithDetailModel(AccountEntity account, List<TagEntity> tagList, List<MediaEntity> mediaList) {
         this.account = account;
         this.tagList = tagList;
         this.mediaList = mediaList;

@@ -6,7 +6,7 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 @Entity(
-        tableName = "transferAccounts",
+        tableName = "accountTransfers",
         foreignKeys = @ForeignKey(
                 entity = AccountEntity.class,
                 parentColumns = "accountId",
@@ -17,14 +17,14 @@ import androidx.room.PrimaryKey;
                 @Index(value = "accountId")
         }
 )
-public class TransferAccountEntity {
+public class AccountTransferEntity {
     @PrimaryKey(autoGenerate = true)
     private long transferId;        //主键
     private long accountId;         //流水账 ID
     private String exportAccount;   //转出账户
     private String importAccount;   //转入账户
 
-    public TransferAccountEntity(long accountId, String exportAccount, String importAccount) {
+    public AccountTransferEntity(long accountId, String exportAccount, String importAccount) {
         this.accountId = accountId;
         this.exportAccount = exportAccount;
         this.importAccount = importAccount;

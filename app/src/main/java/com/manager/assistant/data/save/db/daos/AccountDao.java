@@ -13,7 +13,7 @@ import androidx.sqlite.db.SupportSQLiteQuery;
 import com.manager.assistant.data.save.db.entities.AccountTagRefEntity;
 import com.manager.assistant.data.save.db.entities.AccountEntity;
 import com.manager.assistant.data.save.db.entities.MediaEntity;
-import com.manager.assistant.data.save.db.entities.composite.AccountWithTagAndMediaModel;
+import com.manager.assistant.data.save.db.entities.composite.AccountWithDetailModel;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +41,7 @@ public interface AccountDao {
      */
     @Transaction
     @Query("SELECT * FROM accounts WHERE accountId = :accountId")
-    Single<Optional<AccountWithTagAndMediaModel>> getAccountWithTagAndMediaSingleById(long accountId);
+    Single<Optional<AccountWithDetailModel>> getAccountWithTagAndMediaSingleById(long accountId);
 
     /**
      * 插入新的流水记录

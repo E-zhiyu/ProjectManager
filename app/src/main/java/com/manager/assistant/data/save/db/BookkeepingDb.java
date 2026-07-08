@@ -18,8 +18,8 @@ import com.manager.assistant.data.save.db.entities.NotificationRuleEntity;
 import com.manager.assistant.data.save.db.entities.AccountEntity;
 import com.manager.assistant.data.save.db.entities.TagEntity;
 import com.manager.assistant.data.save.db.entities.TagGroupEntity;
-import com.manager.assistant.data.save.db.entities.TransferAccountEntity;
-import com.manager.assistant.data.save.db.entities.TransferRuleAccountEntity;
+import com.manager.assistant.data.save.db.entities.AccountTransferEntity;
+import com.manager.assistant.data.save.db.entities.RuleTransferAccountEntity;
 
 @Database(
         entities = {
@@ -31,8 +31,8 @@ import com.manager.assistant.data.save.db.entities.TransferRuleAccountEntity;
                 AccountTagRefEntity.class,
                 TagEntity.class,
                 TagGroupEntity.class,
-                TransferAccountEntity.class,
-                TransferRuleAccountEntity.class
+                AccountTransferEntity.class,
+                RuleTransferAccountEntity.class
         },
         version = 1
 )
