@@ -170,7 +170,7 @@
     <string name="not_applicable">N/A</string>
     <string name="filter_account">筛选流水记录</string>
     <string name="confirm_btn">确认按钮</string>
-    <string name="media_manage">媒体管理</string>
+    <string name="media_file">媒体文件</string>
     <string name="btn_of_media_delete">媒体删除按钮</string>
     <string name="btn_of_media_add">媒体添加按钮</string>
     <string name="not_included">未包含</string>
