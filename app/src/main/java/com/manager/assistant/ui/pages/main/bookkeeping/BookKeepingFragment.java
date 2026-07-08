@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.manager.assistant.data.save.db.BookkeepingDb;
+import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.viewmodel.AccountFilterViewModel;
@@ -72,7 +73,13 @@ public class BookKeepingFragment extends Fragment {
         //流水列表
         AccountAdapter adapter = new AccountAdapter(
                 (entity, anchor) -> {
-                    //TODO:点击监听
+                    long accountId = entity.getAccountId();
+                    Bundle bundle = new Bundle();
+                    bundle.putLong(KeyStrings.ACCOUNT_ID.v(), accountId);
+
+                    Intent skip2AccountInput = new Intent(requireContext(), RunningAccountInputActivity.class);
+                    skip2AccountInput.putExtras(bundle);
+                    startActivity(skip2AccountInput);
                 },
                 (entity, anchor) -> {
                     //TODO:长按监听

@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -28,8 +29,10 @@ import androidx.transition.TransitionSet;
 import com.manager.assistant.R;
 import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.entities.AccountEntity;
+import com.manager.assistant.data.save.db.entities.AccountTransferEntity;
 import com.manager.assistant.data.save.db.entities.MediaEntity;
 import com.manager.assistant.data.save.db.entities.TagEntity;
+import com.manager.assistant.data.save.db.entities.composite.AccountWithDetailModel;
 import com.manager.assistant.data.save.db.services.AccountService;
 import com.manager.assistant.databinding.ActivityRunningAccountInputBinding;
 import com.manager.assistant.generic_enums.DirectoryPaths;
@@ -40,6 +43,7 @@ import com.manager.assistant.generic_enums.TagString;
 import com.manager.assistant.helpers.BackPressedCallbackHelper;
 import com.manager.assistant.helpers.DateTimePickerHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
+import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.helpers.appearence.VisibilityHelper;
 import com.manager.assistant.helpers.file.FileHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
@@ -84,7 +88,17 @@ public class RunningAccountInputActivity extends AppCompatActivity {
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
             v.setPadding(systemBars.left, 0, systemBars.right, 0);
+
+            //滚动视图的内部布局
+            binding.scrollLayout.setPadding(
+                    AppearanceHelper.dpToPx(this, 10),
+                    AppearanceHelper.dpToPx(this, 5),
+                    AppearanceHelper.dpToPx(this, 10),
+                    AppearanceHelper.dpToPx(this, 5) + ime.bottom
+            );
+
             return insets;
         });
 
@@ -174,7 +188,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
             //读取初始数据
             long accountId = initBundle.getLong(KeyStrings.ACCOUNT_ID.v());
             BookkeepingDb db = BookkeepingDb.getInstance(this);
-            disposable.add(db.accountDao().getAccountWithTagAndMediaSingleById(accountId)
+            disposable.add(db.accountDao().getAccountWithDetailSingleById(accountId)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(
@@ -182,9 +196,11 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                                 if (modelOptional.isEmpty()) return;
 
                                 //获取数据
-                                AccountEntity account = modelOptional.get().getAccount();
-                                List<TagEntity> tagList = modelOptional.get().getTagList();
-                                List<MediaEntity> mediaList = modelOptional.get().getMediaList();
+                                AccountWithDetailModel model = modelOptional.get();
+                                AccountEntity account = model.getAccount();
+                                AccountTransferEntity transfer = model.getTransfer();
+                                List<TagEntity> tagList = model.getTagList();
+                                List<MediaEntity> mediaList = model.getMediaList();
 
                                 //显示文本框数据
                                 binding.amountInput.setText(String.valueOf(account.getAmount()));   //金额
@@ -193,6 +209,13 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                                 binding.typeInput.setText(type.getTitle());                         //种类
                                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
                                 binding.datetimeInput.setText(account.getDateTime().format(formatter)); //日期和时间
+                                if (transfer != null) {
+                                    binding.exportAccountLayout.setVisibility(View.VISIBLE);
+                                    binding.importAccountLayout.setVisibility(View.VISIBLE);
+
+                                    binding.exportAccountInput.setText(transfer.getExportAccount());    //转出账户
+                                    binding.importAccountInput.setText(transfer.getImportAccount());    //转入账户
+                                }
 
                                 //显示标签
                                 if (!tagList.isEmpty()) {
@@ -244,7 +267,8 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                             binding.scrollLayout,
                             transferVisible,
                             null,
-                            binding.transferInputLayout
+                            binding.exportAccountLayout,
+                            binding.importAccountLayout
                     );
 
                     type = AccountType.values()[position];
@@ -260,6 +284,26 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                 binding.datetimeLayout.setError(null);
             }
         });
+
+        //转出和转入账户
+        BookkeepingDb db = BookkeepingDb.getInstance(this);
+        disposable.add(db.accountDao().getTransferAccountsSingle()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(
+                        transferAccountList -> {
+                            ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                                    this,
+                                    R.layout.exposed_dropdown_popup_item,
+                                    transferAccountList
+                            );
+
+                            binding.exportAccountInput.setAdapter(adapter);
+                            binding.importAccountInput.setAdapter(adapter);
+                        },
+                        e -> ExceptionHelper.showExceptionDialog(this, e)
+                )
+        );
 
         //完成按钮
         binding.confirmButton.setOnClickListener(v -> {
@@ -376,6 +420,8 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         String err = null;
         String amount = String.valueOf(binding.amountInput.getText());
         String dateTimeStr = String.valueOf(binding.datetimeInput.getText());
+        String exportAccount = String.valueOf(binding.exportAccountInput.getText()).trim();
+        String importAccount = String.valueOf(binding.importAccountInput.getText()).trim();
 
         if (amount.isEmpty()) {
             err = "金额不能为空";
@@ -386,6 +432,12 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         } else if (dateTimeStr.isEmpty()) {
             err = "日期和时间不能为空";
             binding.datetimeLayout.setError(err);
+        } else if (type == AccountType.TRANSFER && exportAccount.isEmpty()) {
+            err = "转出账户不能为空";
+            binding.exportAccountLayout.setError(err);
+        } else if (type == AccountType.TRANSFER && importAccount.isEmpty()) {
+            err = "转入账户不能为空";
+            binding.importAccountLayout.setError(err);
         }
 
         return err;
@@ -403,6 +455,8 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                 FORMATTER
         );
         int typeOrdinal = this.type.ordinal();
+        String exportAccount = String.valueOf(binding.exportAccountInput.getText()).trim();
+        String importAccount = String.valueOf(binding.importAccountInput.getText()).trim();
 
         //生成标签 ID 列表
         List<Long> tagIdList = tagAdapter.getCurrentList().stream()
@@ -410,9 +464,10 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                 .collect(Collectors.toList());
 
         AccountEntity account = new AccountEntity(amount, remark, typeOrdinal, dateTime);
+        AccountTransferEntity transfer = new AccountTransferEntity(exportAccount, importAccount);
         BookkeepingDb db = BookkeepingDb.getInstance(this);
         if (initBundle == null) {
-            disposable.add(AccountService.addNewAccount(account, copiedMediaUriList, tagIdList, db)
+            disposable.add(AccountService.addNewAccount(account, transfer, copiedMediaUriList, tagIdList, db)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(
@@ -434,7 +489,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         } else {
             long accountId = initBundle.getLong(KeyStrings.ACCOUNT_ID.v());
             account.setAccountId(accountId);
-            disposable.add(AccountService.modifyAccount(account, copiedMediaUriList, tagIdList, db)
+            disposable.add(AccountService.modifyAccount(account, transfer, copiedMediaUriList, tagIdList, db)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(

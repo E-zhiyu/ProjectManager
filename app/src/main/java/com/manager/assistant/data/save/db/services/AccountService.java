@@ -8,6 +8,7 @@ import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.converters.DateTimeConverter;
 import com.manager.assistant.data.save.db.daos.AccountDao;
 import com.manager.assistant.data.save.db.entities.AccountEntity;
+import com.manager.assistant.data.save.db.entities.AccountTransferEntity;
 import com.manager.assistant.data.save.db.entities.MediaEntity;
 import com.manager.assistant.data.save.db.entities.composite.ui.AccountUiModel;
 
@@ -142,14 +143,15 @@ public class AccountService {
      * 插入新流水记录
      *
      * @param account         新流水记录
+     * @param transfer        转账账户数据（仅当记录类型为转账时会写入）
      * @param mediaEntityList 位于永久目录下的媒体文件实体列表
      * @param tagIdList       与该记录绑定的标签的 ID 列表
      * @param db              数据库实例
      * @return 是否完成
      */
-    public static Completable addNewAccount(AccountEntity account, List<MediaEntity> mediaEntityList, List<Long> tagIdList, BookkeepingDb db) {
+    public static Completable addNewAccount(AccountEntity account, AccountTransferEntity transfer, List<MediaEntity> mediaEntityList, List<Long> tagIdList, BookkeepingDb db) {
         return Completable.defer(() -> {
-            db.accountDao().addAccount(account, mediaEntityList, tagIdList);
+            db.accountDao().addAccount(account, transfer, mediaEntityList, tagIdList);
             return Completable.complete();
         });
     }
@@ -158,14 +160,15 @@ public class AccountService {
      * 修改流水记录
      *
      * @param account         修改后的流水记录
+     * @param transfer        转账账户数据（仅当记录类型为转账时会写入）
      * @param mediaEntityList 位于永久目录下的媒体文件实体列表，可能包含新添加的媒体
      * @param tagIdList       与该记录绑定的标签的 Id 列表
      * @param db              数据库实例
      * @return 是否完成
      */
-    public static Completable modifyAccount(AccountEntity account, List<MediaEntity> mediaEntityList, List<Long> tagIdList, BookkeepingDb db) {
+    public static Completable modifyAccount(AccountEntity account, AccountTransferEntity transfer, List<MediaEntity> mediaEntityList, List<Long> tagIdList, BookkeepingDb db) {
         return Completable.defer(() -> {
-            db.accountDao().modifyAccount(account, mediaEntityList, tagIdList);
+            db.accountDao().modifyAccount(account, transfer, mediaEntityList, tagIdList);
             return Completable.complete();
         });
     }

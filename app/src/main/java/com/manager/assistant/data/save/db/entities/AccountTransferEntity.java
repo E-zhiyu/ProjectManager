@@ -24,8 +24,7 @@ public class AccountTransferEntity {
     private String exportAccount;   //转出账户
     private String importAccount;   //转入账户
 
-    public AccountTransferEntity(long accountId, String exportAccount, String importAccount) {
-        this.accountId = accountId;
+    public AccountTransferEntity(String exportAccount, String importAccount) {
         this.exportAccount = exportAccount;
         this.importAccount = importAccount;
     }

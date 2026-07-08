@@ -50,7 +50,10 @@
             android:layout_height="wrap_content"
             android:clipToPadding="false"
             android:orientation="vertical"
-            android:padding="10dp">
+            android:paddingStart="10dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="5dp">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/amount_layout"
@@ -118,43 +121,37 @@
                     android:layout_height="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <LinearLayout
-                android:id="@+id/transfer_input_layout"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/export_account_layout"
+                style="@style/DropdownMenuTextInputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="gone"
+                app:helperText="@string/account_export_help">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/export_account_layout"
-                    style="@style/DropdownMenuTextInputLayoutStyle"
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/export_account_input"
+                    style="@style/EditableAutoCompleteTextViewStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:helperText="@string/account_export_help">
+                    android:hint="@string/export_account" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                        android:id="@+id/export_account_input"
-                        style="@style/EditableAutoCompleteTextViewStyle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/export_account" />
-                </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/import_account_layout"
+                style="@style/DropdownMenuTextInputLayoutStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:helperText="@string/account_import_help">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/import_account_layout"
-                    style="@style/DropdownMenuTextInputLayoutStyle"
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/import_account_input"
+                    style="@style/EditableAutoCompleteTextViewStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:helperText="@string/account_import_help">
-
-                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                        android:id="@+id/import_account_input"
-                        style="@style/EditableAutoCompleteTextViewStyle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/import_account" />
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
+                    android:hint="@string/import_account" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"

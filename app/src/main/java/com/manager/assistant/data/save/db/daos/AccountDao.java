@@ -10,8 +10,10 @@ import androidx.room.Transaction;
 import androidx.room.Update;
 import androidx.sqlite.db.SupportSQLiteQuery;
 
+import com.manager.assistant.auxiliary.enums.AccountType;
 import com.manager.assistant.data.save.db.entities.AccountTagRefEntity;
 import com.manager.assistant.data.save.db.entities.AccountEntity;
+import com.manager.assistant.data.save.db.entities.AccountTransferEntity;
 import com.manager.assistant.data.save.db.entities.MediaEntity;
 import com.manager.assistant.data.save.db.entities.composite.AccountWithDetailModel;
 
@@ -41,7 +43,18 @@ public interface AccountDao {
      */
     @Transaction
     @Query("SELECT * FROM accounts WHERE accountId = :accountId")
-    Single<Optional<AccountWithDetailModel>> getAccountWithTagAndMediaSingleById(long accountId);
+    Single<Optional<AccountWithDetailModel>> getAccountWithDetailSingleById(long accountId);
+
+    /**
+     * 获取数据库中储存的转出和转入账户
+     *
+     * @return 包含所有转出和转入账户的列表
+     */
+    @Query("SELECT exportAccount FROM accountTransfers WHERE exportAccount IS NOT NULL " +
+            "UNION " +
+            "SELECT importAccount FROM accountTransfers WHERE importAccount IS NOT NULL " +
+            "ORDER BY 1 ASC")
+    Single<List<String>> getTransferAccountsSingle();
 
     /**
      * 插入新的流水记录
@@ -51,6 +64,14 @@ public interface AccountDao {
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     Long insertAccount(AccountEntity account);
+
+    /**
+     * 插入流水记录的转账账户数据
+     *
+     * @param entity 转账账户数据实体
+     */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    void insertAccountTransfer(AccountTransferEntity entity);
 
     /**
      * 插入新的流水记录与标签映射关系
@@ -72,12 +93,19 @@ public interface AccountDao {
      * 流水记录添加事务
      *
      * @param account         新流水记录实体
+     * @param transfer        转账账户数据（仅当记录类型为转账时会写入）
      * @param mediaEntityList 附带的位于永久目录下的媒体文件实体列表
      * @param tagIdList       与该记录绑定的标签的 ID 列表
      */
     @Transaction
-    default void addAccount(AccountEntity account, @NonNull List<MediaEntity> mediaEntityList, @NonNull List<Long> tagIdList) {
+    default void addAccount(AccountEntity account, AccountTransferEntity transfer, @NonNull List<MediaEntity> mediaEntityList, @NonNull List<Long> tagIdList) {
         Long accountId = insertAccount(account);
+
+        //写入转账账户数据
+        if (account.getType() == AccountType.TRANSFER.ordinal()) {
+            transfer.setAccountId(accountId);
+            insertAccountTransfer(transfer);
+        }
 
         //生成媒体实体列表并写入数据
         List<MediaEntity> availableMediaList = mediaEntityList.stream() //赋予流水记录编号
@@ -93,7 +121,15 @@ public interface AccountDao {
     }
 
     /**
-     * 通过流水编号删除与标签的
+     * 通过流水编号删除转账账户记录
+     *
+     * @param accountId 需要删除转账账户记录的流水编号
+     */
+    @Query("DELETE FROM accountTransfers WHERE accountId = :accountId")
+    void deleteAccountTransferByAccountId(long accountId);
+
+    /**
+     * 通过流水编号删除与标签的映射关系
      *
      * @param accountId 待删除的映射关系的流水记录 ID
      */
@@ -120,15 +156,22 @@ public interface AccountDao {
      * 修改流水记录的事务
      *
      * @param account         修改后的流水数据
+     * @param transfer        转账账户数据（仅当记录类型为转账时会写入）
      * @param mediaEntityList 位于永久目录下的媒体文件实体列表，可能包含主键值为0的媒体实体
      * @param tagIdList       修改后的标签列表
      */
     @Transaction
-    default void modifyAccount(@NonNull AccountEntity account, @NonNull List<MediaEntity> mediaEntityList, @NonNull List<Long> tagIdList) {
+    default void modifyAccount(@NonNull AccountEntity account, AccountTransferEntity transfer, @NonNull List<MediaEntity> mediaEntityList, @NonNull List<Long> tagIdList) {
         long accountId = account.getAccountId();
 
         //更新流水记录
         updateAccount(account);
+
+        //更新转账账户数据
+        if (account.getType() == AccountType.TRANSFER.ordinal()) {
+            deleteAccountTransferByAccountId(accountId);
+            insertAccountTransfer(transfer);
+        }
 
         //更新标签
         deleteAccountTagRefByAccountId(accountId);
