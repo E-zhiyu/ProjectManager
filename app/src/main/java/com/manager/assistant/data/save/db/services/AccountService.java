@@ -165,12 +165,19 @@ public class AccountService {
      * @param transfer        转账账户数据（仅当记录类型为转账时会写入）
      * @param mediaEntityList 位于永久目录下的媒体文件实体列表，可能包含新添加的媒体
      * @param tagIdList       与该记录绑定的标签的 Id 列表
-     * @param db              数据库实例
+     * @param context         上下文
      * @return 是否完成
      */
-    public static Completable modifyAccount(AccountEntity account, AccountTransferEntity transfer, List<MediaEntity> mediaEntityList, List<Long> tagIdList, BookkeepingDb db) {
+    public static Completable modifyAccount(
+            AccountEntity account,
+            AccountTransferEntity transfer,
+            List<MediaEntity> mediaEntityList,
+            List<Long> tagIdList,
+            Context context
+    ) {
         return Completable.defer(() -> {
-            db.accountDao().modifyAccount(account, transfer, mediaEntityList, tagIdList);
+            BookkeepingDb db = BookkeepingDb.getInstance(context);
+            db.accountDao().modifyAccount(account, transfer, mediaEntityList, tagIdList, context);
             return Completable.complete();
         });
     }

@@ -305,6 +305,21 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                 )
         );
 
+        //标签选择按钮
+        binding.tagSelectBtn.setOnClickListener(view -> {
+            //TODO:标签选择
+        });
+
+        //媒体添加按钮
+        binding.mediaAddBtn.setOnClickListener(view -> {
+            //TODO:添加媒体
+        });
+
+        //媒体删除按钮
+        binding.mediaDeleteBtn.setOnClickListener(view -> {
+            //TODO:媒体删除
+        });
+
         //完成按钮
         binding.confirmButton.setOnClickListener(v -> {
             String err = verifyInput();
@@ -489,7 +504,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         } else {
             long accountId = initBundle.getLong(KeyStrings.ACCOUNT_ID.v());
             account.setAccountId(accountId);
-            disposable.add(AccountService.modifyAccount(account, transfer, copiedMediaUriList, tagIdList, db)
+            disposable.add(AccountService.modifyAccount(account, transfer, copiedMediaUriList, tagIdList, this)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(
