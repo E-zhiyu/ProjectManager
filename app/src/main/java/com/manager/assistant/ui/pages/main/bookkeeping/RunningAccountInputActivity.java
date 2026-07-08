@@ -344,7 +344,22 @@ public class RunningAccountInputActivity extends AppCompatActivity {
 
         //媒体删除按钮
         binding.mediaDeleteBtn.setOnClickListener(view -> {
-            //TODO:媒体删除
+            //获取需要被删除的媒体
+            List<MediaEntity> mediaListToBeDeleted = new ArrayList<>();
+            for (long id : selectionTracker.getSelection()) {
+                MediaEntity media = mediaAdapter.getItemById(id);
+                if (media != null) {
+                    mediaListToBeDeleted.add(media);
+                }
+            }
+
+            //退出多选
+            selectionTracker.clearSelection();
+
+            //更新适配器列表
+            List<MediaEntity> mediaList = new ArrayList<>(mediaAdapter.getCurrentList());
+            mediaList.removeAll(mediaListToBeDeleted);
+            mediaAdapter.submitList(mediaList);
         });
 
         //完成按钮
@@ -597,7 +612,11 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         }
 
         //显示进度条对话框
-        ProgressDialogBuilder builder = new ProgressDialogBuilder(this, "导入媒体", "正在复制媒体文件");
+        ProgressDialogBuilder builder = new ProgressDialogBuilder(
+                this,
+                "导入媒体",
+                "正在复制媒体文件"
+        );
         AlertDialog progressDialog = builder.
                 setNegativeButton("取消", (dialogInterface, i) -> {
                     Toast.makeText(this, "已取消媒体导入", Toast.LENGTH_SHORT).show();
@@ -651,7 +670,11 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                             progressDialog.dismiss();
                         },
                         () -> {
-                            Toast.makeText(this, "已导入" + mediaList.size() + "个媒体文件", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(
+                                    this,
+                                    "已导入" + mediaList.size() + "个媒体文件",
+                                    Toast.LENGTH_SHORT
+                            ).show();
 
                             //媒体文件显示在列表中
                             mediaList.addAll(0, mediaAdapter.getCurrentList());

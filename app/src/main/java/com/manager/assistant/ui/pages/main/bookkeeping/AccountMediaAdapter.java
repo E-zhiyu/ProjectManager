@@ -165,6 +165,11 @@ public class AccountMediaAdapter extends ListAdapter<MediaEntity, AccountMediaAd
         notifyItemRangeChanged(0, getItemCount());
     }
 
+    @Override
+    public long getItemId(int position) {
+        return getItem(position).getItemId();
+    }
+
     @NonNull
     @Override
     public MediaViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -193,12 +198,6 @@ public class AccountMediaAdapter extends ListAdapter<MediaEntity, AccountMediaAd
     public void onBindViewHolder(@NonNull MediaViewHolder holder, int position) {
         MediaEntity media = getItem(position);
 
-        //设置预览图大小
-//        ViewGroup.LayoutParams params = holder.binding.imageView.getLayoutParams();
-//        params.width = imageSize;
-//        params.height = imageSize;
-//        holder.binding.imageView.setLayoutParams(params);
-
         //设置选择状态
         boolean isChecked = selectionTracker.isSelected(media.getItemId());
         holder.setChecked(isChecked);
@@ -216,5 +215,21 @@ public class AccountMediaAdapter extends ListAdapter<MediaEntity, AccountMediaAd
         } else {
             holder.binding.checkedText.setVisibility(View.GONE);
         }
+    }
+
+    /**
+     * 通过{@link Long}类型的 ID 查找 Item
+     *
+     * @param id 通过{@link #getItemId(int)}返回的 ID
+     * @return 若找到则返回 Item 实例，否则返回 null
+     */
+    @Nullable
+    public MediaEntity getItemById(long id) {
+        for (MediaEntity media : getCurrentList()) {
+            if (media.getItemId() == id) {
+                return media;
+            }
+        }
+        return null;
     }
 }
