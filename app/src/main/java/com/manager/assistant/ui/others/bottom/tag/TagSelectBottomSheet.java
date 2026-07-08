@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.others.bottom_sheets.tag;
+package com.manager.assistant.ui.others.bottom.tag;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,7 +14,7 @@ import com.manager.assistant.databinding.BottomSheetTagSelectBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.adapters.SheetTagBtnRecyclerAdapter;
 import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;
-import com.manager.assistant.ui.others.bottom_sheets.BaseBottomSheetDialogFragment;
+import com.manager.assistant.ui.others.bottom.BaseBottomSheetDialogFragment;
 import com.manager.assistant.auxiliary.enums.AccountType;
 import com.manager.assistant.ui.pages.tag.TagManageActivity;
 

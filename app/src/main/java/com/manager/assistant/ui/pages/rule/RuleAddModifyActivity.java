@@ -30,13 +30,13 @@ import com.manager.assistant.databinding.ActivityRuleAddModifyBinding;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyStrings;
-import com.manager.assistant.generic_enums.TagString;
+import com.manager.assistant.generic_enums.TagStrings;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.animators.ExpandFoldAnimator;
 import com.manager.assistant.ui.pages.package_name_select.PackageNameSelectActivity;
 import com.manager.assistant.auxiliary.enums.AccountType;
 import com.manager.assistant.data.classes.Tag;
-import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
+import com.manager.assistant.ui.others.bottom.tag.TagSelectBottomSheet;
 import com.manager.assistant.ui.sync.tag.TagUpdateReason;
 import com.manager.assistant.ui.sync.tag.TagRepository;
 
@@ -154,12 +154,12 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         binding.tagInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, type);
-                tagSheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getTag());
+                tagSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_SHEET.getTag());
             }
         });
         binding.tagInput.setOnClickListener(v -> {
             tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, type);
-            tagSheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getTag());
+            tagSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_SHEET.getTag());
         });
 
         //包名

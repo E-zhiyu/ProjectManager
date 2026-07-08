@@ -150,7 +150,7 @@ public interface AccountDao {
      * @return 该流水记录的媒体文件的 Uri
      */
     @Query("SELECT fileUri FROM medias WHERE accountId = :accountId")
-    HashSet<Uri> getMediaUriByAccountId(long accountId);
+    List<Uri> getMediaUriByAccountId(long accountId);
 
     /**
      * 通过流水记录编号删除媒体记录
@@ -187,7 +187,7 @@ public interface AccountDao {
         long accountId = account.getAccountId();
 
         //获取在数据库中的媒体文件 Uri，并计算需要删除的媒体文件的 Uri
-        Set<Uri> oldMediaUriSet = getMediaUriByAccountId(accountId);
+        Set<Uri> oldMediaUriSet = new HashSet<>(getMediaUriByAccountId(accountId));
         Set<Uri> newMediaUriSet = mediaEntityList.stream()
                 .map(MediaEntity::getFileUri)
                 .collect(Collectors.toSet());
@@ -235,7 +235,7 @@ public interface AccountDao {
      */
     default void removeAccount(@NonNull AccountEntity account, Context context) {
         //获取媒体数据
-        HashSet<Uri> uriSet = getMediaUriByAccountId(account.getAccountId());
+        Set<Uri> uriSet = new HashSet<>(getMediaUriByAccountId(account.getAccountId()));
 
         //删除流水记录
         deleteAccount(account);

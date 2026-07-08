@@ -46,7 +46,7 @@ public class IconHelper {
      */
     @NonNull
     public static Bitmap getRoundedCornerIcon(Context context, @NonNull Drawable drawable) {
-        int targetSize = ViewEdgeHelper.dpToPx(context, TARGET_ICON_SIZE);
+        int targetSize = AppearanceHelper.dpToPx(context, TARGET_ICON_SIZE);
 
         //将Drawable转换为Bitmap
         Bitmap originalBitmap = drawableToBitmap(drawable, targetSize, targetSize);

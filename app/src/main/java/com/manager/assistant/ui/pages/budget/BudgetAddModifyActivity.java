@@ -26,11 +26,11 @@ import com.manager.assistant.data.controllers.TagDataController;
 import com.manager.assistant.databinding.ActivityBudgetAddModifyBinding;
 import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.generic_enums.RequestResultCode;
-import com.manager.assistant.generic_enums.TagString;
+import com.manager.assistant.generic_enums.TagStrings;
 import com.manager.assistant.helpers.DateTimePickerHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
-import com.manager.assistant.ui.others.bottom_sheets.tag.MultiTagSelectBottomSheet;
+import com.manager.assistant.ui.others.bottom.tag.MultiTagSelectBottomSheet;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -302,7 +302,7 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
                 },
                 tagNoList
         );
-        bottomSheet.show(getSupportFragmentManager(), TagString.TAG_SELECT_SHEET.getTag());
+        bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_SHEET.getTag());
     }
 
     /**

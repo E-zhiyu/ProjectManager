@@ -1,19 +1,15 @@
 package com.manager.assistant.ui.pages.main.setting.sub;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.graphics.Insets;
@@ -35,7 +31,7 @@ import com.manager.assistant.databinding.ActivityDataManageBinding;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.generic_enums.options.BackupFrequency;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
+import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.helpers.file.AutoBackupHelper;
 import com.manager.assistant.helpers.file.DataIOHelper;
 import com.manager.assistant.helpers.file.UriPathHelper;
@@ -57,10 +53,7 @@ import java.util.Locale;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class DataManageActivity extends AppCompatActivity {
     private ActivityDataManageBinding binding;  //绑定的XML布局
@@ -127,7 +120,7 @@ public class DataManageActivity extends AppCompatActivity {
                     0,
                     0,
                     0,
-                    systemBars.bottom + ViewEdgeHelper.dpToPx(this, 15)
+                    systemBars.bottom + AppearanceHelper.dpToPx(this, 15)
             );
             return insets;
         });

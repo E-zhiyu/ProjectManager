@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.others.bottom_sheets.filter;
+package com.manager.assistant.ui.others.bottom.filter;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,7 +18,7 @@ import com.manager.assistant.databinding.BottomSheetAccountFilterBinding;
 import com.manager.assistant.helpers.DateTimePickerHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;
-import com.manager.assistant.ui.others.bottom_sheets.BaseBottomSheetDialogFragment;
+import com.manager.assistant.ui.others.bottom.BaseBottomSheetDialogFragment;
 import com.manager.assistant.auxiliary.enums.AccountType;
 
 import java.time.Instant;

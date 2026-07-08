@@ -1,10 +1,12 @@
-package com.manager.assistant.ui.others.bottom_sheets;
+package com.manager.assistant.ui.others.bottom;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.window.BackEvent;
 import android.window.OnBackAnimationCallback;
@@ -36,7 +38,7 @@ abstract public class BaseBottomSheetDialogFragment extends BottomSheetDialogFra
      *
      * @param listener 监听器实例
      */
-    public void setOnDismissListener(OnDismissListener listener) {
+    protected void setOnDismissListener(OnDismissListener listener) {
         onDismissListener = listener;
     }
 
@@ -83,9 +85,9 @@ abstract public class BaseBottomSheetDialogFragment extends BottomSheetDialogFra
         dialog.setOnShowListener(d -> {
             BottomSheetDialog sheetDialog = (BottomSheetDialog) d;
 
-            FrameLayout bottomSheet =
-                    sheetDialog.findViewById(
-                            com.google.android.material.R.id.design_bottom_sheet);
+            FrameLayout bottomSheet = sheetDialog.findViewById(
+                    com.google.android.material.R.id.design_bottom_sheet
+            );
 
             if (bottomSheet != null) {
                 bottomSheetView = bottomSheet;
@@ -94,6 +96,21 @@ abstract public class BaseBottomSheetDialogFragment extends BottomSheetDialogFra
                 configureBehavior(behavior);
             }
         });
+
+        //设置沉浸式导航栏
+        Window window = dialog.getWindow();
+        if (window != null) {
+            // 允许内容延伸到系统栏（状态栏+导航栏）的边界外面
+            window.setFlags(
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+            );
+
+            // 【适配 Android 10+ 控制器】：让导航栏上的“小横条”指针自动根据你的 App 背景变黑或变白
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                window.setNavigationBarContrastEnforced(false);
+            }
+        }
 
         return dialog;
     }

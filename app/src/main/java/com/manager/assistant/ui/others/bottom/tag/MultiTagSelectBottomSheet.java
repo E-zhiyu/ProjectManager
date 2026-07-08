@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.others.bottom_sheets.tag;
+package com.manager.assistant.ui.others.bottom.tag;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,7 +17,7 @@ import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.BottomSheetMultiTagSelectBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.adapters.SheetTagGroupRecyclerAdapter;
-import com.manager.assistant.ui.others.bottom_sheets.BaseBottomSheetDialogFragment;
+import com.manager.assistant.ui.others.bottom.BaseBottomSheetDialogFragment;
 
 import java.util.ArrayList;
 import java.util.List;

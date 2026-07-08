@@ -134,7 +134,11 @@ public class AccountMediaAdapter extends ListAdapter<MediaEntity, AccountMediaAd
         }
     }
 
-    public AccountMediaAdapter(int size, AdapterOnClickListener<MediaEntity> clickListener) {
+    /**
+     * @param imageSize     预览图大小
+     * @param clickListener 预览图点击监听
+     */
+    public AccountMediaAdapter(int imageSize, AdapterOnClickListener<MediaEntity> clickListener) {
         super(ITEM_CALLBACK);
         this.clickListener = clickListener;
 
@@ -142,7 +146,7 @@ public class AccountMediaAdapter extends ListAdapter<MediaEntity, AccountMediaAd
                 .centerCrop()
                 .error(R.drawable.outline_error_24)             //错误图
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC) //缓存策略
-                .override(size, size);                          //图片尺寸
+                .override(imageSize, imageSize);                          //图片尺寸
     }
 
     public void setSelectionTracker(SelectionTracker<Long> selectionTracker) {
@@ -189,7 +193,13 @@ public class AccountMediaAdapter extends ListAdapter<MediaEntity, AccountMediaAd
     public void onBindViewHolder(@NonNull MediaViewHolder holder, int position) {
         MediaEntity media = getItem(position);
 
-        //设置缩放
+        //设置预览图大小
+//        ViewGroup.LayoutParams params = holder.binding.imageView.getLayoutParams();
+//        params.width = imageSize;
+//        params.height = imageSize;
+//        holder.binding.imageView.setLayoutParams(params);
+
+        //设置选择状态
         boolean isChecked = selectionTracker.isSelected(media.getItemId());
         holder.setChecked(isChecked);
 

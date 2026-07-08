@@ -20,12 +20,12 @@ import androidx.core.view.WindowInsetsCompat;
 import com.manager.assistant.data.controllers.RuleDataController;
 import com.manager.assistant.databinding.ActivityRuleManageBinding;
 import com.manager.assistant.helpers.PermissionHelper;
+import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.data.classes.AnalysisRule;
-import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 import com.manager.assistant.ui.sync.tag.TagRepository;
 
 import java.util.ArrayList;
@@ -58,7 +58,7 @@ public class AnalysisRuleManageActivity extends AppCompatActivity {
             binding.ruleRecycler.setPadding(0, 0, 0, systemBars.bottom);
             return insets;
         });
-        ViewEdgeHelper.setMarginToNavigation(binding.addFloatingBtn, this);
+        AppearanceHelper.setMarginToNavigation(binding.addFloatingBtn, this);
 
         initViews();
         initLaunchers();

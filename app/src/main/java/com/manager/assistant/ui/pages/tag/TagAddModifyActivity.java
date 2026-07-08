@@ -25,10 +25,10 @@ import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.ActivityTagAddModifyBinding;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.generic_enums.KeyStrings;
-import com.manager.assistant.generic_enums.TagString;
+import com.manager.assistant.generic_enums.TagStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
-import com.manager.assistant.ui.others.bottom_sheets.tag.TagSelectBottomSheet;
+import com.manager.assistant.ui.others.bottom.tag.TagSelectBottomSheet;
 import com.manager.assistant.ui.sync.tag.TagUpdateReason;
 import com.manager.assistant.ui.sync.tag.TagRepository;
 import com.manager.assistant.auxiliary.enums.AccountType;
@@ -165,7 +165,7 @@ public class TagAddModifyActivity extends AppCompatActivity {
                 .setMessage("此操作会将本标签与其他标签合并，使用本标签标记的流水记录将自动替换为用合并后的标签标记，并且本标签将被永久删除，确认继续吗？")
                 .setPositiveButton("确认", (dialog, which) -> {
                     tagSheet = new TagSelectBottomSheet(this::onTagMergeConfirmed, tagNo);
-                    tagSheet.show(getSupportFragmentManager(), TagString.TAG_MERGE_SHEET.getTag());
+                    tagSheet.show(getSupportFragmentManager(), TagStrings.TAG_MERGE_SHEET.getTag());
                 })
                 .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
                 .show()

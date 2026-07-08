@@ -12,7 +12,7 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
-import com.manager.assistant.generic_enums.TagString;
+import com.manager.assistant.generic_enums.TagStrings;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -76,7 +76,7 @@ public class DateTimePickerHelper {
         dateRangePicker.addOnPositiveButtonClickListener(listener);
 
         //显示对话框
-        dateRangePicker.show(fragmentManager, TagString.DATE_PICKER.getTag());
+        dateRangePicker.show(fragmentManager, TagStrings.DATE_PICKER.getTag());
     }
 
     /**
@@ -112,7 +112,7 @@ public class DateTimePickerHelper {
         datePicker.addOnPositiveButtonClickListener(listener);
 
         //显示对话框
-        datePicker.show(fragmentManager, TagString.DATE_PICKER.getTag());
+        datePicker.show(fragmentManager, TagStrings.DATE_PICKER.getTag());
     }
 
     /**
@@ -145,7 +145,7 @@ public class DateTimePickerHelper {
         timePicker.addOnPositiveButtonClickListener(v -> listener.onClicked(timePicker));
 
         //显示时间选择器
-        timePicker.show(fragmentManager, TagString.TIME_PICKER.getTag());
+        timePicker.show(fragmentManager, TagStrings.TIME_PICKER.getTag());
     }
 
     /**

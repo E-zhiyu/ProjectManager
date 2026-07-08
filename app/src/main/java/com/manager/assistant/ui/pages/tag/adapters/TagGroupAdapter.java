@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.manager.assistant.databinding.ViewHolderTagGroupBinding;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
-import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 import com.manager.assistant.ui.others.animators.RotateAnimator;
 import com.manager.assistant.data.classes.TagGroup;
 
@@ -221,7 +220,7 @@ public class TagGroupAdapter extends RecyclerView.Adapter<TagGroupAdapter.TagGro
                         small + (medium - small) * process;
 
                 //转换为像素值
-                float currentPx = ViewEdgeHelper.dpToPx(viewHolder.binding.getRoot().getContext(), currentDp);
+                float currentPx = AppearanceHelper.dpToPx(viewHolder.binding.getRoot().getContext(), currentDp);
 
                 //应用计算得到的圆角值
                 viewHolder.binding.getRoot().setShapeAppearanceModel(

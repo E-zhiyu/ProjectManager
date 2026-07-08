@@ -18,13 +18,13 @@ import androidx.recyclerview.widget.ConcatAdapter;
 
 import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.ActivityTagManageBinding;
+import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.helpers.appearence.ColorHelper;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.classes.TagGroup;
-import com.manager.assistant.helpers.appearence.ViewEdgeHelper;
 import com.manager.assistant.ui.pages.tag.adapters.TagAdapter;
 import com.manager.assistant.ui.pages.tag.adapters.TagGroupAdapter;
 
@@ -74,7 +74,7 @@ public class TagManageActivity extends AppCompatActivity implements TagGroupAdap
             binding.tagRecycler.setPadding(0, 0, 0, systemBars.bottom);
             return insets;
         });
-        ViewEdgeHelper.setMarginToNavigation(binding.addFloatingBtn, this);
+        AppearanceHelper.setMarginToNavigation(binding.addFloatingBtn, this);
 
         initLaunchers();
         initViews();

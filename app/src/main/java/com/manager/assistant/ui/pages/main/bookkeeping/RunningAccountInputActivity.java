@@ -1,5 +1,6 @@
 package com.manager.assistant.ui.pages.main.bookkeeping;
 
+import android.Manifest;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,13 +12,19 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.selection.SelectionPredicates;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
@@ -26,7 +33,9 @@ import androidx.transition.Fade;
 import androidx.transition.TransitionManager;
 import androidx.transition.TransitionSet;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
+import com.manager.assistant.auxiliary.enums.bottom_options.MediaAddOption;
 import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.entities.AccountEntity;
 import com.manager.assistant.data.save.db.entities.AccountTransferEntity;
@@ -39,19 +48,23 @@ import com.manager.assistant.generic_enums.DirectoryPaths;
 import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.auxiliary.enums.AccountType;
 import com.manager.assistant.generic_enums.LogTags;
-import com.manager.assistant.generic_enums.TagString;
+import com.manager.assistant.generic_enums.TagStrings;
 import com.manager.assistant.helpers.BackPressedCallbackHelper;
 import com.manager.assistant.helpers.DateTimePickerHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
+import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.helpers.appearence.VisibilityHelper;
 import com.manager.assistant.helpers.file.FileHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
+import com.manager.assistant.ui.others.bottom.MediaAddBottomSheet;
 import com.manager.assistant.ui.others.dialogs.ProgressDialogBuilder;
 import com.manager.assistant.ui.others.selections.media.MediaIdKeyProvider;
 import com.manager.assistant.ui.others.selections.media.MediaLookup;
+import com.manager.assistant.ui.others.viewmodel.MediaAddOptionViewModel;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -59,6 +72,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -77,6 +91,9 @@ public class RunningAccountInputActivity extends AppCompatActivity {
     private BackPressedCallbackHelper.BackHandler selectionBackHandler; //媒体多选返回处理器
     private AccountMediaAdapter mediaAdapter;               //媒体适配器
     private AccountTagAdapter tagAdapter;                   //标签适配器
+    private ActivityResultLauncher<PickVisualMediaRequest> albumLauncher;   //相册图片选择启动器
+    private ActivityResultLauncher<Uri> takePictureLauncher;    //调用系统相机的启动器
+    private ActivityResultLauncher<String> permissionLauncher;  //权限申请启动器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +113,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                     AppearanceHelper.dpToPx(this, 10),
                     AppearanceHelper.dpToPx(this, 5),
                     AppearanceHelper.dpToPx(this, 10),
-                    AppearanceHelper.dpToPx(this, 5) + ime.bottom
+                    AppearanceHelper.dpToPx(this, 5) + Math.max(ime.bottom, systemBars.bottom)
             );
 
             return insets;
@@ -104,6 +121,8 @@ public class RunningAccountInputActivity extends AppCompatActivity {
 
         initBundle = getIntent().getExtras();
         initViews();
+        observeLiveData();
+        initLaunchers();
         initOnBackPressedHandlers();
     }
 
@@ -113,6 +132,9 @@ public class RunningAccountInputActivity extends AppCompatActivity {
 
         disposable.dispose();
         binding = null;
+
+        //移除临时媒体目录中的文件
+        FileHelper.clearMediaTempDir(this);
     }
 
     /**
@@ -139,8 +161,12 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         binding.tagRecycler.setAdapter(tagAdapter);
 
         //媒体 Recycler
-        int spanCount = 3;  //显示3列
-        int size = binding.getRoot().getWidth() / spanCount;
+        int spanCount = AppearanceHelper.getScreenHeight(this) >
+                AppearanceHelper.getScreenWidth(this) ?
+                3 : 7;
+        int size = (binding.scrollLayout.getWidth() -
+                binding.scrollLayout.getPaddingStart() -
+                binding.scrollLayout.getPaddingEnd()) / spanCount;
         GridLayoutManager layoutManager = new GridLayoutManager(this, spanCount);
         binding.mediaRecycler.setLayoutManager(layoutManager);
         mediaAdapter = new AccountMediaAdapter(
@@ -151,7 +177,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         );
         binding.mediaRecycler.setAdapter(mediaAdapter);
         selectionTracker = new SelectionTracker.Builder<>(
-                TagString.MEDIA_SELECTION.getTag(),
+                TagStrings.MEDIA_SELECTION.getTag(),
                 binding.mediaRecycler,
                 new MediaIdKeyProvider(mediaAdapter),
                 new MediaLookup(binding.mediaRecycler),
@@ -312,7 +338,8 @@ public class RunningAccountInputActivity extends AppCompatActivity {
 
         //媒体添加按钮
         binding.mediaAddBtn.setOnClickListener(view -> {
-            //TODO:添加媒体
+            MediaAddBottomSheet bottomSheet = new MediaAddBottomSheet();
+            bottomSheet.show(getSupportFragmentManager(), TagStrings.MEDIA_ADD_BOTTOM_SHEET.getTag());
         });
 
         //媒体删除按钮
@@ -344,20 +371,23 @@ public class RunningAccountInputActivity extends AppCompatActivity {
 
             //如果有新媒体，则显示对话框
             List<MediaEntity> currentMediaList = mediaAdapter.getCurrentList();
-            if (!currentMediaList.isEmpty()) {
+            Set<MediaEntity> newMediaSet = currentMediaList.stream()    //获取新添加的媒体
+                    .filter(mediaEntity -> mediaEntity.getMediaId() == 0)
+                    .collect(Collectors.toSet());
+            if (!newMediaSet.isEmpty()) {
                 dialog.show();
             }
 
             //创建移动任务，并逐个返回移动成功的 File 型 Uri
             Observable<MediaEntity> moveTask = Observable.create(emitter -> {
                 File targetDir = DirectoryPaths.MEDIA.getDir(this);
+                long accountId = initBundle == null ? 0 : initBundle.getLong(KeyStrings.ACCOUNT_ID.v());
 
                 for (MediaEntity originMedia : currentMediaList) {
-                    long originMediaId = originMedia.getMediaId();
-                    if (originMediaId == 0) {
+                    if (newMediaSet.contains(originMedia)) {
                         File originFile = new File(Objects.requireNonNull(originMedia.getFileUri().getPath()));
                         File movedFile = FileHelper.moveFile(originFile, targetDir);
-                        emitter.onNext(new MediaEntity(Uri.fromFile(movedFile), originMediaId));    //不论是否成功都返回
+                        emitter.onNext(new MediaEntity(Uri.fromFile(movedFile), accountId));    //不论是否成功都返回
                     } else {
                         emitter.onNext(originMedia);
                     }
@@ -397,6 +427,88 @@ public class RunningAccountInputActivity extends AppCompatActivity {
     }
 
     /**
+     * 观察 ViewModel 的 LiveData
+     */
+    private void observeLiveData() {
+        //媒体添加选项
+        MediaAddOptionViewModel mediaAddOptionViewModel = new ViewModelProvider(this).get(MediaAddOptionViewModel.class);
+        mediaAddOptionViewModel.getClickEvent().observe(this, integer -> {
+            MediaAddOption option = MediaAddOption.values()[integer];
+
+            if (option == MediaAddOption.TAKE_PICTURE) {
+                if (PermissionHelper.isRuntimePermissionGranted(
+                        Manifest.permission.CAMERA,
+                        this
+                )) {
+                    launchSystemCamera();
+                } else {
+                    permissionLauncher.launch(Manifest.permission.CAMERA);
+                }
+            } else if (option == MediaAddOption.OPEN_ALBUM) {
+                albumLauncher.launch(
+                        new PickVisualMediaRequest.Builder()
+                                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                                .build()
+                );
+            }
+        });
+    }
+
+    /**
+     * 初始化启动器
+     */
+    private void initLaunchers() {
+        //从相册选择图片启动器
+        albumLauncher = registerForActivityResult(
+                new ActivityResultContracts.PickMultipleVisualMedia(),
+                this::onAlbumPictureUrisReceived
+        );
+
+        //系统相机拍照启动器
+        takePictureLauncher = registerForActivityResult(
+                new ActivityResultContracts.TakePicture(),
+                result -> {
+                    if (result) {
+                        MediaAddOptionViewModel viewModel = new ViewModelProvider(this)
+                                .get(MediaAddOptionViewModel.class);
+                        onCameraPictureUriReceived(viewModel.getCameraFileUri());
+                    } else {
+                        Toast.makeText(this, "拍照已取消", Toast.LENGTH_SHORT).show();
+
+                        //删除刚刚创建的照片文件
+                        MediaAddOptionViewModel viewModel = new ViewModelProvider(this)
+                                .get(MediaAddOptionViewModel.class);
+                        FileHelper.deleteFile(viewModel.getCameraFileUri(), this);
+                    }
+                }
+        );
+
+        //权限申请启动器
+        permissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                result -> {
+                    if (result) {
+                        launchSystemCamera();
+                    } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
+                        //弹出解释对话框
+                        new MaterialAlertDialogBuilder(this)
+                                .setTitle("申请权限")
+                                .setMessage("使用相机拍照需要先授予摄像头权限")
+                                .setNegativeButton("取消", null)
+                                .setPositiveButton(
+                                        "确定",
+                                        (dialogInterface, i) ->
+                                                permissionLauncher.launch(Manifest.permission.CAMERA)
+                                )
+                                .show();
+                    } else {
+                        Toast.makeText(this, "请授予相机权限后再拍照", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+    }
+
+    /**
      * 初始化返回拦截逻辑
      */
     private void initOnBackPressedHandlers() {
@@ -424,6 +536,131 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                 return 3;
             }
         };
+    }
+
+    /**
+     * 启动系统相机进行拍照
+     */
+    private void launchSystemCamera() {
+        try {
+            //在缓存目录下创建一个临时文件
+            File photoFile = File.createTempFile(
+                    "IMG_",
+                    ".jpg",
+                    DirectoryPaths.MEDIA_TEMP.getDir(this)
+            );
+            MediaAddOptionViewModel viewModel = new ViewModelProvider(this)
+                    .get(MediaAddOptionViewModel.class);
+            viewModel.setCameraFileUri(Uri.fromFile(photoFile));    //保存 File 类型的 Uri
+
+            //通过 FileProvider 获取 Content URI
+            Uri contentUri = FileProvider.getUriForFile(
+                    this,
+                    getPackageName() + ".fileprovider",
+                    photoFile
+            );
+
+            //启动相机
+            takePictureLauncher.launch(contentUri);
+        } catch (IOException e) {
+            Toast.makeText(this, "无法创建相片文件", Toast.LENGTH_SHORT).show();
+        } catch (SecurityException e) {
+            Toast.makeText(this, "请授予相机权限后再拍照", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * 相机拍照成功的回调
+     *
+     * @param tempPictureUri 系统相机拍照后的临时图片 Uri
+     */
+    private void onCameraPictureUriReceived(Uri tempPictureUri) {
+        //获取现有的列表
+        List<MediaEntity> mediaList = new ArrayList<>(mediaAdapter.getCurrentList());
+
+        //更新列表
+        long accountId = initBundle == null ? 0 : initBundle.getLong(KeyStrings.ACCOUNT_ID.v());
+        mediaList.add(new MediaEntity(tempPictureUri, accountId));
+        mediaAdapter.submitList(mediaList);
+    }
+
+    /**
+     * 相册图片的 Uri 接收回调
+     *
+     * @param uriList 用户选择的相册图片 Uri
+     */
+    private void onAlbumPictureUrisReceived(@NonNull List<Uri> uriList) {
+        //判断是否为空
+        if (uriList.isEmpty()) {
+            Toast.makeText(this, "未选择媒体文件", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        //显示进度条对话框
+        ProgressDialogBuilder builder = new ProgressDialogBuilder(this, "导入媒体", "正在复制媒体文件");
+        AlertDialog progressDialog = builder.
+                setNegativeButton("取消", (dialogInterface, i) -> {
+                    Toast.makeText(this, "已取消媒体导入", Toast.LENGTH_SHORT).show();
+                    disposable.clear();
+                })
+                .show();
+
+        //创建复制任务
+        List<MediaEntity> mediaList = new ArrayList<>();
+        Observable<Integer> task = Observable.create(emitter -> {
+            File mediaDir = DirectoryPaths.MEDIA_TEMP.getDir(this);
+            byte[] sharedBuffer = new byte[1024 * 32];  //共享32KB缓存
+
+            //复制文件并保存引用
+            for (Uri uri : uriList) {
+                File resultFile = null;
+                try {
+                    resultFile = FileHelper.copyFile(this, uri, mediaDir, sharedBuffer);
+                } catch (IOException e) {
+                    emitter.onError(e);
+                }
+                if (resultFile == null) {
+                    continue;
+                }
+
+                //保存到列表中
+                Uri successfulUri = Uri.fromFile(resultFile);
+                long accountId = initBundle == null ? 0 : initBundle.getLong(KeyStrings.ACCOUNT_ID.v());
+                MediaEntity media = new MediaEntity(successfulUri, accountId);
+                mediaList.add(media);
+
+                //更新进度
+                emitter.onNext(mediaList.size());
+            }
+
+            //完成任务
+            emitter.onComplete();
+        });
+
+        //执行复制操作
+        disposable.add(task
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(
+                        progress -> {
+                            builder.setIndeterminate(false);
+                            builder.updateProgress(progress, uriList.size(), "正在导入媒体……");
+                        },
+                        e -> {
+                            ExceptionHelper.showExceptionDialog(this, e);
+                            progressDialog.dismiss();
+                        },
+                        () -> {
+                            Toast.makeText(this, "已导入" + mediaList.size() + "个媒体文件", Toast.LENGTH_SHORT).show();
+
+                            //媒体文件显示在列表中
+                            mediaList.addAll(0, mediaAdapter.getCurrentList());
+                            mediaAdapter.submitList(mediaList);
+
+                            progressDialog.dismiss();
+                        }
+                )
+        );
     }
 
     /**

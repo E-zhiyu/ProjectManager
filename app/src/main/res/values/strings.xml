@@ -85,10 +85,8 @@
     <string name="every_month">每个月</string>
     <string name="every_15_min">每15分钟</string>
     <string name="select_first_screen">首页选择</string>
-    <string name="add_picture">添加图片</string>
     <string name="click_to_take_picture">点击拍照</string>
     <string name="capture_toolbar_tip">您可以拍下任何有关的图片，\n以便日后快速了解该流水记录的详细内容</string>
-    <string name="container_of_account_picture">流水记录图片</string>
     <string name="delete_picture">删除图片</string>
     <string name="save_picture_btn">保存图片按钮</string>
     <string name="share_picture_btn">分享图片按钮</string>
@@ -176,6 +174,8 @@
     <string name="btn_of_media_delete">媒体删除按钮</string>
     <string name="btn_of_media_add">媒体添加按钮</string>
     <string name="not_included">未包含</string>
+    <string name="add_media_files">添加媒体文件</string>
+    <string name="preview_of_media_file">媒体文件预览</string>
     <string-array name="tips_array">
         <item>在报表界面可以点击某个收支来源以排除它，还不赶快去试试？</item>
         <item>你知道吗？下面的这些卡片是可以点击的。</item>
