@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Toast;
 
@@ -114,10 +113,9 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                     if (removedList.isEmpty()) {
                         VisibilityHelper.toggleViewExpansion(
                                 binding.getRoot(),
-                                binding.tagRecycler,
                                 false,
-                                Gravity.TOP,
-                                () -> adapter.submitList(removedList)
+                                () -> adapter.submitList(removedList),
+                                binding.tagRecycler
                         );
                     } else {
                         adapter.submitList(removedList);
@@ -243,18 +241,10 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                 (parent, view, position, id) -> {
                     boolean transferVisible = position == AccountType.TRANSFER.ordinal();
                     VisibilityHelper.toggleViewExpansion(
-                            binding.getRoot(),
-                            binding.exportAccountLayout,
+                            binding.scrollLayout,
                             transferVisible,
-                            Gravity.TOP,
-                            null
-                    );
-                    VisibilityHelper.toggleViewExpansion(
-                            binding.getRoot(),
-                            binding.importAccountLayout,
-                            transferVisible,
-                            Gravity.TOP,
-                            null
+                            null,
+                            binding.transferInputLayout
                     );
 
                     type = AccountType.values()[position];
