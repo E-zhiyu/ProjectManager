@@ -61,7 +61,7 @@
             android:name=".ui.pages.budget.BudgetManageActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.picture.FullScreenImageActivity"
+            android:name=".ui.pages.media.FullScreenMediaActivity"
             android:exported="false" />
         <activity
             android:name=".ui.pages.package_name_select.PackageNameSelectActivity"

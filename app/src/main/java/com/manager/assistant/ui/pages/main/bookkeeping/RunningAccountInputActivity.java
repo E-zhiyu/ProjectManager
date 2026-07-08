@@ -1,6 +1,7 @@
 package com.manager.assistant.ui.pages.main.bookkeeping;
 
 import android.Manifest;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -35,6 +37,7 @@ import androidx.transition.TransitionSet;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
+import com.manager.assistant.auxiliary.enums.TransitionName;
 import com.manager.assistant.auxiliary.enums.bottom_options.MediaAddOption;
 import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.entities.AccountEntity;
@@ -62,6 +65,7 @@ import com.manager.assistant.ui.others.dialogs.ProgressDialogBuilder;
 import com.manager.assistant.ui.others.selections.media.MediaIdKeyProvider;
 import com.manager.assistant.ui.others.selections.media.MediaLookup;
 import com.manager.assistant.ui.others.viewmodel.MediaAddOptionViewModel;
+import com.manager.assistant.ui.pages.media.FullScreenMediaActivity;
 
 import java.io.File;
 import java.io.IOException;
@@ -171,8 +175,26 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         binding.mediaRecycler.setLayoutManager(layoutManager);
         mediaAdapter = new AccountMediaAdapter(
                 size,
-                (entity, anchor) -> {
-                    //TODO:显示大图
+                (pos, mediaView,mediaList) -> {
+                    String[] uriStrArray = mediaList.stream()
+                            .map(MediaEntity::getFileUri)
+                            .map(Uri::toString)
+                            .toArray(String[]::new);
+
+                    //实例化 Intent 并放入数据
+                    Intent skip2FullScreen = new Intent(this, FullScreenMediaActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putStringArray(KeyStrings.FILE_URIS.v(), uriStrArray);
+                    bundle.putInt(KeyStrings.VIEW_HOLDER_POSITION.v(), pos);
+                    skip2FullScreen.putExtras(bundle);
+
+                    ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                            this,
+                            mediaView,
+                            TransitionName.ACCOUNT_MEDIA.getS()
+                    );
+
+                    startActivity(skip2FullScreen, options.toBundle());
                 }
         );
         binding.mediaRecycler.setAdapter(mediaAdapter);

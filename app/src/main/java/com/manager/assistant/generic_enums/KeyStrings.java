@@ -24,7 +24,7 @@ public enum KeyStrings {
     PACKAGE_NAME("package_name"),                           //包名
     NOTIFICATION_TITLE("notification_title"),               //通知标题
     NOTIFICATION_CONTENT("notification_content"),           //通知内容
-    FILE_URI("file_uri"),                                   //文件Uri
+    FILE_URIS("file_uris"),                                   //文件Uri
     BUDGET_NAME("budget_name"),                             //预算名称
     INIT_AMOUNT("init_amount"),                             //预算初始金额
     LEFT_AMOUNT("left_amount"),                             //预算剩余金额

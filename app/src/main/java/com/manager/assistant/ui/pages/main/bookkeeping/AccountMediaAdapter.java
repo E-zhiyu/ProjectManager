@@ -18,10 +18,11 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.manager.assistant.R;
-import com.manager.assistant.auxiliary.interfaces.adapter.AdapterOnClickListener;
 import com.manager.assistant.auxiliary.interfaces.adapter.ViewHolderListener;
 import com.manager.assistant.data.save.db.entities.MediaEntity;
 import com.manager.assistant.databinding.ViewHolderMediaBinding;
+
+import java.util.List;
 
 public class AccountMediaAdapter extends ListAdapter<MediaEntity, AccountMediaAdapter.MediaViewHolder> {
     private final static DiffUtil.ItemCallback<MediaEntity> ITEM_CALLBACK = new DiffUtil.ItemCallback<>() {
@@ -38,7 +39,18 @@ public class AccountMediaAdapter extends ListAdapter<MediaEntity, AccountMediaAd
     private SelectionTracker<Long> selectionTracker;    // ViewHolder 选择追踪器
     private final RequestOptions glideOptions;          //初始化Glide设置
     private boolean isSelectMode = false;               //是否是选择模式
-    private final AdapterOnClickListener<MediaEntity> clickListener;
+    private final OnMediaClickedListener clickListener;
+
+    public interface OnMediaClickedListener {
+        /**
+         * 媒体视图点击监听
+         *
+         * @param position  被点击的媒体所在的位置
+         * @param mediaView 被点击的媒体视图
+         * @param mediaList 同一个段落的媒体列表
+         */
+        void onClick(int position, View mediaView, List<MediaEntity> mediaList);
+    }
 
     public static class MediaViewHolder extends RecyclerView.ViewHolder {
         ViewHolderMediaBinding binding;
@@ -138,7 +150,7 @@ public class AccountMediaAdapter extends ListAdapter<MediaEntity, AccountMediaAd
      * @param imageSize     预览图大小
      * @param clickListener 预览图点击监听
      */
-    public AccountMediaAdapter(int imageSize, AdapterOnClickListener<MediaEntity> clickListener) {
+    public AccountMediaAdapter(int imageSize, OnMediaClickedListener clickListener) {
         super(ITEM_CALLBACK);
         this.clickListener = clickListener;
 
@@ -183,8 +195,7 @@ public class AccountMediaAdapter extends ListAdapter<MediaEntity, AccountMediaAd
                 new ViewHolderListener() {
                     @Override
                     public void onClick(int pos, View anchor) {
-                        MediaEntity mediaEntity = getItem(pos);
-                        clickListener.onClick(mediaEntity, anchor);
+                        clickListener.onClick(pos, anchor, getCurrentList());
                     }
 
                     @Override
