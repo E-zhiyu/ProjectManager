@@ -1,7 +1,11 @@
 package com.manager.assistant.data.save.db.daos;
 
+import android.content.Context;
+import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
@@ -16,6 +20,7 @@ import com.manager.assistant.data.save.db.entities.AccountEntity;
 import com.manager.assistant.data.save.db.entities.AccountTransferEntity;
 import com.manager.assistant.data.save.db.entities.MediaEntity;
 import com.manager.assistant.data.save.db.entities.composite.AccountWithDetailModel;
+import com.manager.assistant.helpers.file.FileHelper;
 
 import java.util.List;
 import java.util.Optional;
@@ -183,5 +188,41 @@ public interface AccountDao {
         //删除旧媒体
         deleteMediaByAccountId(accountId);
         insertMedia(mediaEntityList);
+    }
+
+    /**
+     * 从数据库中删除流水记录
+     *
+     * @param account 需要删除的流水记录
+     */
+    @Delete
+    void deleteAccount(AccountEntity account);
+
+    /**
+     * 通过流水记录编号获取媒体文件 Uri
+     *
+     * @param accountId 流水记录 ID
+     * @return 该流水记录的媒体文件的 Uri
+     */
+    @Query("SELECT fileUri FROM medias WHERE accountId = :accountId")
+    List<Uri> getMediaUriByAccountId(long accountId);
+
+    /**
+     * 删除流水记录的事务
+     *
+     * @param account 需要删除的流水记录
+     * @param context 上下文
+     */
+    default void removeAccount(@NonNull AccountEntity account, Context context) {
+        //获取媒体数据
+        List<Uri> uriList = getMediaUriByAccountId(account.getAccountId());
+
+        //删除流水记录
+        deleteAccount(account);
+
+        //移除媒体文件
+        for (Uri uri : uriList) {
+            FileHelper.deleteFile(uri, context);
+        }
     }
 }

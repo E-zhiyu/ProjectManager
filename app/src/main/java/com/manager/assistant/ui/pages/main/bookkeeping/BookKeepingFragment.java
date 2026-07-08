@@ -3,15 +3,22 @@ package com.manager.assistant.ui.pages.main.bookkeeping;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.manager.assistant.R;
 import com.manager.assistant.data.save.db.BookkeepingDb;
+import com.manager.assistant.data.save.db.entities.AccountEntity;
+import com.manager.assistant.data.save.db.services.AccountService;
 import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.helpers.ExceptionHelper;
@@ -21,7 +28,9 @@ import com.manager.assistant.databinding.FragmentBookkeepingBinding;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.helpers.file.PictureFileHelper;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class BookKeepingFragment extends Fragment {
     private FragmentBookkeepingBinding binding;             //绑定的XML视图
@@ -82,7 +91,19 @@ public class BookKeepingFragment extends Fragment {
                     startActivity(skip2AccountInput);
                 },
                 (entity, anchor) -> {
-                    //TODO:长按监听
+                    PopupMenu popupMenu = new PopupMenu(requireContext(), anchor, Gravity.END);
+                    popupMenu.getMenuInflater().inflate(R.menu.menu_account_edit, popupMenu.getMenu());
+
+                    popupMenu.setOnMenuItemClickListener(item -> {
+                        if (item.getItemId() == R.id.action_delete_account) {
+                            deleteAccount(entity);
+                            return true;
+                        }
+
+                        return false;
+                    });
+
+                    popupMenu.show();
                 }
         );
         binding.accountRecycler.setAdapter(adapter);
@@ -101,52 +122,26 @@ public class BookKeepingFragment extends Fragment {
         );
     }
 
-//    /**
-//     * 刷新UI方法
-//     */
-//    private void refreshUI() {
-//        long currentTimeMilli = System.currentTimeMillis();
-//        if (currentTimeMilli - lastRefreshTimeMilli <= 100) {
-//            Log.d(LogTags.ACCOUNT_FRAGMENT.getV(), "间隔时间过短，不刷新界面");
-//            return;
-//        }
-//        lastRefreshTimeMilli = currentTimeMilli;
-//
-//        Log.d(LogTags.ACCOUNT_FRAGMENT.getV(), "刷新界面中……");
-//        binding.refreshLayout.setRefreshing(true);
-//
-//        //刷新RecyclerView
-//        AccountFilterViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountFilterViewModel.class);
-//        BookkeepingDb db = BookkeepingDb.getInstance(requireContext());
-//        disposables.add(viewModel.loadAccountListDataFlowable(db)
-//                .subscribe(
-//                        accountList -> {
-//                            //TODO:加载流水记录列表
-//                        },
-//                        e -> ExceptionHelper.showExceptionDialog(requireContext(), e)
-//                )
-//        );
-//    }
-
-//    /**
-//     * 初始化SearchView和SearchBar
-//     */
-//    private void initSearchComponents() {
-//        if (requireActivity() instanceof MainActivity) {
-//            //绑定到SearchBar
-//            MainActivity mainActivity = (MainActivity) requireActivity();
-//            mainActivity.binding.searchView.setupWithSearchBar(binding.remarkSearchBar);
-//
-//            //观察搜索文本
-//            AccountSearchViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountSearchViewModel.class);
-//            viewModel.getSearchTextData().observe(
-//                    getViewLifecycleOwner(),
-//                    keyWord -> {
-//                        Log.d(LogTags.ACCOUNT_FRAGMENT.getV(), "搜索文本更新");
-//                        binding.remarkSearchBar.setText(keyWord);
-//                        refreshUI();
-//                    }
-//            );
-//        }
-//    }
+    /**
+     * 删除流水记录
+     *
+     * @param account 需要删除的流水记录
+     */
+    private void deleteAccount(AccountEntity account) {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.delete_account)
+                .setMessage("确认删除该流水记录吗？其包含的媒体文件也会一并删除")
+                .setPositiveButton("确定", (dialogInterface, i) ->
+                        disposables.add(AccountService.deleteAccount(account, requireContext())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeOn(Schedulers.io())
+                                .subscribe(
+                                        () -> Toast.makeText(requireContext(), "流水记录已删除", Toast.LENGTH_SHORT).show(),
+                                        e -> ExceptionHelper.showExceptionDialog(requireContext(), e)
+                                )
+                        )
+                )
+                .setNegativeButton("取消", null)
+                .show();
+    }
 }

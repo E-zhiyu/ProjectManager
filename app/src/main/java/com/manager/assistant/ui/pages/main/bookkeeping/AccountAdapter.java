@@ -76,6 +76,12 @@ public class AccountAdapter extends ListAdapter<AccountUiModel, RecyclerView.Vie
             //设置点击监听
             binding.getRoot().setOnClickListener(view -> listener.onClick(getBindingAdapterPosition(), binding.getRoot()));
 
+            //设置长按监听
+            binding.getRoot().setOnLongClickListener(view -> {
+                listener.onLongClick(getBindingAdapterPosition(), binding.getRoot());
+                return true;
+            });
+
             //设置触摸监听
             AppearanceHelper.attachMorphAnimation(binding.getRoot());
         }

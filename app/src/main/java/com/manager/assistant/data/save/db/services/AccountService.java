@@ -1,5 +1,7 @@
 package com.manager.assistant.data.save.db.services;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.sqlite.db.SimpleSQLiteQuery;
@@ -169,6 +171,21 @@ public class AccountService {
     public static Completable modifyAccount(AccountEntity account, AccountTransferEntity transfer, List<MediaEntity> mediaEntityList, List<Long> tagIdList, BookkeepingDb db) {
         return Completable.defer(() -> {
             db.accountDao().modifyAccount(account, transfer, mediaEntityList, tagIdList);
+            return Completable.complete();
+        });
+    }
+
+    /**
+     * 删除流水记录
+     *
+     * @param account 需要删除的流水记录
+     * @param context 上下文
+     * @return 是否完成
+     */
+    public static Completable deleteAccount(AccountEntity account, Context context) {
+        BookkeepingDb db = BookkeepingDb.getInstance(context);
+        return Completable.defer(() -> {
+            db.accountDao().removeAccount(account, context);
             return Completable.complete();
         });
     }
