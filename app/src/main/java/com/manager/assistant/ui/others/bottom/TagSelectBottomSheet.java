@@ -17,6 +17,7 @@ import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.entities.TagEntity;
 import com.manager.assistant.data.save.db.services.TagService;
 import com.manager.assistant.databinding.BottomSheetTagSelectBinding;
+import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.appearence.VisibilityHelper;
 import com.manager.assistant.ui.others.adapters.GroupTagSelectAdapter;
@@ -32,6 +33,15 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
     private BottomSheetTagSelectBinding binding;    //绑定的 XML 布局
     private final CompositeDisposable disposable = new CompositeDisposable();
     private GroupTagSelectAdapter adapter;          //分组标签适配器
+    private int scopePow = 0;                       //标签作用域标识符
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            scopePow = getArguments().getInt(KeyStrings.TAG_SCOPE.v());
+        }
+    }
 
     @Nullable
     @Override
@@ -121,7 +131,7 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
 
         //订阅数据
         BookkeepingDb db = BookkeepingDb.getInstance(requireContext());
-        disposable.add(TagService.getGroupedTagFlowable(db)
+        disposable.add(TagService.getGroupedTagFlowable(db, scopePow)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(

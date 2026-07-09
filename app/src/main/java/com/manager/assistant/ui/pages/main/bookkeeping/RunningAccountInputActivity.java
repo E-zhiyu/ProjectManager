@@ -361,6 +361,9 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         //标签选择按钮
         binding.tagSelectBtn.setOnClickListener(view -> {
             TagSelectBottomSheet bottomSheet = new TagSelectBottomSheet();
+            Bundle bundle = new Bundle();
+            bundle.putInt(KeyStrings.TAG_SCOPE.v(), (int) Math.pow(2, type.ordinal())); //传递标签作用域标识符
+            bottomSheet.setArguments(bundle);
             bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_SHEET.getTag());
         });
 

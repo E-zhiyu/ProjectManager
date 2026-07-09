@@ -76,7 +76,7 @@
             android:name=".ui.pages.tag.GroupModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.tag.TagManageActivity"
+            android:name=".ui.pages.tag.TagListActivity"
             android:exported="false" />
         <activity
             android:name=".ui.pages.tag.TagAddModifyActivity"

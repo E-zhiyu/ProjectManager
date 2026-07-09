@@ -33,7 +33,7 @@ import com.manager.assistant.ui.sync.account.RunningAccountRepository;
 import com.manager.assistant.ui.sync.budget.BudgetRepository;
 import com.manager.assistant.ui.sync.tag.TagRepository;
 import com.manager.assistant.ui.pages.budget.BudgetManageActivity;
-import com.manager.assistant.ui.pages.tag.TagManageActivity;
+import com.manager.assistant.ui.pages.tag.TagListActivity;
 import com.manager.assistant.ui.pages.report.ReportActivity;
 import com.manager.assistant.auxiliary.enums.AccountType;
 
@@ -97,7 +97,7 @@ public class HomeFragment extends Fragment {
         });
         AppearanceHelper.attachMorphAnimation(binding.tagCard);
         binding.tagCard.setOnClickListener(v -> {
-            Intent skip2TagManage = new Intent(requireContext(), TagManageActivity.class);
+            Intent skip2TagManage = new Intent(requireContext(), TagListActivity.class);
             startActivity(skip2TagManage);
         });
         binding.budgetCard.setOnClickListener(v -> {

@@ -7,6 +7,7 @@ import com.manager.assistant.data.save.db.daos.TagDao;
 import com.manager.assistant.data.save.db.entities.TagEntity;
 import com.manager.assistant.data.save.db.entities.TagGroupEntity;
 import com.manager.assistant.data.save.db.entities.composite.ui.TagGroupUiModel;
+import com.manager.assistant.data.save.db.entities.composite.ui.TagListUiModel;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -20,13 +21,14 @@ public class TagService {
     /**
      * 获取分组后的标签数据
      *
-     * @param db 数据库实例
+     * @param db  数据库实例
+     * @param pow 标签作用域标识符，传递0以获取所有作用域内的标签
      * @return 带有分组名称分隔符的标签列表，已按照分组编号分组
      */
-    public static Flowable<List<TagGroupUiModel>> getGroupedTagFlowable(@NonNull BookkeepingDb db) {
+    public static Flowable<List<TagGroupUiModel>> getGroupedTagFlowable(@NonNull BookkeepingDb db, int pow) {
         TagDao dao = db.tagDao();
         return Flowable.zip(
-                dao.getAllTagFlowable(),
+                dao.getAllTagFlowable(pow),
                 dao.getAllTagGroupFlowable(),
                 (tagList, groupList) -> {
                     //将标签数据按照分组编号分组
@@ -52,6 +54,51 @@ public class TagService {
                         resultList.add(new TagGroupUiModel.Separator(groupName));
 
                         resultList.add(new TagGroupUiModel.Item(entry.getValue()));
+                    }
+
+                    return resultList;
+                }
+        );
+    }
+
+    /**
+     * 获取标签列表数据
+     *
+     * @param db 数据库实例
+     * @return 带有分隔符的标签列表数据，支持响应式更新
+     */
+    public static Flowable<List<TagListUiModel>> getTagListFlowable(@NonNull BookkeepingDb db) {
+        TagDao dao = db.tagDao();
+        return Flowable.zip(
+                dao.getAllTagFlowable(0),
+                dao.getAllTagGroupFlowable(),
+                (tagList, groupList) -> {
+                    //将标签数据按照分组编号分组
+                    Map<Long, List<TagEntity>> groupedTagMap = tagList.stream()
+                            .collect(Collectors.groupingBy(
+                                    TagEntity::getGroupId,
+                                    LinkedHashMap::new,
+                                    Collectors.toList()
+                            ));
+
+                    //获取实际的标签分组数据
+                    Map<Long, String> groupNameMap = groupList.stream()
+                            .collect(Collectors.toMap(
+                                    TagGroupEntity::getGroupId,
+                                    TagGroupEntity::getName
+                            ));
+
+                    //生成带有分隔符的标签列表
+                    List<TagListUiModel> resultList = new ArrayList<>();
+                    for (Map.Entry<Long, List<TagEntity>> entry : groupedTagMap.entrySet()) {
+                        long groupId = entry.getKey();
+                        String groupName = groupNameMap.getOrDefault(groupId, "<未知分组>");
+                        resultList.add(new TagListUiModel.Separator(groupName));
+
+                        List<TagListUiModel.Item> itemList = entry.getValue().stream()
+                                .map(TagListUiModel.Item::new)
+                                .collect(Collectors.toList());
+                        resultList.addAll(itemList);
                     }
 
                     return resultList;
