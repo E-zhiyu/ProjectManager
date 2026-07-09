@@ -1,5 +1,6 @@
 package com.manager.assistant.ui.pages.tag;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -223,7 +224,10 @@ public class TagListAdapter extends ListAdapter<TagListUiModel, RecyclerView.Vie
             setRadius(itemHolder.binding.getRoot(), position);
         } else if (model instanceof TagListUiModel.Separator && holder instanceof SeparatorViewHolder) {
             String text = ((TagListUiModel.Separator) model).group.getName();
-            ((SeparatorViewHolder) holder).binding.nameText.setText(text);
+            SeparatorViewHolder sHolder = (SeparatorViewHolder) holder;
+
+            sHolder.binding.nameText.setText(text);
+            setRadius(sHolder.binding.getRoot(), position);
         }
     }
 
@@ -233,30 +237,35 @@ public class TagListAdapter extends ListAdapter<TagListUiModel, RecyclerView.Vie
      * @param view     需要设置圆角的视图
      * @param position 该视图所处的位置
      */
-    private void setRadius(View view, int position) {
-        if (position == 0) {    //第0个不参与圆角设置，因为它是日期分隔视图
-            return;
-        }
+    private void setRadius(@NonNull View view, int position) {
+        Context context = view.getContext();
+        TagListUiModel model = getItem(position);
 
-        //不需要考虑当前是分隔视图的情况，因为不是Shapable不会执行任何操作
-        TagListUiModel front = getItem(position - 1);
-        if (position == getItemCount() - 1) {   //处理最后一个卡片的圆角
-            if (front instanceof TagListUiModel.Separator) {
-                AppearanceHelper.setRadiusStyle(view, RadiusStyle.SINGLE); //前一个是分隔视图，判断为单独类型
+        if (model instanceof TagListUiModel.Separator) {
+            if (position == getItemCount() - 1) {
+                AppearanceHelper.setRadius(
+                        context,
+                        view,
+                        AppearanceHelper.MEDIUM_CARD_RADIUS,
+                        AppearanceHelper.MEDIUM_CARD_RADIUS,
+                        AppearanceHelper.MEDIUM_CARD_RADIUS,
+                        AppearanceHelper.MEDIUM_CARD_RADIUS
+                );
             } else {
-                AppearanceHelper.setRadiusStyle(view, RadiusStyle.BOTTOM); //前一个不是分隔视图，判断为底部类型
+                AppearanceHelper.setRadius(
+                        context,
+                        view,
+                        AppearanceHelper.MEDIUM_CARD_RADIUS,
+                        AppearanceHelper.MEDIUM_CARD_RADIUS,
+                        AppearanceHelper.SMALL_CARD_RADIUS,
+                        AppearanceHelper.SMALL_CARD_RADIUS
+                );
             }
-        } else {
-            TagListUiModel behind = getItem(position + 1);
-
-            if (front instanceof TagListUiModel.Separator && behind instanceof TagListUiModel.Separator) {
-                AppearanceHelper.setRadiusStyle(view, RadiusStyle.SINGLE); //前后都是分隔视图，判断为单独类型
-            } else if (front instanceof TagListUiModel.Separator) {
-                AppearanceHelper.setRadiusStyle(view, RadiusStyle.TOP);    //前一个是分隔但后一个不是，判断为顶部类型
-            } else if (behind instanceof TagListUiModel.Separator) {
-                AppearanceHelper.setRadiusStyle(view, RadiusStyle.BOTTOM); //后一个是分隔但前一个不是，判断为底部类型
+        } else if (model instanceof TagListUiModel.Item) {
+            if (position == getItemCount() - 1 || getItem(position + 1) instanceof TagListUiModel.Separator) {
+                AppearanceHelper.setRadiusStyle(view, RadiusStyle.BOTTOM);
             } else {
-                AppearanceHelper.setRadiusStyle(view, RadiusStyle.MIDDLE); //前后都不是分隔视图，判断为中间类型
+                AppearanceHelper.setRadiusStyle(view, RadiusStyle.MIDDLE);
             }
         }
     }
