@@ -19,9 +19,11 @@ import com.manager.assistant.R;
 import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.entities.AccountEntity;
 import com.manager.assistant.data.save.db.services.AccountService;
+import com.manager.assistant.databinding.ViewHolderSeparatorTextChipBinding;
 import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.helpers.ExceptionHelper;
+import com.manager.assistant.ui.others.decoration.sticky.StickyHeaderItemDecoration;
 import com.manager.assistant.ui.others.viewmodel.AccountFilterViewModel;
 import com.manager.assistant.ui.pages.main.MainActivity;
 import com.manager.assistant.databinding.FragmentBookkeepingBinding;
@@ -120,6 +122,12 @@ public class BookKeepingFragment extends Fragment {
                         e -> ExceptionHelper.showExceptionDialog(requireContext(), e)
                 )
         );
+        StickyHeaderItemDecoration<ViewHolderSeparatorTextChipBinding> decoration = new StickyHeaderItemDecoration<>(
+                adapter,
+                ViewHolderSeparatorTextChipBinding::inflate,
+                (binding1, data) -> binding1.separatorText.setText(data)
+        );
+        binding.accountRecycler.addItemDecoration(decoration);
     }
 
     /**
