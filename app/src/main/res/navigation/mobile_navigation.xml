@@ -17,7 +17,7 @@
         tools:layout="@layout/fragment_home" />
     <fragment
         android:id="@+id/navigation_settings"
-        android:name="com.manager.assistant.ui.pages.main.setting.SettingFragment"
+        android:name="com.manager.assistant.ui.pages.main.setting.SettingsFragment"
         android:label="@string/title_setting"
-        tools:layout="@layout/fragment_setting" />
+        tools:layout="@layout/fragment_settings" />
 </navigation>

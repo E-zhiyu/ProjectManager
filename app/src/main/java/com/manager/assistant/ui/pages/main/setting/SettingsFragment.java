@@ -17,7 +17,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.data.save.preference.SecurityPreference;
-import com.manager.assistant.databinding.FragmentSettingBinding;
+import com.manager.assistant.databinding.FragmentSettingsBinding;
 import com.manager.assistant.generic_enums.options.AuthOpportunity;
 import com.manager.assistant.generic_enums.options.FirstScreen;
 import com.manager.assistant.generic_enums.options.ThemeMode;
@@ -42,12 +42,12 @@ import java.util.stream.Collectors;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 
-public class SettingFragment extends Fragment {
-    private FragmentSettingBinding binding;                                         //绑定的XML视图
+public class SettingsFragment extends Fragment {
+    private FragmentSettingsBinding binding;                                         //绑定的XML视图
     private final CompositeDisposable disposables = new CompositeDisposable();      //多线程任务列表
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentSettingBinding.inflate(inflater, container, false);
+        binding = FragmentSettingsBinding.inflate(inflater, container, false);
 
         initViews();
 
@@ -65,56 +65,9 @@ public class SettingFragment extends Fragment {
      * 初始化视图
      */
     private void initViews() {
-        //应用设置
         initAppSettings();
-
-        //数据管理
-        SettingClickableTextView dataManage = new SettingClickableTextView(
-                requireContext(),
-                binding.dataManageOption,
-                R.string.data_manage,
-                "点击进入数据管理设置界面",
-                R.drawable.outline_database_24,
-                SettingOptionViewBase.RadiusStyle.SINGLE
-        );
-        dataManage.setFunctionListener(view -> {
-            Intent intent = new Intent(requireContext(), DataManageActivity.class);
-            startActivity(intent);
-        });
-
-        initSecuritySettings();
-
-        //自动记账
-        SettingClickableTextView autoBookkeeping = new SettingClickableTextView(
-                requireContext(),
-                binding.autoBookkeepingOption,
-                R.string.auto_bookkeeping,
-                "点击进入自动记账设置界面",
-                R.drawable.outline_checkbook_24,
-                SettingOptionViewBase.RadiusStyle.TOP
-        );
-        autoBookkeeping.setFunctionListener(view -> {
-            Intent intent = new Intent(requireContext(), AutoBookkeepingActivity.class);
-            startActivity(intent);
-        });
-
-        //最近任务隐藏
-        SettingSwitchView hideRecentTask = new SettingSwitchView(
-                requireContext(),
-                binding.hideRecentTaskOption,
-                R.string.hide_recent_task,
-                "在最近任务列表中隐藏",
-                R.drawable.outline_visibility_off_24,
-                SettingOptionViewBase.RadiusStyle.BOTTOM
-        );
-        boolean isHidden = AutoBookKeepingPreference.getHideRecentTask(requireContext());
-        hideRecentTask.setChecked(isHidden);
-        hideRecentTask.setFunctionListener(
-                (compoundButton, checked) ->
-                        AutoBookKeepingPreference.setHideRecentTask(checked, requireContext())
-        );
-
-        //关于
+        initCommonSettings();
+        initPrivacySettings();
         initAboutSettings();
     }
 
@@ -157,7 +110,7 @@ public class SettingFragment extends Fragment {
                 R.string.select_first_screen,
                 "选择启动的第一屏",
                 R.drawable.outline_mobile_24,
-                SettingOptionViewBase.RadiusStyle.MIDDLE
+                SettingOptionViewBase.RadiusStyle.BOTTOM
         );
         int screenCode = AppSettingsPreference.getFirstScreen(requireContext());
         firstScreenOption.setSpinnerText(FirstScreen.values()[screenCode].getTitle());
@@ -193,7 +146,12 @@ public class SettingFragment extends Fragment {
 
             firstScreenMenu.show();
         });
+    }
 
+    /**
+     * 初始化通用设置
+     */
+    private void initCommonSettings() {
         //权限管理
         SettingClickableTextView permissionsOption = new SettingClickableTextView(
                 requireContext(),
@@ -201,7 +159,7 @@ public class SettingFragment extends Fragment {
                 R.string.permissions_setting,
                 "点击进入权限管理界面",
                 R.drawable.outline_settings_24,
-                SettingOptionViewBase.RadiusStyle.BOTTOM
+                SettingOptionViewBase.RadiusStyle.TOP
         );
         permissionsOption.setFunctionListener(v -> {
             Intent skip2PermissionManage = new Intent(
@@ -210,12 +168,40 @@ public class SettingFragment extends Fragment {
             );
             startActivity(skip2PermissionManage);
         });
+
+        //数据管理
+        SettingClickableTextView dataManage = new SettingClickableTextView(
+                requireContext(),
+                binding.dataManageOption,
+                R.string.data_manage,
+                "点击进入数据管理设置界面",
+                R.drawable.outline_database_24,
+                SettingOptionViewBase.RadiusStyle.MIDDLE
+        );
+        dataManage.setFunctionListener(view -> {
+            Intent intent = new Intent(requireContext(), DataManageActivity.class);
+            startActivity(intent);
+        });
+
+        //自动记账
+        SettingClickableTextView autoBookkeeping = new SettingClickableTextView(
+                requireContext(),
+                binding.autoBookkeepingOption,
+                R.string.auto_bookkeeping,
+                "点击进入自动记账设置界面",
+                R.drawable.outline_checkbook_24,
+                SettingOptionViewBase.RadiusStyle.BOTTOM
+        );
+        autoBookkeeping.setFunctionListener(view -> {
+            Intent intent = new Intent(requireContext(), AutoBookkeepingActivity.class);
+            startActivity(intent);
+        });
     }
 
     /**
-     * 初始化安全设置
+     * 初始化隐私设置
      */
-    private void initSecuritySettings() {
+    private void initPrivacySettings() {
         //身份验证开关
         SettingSwitchView authenticationSwitch = new SettingSwitchView(
                 requireContext(),
@@ -286,7 +272,7 @@ public class SettingFragment extends Fragment {
                 R.string.authentication_opportunity,
                 "进行身份验证的时机",
                 R.drawable.outline_safety_check_24,
-                SettingOptionViewBase.RadiusStyle.BOTTOM
+                SettingOptionViewBase.RadiusStyle.MIDDLE
         );
         int opportunityCode = SecurityPreference.getAuthOpportunity(requireContext());
         authenticationOpportunity.setSpinnerText(AuthOpportunity.values()[opportunityCode].getTitle());
@@ -322,6 +308,22 @@ public class SettingFragment extends Fragment {
 
             opportunityMenu.show();
         });
+
+        //最近任务隐藏
+        SettingSwitchView hideRecentTask = new SettingSwitchView(
+                requireContext(),
+                binding.hideRecentTaskOption,
+                R.string.hide_recent_task,
+                "在最近任务列表中隐藏",
+                R.drawable.outline_visibility_off_24,
+                SettingOptionViewBase.RadiusStyle.BOTTOM
+        );
+        boolean isHidden = AutoBookKeepingPreference.getHideRecentTask(requireContext());
+        hideRecentTask.setChecked(isHidden);
+        hideRecentTask.setFunctionListener(
+                (compoundButton, checked) ->
+                        AutoBookKeepingPreference.setHideRecentTask(checked, requireContext())
+        );
     }
 
     /**

@@ -1,0 +1,140 @@
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:scrollbars="none"
+    tools:context=".ui.pages.main.setting.SettingsFragment">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            style="@style/CollapsingToolbarLayoutStyle"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/collapsingToolbarLayoutMediumSize"
+            app:toolbarId="@id/toolbar">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
+                app:navigationIcon="@null"
+                app:title="@string/settings" />
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:scrollbars="none"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="10dp"
+                android:text="@string/app_settings"
+                android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+            <!-- 主题模式 -->
+            <include
+                android:id="@+id/theme_mode_option"
+                layout="@layout/view_setting_option" />
+
+            <!-- 动态色彩 -->
+            <include
+                android:id="@+id/dynamic_color_option"
+                layout="@layout/view_setting_option" />
+
+            <!-- 启动界面 -->
+            <include
+                android:id="@+id/first_screen_option"
+                layout="@layout/view_setting_option" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:text="@string/common_settings"
+                android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+            <!-- 权限管理 -->
+            <include
+                android:id="@+id/permissions_option"
+                layout="@layout/view_setting_option" />
+
+            <!-- 数据管理 -->
+            <include
+                android:id="@+id/data_manage_option"
+                layout="@layout/view_setting_option" />
+
+            <!-- 自动记账 -->
+            <include
+                android:id="@+id/auto_bookkeeping_option"
+                layout="@layout/view_setting_option" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:text="@string/privacy_settings"
+                android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+            <!-- 身份验证开关 -->
+            <include
+                android:id="@+id/authentication_switch"
+                layout="@layout/view_setting_option" />
+
+            <!-- 身份验证时机 -->
+            <include
+                android:id="@+id/authentication_opportunity_option"
+                layout="@layout/view_setting_option" />
+
+            <!-- 最近任务隐藏 -->
+            <include
+                android:id="@+id/hide_recent_task_option"
+                layout="@layout/view_setting_option" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:text="@string/about_software"
+                android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+            <!-- 关于软件 -->
+            <include
+                android:id="@+id/about_option"
+                layout="@layout/view_setting_option" />
+
+            <!-- 更新日志 -->
+            <include
+                android:id="@+id/update_log_option"
+                layout="@layout/view_setting_option" />
+
+            <!-- 检测更新 -->
+            <include
+                android:id="@+id/update_check_option"
+                layout="@layout/view_setting_option" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

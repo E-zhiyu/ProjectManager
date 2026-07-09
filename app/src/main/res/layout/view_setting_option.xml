@@ -60,7 +60,7 @@
             android:id="@+id/description_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/setting"
+            android:text="@string/settings"
             android:textAppearance="?attr/textAppearanceBodyMedium"
             android:textColor="?attr/colorOutline"
             app:layout_constraintBottom_toBottomOf="parent"

@@ -29,7 +29,7 @@ import com.manager.assistant.ui.others.adapters.FragmentPagerAdapter;
 import com.manager.assistant.ui.others.adapters.SearchHistoryAdapter;
 import com.manager.assistant.ui.pages.main.bookkeeping.BookKeepingFragment;
 import com.manager.assistant.ui.pages.main.home.HomeFragment;
-import com.manager.assistant.ui.pages.main.setting.SettingFragment;
+import com.manager.assistant.ui.pages.main.setting.SettingsFragment;
 import com.manager.assistant.ui.sync.AccountSearchViewModel;
 
 import java.util.ArrayList;
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         List<Fragment> fragmentList = new ArrayList<>();
         fragmentList.add(new BookKeepingFragment());
         fragmentList.add(new HomeFragment());
-        fragmentList.add(new SettingFragment());
+        fragmentList.add(new SettingsFragment());
         ViewPager2 viewPager2 = getViewPager2(fragmentList, binding.bottomNavi);
 
         //设置APP启动第一屏

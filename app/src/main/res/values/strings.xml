@@ -37,7 +37,7 @@
     <string name="this_year">这一年</string>
     <string name="percentage_100">100%</string>
     <string name="tag_add">新建标签</string>
-    <string name="setting">应用设置</string>
+    <string name="settings">设置</string>
     <string name="theme_mode">主题模式</string>
     <string name="dynamic_color">动态色彩</string>
     <string name="data_manage">数据管理</string>
@@ -185,6 +185,9 @@
     <string name="life_note">预算</string>
     <string name="budget">预算</string>
     <string name="today_income_and_expense">今日收支</string>
+    <string name="app_settings">应用设置</string>
+    <string name="common_settings">通用设置</string>
+    <string name="privacy_settings">隐私设置</string>
     <string-array name="tips_array">
         <item>在报表界面可以点击某个收支来源以排除它，还不赶快去试试？</item>
         <item>你知道吗？下面的这些卡片是可以点击的。</item>
