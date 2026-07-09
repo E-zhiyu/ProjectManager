@@ -124,7 +124,7 @@ public class AccountService {
                             ));
 
                     //转换为 UiModel
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd EEEE");
                     List<AccountUiModel> resultList = new ArrayList<>();
                     for (Map.Entry<LocalDate, List<AccountEntity>> entry : dateGroupedMap.entrySet()) {
                         LocalDate date = entry.getKey();
