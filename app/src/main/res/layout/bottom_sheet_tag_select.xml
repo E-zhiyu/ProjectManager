@@ -54,7 +54,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="100dp"
         android:text="@string/no_tag"
-        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
