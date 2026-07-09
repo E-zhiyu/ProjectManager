@@ -76,7 +76,7 @@
     <string name="reset_rule">重置规则</string>
     <string name="import_rule">导入规则</string>
     <string name="export_rule">导出规则</string>
-    <string name="title_home">主页</string>
+    <string name="home_page">主页</string>
     <string name="welcome_string">欢迎使用经理助手</string>
     <string name="today_balance">今日结余</string>
     <string name="num_of_shown">显示数量：∞</string>
@@ -179,6 +179,12 @@
     <string name="button_to_add">添加按钮</string>
     <string name="common_tag">常用标签</string>
     <string name="no_tag">无标签</string>
+    <string name="bookkeeping_start_date">记账开始日期</string>
+    <string name="date_difference_to_today">距今天数</string>
+    <string name="notification_rule">通知规则</string>
+    <string name="life_note">预算</string>
+    <string name="budget">预算</string>
+    <string name="today_income_and_expense">今日收支</string>
     <string-array name="tips_array">
         <item>在报表界面可以点击某个收支来源以排除它，还不赶快去试试？</item>
         <item>你知道吗？下面的这些卡片是可以点击的。</item>

@@ -22,6 +22,7 @@ import com.manager.assistant.data.save.db.entities.MediaEntity;
 import com.manager.assistant.data.save.db.entities.composite.AccountWithDetailModel;
 import com.manager.assistant.helpers.file.FileHelper;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +34,24 @@ import io.reactivex.rxjava3.core.Single;
 
 @Dao
 public interface AccountDao {
+    /**
+     * 获取最早的记账日期
+     *
+     * @return 最早的记账日期
+     */
+    @Query("SELECT dateTime FROM accounts ORDER BY dateTime ASC LIMIT 1")
+    Flowable<Optional<LocalDate>> getEarliestDateFlowable();
+
+    /**
+     * 获取在日期范围内的流水记录
+     *
+     * @param start 起始日期（包含）
+     * @param end   结束日期（不包含）
+     * @return 在日期范围内的流水记录
+     */
+    @Query("SELECT * FROM accounts WHERE dateTime >= :start AND dateTime < :end")
+    Flowable<List<AccountEntity>> getAccountInDateRange(LocalDate start, LocalDate end);
+
     /**
      * 获取符合过滤条件的流水记录
      *
