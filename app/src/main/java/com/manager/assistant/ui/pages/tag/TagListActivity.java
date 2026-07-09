@@ -18,8 +18,8 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class TagListActivity extends AppCompatActivity {
-    private final CompositeDisposable disposables = new CompositeDisposable();                      //订阅列表（便于取消订阅）
-    private ActivityTagListBinding binding;                                                       //绑定的XML视图的引用
+    private final CompositeDisposable disposables = new CompositeDisposable();  //订阅列表
+    private ActivityTagListBinding binding;                                     //绑定的XML视图的引用
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +32,7 @@ public class TagListActivity extends AppCompatActivity {
         //设置界面边距以防内容被小白条遮挡
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+            v.setPadding(systemBars.left, 0, systemBars.right, 0);
             binding.recycler.setPadding(systemBars.left, 0, systemBars.right, systemBars.bottom);
             return insets;
         });

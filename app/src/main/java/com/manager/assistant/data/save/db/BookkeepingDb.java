@@ -2,10 +2,12 @@ package com.manager.assistant.data.save.db;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.manager.assistant.data.save.db.converters.DateTimeConverter;
 import com.manager.assistant.data.save.db.converters.UriConverter;
@@ -21,6 +23,10 @@ import com.manager.assistant.data.save.db.entities.TagEntity;
 import com.manager.assistant.data.save.db.entities.TagGroupEntity;
 import com.manager.assistant.data.save.db.entities.AccountTransferEntity;
 import com.manager.assistant.data.save.db.entities.RuleTransferAccountEntity;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @Database(
         entities = {
@@ -59,6 +65,18 @@ public abstract class BookkeepingDb extends RoomDatabase {
                                     BookkeepingDb.class,
                                     "bookkeeping_database"
                             )
+                            .addCallback(new Callback() {
+                                @Override
+                                public void onCreate(@NonNull SupportSQLiteDatabase db) {
+                                    super.onCreate(db);
+
+                                    //初始化默认分组逻辑
+                                    getInstance(context).initDefaultTagGroup()
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribeOn(Schedulers.io())
+                                            .subscribe();
+                                }
+                            })
                             .addMigrations()
                             .build();
                 }
@@ -69,5 +87,20 @@ public abstract class BookkeepingDb extends RoomDatabase {
     }
 
     public abstract AccountDao accountDao();
+
     public abstract TagDao tagDao();
+
+    /**
+     * 初始化标签默认分组
+     *
+     * @return 是否完成
+     */
+    private Completable initDefaultTagGroup() {
+        return Completable.defer(() -> {
+            TagGroupEntity defaultGroup = new TagGroupEntity("默认分组");
+            defaultGroup.setGroupId(-1);
+            tagDao().insertTagGroup(defaultGroup);
+            return Completable.complete();
+        });
+    }
 }

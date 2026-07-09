@@ -1,6 +1,8 @@
 package com.manager.assistant.data.save.db.daos;
 
 import androidx.room.Dao;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import com.manager.assistant.data.save.db.entities.TagEntity;
@@ -36,4 +38,12 @@ public interface TagDao {
      */
     @Query("SELECT * FROM taggroups")
     Flowable<List<TagGroupEntity>> getAllTagGroupFlowable();
+
+    /**
+     * 插入标签分组
+     *
+     * @param entity 标签分组实例
+     */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    void insertTagGroup(TagGroupEntity entity);
 }
