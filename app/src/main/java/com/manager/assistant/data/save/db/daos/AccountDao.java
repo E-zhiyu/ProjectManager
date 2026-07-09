@@ -197,8 +197,8 @@ public interface AccountDao {
         updateAccount(account);
 
         //更新转账账户数据
+        deleteAccountTransferByAccountId(accountId);
         if (account.getType() == AccountType.TRANSFER.ordinal()) {
-            deleteAccountTransferByAccountId(accountId);
             insertAccountTransfer(transfer);
         }
 

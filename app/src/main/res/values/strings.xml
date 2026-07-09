@@ -125,7 +125,7 @@
     <string name="tag_scope">标签作用域</string>
     <string name="no_tag_selection">添加“无标签”</string>
     <string name="tag_count">标签数量</string>
-    <string name="count_infinity">∞</string>
+    <string name="infinity">∞</string>
     <string name="budget_count">预算数量</string>
     <string name="budget_manage">预算管理</string>
     <string name="create_budget">新建预算</string>
@@ -176,6 +176,9 @@
     <string name="not_included">未包含</string>
     <string name="add_media_files">添加媒体文件</string>
     <string name="preview_of_media_file">媒体文件预览</string>
+    <string name="button_to_add">添加按钮</string>
+    <string name="common_tag">常用标签</string>
+    <string name="no_tag">无标签</string>
     <string-array name="tips_array">
         <item>在报表界面可以点击某个收支来源以排除它，还不赶快去试试？</item>
         <item>你知道吗？下面的这些卡片是可以点击的。</item>

@@ -30,13 +30,11 @@ import com.manager.assistant.databinding.ActivityRuleAddModifyBinding;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyStrings;
-import com.manager.assistant.generic_enums.TagStrings;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.animators.ExpandFoldAnimator;
 import com.manager.assistant.ui.pages.package_name_select.PackageNameSelectActivity;
 import com.manager.assistant.auxiliary.enums.AccountType;
 import com.manager.assistant.data.classes.Tag;
-import com.manager.assistant.ui.others.bottom.tag.TagSelectBottomSheet;
 import com.manager.assistant.ui.sync.tag.TagUpdateReason;
 import com.manager.assistant.ui.sync.tag.TagRepository;
 
@@ -55,7 +53,6 @@ public class RuleAddModifyActivity extends AppCompatActivity {
     private long ruleNo;                                            //规则编号
     private long tagNo = 0;                                         //标签编号
     private AccountType type = AccountType.EXPENSE;   //流水种类
-    private TagSelectBottomSheet tagSheet;                          //标签选择弹出菜单
     private ActivityResultLauncher<Intent> packageNameSelectLauncher;   //包名选择启动器
     private ActivityRuleAddModifyBinding binding;                   //绑定的XML视图引用
 
@@ -151,16 +148,16 @@ public class RuleAddModifyActivity extends AppCompatActivity {
         binding.importAccountInput.setOnClickListener(v -> binding.importAccountLayout.setError(null));
 
         //标签名称
-        binding.tagInput.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) {
-                tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, type);
-                tagSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_SHEET.getTag());
-            }
-        });
-        binding.tagInput.setOnClickListener(v -> {
-            tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, type);
-            tagSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_SHEET.getTag());
-        });
+//        binding.tagInput.setOnFocusChangeListener((v, hasFocus) -> {
+//            if (hasFocus) {
+//                tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, type);
+//                tagSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_SHEET.getTag());
+//            }
+//        });
+//        binding.tagInput.setOnClickListener(v -> {
+//            tagSheet = new TagSelectBottomSheet(this::onTagBtnClicked, type);
+//            tagSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_SHEET.getTag());
+//        });
 
         //包名
         binding.packageNameInput.setOnFocusChangeListener((v, hasFocus) -> {
@@ -377,11 +374,11 @@ public class RuleAddModifyActivity extends AppCompatActivity {
     }
 
     //处理标签按钮点击事件
-    public void onTagBtnClicked(long tagNo, String tag_name) {
-        this.tagNo = tagNo;
-        binding.tagInput.setText(tag_name);
-        tagSheet.dismiss();
-    }
+//    public void onTagBtnClicked(long tagNo, String tag_name) {
+//        this.tagNo = tagNo;
+//        binding.tagInput.setText(tag_name);
+//        tagSheet.dismiss();
+//    }
 
     //观察标签数据变化
     private void startObserveTag() {

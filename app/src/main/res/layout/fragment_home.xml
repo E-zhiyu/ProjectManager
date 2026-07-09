@@ -157,7 +157,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:paddingBottom="5dp"
-                    android:text="@string/count_infinity" />
+                    android:text="@string/infinity" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -194,7 +194,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:paddingBottom="5dp"
-                    android:text="@string/count_infinity" />
+                    android:text="@string/infinity" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </androidx.constraintlayout.widget.ConstraintLayout>

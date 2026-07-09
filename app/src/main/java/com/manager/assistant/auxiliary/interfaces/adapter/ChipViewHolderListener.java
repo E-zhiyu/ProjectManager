@@ -18,4 +18,13 @@ public interface ChipViewHolderListener {
      * @param anchor 显示 PopupMenu 的锚点
      */
     void onClose(int pos, View anchor);
+
+    /**
+     * 选择状态变化监听
+     *
+     * @param pos       被点击的 ViewHolder 在适配器中的位置
+     * @param isChecked 是否被选中
+     * @param anchor    显示 PopupMenu 的锚点
+     */
+    void onCheckedChanged(int pos, boolean isChecked, View anchor);
 }

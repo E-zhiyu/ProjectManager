@@ -72,6 +72,10 @@ public class AccountTagAdapter extends ListAdapter<TagEntity, AccountTagAdapter.
                         TagEntity tag = getItem(pos);
                         closeListener.onClose(tag, anchor, AccountTagAdapter.this);
                     }
+
+                    @Override
+                    public void onCheckedChanged(int pos, boolean isChecked, View anchor) {
+                    }
                 }
         );
     }

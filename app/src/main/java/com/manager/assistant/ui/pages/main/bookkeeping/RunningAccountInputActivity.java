@@ -61,10 +61,12 @@ import com.manager.assistant.helpers.appearence.VisibilityHelper;
 import com.manager.assistant.helpers.file.FileHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.bottom.MediaAddBottomSheet;
+import com.manager.assistant.ui.others.bottom.TagSelectBottomSheet;
 import com.manager.assistant.ui.others.dialogs.ProgressDialogBuilder;
 import com.manager.assistant.ui.others.selections.media.MediaIdKeyProvider;
 import com.manager.assistant.ui.others.selections.media.MediaLookup;
 import com.manager.assistant.ui.others.viewmodel.MediaAddOptionViewModel;
+import com.manager.assistant.ui.others.viewmodel.TagSelectViewModel;
 import com.manager.assistant.ui.pages.media.FullScreenMediaActivity;
 
 import java.io.File;
@@ -175,7 +177,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         binding.mediaRecycler.setLayoutManager(layoutManager);
         mediaAdapter = new AccountMediaAdapter(
                 size,
-                (pos, mediaView,mediaList) -> {
+                (pos, mediaView, mediaList) -> {
                     String[] uriStrArray = mediaList.stream()
                             .map(MediaEntity::getFileUri)
                             .map(Uri::toString)
@@ -272,6 +274,9 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                                 } else {
                                     binding.tagRecycler.setVisibility(View.GONE);
                                 }
+                                TagSelectViewModel tagSelectViewModel = new ViewModelProvider(this).get(TagSelectViewModel.class);
+                                tagSelectViewModel.getCheckedTagEntitySet().clear();
+                                tagSelectViewModel.getCheckedTagEntitySet().addAll(tagList);
 
                                 //显示媒体
                                 if (!mediaList.isEmpty()) {
@@ -355,7 +360,8 @@ public class RunningAccountInputActivity extends AppCompatActivity {
 
         //标签选择按钮
         binding.tagSelectBtn.setOnClickListener(view -> {
-            //TODO:标签选择
+            TagSelectBottomSheet bottomSheet = new TagSelectBottomSheet();
+            bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_SHEET.getTag());
         });
 
         //媒体添加按钮
@@ -487,6 +493,17 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                                 .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
                                 .build()
                 );
+            }
+        });
+
+        //标签选择
+        TagSelectViewModel tagSelectViewModel = new ViewModelProvider(this).get(TagSelectViewModel.class);
+        tagSelectViewModel.getNeedExecute().observe(this, b -> {
+            if (b) {
+                List<TagEntity> checkedTagList = new ArrayList<>(tagSelectViewModel.getCheckedTagEntitySet());
+                if (binding.tagRecycler.getAdapter() instanceof AccountTagAdapter) {
+                    ((AccountTagAdapter) binding.tagRecycler.getAdapter()).submitList(checkedTagList);
+                }
             }
         });
     }

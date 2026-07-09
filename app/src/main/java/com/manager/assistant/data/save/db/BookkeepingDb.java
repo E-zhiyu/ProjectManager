@@ -10,6 +10,7 @@ import androidx.room.TypeConverters;
 import com.manager.assistant.data.save.db.converters.DateTimeConverter;
 import com.manager.assistant.data.save.db.converters.UriConverter;
 import com.manager.assistant.data.save.db.daos.AccountDao;
+import com.manager.assistant.data.save.db.daos.TagDao;
 import com.manager.assistant.data.save.db.entities.AccountTagRefEntity;
 import com.manager.assistant.data.save.db.entities.BudgetEntity;
 import com.manager.assistant.data.save.db.entities.BudgetTagRefEntity;
@@ -68,4 +69,5 @@ public abstract class BookkeepingDb extends RoomDatabase {
     }
 
     public abstract AccountDao accountDao();
+    public abstract TagDao tagDao();
 }

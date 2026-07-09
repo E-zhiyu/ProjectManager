@@ -25,10 +25,8 @@ import com.manager.assistant.data.controllers.TagGroupDataController;
 import com.manager.assistant.databinding.ActivityTagAddModifyBinding;
 import com.manager.assistant.generic_enums.RequestResultCode;
 import com.manager.assistant.generic_enums.KeyStrings;
-import com.manager.assistant.generic_enums.TagStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
-import com.manager.assistant.ui.others.bottom.tag.TagSelectBottomSheet;
 import com.manager.assistant.ui.sync.tag.TagUpdateReason;
 import com.manager.assistant.ui.sync.tag.TagRepository;
 import com.manager.assistant.auxiliary.enums.AccountType;
@@ -44,7 +42,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class TagAddModifyActivity extends AppCompatActivity {
     private boolean isModifyMode = false;                       //是否为标签编辑模式
     private long tagNo = 0, groupNo = 0;                        //标签和标签分组编号
-    private TagSelectBottomSheet tagSheet;                      //标签选择底部弹窗
     private ActivityTagAddModifyBinding binding;                //绑定的XML视图的引用
     private int scope = 0;                                      //标签作用域范围
     private final CompositeDisposable disposables = new CompositeDisposable();                      //订阅列表（便于取消订阅）
@@ -160,16 +157,16 @@ public class TagAddModifyActivity extends AppCompatActivity {
         binding.cancelBtn.setOnClickListener(v -> finish());
 
         //合并按钮
-        binding.mergeBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(this)
-                .setTitle("合并标签")
-                .setMessage("此操作会将本标签与其他标签合并，使用本标签标记的流水记录将自动替换为用合并后的标签标记，并且本标签将被永久删除，确认继续吗？")
-                .setPositiveButton("确认", (dialog, which) -> {
-                    tagSheet = new TagSelectBottomSheet(this::onTagMergeConfirmed, tagNo);
-                    tagSheet.show(getSupportFragmentManager(), TagStrings.TAG_MERGE_SHEET.getTag());
-                })
-                .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
-                .show()
-        );
+//        binding.mergeBtn.setOnClickListener(v -> new MaterialAlertDialogBuilder(this)
+//                .setTitle("合并标签")
+//                .setMessage("此操作会将本标签与其他标签合并，使用本标签标记的流水记录将自动替换为用合并后的标签标记，并且本标签将被永久删除，确认继续吗？")
+//                .setPositiveButton("确认", (dialog, which) -> {
+//                    tagSheet = new TagSelectBottomSheet(this::onTagMergeConfirmed, tagNo);
+//                    tagSheet.show(getSupportFragmentManager(), TagStrings.TAG_MERGE_SHEET.getTag());
+//                })
+//                .setNegativeButton("取消", (dialog, which) -> dialog.dismiss())
+//                .show()
+//        );
 
         //标签作用域选择
         for (AccountType type : AccountType.values()) {
@@ -260,7 +257,7 @@ public class TagAddModifyActivity extends AppCompatActivity {
         repository.updateTag(tagName, tagNo, TagUpdateReason.MERGE);    //传递合并到的标签的名称和原来标签的编号
 
         //隐藏对话框
-        tagSheet.dismiss();
+//        tagSheet.dismiss();
 
         //修改数据库中的数据
         try {
