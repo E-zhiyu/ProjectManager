@@ -102,64 +102,6 @@ public class AccountDataController {
     }
 
     /**
-     * 删除流水记录
-     *
-     * @param rno     待删除的流水编号
-     * @param context 上下文
-     * @throws SQLiteException 写入数据库时可能引发的异常
-     */
-    public static void deleteAccount(long rno, Context context) throws SQLiteException {
-        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = dbHelper.openWriteLink();
-
-        //读取旧数据以便修改预算数据
-        String[] columns = {
-                Columns.AMOUNT.toString(),
-                Columns.TAG_NO.toString(),
-                Columns.DATETIME.toString(),
-                Columns.TYPE.toString()
-        };
-        String oldSelection = Columns.RNO + "=?";
-        String[] oldSelectionArgs = {String.valueOf(rno)};
-        Cursor oldDataCursor = db.query(
-                Tables.BASIC.toString(),
-                columns,
-                oldSelection,
-                oldSelectionArgs,
-                null,
-                null,
-                null
-        );
-        long tagNo = 0;
-        double amount = 0;
-        String datetime = "1970-01-01 00:00";
-        AccountType type = AccountType.TRANSFER;
-        if (oldDataCursor.moveToFirst()) {
-            tagNo = oldDataCursor.getLong(oldDataCursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
-            amount = oldDataCursor.getDouble(oldDataCursor.getColumnIndexOrThrow(Columns.AMOUNT.toString()));
-            datetime = oldDataCursor.getString(oldDataCursor.getColumnIndexOrThrow(Columns.DATETIME.toString()));
-            type = AccountType.valueOf(oldDataCursor.getString(oldDataCursor.getColumnIndexOrThrow(Columns.TYPE.toString())));
-        }
-        oldDataCursor.close();
-
-        PictureDataController.deletePicture(rno, db); //删除图片
-        deleteTransferAccount(rno, db); //删除转账数据(如果是转账类型)
-
-        String selection = Columns.RNO + "=?";
-        String[] selectionArgs = {String.valueOf(rno)};
-        db.delete(
-                Tables.BASIC.toString(),
-                selection,
-                selectionArgs
-        );
-
-        //更新预算数据
-        BudgetDataController.onAccountUpdated(tagNo, tagNo, amount, 0, type, datetime, datetime, db, context);
-
-        db.close();
-    }
-
-    /**
      * 清除标签
      *
      * @param tag_no 需要清除标签的流水记录对应的标签编号
@@ -178,18 +120,5 @@ public class AccountDataController {
                 where,
                 whereArgs
         );
-    }
-
-    /**
-     * 清空转账流水记录特有的数据
-     *
-     * @param rno 流水记录编号
-     * @param db  需要修改的数据库
-     * @throws SQLiteException 数据库修改失败引发的异常
-     */
-    public static void deleteTransferAccount(long rno, @NonNull SQLiteDatabase db) throws SQLiteException {
-        String where = Columns.RNO + "=?";
-        String[] whereArgs = {String.valueOf(rno)};
-        db.delete(Tables.TRANSFER.toString(), where, whereArgs);
     }
 }
