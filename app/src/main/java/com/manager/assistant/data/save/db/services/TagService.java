@@ -81,24 +81,18 @@ public class TagService {
                                     Collectors.toList()
                             ));
 
-                    //获取实际的标签分组数据
-                    Map<Long, String> groupNameMap = groupList.stream()
-                            .collect(Collectors.toMap(
-                                    TagGroupEntity::getGroupId,
-                                    TagGroupEntity::getName
-                            ));
-
                     //生成带有分隔符的标签列表
                     List<TagListUiModel> resultList = new ArrayList<>();
-                    for (Map.Entry<Long, List<TagEntity>> entry : groupedTagMap.entrySet()) {
-                        long groupId = entry.getKey();
-                        String groupName = groupNameMap.getOrDefault(groupId, "<未知分组>");
-                        resultList.add(new TagListUiModel.Separator(groupName));
+                    for (TagGroupEntity group : groupList) {
+                        resultList.add(new TagListUiModel.Separator(group));
 
-                        List<TagListUiModel.Item> itemList = entry.getValue().stream()
-                                .map(TagListUiModel.Item::new)
-                                .collect(Collectors.toList());
-                        resultList.addAll(itemList);
+                        List<TagEntity> tagInGroupList = groupedTagMap.get(group.getGroupId());
+                        if (tagInGroupList != null) {
+                            List<TagListUiModel.Item> itemList = tagInGroupList.stream()
+                                    .map(TagListUiModel.Item::new)
+                                    .collect(Collectors.toList());
+                            resultList.addAll(itemList);
+                        }
                     }
 
                     return resultList;

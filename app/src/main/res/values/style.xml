@@ -89,9 +89,8 @@
     </style>
 
     <!-- “添加”浮动按钮样式 -->
-    <style name="AddFloatingActionBtnStyle" parent="ThemeOverlay.Material3.FloatingActionButton.Primary">
+    <style name="AddFloatingActionBtnStyle" parent="ThemeOverlay.Material3.FloatingActionButton.Tertiary">
         <item name="android:src">@drawable/outline_add_24</item>
-        <item name="backgroundTint">?attr/colorTertiaryContainer</item>
         <item name="android:layout_marginEnd">20dp</item>
         <item name="android:layout_marginBottom">20dp</item>
     </style>

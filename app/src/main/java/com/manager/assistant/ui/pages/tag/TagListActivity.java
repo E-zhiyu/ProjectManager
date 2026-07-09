@@ -11,7 +11,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.services.TagService;
-import com.manager.assistant.databinding.ActivityTagManageBinding;
+import com.manager.assistant.databinding.ActivityTagListBinding;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -19,14 +19,14 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class TagListActivity extends AppCompatActivity {
     private final CompositeDisposable disposables = new CompositeDisposable();                      //订阅列表（便于取消订阅）
-    private ActivityTagManageBinding binding;                                                       //绑定的XML视图的引用
+    private ActivityTagListBinding binding;                                                       //绑定的XML视图的引用
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);    //启用边到边以适配沉浸式小白条
 
-        binding = ActivityTagManageBinding.inflate(getLayoutInflater());
+        binding = ActivityTagListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         //设置界面边距以防内容被小白条遮挡
@@ -68,6 +68,9 @@ public class TagListActivity extends AppCompatActivity {
                 },
                 (entity, anchor) -> {
                     //TODO:长按监听
+                },
+                (entity, anchor) -> {
+                    //TODO:分组长按监听
                 }
         );
         binding.recycler.setAdapter(adapter);

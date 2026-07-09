@@ -1,6 +1,5 @@
 package com.manager.assistant.ui.pages.tag;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,25 +9,24 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.manager.assistant.R;
 import com.manager.assistant.auxiliary.enums.AccountType;
 import com.manager.assistant.auxiliary.enums.RadiusStyle;
 import com.manager.assistant.auxiliary.interfaces.adapter.AdapterOnClickListener;
 import com.manager.assistant.auxiliary.interfaces.adapter.AdapterOnLongClickListener;
 import com.manager.assistant.auxiliary.interfaces.adapter.ViewHolderListener;
 import com.manager.assistant.data.save.db.entities.TagEntity;
+import com.manager.assistant.data.save.db.entities.TagGroupEntity;
 import com.manager.assistant.data.save.db.entities.composite.ui.TagListUiModel;
-import com.manager.assistant.databinding.ViewHolderSeparatorTextChipBinding;
 import com.manager.assistant.databinding.ViewHolderTagListBinding;
+import com.manager.assistant.databinding.ViewHolderTagListGroupBinding;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
-import com.manager.assistant.ui.others.decoration.sticky.StickyHeaderAdapter;
 
-public class TagListAdapter extends ListAdapter<TagListUiModel, RecyclerView.ViewHolder>
-        implements StickyHeaderAdapter<String> {
+public class TagListAdapter extends ListAdapter<TagListUiModel, RecyclerView.ViewHolder> {
     private static final int TYPE_ITEM = 1;
     private static final int TYPE_SEPARATOR = 0;
-    private final AdapterOnClickListener<TagEntity> clickListener;           //点击监听器
-    private final AdapterOnLongClickListener<TagEntity> longClickListener;   //长按监听器
+    private final AdapterOnClickListener<TagEntity> itemClickListener;           //点击监听器
+    private final AdapterOnLongClickListener<TagEntity> itemLongClickListener;   //长按监听器
+    private final AdapterOnLongClickListener<TagGroupEntity> separatorLongClickListener; //分隔符长按监听器
     private static final DiffUtil.ItemCallback<TagListUiModel> ITEM_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(@NonNull TagListUiModel oldItem, @NonNull TagListUiModel newItem) {
@@ -39,7 +37,7 @@ public class TagListAdapter extends ListAdapter<TagListUiModel, RecyclerView.Vie
             } else if (oldItem instanceof TagListUiModel.Separator && newItem instanceof TagListUiModel.Separator) {
                 TagListUiModel.Separator oldS = (TagListUiModel.Separator) oldItem;
                 TagListUiModel.Separator newS = (TagListUiModel.Separator) newItem;
-                return oldS.text.equals(newS.text);
+                return oldS.group.equals(newS.group);
             } else {
                 return false;
             }
@@ -79,25 +77,35 @@ public class TagListAdapter extends ListAdapter<TagListUiModel, RecyclerView.Vie
     }
 
     public static class SeparatorViewHolder extends RecyclerView.ViewHolder {
-        ViewHolderSeparatorTextChipBinding binding;
+        ViewHolderTagListGroupBinding binding;
 
-        public SeparatorViewHolder(@NonNull ViewHolderSeparatorTextChipBinding binding) {
+        public SeparatorViewHolder(@NonNull ViewHolderTagListGroupBinding binding, ViewHolderListener listener) {
             super(binding.getRoot());
             this.binding = binding;
+
+            //设置触摸监听
+            AppearanceHelper.attachMorphAnimation(binding.getRoot());
+
+            //设置长按监听
+            binding.getRoot().setOnLongClickListener(view -> {
+                listener.onLongClick(getBindingAdapterPosition(), binding.getRoot());
+                return true;
+            });
         }
     }
 
     /***
-     * @param clickListener 点击监听器
-     * @param longClickListener 长按监听器
+     * @param itemClickListener 点击监听器
+     * @param itemLongClickListener 长按监听器
      */
     public TagListAdapter(
-            AdapterOnClickListener<TagEntity> clickListener,
-            AdapterOnLongClickListener<TagEntity> longClickListener
+            AdapterOnClickListener<TagEntity> itemClickListener,
+            AdapterOnLongClickListener<TagEntity> itemLongClickListener, AdapterOnLongClickListener<TagGroupEntity> separatorLongClickListener
     ) {
         super(ITEM_CALLBACK);
-        this.clickListener = clickListener;
-        this.longClickListener = longClickListener;
+        this.itemClickListener = itemClickListener;
+        this.itemLongClickListener = itemLongClickListener;
+        this.separatorLongClickListener = separatorLongClickListener;
 
         //注册数据变更监听器，用于自动更新圆角
         registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -125,23 +133,6 @@ public class TagListAdapter extends ListAdapter<TagListUiModel, RecyclerView.Vie
     }
 
     @Override
-    public boolean isHeader(int position) {
-        return getItem(position) instanceof TagListUiModel.Separator;
-    }
-
-    @Override
-    public String getHeaderData(int position, Context context) {
-        TagListUiModel model = getItem(position);
-        if (model instanceof TagListUiModel.Separator) {
-            return ((TagListUiModel.Separator) model).text;
-        } else if (model instanceof TagListUiModel.Item) {
-            return ((TagListUiModel.Item) model).entity.getName();
-        } else {
-            return context.getString(R.string.not_applicable);
-        }
-    }
-
-    @Override
     public int getItemViewType(int position) {
         TagListUiModel item = getItem(position);
         if (item instanceof TagListUiModel.Item) return TYPE_ITEM;
@@ -162,28 +153,43 @@ public class TagListAdapter extends ListAdapter<TagListUiModel, RecyclerView.Vie
                     new ViewHolderListener() {
                         @Override
                         public void onClick(int position, View anchor) {
-                            TagListUiModel emotionTag = getItem(position);
-                            if (emotionTag instanceof TagListUiModel.Item) {
-                                clickListener.onClick(((TagListUiModel.Item) emotionTag).entity, anchor);
+                            TagListUiModel tag = getItem(position);
+                            if (tag instanceof TagListUiModel.Item) {
+                                itemClickListener.onClick(((TagListUiModel.Item) tag).entity, anchor);
                             }
                         }
 
                         @Override
                         public void onLongClick(int position, View view) {
-                            TagListUiModel emotionTag = getItem(position);
-                            if (emotionTag instanceof TagListUiModel.Item) {
-                                longClickListener.onLongClick(((TagListUiModel.Item) emotionTag).entity, view);
+                            TagListUiModel tag = getItem(position);
+                            if (tag instanceof TagListUiModel.Item) {
+                                itemLongClickListener.onLongClick(((TagListUiModel.Item) tag).entity, view);
                             }
                         }
                     }
             );
         } else {
-            ViewHolderSeparatorTextChipBinding binding = ViewHolderSeparatorTextChipBinding.inflate(
+            ViewHolderTagListGroupBinding binding = ViewHolderTagListGroupBinding.inflate(
                     LayoutInflater.from(parent.getContext()),
                     parent,
                     false
             );
-            return new SeparatorViewHolder(binding);
+            return new SeparatorViewHolder(
+                    binding,
+                    new ViewHolderListener() {
+                        @Override
+                        public void onClick(int pos, View anchor) {
+                        }
+
+                        @Override
+                        public void onLongClick(int pos, View anchor) {
+                            TagListUiModel group = getItem(pos);
+                            if (group instanceof TagListUiModel.Separator) {
+                                separatorLongClickListener.onLongClick(((TagListUiModel.Separator) group).group, anchor);
+                            }
+                        }
+                    }
+            );
         }
     }
 
@@ -216,8 +222,8 @@ public class TagListAdapter extends ListAdapter<TagListUiModel, RecyclerView.Vie
             //设置圆角
             setRadius(itemHolder.binding.getRoot(), position);
         } else if (model instanceof TagListUiModel.Separator && holder instanceof SeparatorViewHolder) {
-            String text = ((TagListUiModel.Separator) model).text;
-            ((SeparatorViewHolder) holder).binding.separatorText.setText(text);
+            String text = ((TagListUiModel.Separator) model).group.getName();
+            ((SeparatorViewHolder) holder).binding.nameText.setText(text);
         }
     }
 
