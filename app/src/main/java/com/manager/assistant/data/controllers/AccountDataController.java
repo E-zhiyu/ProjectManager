@@ -2,7 +2,6 @@ package com.manager.assistant.data.controllers;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
@@ -16,40 +15,6 @@ import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.auxiliary.enums.AccountType;
 
 public class AccountDataController {
-    /**
-     * 获取最早的流水日期
-     *
-     * @param context 上下文
-     * @return 最早日期字符串
-     * @throws SQLiteException 读取失败引发的数据库异常
-     */
-    public static String getEarliestAccountDate(Context context) throws SQLiteException {
-        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = dbHelper.openReadLink();
-
-        String[] columns = {Columns.DATETIME.toString()};
-        Cursor basicCursor = db.query(
-                Tables.BASIC.toString(),
-                columns,
-                null,
-                null,
-                null,
-                null,
-                Columns.DATETIME.toString()
-        );
-
-        String earliestDateStr = "";
-        if (basicCursor.moveToFirst()) {
-            earliestDateStr = basicCursor.getString(basicCursor.getColumnIndexOrThrow(Columns.DATETIME.toString()));
-
-            //去除后面的时间部分
-            earliestDateStr = earliestDateStr.substring(0, 10);
-        }
-
-        basicCursor.close();
-        db.close();
-        return earliestDateStr;
-    }
 
     /**
      * 保存新流水
@@ -69,7 +34,7 @@ public class AccountDataController {
         if (remark == null) remark = "";
         double amount = dataBundle.getDouble(KeyStrings.ACCOUNT_AMOUNT.v(), -1);
         String datetime = dataBundle.getString(KeyStrings.ACCOUNT_DATETIME.v());
-        long tagNo = dataBundle.getLong(KeyStrings.TAG_NO.v());
+        long tagNo = dataBundle.getLong(KeyStrings.TAG_ID.v());
 
         //生成ContentValues
         ContentValues basicValues = new ContentValues();

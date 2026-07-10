@@ -119,9 +119,9 @@ public class RunningAccountInputActivity extends AppCompatActivity {
             //滚动视图的内部布局
             binding.scrollLayout.setPadding(
                     AppearanceHelper.dpToPx(this, 10),
-                    AppearanceHelper.dpToPx(this, 5),
                     AppearanceHelper.dpToPx(this, 10),
-                    AppearanceHelper.dpToPx(this, 5) + Math.max(ime.bottom, systemBars.bottom)
+                    AppearanceHelper.dpToPx(this, 10),
+                    AppearanceHelper.dpToPx(this, 10) + Math.max(ime.bottom, systemBars.bottom)
             );
 
             return insets;

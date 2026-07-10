@@ -76,7 +76,7 @@ public class RuleDataController {
         //解析规则数据
         String ruleName = newRuleData.getString(KeyStrings.ANALYSIS_RULE_NAME.v());
         String type = newRuleData.getString(KeyStrings.ACCOUNT_TYPE.v());
-        long tagNo = newRuleData.getLong(KeyStrings.TAG_NO.v());
+        long tagNo = newRuleData.getLong(KeyStrings.TAG_ID.v());
         String packageName = newRuleData.getString(KeyStrings.PACKAGE_NAME.v());
         String notificationTitle = newRuleData.getString(KeyStrings.NOTIFICATION_TITLE.v());
         String notificationContent = newRuleData.getString(KeyStrings.NOTIFICATION_CONTENT.v());
@@ -122,7 +122,7 @@ public class RuleDataController {
         String ruleName = ruleData.getString(KeyStrings.ANALYSIS_RULE_NAME.v());
         long ruleNo = ruleData.getLong(KeyStrings.ANALYSIS_RULE_NO.v());
         String type = ruleData.getString(KeyStrings.ACCOUNT_TYPE.v());
-        long tagNo = ruleData.getLong(KeyStrings.TAG_NO.v());
+        long tagNo = ruleData.getLong(KeyStrings.TAG_ID.v());
         String packageName = ruleData.getString(KeyStrings.PACKAGE_NAME.v());
         String notificationTitle = ruleData.getString(KeyStrings.NOTIFICATION_TITLE.v());
         String notificationContent = ruleData.getString(KeyStrings.NOTIFICATION_CONTENT.v());

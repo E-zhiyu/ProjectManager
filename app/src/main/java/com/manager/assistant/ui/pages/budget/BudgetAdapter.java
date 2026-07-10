@@ -198,7 +198,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
         String startDate = dataBundle.getString(KeyStrings.START_DATE.v());                     //起算日期
         String resetFrequencyStr = dataBundle.getString(KeyStrings.BUDGET_RESET_FREQUENCY.v()); //重置频率
         ResetFrequency resetFrequency = ResetFrequency.valueOf(resetFrequencyStr);
-        long[] tagNos = dataBundle.getLongArray(KeyStrings.TAG_NO.v());                         //预算标签
+        long[] tagNos = dataBundle.getLongArray(KeyStrings.TAG_ID.v());                         //预算标签
         if (tagNos == null) return;
         List<Long> tagNoList = Arrays.stream(tagNos)
                 .boxed()
@@ -226,7 +226,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
         String startDate = dataBundle.getString(KeyStrings.START_DATE.v());
         String resetFrequencyStr = dataBundle.getString(KeyStrings.BUDGET_RESET_FREQUENCY.v());
         ResetFrequency resetFrequency = ResetFrequency.valueOf(resetFrequencyStr);
-        long[] tagNos = dataBundle.getLongArray(KeyStrings.TAG_NO.v());
+        long[] tagNos = dataBundle.getLongArray(KeyStrings.TAG_ID.v());
         if (tagNos == null) return;
         List<Long> tagNoList = Arrays.stream(tagNos)
                 .boxed()

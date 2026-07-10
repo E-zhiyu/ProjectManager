@@ -1,11 +1,9 @@
 package com.manager.assistant.data.controllers;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.os.Bundle;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -15,7 +13,6 @@ import com.manager.assistant.data.classes.Tag;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.Tables;
-import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.auxiliary.enums.AccountType;
 
 import org.jetbrains.annotations.Contract;
@@ -26,23 +23,6 @@ import java.util.List;
 import java.util.Locale;
 
 public class TagDataController {
-    /**
-     * 获取某个分组内的标签
-     *
-     * @param context 上下文
-     * @param groupNo 待查询的分组编号
-     * @return 该分组下的所有标签组成的列表
-     */
-    @NonNull
-    public static List<Tag> getTags(Context context, long groupNo) {
-        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = dbHelper.openReadLink();
-
-        List<Tag> tagList = getTags(db, groupNo, 0, null);
-
-        db.close();
-        return tagList;
-    }
 
     /**
      * 获取标签
@@ -246,96 +226,6 @@ public class TagDataController {
     }
 
     /**
-     * 保存新的标签到数据库
-     *
-     * @param dataBundle 包含标签数据的数据包
-     * @param context    用于打开数据库的上下文
-     * @return 对应的标签编号
-     * @throws SQLiteException 无法修改数据库时引发的异常
-     */
-    public static long saveNewTag(@NonNull Bundle dataBundle, Context context) throws SQLiteException {
-        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = dbHelper.openWriteLink();
-
-        String tagName = dataBundle.getString(KeyStrings.TAG_NAME.v());
-        int tagScope = dataBundle.getInt(KeyStrings.TAG_SCOPE.v());
-        long groupNo = dataBundle.getLong(KeyStrings.TAG_GROUP_NO.v());
-
-        ContentValues tagValues = new ContentValues();
-        tagValues.put(Columns.TAG_NAME.toString(), tagName);
-        tagValues.put(Columns.TAG_SCOPE.toString(), tagScope);
-        tagValues.put(Columns.GROUP_NO.toString(), groupNo);
-        long tagNo = db.insert(Tables.TAG.toString(), null, tagValues);
-
-        db.close();
-        return tagNo;
-    }
-
-    /**
-     * 修改标签
-     *
-     * @param dataBundle 包含修改后的标签的数据包
-     * @param context    打开数据库所需的上下文
-     * @throws SQLiteException 无法修改数据库时引发的异常
-     */
-    public static void modifyTag(@NonNull Bundle dataBundle, Context context) throws SQLiteException {
-        //解析数据包
-        String tagName = dataBundle.getString(KeyStrings.TAG_NAME.v());
-        int tagScope = dataBundle.getInt(KeyStrings.TAG_SCOPE.v());
-        long newGroupNo = dataBundle.getLong(KeyStrings.TAG_GROUP_NO_NEW.v());
-        long tagNo = dataBundle.getLong(KeyStrings.TAG_NO.v());
-
-        ContentValues tagValues = new ContentValues();
-        tagValues.put(Columns.TAG_NAME.toString(), tagName);
-        tagValues.put(Columns.TAG_SCOPE.toString(), tagScope);
-        tagValues.put(Columns.GROUP_NO.toString(), newGroupNo);
-        String whereStr = Columns.TAG_NO + "=?";
-        String[] whereStrArgs = {String.valueOf(tagNo)};
-
-        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = dbHelper.openWriteLink();
-
-        db.update(
-                Tables.TAG.toString(),
-                tagValues,
-                whereStr,
-                whereStrArgs
-        );
-
-        db.close();
-    }
-
-    /**
-     * 删除标签
-     *
-     * @param tagNo   待删除标签的编号
-     * @param context 打开数据库所需的上下文
-     * @throws SQLiteException 无法修改数据库时引发的异常
-     */
-    public static void deleteTag(long tagNo, Context context) throws SQLiteException {
-        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = dbHelper.openWriteLink();
-
-        ContentValues nonTagValues = new ContentValues();
-        nonTagValues.put(Columns.TAG_NO.toString(), 0);
-        String whereStr = Columns.TAG_NO + "=?";
-        String[] whereStrArgs = {String.valueOf(tagNo)};
-
-        AccountDataController.onTagDeleted(tagNo, db); //清除流水记录里面的标签编号
-        RuleDataController.onTagDeleted(tagNo, db);       //清除通知解析规则中的标签编号
-        BudgetDataController.onTagDeleted(tagNo, db);             //删除预算中的标签编号数据
-
-        //再删除对应标签
-        db.delete(
-                Tables.TAG.toString(),
-                whereStr,
-                whereStrArgs
-        );
-
-        db.close();
-    }
-
-    /**
      * 删除某个分组内的所有标签
      *
      * @param groupNo 标签对应的分组编号
@@ -369,31 +259,6 @@ public class TagDataController {
         String where = Columns.GROUP_NO + "=?";
         String[] whereArgs = {String.valueOf(groupNo)};
         db.delete(Tables.TAG.toString(), where, whereArgs);
-    }
-
-    /**
-     * 合并标签
-     *
-     * @param mergedTagNo      被合并的标签编号
-     * @param mergeTargetTagNo 合并到的目标标签编号
-     * @param context          上下文
-     * @throws SQLiteException 写入数据库可能引发的异常
-     */
-    public static void mergeTag(long mergedTagNo, long mergeTargetTagNo, Context context) throws SQLiteException {
-        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = dbHelper.openWriteLink();
-
-        //更改对应流水记录的标签
-        String where = Columns.TAG_NO + "=?";
-        String[] whereArgs = {String.valueOf(mergedTagNo)};
-        ContentValues targetTagNoValues = new ContentValues();
-        targetTagNoValues.put(Columns.TAG_NO.toString(), mergeTargetTagNo);
-        db.update(Tables.BASIC.toString(), targetTagNoValues, where, whereArgs);
-
-        //删除被合并的标签
-        db.delete(Tables.TAG.toString(), where, whereArgs);
-
-        db.close();
     }
 
     /**
@@ -462,26 +327,4 @@ public class TagDataController {
         return new Tag(tagName, tagNo, scope);
     }
 
-    /**
-     * 获取标签数量
-     *
-     * @param context 上下文
-     * @return 标签数量
-     * @throws SQLiteException 读取失败引发的异常
-     */
-    public static int getDbCount(Context context) throws SQLiteException {
-        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = dbHelper.openReadLink();
-
-        String sql = "SELECT COUNT(*) FROM " + Tables.TAG;
-        int rowCount = 0;
-        Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst()) {
-            rowCount = cursor.getInt(0);
-        }
-
-        cursor.close();
-        db.close();
-        return rowCount;
-    }
 }

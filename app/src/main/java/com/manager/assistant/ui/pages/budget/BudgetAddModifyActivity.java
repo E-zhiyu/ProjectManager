@@ -109,7 +109,7 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
 
         viewHolderPosition = dataBundle.getInt(KeyStrings.VIEW_HOLDER_POSITION.v());
 
-        long[] tagNos = dataBundle.getLongArray(KeyStrings.TAG_NO.v());
+        long[] tagNos = dataBundle.getLongArray(KeyStrings.TAG_ID.v());
         if (tagNos != null) {
             List<Long> tagNoList = Arrays.stream(tagNos)
                     .boxed()
@@ -421,7 +421,7 @@ public class BudgetAddModifyActivity extends AppCompatActivity {
         dataBundle.putDouble(KeyStrings.INIT_AMOUNT.v(), initAmount);
         dataBundle.putString(KeyStrings.START_DATE.v(), startDate);
         dataBundle.putString(KeyStrings.BUDGET_RESET_FREQUENCY.v(), resetFrequency.toString());
-        dataBundle.putLongArray(KeyStrings.TAG_NO.v(), tagNos);
+        dataBundle.putLongArray(KeyStrings.TAG_ID.v(), tagNos);
         if (isModifyMode) {
             dataBundle.putDouble(KeyStrings.LEFT_AMOUNT.v(), leftAmount);
             dataBundle.putLong(KeyStrings.BNO.v(), bno);

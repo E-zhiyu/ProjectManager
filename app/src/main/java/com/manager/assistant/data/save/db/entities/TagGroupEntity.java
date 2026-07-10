@@ -7,7 +7,8 @@ import androidx.room.PrimaryKey;
 @Entity(
         tableName = "tagGroups",
         indices = {
-                @Index(value = "groupId")
+                @Index(value = "groupId"),
+                @Index(value = "name", unique = true)
         }
 )
 public class TagGroupEntity {

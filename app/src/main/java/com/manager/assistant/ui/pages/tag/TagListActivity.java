@@ -1,5 +1,6 @@
 package com.manager.assistant.ui.pages.tag;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -12,6 +13,8 @@ import androidx.core.view.WindowInsetsCompat;
 import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.services.TagService;
 import com.manager.assistant.databinding.ActivityTagListBinding;
+import com.manager.assistant.generic_enums.KeyStrings;
+import com.manager.assistant.helpers.appearence.AppearanceHelper;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -58,13 +61,20 @@ public class TagListActivity extends AppCompatActivity {
 
         //添加按钮
         binding.addFab.setOnClickListener(view -> {
-            //TODO:添加标签
+            Intent skip2Input = new Intent(this, TagInputActivity.class);
+            startActivity(skip2Input);
         });
+        AppearanceHelper.attachMorphAnimation(binding.addFab);
+        AppearanceHelper.setMarginToNavigation(binding.addFab, this);
 
         //标签列表
         TagListAdapter adapter = new TagListAdapter(
                 (entity, anchor) -> {
-                    //TODO:点击监听
+                    Intent skip2Input = new Intent(this, TagInputActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putLong(KeyStrings.TAG_ID.v(), entity.getTagId());
+                    skip2Input.putExtras(bundle);
+                    startActivity(skip2Input);
                 },
                 (entity, anchor) -> {
                     //TODO:长按监听

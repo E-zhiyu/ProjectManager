@@ -244,7 +244,7 @@ public class BudgetDataController {
         double initAmount = dataBundle.getDouble(KeyStrings.INIT_AMOUNT.v());
         String startDate = dataBundle.getString(KeyStrings.START_DATE.v());
         ResetFrequency resetFrequency = ResetFrequency.valueOf(dataBundle.getString(KeyStrings.BUDGET_RESET_FREQUENCY.v()));
-        long[] tagNos = dataBundle.getLongArray(KeyStrings.TAG_NO.v());
+        long[] tagNos = dataBundle.getLongArray(KeyStrings.TAG_ID.v());
         if (tagNos == null) {
             throw new SQLiteException("标签编号列表为空");
         }
@@ -284,7 +284,7 @@ public class BudgetDataController {
         double leftAmount = dataBundle.getDouble(KeyStrings.LEFT_AMOUNT.v());
         String startDate = dataBundle.getString(KeyStrings.START_DATE.v());
         ResetFrequency resetFrequency = ResetFrequency.valueOf(dataBundle.getString(KeyStrings.BUDGET_RESET_FREQUENCY.v()));
-        long[] tagNos = dataBundle.getLongArray(KeyStrings.TAG_NO.v());
+        long[] tagNos = dataBundle.getLongArray(KeyStrings.TAG_ID.v());
         if (tagNos == null) {
             throw new SQLiteException("标签编号列表为空");
         }
@@ -540,19 +540,6 @@ public class BudgetDataController {
     }
 
     /**
-     * 删除一个标签记录
-     *
-     * @param tagNo 待被删除的标签的编号
-     * @param db    可写的数据库实例
-     * @throws SQLiteException 数据写入失败引发的异常
-     */
-    public static void onTagDeleted(long tagNo, @NonNull SQLiteDatabase db) throws SQLiteException {
-        String where = Columns.TAG_NO + "=?";
-        String[] whereArgs = {String.valueOf(tagNo)};
-        db.delete(Tables.BUDGET_TAG.toString(), where, whereArgs);
-    }
-
-    /**
      * 重置预算
      *
      * @param bno     需要重置的预算编号
@@ -674,28 +661,5 @@ public class BudgetDataController {
 
         budgetCursor.close();
         return bnoList;
-    }
-
-    /**
-     * 获取数据库中保存的预算数量
-     *
-     * @param context 上下文
-     * @return 预算数量
-     * @throws SQLiteException 数据读取失败引发的异常
-     */
-    public static int getDbCount(Context context) throws SQLiteException {
-        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = dbHelper.openReadLink();
-
-        String sql = "SELECT COUNT(*) FROM " + Tables.BUDGET;
-        int rowCount = 0;
-        Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.moveToFirst()) {
-            rowCount = cursor.getInt(0);
-        }
-
-        cursor.close();
-        db.close();
-        return rowCount;
     }
 }

@@ -302,7 +302,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
 
         //生成流水记录数据包
         Bundle dataBundle = new Bundle();
-        dataBundle.putLong(KeyStrings.TAG_NO.v(), tagNo);
+        dataBundle.putLong(KeyStrings.TAG_ID.v(), tagNo);
         dataBundle.putString(KeyStrings.ACCOUNT_DATETIME.v(), timeStr);
         dataBundle.putString(KeyStrings.ACCOUNT_TYPE.v(), type.toString());
         dataBundle.putDouble(KeyStrings.ACCOUNT_AMOUNT.v(), amount);

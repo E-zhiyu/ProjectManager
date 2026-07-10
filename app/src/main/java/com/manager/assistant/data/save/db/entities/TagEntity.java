@@ -17,7 +17,8 @@ import androidx.room.PrimaryKey;
         indices = {
                 @Index(value = "tagId"),
                 @Index(value = "scope"),
-                @Index(value = "groupId")
+                @Index(value = "groupId"),
+                @Index(value = "name", unique = true)
         }
 )
 public class TagEntity {

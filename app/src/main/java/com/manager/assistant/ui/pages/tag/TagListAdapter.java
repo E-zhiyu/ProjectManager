@@ -242,7 +242,7 @@ public class TagListAdapter extends ListAdapter<TagListUiModel, RecyclerView.Vie
         TagListUiModel model = getItem(position);
 
         if (model instanceof TagListUiModel.Separator) {
-            if (position == getItemCount() - 1) {
+            if (position == getItemCount() - 1 || getItem(position + 1) instanceof TagListUiModel.Separator) {
                 AppearanceHelper.setRadius(
                         context,
                         view,

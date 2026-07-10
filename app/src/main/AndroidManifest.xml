@@ -73,13 +73,10 @@
             android:name=".ui.pages.rule.AnalysisRuleManageActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.tag.GroupModifyActivity"
-            android:exported="false" />
-        <activity
             android:name=".ui.pages.tag.TagListActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.tag.TagAddModifyActivity"
+            android:name=".ui.pages.tag.TagInputActivity"
             android:exported="false" />
         <activity
             android:name=".ui.pages.report.ReportActivity"

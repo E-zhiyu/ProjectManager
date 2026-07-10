@@ -199,7 +199,7 @@ public class BudgetManageActivity extends AppCompatActivity {
         dataBundle.putDouble(KeyStrings.LEFT_AMOUNT.v(), leftAmount);
         dataBundle.putString(KeyStrings.START_DATE.v(), startDate);
         dataBundle.putString(KeyStrings.BUDGET_RESET_FREQUENCY.v(), resetFrequency.toString());
-        dataBundle.putLongArray(KeyStrings.TAG_NO.v(), tagNos);
+        dataBundle.putLongArray(KeyStrings.TAG_ID.v(), tagNos);
         dataBundle.putInt(KeyStrings.VIEW_HOLDER_POSITION.v(), position);
 
         Intent skip2BudgetModify = new Intent(this, BudgetAddModifyActivity.class);

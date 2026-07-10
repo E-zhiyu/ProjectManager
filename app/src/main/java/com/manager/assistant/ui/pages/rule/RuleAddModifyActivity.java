@@ -481,7 +481,7 @@ public class RuleAddModifyActivity extends AppCompatActivity {
 
         dataBundle.putString(KeyStrings.ANALYSIS_RULE_NAME.v(), ruleName);
         dataBundle.putString(KeyStrings.ACCOUNT_TYPE.v(), type.toString());
-        dataBundle.putLong(KeyStrings.TAG_NO.v(), tagNo);
+        dataBundle.putLong(KeyStrings.TAG_ID.v(), tagNo);
         dataBundle.putString(KeyStrings.PACKAGE_NAME.v(), packageName);
         dataBundle.putString(KeyStrings.NOTIFICATION_TITLE.v(), notificationTitle);
         dataBundle.putString(KeyStrings.NOTIFICATION_CONTENT.v(), notificationContent);

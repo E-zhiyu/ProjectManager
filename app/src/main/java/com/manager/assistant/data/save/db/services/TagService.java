@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 
 public class TagService {
@@ -27,7 +28,7 @@ public class TagService {
      */
     public static Flowable<List<TagGroupUiModel>> getGroupedTagFlowable(@NonNull BookkeepingDb db, int pow) {
         TagDao dao = db.tagDao();
-        return Flowable.zip(
+        return Flowable.combineLatest(
                 dao.getAllTagFlowable(pow),
                 dao.getAllTagGroupFlowable(),
                 (tagList, groupList) -> {
@@ -69,7 +70,7 @@ public class TagService {
      */
     public static Flowable<List<TagListUiModel>> getTagListFlowable(@NonNull BookkeepingDb db) {
         TagDao dao = db.tagDao();
-        return Flowable.zip(
+        return Flowable.combineLatest(
                 dao.getAllTagFlowable(0),
                 dao.getAllTagGroupFlowable(),
                 (tagList, groupList) -> {
@@ -98,5 +99,35 @@ public class TagService {
                     return resultList;
                 }
         );
+    }
+
+    /**
+     * 添加标签
+     *
+     * @param tag       新添加的标签实体
+     * @param groupName 用户输入的分组名称
+     * @param db        数据库实例
+     * @return 是否完成
+     */
+    public static Completable addTag(TagEntity tag, String groupName, BookkeepingDb db) {
+        return Completable.defer(() -> {
+            db.tagDao().addTag(tag, groupName);
+            return Completable.complete();
+        });
+    }
+
+    /**
+     * 修改标签
+     *
+     * @param tag       修改后的标签实体
+     * @param groupName 用户输入的分组名称
+     * @param db        数据库实例
+     * @return 是否完成
+     */
+    public static Completable modifyTag(TagEntity tag, String groupName, BookkeepingDb db) {
+        return Completable.defer(() -> {
+            db.tagDao().modifyTag(tag, groupName);
+            return Completable.complete();
+        });
     }
 }
