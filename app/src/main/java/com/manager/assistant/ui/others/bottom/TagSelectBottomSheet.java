@@ -1,6 +1,7 @@
 package com.manager.assistant.ui.others.bottom;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,12 +10,14 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.manager.assistant.data.save.db.BookkeepingDb;
-import com.manager.assistant.data.save.db.entities.TagEntity;
 import com.manager.assistant.data.save.db.services.TagService;
 import com.manager.assistant.databinding.BottomSheetTagSelectBinding;
 import com.manager.assistant.generic_enums.KeyStrings;
@@ -22,8 +25,7 @@ import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.appearence.VisibilityHelper;
 import com.manager.assistant.ui.others.adapters.GroupTagSelectAdapter;
 import com.manager.assistant.ui.others.viewmodel.TagSelectViewModel;
-
-import java.util.stream.Collectors;
+import com.manager.assistant.ui.pages.tag.TagInputActivity;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -47,6 +49,13 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = BottomSheetTagSelectBinding.inflate(inflater, container, false);
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, 0, systemBars.right, 0);
+            binding.fullTagRecycler.setPadding(0, 0, 0, systemBars.bottom);
+            return insets;
+        });
 
         initViews();
 
@@ -104,7 +113,8 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
 
         //角色添加按钮
         binding.addBtn.setOnClickListener(view -> {
-            //TODO:添加标签
+            Intent skip2TagInput = new Intent(requireContext(), TagInputActivity.class);
+            startActivity(skip2TagInput);
         });
     }
 
@@ -116,14 +126,12 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
 
         //设置适配器
         adapter = new GroupTagSelectAdapter(
-                viewModel.getCheckedTagEntitySet().stream()
-                        .map(TagEntity::getTagId)
-                        .collect(Collectors.toSet()),
+                viewModel.getCheckedTagIdSet(),
                 (tag, isChecked, anchor) -> {
                     if (isChecked) {
-                        viewModel.getCheckedTagEntitySet().add(tag);
+                        viewModel.getCheckedTagIdSet().add(tag.getTagId());
                     } else {
-                        viewModel.getCheckedTagEntitySet().remove(tag);
+                        viewModel.getCheckedTagIdSet().remove(tag.getTagId());
                     }
                 }
         );

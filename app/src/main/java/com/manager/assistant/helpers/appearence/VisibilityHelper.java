@@ -90,9 +90,14 @@ public class VisibilityHelper {
                 .setDuration(duration);
 
         int i = 0;
+        int skippedCount = 0;
         int targetVisibility = isVisible ? View.VISIBLE : View.GONE;
         for (View targetView : targetViews) {
-            if (targetView.getVisibility() == targetVisibility) continue;
+            i++;
+            if (targetView.getVisibility() == targetVisibility) {
+                skippedCount++;
+                continue;
+            }
 
             if (isVisible) {
                 transitionSet.addTransition(new Fade(Fade.IN));
@@ -101,15 +106,14 @@ public class VisibilityHelper {
             }
 
             //设置动画结束的回调监听（仅当最后一个视图动画执行完毕后）
-            if (i == targetViews.length - 1) {
+            if (i == targetViews.length) {
                 transitionSet.addListener(new Transition.TransitionListener() {
                     @Override
                     public void onTransitionEnd(@NonNull Transition transition) {
-                        // 核心：动画完全结束后，安全执行用户传递的代码
                         if (endAction != null) {
                             endAction.run();
+                            transition.removeListener(this);
                         }
-                        transition.removeListener(this);
                     }
 
                     @Override
@@ -133,8 +137,11 @@ public class VisibilityHelper {
             // 4. 开始执行动画
             TransitionManager.beginDelayedTransition(sceneRoot, transitionSet);
             targetView.setVisibility(targetVisibility);
+        }
 
-            i++;
+        //若所有视图都跳过，则直接执行 Action
+        if (skippedCount == targetViews.length && endAction != null) {
+            endAction.run();
         }
     }
 }

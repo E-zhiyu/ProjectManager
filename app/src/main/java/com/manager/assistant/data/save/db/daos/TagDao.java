@@ -14,6 +14,7 @@ import com.manager.assistant.data.save.db.entities.composite.TagWithGroupModel;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
@@ -62,6 +63,15 @@ public interface TagDao {
      */
     @Query("SELECT * FROM tags WHERE tagId = :tagId")
     Single<Optional<TagWithGroupModel>> getTagWithGroupSingleById(long tagId);
+
+    /**
+     * 根据标签 ID 获取标签数据
+     *
+     * @param tagIdSet 标签 ID 集合
+     * @return 编号在集合中的标签的数据
+     */
+    @Query("SELECT * FROM tags WHERE tagId IN (:tagIdSet)")
+    Single<List<TagEntity>> getTagSinlgeById(Set<Long> tagIdSet);
 
     /**
      * 获取所有分组名称

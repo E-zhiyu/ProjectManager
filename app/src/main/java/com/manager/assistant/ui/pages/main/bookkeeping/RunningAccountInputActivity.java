@@ -152,18 +152,31 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         //标签 Recycler
         tagAdapter = new AccountTagAdapter(
                 (entity, anchor, adapter) -> {
+                    //切换视图可见性
                     List<TagEntity> removedList = new ArrayList<>(adapter.getCurrentList());
                     removedList.remove(entity);
-                    if (removedList.isEmpty()) {
-                        VisibilityHelper.toggleViewExpansion(
-                                binding.getRoot(),
-                                false,
-                                () -> adapter.submitList(removedList),
-                                binding.tagRecycler
+                    if (!removedList.isEmpty()) {
+                        tagAdapter.submitList(
+                                removedList,
+                                () -> VisibilityHelper.toggleViewExpansion(
+                                        binding.scrollLayout,
+                                        true,
+                                        null,
+                                        binding.tagRecycler
+                                )
                         );
                     } else {
-                        adapter.submitList(removedList);
+                        VisibilityHelper.toggleViewExpansion(
+                                binding.scrollLayout,
+                                false,
+                                () -> tagAdapter.submitList(removedList),
+                                binding.tagRecycler
+                        );
                     }
+
+                    //移除ViewModel集合中的数据
+                    TagSelectViewModel viewModel = new ViewModelProvider(this).get(TagSelectViewModel.class);
+                    viewModel.getCheckedTagIdSet().remove(entity.getTagId());
                 }
         );
         binding.tagRecycler.setAdapter(tagAdapter);
@@ -271,21 +284,21 @@ public class RunningAccountInputActivity extends AppCompatActivity {
 
                                 //显示标签
                                 if (!tagList.isEmpty()) {
-                                    binding.tagRecycler.setVisibility(View.VISIBLE);
                                     tagAdapter.submitList(tagList);
+                                    binding.tagRecycler.setVisibility(View.VISIBLE);
                                 } else {
                                     binding.tagRecycler.setVisibility(View.GONE);
                                 }
+                                List<Long> tagIdList = tagList.stream()
+                                        .map(TagEntity::getTagId)
+                                        .collect(Collectors.toList());
                                 TagSelectViewModel tagSelectViewModel = new ViewModelProvider(this).get(TagSelectViewModel.class);
-                                tagSelectViewModel.getCheckedTagEntitySet().clear();
-                                tagSelectViewModel.getCheckedTagEntitySet().addAll(tagList);
+                                tagSelectViewModel.getCheckedTagIdSet().clear();
+                                tagSelectViewModel.getCheckedTagIdSet().addAll(tagIdList);
 
                                 //显示媒体
                                 if (!mediaList.isEmpty()) {
-                                    binding.mediaRecycler.setVisibility(View.VISIBLE);
                                     mediaAdapter.submitList(mediaList);
-                                } else {
-                                    binding.mediaRecycler.setVisibility(View.GONE);
                                 }
                             }
                     )
@@ -529,10 +542,34 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         TagSelectViewModel tagSelectViewModel = new ViewModelProvider(this).get(TagSelectViewModel.class);
         tagSelectViewModel.getNeedExecute().observe(this, b -> {
             if (b) {
-                List<TagEntity> checkedTagList = new ArrayList<>(tagSelectViewModel.getCheckedTagEntitySet());
-                if (binding.tagRecycler.getAdapter() instanceof AccountTagAdapter) {
-                    ((AccountTagAdapter) binding.tagRecycler.getAdapter()).submitList(checkedTagList);
-                }
+                BookkeepingDb db = BookkeepingDb.getInstance(this);
+                disposable.add(db.tagDao().getTagSinlgeById(tagSelectViewModel.getCheckedTagIdSet())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.io())
+                        .subscribe(
+                                tagList -> {
+                                    if (!tagList.isEmpty()) {
+                                        tagAdapter.submitList(
+                                                tagList,
+                                                () -> VisibilityHelper.toggleViewExpansion(
+                                                        binding.scrollLayout,
+                                                        true,
+                                                        null,
+                                                        binding.tagRecycler
+                                                )
+                                        );
+                                    } else {
+                                        VisibilityHelper.toggleViewExpansion(
+                                                binding.scrollLayout,
+                                                false,
+                                                () -> tagAdapter.submitList(tagList),
+                                                binding.tagRecycler
+                                        );
+                                    }
+                                },
+                                e -> ExceptionHelper.showExceptionDialog(this, e)
+                        )
+                );
             }
         });
     }

@@ -182,6 +182,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:visibility="gone"
                 app:layoutManager="com.google.android.flexbox.FlexboxLayoutManager" />
 
             <com.google.android.material.divider.MaterialDivider

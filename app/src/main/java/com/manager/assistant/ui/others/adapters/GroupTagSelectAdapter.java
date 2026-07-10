@@ -79,6 +79,7 @@ public class GroupTagSelectAdapter extends ListAdapter<TagGroupUiModel, Recycler
                 //实例化 Chip
                 Chip chip = new Chip(binding.getRoot().getContext());
                 chip.setCheckable(true);
+                chip.setCheckedIconVisible(true);
                 chip.setChecked(checkedTagIdSet.contains(tag.getTagId()));
 
                 //设置显示名称

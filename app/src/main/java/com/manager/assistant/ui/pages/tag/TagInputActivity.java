@@ -121,7 +121,6 @@ public class TagInputActivity extends AppCompatActivity {
                 binding.nameLayout.setError(null);
             }
         });
-        binding.nameInput.setOnClickListener(v -> binding.nameLayout.setError(null));
 
         //标签分组自动填充适配器
         BookkeepingDb db = BookkeepingDb.getInstance(this);
@@ -150,24 +149,6 @@ public class TagInputActivity extends AppCompatActivity {
             }
 
             saveData();
-
-//            String tagName = String.valueOf(binding.nameInput.getText()).trim();
-//            disposable.add(db.tagDao().isTagNameInDb(tagName)
-//                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribeOn(Schedulers.io())
-//                    .subscribe(
-//                            b -> {
-//                                if (b) {
-//                                    String nameError = "已有同名标签";
-//                                    Toast.makeText(this, nameError, Toast.LENGTH_SHORT).show();
-//                                    binding.nameLayout.setError(nameError);
-//                                } else {
-//                                    saveData();
-//                                }
-//                            },
-//                            e -> ExceptionHelper.showExceptionDialog(this, e)
-//                    )
-//            );
         });
     }
 
