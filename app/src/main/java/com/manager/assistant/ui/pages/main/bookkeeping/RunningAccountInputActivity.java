@@ -17,6 +17,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -90,6 +91,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private AccountType type = AccountType.EXPENSE;         //流水种类
     private ActivityRunningAccountInputBinding binding;     //绑定的XML视图引用
+    @Nullable
     private Bundle initBundle = null;                       //传递初始数据的数据包
     private final CompositeDisposable disposable = new CompositeDisposable();
     private SelectionTracker<Long> selectionTracker;        //图片列表选择追踪器
@@ -338,7 +340,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
             }
         });
 
-        //转出和转入账户
+        //转出和转入账户的自动填充适配器
         BookkeepingDb db = BookkeepingDb.getInstance(this);
         disposable.add(db.accountDao().getTransferAccountsSingle()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -357,6 +359,30 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                         e -> ExceptionHelper.showExceptionDialog(this, e)
                 )
         );
+
+        //转出账户
+        binding.exportAccountInput.setOnFocusChangeListener((view, b) -> {
+            if (b) {
+                binding.exportAccountLayout.setError(null);
+            } else {
+                String input = String.valueOf(binding.exportAccountInput.getText()).trim();
+                if (type == AccountType.TRANSFER && input.isEmpty()) {
+                    binding.exportAccountLayout.setError("转出账户不能为空");
+                }
+            }
+        });
+
+        //转入账户
+        binding.importAccountInput.setOnFocusChangeListener((view, b) -> {
+            if (b) {
+                binding.importAccountLayout.setError(null);
+            } else {
+                String input = String.valueOf(binding.importAccountInput.getText()).trim();
+                if (type == AccountType.TRANSFER && input.isEmpty()) {
+                    binding.importAccountLayout.setError("转出账户不能为空");
+                }
+            }
+        });
 
         //标签选择按钮
         binding.tagSelectBtn.setOnClickListener(view -> {
