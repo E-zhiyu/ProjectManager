@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel;
 import java.util.HashSet;
 import java.util.Set;
 
-public class TagSelectViewModel extends ViewModel {
+public class TagMultiSelectViewModel extends ViewModel {
     private final Set<Long> checkedTagIdSet = new HashSet<>();
     private final MutableLiveData<Boolean> needExecute = new MutableLiveData<>(false);  //是否需要进行更新
 

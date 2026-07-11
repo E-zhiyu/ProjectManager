@@ -67,7 +67,7 @@ import com.manager.assistant.ui.others.dialogs.ProgressDialogBuilder;
 import com.manager.assistant.ui.others.selections.media.MediaIdKeyProvider;
 import com.manager.assistant.ui.others.selections.media.MediaLookup;
 import com.manager.assistant.ui.others.viewmodel.MediaAddOptionViewModel;
-import com.manager.assistant.ui.others.viewmodel.TagSelectViewModel;
+import com.manager.assistant.ui.others.viewmodel.TagMultiSelectViewModel;
 import com.manager.assistant.ui.pages.media.FullScreenMediaActivity;
 
 import java.io.File;
@@ -175,7 +175,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                     }
 
                     //移除ViewModel集合中的数据
-                    TagSelectViewModel viewModel = new ViewModelProvider(this).get(TagSelectViewModel.class);
+                    TagMultiSelectViewModel viewModel = new ViewModelProvider(this).get(TagMultiSelectViewModel.class);
                     viewModel.getCheckedTagIdSet().remove(entity.getTagId());
                 }
         );
@@ -292,9 +292,9 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                                 List<Long> tagIdList = tagList.stream()
                                         .map(TagEntity::getTagId)
                                         .collect(Collectors.toList());
-                                TagSelectViewModel tagSelectViewModel = new ViewModelProvider(this).get(TagSelectViewModel.class);
-                                tagSelectViewModel.getCheckedTagIdSet().clear();
-                                tagSelectViewModel.getCheckedTagIdSet().addAll(tagIdList);
+                                TagMultiSelectViewModel tagMultiSelectViewModel = new ViewModelProvider(this).get(TagMultiSelectViewModel.class);
+                                tagMultiSelectViewModel.getCheckedTagIdSet().clear();
+                                tagMultiSelectViewModel.getCheckedTagIdSet().addAll(tagIdList);
 
                                 //显示媒体
                                 if (!mediaList.isEmpty()) {
@@ -539,11 +539,11 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         });
 
         //标签选择
-        TagSelectViewModel tagSelectViewModel = new ViewModelProvider(this).get(TagSelectViewModel.class);
-        tagSelectViewModel.getNeedExecute().observe(this, b -> {
+        TagMultiSelectViewModel tagMultiSelectViewModel = new ViewModelProvider(this).get(TagMultiSelectViewModel.class);
+        tagMultiSelectViewModel.getNeedExecute().observe(this, b -> {
             if (b) {
                 BookkeepingDb db = BookkeepingDb.getInstance(this);
-                disposable.add(db.tagDao().getTagSingleById(tagSelectViewModel.getCheckedTagIdSet())
+                disposable.add(db.tagDao().getTagSingleById(tagMultiSelectViewModel.getCheckedTagIdSet())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeOn(Schedulers.io())
                         .subscribe(

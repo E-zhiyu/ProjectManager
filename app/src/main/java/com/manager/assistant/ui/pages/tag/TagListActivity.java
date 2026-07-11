@@ -13,6 +13,7 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
@@ -23,8 +24,11 @@ import com.manager.assistant.data.save.db.entities.composite.ui.TagListUiModel;
 import com.manager.assistant.data.save.db.services.TagService;
 import com.manager.assistant.databinding.ActivityTagListBinding;
 import com.manager.assistant.generic_enums.KeyStrings;
+import com.manager.assistant.generic_enums.TagStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
+import com.manager.assistant.ui.others.bottom.TagSelectBottomSheet;
+import com.manager.assistant.ui.others.viewmodel.TagSingleSelectViewModel;
 
 import java.util.List;
 import java.util.Locale;
@@ -38,6 +42,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class TagListActivity extends AppCompatActivity {
     private final CompositeDisposable disposables = new CompositeDisposable();  //订阅列表
     private ActivityTagListBinding binding;                                     //绑定的XML视图的引用
+    private TagEntity mergedTag = null;                                         //被合并的标签
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +61,7 @@ public class TagListActivity extends AppCompatActivity {
         });
 
         initViews();
+        observeLiveData();
     }
 
     @Override
@@ -150,6 +156,39 @@ public class TagListActivity extends AppCompatActivity {
     }
 
     /**
+     * 观察 ViewModel 的 LiveData
+     */
+    private void observeLiveData() {
+        TagSingleSelectViewModel tagSingleViewModel = new ViewModelProvider(this).get(TagSingleSelectViewModel.class);
+        tagSingleViewModel.getClickedTag().observe(this, tag -> {
+            if (mergedTag == null) return;
+
+            String message = String.format(
+                    Locale.getDefault(),
+                    "确认将“%s”合并为“%s”吗？所有使用原标签的",
+                    mergedTag.getName(),
+                    tag.getName()
+            );
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.merge_tag)
+                    .setMessage(message)
+                    .setPositiveButton("确定", (dialogInterface, i) -> {
+                        BookkeepingDb db = BookkeepingDb.getInstance(this);
+                        disposables.add(TagService.mergeTag(mergedTag, tag, db)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeOn(Schedulers.io())
+                                .subscribe(
+                                        () -> Toast.makeText(this, "标签合并成功", Toast.LENGTH_SHORT).show(),
+                                        e -> ExceptionHelper.showExceptionDialog(this, e)
+                                )
+                        );
+                    })
+                    .setNegativeButton("取消", null)
+                    .show();
+        });
+    }
+
+    /**
      * 删除标签
      *
      * @param tag 需要删除的标签
@@ -183,8 +222,18 @@ public class TagListActivity extends AppCompatActivity {
      *
      * @param mergedTag 被合并的标签
      */
-    private void mergeTag(TagEntity mergedTag) {
-        //TODO:合并标签
+    private void mergeTag(@NonNull TagEntity mergedTag) {
+        this.mergedTag = mergedTag;
+
+        Bundle bundle = new Bundle();
+        bundle.putInt(KeyStrings.TAG_SCOPE.v(), 0);
+        bundle.putBoolean(KeyStrings.TAG_MULTI_CHOICE.v(), false);
+        long[] exceptedTagIds = new long[]{mergedTag.getTagId()};
+        bundle.putLongArray(KeyStrings.TAG_ID.v(), exceptedTagIds);
+
+        TagSelectBottomSheet bottomSheet = new TagSelectBottomSheet();
+        bottomSheet.setArguments(bundle);
+        bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_SHEET.getTag());
     }
 
     /**
@@ -296,7 +345,7 @@ public class TagListActivity extends AppCompatActivity {
                                         .observeOn(AndroidSchedulers.mainThread())
                                         .subscribeOn(Schedulers.io())
                                         .subscribe(
-                                                () -> Toast.makeText(this, "标签分组合并完成", Toast.LENGTH_SHORT).show(),
+                                                () -> Toast.makeText(this, "标签分组合并成功", Toast.LENGTH_SHORT).show(),
                                                 e -> ExceptionHelper.showExceptionDialog(this, e)
                                         )
                                 );

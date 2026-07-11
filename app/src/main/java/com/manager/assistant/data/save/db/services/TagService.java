@@ -22,14 +22,15 @@ public class TagService {
     /**
      * 获取分组后的标签数据
      *
-     * @param db  数据库实例
-     * @param pow 标签作用域标识符，传递0以获取所有作用域内的标签
+     * @param db             数据库实例
+     * @param pow            标签作用域标识符，传递0以获取所有作用域内的标签
+     * @param exceptedTagIds 被排除的标签的 ID
      * @return 带有分组名称分隔符的标签列表，已按照分组编号分组
      */
-    public static Flowable<List<TagGroupUiModel>> getGroupedTagFlowable(@NonNull BookkeepingDb db, int pow) {
+    public static Flowable<List<TagGroupUiModel>> getGroupedTagFlowable(@NonNull BookkeepingDb db, int pow, long[] exceptedTagIds) {
         TagDao dao = db.tagDao();
         return Flowable.combineLatest(
-                dao.getAllTagFlowable(pow),
+                dao.getAllTagFlowable(pow, exceptedTagIds),
                 dao.getAllTagGroupFlowable(),
                 (tagList, groupList) -> {
                     //将标签数据按照分组编号分组
@@ -71,7 +72,7 @@ public class TagService {
     public static Flowable<List<TagListUiModel>> getTagListFlowable(@NonNull BookkeepingDb db) {
         TagDao dao = db.tagDao();
         return Flowable.combineLatest(
-                dao.getAllTagFlowable(0),
+                dao.getAllTagFlowable(0, null),
                 dao.getAllTagGroupFlowable(),
                 (tagList, groupList) -> {
                     //将标签数据按照分组编号分组
@@ -133,14 +134,30 @@ public class TagService {
 
     /**
      * 合并标签分组
+     *
      * @param mergedGroup 被合并的标签分组
      * @param targetGroup 合并到的标签分组
-     * @param db 数据库实例
+     * @param db          数据库实例
      * @return 是否完成
      */
-    public static Completable mergeTagGroup(TagGroupEntity mergedGroup,TagGroupEntity targetGroup,BookkeepingDb db) {
-        return Completable.defer(()->{
-            db.tagDao().mergeGroup(mergedGroup,targetGroup);
+    public static Completable mergeTagGroup(TagGroupEntity mergedGroup, TagGroupEntity targetGroup, BookkeepingDb db) {
+        return Completable.defer(() -> {
+            db.tagDao().mergeGroup(mergedGroup, targetGroup);
+            return Completable.complete();
+        });
+    }
+
+    /**
+     * 合并标签
+     *
+     * @param mergedTag 被合并的标签
+     * @param targetTag 合并到的目标标签
+     * @param db        数据库实例
+     * @return 是否完成
+     */
+    public static Completable mergeTag(TagEntity mergedTag, TagEntity targetTag, BookkeepingDb db) {
+        return Completable.defer(() -> {
+            db.tagDao().mergeTag(mergedTag, targetTag);
             return Completable.complete();
         });
     }

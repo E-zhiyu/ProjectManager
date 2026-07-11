@@ -14,17 +14,21 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.ListAdapter;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.manager.assistant.data.save.db.BookkeepingDb;
+import com.manager.assistant.data.save.db.entities.composite.ui.TagGroupUiModel;
 import com.manager.assistant.data.save.db.services.TagService;
 import com.manager.assistant.databinding.BottomSheetTagSelectBinding;
 import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.appearence.VisibilityHelper;
-import com.manager.assistant.ui.others.adapters.GroupTagSelectAdapter;
-import com.manager.assistant.ui.others.viewmodel.TagSelectViewModel;
+import com.manager.assistant.ui.others.adapters.GroupTagMultiSelectAdapter;
+import com.manager.assistant.ui.others.adapters.GroupTagSingleSelectAdapter;
+import com.manager.assistant.ui.others.viewmodel.TagMultiSelectViewModel;
+import com.manager.assistant.ui.others.viewmodel.TagSingleSelectViewModel;
 import com.manager.assistant.ui.pages.tag.TagInputActivity;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -32,16 +36,21 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
-    private BottomSheetTagSelectBinding binding;    //绑定的 XML 布局
+    private BottomSheetTagSelectBinding binding;        //绑定的 XML 布局
     private final CompositeDisposable disposable = new CompositeDisposable();
-    private GroupTagSelectAdapter adapter;          //分组标签适配器
-    private int scopePow = 0;                       //标签作用域标识符
+    private ListAdapter<TagGroupUiModel, ?> adapter;    //分组标签适配器
+    private int scopePow = 0;                           //标签作用域标识符
+    private boolean isMultiMode = true;                 //是否为多选模式
+    private long[] exceptedTagIds = null;               //被排除的标签的 ID
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            scopePow = getArguments().getInt(KeyStrings.TAG_SCOPE.v());
+            Bundle bundle = getArguments();
+            scopePow = bundle.getInt(KeyStrings.TAG_SCOPE.v());
+            isMultiMode = bundle.getBoolean(KeyStrings.TAG_MULTI_CHOICE.v(), true);
+            exceptedTagIds = bundle.getLongArray(KeyStrings.TAG_ID.v());
         }
     }
 
@@ -60,10 +69,12 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
         initViews();
 
         //绑定消失监听器
-        setOnDismissListener(() -> {
-            TagSelectViewModel viewModel = new ViewModelProvider(requireActivity()).get(TagSelectViewModel.class);
-            viewModel.setNeedExecute(true);
-        });
+        if (isMultiMode) {
+            setOnDismissListener(() -> {
+                TagMultiSelectViewModel viewModel = new ViewModelProvider(requireActivity()).get(TagMultiSelectViewModel.class);
+                viewModel.setNeedExecute(true);
+            });
+        }
 
         return binding.getRoot();
     }
@@ -122,24 +133,33 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
      * 初始化分组标签
      */
     private void initTagGroup() {
-        TagSelectViewModel viewModel = new ViewModelProvider(requireActivity()).get(TagSelectViewModel.class);
-
         //设置适配器
-        adapter = new GroupTagSelectAdapter(
-                viewModel.getCheckedTagIdSet(),
-                (tag, isChecked, anchor) -> {
-                    if (isChecked) {
-                        viewModel.getCheckedTagIdSet().add(tag.getTagId());
-                    } else {
-                        viewModel.getCheckedTagIdSet().remove(tag.getTagId());
+        if (isMultiMode) {
+            TagMultiSelectViewModel viewModel = new ViewModelProvider(requireActivity()).get(TagMultiSelectViewModel.class);
+            adapter = new GroupTagMultiSelectAdapter(
+                    viewModel.getCheckedTagIdSet(),
+                    (tag, isChecked, anchor) -> {
+                        if (isChecked) {
+                            viewModel.getCheckedTagIdSet().add(tag.getTagId());
+                        } else {
+                            viewModel.getCheckedTagIdSet().remove(tag.getTagId());
+                        }
                     }
-                }
-        );
+            );
+        } else {
+            TagSingleSelectViewModel viewModel = new ViewModelProvider(requireActivity()).get(TagSingleSelectViewModel.class);
+            adapter = new GroupTagSingleSelectAdapter(
+                    (entity, anchor) -> {
+                        viewModel.setClickedTag(entity);
+                        dismiss();
+                    }
+            );
+        }
         binding.fullTagRecycler.setAdapter(adapter);
 
         //订阅数据
         BookkeepingDb db = BookkeepingDb.getInstance(requireContext());
-        disposable.add(TagService.getGroupedTagFlowable(db, scopePow)
+        disposable.add(TagService.getGroupedTagFlowable(db, scopePow, exceptedTagIds)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(

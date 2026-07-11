@@ -14,6 +14,7 @@ public enum KeyStrings {
     IS_MODIFY_MODE("is_modify_mode"),                       //是否为修改模式
     TAG_NAME("tag_name"),                                   //标签名称
     TAG_ID("tag_id"),                                       //标签编号
+    TAG_MULTI_CHOICE("tag_multi_choice"),                   //标签是否为多选模式
     TAG_SCOPE("tag_scope"),                                 //标签作用域
     TAG_GROUP_NAME("tag_group_name"),                       //标签分组名称
     TAG_GROUP_NO("tag_group_no"),                           //标签分组编号

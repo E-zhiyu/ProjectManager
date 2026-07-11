@@ -37,8 +37,8 @@ public interface TagDao {
      * @param scopePow 作用域标识符，传递0获取所有作用域的标签
      * @return 所有标签组成的列表，支持响应式更新
      */
-    @Query("SELECT * FROM tags WHERE scope & :scopePow = 0 ORDER BY groupId")
-    Flowable<List<TagEntity>> getAllTagFlowable(int scopePow);
+    @Query("SELECT * FROM tags WHERE scope & :scopePow = 0 AND (:exceptedTagIds IS NULL OR tagId NOT IN (:exceptedTagIds)) ORDER BY groupId")
+    Flowable<List<TagEntity>> getAllTagFlowable(int scopePow, long[] exceptedTagIds);
 
     /**
      * 获取所有标签分组
@@ -63,6 +63,7 @@ public interface TagDao {
      * @param tagId 需要获取的标签的编号
      * @return 该编号对应的标签
      */
+    @Transaction
     @Query("SELECT * FROM tags WHERE tagId = :tagId")
     Single<Optional<TagWithGroupModel>> getTagWithGroupSingleById(long tagId);
 
@@ -212,5 +213,23 @@ public interface TagDao {
         if (mergedGroupId != -1) {
             deleteGroup(mergedGroup);
         }
+    }
+
+    @Query("UPDATE OR REPLACE accountTagRef SET tagId = :targetTagId WHERE tagId = :originTag")
+    void changeAccountTag(long originTag, long targetTagId);
+
+    @Delete
+    void deleteMergedTag(TagEntity tag);
+
+    /**
+     * 合并标签事务
+     *
+     * @param mergedTag 被合并的标签
+     * @param targetTag 合并到的目标标签
+     */
+    @Transaction
+    default void mergeTag(@NonNull TagEntity mergedTag, @NonNull TagEntity targetTag) {
+        changeAccountTag(mergedTag.getTagId(), targetTag.getTagId());
+        deleteMergedTag(mergedTag);
     }
 }
