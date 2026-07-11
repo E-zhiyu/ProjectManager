@@ -35,9 +35,9 @@ public class TagListAdapter extends ListAdapter<TagListUiModel, RecyclerView.Vie
                 TagListUiModel.Item oldI = (TagListUiModel.Item) oldItem;
                 TagListUiModel.Item newI = (TagListUiModel.Item) newItem;
                 return oldI.entity.getTagId() == newI.entity.getTagId();
-            } else if (oldItem instanceof TagListUiModel.Separator && newItem instanceof TagListUiModel.Separator) {
-                TagListUiModel.Separator oldS = (TagListUiModel.Separator) oldItem;
-                TagListUiModel.Separator newS = (TagListUiModel.Separator) newItem;
+            } else if (oldItem instanceof TagListUiModel.Group && newItem instanceof TagListUiModel.Group) {
+                TagListUiModel.Group oldS = (TagListUiModel.Group) oldItem;
+                TagListUiModel.Group newS = (TagListUiModel.Group) newItem;
                 return oldS.group.equals(newS.group);
             } else {
                 return false;
@@ -52,7 +52,7 @@ public class TagListAdapter extends ListAdapter<TagListUiModel, RecyclerView.Vie
                 return oldI.entity.getName().equals(newI.entity.getName()) &&
                         oldI.entity.getScope() == newI.entity.getScope();
             } else
-                return oldItem instanceof TagListUiModel.Separator && newItem instanceof TagListUiModel.Separator;
+                return oldItem instanceof TagListUiModel.Group && newItem instanceof TagListUiModel.Group;
         }
     };
 
@@ -185,8 +185,8 @@ public class TagListAdapter extends ListAdapter<TagListUiModel, RecyclerView.Vie
                         @Override
                         public void onLongClick(int pos, View anchor) {
                             TagListUiModel group = getItem(pos);
-                            if (group instanceof TagListUiModel.Separator) {
-                                separatorLongClickListener.onLongClick(((TagListUiModel.Separator) group).group, anchor);
+                            if (group instanceof TagListUiModel.Group) {
+                                separatorLongClickListener.onLongClick(((TagListUiModel.Group) group).group, anchor);
                             }
                         }
                     }
@@ -222,8 +222,8 @@ public class TagListAdapter extends ListAdapter<TagListUiModel, RecyclerView.Vie
 
             //设置圆角
             setRadius(itemHolder.binding.getRoot(), position);
-        } else if (model instanceof TagListUiModel.Separator && holder instanceof SeparatorViewHolder) {
-            String text = ((TagListUiModel.Separator) model).group.getName();
+        } else if (model instanceof TagListUiModel.Group && holder instanceof SeparatorViewHolder) {
+            String text = ((TagListUiModel.Group) model).group.getName();
             SeparatorViewHolder sHolder = (SeparatorViewHolder) holder;
 
             sHolder.binding.nameText.setText(text);
@@ -241,8 +241,8 @@ public class TagListAdapter extends ListAdapter<TagListUiModel, RecyclerView.Vie
         Context context = view.getContext();
         TagListUiModel model = getItem(position);
 
-        if (model instanceof TagListUiModel.Separator) {
-            if (position == getItemCount() - 1 || getItem(position + 1) instanceof TagListUiModel.Separator) {
+        if (model instanceof TagListUiModel.Group) {
+            if (position == getItemCount() - 1 || getItem(position + 1) instanceof TagListUiModel.Group) {
                 AppearanceHelper.setRadius(
                         context,
                         view,
@@ -262,7 +262,7 @@ public class TagListAdapter extends ListAdapter<TagListUiModel, RecyclerView.Vie
                 );
             }
         } else if (model instanceof TagListUiModel.Item) {
-            if (position == getItemCount() - 1 || getItem(position + 1) instanceof TagListUiModel.Separator) {
+            if (position == getItemCount() - 1 || getItem(position + 1) instanceof TagListUiModel.Group) {
                 AppearanceHelper.setRadiusStyle(view, RadiusStyle.BOTTOM);
             } else {
                 AppearanceHelper.setRadiusStyle(view, RadiusStyle.MIDDLE);

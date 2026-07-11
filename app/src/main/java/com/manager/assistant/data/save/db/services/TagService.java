@@ -85,7 +85,7 @@ public class TagService {
                     //生成带有分隔符的标签列表
                     List<TagListUiModel> resultList = new ArrayList<>();
                     for (TagGroupEntity group : groupList) {
-                        resultList.add(new TagListUiModel.Separator(group));
+                        resultList.add(new TagListUiModel.Group(group));
 
                         List<TagEntity> tagInGroupList = groupedTagMap.get(group.getGroupId());
                         if (tagInGroupList != null) {
@@ -127,6 +127,20 @@ public class TagService {
     public static Completable modifyTag(TagEntity tag, String groupName, BookkeepingDb db) {
         return Completable.defer(() -> {
             db.tagDao().modifyTag(tag, groupName);
+            return Completable.complete();
+        });
+    }
+
+    /**
+     * 合并标签分组
+     * @param mergedGroup 被合并的标签分组
+     * @param targetGroup 合并到的标签分组
+     * @param db 数据库实例
+     * @return 是否完成
+     */
+    public static Completable mergeTagGroup(TagGroupEntity mergedGroup,TagGroupEntity targetGroup,BookkeepingDb db) {
+        return Completable.defer(()->{
+            db.tagDao().mergeGroup(mergedGroup,targetGroup);
             return Completable.complete();
         });
     }

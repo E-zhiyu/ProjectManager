@@ -12,10 +12,10 @@ public class TagListUiModel {
         }
     }
 
-    public static class Separator extends TagListUiModel {
+    public static class Group extends TagListUiModel {
         public final TagGroupEntity group;
 
-        public Separator(TagGroupEntity group) {
+        public Group(TagGroupEntity group) {
             this.group = group;
         }
     }

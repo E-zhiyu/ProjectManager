@@ -543,7 +543,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         tagSelectViewModel.getNeedExecute().observe(this, b -> {
             if (b) {
                 BookkeepingDb db = BookkeepingDb.getInstance(this);
-                disposable.add(db.tagDao().getTagSinlgeById(tagSelectViewModel.getCheckedTagIdSet())
+                disposable.add(db.tagDao().getTagSingleById(tagSelectViewModel.getCheckedTagIdSet())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeOn(Schedulers.io())
                         .subscribe(

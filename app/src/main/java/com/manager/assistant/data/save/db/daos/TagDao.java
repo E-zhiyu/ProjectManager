@@ -2,6 +2,7 @@ package com.manager.assistant.data.save.db.daos;
 
 import androidx.annotation.NonNull;
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 
@@ -71,7 +73,7 @@ public interface TagDao {
      * @return 编号在集合中的标签的数据
      */
     @Query("SELECT * FROM tags WHERE tagId IN (:tagIdSet)")
-    Single<List<TagEntity>> getTagSinlgeById(Set<Long> tagIdSet);
+    Single<List<TagEntity>> getTagSingleById(Set<Long> tagIdSet);
 
     /**
      * 获取所有分组名称
@@ -158,5 +160,57 @@ public interface TagDao {
         long groupId = getGroupIdByNameOrCreate(groupName);
         tag.setGroupId(groupId);
         updateTag(tag);
+    }
+
+    /**
+     * 删除标签
+     *
+     * @param tag 需要删除的标签
+     * @return 是否完成
+     */
+    @Delete
+    Completable deleteTag(TagEntity tag);
+
+    /**
+     * 删除分组
+     *
+     * @param group 需要删除的分组
+     * @return 是否完成
+     */
+    @Delete
+    Completable deleteGroup(TagGroupEntity group);
+
+    /**
+     * 删除位于默认分组中的标签
+     *
+     * @return 是否完成
+     */
+    @Query("DELETE FROM tags WHERE groupId = -1")
+    Completable deleteTagInDefaultGroup();
+
+    /**
+     * 修改标签所属的分组编号
+     *
+     * @param originGroupId 原来的分组编号
+     * @param targetGroupId 目标分组编号
+     */
+    @Query("UPDATE tags SET groupId = :targetGroupId WHERE groupId = :originGroupId")
+    void changeTagGroup(long originGroupId, long targetGroupId);
+
+    /**
+     * 合并分组事务
+     *
+     * @param mergedGroup 被合并的分组
+     * @param targetGroup 合并到的目标分组
+     */
+    @Transaction
+    default void mergeGroup(@NonNull TagGroupEntity mergedGroup, @NonNull TagGroupEntity targetGroup) {
+        long mergedGroupId = mergedGroup.getGroupId();
+        changeTagGroup(mergedGroupId, targetGroup.getGroupId());
+
+        //仅当不是默认分组时删除被合并的分组
+        if (mergedGroupId != -1) {
+            deleteGroup(mergedGroup);
+        }
     }
 }

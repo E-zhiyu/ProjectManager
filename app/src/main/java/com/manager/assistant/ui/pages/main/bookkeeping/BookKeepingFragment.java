@@ -94,7 +94,7 @@ public class BookKeepingFragment extends Fragment {
                 },
                 (entity, anchor) -> {
                     PopupMenu popupMenu = new PopupMenu(requireContext(), anchor, Gravity.END);
-                    popupMenu.getMenuInflater().inflate(R.menu.menu_account_edit, popupMenu.getMenu());
+                    popupMenu.getMenuInflater().inflate(R.menu.menu_account_list_edit, popupMenu.getMenu());
 
                     popupMenu.setOnMenuItemClickListener(item -> {
                         if (item.getItemId() == R.id.action_delete_account) {

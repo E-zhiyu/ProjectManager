@@ -22,6 +22,7 @@ import com.manager.assistant.databinding.ActivityTagInputBinding;
 import com.manager.assistant.auxiliary.enums.AccountType;
 import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
+import com.manager.assistant.helpers.ImmHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -121,6 +122,7 @@ public class TagInputActivity extends AppCompatActivity {
                 binding.nameLayout.setError(null);
             }
         });
+        ImmHelper.showImm(binding.nameInput);
 
         //标签分组自动填充适配器
         BookkeepingDb db = BookkeepingDb.getInstance(this);

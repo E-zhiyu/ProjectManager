@@ -62,6 +62,8 @@
                 app:endIconMode="clear_text"
                 app:helperText="@string/account_amount_help">
 
+                <requestFocus />
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/amount_input"
                     style="@style/UserInputEditTextStyle"
