@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.rule;
+package com.manager.assistant.ui.pages.notification_rule;
 
 import android.app.Activity;
 import android.content.Intent;

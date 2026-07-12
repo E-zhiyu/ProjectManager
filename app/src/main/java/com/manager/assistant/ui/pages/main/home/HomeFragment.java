@@ -23,6 +23,7 @@ import com.manager.assistant.data.save.db.entities.AccountEntity;
 import com.manager.assistant.databinding.FragmentHomeBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
+import com.manager.assistant.ui.pages.notification_rule.NotificationRuleListActivity;
 import com.manager.assistant.ui.pages.tag.TagListActivity;
 
 import java.time.LocalDate;
@@ -248,7 +249,22 @@ public class HomeFragment extends Fragment {
                 AppearanceHelper.SMALL_CARD_RADIUS
         );
 
-        //TODO:完成通知规则卡片初始化
+        //点击监听
+        binding.notificationRuleCard.setOnClickListener(view -> {
+            Intent skip2NotificationRuleList = new Intent(requireContext(), NotificationRuleListActivity.class);
+            startActivity(skip2NotificationRuleList);
+        });
+        AppearanceHelper.attachMorphAnimation(binding.notificationRuleCard);
+
+        BookkeepingDb db = BookkeepingDb.getInstance(requireContext());
+        disposable.add(db.ruleDao().getNotificationRuleCountFlowable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(
+                        count -> binding.notificationRuleCountText.setText(String.valueOf(count)),
+                        e -> ExceptionHelper.showExceptionDialog(requireContext(), e)
+                )
+        );
     }
 
     /**

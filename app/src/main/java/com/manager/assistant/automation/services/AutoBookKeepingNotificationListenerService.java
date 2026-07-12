@@ -35,7 +35,7 @@ import com.manager.assistant.generic_enums.NotificationID;
 import com.manager.assistant.generic_enums.PendingRequestCode;
 import com.manager.assistant.helpers.NotificationHelper;
 import com.manager.assistant.auxiliary.enums.AccountType;
-import com.manager.assistant.ui.pages.rule.AnalysisRuleManageActivity;
+import com.manager.assistant.ui.pages.notification_rule.NotificationRuleListActivity;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -364,7 +364,7 @@ public class AutoBookKeepingNotificationListenerService extends NotificationList
     private void sendErrorNotification(String content, long ruleNo) {
         //发送错误提示通知
         int notificationID = NotificationID.AUTO_BOOKKEEPING_ERROR.ordinal() + Math.toIntExact(ruleNo);
-        Intent skip2RuleManage = new Intent(getApplicationContext(), AnalysisRuleManageActivity.class);
+        Intent skip2RuleManage = new Intent(getApplicationContext(), NotificationRuleListActivity.class);
         PendingIntent pi = PendingIntent.getActivity(
                 getApplicationContext(),
                 PendingRequestCode.AUTO_BOOKKEEPING_ERROR.ordinal() + Math.toIntExact(ruleNo),
