@@ -152,6 +152,15 @@ public interface TagDao {
     void updateTag(TagEntity tag);
 
     /**
+     * 更新分组
+     *
+     * @param group 更新后的标签分组数据
+     * @return 是否完成
+     */
+    @Update
+    Completable updateGroup(TagGroupEntity group);
+
+    /**
      * 修改标签事务
      *
      * @param tag       修改后的标签数据

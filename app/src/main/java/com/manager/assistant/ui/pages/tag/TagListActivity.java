@@ -28,6 +28,7 @@ import com.manager.assistant.generic_enums.TagStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.ui.others.bottom.TagSelectBottomSheet;
+import com.manager.assistant.ui.others.dialogs.EditTextDialogBuilder;
 import com.manager.assistant.ui.others.viewmodel.TagSingleSelectViewModel;
 
 import java.util.List;
@@ -122,7 +123,10 @@ public class TagListActivity extends AppCompatActivity {
 
                     popupMenu.setOnMenuItemClickListener(item -> {
                         int id = item.getItemId();
-                        if (id == R.id.action_delete_group) {
+                        if (id == R.id.action_rename_group) {
+                            renameGroup(entity);
+                            return true;
+                        } else if (id == R.id.action_delete_group) {
                             deleteGroup(entity);
                             return true;
                         } else if (id == R.id.action_merge_group) {
@@ -234,6 +238,35 @@ public class TagListActivity extends AppCompatActivity {
         TagSelectBottomSheet bottomSheet = new TagSelectBottomSheet();
         bottomSheet.setArguments(bundle);
         bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_SHEET.getTag());
+    }
+
+    /**
+     * 重命名分组
+     *
+     * @param group 需要重命名的分组
+     */
+    private void renameGroup(TagGroupEntity group) {
+        new EditTextDialogBuilder(this, getString(R.string.rename_group), "新名称")
+                .setPositiveButton("确定", inputStr -> {
+                    if (inputStr.isEmpty()) {
+                        Toast.makeText(this, "名称不能为空", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    TagGroupEntity modifiedGroup = new TagGroupEntity(inputStr);
+                    modifiedGroup.setGroupId(group.getGroupId());
+                    BookkeepingDb db = BookkeepingDb.getInstance(this);
+                    disposables.add(db.tagDao().updateGroup(modifiedGroup)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe(
+                                    () -> Toast.makeText(this, "分组重命名成功", Toast.LENGTH_SHORT).show(),
+                                    e -> ExceptionHelper.showExceptionDialog(this, e)
+                            )
+                    );
+                })
+                .setNegativeButton("取消", null)
+                .show();
     }
 
     /**

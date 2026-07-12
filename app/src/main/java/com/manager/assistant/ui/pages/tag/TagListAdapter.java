@@ -38,7 +38,7 @@ public class TagListAdapter extends ListAdapter<TagListUiModel, RecyclerView.Vie
             } else if (oldItem instanceof TagListUiModel.Group && newItem instanceof TagListUiModel.Group) {
                 TagListUiModel.Group oldS = (TagListUiModel.Group) oldItem;
                 TagListUiModel.Group newS = (TagListUiModel.Group) newItem;
-                return oldS.group.equals(newS.group);
+                return oldS.group.getGroupId() == newS.group.getGroupId();
             } else {
                 return false;
             }
@@ -51,8 +51,13 @@ public class TagListAdapter extends ListAdapter<TagListUiModel, RecyclerView.Vie
                 TagListUiModel.Item newI = (TagListUiModel.Item) newItem;
                 return oldI.entity.getName().equals(newI.entity.getName()) &&
                         oldI.entity.getScope() == newI.entity.getScope();
-            } else
-                return oldItem instanceof TagListUiModel.Group && newItem instanceof TagListUiModel.Group;
+            } else if (oldItem instanceof TagListUiModel.Group && newItem instanceof TagListUiModel.Group) {
+                TagListUiModel.Group oldS = (TagListUiModel.Group) oldItem;
+                TagListUiModel.Group newS = (TagListUiModel.Group) newItem;
+                return oldS.group.getName().equals(newS.group.getName());
+            } else {
+                return false;
+            }
         }
     };
 

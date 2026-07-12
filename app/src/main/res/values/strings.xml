@@ -191,6 +191,8 @@
     <string name="delete_tag">删除标签</string>
     <string name="delete_group">删除分组</string>
     <string name="choose_target_group">选择目标分组</string>
+    <string name="rename">重命名</string>
+    <string name="rename_group">重命名分组</string>
     <string-array name="tips_array">
         <item>在报表界面可以点击某个收支来源以排除它，还不赶快去试试？</item>
         <item>你知道吗？下面的这些卡片是可以点击的。</item>
