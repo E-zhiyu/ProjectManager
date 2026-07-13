@@ -274,7 +274,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                                 binding.typeInput.setText(type.getTitle());                         //种类
                                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
                                 binding.datetimeInput.setText(account.getDateTime().format(formatter)); //日期和时间
-                                if (transfer != null) {
+                                if (type == AccountType.TRANSFER) {
                                     binding.exportAccountLayout.setVisibility(View.VISIBLE);
                                     binding.importAccountLayout.setVisibility(View.VISIBLE);
 

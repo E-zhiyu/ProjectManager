@@ -12,11 +12,14 @@ import com.manager.assistant.auxiliary.enums.AccountType;
 import com.manager.assistant.data.save.db.entities.NotificationRuleEntity;
 import com.manager.assistant.data.save.db.entities.NotificationRuleTransferEntity;
 import com.manager.assistant.data.save.db.entities.composite.NotificationRuleTagRefEntity;
+import com.manager.assistant.data.save.db.entities.composite.NotificationRuleWithDetailModel;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Single;
 
 @Dao
 public interface RuleDao {
@@ -35,6 +38,15 @@ public interface RuleDao {
      */
     @Query("SELECT * FROM notificationRules ORDER BY type")
     Flowable<List<NotificationRuleEntity>> getAllNotificationRuleFlowable();
+
+    /**
+     * 通过规则 ID 查询通知规则的详细数据
+     * @param ruleId 需要查询的规则编号
+     * @return 通知规则的详细数据
+     */
+    @Transaction
+    @Query("SELECT * FROM notificationRules WHERE ruleId = :ruleId")
+    Single<Optional<NotificationRuleWithDetailModel>> getNotificationRuleWithDetailSingleById(long ruleId);
 
     /**
      * 插入通知规则

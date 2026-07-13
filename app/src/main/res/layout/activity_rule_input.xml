@@ -151,6 +151,8 @@
                 style="@style/CommonTextInputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:endIconDrawable="@drawable/outline_text_increase_24"
+                app:endIconMode="custom"
                 app:helperText="@string/rule_notification_content_help">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -158,8 +160,7 @@
                     style="@style/UserInputEditTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="@string/notification_content_regex"
-                    android:inputType="number" />
+                    android:hint="@string/notification_content_regex" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -167,8 +168,6 @@
                 style="@style/CommonTextInputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:endIconDrawable="@drawable/outline_text_increase_24"
-                app:endIconMode="custom"
                 app:helperText="@string/notification_rule_match_group_helper">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -176,7 +175,8 @@
                     style="@style/UserInputEditTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="@string/match_group_position" />
+                    android:hint="@string/match_group_position"
+                    android:inputType="number" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout

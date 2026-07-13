@@ -3,6 +3,7 @@ package com.manager.assistant.ui.pages.notification_rule;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -21,12 +22,14 @@ import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.entities.NotificationRuleEntity;
 import com.manager.assistant.data.save.db.entities.NotificationRuleTransferEntity;
 import com.manager.assistant.data.save.db.entities.TagEntity;
+import com.manager.assistant.data.save.db.entities.composite.NotificationRuleWithDetailModel;
 import com.manager.assistant.data.save.db.services.RuleService;
 import com.manager.assistant.databinding.ActivityRuleInputBinding;
 import com.manager.assistant.generic_enums.TagStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.auxiliary.enums.AccountType;
+import com.manager.assistant.helpers.ImmHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.helpers.appearence.VisibilityHelper;
 import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
@@ -133,7 +136,53 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
             binding.toolbar.setTitle(R.string.modify_rule);
 
             long ruleId = initBundle.getLong(KeyStrings.NOTIFICATION_RULE_ID.v());
+            BookkeepingDb db = BookkeepingDb.getInstance(this);
+            disposable.add(db.ruleDao().getNotificationRuleWithDetailSingleById(ruleId)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe(
+                            optional -> {
+                                if (optional.isEmpty()) return;
 
+                                //解析数据
+                                NotificationRuleWithDetailModel model = optional.get();
+                                NotificationRuleEntity rule = model.getRule();
+                                NotificationRuleTransferEntity transfer = model.getTransfer();
+                                List<TagEntity> tagList = model.getTagList();
+
+                                //填充文本框
+                                binding.nameInput.setText(rule.getName());                      //名称
+                                type = AccountType.values()[rule.getType()];
+                                binding.typeInput.setText(type.getTitle());                     //种类
+                                binding.packageNameInput.setText(rule.getPackageName());        //包名
+                                binding.notificationTitleInput.setText(rule.getTargetTitle());  //标题
+                                binding.regexInput.setText(rule.getContentRegex());             //正则表达式
+                                binding.captureGroupPositionInput.setText(String.valueOf(rule.getCaptureGroupPos()));   //捕获组位置
+                                if (type == AccountType.TRANSFER) {
+                                    binding.exportAccountLayout.setVisibility(View.VISIBLE);
+                                    binding.importAccountLayout.setVisibility(View.VISIBLE);
+
+                                    binding.exportAccountInput.setText(transfer.getExportAccount());    //转出账户
+                                    binding.importAccountInput.setText(transfer.getImportAccount());    //转入账户
+                                }
+
+                                //显示标签
+                                if (!tagList.isEmpty()) {
+                                    tagAdapter.submitList(tagList);
+                                    binding.tagRecycler.setVisibility(View.VISIBLE);
+                                } else {
+                                    binding.tagRecycler.setVisibility(View.GONE);
+                                }
+                                List<Long> tagIdList = tagList.stream()
+                                        .map(TagEntity::getTagId)
+                                        .collect(Collectors.toList());
+                                TagMultiSelectViewModel tagMultiSelectViewModel = new ViewModelProvider(this).get(TagMultiSelectViewModel.class);
+                                tagMultiSelectViewModel.getCheckedTagIdSet().clear();
+                                tagMultiSelectViewModel.getCheckedTagIdSet().addAll(tagIdList);
+                            },
+                            e -> ExceptionHelper.showExceptionDialog(this, e)
+                    )
+            );
         }
 
         //名称
@@ -147,6 +196,7 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
                 }
             }
         });
+        ImmHelper.showImm(binding.nameInput);
 
         //种类
         NoFilteringArrayAdapter<String> typeAdapter = new NoFilteringArrayAdapter<>(
@@ -230,6 +280,11 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
                 }
             }
         });
+        binding.packageNameInput.setOnClickListener(view -> {
+            binding.packageNameLayout.setError(null);
+            Intent skip2PackageNameSelect = new Intent(this, PackageNameSelectActivity.class);
+            packageNameSelectLauncher.launch(skip2PackageNameSelect);
+        });
 
         //通知标题
         binding.notificationTitleInput.setOnFocusChangeListener((view, b) -> {
@@ -251,17 +306,6 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
                 String input = String.valueOf(binding.regexInput.getText()).trim();
                 if (input.isEmpty()) {
                     binding.regexLayout.setError("内容正则表达式不能为空");
-                }
-            }
-        });
-
-        binding.captureGroupPositionInput.setOnFocusChangeListener((view, b) -> {
-            if (b) {
-                binding.captureGroupPositionLayout.setError(null);
-            } else {
-                String input = String.valueOf(binding.regexInput.getText()).trim();
-                if (input.isEmpty()) {
-                    binding.captureGroupPositionLayout.setError("捕获组位置必须为非负数");
                 }
             }
         });
@@ -363,7 +407,9 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
         String packageName = String.valueOf(binding.packageNameInput.getText()).trim();
         String notificationTitle = String.valueOf(binding.notificationTitleInput.getText()).trim();
         String contentRegexStr = String.valueOf(binding.regexInput.getText()).trim();
-        String matchGroupPositionStr = String.valueOf(binding.captureGroupPositionInput.getText()).trim();
+        String captureGroupPosStr = String.valueOf(binding.captureGroupPositionInput.getText()).trim();
+        String exportAccount = String.valueOf(binding.exportAccountInput.getText()).trim();
+        String importAccount = String.valueOf(binding.importAccountInput.getText()).trim();
 
         if (name.isEmpty()) {
             err = "名称不能为空";
@@ -377,16 +423,31 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
         } else if (contentRegexStr.isEmpty()) {
             err = "内容正则表达式不能为空";
             binding.regexLayout.setError(err);
+        } else if (type == AccountType.TRANSFER && exportAccount.isEmpty()) {
+            err = "转出账户不能为空";
+            binding.exportAccountLayout.setError(err);
+        } else if (type == AccountType.TRANSFER && importAccount.isEmpty()) {
+            err = "转入账户不能为空";
+            binding.importAccountLayout.setError(err);
         } else {
             try {
                 Pattern pattern = Pattern.compile(contentRegexStr);
-                int groupPosition = Integer.parseInt(matchGroupPositionStr);
+                int captureGroupPos;
+                try {
+                    captureGroupPos = Integer.parseInt(captureGroupPosStr);
+                } catch (NumberFormatException e) {
+                    captureGroupPos = 1;
+                }
                 int groupCount = pattern.matcher("").groupCount();
-                if (groupPosition <= 0) {
+                if (groupCount < 1) {
+                    err = "正则表达式至少应有一个捕获组";
+                    binding.regexLayout.setError(err);
+                    return err;
+                } else if (captureGroupPos <= 0) {
                     err = "捕获组位置必须为非负数";
                     binding.captureGroupPositionLayout.setError(err);
                     return err;
-                } else if (groupPosition > groupCount) {
+                } else if (captureGroupPos > groupCount) {
                     err = "捕获组位置不能超出捕获组总数";
                     binding.captureGroupPositionLayout.setError(err);
                     return err;
@@ -441,7 +502,10 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(
-                            () -> Toast.makeText(this, "规则添加成功", Toast.LENGTH_SHORT).show(),
+                            () -> {
+                                Toast.makeText(this, "规则添加成功", Toast.LENGTH_SHORT).show();
+                                finish();
+                            },
                             e -> ExceptionHelper.showExceptionDialog(this, e)
                     )
             );
@@ -452,7 +516,10 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(
-                            () -> Toast.makeText(this, "规则修改成功", Toast.LENGTH_SHORT).show(),
+                            () -> {
+                                Toast.makeText(this, "规则修改成功", Toast.LENGTH_SHORT).show();
+                                finish();
+                            },
                             e -> ExceptionHelper.showExceptionDialog(this, e)
                     )
             );
