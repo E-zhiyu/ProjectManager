@@ -5,20 +5,19 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 @Entity(
-        tableName = "ruleTransferAccounts",
+        tableName = "notificationRuleTransfers",
         indices = {
                 @Index(value = "ruleId")
         }
 )
-public class RuleTransferAccountEntity {
+public class NotificationRuleTransferEntity {
     @PrimaryKey(autoGenerate = true)
     private long transferId;        //主键
     private long ruleId;            //规则编号
     private String exportAccount;   //转出账户
     private String importAccount;   //转入账户
 
-    public RuleTransferAccountEntity(long ruleId, String importAccount, String exportAccount) {
-        this.ruleId = ruleId;
+    public NotificationRuleTransferEntity(String importAccount, String exportAccount) {
         this.importAccount = importAccount;
         this.exportAccount = exportAccount;
     }

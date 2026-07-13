@@ -67,7 +67,7 @@
             android:name=".ui.pages.package_name_select.PackageNameSelectActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.notification_rule.RuleAddModifyActivity"
+            android:name=".ui.pages.notification_rule.NotificationRuleInputActivity"
             android:exported="false" />
         <activity
             android:name=".ui.pages.notification_rule.NotificationRuleListActivity"

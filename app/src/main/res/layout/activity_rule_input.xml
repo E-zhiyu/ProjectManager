@@ -1,10 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.pages.main.bookkeeping.RunningAccountInputActivity">
+    tools:context=".ui.pages.notification_rule.NotificationRuleInputActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
@@ -23,7 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
-                app:title="@string/add_running_account">
+                app:title="@string/add_rule">
 
                 <ImageButton
                     android:id="@+id/confirm_button"
@@ -53,56 +52,20 @@
             android:padding="10dp">
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/amount_layout"
+                android:id="@+id/name_layout"
                 style="@style/CommonTextInputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:counterEnabled="false"
-                app:endIconDrawable="@drawable/baseline_clear_24"
-                app:endIconMode="clear_text"
-                app:helperText="@string/account_amount_help">
+                app:helperText="@string/rule_name_help_text">
 
                 <requestFocus />
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/amount_input"
+                    android:id="@+id/name_input"
                     style="@style/UserInputEditTextStyle"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/amount"
-                    android:imeOptions="actionNext"
-                    android:inputType="numberDecimal" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/remark_layout"
-                style="@style/CommonTextInputLayoutStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/remark"
-                app:helperText="@string/account_remark_help">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/remark_input"
-                    style="@style/UserInputEditTextStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/datetime_layout"
-                style="@style/CommonTextInputLayoutStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/date_time"
-                app:endIconMode="none"
-                app:helperText="@string/account_datetime_help">
-
-                <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                    android:id="@+id/datetime_input"
-                    style="@style/UneditableAutoCompleteTextViewStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="match_parent"
+                    android:hint="@string/rule_name" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -111,7 +74,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/running_account_type"
-                app:helperText="@string/account_type_help">
+                app:helperText="@string/rule_account_type_help">
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/type_input"
@@ -152,6 +115,70 @@
                     android:hint="@string/import_account" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/package_name_layout"
+                style="@style/CommonTextInputLayoutStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:helperText="@string/rule_package_name_help">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/package_name_input"
+                    style="@style/UneditableAutoCompleteTextViewStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/package_name" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/notification_title_layout"
+                style="@style/CommonTextInputLayoutStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:endIconDrawable="@drawable/baseline_clear_24"
+                app:helperText="@string/rule_notification_title_help">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/notification_title_input"
+                    style="@style/UserInputEditTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="@string/notification_title" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/regex_layout"
+                style="@style/CommonTextInputLayoutStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:helperText="@string/rule_notification_content_help">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/regex_input"
+                    style="@style/UserInputEditTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="@string/notification_content_regex"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/capture_group_position_layout"
+                style="@style/CommonTextInputLayoutStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:endIconDrawable="@drawable/outline_text_increase_24"
+                app:endIconMode="custom"
+                app:helperText="@string/notification_rule_match_group_helper">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/capture_group_position_input"
+                    style="@style/UserInputEditTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="@string/match_group_position" />
+            </com.google.android.material.textfield.TextInputLayout>
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -186,63 +213,6 @@
                 android:orientation="horizontal"
                 android:visibility="gone"
                 app:layoutManager="com.google.android.flexbox.FlexboxLayoutManager" />
-
-            <com.google.android.material.divider.MaterialDivider
-                android:id="@+id/input_history_divider"
-                style="@style/Widget.Material3.MaterialDivider"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp" />
-
-            <!-- 图片操纵按钮布局 -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/media_btn_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:text="@string/media_file"
-                    android:textAppearance="?attr/textAppearanceTitleMedium"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <!-- 删除按钮 -->
-                <ImageButton
-                    android:id="@+id/media_delete_btn"
-                    style="@style/ImageButtonStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/btn_of_media_delete"
-                    android:src="@drawable/outline_delete_24"
-                    android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <!-- 添加按钮 -->
-                <ImageButton
-                    android:id="@+id/media_add_btn"
-                    style="@style/ImageButtonStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/btn_of_media_add"
-                    android:src="@drawable/outline_add_photo_alternate_24"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/media_recycler"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:nestedScrollingEnabled="false" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

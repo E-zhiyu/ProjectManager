@@ -120,7 +120,7 @@ public class RuleDataController {
 
         //解析规则数据
         String ruleName = ruleData.getString(KeyStrings.ANALYSIS_RULE_NAME.v());
-        long ruleNo = ruleData.getLong(KeyStrings.ANALYSIS_RULE_NO.v());
+        long ruleNo = ruleData.getLong(KeyStrings.NOTIFICATION_RULE_ID.v());
         String type = ruleData.getString(KeyStrings.ACCOUNT_TYPE.v());
         long tagNo = ruleData.getLong(KeyStrings.TAG_ID.v());
         String packageName = ruleData.getString(KeyStrings.PACKAGE_NAME.v());

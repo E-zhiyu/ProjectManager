@@ -21,7 +21,7 @@ public enum KeyStrings {
     TAG_GROUP_NO_NEW("tag_group_no_new"),                   //标签输入界面修改分组后的新的分组编号
     MERGE_TARGET_NO("merged_no"),                           //合并到的分组或标签编号
     ANALYSIS_RULE_NAME("analysis_rule_name"),               //通知解析规则名称
-    ANALYSIS_RULE_NO("analysis_rule_no"),                   //通知解析规则编号
+    NOTIFICATION_RULE_ID("notification_rule_id"),           //通知解析规则编号
     PACKAGE_NAME("package_name"),                           //包名
     NOTIFICATION_TITLE("notification_title"),               //通知标题
     NOTIFICATION_CONTENT("notification_content"),           //通知内容

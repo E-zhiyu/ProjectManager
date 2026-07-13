@@ -23,7 +23,8 @@ import com.manager.assistant.data.save.db.entities.AccountEntity;
 import com.manager.assistant.data.save.db.entities.TagEntity;
 import com.manager.assistant.data.save.db.entities.TagGroupEntity;
 import com.manager.assistant.data.save.db.entities.AccountTransferEntity;
-import com.manager.assistant.data.save.db.entities.RuleTransferAccountEntity;
+import com.manager.assistant.data.save.db.entities.NotificationRuleTransferEntity;
+import com.manager.assistant.data.save.db.entities.composite.NotificationRuleTagRefEntity;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
@@ -33,14 +34,15 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
         entities = {
                 BudgetEntity.class,
                 BudgetTagRefEntity.class,
-                MediaEntity.class,
                 NotificationRuleEntity.class,
+                NotificationRuleTransferEntity.class,
+                NotificationRuleTagRefEntity.class,
                 AccountEntity.class,
-                AccountTagRefEntity.class,
-                TagEntity.class,
-                TagGroupEntity.class,
                 AccountTransferEntity.class,
-                RuleTransferAccountEntity.class
+                AccountTagRefEntity.class,
+                MediaEntity.class,
+                TagEntity.class,
+                TagGroupEntity.class
         },
         version = 1
 )

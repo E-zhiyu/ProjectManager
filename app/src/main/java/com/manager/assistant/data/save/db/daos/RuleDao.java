@@ -1,11 +1,20 @@
 package com.manager.assistant.data.save.db.daos;
 
+import androidx.annotation.NonNull;
 import androidx.room.Dao;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Transaction;
+import androidx.room.Update;
 
+import com.manager.assistant.auxiliary.enums.AccountType;
 import com.manager.assistant.data.save.db.entities.NotificationRuleEntity;
+import com.manager.assistant.data.save.db.entities.NotificationRuleTransferEntity;
+import com.manager.assistant.data.save.db.entities.composite.NotificationRuleTagRefEntity;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.core.Flowable;
 
@@ -26,4 +35,100 @@ public interface RuleDao {
      */
     @Query("SELECT * FROM notificationRules ORDER BY type")
     Flowable<List<NotificationRuleEntity>> getAllNotificationRuleFlowable();
+
+    /**
+     * 插入通知规则
+     *
+     * @param rule 需要插入的通知规则
+     * @return 插入后分配的主键值
+     */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    Long insertNotificationRule(NotificationRuleEntity rule);
+
+    /**
+     * 插入通知规则的转账账户记录
+     *
+     * @param transfer 需要插入的数据
+     */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    void insertNotificationTransfer(NotificationRuleTransferEntity transfer);
+
+    /**
+     * 插入通知规则与标签的映射关系数据
+     *
+     * @param refList 需要插入的数据
+     */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    void insertNotificationTagRef(List<NotificationRuleTagRefEntity> refList);
+
+    /**
+     * 新增通知规则事务
+     *
+     * @param rule      新增的通知规则
+     * @param transfer  通知规则的转账账户数据
+     * @param tagIdList 标签编号列表
+     */
+    @Transaction
+    default void addNotificationRule(NotificationRuleEntity rule, NotificationRuleTransferEntity transfer, List<Long> tagIdList) {
+        long ruleId = insertNotificationRule(rule);
+
+        //转入转出账户
+        if (rule.getType() == AccountType.TRANSFER.ordinal()) {
+            transfer.setRuleId(ruleId);
+            insertNotificationTransfer(transfer);
+        }
+
+        //标签
+        List<NotificationRuleTagRefEntity> tagRefList = tagIdList.stream()
+                .map(id -> new NotificationRuleTagRefEntity(ruleId, id))
+                .collect(Collectors.toList());
+        insertNotificationTagRef(tagRefList);
+    }
+
+    /**
+     * 更新通知规则
+     *
+     * @param rule 更新后的通知规则数据
+     */
+    @Update
+    void updateNotificationRule(NotificationRuleEntity rule);
+
+    /**
+     * 通过通知规则 ID 删除通知规则的转账账户数据
+     *
+     * @param ruleId 需要删除转账账户数据的通知规则 ID
+     */
+    @Query("DELETE FROM notificationruletransfers WHERE ruleId = :ruleId")
+    void deleteNotificationRuleTransferByRuleId(long ruleId);
+
+    @Query("DELETE FROM notificationRuleTagRef WHERE ruleId = :ruleId")
+    void deleteNotificationRuleTagRefByRuleId(long ruleId);
+
+    /**
+     * 修改通知规则事务
+     *
+     * @param rule      修改后的通知规则
+     * @param transfer  修改后的转账账户数据
+     * @param tagIdList 修改后的标签 ID 列表
+     */
+    @Transaction
+    default void modifyNotificationRule(@NonNull NotificationRuleEntity rule, NotificationRuleTransferEntity transfer, List<Long> tagIdList) {
+        long ruleId = rule.getRuleId();
+
+        updateNotificationRule(rule);
+
+        //转账账户数据
+        deleteNotificationRuleTransferByRuleId(ruleId);
+        if (rule.getType() == AccountType.TRANSFER.ordinal()) {
+            transfer.setRuleId(ruleId);
+            insertNotificationTransfer(transfer);
+        }
+
+        //标签数据
+        deleteNotificationRuleTagRefByRuleId(ruleId);
+        List<NotificationRuleTagRefEntity> tagRefList = tagIdList.stream()
+                .map(id -> new NotificationRuleTagRefEntity(ruleId, id))
+                .collect(Collectors.toList());
+        insertNotificationTagRef(tagRefList);
+    }
 }

@@ -1,6 +1,7 @@
 package com.manager.assistant.ui.pages.notification_rule;
 
 import android.Manifest;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -13,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.databinding.ActivityNotificationRuleListBinding;
+import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
@@ -67,14 +69,21 @@ public class NotificationRuleListActivity extends AppCompatActivity {
 
         //添加规则按钮
         binding.addFab.setOnClickListener(v -> {
-            //TODO:跳转到输入
+            Intent skip2RuleInput = new Intent(this, NotificationRuleInputActivity.class);
+            startActivity(skip2RuleInput);
         });
         AppearanceHelper.setMarginToNavigation(binding.addFab, this);
+        AppearanceHelper.attachMorphAnimation(binding.addFab);
 
         //列表
         NotificationRuleAdapter adapter = new NotificationRuleAdapter(
                 (entity, anchor) -> {
-                    //TODO:点击监听
+                    Bundle bundle = new Bundle();
+                    bundle.putLong(KeyStrings.NOTIFICATION_RULE_ID.v(), entity.getRuleId());
+
+                    Intent skip2RuleInput = new Intent(this, NotificationRuleInputActivity.class);
+                    skip2RuleInput.putExtras(bundle);
+                    startActivity(skip2RuleInput);
                 },
                 (entity, anchor) -> {
                     //TODO:长按监听

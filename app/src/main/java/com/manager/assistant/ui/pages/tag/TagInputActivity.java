@@ -80,6 +80,7 @@ public class TagInputActivity extends AppCompatActivity {
         //工具栏
         binding.toolbar.setNavigationOnClickListener(v -> finish());
         if (initBundle != null) {
+            binding.toolbar.setTitle(R.string.modify_tag);
             long tagId = initBundle.getLong(KeyStrings.TAG_ID.v());
 
             BookkeepingDb db = BookkeepingDb.getInstance(this);
