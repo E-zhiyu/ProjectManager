@@ -79,6 +79,10 @@ public interface AccountDao {
     @Query("SELECT exportAccount FROM accountTransfers WHERE exportAccount IS NOT NULL " +
             "UNION " +
             "SELECT importAccount FROM accountTransfers WHERE importAccount IS NOT NULL " +
+            "UNION " +
+            "SELECT exportAccount FROM notificationRuleTransfers WHERE exportAccount IS NOT NULL " +
+            "UNION " +
+            "SELECT importAccount FROM notificationRuleTransfers WHERE importAccount IS NOT NULL " +
             "ORDER BY 1 ASC")
     Single<List<String>> getTransferAccountsSingle();
 
