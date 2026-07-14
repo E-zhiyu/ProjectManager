@@ -76,7 +76,7 @@ public class NotificationRuleListActivity extends AppCompatActivity {
         AppearanceHelper.attachMorphAnimation(binding.addFab);
 
         //列表
-        NotificationRuleAdapter adapter = new NotificationRuleAdapter(
+        NotificationRuleListAdapter adapter = new NotificationRuleListAdapter(
                 (entity, anchor) -> {
                     Bundle bundle = new Bundle();
                     bundle.putLong(KeyStrings.NOTIFICATION_RULE_ID.v(), entity.getRuleId());

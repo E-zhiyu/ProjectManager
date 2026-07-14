@@ -26,7 +26,7 @@ import com.manager.assistant.auxiliary.enums.AccountType;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-public class AccountAdapter extends ListAdapter<AccountUiModel, RecyclerView.ViewHolder>
+public class AccountListAdapter extends ListAdapter<AccountUiModel, RecyclerView.ViewHolder>
         implements StickyHeaderAdapter<String> {
     private final static DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final int TYPE_ITEM = 1;
@@ -96,7 +96,7 @@ public class AccountAdapter extends ListAdapter<AccountUiModel, RecyclerView.Vie
         }
     }
 
-    public AccountAdapter(AdapterOnClickListener<AccountEntity> clickListener, AdapterOnLongClickListener<AccountEntity> longClickListener) {
+    public AccountListAdapter(AdapterOnClickListener<AccountEntity> clickListener, AdapterOnLongClickListener<AccountEntity> longClickListener) {
         super(ITEM_CALLBACK);
         this.clickListener = clickListener;
         this.longClickListener = longClickListener;

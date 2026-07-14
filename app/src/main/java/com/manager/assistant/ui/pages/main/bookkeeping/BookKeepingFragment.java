@@ -82,7 +82,7 @@ public class BookKeepingFragment extends Fragment {
         //TODO:绑定过滤器按钮的点击监听器
 
         //流水列表
-        AccountAdapter adapter = new AccountAdapter(
+        AccountListAdapter adapter = new AccountListAdapter(
                 (entity, anchor) -> {
                     long accountId = entity.getAccountId();
                     Bundle bundle = new Bundle();

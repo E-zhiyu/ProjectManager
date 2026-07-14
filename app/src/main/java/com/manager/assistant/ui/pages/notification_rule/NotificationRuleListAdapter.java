@@ -17,7 +17,7 @@ import com.manager.assistant.data.save.db.entities.NotificationRuleEntity;
 import com.manager.assistant.databinding.ViewHolderNotificationRuleListBinding;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
 
-public class NotificationRuleAdapter extends ListAdapter<NotificationRuleEntity, NotificationRuleAdapter.NotificationRuleViewHolder> {
+public class NotificationRuleListAdapter extends ListAdapter<NotificationRuleEntity, NotificationRuleListAdapter.NotificationRuleViewHolder> {
     private final static DiffUtil.ItemCallback<NotificationRuleEntity> ITEM_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(@NonNull NotificationRuleEntity oldItem, @NonNull NotificationRuleEntity newItem) {
@@ -34,7 +34,7 @@ public class NotificationRuleAdapter extends ListAdapter<NotificationRuleEntity,
     private final AdapterOnClickListener<NotificationRuleEntity> clickListener;
     private final AdapterOnLongClickListener<NotificationRuleEntity> longClickListener;
 
-    public NotificationRuleAdapter(AdapterOnClickListener<NotificationRuleEntity> clickListener, AdapterOnLongClickListener<NotificationRuleEntity> longClickListener) {
+    public NotificationRuleListAdapter(AdapterOnClickListener<NotificationRuleEntity> clickListener, AdapterOnLongClickListener<NotificationRuleEntity> longClickListener) {
         super(ITEM_CALLBACK);
         this.clickListener = clickListener;
         this.longClickListener = longClickListener;
