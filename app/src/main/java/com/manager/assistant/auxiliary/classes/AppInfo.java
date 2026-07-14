@@ -1,4 +1,4 @@
-package com.manager.assistant.data.classes;
+package com.manager.assistant.auxiliary.classes;
 
 import android.graphics.Bitmap;
 

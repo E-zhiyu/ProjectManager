@@ -36,7 +36,7 @@ import com.manager.assistant.ui.others.adapters.NoFilteringArrayAdapter;
 import com.manager.assistant.ui.others.bottom.TagSelectBottomSheet;
 import com.manager.assistant.ui.others.viewmodel.TagMultiSelectViewModel;
 import com.manager.assistant.ui.pages.main.bookkeeping.AccountTagAdapter;
-import com.manager.assistant.ui.pages.package_name_select.PackageNameSelectActivity;
+import com.manager.assistant.ui.pages.app_list.AppSelectActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -270,7 +270,7 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
         binding.packageNameInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 binding.packageNameLayout.setError(null);
-                Intent skip2PackageNameSelect = new Intent(this, PackageNameSelectActivity.class);
+                Intent skip2PackageNameSelect = new Intent(this, AppSelectActivity.class);
                 packageNameSelectLauncher.launch(skip2PackageNameSelect);
             } else {
                 String packageName = String.valueOf(binding.packageNameInput.getText());
@@ -282,7 +282,7 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
         });
         binding.packageNameInput.setOnClickListener(view -> {
             binding.packageNameLayout.setError(null);
-            Intent skip2PackageNameSelect = new Intent(this, PackageNameSelectActivity.class);
+            Intent skip2PackageNameSelect = new Intent(this, AppSelectActivity.class);
             packageNameSelectLauncher.launch(skip2PackageNameSelect);
         });
 

@@ -66,11 +66,11 @@
     <string name="notification_title">通知标题</string>
     <string name="running_account_type">流水类型</string>
     <string name="notification_content_regex">内容正则表达式</string>
-    <string name="search_app_name">搜索应用名称……</string>
+    <string name="app_search_hint">搜索应用名称……</string>
     <string name="background_setting">后台设置</string>
     <string name="tag_optional">标签(可选)</string>
     <string name="btn_expands_list">展开列表选项的按钮</string>
-    <string name="isSysAppIncluded">包含系统应用</string>
+    <string name="show_sys_app">显示系统应用</string>
     <string name="reset_rule">重置规则</string>
     <string name="import_rule">导入规则</string>
     <string name="export_rule">导出规则</string>
@@ -154,8 +154,8 @@
     <string name="none">无</string>
     <string name="expand_or_fold_menu">展开或折叠菜单</string>
     <string name="search_remark">搜索备注……</string>
-    <string name="clear_search_history">清除搜索记录</string>
-    <string name="no_app">未扫描到安装的应用</string>
+    <string name="clear_search_history">清除搜索历史</string>
+    <string name="app_not_found">未找到应用</string>
     <string name="no_budget">无预算</string>
     <string name="no_analysis_rule">无通知解析规则</string>
     <string name="no_running_account">无流水记录</string>

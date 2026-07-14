@@ -2,9 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission
-        android:name="android.permission.QUERY_ALL_PACKAGES"
-        tools:ignore="PackageVisibilityPolicy,QueryAllPackagesPermission" /> <!-- 读取应用列表权限 -->
+    <!-- 声明查询具有 MAIN 和 LAUNCHER 属性的应用 -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
     <uses-permission android:name="com.android.permission.GET_INSTALLED_APPS" /> <!-- 读取应用列表权限 -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" /> <!-- 闹钟设置权限 -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" /> <!-- 请求忽略电池优化 -->
@@ -64,7 +68,7 @@
             android:name=".ui.pages.media.FullScreenMediaActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.package_name_select.PackageNameSelectActivity"
+            android:name=".ui.pages.app_list.AppSelectActivity"
             android:exported="false" />
         <activity
             android:name=".ui.pages.notification_rule.NotificationRuleInputActivity"

@@ -1,10 +1,6 @@
 package com.manager.assistant.ui.pages.main;
 
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
-import android.view.inputmethod.EditorInfo;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -13,24 +9,18 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.search.SearchView;
 import com.manager.assistant.R;
-import com.manager.assistant.data.save.preference.SearchHistoryPreference;
 import com.manager.assistant.data.save.preference.VersionPreference;
 import com.manager.assistant.databinding.ActivityMainBinding;
-import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.data.save.preference.AppSettingsPreference;
 import com.manager.assistant.helpers.UpdateHelper;
 import com.manager.assistant.ui.others.adapters.FragmentPagerAdapter;
-import com.manager.assistant.ui.others.adapters.SearchHistoryAdapter;
 import com.manager.assistant.ui.pages.main.bookkeeping.BookKeepingFragment;
 import com.manager.assistant.ui.pages.main.home.HomeFragment;
 import com.manager.assistant.ui.pages.main.setting.SettingsFragment;
-import com.manager.assistant.ui.sync.AccountSearchViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,119 +101,119 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //SearchView
-        SearchHistoryAdapter searchViewAdapter = new SearchHistoryAdapter(keyWord -> {
-            //更新搜索词
-            AccountSearchViewModel viewModel = new ViewModelProvider(this).get(AccountSearchViewModel.class);
-            viewModel.updateSearchText(keyWord);
-
-            //隐藏SearchView
-            binding.searchView.hide();
-
-            //保存搜索关键词
-            if (!keyWord.isEmpty()) {
-                List<String> searchHistoryList = SearchHistoryPreference.getHistory(
-                        SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-                        this
-                );
-                searchHistoryList.remove(keyWord);       //移除已存在的项
-                searchHistoryList.add(0, keyWord);   //添加新项
-                if (searchHistoryList.size() > 15) {        //限制15条记录
-                    searchHistoryList = searchHistoryList.subList(0, 14);
-                }
-                SearchHistoryPreference.setHistory(
-                        SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-                        searchHistoryList,
-                        this
-                );
-            }
-        });
-        binding.searchHistoryRecycler.setAdapter(searchViewAdapter);
-
-        //先刷新一下内容，以应对SearchView展开时的界面重建
-        List<String> historyList = SearchHistoryPreference.getHistory(
-                SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-                this
-        );
-        searchViewAdapter.refreshSearchHistory(historyList);
-
-        //设置显示监听，用于初始化常用词与清空提示词按钮
-        binding.searchView.addTransitionListener((searchView, previousState, newState) -> {
-            //显示时执行的动作
-            if (newState == SearchView.TransitionState.SHOWING) {
-                List<String> searchHistoryList = SearchHistoryPreference.getHistory(
-                        SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-                        this
-                );
-                searchViewAdapter.refreshSearchHistory(searchHistoryList);
-            }
-        });
-
-        //设置清除搜索历史按钮点击监听
-        binding.clearHistoryBtn.setOnClickListener(v -> {
-            SearchHistoryPreference.setHistory(
-                    SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-                    new ArrayList<>(),
-                    this
-            );
-            searchViewAdapter.refreshSearchHistory(new ArrayList<>());
-        });
-
-        //添加文本变化监听器，用于在清空文本后自动清除搜索并刷新视图
-        binding.searchView.getEditText().addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.length() == 0 && binding.searchView.getEditText().hasFocus()) {
-                    Log.d(LogTags.MAIN_ACTIVITY.n(), "搜索结果变为空，请求刷新界面");
-                    AccountSearchViewModel viewModel = new ViewModelProvider(MainActivity.this).get(AccountSearchViewModel.class);
-                    viewModel.updateSearchText("");
-                }
-            }
-        });
-
-        //设置搜索监听
-        binding.searchView.getEditText().setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                //发送搜索请求
-                String searchText = binding.searchView.getText().toString();
-                AccountSearchViewModel viewModel = new ViewModelProvider(this).get(AccountSearchViewModel.class);
-                viewModel.updateSearchText(searchText);
-
-                //保存搜索关键词
-                if (!searchText.isEmpty()) {
-                    List<String> searchHistoryList = SearchHistoryPreference.getHistory(
-                            SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-                            this
-                    );
-                    searchHistoryList.remove(searchText);       //移除已存在的项
-                    searchHistoryList.add(0, searchText);   //添加新项
-                    if (searchHistoryList.size() > 15) {        //限制15条记录
-                        searchHistoryList = searchHistoryList.subList(0, 14);
-                    }
-                    SearchHistoryPreference.setHistory(
-                            SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-                            searchHistoryList,
-                            this
-                    );
-                }
-
-                //隐藏SearchView
-                binding.searchView.hide();
-
-                return true;
-            } else {
-                return false;
-            }
-        });
+//        SearchHistoryAdapter searchViewAdapter = new SearchHistoryAdapter(keyWord -> {
+//            //更新搜索词
+//            AccountSearchViewModel viewModel = new ViewModelProvider(this).get(AccountSearchViewModel.class);
+//            viewModel.updateSearchText(keyWord);
+//
+//            //隐藏SearchView
+//            binding.searchView.hide();
+//
+//            //保存搜索关键词
+//            if (!keyWord.isEmpty()) {
+//                List<String> searchHistoryList = SearchHistoryPreference.getHistory(
+//                        SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+//                        this
+//                );
+//                searchHistoryList.remove(keyWord);       //移除已存在的项
+//                searchHistoryList.add(0, keyWord);   //添加新项
+//                if (searchHistoryList.size() > 15) {        //限制15条记录
+//                    searchHistoryList = searchHistoryList.subList(0, 14);
+//                }
+//                SearchHistoryPreference.setHistory(
+//                        SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+//                        searchHistoryList,
+//                        this
+//                );
+//            }
+//        });
+//        binding.searchHistoryRecycler.setAdapter(searchViewAdapter);
+//
+//        //先刷新一下内容，以应对SearchView展开时的界面重建
+//        List<String> historyList = SearchHistoryPreference.getHistory(
+//                SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+//                this
+//        );
+//        searchViewAdapter.refreshSearchHistory(historyList);
+//
+//        //设置显示监听，用于初始化常用词与清空提示词按钮
+//        binding.searchView.addTransitionListener((searchView, previousState, newState) -> {
+//            //显示时执行的动作
+//            if (newState == SearchView.TransitionState.SHOWING) {
+//                List<String> searchHistoryList = SearchHistoryPreference.getHistory(
+//                        SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+//                        this
+//                );
+//                searchViewAdapter.refreshSearchHistory(searchHistoryList);
+//            }
+//        });
+//
+//        //设置清除搜索历史按钮点击监听
+//        binding.clearHistoryBtn.setOnClickListener(v -> {
+//            SearchHistoryPreference.setHistory(
+//                    SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+//                    new ArrayList<>(),
+//                    this
+//            );
+//            searchViewAdapter.refreshSearchHistory(new ArrayList<>());
+//        });
+//
+//        //添加文本变化监听器，用于在清空文本后自动清除搜索并刷新视图
+//        binding.searchView.getEditText().addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//
+//            }
+//
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                if (s.length() == 0 && binding.searchView.getEditText().hasFocus()) {
+//                    Log.d(LogTags.MAIN_ACTIVITY.n(), "搜索结果变为空，请求刷新界面");
+//                    AccountSearchViewModel viewModel = new ViewModelProvider(MainActivity.this).get(AccountSearchViewModel.class);
+//                    viewModel.updateSearchText("");
+//                }
+//            }
+//        });
+//
+//        //设置搜索监听
+//        binding.searchView.getEditText().setOnEditorActionListener((v, actionId, event) -> {
+//            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+//                //发送搜索请求
+//                String searchText = binding.searchView.getText().toString();
+//                AccountSearchViewModel viewModel = new ViewModelProvider(this).get(AccountSearchViewModel.class);
+//                viewModel.updateSearchText(searchText);
+//
+//                //保存搜索关键词
+//                if (!searchText.isEmpty()) {
+//                    List<String> searchHistoryList = SearchHistoryPreference.getHistory(
+//                            SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+//                            this
+//                    );
+//                    searchHistoryList.remove(searchText);       //移除已存在的项
+//                    searchHistoryList.add(0, searchText);   //添加新项
+//                    if (searchHistoryList.size() > 15) {        //限制15条记录
+//                        searchHistoryList = searchHistoryList.subList(0, 14);
+//                    }
+//                    SearchHistoryPreference.setHistory(
+//                            SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+//                            searchHistoryList,
+//                            this
+//                    );
+//                }
+//
+//                //隐藏SearchView
+//                binding.searchView.hide();
+//
+//                return true;
+//            } else {
+//                return false;
+//            }
+//        });
     }
 
     /**

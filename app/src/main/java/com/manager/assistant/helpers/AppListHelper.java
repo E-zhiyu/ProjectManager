@@ -1,5 +1,6 @@
 package com.manager.assistant.helpers;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -8,12 +9,11 @@ import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.data.classes.AppInfo;
+import com.manager.assistant.auxiliary.classes.AppInfo;
 import com.manager.assistant.helpers.appearence.IconHelper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class AppListHelper {
     /**
@@ -27,6 +27,8 @@ public class AppListHelper {
     public static List<AppInfo> getInstalledApps(boolean isSysAppIncluded, @NonNull Context context) {
         List<AppInfo> appInfoList = new ArrayList<>();
         PackageManager pm = context.getPackageManager();
+
+        @SuppressLint("QueryPermissionsNeeded")
         List<ApplicationInfo> apps = pm.getInstalledApplications(PackageManager.GET_META_DATA);
 
         for (ApplicationInfo app : apps) {
@@ -44,19 +46,5 @@ public class AppListHelper {
         }
 
         return appInfoList;
-    }
-
-    /**
-     * 在完整应用列表中搜索匹配项
-     *
-     * @param query           搜索内容
-     * @param fullAppInfoList 完整的应用列表
-     * @return 匹配的应用组成的应用列表
-     */
-    @NonNull
-    public static List<AppInfo> searchInFullAppList(String query, @NonNull List<AppInfo> fullAppInfoList) {
-        return fullAppInfoList.stream()
-                .filter(appInfo -> appInfo.getAppName().contains(query))
-                .collect(Collectors.toList());
     }
 }

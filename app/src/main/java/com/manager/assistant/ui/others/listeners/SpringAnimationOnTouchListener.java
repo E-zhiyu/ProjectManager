@@ -18,22 +18,14 @@ import com.google.android.material.shape.ShapeAppearanceModel;
 import com.google.android.material.shape.Shapeable;
 
 public class SpringAnimationOnTouchListener implements View.OnTouchListener {
-    private float tl, tr, bl, br;                               //初始四个角的圆角值
-    private float tlPressed, trPressed, blPressed, brPressed;   //按下时四个角的圆角值
-    private boolean initialized = false;                        //标记是否按下过
     private static final long MORPH_DURATION = 120;             //动画持续时间
     private static final float PRESSED_SCALE = 0.94f;           //按下时缩放程度
-    private float cornerPercentage = 0.4f;                      //圆角半径
+    private final float cornerPercentage;                       //圆角半径
     private ValueAnimator cornerAnimator;                       //圆角动画执行器
     private SpringAnimation scaleXAnim;                         //X轴缩放动画
     private SpringAnimation scaleYAnim;                         //Y轴缩放动画
     private final Shapeable shapeable;                          //需要执行动画的Shapeable
     private final Vibrator vibrator;                            //视图的振动器
-
-    public SpringAnimationOnTouchListener(Shapeable shapeable, Vibrator vibrator) {
-        this.shapeable = shapeable;
-        this.vibrator = vibrator;
-    }
 
     public SpringAnimationOnTouchListener(Shapeable shapeable, Vibrator vibrator, float cornerPercentage) {
         this.shapeable = shapeable;
@@ -43,48 +35,23 @@ public class SpringAnimationOnTouchListener implements View.OnTouchListener {
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
-    public boolean onTouch(View v, MotionEvent event) {
-
-        if (!initialized && v.getWidth() > 0) {
-
-            RectF rect = new RectF(0, 0, v.getWidth(), v.getHeight());
-            ShapeAppearanceModel model = shapeable.getShapeAppearanceModel();
-
-            tl = model.getTopLeftCornerSize().getCornerSize(rect);
-            tr = model.getTopRightCornerSize().getCornerSize(rect);
-            bl = model.getBottomLeftCornerSize().getCornerSize(rect);
-            br = model.getBottomRightCornerSize().getCornerSize(rect);
-
-            tlPressed = tl * cornerPercentage;
-            trPressed = tr * cornerPercentage;
-            blPressed = bl * cornerPercentage;
-            brPressed = br * cornerPercentage;
-
-            initialized = true;
-        }
-
+    public boolean onTouch(View v, @NonNull MotionEvent event) {
         switch (event.getAction()) {
-
             case MotionEvent.ACTION_DOWN:
                 performHaptic(vibrator);
                 ensureSpring(v);
                 scaleXAnim.animateToFinalPosition(PRESSED_SCALE);
                 scaleYAnim.animateToFinalPosition(PRESSED_SCALE);
                 animateElevation(v, true);
-                animateCorners(shapeable,
-                        tl, tr, bl, br,
-                        tlPressed, trPressed, blPressed, brPressed);
+                animateCorners(shapeable, v, true);
                 break;
-
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 ensureSpring(v);
                 scaleXAnim.animateToFinalPosition(1f);
                 scaleYAnim.animateToFinalPosition(1f);
                 animateElevation(v, false);
-                animateCorners(shapeable,
-                        tlPressed, trPressed, blPressed, brPressed,
-                        tl, tr, bl, br);
+                animateCorners(shapeable, v, false);
                 break;
         }
 
@@ -133,30 +100,54 @@ public class SpringAnimationOnTouchListener implements View.OnTouchListener {
      * 执行圆角动画
      *
      * @param target 需要执行动画的Shapeable实例
-     * @param fromTL 左上角起始
-     * @param fromTR 右上角起始
-     * @param fromBL 左下角起始
-     * @param fromBR 右下角起始
-     * @param toTL   左上角结束
-     * @param toTR   右上角结束
-     * @param toBL   左下角结束
-     * @param toBR   右下角结束
      */
-    private void animateCorners(
-            Shapeable target,
-            float fromTL, float fromTR, float fromBL, float fromBR,
-            float toTL, float toTR, float toBL, float toBR) {
-
+    private void animateCorners(Shapeable target, View v, boolean isPressed) {
         //若动画正在运行，则在当前位置反向运行
         if (cornerAnimator != null && cornerAnimator.isRunning()) {
             cornerAnimator.reverse();
             return;
         }
 
+        ShapeAppearanceModel model = shapeable.getShapeAppearanceModel();
+
+        //获取四个圆角值
+        RectF rect = new RectF(0, 0, v.getWidth(), v.getHeight());
+        float tl = model.getTopLeftCornerSize().getCornerSize(rect);
+        float tr = model.getTopRightCornerSize().getCornerSize(rect);
+        float bl = model.getBottomLeftCornerSize().getCornerSize(rect);
+        float br = model.getBottomRightCornerSize().getCornerSize(rect);
+
+        //计算起止圆角值
+        float fromTL, fromTR, fromBL, fromBR;
+        float toTL, toTR, toBL, toBR;
+        if (isPressed) {
+            fromTL = tl;
+            fromTR = tr;
+            fromBL = bl;
+            fromBR = br;
+
+            toTL = fromTL * cornerPercentage;
+            toTR = fromTR * cornerPercentage;
+            toBL = fromBL * cornerPercentage;
+            toBR = fromBR * cornerPercentage;
+        } else {
+            fromTL = tl;
+            fromTR = tr;
+            fromBL = bl;
+            fromBR = br;
+
+            toTL = fromTL / cornerPercentage;
+            toTR = fromTR / cornerPercentage;
+            toBL = fromBL / cornerPercentage;
+            toBR = fromBR / cornerPercentage;
+        }
+
+        //生成动画执行器
         cornerAnimator = ValueAnimator.ofFloat(0f, 1f);
         cornerAnimator.setDuration(MORPH_DURATION);
         cornerAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
 
+        //绘制每帧动画的圆角
         cornerAnimator.addUpdateListener(animation -> {
 
             float f = animation.getAnimatedFraction();
@@ -177,6 +168,7 @@ public class SpringAnimationOnTouchListener implements View.OnTouchListener {
             );
         });
 
+        //启动动画
         cornerAnimator.start();
     }
 

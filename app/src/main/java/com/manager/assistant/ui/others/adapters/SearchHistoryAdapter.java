@@ -1,94 +1,127 @@
 package com.manager.assistant.ui.others.adapters;
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.manager.assistant.databinding.ViewHolderSearchHistoryBinding;
+import com.manager.assistant.auxiliary.interfaces.adapter.AdapterOnClickListener;
+import com.manager.assistant.auxiliary.interfaces.adapter.ViewHolderListener;
+import com.manager.assistant.data.save.preference.SearchHistoryPreference;
+import com.manager.assistant.databinding.ViewHolderChipTextBinding;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class SearchHistoryAdapter extends RecyclerView.Adapter<SearchHistoryAdapter.SearchHistoryViewHolder> {
-    private final List<String> searchHistoryList = new ArrayList<>();   //搜索历史记录列表
-    private final OnClickerListener listener;                           //视图的点击监听
+public class SearchHistoryAdapter extends ListAdapter<String, SearchHistoryAdapter.SearchHistoryViewHolder> {
+    private final static DiffUtil.ItemCallback<String> ITEM_CALLBACK = new DiffUtil.ItemCallback<>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull String oldItem, @NonNull String newItem) {
+            return oldItem.equals(newItem);
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull String oldItem, @NonNull String newItem) {
+            return true;
+        }
+    };
+    private final String key;                                   //保存搜索历史的关键字
+    private final AdapterOnClickListener<String> clickListener;
+    private final OnHistoryListChangListener changeListener;
+
+    public interface OnHistoryListChangListener {
+        void onChange(List<String> keywordList, SearchHistoryAdapter adapter);
+    }
 
     /**
      * 搜索历史适配器构造方法
      *
-     * @param listener 搜索历史Chip点击监听器
+     * @param key           保存搜索关键词的键，详见{@link SearchHistoryPreference}的静态字符串
+     * @param clickListener 搜索历史 Chip 点击监听器
      */
-    public SearchHistoryAdapter(OnClickerListener listener) {
-        this.listener = listener;
+    public SearchHistoryAdapter(
+            String key,
+            AdapterOnClickListener<String> clickListener,
+            OnHistoryListChangListener changeListener
+    ) {
+        super(ITEM_CALLBACK);
+        this.key = key;
+        this.clickListener = clickListener;
+        this.changeListener = changeListener;
     }
 
     public static class SearchHistoryViewHolder extends RecyclerView.ViewHolder {
-        ViewHolderSearchHistoryBinding binding;
+        ViewHolderChipTextBinding binding;
 
-        public SearchHistoryViewHolder(@NonNull ViewHolderSearchHistoryBinding binding, ViewHolderListener listener) {
+        public SearchHistoryViewHolder(@NonNull ViewHolderChipTextBinding binding, ViewHolderListener listener) {
             super(binding.getRoot());
             this.binding = binding;
 
-            binding.titleChip.setOnClickListener(v -> listener.onClicked(getBindingAdapterPosition()));
+            //设置不可选择
+            binding.chip.setCheckable(false);
+
+            //设置点击监听
+            binding.chip.setOnClickListener(v -> listener.onClick(getBindingAdapterPosition(), binding.getRoot()));
+
+            //设置长按监听
+            binding.chip.setOnLongClickListener(view -> {
+                listener.onLongClick(getBindingAdapterPosition(), binding.getRoot());
+                return true;
+            });
         }
-    }
-
-    public interface OnClickerListener {
-        /**
-         * 搜索历史记录点击监听
-         *
-         * @param keyWord 点击的关键词
-         */
-        void onClicked(String keyWord);
-    }
-
-    public interface ViewHolderListener {
-        /**
-         * 当ViewHolder被点击时的监听器
-         *
-         * @param position 被点击的ViewHolder在Adapter中的真实下标
-         */
-        void onClicked(int position);
     }
 
     @NonNull
     @Override
     public SearchHistoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ViewHolderSearchHistoryBinding binding = ViewHolderSearchHistoryBinding.inflate(
+        ViewHolderChipTextBinding binding = ViewHolderChipTextBinding.inflate(
                 LayoutInflater.from(parent.getContext()),
                 parent,
                 false
         );
-        return new SearchHistoryViewHolder(binding, position -> {
-            String historyKeyWord = searchHistoryList.get(position);
-            listener.onClicked(historyKeyWord);
-        });
+        return new SearchHistoryViewHolder(
+                binding,
+                new ViewHolderListener() {
+                    @Override
+                    public void onClick(int position, View anchor) {
+                        String historyKeyWord = getItem(position);
+                        clickListener.onClick(historyKeyWord, anchor);
+
+                        //将点击的关键词放到第一位
+                        List<String> historyList = SearchHistoryPreference.addKeyword(
+                                historyKeyWord,
+                                key,
+                                parent.getContext()
+                        );
+                        changeListener.onChange(historyList, SearchHistoryAdapter.this);
+                    }
+
+                    @Override
+                    public void onLongClick(int position, View anchor) {
+                        String historyKeyWord = getItem(position);
+
+                        //将点击的关键词放到第一位
+                        List<String> historyList = SearchHistoryPreference.removeKeyword(
+                                historyKeyWord,
+                                key,
+                                parent.getContext()
+                        );
+                        changeListener.onChange(historyList, SearchHistoryAdapter.this);
+                    }
+                }
+        );
     }
 
     @Override
     public void onBindViewHolder(@NonNull SearchHistoryViewHolder holder, int position) {
-        String historyKeyWord = searchHistoryList.get(position);
-        holder.binding.titleChip.setText(historyKeyWord);
+        String historyKeyWord = getItem(position);
+        holder.binding.chip.setText(historyKeyWord);
     }
 
-    @Override
-    public int getItemCount() {
-        return searchHistoryList.size();
-    }
-
-    /**
-     * 刷新搜索历史记录
-     *
-     * @param searchHistoryList 刷新后的搜索历史记录列表
-     */
-    public void refreshSearchHistory(List<String> searchHistoryList) {
-        int oldSize = this.searchHistoryList.size();
-        this.searchHistoryList.clear();
-        notifyItemRangeRemoved(0, oldSize);
-
-        this.searchHistoryList.addAll(searchHistoryList);
-        notifyItemRangeInserted(0, searchHistoryList.size());
+    public void submitListWithAnimation(List<String> keywordList) {
+        changeListener.onChange(keywordList, SearchHistoryAdapter.this);
     }
 }
