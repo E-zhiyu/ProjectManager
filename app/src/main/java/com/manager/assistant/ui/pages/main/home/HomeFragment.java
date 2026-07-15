@@ -23,6 +23,7 @@ import com.manager.assistant.data.save.db.entities.AccountEntity;
 import com.manager.assistant.databinding.FragmentHomeBinding;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
+import com.manager.assistant.ui.pages.budget.BudgetListActivity;
 import com.manager.assistant.ui.pages.notification_rule.NotificationRuleListActivity;
 import com.manager.assistant.ui.pages.tag.TagListActivity;
 
@@ -281,7 +282,22 @@ public class HomeFragment extends Fragment {
                 AppearanceHelper.MEDIUM_CARD_RADIUS
         );
 
-        //TODO:完成预算卡片初始化
+        //点击监听
+        binding.budgetCard.setOnClickListener(view -> {
+            Intent skip2BudgetList = new Intent(requireContext(), BudgetListActivity.class);
+            startActivity(skip2BudgetList);
+        });
+        AppearanceHelper.attachMorphAnimation(binding.budgetCard);
+
+        BookkeepingDb db = BookkeepingDb.getInstance(requireContext());
+        disposable.add(db.budgetDao().getBudgetCountFlowable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(
+                        count -> binding.budgetCountText.setText(String.valueOf(count)),
+                        e -> ExceptionHelper.showExceptionDialog(requireContext(), e)
+                )
+        );
     }
 
     /**
