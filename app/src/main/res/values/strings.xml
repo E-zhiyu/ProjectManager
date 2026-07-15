@@ -125,7 +125,6 @@
     <string name="tag_count">标签数量</string>
     <string name="infinity">∞</string>
     <string name="budget_count">预算数量</string>
-    <string name="budget_manage">预算管理</string>
     <string name="create_budget">新建预算</string>
     <string name="modify_budget">修改预算</string>
     <string name="budget_name">预算名称</string>
@@ -195,6 +194,9 @@
     <string name="account_type_help">该流水记录的类型</string>
     <string name="match_group_position">捕获组位置</string>
     <string name="notification_rule_match_group_helper">解析通知时表示金额的捕获组的位置，默认为1</string>
+    <string name="reset">重置</string>
+    <string name="delete_budget">删除预算</string>
+    <string name="reset_budget">重置预算</string>
     <string-array name="tips_array">
         <item>在报表界面可以点击某个收支来源以排除它，还不赶快去试试？</item>
         <item>你知道吗？下面的这些卡片是可以点击的。</item>

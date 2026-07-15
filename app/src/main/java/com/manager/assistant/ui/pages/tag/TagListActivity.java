@@ -154,7 +154,8 @@ public class TagListActivity extends AppCompatActivity {
                             }
 
                             adapter.submitList(modelList);
-                        }
+                        },
+                        e -> ExceptionHelper.showExceptionDialog(this, e)
                 )
         );
     }

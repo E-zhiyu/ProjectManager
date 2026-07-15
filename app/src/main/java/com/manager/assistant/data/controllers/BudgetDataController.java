@@ -18,7 +18,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
 import com.manager.assistant.R;
-import com.manager.assistant.data.classes.Budget;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.Tables;
@@ -27,7 +26,7 @@ import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.generic_enums.NotificationID;
 import com.manager.assistant.generic_enums.PendingRequestCode;
 import com.manager.assistant.helpers.NotificationHelper;
-import com.manager.assistant.ui.pages.budget.BudgetManageActivity;
+import com.manager.assistant.ui.pages.budget.BudgetListActivity;
 import com.manager.assistant.ui.pages.budget.ResetFrequency;
 import com.manager.assistant.auxiliary.enums.AccountType;
 
@@ -88,44 +87,6 @@ public class BudgetDataController {
     }
 
     /**
-     * 通过预算编号读取标签编号
-     *
-     * @param db  数据库实例
-     * @param bno 预算编号
-     * @return 该预算编号对应的所有标签编号的列表
-     * @throws SQLiteException 读取失败引发的异常
-     */
-    @NonNull
-    private static List<Long> getTagNoByBno(
-            @NonNull SQLiteDatabase db,
-            long bno
-    ) throws SQLiteException {
-        String[] columns = {
-                Columns.TAG_NO.toString()
-        };
-        String selection = Columns.BNO + "=?";
-        String[] selectionArgs = {String.valueOf(bno)};
-        Cursor cursor = db.query(
-                Tables.BUDGET_TAG.toString(),
-                columns,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                null
-        );
-
-        List<Long> tagNoList = new ArrayList<>();
-        while (cursor.moveToNext()) {
-            long tagNo = cursor.getLong(cursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
-            tagNoList.add(tagNo);
-        }
-
-        cursor.close();
-        return tagNoList;
-    }
-
-    /**
      * 将标签数据写入预算-标签表
      *
      * @param db        需要写入的数据库
@@ -183,48 +144,6 @@ public class BudgetDataController {
         String[] whereArgs = {String.valueOf(bno)};
 
         db.delete(Tables.BUDGET_TAG.toString(), where, whereArgs);
-    }
-
-    /**
-     * 读取所有预算
-     *
-     * @param context 上下文
-     * @return 包含所有预算的列表
-     * @throws SQLiteException 读取失败引发的异常
-     */
-    @NonNull
-    public static List<Budget> getAllBudgets(Context context) throws SQLiteException {
-        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = dbHelper.openReadLink();
-
-        Cursor budgetCursor = db.query(
-                Tables.BUDGET.toString(),
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-
-        List<Budget> budgetList = new ArrayList<>();
-        while (budgetCursor.moveToNext()) {
-            long bno = budgetCursor.getLong(budgetCursor.getColumnIndexOrThrow(Columns.BNO.toString()));
-            String name = budgetCursor.getString(budgetCursor.getColumnIndexOrThrow(Columns.BUDGET_NAME.toString()));
-            double initAmount = budgetCursor.getDouble(budgetCursor.getColumnIndexOrThrow(Columns.INIT_AMOUNT.toString()));
-            double leftAmount = budgetCursor.getDouble(budgetCursor.getColumnIndexOrThrow(Columns.LEFT_AMOUNT.toString()));
-            String startDate = budgetCursor.getString(budgetCursor.getColumnIndexOrThrow(Columns.START_DATE.toString()));
-            String resetFrequencyStr = budgetCursor.getString(budgetCursor.getColumnIndexOrThrow(Columns.RESET_FREQUENCY.toString()));
-            ResetFrequency resetFrequency = ResetFrequency.valueOf(resetFrequencyStr);
-            List<Long> tagNoList = getTagNoByBno(db, bno);
-
-            Budget budget = new Budget(bno, name, initAmount, leftAmount, startDate, resetFrequency, tagNoList);
-            budgetList.add(budget);
-        }
-
-        budgetCursor.close();
-        db.close();
-        return budgetList;
     }
 
     /**
@@ -405,7 +324,7 @@ public class BudgetDataController {
             content.append("的余额已不足10%，请注意查看。");
 
             //设置点击意图
-            Intent intent = new Intent(context, BudgetManageActivity.class);
+            Intent intent = new Intent(context, BudgetListActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             PendingIntent pendingIntent = PendingIntent.getActivity(
                     context,
@@ -537,39 +456,6 @@ public class BudgetDataController {
                 increaseLeftAmount(tagNo, amount, datetime, db, context);
             }
         }
-    }
-
-    /**
-     * 重置预算
-     *
-     * @param bno     需要重置的预算编号
-     * @param context 上下文
-     * @throws SQLiteException 数据写入失败引发的异常
-     */
-    public static void resetBudget(long bno, Context context) throws SQLiteException {
-        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = dbHelper.openWriteLink();
-
-        //获取当前日期
-        LocalDate now = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String nowStr = now.format(formatter);
-
-        //生成 SQL
-        String sql = "UPDATE " + Tables.BUDGET +
-                " SET " + Columns.LEFT_AMOUNT + "=" + Columns.INIT_AMOUNT + "," +
-                Columns.START_DATE + "=?" +
-                " WHERE " + Columns.BNO + "=?";
-        SQLiteStatement statement = db.compileStatement(sql);
-
-        //绑定数据
-        statement.bindString(1, nowStr);
-        statement.bindDouble(2, bno);
-
-        //执行 SQL 语句
-        statement.executeUpdateDelete();
-
-        db.close();
     }
 
     /**

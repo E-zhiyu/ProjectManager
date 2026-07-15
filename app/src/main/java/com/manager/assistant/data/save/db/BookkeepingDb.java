@@ -12,6 +12,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import com.manager.assistant.data.save.db.converters.DateTimeConverter;
 import com.manager.assistant.data.save.db.converters.UriConverter;
 import com.manager.assistant.data.save.db.daos.AccountDao;
+import com.manager.assistant.data.save.db.daos.BudgetDao;
 import com.manager.assistant.data.save.db.daos.RuleDao;
 import com.manager.assistant.data.save.db.daos.TagDao;
 import com.manager.assistant.data.save.db.entities.AccountTagRefEntity;
@@ -94,6 +95,7 @@ public abstract class BookkeepingDb extends RoomDatabase {
     public abstract TagDao tagDao();
 
     public abstract RuleDao ruleDao();
+    public abstract BudgetDao budgetDao();
 
     /**
      * 初始化标签默认分组

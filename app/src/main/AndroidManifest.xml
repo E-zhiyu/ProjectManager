@@ -62,7 +62,7 @@
             android:name=".ui.pages.budget.BudgetAddModifyActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.budget.BudgetManageActivity"
+            android:name=".ui.pages.budget.BudgetListActivity"
             android:exported="false" />
         <activity
             android:name=".ui.pages.media.FullScreenMediaActivity"
