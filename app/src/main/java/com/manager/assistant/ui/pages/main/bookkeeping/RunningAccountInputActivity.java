@@ -38,6 +38,7 @@ import androidx.transition.TransitionSet;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
+import com.manager.assistant.auxiliary.classes.CustomDateTimeFormatter;
 import com.manager.assistant.auxiliary.enums.TransitionName;
 import com.manager.assistant.auxiliary.enums.bottom_options.MediaAddOption;
 import com.manager.assistant.data.save.db.BookkeepingDb;
@@ -88,7 +89,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class RunningAccountInputActivity extends AppCompatActivity {
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private AccountType type = AccountType.EXPENSE;         //流水种类
     private ActivityRunningAccountInputBinding binding;     //绑定的XML视图引用
     @Nullable
@@ -344,7 +344,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         );
 
         //日期和时间
-        binding.datetimeInput.setText(LocalDateTime.now().format(FORMATTER));
+        binding.datetimeInput.setText(LocalDateTime.now().format(CustomDateTimeFormatter.DATE_TIME));
         binding.datetimeInput.setOnClickListener(v -> showMaterialDatePicker());
         binding.datetimeInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
@@ -832,7 +832,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         String remark = String.valueOf(binding.remarkInput.getText());
         LocalDateTime dateTime = LocalDateTime.parse(
                 String.valueOf(binding.datetimeInput.getText()),
-                FORMATTER
+                CustomDateTimeFormatter.DATE_TIME
         );
         int typeOrdinal = this.type.ordinal();
         String exportAccount = String.valueOf(binding.exportAccountInput.getText()).trim();
@@ -899,7 +899,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         String datetimeStr = String.valueOf(binding.datetimeInput.getText());
         LocalDateTime inputDatetime = datetimeStr.isEmpty() ?
                 LocalDateTime.now() :
-                LocalDateTime.parse(datetimeStr, FORMATTER);
+                LocalDateTime.parse(datetimeStr, CustomDateTimeFormatter.DATE_TIME);
         LocalDate date = inputDatetime.toLocalDate();
 
         //显示日期选择对话框
@@ -933,7 +933,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                     LocalDateTime finalDatetime = selectedDatetime.withHour(hour).withMinute(minute);
 
                     //修改文本框的日期和时间
-                    binding.datetimeInput.setText(FORMATTER.format(finalDatetime));
+                    binding.datetimeInput.setText(CustomDateTimeFormatter.DATE_TIME.format(finalDatetime));
                 }
         );
     }
