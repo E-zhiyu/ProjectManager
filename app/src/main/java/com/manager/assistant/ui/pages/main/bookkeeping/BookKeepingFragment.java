@@ -115,7 +115,7 @@ public class BookKeepingFragment extends Fragment {
                 .subscribe(
                         accountList -> {
                             int visibility = accountList.isEmpty() ? View.VISIBLE : View.GONE;
-                            binding.emptyTipText.setVisibility(visibility);
+                            binding.emptyText.setVisibility(visibility);
 
                             adapter.submitList(accountList);
                         },
