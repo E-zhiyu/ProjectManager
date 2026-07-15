@@ -25,8 +25,8 @@ import com.manager.assistant.LifecycleManager;
 import com.manager.assistant.databinding.ActivityPermissionManageBinding;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
-import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingClickableTextView;
-import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingOptionViewBase;
+import com.manager.assistant.ui.pages.main.setting.components.SettingClickableTextView;
+import com.manager.assistant.ui.pages.main.setting.components.SettingOptionViewBase;
 
 import io.noties.markwon.Markwon;
 

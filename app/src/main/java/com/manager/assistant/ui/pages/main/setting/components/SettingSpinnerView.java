@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.main.setting.setting_option_views;
+package com.manager.assistant.ui.pages.main.setting.components;
 
 import android.content.Context;
 import android.content.res.ColorStateList;

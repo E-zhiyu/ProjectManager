@@ -23,7 +23,7 @@ import com.manager.assistant.generic_enums.options.FirstScreen;
 import com.manager.assistant.generic_enums.options.ThemeMode;
 import com.manager.assistant.helpers.BiometricHelper;
 import com.manager.assistant.helpers.UpdateHelper;
-import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingOptionViewBase;
+import com.manager.assistant.ui.pages.main.setting.components.SettingOptionViewBase;
 import com.manager.assistant.ui.pages.main.setting.sub.AboutActivity;
 import com.manager.assistant.ui.pages.main.setting.sub.AutoBookkeepingActivity;
 import com.manager.assistant.ui.pages.main.setting.sub.DataManageActivity;
@@ -31,9 +31,9 @@ import com.manager.assistant.ui.pages.main.setting.sub.PermissionManageActivity;
 import com.manager.assistant.helpers.appearence.ThemeHelper;
 import com.manager.assistant.helpers.about.UpdateLogHelper;
 import com.manager.assistant.data.save.preference.AppSettingsPreference;
-import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingClickableTextView;
-import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingSpinnerView;
-import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingSwitchView;
+import com.manager.assistant.ui.pages.main.setting.components.SettingClickableTextView;
+import com.manager.assistant.ui.pages.main.setting.components.SettingSpinnerView;
+import com.manager.assistant.ui.pages.main.setting.components.SettingSwitchView;
 
 import java.util.Arrays;
 import java.util.List;
@@ -158,7 +158,7 @@ public class SettingsFragment extends Fragment {
                 binding.permissionsOption,
                 R.string.permissions_setting,
                 "点击进入权限管理界面",
-                R.drawable.outline_settings_24,
+                R.drawable.outline_admin_panel_settings_24,
                 SettingOptionViewBase.RadiusStyle.TOP
         );
         permissionsOption.setFunctionListener(v -> {

@@ -22,10 +22,10 @@ import com.manager.assistant.generic_enums.options.NotificationClickBehaviour;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.ui.pages.notification_rule.NotificationRuleListActivity;
-import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingClickableTextView;
-import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingOptionViewBase;
-import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingSpinnerView;
-import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingSwitchView;
+import com.manager.assistant.ui.pages.main.setting.components.SettingClickableTextView;
+import com.manager.assistant.ui.pages.main.setting.components.SettingOptionViewBase;
+import com.manager.assistant.ui.pages.main.setting.components.SettingSpinnerView;
+import com.manager.assistant.ui.pages.main.setting.components.SettingSwitchView;
 
 import java.util.Arrays;
 import java.util.List;

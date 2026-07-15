@@ -35,10 +35,10 @@ import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.helpers.file.AutoBackupHelper;
 import com.manager.assistant.helpers.file.DataIOHelper;
 import com.manager.assistant.helpers.file.UriPathHelper;
-import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingClickableTextView;
-import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingOptionViewBase;
-import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingSpinnerView;
-import com.manager.assistant.ui.pages.main.setting.setting_option_views.SettingSwitchView;
+import com.manager.assistant.ui.pages.main.setting.components.SettingClickableTextView;
+import com.manager.assistant.ui.pages.main.setting.components.SettingOptionViewBase;
+import com.manager.assistant.ui.pages.main.setting.components.SettingSpinnerView;
+import com.manager.assistant.ui.pages.main.setting.components.SettingSwitchView;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
 import com.manager.assistant.ui.sync.account.RunningAccountRepository;
 
