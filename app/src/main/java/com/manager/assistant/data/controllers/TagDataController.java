@@ -99,44 +99,6 @@ public class TagDataController {
     }
 
     /**
-     * 将名称转换为编号
-     *
-     * @param name    标签名称
-     * @param context 用于打开数据库的上下文
-     * @return 对应的标签编号（查询不到则返回0）
-     * @throws SQLiteException 数据库读取失败产生的异常
-     */
-    public static int nameTransToTno(String name, Context context) throws SQLiteException {
-        BookkeepingDbHelper db_helper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = db_helper.openReadLink();
-
-        String[] columns = {Columns.TAG_NO.toString()};
-        String selection = Columns.TAG_NAME + "=?";
-        String[] selectionArgs = {name};
-        Cursor cursor = db.query(
-                Tables.TAG.toString(),
-                columns,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                null,
-                "1"
-        );
-
-        int tagNo;
-        if (cursor.moveToNext()) {
-            tagNo = cursor.getInt(cursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
-        } else {
-            tagNo = 0;
-        }
-
-        cursor.close();
-        db.close();
-        return tagNo;
-    }
-
-    /**
      * 将标签编号转换为标签名称
      *
      * @param tagNo   标签编号
@@ -223,42 +185,6 @@ public class TagDataController {
         cursor.close();
         db.close();
         return tagList;
-    }
-
-    /**
-     * 删除某个分组内的所有标签
-     *
-     * @param groupNo 标签对应的分组编号
-     * @param db      需要修改的数据库
-     * @throws SQLiteException 无法修改数据库时引发的异常
-     */
-    public static void deleteTag(long groupNo, @NonNull SQLiteDatabase db) throws SQLiteException {
-        //查询标签编号
-        String[] columns = {Columns.TAG_NO.toString()};
-        String selection = Columns.GROUP_NO + "=?";
-        String[] selectionArgs = {String.valueOf(groupNo)};
-        Cursor tagCursor = db.query(
-                Tables.TAG.toString(),
-                columns,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                null
-        );
-
-        //清空引用了标签编号的数据
-        while (tagCursor.moveToNext()) {
-            long tagNo = tagCursor.getLong(tagCursor.getColumnIndexOrThrow(Columns.TAG_NO.toString()));
-            AccountDataController.onTagDeleted(tagNo, db);  //清除流水记录里面的标签编号
-            RuleDataController.onTagDeleted(tagNo, db);     //清除通知解析规则中的标签编号
-        }
-        tagCursor.close();
-
-        //清空引用后再删除标签表中的数据
-        String where = Columns.GROUP_NO + "=?";
-        String[] whereArgs = {String.valueOf(groupNo)};
-        db.delete(Tables.TAG.toString(), where, whereArgs);
     }
 
     /**
