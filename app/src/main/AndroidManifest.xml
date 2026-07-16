@@ -59,8 +59,9 @@
             android:name=".ui.pages.main.setting.sub.PermissionManageActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.budget.BudgetAddModifyActivity"
-            android:exported="false" />
+            android:name=".ui.pages.budget.BudgetInputActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.pages.budget.BudgetListActivity"
             android:exported="false" />
@@ -82,12 +83,14 @@
             android:exported="false" />
         <activity
             android:name=".ui.pages.tag.TagInputActivity"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
         <activity
             android:name=".ui.pages.report.ReportActivity"
             android:exported="false" />
         <activity
             android:name=".ui.pages.main.bookkeeping.RunningAccountInputActivity"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
         <activity
             android:name=".ui.pages.main.MainActivity"

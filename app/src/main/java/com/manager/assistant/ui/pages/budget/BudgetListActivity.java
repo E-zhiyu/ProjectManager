@@ -1,6 +1,7 @@
 package com.manager.assistant.ui.pages.budget;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import com.manager.assistant.R;
 import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.entities.BudgetEntity;
 import com.manager.assistant.databinding.ActivityBudgetListBinding;
+import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
@@ -102,7 +104,8 @@ public class BudgetListActivity extends AppCompatActivity {
 
         //浮动添加按钮
         binding.addFab.setOnClickListener(v -> {
-            //TODO:跳转输入
+            Intent skip2BudgetInput = new Intent(this, BudgetInputActivity.class);
+            startActivity(skip2BudgetInput);
         });
         AppearanceHelper.attachMorphAnimation(binding.addFab);
         AppearanceHelper.setMarginToNavigation(binding.addFab, this);
@@ -110,11 +113,16 @@ public class BudgetListActivity extends AppCompatActivity {
         //列表
         BudgetListAdapter adapter = new BudgetListAdapter(
                 (entity, anchor) -> {
-                    //TODO:跳转输入
+                    Bundle bundle = new Bundle();
+                    bundle.putLong(KeyStrings.BUDGET_ID.v(), entity.getBudgetId());
+
+                    Intent skip2BudgetInput = new Intent(this, BudgetInputActivity.class);
+                    skip2BudgetInput.putExtras(bundle);
+                    startActivity(skip2BudgetInput);
                 },
                 (entity, anchor) -> {
                     PopupMenu popupMenu = new PopupMenu(this, anchor, Gravity.END);
-                    popupMenu.getMenuInflater().inflate(R.menu.menu_tag_list_edit, popupMenu.getMenu());
+                    popupMenu.getMenuInflater().inflate(R.menu.menu_budget_list_edit, popupMenu.getMenu());
 
                     popupMenu.setOnMenuItemClickListener(item -> {
                         int id = item.getItemId();

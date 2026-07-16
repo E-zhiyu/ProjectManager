@@ -48,7 +48,7 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             Bundle bundle = getArguments();
-            scopePow = bundle.getInt(KeyStrings.TAG_SCOPE.v());
+            scopePow = bundle.getInt(KeyStrings.TAG_SCOPE.v(), 0);
             isMultiMode = bundle.getBoolean(KeyStrings.TAG_MULTI_CHOICE.v(), true);
             exceptedTagIds = bundle.getLongArray(KeyStrings.TAG_ID.v());
         }

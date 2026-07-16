@@ -828,7 +828,12 @@ public class RunningAccountInputActivity extends AppCompatActivity {
      */
     private void saveData(List<MediaEntity> copiedMediaUriList) {
         //获取输入的数据
-        double amount = Double.parseDouble(String.valueOf(binding.amountInput.getText()));
+        double amount;
+        try {
+            amount = Double.parseDouble(String.valueOf(binding.amountInput.getText()));
+        } catch (NumberFormatException e) {
+            amount = 0;
+        }
         String remark = String.valueOf(binding.remarkInput.getText());
         LocalDateTime dateTime = LocalDateTime.parse(
                 String.valueOf(binding.datetimeInput.getText()),
