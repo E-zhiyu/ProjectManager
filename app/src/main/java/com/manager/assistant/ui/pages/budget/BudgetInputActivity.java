@@ -34,7 +34,6 @@ import com.manager.assistant.ui.others.viewmodel.TagMultiSelectViewModel;
 import com.manager.assistant.ui.pages.main.bookkeeping.AccountTagAdapter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -334,16 +333,15 @@ public class BudgetInputActivity extends AppCompatActivity {
      * 弹出日期和时间选择框
      */
     private void showMaterialDatePicker() {
-        //解析已输入的时间
-        String datetimeStr = String.valueOf(binding.startDateInput.getText());
-        LocalDateTime inputDatetime = datetimeStr.isEmpty() ?
-                LocalDateTime.now() :
-                LocalDateTime.parse(datetimeStr, CustomDateTimeFormatter.DATE_TIME);
-        LocalDate date = inputDatetime.toLocalDate();
+        //解析已输入的日期
+        String datetimeStr = String.valueOf(binding.startDateInput.getText()).trim();
+        LocalDate inputDate = datetimeStr.isEmpty() ?
+                LocalDate.now() :
+                LocalDate.parse(datetimeStr, CustomDateTimeFormatter.DATE);
 
         //显示日期选择对话框
         DateTimePickerHelper.selectDate(
-                date,
+                inputDate,
                 getSupportFragmentManager(),
                 selection -> {
                     //时间戳转换为LocalDateTime

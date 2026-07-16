@@ -23,6 +23,7 @@ import com.manager.assistant.data.save.db.entities.composite.AccountWithDetailMo
 import com.manager.assistant.helpers.file.FileHelper;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -120,6 +121,45 @@ public interface AccountDao {
     void insertMedia(List<MediaEntity> mediaList);
 
     /**
+     * 通过流水 ID 获取绑定的标签
+     *
+     * @param accountId 流水 ID
+     * @return 该流水记录绑定的标签的编号列表
+     */
+    @Query("SELECT tagId FROM accountTagRef WHERE accountId = :accountId")
+    List<Long> getTagIdListByAccountId(long accountId);
+
+    /**
+     * 通过流水编号获取流水日期和时间
+     *
+     * @param accountId 需要获取日期和时间的流水编号
+     * @return 流水日期和时间
+     */
+    @Query("SELECT dateTime FROM accounts WHERE accountId = :accountId")
+    LocalDateTime getAccountDateTimeById(long accountId);
+
+    /**
+     * 通过标签编号修改预算余额
+     *
+     * @param increase        预算余额增加的量
+     * @param tagIdList       需要更新的预算对应的标签编号的列表
+     * @param accountDateTime 流水记录的日期和时间
+     */
+    @Query("UPDATE budgets SET leftAmount = leftAmount + :increase " +
+            "WHERE startDate <= :accountDateTime AND budgetId IN (SELECT budgetId FROM budgetTagRef WHERE tagId IN (:tagIdList))")
+    void updateBudgetListAmountByTagId(double increase, List<Long> tagIdList, LocalDateTime accountDateTime);
+
+    /**
+     * 将预算余额限制在初始金额 ~ 0的范围内
+     *
+     * @param tagIdList       需要限制余额的预算所绑定的标签编号列表
+     * @param accountDateTime 流水记录的日期和时间
+     */
+    @Query("UPDATE budgets SET leftAmount = MAX(0, MIN(initAmount, leftAmount)) " +
+            "WHERE startDate <= :accountDateTime AND budgetId IN (SELECT budgetId FROM budgetTagRef WHERE tagId IN (:tagIdList))")
+    void limitBudgetLeftAmountByTagId(List<Long> tagIdList, LocalDateTime accountDateTime);
+
+    /**
      * 流水记录添加事务
      *
      * @param account         新流水记录实体
@@ -148,6 +188,10 @@ public interface AccountDao {
                 .map(id -> new AccountTagRefEntity(accountId, id))
                 .collect(Collectors.toList());
         insertAccountTagRef(tagRefEntityList);
+
+        //更新预算余额
+        updateBudgetListAmountByTagId(-account.getAmount(), tagIdList, account.getDateTime());
+        limitBudgetLeftAmountByTagId(tagIdList, account.getDateTime());
     }
 
     /**
@@ -217,6 +261,7 @@ public interface AccountDao {
         oldMediaUriSet.removeAll(newMediaUriSet);
 
         //更新流水记录
+        LocalDateTime oldDateTime = getAccountDateTimeById(accountId);  //获取原来的日期和时间
         updateAccount(account);
 
         //更新转账账户数据
@@ -227,6 +272,7 @@ public interface AccountDao {
         }
 
         //更新标签
+        List<Long> oldTagIdList = getTagIdListByAccountId(accountId);   //获取原来的标签绑定关系
         deleteAccountTagRefByAccountId(accountId);
         List<AccountTagRefEntity> tagRefEntityList = tagIdList.stream()
                 .map(id -> new AccountTagRefEntity(accountId, id))
@@ -236,6 +282,14 @@ public interface AccountDao {
         //更新媒体
         deleteMediaByAccountId(accountId);
         insertMedia(mediaEntityList);
+
+        //更新预算余额
+        double amount = account.getAmount();
+        LocalDateTime dateTime = account.getDateTime();
+        updateBudgetListAmountByTagId(amount, oldTagIdList, oldDateTime);
+        updateBudgetListAmountByTagId(-amount, tagIdList, dateTime);
+        limitBudgetLeftAmountByTagId(oldTagIdList, oldDateTime);
+        limitBudgetLeftAmountByTagId(tagIdList, dateTime);
 
         //删除旧媒体文件
         for (Uri uri : oldMediaUriSet) {
@@ -260,6 +314,12 @@ public interface AccountDao {
     default void removeAccount(@NonNull AccountEntity account, Context context) {
         //获取媒体数据
         Set<Uri> uriSet = new HashSet<>(getMediaUriByAccountId(account.getAccountId()));
+
+        //更新预算
+        LocalDateTime oldDateTime = getAccountDateTimeById(account.getAccountId());
+        List<Long> oldTagIdList = getTagIdListByAccountId(account.getAccountId());
+        updateBudgetListAmountByTagId(account.getAmount(), oldTagIdList, oldDateTime);
+        limitBudgetLeftAmountByTagId(oldTagIdList, oldDateTime);
 
         //删除流水记录
         deleteAccount(account);
