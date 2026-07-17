@@ -7,7 +7,6 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -164,7 +163,6 @@ public class TagInputActivity extends AppCompatActivity {
             Chip scopeChip = new Chip(this);
             scopeChip.setCheckable(true);
             scopeChip.setCheckedIconVisible(true);
-            scopeChip.setCheckedIcon(ContextCompat.getDrawable(this, R.drawable.outline_check_24));
             scopeChip.setText(type.getTitle());
 
             //设置初始选择状态
