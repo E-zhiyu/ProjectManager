@@ -1,6 +1,7 @@
 package com.manager.assistant.data.save.db.daos;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -38,7 +39,7 @@ public interface TagDao {
      * @return 所有标签组成的列表，支持响应式更新
      */
     @Query("SELECT * FROM tags WHERE scope & :scopePow = 0 AND (:exceptedTagIds IS NULL OR tagId NOT IN (:exceptedTagIds)) ORDER BY groupId")
-    Flowable<List<TagEntity>> getAllTagFlowable(int scopePow, long[] exceptedTagIds);
+    Flowable<List<TagEntity>> getAllTagFlowable(int scopePow, @Nullable long[] exceptedTagIds);
 
     /**
      * 获取所有标签分组

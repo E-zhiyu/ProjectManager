@@ -9,7 +9,6 @@ public class VersionPreference {
     private static final String PREF_NAME = "VersionPreference";
     private static final String KEY_SKIP_VERSION_CODE = "skip_version_code";            //跳过更新的版本代码
     private static final String KEY_START_VERSION_CHECK = "start_version_check";        //控制软件启动时运行更新检测的整数值
-    public static final int VERSION_CHECK_RECYCLE_NUM = 3;                              //控制每启动几次就检测更新的整数值
     private static final String KEY_FIND_MANDATORY_UPDATE = "find_mandatory_update";    //是否发现强制更新条目
     private static final String KEY_MANDATORY_VERSION_NAME = "m_version_name";          //强制更新版本名称
     private static final String KEY_MANDATORY_UPDATE_LOG = "m_update_log";              //强制更新版本的更新日志

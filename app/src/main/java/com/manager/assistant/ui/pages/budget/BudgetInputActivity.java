@@ -232,7 +232,7 @@ public class BudgetInputActivity extends AppCompatActivity {
             Bundle bundle = new Bundle();
             bundle.putInt(KeyStrings.TAG_SCOPE.v(), 0); //传递标签作用域标识符
             bottomSheet.setArguments(bundle);
-            bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_SHEET.getTag());
+            bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_BOTTOM.getTag());
         });
 
         //完成按钮

@@ -34,6 +34,7 @@ public class AccountService {
      * @param filterTypeSet 种类白名单的编号列表
      * @param start         起始日期（包含）
      * @param end           结束日期（包含）
+     * @param includeNoTag  是否包含无标签的流水记录
      * @param keyword       搜索关键词
      * @param db            数据库实例
      * @return 符合过滤条件的流水记录数据，支持响应式更新
@@ -43,6 +44,7 @@ public class AccountService {
             @NonNull Set<Integer> filterTypeSet,
             @Nullable LocalDate start,
             @Nullable LocalDate end,
+            boolean includeNoTag,
             @Nullable String keyword,
             @NonNull BookkeepingDb db
     ) {
@@ -78,7 +80,7 @@ public class AccountService {
         //标签过滤
         if (useTagFilter) {
             sql.append(" AND ");
-            sql.append("accountId IN (SELECT accountId FROM accountTagRef WHERE tagId IN (");
+            sql.append("(accountId IN (SELECT accountId FROM accountTagRef WHERE tagId IN (");
 
             int i = 0;
             for (Long tagId : filterTagSet) {
@@ -89,6 +91,14 @@ public class AccountService {
             }
 
             sql.append("))");
+
+            //添加无标签的筛选条件
+            if (includeNoTag) {
+                sql.append(" OR ");
+                sql.append("accountId NOT IN (SELECT accountId FROM accountTagRef)");
+            }
+
+            sql.append(")");
         }
 
         //日期过滤

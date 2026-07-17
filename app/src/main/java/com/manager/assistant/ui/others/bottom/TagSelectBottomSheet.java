@@ -38,7 +38,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
     private BottomSheetTagSelectBinding binding;        //绑定的 XML 布局
     private final CompositeDisposable disposable = new CompositeDisposable();
-    private ListAdapter<TagGroupUiModel, ?> adapter;    //分组标签适配器
     private int scopePow = 0;                           //标签作用域标识符
     private boolean isMultiMode = true;                 //是否为多选模式
     private long[] exceptedTagIds = null;               //被排除的标签的 ID
@@ -89,9 +88,8 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
             if (bottomSheet != null) {
                 BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
 
-                // 2. 强行把底座的高度设置为固定值，防止 ViewPager2 高度不同而突变
                 int screenHeight = getResources().getDisplayMetrics().heightPixels;
-                int desiredHeight = (int) (screenHeight * 0.75); // 70% 屏幕高
+                int desiredHeight = (int) (screenHeight * 0.75);
 
                 ViewGroup.LayoutParams layoutParams = bottomSheet.getLayoutParams();
                 layoutParams.height = desiredHeight;
@@ -134,6 +132,7 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
      */
     private void initTagGroup() {
         //设置适配器
+        ListAdapter<TagGroupUiModel, ?> adapter;
         if (isMultiMode) {
             TagMultiSelectViewModel viewModel = new ViewModelProvider(requireActivity()).get(TagMultiSelectViewModel.class);
             adapter = new GroupTagMultiSelectAdapter(

@@ -403,13 +403,13 @@ public class RunningAccountInputActivity extends AppCompatActivity {
             Bundle bundle = new Bundle();
             bundle.putInt(KeyStrings.TAG_SCOPE.v(), (int) Math.pow(2, type.ordinal())); //传递标签作用域标识符
             bottomSheet.setArguments(bundle);
-            bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_SHEET.getTag());
+            bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_BOTTOM.getTag());
         });
 
         //媒体添加按钮
         binding.mediaAddBtn.setOnClickListener(view -> {
             MediaAddBottomSheet bottomSheet = new MediaAddBottomSheet();
-            bottomSheet.show(getSupportFragmentManager(), TagStrings.MEDIA_ADD_BOTTOM_SHEET.getTag());
+            bottomSheet.show(getSupportFragmentManager(), TagStrings.MEDIA_ADD_BOTTOM.getTag());
         });
 
         //媒体删除按钮

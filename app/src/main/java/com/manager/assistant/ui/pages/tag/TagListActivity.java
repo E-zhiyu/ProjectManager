@@ -238,7 +238,7 @@ public class TagListActivity extends AppCompatActivity {
 
         TagSelectBottomSheet bottomSheet = new TagSelectBottomSheet();
         bottomSheet.setArguments(bundle);
-        bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_SHEET.getTag());
+        bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_BOTTOM.getTag());
     }
 
     /**

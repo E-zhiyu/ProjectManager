@@ -1,6 +1,7 @@
 package com.manager.assistant.data.save.db.services;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.daos.TagDao;
@@ -27,7 +28,7 @@ public class TagService {
      * @param exceptedTagIds 被排除的标签的 ID
      * @return 带有分组名称分隔符的标签列表，已按照分组编号分组
      */
-    public static Flowable<List<TagGroupUiModel>> getGroupedTagFlowable(@NonNull BookkeepingDb db, int pow, long[] exceptedTagIds) {
+    public static Flowable<List<TagGroupUiModel>> getGroupedTagFlowable(@NonNull BookkeepingDb db, int pow, @Nullable long[] exceptedTagIds) {
         TagDao dao = db.tagDao();
         return Flowable.combineLatest(
                 dao.getAllTagFlowable(pow, exceptedTagIds),

@@ -39,6 +39,8 @@ public class SearchHelper {
             @NonNull SearchExecuter executer,
             SearchBarMenuListener menuListener
     ) {
+        searchView.setupWithSearchBar(searchBar);
+
         Context context = searchBar.getContext();
 
         //搜索历史显示

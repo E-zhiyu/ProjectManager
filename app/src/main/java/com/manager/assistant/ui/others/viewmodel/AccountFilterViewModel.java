@@ -1,6 +1,5 @@
 package com.manager.assistant.ui.others.viewmodel;
 
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.manager.assistant.data.save.db.BookkeepingDb;
@@ -10,19 +9,19 @@ import com.manager.assistant.data.save.db.services.AccountService;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.processors.BehaviorProcessor;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class AccountFilterViewModel extends ViewModel {
     private LocalDate start, end;                                       //起止日期（闭区间）
-    private final HashSet<Integer> filterTypeSet = new HashSet<>();     //种类白名单集合
-    private final HashSet<Long> filterTagSet = new HashSet<>();         //标签 ID 白名单集合
-    private String searchText = "";                                     //搜索关键词
-    private final MutableLiveData<Boolean> needExecuteSearch = new MutableLiveData<>(false);    //是否需要执行搜索
+    private final Set<Integer> filterTypeSet = new HashSet<>();         //种类白名单集合
+    private final Set<Long> filterTagSet = new HashSet<>();             //标签 ID 白名单集合
+    private boolean includeNoTag = false;                               //是否包含无标签的流水记录
+    private final BehaviorProcessor<Boolean> filterUpdateProcessor =
+            BehaviorProcessor.createDefault(true);
     private final BehaviorProcessor<String> searchKeywordProcessor =
             BehaviorProcessor.createDefault("");    //搜索关键词处理器
 
@@ -42,24 +41,20 @@ public class AccountFilterViewModel extends ViewModel {
         this.end = end;
     }
 
-    public HashSet<Integer> getFilterTypeSet() {
+    public Set<Integer> getFilterTypeSet() {
         return filterTypeSet;
     }
 
-    public HashSet<Long> getFilterTagSet() {
+    public Set<Long> getFilterTagSet() {
         return filterTagSet;
     }
 
-    public String getSearchText() {
-        return searchText;
+    public void setIncludeNoTag(boolean includeNoTag) {
+        this.includeNoTag = includeNoTag;
     }
 
-    public void setSearchText(String searchText) {
-        this.searchText = searchText;
-    }
-
-    public MutableLiveData<Boolean> getNeedExecuteSearch() {
-        return needExecuteSearch;
+    public boolean isIncludeNoTag() {
+        return includeNoTag;
     }
 
     /**
@@ -69,19 +64,62 @@ public class AccountFilterViewModel extends ViewModel {
      * @return 支持响应式更新的流水记录列表数据
      */
     public Flowable<List<AccountUiModel>> loadAccountListDataFlowable(BookkeepingDb db) {
-        return searchKeywordProcessor
-                .debounce(50, TimeUnit.MILLISECONDS)
-                .switchMap(
-                        keyword -> AccountService.loadAccountListDataFlowable(
-                                        filterTagSet,
-                                        filterTypeSet,
-                                        start,
-                                        end,
-                                        searchText,
-                                        db
-                                )
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribeOn(Schedulers.io())
-                );
+        return Flowable.combineLatest(
+                        searchKeywordProcessor.debounce(50, TimeUnit.MILLISECONDS),
+                        filterUpdateProcessor.debounce(50, TimeUnit.MILLISECONDS),
+                        (keyword, b) -> keyword
+                )
+                .switchMap(keyword -> AccountService.loadAccountListDataFlowable(
+                        filterTagSet,
+                        filterTypeSet,
+                        start,
+                        end,
+                        includeNoTag,
+                        keyword,
+                        db
+                ));
+    }
+
+    /**
+     * 执行一次搜索
+     *
+     * @param keyword 搜索关键词
+     */
+    public void executeSearch(String keyword) {
+        searchKeywordProcessor.onNext(keyword);
+    }
+
+    /**
+     * 提示过滤条件已变更
+     */
+    public void notifyFilterUpdated() {
+        filterUpdateProcessor.onNext(true);
+    }
+
+    /**
+     * 判断是否没有过滤条件
+     *
+     * @return 是否没有过滤条件
+     */
+    public boolean isNoFilter() {
+        String searchText = searchKeywordProcessor.getValue();
+        return start == null &&
+                end == null &&
+                filterTypeSet.isEmpty() &&
+                filterTagSet.isEmpty() &&
+                !includeNoTag &&
+                (searchText == null || searchText.isEmpty());
+    }
+
+    /**
+     * 清空过滤条件并刷新数据
+     */
+    public void clearFilter() {
+        start = null;
+        end = null;
+        filterTagSet.clear();
+        filterTypeSet.clear();
+        includeNoTag = false;
+        searchKeywordProcessor.onNext("");
     }
 }

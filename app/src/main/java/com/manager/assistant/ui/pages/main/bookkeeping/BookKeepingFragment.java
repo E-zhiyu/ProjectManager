@@ -19,10 +19,14 @@ import com.manager.assistant.R;
 import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.entities.AccountEntity;
 import com.manager.assistant.data.save.db.services.AccountService;
+import com.manager.assistant.data.save.preference.SearchHistoryPreference;
 import com.manager.assistant.databinding.ViewHolderSeparatorTextChipBinding;
 import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.generic_enums.LogTags;
+import com.manager.assistant.generic_enums.TagStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
+import com.manager.assistant.helpers.SearchHelper;
+import com.manager.assistant.ui.others.bottom.AccountFilterBottomSheet;
 import com.manager.assistant.ui.others.decoration.sticky.StickyHeaderItemDecoration;
 import com.manager.assistant.ui.others.viewmodel.AccountFilterViewModel;
 import com.manager.assistant.ui.pages.main.MainActivity;
@@ -36,7 +40,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class BookKeepingFragment extends Fragment {
     private FragmentBookkeepingBinding binding;             //绑定的XML视图
-    private final CompositeDisposable disposables = new CompositeDisposable();  //订阅列表（便于取消订阅）
+    private final CompositeDisposable disposable = new CompositeDisposable();  //订阅列表（便于取消订阅）
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
@@ -52,15 +56,11 @@ public class BookKeepingFragment extends Fragment {
         super.onDestroyView();
         binding = null;
 
-        disposables.dispose();
+        disposable.dispose();
 
         //清除SearchView的监听器，避免内存泄漏
         if (requireActivity() instanceof MainActivity) {
-            MainActivity mainActivity = (MainActivity) requireActivity();
-            if (mainActivity.binding != null) {
-                mainActivity.binding.searchView.setupWithSearchBar(null);                           //消除与SearchBar的绑定
-                Log.d(LogTags.ACCOUNT_FRAGMENT.n(), "SearchView与SearchBar解绑");
-            }
+            ((MainActivity) requireActivity()).getSearchView().setupWithSearchBar(null);
         }
     }
 
@@ -68,8 +68,30 @@ public class BookKeepingFragment extends Fragment {
      * 初始化视图
      */
     private void initViews() {
-        //TODO:搜索框和SearchView
-//        initSearchComponents();
+        //初始化搜索视图
+        if (requireActivity() instanceof MainActivity) {
+            MainActivity mainActivity = (MainActivity) requireActivity();
+            SearchHelper.initSearchComponents(
+                    binding.remarkSearchBar,
+                    mainActivity.getSearchView(),
+                    mainActivity.getSearchHistoryView(),
+                    mainActivity.getClearHistoryBtn(),
+                    SearchHistoryPreference.KEY_ACCOUNT_REMARK,
+                    keyword -> {
+                        AccountFilterViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountFilterViewModel.class);
+                        viewModel.executeSearch(keyword);
+                    },
+                    item -> {
+                        int id = item.getItemId();
+                        if (id == R.id.action_filter_account) {
+                            AccountFilterBottomSheet bottomSheet = new AccountFilterBottomSheet();
+                            bottomSheet.show(getParentFragmentManager(), TagStrings.ACCOUNT_FILTER_BOTTOM.getTag());
+                            return true;
+                        }
+                        return false;
+                    }
+            );
+        }
 
         //添加按钮
         binding.addFloatingBtn.setOnClickListener(v -> {
@@ -78,8 +100,6 @@ public class BookKeepingFragment extends Fragment {
             startActivity(skip2NewRunningAccount);
         });
         AppearanceHelper.attachMorphAnimation(binding.addFloatingBtn);
-
-        //TODO:绑定过滤器按钮的点击监听器
 
         //流水列表
         AccountListAdapter adapter = new AccountListAdapter(
@@ -111,7 +131,9 @@ public class BookKeepingFragment extends Fragment {
         binding.accountRecycler.setAdapter(adapter);
         AccountFilterViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccountFilterViewModel.class);
         BookkeepingDb db = BookkeepingDb.getInstance(requireContext());
-        disposables.add(viewModel.loadAccountListDataFlowable(db)
+        disposable.add(viewModel.loadAccountListDataFlowable(db)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
                 .subscribe(
                         accountList -> {
                             int visibility = accountList.isEmpty() ? View.VISIBLE : View.GONE;
@@ -140,7 +162,7 @@ public class BookKeepingFragment extends Fragment {
                 .setTitle(R.string.delete_account)
                 .setMessage("确认删除该流水记录吗？其包含的媒体文件也会一并删除")
                 .setPositiveButton("确定", (dialogInterface, i) ->
-                        disposables.add(AccountService.deleteAccount(account, requireContext())
+                        disposable.add(AccountService.deleteAccount(account, requireContext())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribeOn(Schedulers.io())
                                 .subscribe(

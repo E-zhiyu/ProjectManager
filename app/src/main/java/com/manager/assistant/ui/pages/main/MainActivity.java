@@ -9,9 +9,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.search.SearchView;
 import com.manager.assistant.R;
 import com.manager.assistant.data.save.preference.VersionPreference;
 import com.manager.assistant.databinding.ActivityMainBinding;
@@ -28,8 +31,20 @@ import java.util.List;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 public class MainActivity extends AppCompatActivity {
-    public ActivityMainBinding binding;                                             //绑定的 XML 视图（设为public方便子元素访问）
-    private final CompositeDisposable disposables = new CompositeDisposable();      //多线程任务列表
+    private ActivityMainBinding binding;                                            //绑定的 XML 视图
+    private final CompositeDisposable disposable = new CompositeDisposable();      //多线程任务列表
+
+    public SearchView getSearchView() {
+        return binding.searchView;
+    }
+
+    public RecyclerView getSearchHistoryView() {
+        return binding.searchHistoryRecycler;
+    }
+
+    public MaterialButton getClearHistoryBtn() {
+        return binding.clearHistoryBtn;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.viewPager2, (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, 0, systemBars.right, 0);
             return insets;
@@ -49,13 +64,13 @@ public class MainActivity extends AppCompatActivity {
 
         //启动时更新检测
         int startVersionCheckNum = VersionPreference.getStartVersionCheckNum(this);
-        int recycleNum = VersionPreference.VERSION_CHECK_RECYCLE_NUM;
+        final int MODULAR = 2;
         boolean isMandatoryUpdateFound = VersionPreference.getFindMandatoryUpdate(this);    //是否获取到强制更新
         if (!isMandatoryUpdateFound) {
-            if (startVersionCheckNum % recycleNum == 0) {
-                UpdateHelper.checkUpdate(this, disposables, false, false);
+            if (System.currentTimeMillis() % MODULAR == 0) {
+                UpdateHelper.checkUpdate(this, disposable, false, false);
             }
-            VersionPreference.setStartVersionCheckNum(this, (startVersionCheckNum + 1) % recycleNum);
+            VersionPreference.setStartVersionCheckNum(this, (startVersionCheckNum + 1) % MODULAR);
         } else {
             UpdateHelper.showMandatoryUpdateDialog(this);
         }
@@ -65,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        disposables.dispose();
+        disposable.dispose();
         binding = null;
     }
 
@@ -99,121 +114,6 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         });
-
-        //SearchView
-//        SearchHistoryAdapter searchViewAdapter = new SearchHistoryAdapter(keyWord -> {
-//            //更新搜索词
-//            AccountSearchViewModel viewModel = new ViewModelProvider(this).get(AccountSearchViewModel.class);
-//            viewModel.updateSearchText(keyWord);
-//
-//            //隐藏SearchView
-//            binding.searchView.hide();
-//
-//            //保存搜索关键词
-//            if (!keyWord.isEmpty()) {
-//                List<String> searchHistoryList = SearchHistoryPreference.getHistory(
-//                        SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-//                        this
-//                );
-//                searchHistoryList.remove(keyWord);       //移除已存在的项
-//                searchHistoryList.add(0, keyWord);   //添加新项
-//                if (searchHistoryList.size() > 15) {        //限制15条记录
-//                    searchHistoryList = searchHistoryList.subList(0, 14);
-//                }
-//                SearchHistoryPreference.setHistory(
-//                        SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-//                        searchHistoryList,
-//                        this
-//                );
-//            }
-//        });
-//        binding.searchHistoryRecycler.setAdapter(searchViewAdapter);
-//
-//        //先刷新一下内容，以应对SearchView展开时的界面重建
-//        List<String> historyList = SearchHistoryPreference.getHistory(
-//                SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-//                this
-//        );
-//        searchViewAdapter.refreshSearchHistory(historyList);
-//
-//        //设置显示监听，用于初始化常用词与清空提示词按钮
-//        binding.searchView.addTransitionListener((searchView, previousState, newState) -> {
-//            //显示时执行的动作
-//            if (newState == SearchView.TransitionState.SHOWING) {
-//                List<String> searchHistoryList = SearchHistoryPreference.getHistory(
-//                        SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-//                        this
-//                );
-//                searchViewAdapter.refreshSearchHistory(searchHistoryList);
-//            }
-//        });
-//
-//        //设置清除搜索历史按钮点击监听
-//        binding.clearHistoryBtn.setOnClickListener(v -> {
-//            SearchHistoryPreference.setHistory(
-//                    SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-//                    new ArrayList<>(),
-//                    this
-//            );
-//            searchViewAdapter.refreshSearchHistory(new ArrayList<>());
-//        });
-//
-//        //添加文本变化监听器，用于在清空文本后自动清除搜索并刷新视图
-//        binding.searchView.getEditText().addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void afterTextChanged(Editable s) {
-//
-//            }
-//
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                if (s.length() == 0 && binding.searchView.getEditText().hasFocus()) {
-//                    Log.d(LogTags.MAIN_ACTIVITY.n(), "搜索结果变为空，请求刷新界面");
-//                    AccountSearchViewModel viewModel = new ViewModelProvider(MainActivity.this).get(AccountSearchViewModel.class);
-//                    viewModel.updateSearchText("");
-//                }
-//            }
-//        });
-//
-//        //设置搜索监听
-//        binding.searchView.getEditText().setOnEditorActionListener((v, actionId, event) -> {
-//            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-//                //发送搜索请求
-//                String searchText = binding.searchView.getText().toString();
-//                AccountSearchViewModel viewModel = new ViewModelProvider(this).get(AccountSearchViewModel.class);
-//                viewModel.updateSearchText(searchText);
-//
-//                //保存搜索关键词
-//                if (!searchText.isEmpty()) {
-//                    List<String> searchHistoryList = SearchHistoryPreference.getHistory(
-//                            SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-//                            this
-//                    );
-//                    searchHistoryList.remove(searchText);       //移除已存在的项
-//                    searchHistoryList.add(0, searchText);   //添加新项
-//                    if (searchHistoryList.size() > 15) {        //限制15条记录
-//                        searchHistoryList = searchHistoryList.subList(0, 14);
-//                    }
-//                    SearchHistoryPreference.setHistory(
-//                            SearchHistoryPreference.KEY_ACCOUNT_REMARK,
-//                            searchHistoryList,
-//                            this
-//                    );
-//                }
-//
-//                //隐藏SearchView
-//                binding.searchView.hide();
-//
-//                return true;
-//            } else {
-//                return false;
-//            }
-//        });
     }
 
     /**

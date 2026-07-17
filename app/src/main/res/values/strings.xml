@@ -113,7 +113,6 @@
     <string name="reset_frequency_help">重置金额和起算日期的时间间隔</string>
     <string name="tag_name_help">该标签的名称</string>
     <string name="tag_group_name_help">分组会自动创建，留空归类至默认分组</string>
-    <string name="filter_running_account">流水记录过滤</string>
     <string name="date_range">日期范围</string>
     <string name="clear">清除</string>
     <string name="long_click_to_clear_tag">长按清除标签</string>
@@ -121,7 +120,7 @@
     <string name="set_filter">设置过滤</string>
     <string name="date_range_help">选择流水日期范围，留空则不限制日期范围</string>
     <string name="tag_scope">标签作用域</string>
-    <string name="no_tag_selection">添加“无标签”</string>
+    <string name="include_running_account_without_tag">包括无标签的流水记录</string>
     <string name="tag_count">标签数量</string>
     <string name="infinity">∞</string>
     <string name="budget_count">预算数量</string>
@@ -197,6 +196,9 @@
     <string name="reset">重置</string>
     <string name="delete_budget">删除预算</string>
     <string name="reset_budget">重置预算</string>
+    <string name="btn_of_date_range_select">日期范围选择按钮</string>
+    <string name="btn_of_date_range_clear">日期范围清空按钮</string>
+    <string name="wavy_line">~</string>
     <string-array name="tips_array">
         <item>在报表界面可以点击某个收支来源以排除它，还不赶快去试试？</item>
         <item>你知道吗？下面的这些卡片是可以点击的。</item>
