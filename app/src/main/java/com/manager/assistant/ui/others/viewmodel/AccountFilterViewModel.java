@@ -1,5 +1,6 @@
 package com.manager.assistant.ui.others.viewmodel;
 
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.manager.assistant.data.save.db.BookkeepingDb;
@@ -24,6 +25,7 @@ public class AccountFilterViewModel extends ViewModel {
             BehaviorProcessor.createDefault(true);
     private final BehaviorProcessor<String> searchKeywordProcessor =
             BehaviorProcessor.createDefault("");    //搜索关键词处理器
+    private final MutableLiveData<Void> filterUpdatedLiveData = new MutableLiveData<>();    //提醒宿主更新 UI 的 LiveData
 
     public LocalDate getStart() {
         return start;
@@ -51,10 +53,6 @@ public class AccountFilterViewModel extends ViewModel {
 
     public void setIncludeNoTag(boolean includeNoTag) {
         this.includeNoTag = includeNoTag;
-    }
-
-    public boolean isIncludeNoTag() {
-        return includeNoTag;
     }
 
     /**
@@ -87,6 +85,7 @@ public class AccountFilterViewModel extends ViewModel {
      */
     public void executeSearch(String keyword) {
         searchKeywordProcessor.onNext(keyword);
+        filterUpdatedLiveData.setValue(null);
     }
 
     /**
@@ -94,6 +93,7 @@ public class AccountFilterViewModel extends ViewModel {
      */
     public void notifyFilterUpdated() {
         filterUpdateProcessor.onNext(true);
+        filterUpdatedLiveData.setValue(null);
     }
 
     /**
@@ -121,5 +121,11 @@ public class AccountFilterViewModel extends ViewModel {
         filterTypeSet.clear();
         includeNoTag = false;
         searchKeywordProcessor.onNext("");
+
+        filterUpdatedLiveData.setValue(null);
+    }
+
+    public MutableLiveData<Void> getFilterUpdatedLiveData() {
+        return filterUpdatedLiveData;
     }
 }
