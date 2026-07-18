@@ -1,16 +1,15 @@
-package com.manager.assistant.helpers.about;
+package com.manager.assistant.helpers;
 
 import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.textview.MaterialTextView;
+import androidx.annotation.NonNull;
+
 import com.manager.assistant.R;
+import com.manager.assistant.ui.others.dialogs.MarkdownDialogBuilder;
 
-import io.noties.markwon.Markwon;
-
-public class UpdateLogHelper {
+public class AboutHelper {
     private static final String UPDATE_LOG_MD = "# v1.8.17  \n" +
             "### BUG修复  \n" +
             "- 修复删除流水记录时显示重复Toast提示的BUG  \n" +
@@ -435,23 +434,39 @@ public class UpdateLogHelper {
             "第一个版本发布";
 
     /**
+     * 获取版本名称
+     *
+     * @param context 上下文
+     * @return 版本名称字符串
+     * @throws PackageManager.NameNotFoundException 包名未找到引发的异常
+     */
+    public static String getVersionName(@NonNull Context context) throws PackageManager.NameNotFoundException {
+        PackageInfo packageInfo = context.getPackageManager()
+                .getPackageInfo(context.getPackageName(), 0);
+        return packageInfo.versionName;
+    }
+
+    /**
+     * 获取当前版本代码
+     *
+     * @param context 上下文
+     * @return 版本代码整数值
+     * @throws PackageManager.NameNotFoundException 包名未找到引发的异常
+     */
+    public static long getVersionCode(@NonNull Context context) throws PackageManager.NameNotFoundException {
+        PackageInfo packageInfo = context.getPackageManager()
+                .getPackageInfo(context.getPackageName(), 0);
+        return packageInfo.getLongVersionCode();
+    }
+
+    /**
      * 显示更新日志对话框
      *
      * @param context 上下文
      */
     public static void showUpdateLogDialog(Context context) {
-        View updateDialogView = LayoutInflater.from(context)
-                .inflate(R.layout.view_markdown_text, null);
-        MaterialTextView textView = updateDialogView.findViewById(R.id.md_textview_in_dialog);
-
-        //使用Markown渲染Markdown文本
-        Markwon markwon = Markwon.create(context);
-        markwon.setMarkdown(textView, UPDATE_LOG_MD);
-
-        new MaterialAlertDialogBuilder(context)
-                .setTitle(R.string.update_log)
-                .setView(updateDialogView)
-                .setPositiveButton("关闭", null)
+        new MarkdownDialogBuilder(context,context.getString(R.string.changelog),UPDATE_LOG_MD)
+                .setNegativeButton("关闭",null)
                 .show();
     }
 }

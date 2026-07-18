@@ -50,7 +50,7 @@
     <string name="about">关于</string>
     <string name="about_software">关于软件</string>
     <string name="update_check">检测更新</string>
-    <string name="update_log">更新日志</string>
+    <string name="changelog">更新日志</string>
     <string name="merge_tag">合并标签</string>
     <string name="merge_group">合并分组</string>
     <string name="running_account_every_month">每月流水</string>

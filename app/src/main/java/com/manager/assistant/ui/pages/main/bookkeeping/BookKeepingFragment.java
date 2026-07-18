@@ -34,7 +34,6 @@ import com.manager.assistant.ui.others.viewmodel.AccountFilterViewModel;
 import com.manager.assistant.ui.pages.main.MainActivity;
 import com.manager.assistant.databinding.FragmentBookkeepingBinding;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
-import com.manager.assistant.helpers.file.PictureFileHelper;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -101,7 +100,6 @@ public class BookKeepingFragment extends Fragment {
 
         //添加按钮
         binding.addFloatingBtn.setOnClickListener(v -> {
-            PictureFileHelper.clearTempPictureDir(requireContext());    //清理临时图片目录防止残留干扰
             Intent skip2NewRunningAccount = new Intent(requireContext(), RunningAccountInputActivity.class);
             startActivity(skip2NewRunningAccount);
         });

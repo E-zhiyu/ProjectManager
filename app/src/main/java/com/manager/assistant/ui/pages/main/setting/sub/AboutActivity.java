@@ -13,7 +13,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.manager.assistant.databinding.ActivityAboutBinding;
-import com.manager.assistant.helpers.about.AboutHelper;
+import com.manager.assistant.helpers.AboutHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
 
 public class AboutActivity extends AppCompatActivity {

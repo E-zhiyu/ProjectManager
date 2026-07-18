@@ -23,13 +23,13 @@ import com.manager.assistant.generic_enums.options.FirstScreen;
 import com.manager.assistant.generic_enums.options.ThemeMode;
 import com.manager.assistant.helpers.BiometricHelper;
 import com.manager.assistant.helpers.UpdateHelper;
+import com.manager.assistant.helpers.AboutHelper;
 import com.manager.assistant.ui.pages.main.setting.components.SettingOptionViewBase;
 import com.manager.assistant.ui.pages.main.setting.sub.AboutActivity;
 import com.manager.assistant.ui.pages.main.setting.sub.AutoBookkeepingActivity;
 import com.manager.assistant.ui.pages.main.setting.sub.DataManageActivity;
 import com.manager.assistant.ui.pages.main.setting.sub.PermissionManageActivity;
 import com.manager.assistant.helpers.appearence.ThemeHelper;
-import com.manager.assistant.helpers.about.UpdateLogHelper;
 import com.manager.assistant.data.save.preference.AppSettingsPreference;
 import com.manager.assistant.ui.pages.main.setting.components.SettingClickableTextView;
 import com.manager.assistant.ui.pages.main.setting.components.SettingSpinnerView;
@@ -348,13 +348,13 @@ public class SettingsFragment extends Fragment {
         SettingClickableTextView updateLogOption = new SettingClickableTextView(
                 requireContext(),
                 binding.updateLogOption,
-                R.string.update_log,
+                R.string.changelog,
                 null,
                 R.drawable.outline_lab_profile_24,
                 SettingOptionViewBase.RadiusStyle.MIDDLE
         );
         updateLogOption.setFunctionListener(
-                v -> UpdateLogHelper.showUpdateLogDialog(requireContext())
+                v -> AboutHelper.showUpdateLogDialog(requireContext())
         );
 
         //更新检测

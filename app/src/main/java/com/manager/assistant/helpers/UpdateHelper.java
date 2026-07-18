@@ -26,7 +26,6 @@ import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.data.save.preference.VersionPreference;
 import com.manager.assistant.automation.schedulers.BackupScheduler;
-import com.manager.assistant.helpers.about.AboutHelper;
 
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -59,6 +58,37 @@ public class UpdateHelper {
     static class UpdateInfo {
         String versionInfo = "";    //版本信息文件内容
         String updateLogInfo = "";  //更新日志文件内容
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true) // 忽略JSON中多余字段
+    static class VersionInfo {
+        private final long versionCode;     //版本代码
+        private final String versionName;   //版本名称
+        private final String updateLog;     //更新日志内容
+        private final boolean isMandatory;  //是否强制更新
+
+        public VersionInfo(long versionCode, String versionName, String updateLog, boolean isMandatory) {
+            this.versionCode = versionCode;
+            this.versionName = versionName;
+            this.updateLog = updateLog;
+            this.isMandatory = isMandatory;
+        }
+
+        public long getVersionCode() {
+            return versionCode;
+        }
+
+        public String getVersionName() {
+            return versionName;
+        }
+
+        public String getUpdateLog() {
+            return updateLog;
+        }
+
+        public boolean isMandatory() {
+            return isMandatory;
+        }
     }
 
     /**
@@ -310,9 +340,8 @@ public class UpdateHelper {
         //请求下载
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadUrl));
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
-        request.setTitle(AboutHelper.getAppName(context));
+        request.setTitle(context.getString(R.string.app_name));
         request.setDescription("正在下载安装包……");
-        request.setVisibleInDownloadsUi(true);
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);  //设置通知永远可见
 
         //设置下载路径
@@ -452,48 +481,5 @@ public class UpdateHelper {
         dialogBuilder.setOnCancelListener(dialog -> System.exit(0));
 
         dialogBuilder.show();
-    }
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true) // 忽略JSON中多余字段
-class VersionInfo {
-    private long versionCode;               //版本代码
-    private String versionName;             //版本名称
-    private String updateLog;               //更新日志内容
-    private boolean isMandatory;            //是否强制更新
-
-    public VersionInfo() {
-    }
-
-    public long getVersionCode() {
-        return versionCode;
-    }
-
-    public void setVersionCode(long versionCode) {
-        this.versionCode = versionCode;
-    }
-
-    public String getVersionName() {
-        return versionName;
-    }
-
-    public void setVersionName(String versionName) {
-        this.versionName = versionName;
-    }
-
-    public String getUpdateLog() {
-        return updateLog;
-    }
-
-    public void setUpdateLog(String updateLog) {
-        this.updateLog = updateLog;
-    }
-
-    public boolean isMandatory() {
-        return isMandatory;
-    }
-
-    public void setMandatory(boolean mandatory) {
-        isMandatory = mandatory;
     }
 }

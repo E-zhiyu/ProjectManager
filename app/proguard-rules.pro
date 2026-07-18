@@ -27,8 +27,8 @@
 # 保护流水记录类型枚举，因为使用了valueOf()方法
 -keep enum com.manager.assistant.auxiliary.enums.AccountType { *; }
 
-# 保护版本信息类
--keep class com.manager.assistant.helpers.VersionInfo { *; }
+# 保护版本更新帮助类
+-keep class com.manager.assistant.helpers.** { *; }
 
 # 保护预算重置频率枚举
 -keep enum com.manager.assistant.ui.pages.budget.ResetFrequency { *; }
