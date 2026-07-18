@@ -10,7 +10,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteStatement;
-import android.os.Bundle;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -22,7 +21,6 @@ import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.Tables;
 import com.manager.assistant.generic_enums.ChannelInfo;
-import com.manager.assistant.generic_enums.KeyStrings;
 import com.manager.assistant.generic_enums.NotificationID;
 import com.manager.assistant.generic_enums.PendingRequestCode;
 import com.manager.assistant.helpers.NotificationHelper;
@@ -34,11 +32,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 public class BudgetDataController {
     /**
@@ -107,142 +103,6 @@ public class BudgetDataController {
 
             values.clear();
         }
-    }
-
-    /**
-     * 通过预算编号修改标签数据
-     *
-     * @param db        需要写入数据的数据库
-     * @param bno       预算编号
-     * @param tagNoList 修改后的标签编号列表
-     * @throws SQLiteException 写入失败引发的异常
-     */
-    private static void modifyTagNoWithBno(
-            @NonNull SQLiteDatabase db,
-            long bno,
-            @NonNull List<Long> tagNoList
-    ) throws SQLiteException {
-        //移除旧数据
-        deleteTagNoWithBno(db, bno);
-
-        //写入新数据
-        saveTagNoWithBno(db, bno, tagNoList);
-    }
-
-    /**
-     * 通过预算编号删除标签数据
-     *
-     * @param db  写入数据的数据库
-     * @param bno 需要删除的预算编号
-     * @throws SQLiteException 写入失败引发的异常
-     */
-    private static void deleteTagNoWithBno(
-            @NonNull SQLiteDatabase db,
-            long bno
-    ) throws SQLiteException {
-        String where = Columns.BNO + "=?";
-        String[] whereArgs = {String.valueOf(bno)};
-
-        db.delete(Tables.BUDGET_TAG.toString(), where, whereArgs);
-    }
-
-    /**
-     * 添加新的预算
-     *
-     * @param dataBundle 预算数据包
-     * @param context    上下文
-     * @return 为新预算分配的编号
-     * @throws SQLiteException 写入失败引发的异常
-     */
-    public static long saveNewBudget(@NonNull Bundle dataBundle, Context context) throws SQLiteException {
-        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = dbHelper.openWriteLink();
-
-        //解析数据
-        String name = dataBundle.getString(KeyStrings.BUDGET_NAME.v());
-        double initAmount = dataBundle.getDouble(KeyStrings.INIT_AMOUNT.v());
-        String startDate = dataBundle.getString(KeyStrings.START_DATE.v());
-        ResetFrequency resetFrequency = ResetFrequency.valueOf(dataBundle.getString(KeyStrings.BUDGET_RESET_FREQUENCY.v()));
-        long[] tagNos = dataBundle.getLongArray(KeyStrings.TAG_ID.v());
-        if (tagNos == null) {
-            throw new SQLiteException("标签编号列表为空");
-        }
-        List<Long> tagNoList = Arrays.stream(tagNos)
-                .boxed()
-                .collect(Collectors.toList());
-
-        //写入数据
-        ContentValues budgetValues = new ContentValues();
-        budgetValues.put(Columns.BUDGET_NAME.toString(), name);
-        budgetValues.put(Columns.INIT_AMOUNT.toString(), initAmount);
-        budgetValues.put(Columns.LEFT_AMOUNT.toString(), initAmount);
-        budgetValues.put(Columns.START_DATE.toString(), startDate);
-        budgetValues.put(Columns.RESET_FREQUENCY.toString(), resetFrequency.toString());
-        long bno = db.insert(Tables.BUDGET.toString(), null, budgetValues);
-        saveTagNoWithBno(db, bno, tagNoList);
-
-        db.close();
-        return bno;
-    }
-
-    /**
-     * 修改预算
-     *
-     * @param dataBundle 修改后的预算数据包
-     * @param context    上下文
-     * @throws SQLiteException 写入失败引发的异常
-     */
-    public static void modifyBudget(@NonNull Bundle dataBundle, Context context) throws SQLiteException {
-        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = dbHelper.openWriteLink();
-
-        //解析数据
-        long bno = dataBundle.getLong(KeyStrings.BNO.v());
-        String name = dataBundle.getString(KeyStrings.BUDGET_NAME.v());
-        double initAmount = dataBundle.getDouble(KeyStrings.INIT_AMOUNT.v());
-        double leftAmount = dataBundle.getDouble(KeyStrings.LEFT_AMOUNT.v());
-        String startDate = dataBundle.getString(KeyStrings.START_DATE.v());
-        ResetFrequency resetFrequency = ResetFrequency.valueOf(dataBundle.getString(KeyStrings.BUDGET_RESET_FREQUENCY.v()));
-        long[] tagNos = dataBundle.getLongArray(KeyStrings.TAG_ID.v());
-        if (tagNos == null) {
-            throw new SQLiteException("标签编号列表为空");
-        }
-        List<Long> tagNoList = Arrays.stream(tagNos)
-                .boxed()
-                .collect(Collectors.toList());
-
-        //写入数据
-        String where = Columns.BNO + "=?";
-        String[] whereArgs = {String.valueOf(bno)};
-        ContentValues budgetValues = new ContentValues();
-        budgetValues.put(Columns.BUDGET_NAME.toString(), name);
-        budgetValues.put(Columns.INIT_AMOUNT.toString(), initAmount);
-        budgetValues.put(Columns.LEFT_AMOUNT.toString(), leftAmount);
-        budgetValues.put(Columns.START_DATE.toString(), startDate);
-        budgetValues.put(Columns.RESET_FREQUENCY.toString(), resetFrequency.toString());
-        db.update(Tables.BUDGET.toString(), budgetValues, where, whereArgs);
-        modifyTagNoWithBno(db, bno, tagNoList);
-
-        db.close();
-    }
-
-    /**
-     * 删除预算
-     *
-     * @param bno     待删除的预算的编号
-     * @param context 上下文
-     * @throws SQLiteException 写入数据失败引发的异常
-     */
-    public static void deleteBudget(long bno, Context context) throws SQLiteException {
-        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = dbHelper.openWriteLink();
-
-        String where = Columns.BNO + "=?";
-        String[] whereArgs = {String.valueOf(bno)};
-        deleteTagNoWithBno(db, bno);
-        db.delete(Tables.BUDGET.toString(), where, whereArgs);
-
-        db.close();
     }
 
     /**

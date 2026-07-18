@@ -66,24 +66,4 @@ public class AccountDataController {
         return rno;
     }
 
-    /**
-     * 清除标签
-     *
-     * @param tag_no 需要清除标签的流水记录对应的标签编号
-     * @param db     需要修改的数据库
-     * @throws SQLiteException 数据库修改失败引发的异常
-     */
-    public static void onTagDeleted(long tag_no, @NonNull SQLiteDatabase db) throws SQLiteException {
-        String where = Columns.TAG_NO + "=?";
-        String[] whereArgs = {String.valueOf(tag_no)};
-
-        ContentValues accountValues = new ContentValues();
-        accountValues.put(Columns.TAG_NO.toString(), 0);
-        db.update(
-                Tables.BASIC.toString(),
-                accountValues,
-                where,
-                whereArgs
-        );
-    }
 }
