@@ -9,7 +9,6 @@ import androidx.work.WorkManager;
 
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.DynamicColorsOptions;
-import com.manager.assistant.automation.schedulers.BudgetResetScheduler;
 import com.manager.assistant.data.save.preference.AutoBackupPreference;
 import com.manager.assistant.data.save.preference.AppSettingsPreference;
 import com.manager.assistant.data.save.preference.VersionPreference;
@@ -18,6 +17,7 @@ import com.manager.assistant.generic_enums.options.BackupFrequency;
 import com.manager.assistant.helpers.NotificationHelper;
 import com.manager.assistant.automation.schedulers.BackupScheduler;
 import com.manager.assistant.helpers.appearence.ThemeHelper;
+import com.manager.assistant.helpers.time.AlarmHelper;
 
 import java.io.File;
 import java.util.Locale;
@@ -30,7 +30,7 @@ public class ManagerAssistant extends Application {
         super.onCreate();
 
         //注册预算重置检查闹钟
-        BudgetResetScheduler.scheduleNextMidnight(this);
+        AlarmHelper.setBudgetCheckAlarm(this);
 
         //注册通知渠道
         NotificationHelper.createNotificationChannels(this);

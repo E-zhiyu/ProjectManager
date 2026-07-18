@@ -15,6 +15,7 @@ public enum LogTags {
     PICTURE_HELPER("PictureHelper"),
     ACCOUNT_FRAGMENT("AccountFragment"),
     ACCOUNT_DATA_HELPER("AccountDataHelper"),
+    ALARM_HELPER("AlarmHelper"),
     DB("Database"),
     APPLICATION("Application"),
     BUDGET_RESET_RECEIVER("BudgetResetReceiver"),

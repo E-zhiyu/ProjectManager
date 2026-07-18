@@ -1,4 +1,4 @@
-package com.manager.assistant.helpers;
+package com.manager.assistant.helpers.time;
 
 import android.content.Context;
 import android.util.TypedValue;
