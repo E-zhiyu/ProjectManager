@@ -59,32 +59,44 @@ public class UpdateHelper {
 
     @JsonIgnoreProperties(ignoreUnknown = true) // 忽略JSON中多余字段
     static class VersionInfo {
-        private final long versionCode;     //版本代码
-        private final String versionName;   //版本名称
-        private final String updateLog;     //更新日志内容
-        private final boolean isMandatory;  //是否强制更新
+        private long versionCode;     //版本代码
+        private String versionName;   //版本名称
+        private String updateLog;     //更新日志内容
+        private boolean isMandatory;  //是否强制更新
 
-        public VersionInfo(long versionCode, String versionName, String updateLog, boolean isMandatory) {
-            this.versionCode = versionCode;
-            this.versionName = versionName;
-            this.updateLog = updateLog;
-            this.isMandatory = isMandatory;
+        public VersionInfo() {
         }
 
         public long getVersionCode() {
             return versionCode;
         }
 
+        public void setVersionCode(long versionCode) {
+            this.versionCode = versionCode;
+        }
+
         public String getVersionName() {
             return versionName;
+        }
+
+        public void setVersionName(String versionName) {
+            this.versionName = versionName;
         }
 
         public String getUpdateLog() {
             return updateLog;
         }
 
+        public void setUpdateLog(String updateLog) {
+            this.updateLog = updateLog;
+        }
+
         public boolean isMandatory() {
             return isMandatory;
+        }
+
+        public void setMandatory(boolean mandatory) {
+            isMandatory = mandatory;
         }
     }
 
