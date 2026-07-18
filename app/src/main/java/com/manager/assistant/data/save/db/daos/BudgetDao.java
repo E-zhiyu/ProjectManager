@@ -41,6 +41,14 @@ public interface BudgetDao {
     Flowable<List<BudgetEntity>> getAllBudgetFlowable();
 
     /**
+     * 获取所有预算数据
+     *
+     * @return 所有预算数据组成的列表
+     */
+    @Query("SELECT * FROM budgets ORDER BY startDate DESC")
+    Single<List<BudgetEntity>> getAllBudgetSingle();
+
+    /**
      * 删除预算
      *
      * @param budget 需要删除的预算
@@ -58,6 +66,16 @@ public interface BudgetDao {
      */
     @Query("UPDATE budgets SET leftAmount = initAmount, startDate = :currentDate WHERE budgetId = :budgetId")
     Completable resetBudgetById(long budgetId, LocalDate currentDate);
+
+    /**
+     * 通过预算 ID 重置预算
+     *
+     * @param budgetIdList 需要重置的预算的 ID
+     * @param currentDate  当前日期
+     * @return 是否完成
+     */
+    @Query("UPDATE budgets SET leftAmount = initAmount, startDate = :currentDate WHERE budgetId IN (:budgetIdList)")
+    Completable resetBudgetById(List<Long> budgetIdList, LocalDate currentDate);
 
     /**
      * 通过预算 ID 获取预算数据

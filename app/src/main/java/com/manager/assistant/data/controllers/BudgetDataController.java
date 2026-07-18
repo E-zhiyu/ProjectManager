@@ -2,7 +2,6 @@ package com.manager.assistant.data.controllers;
 
 import android.Manifest;
 import android.app.PendingIntent;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -17,7 +16,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
 import com.manager.assistant.R;
-import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.Tables;
 import com.manager.assistant.generic_enums.ChannelInfo;
@@ -25,12 +23,8 @@ import com.manager.assistant.generic_enums.NotificationID;
 import com.manager.assistant.generic_enums.PendingRequestCode;
 import com.manager.assistant.helpers.NotificationHelper;
 import com.manager.assistant.ui.pages.budget.BudgetListActivity;
-import com.manager.assistant.ui.pages.budget.ResetFrequency;
 import com.manager.assistant.auxiliary.enums.AccountType;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -80,29 +74,6 @@ public class BudgetDataController {
 
         budgetCursor.close();
         return bnoList;
-    }
-
-    /**
-     * 将标签数据写入预算-标签表
-     *
-     * @param db        需要写入的数据库
-     * @param bno       预算编号
-     * @param tagNoList 标签编号列表
-     * @throws SQLiteException 写入失败引发的异常
-     */
-    private static void saveTagNoWithBno(
-            SQLiteDatabase db,
-            long bno,
-            @NonNull List<Long> tagNoList
-    ) throws SQLiteException {
-        ContentValues values = new ContentValues();
-        for (long tagNo : tagNoList) {
-            values.put(Columns.TAG_NO.toString(), tagNo);
-            values.put(Columns.BNO.toString(), bno);
-            db.insert(Tables.BUDGET_TAG.toString(), null, values);
-
-            values.clear();
-        }
     }
 
     /**
@@ -318,94 +289,4 @@ public class BudgetDataController {
         }
     }
 
-    /**
-     * 自动重置需要被重置的预算
-     *
-     * @param context 上下文
-     * @throws SQLiteException 数据写入失败引发的异常
-     */
-    public static void resetAutomaticallyIfNeed(Context context) throws SQLiteException {
-        BookkeepingDbHelper dbHelper = new BookkeepingDbHelper(context);
-        SQLiteDatabase db = dbHelper.openWriteLink();
-
-        //获取需要重置的预算编号
-        List<Long> bnoList = getBnoNeedReset(db);
-
-        //生成 SQL 语句
-        String sql = "UPDATE " + Tables.BUDGET +
-                " SET " + Columns.LEFT_AMOUNT + "=" + Columns.INIT_AMOUNT + "," +
-                Columns.START_DATE + "=?" +
-                " WHERE " + Columns.BNO + " IN (" + TextUtils.join(",", Collections.nCopies(bnoList.size(), "?")) +
-                ")";
-        SQLiteStatement statement = db.compileStatement(sql);
-
-        //绑定 SQL 中的数据
-        LocalDate today = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String todayStr = today.format(formatter);
-        statement.bindString(1, todayStr);
-        for (int i = 0; i < bnoList.size(); i++) {
-            statement.bindLong(i + 2, bnoList.get(i));
-        }
-
-        //执行 SQL 语句
-        statement.executeUpdateDelete();
-
-        db.close();
-    }
-
-    /**
-     * 获取需要重置的预算编号
-     *
-     * @param db 可读数据库实例
-     * @return 需要重置的预算编号的列表
-     * @throws SQLiteException 读取失败引发的异常
-     */
-    @NonNull
-    private static List<Long> getBnoNeedReset(@NonNull SQLiteDatabase db) throws SQLiteException {
-        //获取当前日期
-        LocalDate today = LocalDate.now();
-
-        //查询数据
-        String[] columns = {
-                Columns.START_DATE.toString(),
-                Columns.RESET_FREQUENCY.toString(),
-                Columns.BNO.toString()
-        };
-        Cursor budgetCursor = db.query(
-                Tables.BUDGET.toString(),
-                columns,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-
-        //将需要重置的预算编号添加至列表
-        List<Long> bnoList = new ArrayList<>();
-        while (budgetCursor.moveToNext()) {
-            long bno = budgetCursor.getLong(budgetCursor.getColumnIndexOrThrow(Columns.BNO.toString()));
-            ResetFrequency frequency = ResetFrequency.valueOf(budgetCursor.getString(budgetCursor.getColumnIndexOrThrow(Columns.RESET_FREQUENCY.toString())));
-            LocalDate startDate = LocalDate.parse(budgetCursor.getString(budgetCursor.getColumnIndexOrThrow(Columns.START_DATE.toString())));
-
-            switch (frequency) {
-                case EVERY_DAY:
-                    bnoList.add(bno);
-                    break;
-                case EVERY_WEEK:
-                    if (ChronoUnit.DAYS.between(today, startDate) >= 7) {
-                        bnoList.add(bno);
-                    }
-                    break;
-                case EVERY_MONTH:
-                    if (today.getDayOfMonth() == 1) {
-                        bnoList.add(bno);
-                    }
-            }
-        }
-
-        budgetCursor.close();
-        return bnoList;
-    }
 }
