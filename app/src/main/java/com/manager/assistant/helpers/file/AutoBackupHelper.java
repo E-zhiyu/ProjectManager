@@ -14,7 +14,7 @@ import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.LifecycleManager;
 import com.manager.assistant.data.save.preference.AutoBackupPreference;
 import com.manager.assistant.generic_enums.options.BackupFrequency;
-import com.manager.assistant.ui.pages.main.setting.components.SettingSwitchView;
+import com.manager.assistant.ui.pages.main.settings.components.SettingSwitchView;
 import com.manager.assistant.automation.schedulers.BackupScheduler;
 
 public class AutoBackupHelper {

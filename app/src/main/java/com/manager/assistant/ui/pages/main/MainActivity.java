@@ -23,7 +23,7 @@ import com.manager.assistant.helpers.UpdateHelper;
 import com.manager.assistant.ui.others.adapters.FragmentPagerAdapter;
 import com.manager.assistant.ui.pages.main.bookkeeping.BookKeepingFragment;
 import com.manager.assistant.ui.pages.main.home.HomeFragment;
-import com.manager.assistant.ui.pages.main.setting.SettingsFragment;
+import com.manager.assistant.ui.pages.main.settings.SettingsFragment;
 
 import java.util.ArrayList;
 import java.util.List;

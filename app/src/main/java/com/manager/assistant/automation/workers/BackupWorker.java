@@ -12,7 +12,7 @@ import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.helpers.file.DataIOHelper;
 import com.manager.assistant.data.io.helpers.DataHelperBase;
-import com.manager.assistant.ui.pages.main.setting.sub.DataManageActivity;
+import com.manager.assistant.ui.pages.main.settings.sub.DataManageActivity;
 
 import java.util.ArrayList;
 import java.util.List;

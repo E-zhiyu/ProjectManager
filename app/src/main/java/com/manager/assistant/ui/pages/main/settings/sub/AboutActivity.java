@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.main.setting.sub;
+package com.manager.assistant.ui.pages.main.settings.sub;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;

@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.main.setting.sub;
+package com.manager.assistant.ui.pages.main.settings.sub;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
 import com.manager.assistant.automation.schedulers.BackupScheduler;
+import com.manager.assistant.auxiliary.enums.RadiusStyle;
 import com.manager.assistant.data.io.helpers.AnalysisRuleDataHelper;
 import com.manager.assistant.data.io.helpers.BudgetDataHelper;
 import com.manager.assistant.data.io.helpers.DataHelperBase;
@@ -35,10 +36,9 @@ import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.helpers.file.AutoBackupHelper;
 import com.manager.assistant.helpers.file.DataIOHelper;
 import com.manager.assistant.helpers.file.UriPathHelper;
-import com.manager.assistant.ui.pages.main.setting.components.SettingClickableTextView;
-import com.manager.assistant.ui.pages.main.setting.components.SettingOptionViewBase;
-import com.manager.assistant.ui.pages.main.setting.components.SettingSpinnerView;
-import com.manager.assistant.ui.pages.main.setting.components.SettingSwitchView;
+import com.manager.assistant.ui.pages.main.settings.components.SettingClickableTextView;
+import com.manager.assistant.ui.pages.main.settings.components.SettingSpinnerView;
+import com.manager.assistant.ui.pages.main.settings.components.SettingSwitchView;
 import com.manager.assistant.ui.sync.account.AccountUpdateReason;
 import com.manager.assistant.ui.sync.account.RunningAccountRepository;
 
@@ -238,7 +238,7 @@ public class DataManageActivity extends AppCompatActivity {
                 R.string.export_data,
                 "将应用数据以文件形式保存",
                 R.drawable.outline_file_export_24,
-                SettingOptionViewBase.RadiusStyle.TOP
+                RadiusStyle.TOP
         );
         exportDataOption.setFunctionListener(v -> exportData());
 
@@ -249,7 +249,7 @@ public class DataManageActivity extends AppCompatActivity {
                 R.string.import_data,
                 "从外部文件导入数据",
                 R.drawable.outline_download_24,
-                SettingOptionViewBase.RadiusStyle.MIDDLE
+                RadiusStyle.MIDDLE
         );
         importDataOption.setFunctionListener(v -> importData());
 
@@ -260,7 +260,7 @@ public class DataManageActivity extends AppCompatActivity {
                 R.string.clear_account_data,
                 "清除流水相关数据",
                 R.drawable.outline_delete_24,
-                SettingOptionViewBase.RadiusStyle.BOTTOM
+                RadiusStyle.BOTTOM
         );
         clearRunningAccountOption.setFunctionListener(
                 v -> new MaterialAlertDialogBuilder(this)
@@ -288,7 +288,7 @@ public class DataManageActivity extends AppCompatActivity {
                 R.string.auto_backup,
                 "自动生成备份文件至指定位置",
                 R.drawable.outline_settings_backup_restore_24,
-                SettingOptionViewBase.RadiusStyle.TOP
+                RadiusStyle.TOP
         );
         autoBackupHelper.setSwitchOptionView(autoBackupSwitchOption); //设置帮助器的开关视图，以便控制其状态
         String backupDir = AutoBackupPreference.getBackupDirectoryUri(this);
@@ -305,7 +305,7 @@ public class DataManageActivity extends AppCompatActivity {
                 R.string.backup_frequency,
                 "自动备份的时间间隔",
                 R.drawable.outline_timer_24,
-                SettingOptionViewBase.RadiusStyle.MIDDLE
+                RadiusStyle.MIDDLE
         );
         int frequencyIndex = AutoBackupPreference.getBackupFrequency(this);
         backupFrequencyOption.setSpinnerText(
@@ -370,7 +370,7 @@ public class DataManageActivity extends AppCompatActivity {
                 R.string.backup_directory,
                 "备份文件存储的位置",
                 R.drawable.outline_folder_data_24,
-                SettingOptionViewBase.RadiusStyle.BOTTOM
+                RadiusStyle.BOTTOM
         );
         backupDirectoryOption.setFunctionListener(
                 v -> autoBackupHelper.selectBackupDirectory(backupDirectorySetLauncher)

@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.main.setting.components;
+package com.manager.assistant.ui.pages.main.settings.components;
 
 import android.content.Context;
 import android.view.View;
@@ -7,6 +7,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 
+import com.manager.assistant.auxiliary.enums.RadiusStyle;
 import com.manager.assistant.databinding.ViewSettingOptionBinding;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
 
@@ -21,13 +22,6 @@ import org.jetbrains.annotations.Contract;
 abstract public class SettingOptionViewBase<C, L> {
     protected ViewSettingOptionBinding binding;     //绑定的XML视图引用
     protected C functionComponent;                  //功能组件
-
-    public enum RadiusStyle {
-        TOP,    //顶部
-        MIDDLE, //中部
-        BOTTOM, //底部
-        SINGLE, //单独的
-    }
 
     /**
      * 设置项构造方法

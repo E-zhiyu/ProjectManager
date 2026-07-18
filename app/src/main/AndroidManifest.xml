@@ -47,16 +47,16 @@
         android:theme="@style/Theme.ManagerAssistant.Static"
         tools:targetApi="33">
         <activity
-            android:name=".ui.pages.main.setting.sub.AboutActivity"
+            android:name=".ui.pages.main.settings.sub.AboutActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.main.setting.sub.DataManageActivity"
+            android:name=".ui.pages.main.settings.sub.DataManageActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.main.setting.sub.AutoBookkeepingActivity"
+            android:name=".ui.pages.main.settings.sub.AutoBookkeepingActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.main.setting.sub.PermissionManageActivity"
+            android:name=".ui.pages.main.settings.sub.PermissionManageActivity"
             android:exported="false" />
         <activity
             android:name=".ui.pages.budget.BudgetInputActivity"

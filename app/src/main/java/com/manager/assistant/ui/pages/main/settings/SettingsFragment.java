@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.main.setting;
+package com.manager.assistant.ui.pages.main.settings;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
+import com.manager.assistant.auxiliary.enums.RadiusStyle;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.data.save.preference.SecurityPreference;
 import com.manager.assistant.databinding.FragmentSettingsBinding;
@@ -24,16 +25,15 @@ import com.manager.assistant.generic_enums.options.ThemeMode;
 import com.manager.assistant.helpers.BiometricHelper;
 import com.manager.assistant.helpers.UpdateHelper;
 import com.manager.assistant.helpers.AboutHelper;
-import com.manager.assistant.ui.pages.main.setting.components.SettingOptionViewBase;
-import com.manager.assistant.ui.pages.main.setting.sub.AboutActivity;
-import com.manager.assistant.ui.pages.main.setting.sub.AutoBookkeepingActivity;
-import com.manager.assistant.ui.pages.main.setting.sub.DataManageActivity;
-import com.manager.assistant.ui.pages.main.setting.sub.PermissionManageActivity;
+import com.manager.assistant.ui.pages.main.settings.sub.AboutActivity;
+import com.manager.assistant.ui.pages.main.settings.sub.AutoBookkeepingActivity;
+import com.manager.assistant.ui.pages.main.settings.sub.DataManageActivity;
+import com.manager.assistant.ui.pages.main.settings.sub.PermissionManageActivity;
 import com.manager.assistant.helpers.appearence.ThemeHelper;
 import com.manager.assistant.data.save.preference.AppSettingsPreference;
-import com.manager.assistant.ui.pages.main.setting.components.SettingClickableTextView;
-import com.manager.assistant.ui.pages.main.setting.components.SettingSpinnerView;
-import com.manager.assistant.ui.pages.main.setting.components.SettingSwitchView;
+import com.manager.assistant.ui.pages.main.settings.components.SettingClickableTextView;
+import com.manager.assistant.ui.pages.main.settings.components.SettingSpinnerView;
+import com.manager.assistant.ui.pages.main.settings.components.SettingSwitchView;
 
 import java.util.Arrays;
 import java.util.List;
@@ -82,7 +82,7 @@ public class SettingsFragment extends Fragment {
                 R.string.theme_mode,
                 "切换深浅色模式",
                 R.drawable.outline_dark_mode_24,
-                SettingOptionViewBase.RadiusStyle.TOP
+                RadiusStyle.TOP
         );
         themeModeOption.setFunctionListener(v -> showThemeModeSelectDialog());
 
@@ -93,7 +93,7 @@ public class SettingsFragment extends Fragment {
                 R.string.dynamic_color,
                 "将壁纸颜色作为APP主题色",
                 R.drawable.outline_colorize_24,
-                SettingOptionViewBase.RadiusStyle.MIDDLE
+                RadiusStyle.MIDDLE
         );
         dynamicColorOption.setChecked(AppSettingsPreference.getDynamicColorStat(requireContext()));
         dynamicColorOption.setFunctionListener(
@@ -110,7 +110,7 @@ public class SettingsFragment extends Fragment {
                 R.string.select_first_screen,
                 "选择启动的第一屏",
                 R.drawable.outline_mobile_24,
-                SettingOptionViewBase.RadiusStyle.BOTTOM
+                RadiusStyle.BOTTOM
         );
         int screenCode = AppSettingsPreference.getFirstScreen(requireContext());
         firstScreenOption.setSpinnerText(FirstScreen.values()[screenCode].getTitle());
@@ -159,7 +159,7 @@ public class SettingsFragment extends Fragment {
                 R.string.permissions_setting,
                 "点击进入权限管理界面",
                 R.drawable.outline_admin_panel_settings_24,
-                SettingOptionViewBase.RadiusStyle.TOP
+                RadiusStyle.TOP
         );
         permissionsOption.setFunctionListener(v -> {
             Intent skip2PermissionManage = new Intent(
@@ -176,7 +176,7 @@ public class SettingsFragment extends Fragment {
                 R.string.data_manage,
                 "点击进入数据管理设置界面",
                 R.drawable.outline_database_24,
-                SettingOptionViewBase.RadiusStyle.MIDDLE
+                RadiusStyle.MIDDLE
         );
         dataManage.setFunctionListener(view -> {
             Intent intent = new Intent(requireContext(), DataManageActivity.class);
@@ -190,7 +190,7 @@ public class SettingsFragment extends Fragment {
                 R.string.auto_bookkeeping,
                 "点击进入自动记账设置界面",
                 R.drawable.outline_checkbook_24,
-                SettingOptionViewBase.RadiusStyle.BOTTOM
+                RadiusStyle.BOTTOM
         );
         autoBookkeeping.setFunctionListener(view -> {
             Intent intent = new Intent(requireContext(), AutoBookkeepingActivity.class);
@@ -209,7 +209,7 @@ public class SettingsFragment extends Fragment {
                 R.string.authentication,
                 "进入APP时需要进行身份验证",
                 R.drawable.outline_security_24,
-                SettingOptionViewBase.RadiusStyle.TOP
+                RadiusStyle.TOP
         );
         boolean isAuthOpened = SecurityPreference.getAuthSwitchStat(requireContext());
         authenticationSwitch.setChecked(isAuthOpened);
@@ -272,7 +272,7 @@ public class SettingsFragment extends Fragment {
                 R.string.authentication_opportunity,
                 "进行身份验证的时机",
                 R.drawable.outline_safety_check_24,
-                SettingOptionViewBase.RadiusStyle.MIDDLE
+                RadiusStyle.MIDDLE
         );
         int opportunityCode = SecurityPreference.getAuthOpportunity(requireContext());
         authenticationOpportunity.setSpinnerText(AuthOpportunity.values()[opportunityCode].getTitle());
@@ -316,7 +316,7 @@ public class SettingsFragment extends Fragment {
                 R.string.hide_recent_task,
                 "在最近任务列表中隐藏",
                 R.drawable.outline_visibility_off_24,
-                SettingOptionViewBase.RadiusStyle.BOTTOM
+                RadiusStyle.BOTTOM
         );
         boolean isHidden = AutoBookKeepingPreference.getHideRecentTask(requireContext());
         hideRecentTask.setChecked(isHidden);
@@ -337,7 +337,7 @@ public class SettingsFragment extends Fragment {
                 R.string.about_software,
                 null,
                 R.drawable.outline_info_24,
-                SettingOptionViewBase.RadiusStyle.TOP
+                RadiusStyle.TOP
         );
         aboutOption.setFunctionListener(v -> {
             Intent skip2About = new Intent(requireContext(), AboutActivity.class);
@@ -351,7 +351,7 @@ public class SettingsFragment extends Fragment {
                 R.string.changelog,
                 null,
                 R.drawable.outline_lab_profile_24,
-                SettingOptionViewBase.RadiusStyle.MIDDLE
+                RadiusStyle.MIDDLE
         );
         updateLogOption.setFunctionListener(
                 v -> AboutHelper.showUpdateLogDialog(requireContext())
@@ -364,7 +364,7 @@ public class SettingsFragment extends Fragment {
                 R.string.update_check,
                 null,
                 R.drawable.outline_update_24,
-                SettingOptionViewBase.RadiusStyle.BOTTOM
+                RadiusStyle.BOTTOM
         );
         updateCheckOption.setFunctionListener(
                 v -> {

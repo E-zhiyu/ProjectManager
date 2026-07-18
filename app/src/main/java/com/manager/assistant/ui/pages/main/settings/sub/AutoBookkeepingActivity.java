@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.main.setting.sub;
+package com.manager.assistant.ui.pages.main.settings.sub;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +14,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
 import com.manager.assistant.LifecycleManager;
 import com.manager.assistant.automation.broadcast.BroadcastActions;
+import com.manager.assistant.auxiliary.enums.RadiusStyle;
 import com.manager.assistant.data.io.helpers.AnalysisRuleDataHelper;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.databinding.ActivityAutoBookkeepingBinding;
@@ -22,10 +23,9 @@ import com.manager.assistant.generic_enums.options.NotificationClickBehaviour;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.ui.pages.notification_rule.NotificationRuleListActivity;
-import com.manager.assistant.ui.pages.main.setting.components.SettingClickableTextView;
-import com.manager.assistant.ui.pages.main.setting.components.SettingOptionViewBase;
-import com.manager.assistant.ui.pages.main.setting.components.SettingSpinnerView;
-import com.manager.assistant.ui.pages.main.setting.components.SettingSwitchView;
+import com.manager.assistant.ui.pages.main.settings.components.SettingClickableTextView;
+import com.manager.assistant.ui.pages.main.settings.components.SettingSpinnerView;
+import com.manager.assistant.ui.pages.main.settings.components.SettingSwitchView;
 
 import java.util.Arrays;
 import java.util.List;
@@ -70,7 +70,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                 R.string.notification_analysis_mode,
                 "解析通知实现自动记账",
                 R.drawable.outline_notifications_active_24,
-                SettingOptionViewBase.RadiusStyle.TOP
+                RadiusStyle.TOP
         );
         notificationAnalysisSwitchOption.setDividerVisibility(true);
         boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getSwitchStat(this);
@@ -101,7 +101,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                 R.string.notification_rule,
                 "点击进入规则管理界面",
                 R.drawable.baseline_rule_24,
-                SettingOptionViewBase.RadiusStyle.MIDDLE
+                RadiusStyle.MIDDLE
         );
         ruleManageOption.setFunctionListener(
                 v -> {
@@ -117,7 +117,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                 R.string.reset_rule,
                 "将现有规则重置为默认状态",
                 R.drawable.outline_reset_settings_24,
-                SettingOptionViewBase.RadiusStyle.MIDDLE
+                RadiusStyle.MIDDLE
         );
         resetRuleOption.setFunctionListener(
                 v -> new MaterialAlertDialogBuilder(this)
@@ -138,7 +138,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                 R.string.notification_cancel_behaviour,
                 "划走确认通知后执行的操作",
                 R.drawable.outline_comments_disabled_24,
-                SettingOptionViewBase.RadiusStyle.MIDDLE
+                RadiusStyle.MIDDLE
         );
         int cancelBehaviourCode = AutoBookKeepingPreference.getNotificationCancelBehaviour(this);
         notificationCancelBehaviour.setSpinnerText(
@@ -184,7 +184,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                 R.string.notification_click_behaviour,
                 "点击确认通知后执行的操作",
                 R.drawable.outline_ads_click_24,
-                SettingOptionViewBase.RadiusStyle.BOTTOM
+                RadiusStyle.BOTTOM
         );
         int clickBehaviourCode = AutoBookKeepingPreference.getNotificationClickBehaviour(this);
         notificationClickBehaviour.setSpinnerText(

@@ -1,11 +1,10 @@
-package com.manager.assistant.ui.pages.main.setting.sub;
+package com.manager.assistant.ui.pages.main.settings.sub;
 
 import android.Manifest;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
 
@@ -18,17 +17,14 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.LifecycleManager;
+import com.manager.assistant.auxiliary.enums.RadiusStyle;
 import com.manager.assistant.databinding.ActivityPermissionManageBinding;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
-import com.manager.assistant.ui.pages.main.setting.components.SettingClickableTextView;
-import com.manager.assistant.ui.pages.main.setting.components.SettingOptionViewBase;
-
-import io.noties.markwon.Markwon;
+import com.manager.assistant.ui.others.dialogs.MarkdownDialogBuilder;
+import com.manager.assistant.ui.pages.main.settings.components.SettingClickableTextView;
 
 public class PermissionManageActivity extends AppCompatActivity {
     private ActivityPermissionManageBinding binding;                //绑定的XML视图
@@ -38,6 +34,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                     o -> {
                     }
             );
+    private SettingClickableTextView camera, appList, notification, notificationListener, alarm;   //权限申请视图
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +59,21 @@ public class PermissionManageActivity extends AppCompatActivity {
         initViews();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        //刷新权限授予情况指示器
+        refreshPermissionStat();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        binding = null;
+    }
+
     /**
      * 初始化视图
      */
@@ -69,13 +81,13 @@ public class PermissionManageActivity extends AppCompatActivity {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
 
         //相机权限
-        SettingClickableTextView camera = new SettingClickableTextView(
+        camera = new SettingClickableTextView(
                 this,
                 binding.cameraOption,
                 R.string.camera_permission,
                 "允许使用摄像头",
                 R.drawable.baseline_photo_camera_24,
-                SettingOptionViewBase.RadiusStyle.TOP
+                RadiusStyle.TOP
         );
         camera.setFunctionListener(v -> showExplanationDialog(
                 R.string.camera_permission,
@@ -86,13 +98,13 @@ public class PermissionManageActivity extends AppCompatActivity {
 
         //应用列表权限
         if (PermissionHelper.isRuntimePermissionDefined("com.android.permission.GET_INSTALLED_APPS", this)) {
-            SettingClickableTextView appList = new SettingClickableTextView(
+            appList = new SettingClickableTextView(
                     this,
                     binding.appListOption,
                     R.string.app_list_option,
                     "允许获取应用列表",
                     R.drawable.outline_apps_24,
-                    SettingOptionViewBase.RadiusStyle.MIDDLE
+                    RadiusStyle.MIDDLE
             );
             appList.setFunctionListener(v -> showExplanationDialog(
                     R.string.app_list_option,
@@ -105,13 +117,13 @@ public class PermissionManageActivity extends AppCompatActivity {
         }
 
         //通知权限
-        SettingClickableTextView notification = new SettingClickableTextView(
+        notification = new SettingClickableTextView(
                 this,
                 binding.notificationOption,
                 R.string.notification_permission,
                 "允许发送通知",
                 R.drawable.outline_notification_settings_24,
-                SettingOptionViewBase.RadiusStyle.MIDDLE
+                RadiusStyle.MIDDLE
         );
         notification.setFunctionListener(v -> showExplanationDialog(
                         R.string.notification_permission,
@@ -129,13 +141,13 @@ public class PermissionManageActivity extends AppCompatActivity {
         );
 
         //通知监听权限
-        SettingClickableTextView notificationListener = new SettingClickableTextView(
+        notificationListener = new SettingClickableTextView(
                 this,
                 binding.notificationListenerOption,
                 R.string.notification_listener_permission,
                 "允许监听其他应用的通知",
                 R.drawable.outline_notifications_active_24,
-                SettingOptionViewBase.RadiusStyle.MIDDLE
+                RadiusStyle.MIDDLE
         );
         notificationListener.setFunctionListener(v -> showExplanationDialog(
                 R.string.notification_listener_permission,
@@ -155,7 +167,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                     R.string.auto_start_permission,
                     "允许在后台启动服务",
                     R.drawable.outline_autorenew_24,
-                    SettingOptionViewBase.RadiusStyle.MIDDLE
+                    RadiusStyle.MIDDLE
             );
             autoStart.setFunctionListener(v -> showExplanationDialog(
                             R.string.auto_start_permission,
@@ -178,7 +190,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                 R.string.battery_optimization,
                 "设置安卓原生的电池优化策略",
                 R.drawable.outline_battery_android_frame_3_24,
-                SettingOptionViewBase.RadiusStyle.MIDDLE
+                RadiusStyle.MIDDLE
         );
         batteryOptimizations.setFunctionListener(v -> showExplanationDialog(
                 R.string.battery_optimization,
@@ -206,13 +218,13 @@ public class PermissionManageActivity extends AppCompatActivity {
         });
 
         //精确闹钟权限
-        SettingClickableTextView alarm = new SettingClickableTextView(
+        alarm = new SettingClickableTextView(
                 this,
                 binding.alarmOption,
                 R.string.alarm_permission,
                 "允许设置定时任务",
                 R.drawable.outline_alarm_24,
-                SettingOptionViewBase.RadiusStyle.BOTTOM
+                RadiusStyle.BOTTOM
         );
         alarm.setFunctionListener(v -> showExplanationDialog(
                 R.string.alarm_permission,
@@ -233,19 +245,8 @@ public class PermissionManageActivity extends AppCompatActivity {
      * @param action  点击确定按钮后执行的操作
      */
     private void showExplanationDialog(@StringRes int title, String message, Runnable action) {
-        //获取自定义弹窗视图
-        View dialogBody = LayoutInflater.from(this)
-                .inflate(R.layout.view_markdown_text, null);
-        MaterialTextView textView = dialogBody.findViewById(R.id.md_textview_in_dialog);
-
-        //使用Markown渲染Markdown文本
-        Markwon markwon = Markwon.create(this);
-        markwon.setMarkdown(textView, message);
-
-        new MaterialAlertDialogBuilder(this)
-                .setTitle(title)
-                .setView(dialogBody)
-                .setPositiveButton("前往设置", (dialog, which) -> action.run())
+        new MarkdownDialogBuilder(this, getString(title), message)
+                .setPositiveButton("前往设置", (dialogInterface, i) -> action.run())
                 .setNegativeButton("取消", null)
                 .show();
     }
@@ -260,6 +261,60 @@ public class PermissionManageActivity extends AppCompatActivity {
             Toast.makeText(this, "权限已授予", Toast.LENGTH_SHORT).show();
         } else {
             runtimeLauncher.launch(permission);
+        }
+    }
+
+    /**
+     * 刷新权限授予情况指示器
+     */
+    private void refreshPermissionStat() {
+        final String GRANTED = "已授予";
+        final String NOT_GRANTED = "未授予";
+
+        //相机权限
+        boolean isCameraGranted = PermissionHelper.isRuntimePermissionGranted(Manifest.permission.CAMERA, this);
+        if (isCameraGranted) {
+            camera.getFunctionComponent().setText(GRANTED);
+        } else {
+            camera.getFunctionComponent().setText(NOT_GRANTED);
+        }
+
+        //应用列表权限
+        if (appList != null) {
+            boolean isAppListGranted = PermissionHelper.isRuntimePermissionGranted(
+                    "com.android.permission.GET_INSTALLED_APPS",
+                    this
+            );
+            if (isAppListGranted) {
+                appList.getFunctionComponent().setText(GRANTED);
+            } else {
+                appList.getFunctionComponent().setText(NOT_GRANTED);
+            }
+        }
+
+        //通知权限
+        boolean isNotificationGranted = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                PermissionHelper.isRuntimePermissionGranted(Manifest.permission.POST_NOTIFICATIONS, this);
+        if (isNotificationGranted) {
+            notification.getFunctionComponent().setText(GRANTED);
+        } else {
+            notification.getFunctionComponent().setText(NOT_GRANTED);
+        }
+
+        //通知监听
+        boolean isNotificationListenerGranted = PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.isGranted(this);
+        if (isNotificationListenerGranted) {
+            notificationListener.getFunctionComponent().setText(GRANTED);
+        } else {
+            notificationListener.getFunctionComponent().setText(NOT_GRANTED);
+        }
+
+        //精确闹钟权限
+        boolean isAlarmGranted = PermissionHelper.SpecialPermissionType.ALARM.isGranted(this);
+        if (isAlarmGranted) {
+            alarm.getFunctionComponent().setText(GRANTED);
+        } else {
+            alarm.getFunctionComponent().setText(NOT_GRANTED);
         }
     }
 }

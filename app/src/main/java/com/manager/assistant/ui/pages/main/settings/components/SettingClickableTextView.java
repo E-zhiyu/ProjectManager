@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.main.setting.components;
+package com.manager.assistant.ui.pages.main.settings.components;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -10,16 +10,19 @@ import android.view.ViewGroup;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.content.ContextCompat;
 import androidx.core.widget.TextViewCompat;
 
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
+import com.manager.assistant.auxiliary.enums.RadiusStyle;
 import com.manager.assistant.databinding.ViewSettingOptionBinding;
-import com.manager.assistant.helpers.appearence.ColorHelper;
 
-public class SettingSpinnerView extends SettingOptionViewBase<MaterialTextView, View.OnClickListener> {
+
+public class SettingClickableTextView extends SettingOptionViewBase<MaterialTextView, View.OnClickListener> {
     /**
-     * 下拉框设置项构造方法
+     * 点击式设置项构造方法
      *
      * @param context     上下文
      * @param binding     对应于XML文件中的databinding
@@ -28,20 +31,20 @@ public class SettingSpinnerView extends SettingOptionViewBase<MaterialTextView, 
      * @param iconId      左侧图标资源
      * @param radiusStyle 圆角类型
      */
-    public SettingSpinnerView(Context context,
-                              ViewSettingOptionBinding binding,
-                              @StringRes int title,
-                              String description,
-                              @DrawableRes int iconId,
-                              RadiusStyle radiusStyle
+    public SettingClickableTextView(
+            Context context,
+            ViewSettingOptionBinding binding,
+            @StringRes int title,
+            String description,
+            @DrawableRes int iconId,
+            RadiusStyle radiusStyle
     ) {
         super(context, binding, title, description, iconId, radiusStyle);
     }
 
     @Override
     protected void initView(Context context) {
-        Drawable endDrawable = AppCompatResources.getDrawable(context, R.drawable.outline_unfold_more_24);
-
+        Drawable endDrawable = AppCompatResources.getDrawable(context, R.drawable.outline_keyboard_arrow_right_24);
         functionComponent = new MaterialTextView(context);
         functionComponent.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -49,7 +52,12 @@ public class SettingSpinnerView extends SettingOptionViewBase<MaterialTextView, 
         ));
         functionComponent.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, endDrawable, null);
         functionComponent.setGravity(Gravity.CENTER_VERTICAL);
-        TextViewCompat.setCompoundDrawableTintList(functionComponent, ColorStateList.valueOf(ColorHelper.getPrimaryColor(context)));
+        int primaryColor = MaterialColors.getColor(
+                context,
+                androidx.appcompat.R.attr.colorPrimary,
+                ContextCompat.getColor(context, R.color.color_primary)
+        );
+        TextViewCompat.setCompoundDrawableTintList(functionComponent, ColorStateList.valueOf(primaryColor));
         functionComponent.setPadding(10, 10, 25, 10);
         binding.componentLayout.addView(functionComponent);
     }
@@ -57,23 +65,5 @@ public class SettingSpinnerView extends SettingOptionViewBase<MaterialTextView, 
     @Override
     public void setFunctionListener(View.OnClickListener listener) {
         binding.getRoot().setOnClickListener(listener);
-    }
-
-    /**
-     * 设置右侧文本
-     *
-     * @param text 目标文本
-     */
-    public void setSpinnerText(CharSequence text) {
-        functionComponent.setText(text);
-    }
-
-    /**
-     * 设置右侧文本
-     *
-     * @param text 目标文本的ID
-     */
-    public void setSpinnerText(@StringRes int text) {
-        functionComponent.setText(text);
     }
 }

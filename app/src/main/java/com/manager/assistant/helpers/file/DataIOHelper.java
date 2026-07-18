@@ -21,7 +21,7 @@ import com.manager.assistant.helpers.AboutHelper;
 import com.manager.assistant.generic_enums.DirectoryPaths;
 import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.data.save.preference.AutoBackupPreference;
-import com.manager.assistant.ui.pages.main.setting.sub.DataManageActivity;
+import com.manager.assistant.ui.pages.main.settings.sub.DataManageActivity;
 
 import java.io.BufferedWriter;
 import java.io.File;

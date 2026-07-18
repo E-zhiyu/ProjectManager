@@ -12,8 +12,6 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.ComponentActivity;
@@ -25,12 +23,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.textview.MaterialTextView;
 import com.hjq.device.compat.DeviceOs;
 import com.manager.assistant.LifecycleManager;
-import com.manager.assistant.R;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.generic_enums.LogTags;
+import com.manager.assistant.ui.others.dialogs.MarkdownDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,8 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.stream.Collectors;
-
-import io.noties.markwon.Markwon;
 
 /**
  * 在打开Activity时申请权限的工具类
@@ -83,7 +78,7 @@ public class PermissionHelper {
             this.intentBuilder = i;
         }
 
-        boolean isGranted(Context c) {
+        public boolean isGranted(Context c) {
             return checker.check(c);
         }
 
@@ -288,18 +283,9 @@ public class PermissionHelper {
             }
         }
 
-        //显示为Markdown
-        View updateDialogView = LayoutInflater.from(activity)
-                .inflate(R.layout.view_markdown_text, null);
-        MaterialTextView textView = updateDialogView.findViewById(R.id.md_textview_in_dialog);
-        Markwon markwon = Markwon.create(activity);
-        markwon.setMarkdown(textView, messageBuilder.toString());
-
         //显示对话框
-        new MaterialAlertDialogBuilder(activity)
-                .setTitle("需要权限")
-                .setView(updateDialogView)
-                .setPositiveButton("确定", (dialog, which) -> runtimeLauncher.launch(permissions))
+        new MarkdownDialogBuilder(activity, "权限说明", messageBuilder.toString())
+                .setPositiveButton("去设置", (dialogInterface, i) -> runtimeLauncher.launch(permissions))
                 .setNegativeButton("取消", null)
                 .show();
     }

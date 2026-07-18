@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.pages.main.setting.components;
+package com.manager.assistant.ui.pages.main.settings.components;
 
 import android.content.Context;
 import android.view.ContextThemeWrapper;
@@ -9,6 +9,7 @@ import androidx.annotation.StringRes;
 
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.manager.assistant.R;
+import com.manager.assistant.auxiliary.enums.RadiusStyle;
 import com.manager.assistant.databinding.ViewSettingOptionBinding;
 
 public class SettingSwitchView extends SettingOptionViewBase<MaterialSwitch, CompoundButton.OnCheckedChangeListener> {
