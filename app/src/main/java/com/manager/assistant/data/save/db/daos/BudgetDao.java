@@ -83,6 +83,7 @@ public interface BudgetDao {
      * @param budgetId 需要获取数据的预算 ID
      * @return 获取到的预算详情数据
      */
+    @Transaction
     @Query("SELECT * FROM budgets WHERE budgetId = :budgetId")
     Single<Optional<BudgetWithDetailModel>> getBudgetWithDetailById(long budgetId);
 

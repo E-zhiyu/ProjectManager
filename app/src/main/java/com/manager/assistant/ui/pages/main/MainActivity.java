@@ -65,15 +65,10 @@ public class MainActivity extends AppCompatActivity {
         //启动时更新检测
         int startVersionCheckNum = VersionPreference.getStartVersionCheckNum(this);
         final int MODULAR = 2;
-        boolean isMandatoryUpdateFound = VersionPreference.getFindMandatoryUpdate(this);    //是否获取到强制更新
-        if (!isMandatoryUpdateFound) {
-            if (System.currentTimeMillis() % MODULAR == 0) {
-                UpdateHelper.checkUpdate(this, disposable, false, false);
-            }
-            VersionPreference.setStartVersionCheckNum(this, (startVersionCheckNum + 1) % MODULAR);
-        } else {
-            UpdateHelper.showMandatoryUpdateDialog(this);
+        if (System.currentTimeMillis() % MODULAR == 0) {
+            UpdateHelper.checkUpdate(this, disposable, false, false);
         }
+        VersionPreference.setStartVersionCheckNum(this, (startVersionCheckNum + 1) % MODULAR);
     }
 
     @Override

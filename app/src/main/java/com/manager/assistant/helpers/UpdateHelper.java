@@ -10,8 +10,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,10 +20,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.textview.MaterialTextView;
 import com.manager.assistant.R;
 import com.manager.assistant.data.save.preference.VersionPreference;
 import com.manager.assistant.automation.schedulers.BackupScheduler;
+import com.manager.assistant.ui.others.dialogs.MarkdownDialogBuilder;
 
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -45,7 +43,6 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import io.noties.markwon.Markwon;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -235,7 +232,7 @@ public class UpdateHelper {
             }
 
             //显示版本更新对话框
-            showUpdateDialog(context, downloadUrl, updateLog, versionName, latestVersionCode, isMandatory);
+            showUpdateDialog(context, downloadUrl, updateLog, versionName, latestVersionCode);
         } else {
             throw new RuntimeException("当前已是最新版本"); //抛出异常是为了在subscribe语句中处理Toast提示
         }
@@ -274,44 +271,24 @@ public class UpdateHelper {
      * @param updateLog         更新日志
      * @param versionName       版本名称
      * @param latestVersionCode 更新版本的版本代码
-     * @param isMandatory       是否强制更新
      */
     private static void showUpdateDialog(
             Context context,
             String downloadUrl,
             String updateLog,
             String versionName,
-            long latestVersionCode,
-            boolean isMandatory) {
-        View markdownDialog = LayoutInflater.from(context)
-                .inflate(R.layout.view_markdown_text, null);
-        MaterialTextView textView = markdownDialog.findViewById(R.id.md_textview_in_dialog);
-
-        //使用Markown渲染Markdown文本
-        Markwon markwon = Markwon.create(context);
-        markwon.setMarkdown(textView, updateLog);
-
+            long latestVersionCode
+    ) {
         //显示发现新版本对话框
-        MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(context)
-                .setTitle("发现新版本")
-                .setView(markdownDialog)
-                .setPositiveButton(
-                        "更新",
-                        (dialog, which) -> {
-                            try {
-                                downloadLatestFile(context, downloadUrl, versionName);
-                            } catch (IllegalArgumentException e) {
-                                Toast.makeText(context, "下载链接失效，无法下载安装包", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                );
-        if (!isMandatory) {
-            dialogBuilder.setNegativeButton("跳过此版本", (dialog, which) -> skipNextVersion(context, latestVersionCode));
-        } else {
-            dialogBuilder.setNegativeButton("退出", (dialog, which) -> dialog.cancel());
-            dialogBuilder.setCancelable(false);     //强制更新不能取消
-            dialogBuilder.setOnCancelListener(dialog -> System.exit(0));
-        }
+        MarkdownDialogBuilder dialogBuilder = new MarkdownDialogBuilder(context, "发现新版本", updateLog);
+        dialogBuilder.setPositiveButton("更新", (dialog, which) -> {
+            try {
+                downloadLatestFile(context, downloadUrl, versionName);
+            } catch (IllegalArgumentException e) {
+                Toast.makeText(context, "下载链接失效，无法下载安装包", Toast.LENGTH_SHORT).show();
+            }
+        });
+        dialogBuilder.setNegativeButton("跳过此版本", (dialog, which) -> skipNextVersion(context, latestVersionCode));
 
         dialogBuilder.show();
     }
@@ -442,44 +419,5 @@ public class UpdateHelper {
      */
     private static void skipNextVersion(Context context, long versionCode) {
         VersionPreference.setSkipVersionCode(context, versionCode);
-    }
-
-    /**
-     * 使用本地保存的强制更新数据显示强制更新对话框
-     *
-     * @param context 上下文
-     */
-    public static void showMandatoryUpdateDialog(Context context) {
-        String MandatoryVersionName = VersionPreference.getMandatoryVersionName(context);
-        String MandatoryUpdateLog = VersionPreference.getMandatoryUpdateLog(context);
-        String MandatoryDownloadUrl = VersionPreference.getMandatoryDownloadUrl(context);
-
-        View markDownDialog = LayoutInflater.from(context)
-                .inflate(R.layout.view_markdown_text, null);
-        MaterialTextView textView = markDownDialog.findViewById(R.id.md_textview_in_dialog);
-
-        //使用Markown渲染Markdown文本
-        Markwon markwon = Markwon.create(context);
-        markwon.setMarkdown(textView, MandatoryUpdateLog);
-
-        //显示发现新版本对话框
-        MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(context)
-                .setTitle("发现新版本")
-                .setView(markDownDialog)
-                .setCancelable(false)   //强制更新不可取消
-                .setPositiveButton(
-                        "更新",
-                        (dialog, which) -> {
-                            try {
-                                downloadLatestFile(context, MandatoryDownloadUrl, MandatoryVersionName);
-                            } catch (IllegalArgumentException e) {
-                                Toast.makeText(context, "下载链接失效，无法下载安装包", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                );
-        dialogBuilder.setNegativeButton("退出", (dialog, which) -> dialog.cancel());
-        dialogBuilder.setOnCancelListener(dialog -> System.exit(0));
-
-        dialogBuilder.show();
     }
 }
