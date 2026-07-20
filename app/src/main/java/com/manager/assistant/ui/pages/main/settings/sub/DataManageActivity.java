@@ -184,9 +184,27 @@ public class DataManageActivity extends AppCompatActivity {
         String backupDir = AutoBackupPreference.getBackupDirectoryUri(this);
         boolean switchStat = AutoBackupPreference.getSwitchStat(this);
         autoBackupSwitchOption.setChecked(!backupDir.isEmpty() && switchStat);
-        autoBackupSwitchOption.setFunctionListener((buttonView, isChecked) ->
-                onAutoBackupSwitchChanged(autoBackupSwitchOption, isChecked, backupDir)
-        );
+        autoBackupSwitchOption.setFunctionListener((buttonView, isChecked) -> {
+            String oldDir = AutoBackupPreference.getBackupDirectoryUri(this);
+            if (oldDir.isEmpty() && isChecked) {    //备份目录无效则先提示设置
+                buttonView.setChecked(false);
+                new MaterialAlertDialogBuilder(this)
+                        .setTitle("未设置备份目录")
+                        .setMessage("该功能需要先设置备份文件存储目录，请点击“确定”按钮设置存储目录，然后再开启该功能。")
+                        .setNegativeButton("取消", (dialog, which) -> dialog.cancel())
+                        .setPositiveButton("确定", (dialog, which) -> {
+                            String backupDirUri = AutoBackupPreference.getBackupDirectoryUri(this);
+                            SAFHelper.openDocumentTreeViaSAF(backupDirUri, backupDirSelectLauncher);
+                        })
+                        .show();
+            } else if (isChecked) {
+                int frequencyIndex = AutoBackupPreference.getBackupFrequency(this);
+                long intervalMillis = BackupFrequency.values()[frequencyIndex].getIntervalMillis();
+                BackupScheduler.schedulePeriodicBackup(this, intervalMillis);   //开关打开后立刻安排备份任务
+            } else {
+                BackupScheduler.cancelPeriodicBackup(this);
+            }
+        });
 
         //备份频率
         SettingSpinnerView backupFrequencyOption = new SettingSpinnerView(
@@ -466,44 +484,5 @@ public class DataManageActivity extends AppCompatActivity {
                         }
                 )
         );
-    }
-
-    /**
-     * 自动备份开关状态变更回调
-     *
-     * @param switchView 变更状态的开关视图
-     * @param isChecked  开关最后所在的状态
-     * @param backupDir  自动备份的目录
-     */
-    private void onAutoBackupSwitchChanged(
-            SettingSwitchView switchView,
-            boolean isChecked,
-            @NonNull String backupDir
-    ) {
-        //TODO: 重构这里的逻辑
-        if (backupDir.isEmpty() && isChecked) {    //备份目录无效则先提示设置
-            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
-                    .setTitle("功能启用提示")
-                    .setMessage("该功能需要先设置备份文件存储目录，请点击“确定”按钮设置存储目录")
-                    .setNegativeButton("取消", (dialog, which) -> dialog.cancel())
-                    .setPositiveButton("确定", (dialog, which) -> {
-                        String backupDirUri = AutoBackupPreference.getBackupDirectoryUri(this);
-                        SAFHelper.openDocumentTreeViaSAF(backupDirUri, backupDirSelectLauncher);
-                    });
-
-            builder.setOnCancelListener(dialog -> {
-                switchView.setChecked(false);
-                BackupScheduler.cancelPeriodicBackup(this);
-            });
-            builder.show();
-        } else if (isChecked) {
-            int frequencyIndex = AutoBackupPreference.getBackupFrequency(this);
-            long intervalMillis = BackupFrequency.values()[frequencyIndex].getIntervalMillis();
-            BackupScheduler.schedulePeriodicBackup(this, intervalMillis);   //开关打开后立刻安排备份任务
-        } else {
-            BackupScheduler.cancelPeriodicBackup(this);
-        }
-
-        AutoBackupPreference.setSwitchStat(this, isChecked);
     }
 }
