@@ -17,17 +17,17 @@ import java.util.function.Function;
 public enum BackupDataType {
     RUNNING_ACCOUNT(
             "流水记录数据",
-            "RunningAccount.json",
+            "running_account.json",
             RunningAccountBackupHelper::new
     ),
     NOTIFICATION_RULE(
             "通知解析规则数据",
-            "NotificationRule.json",
+            "notification_rule.json",
             NotificationRuleBackupHelper::new
     ),
     BUDGET(
             "预算数据",
-            "Budget.json",
+            "budget.json",
             BudgetBackupHelper::new
     );
     private final String title;
