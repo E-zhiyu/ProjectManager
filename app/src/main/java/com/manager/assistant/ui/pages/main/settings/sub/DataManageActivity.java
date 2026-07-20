@@ -369,7 +369,7 @@ public class DataManageActivity extends AppCompatActivity {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd(HHmmss)");
                     String fileName = String.format(
                             Locale.getDefault(),
-                            "WandererJournalBackup_%s.zip",
+                            "ManagerAssistantBackup_%s.zip",
                             LocalDateTime.now().format(formatter)
                     );
 
