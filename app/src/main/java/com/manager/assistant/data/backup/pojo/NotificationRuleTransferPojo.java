@@ -1,0 +1,46 @@
+package com.manager.assistant.data.backup.pojo;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true) // 忽略JSON中多余字段
+public class NotificationRuleTransferPojo {
+    private long transferId;
+    private long ruleId;
+    private String exportAccount;
+    private String importAccount;
+
+    public NotificationRuleTransferPojo() {
+    }
+
+    public long getTransferId() {
+        return transferId;
+    }
+
+    public void setTransferId(long transferId) {
+        this.transferId = transferId;
+    }
+
+    public long getRuleId() {
+        return ruleId;
+    }
+
+    public void setRuleId(long ruleId) {
+        this.ruleId = ruleId;
+    }
+
+    public String getExportAccount() {
+        return exportAccount;
+    }
+
+    public void setExportAccount(String exportAccount) {
+        this.exportAccount = exportAccount;
+    }
+
+    public String getImportAccount() {
+        return importAccount;
+    }
+
+    public void setImportAccount(String importAccount) {
+        this.importAccount = importAccount;
+    }
+}

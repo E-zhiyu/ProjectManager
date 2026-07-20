@@ -1,11 +1,8 @@
-package com.manager.assistant.data.save.db.entities.composite;
+package com.manager.assistant.data.save.db.entities;
 
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
-
-import com.manager.assistant.data.save.db.entities.NotificationRuleEntity;
-import com.manager.assistant.data.save.db.entities.TagEntity;
 
 @Entity(
         tableName = "notificationRuleTagRef",

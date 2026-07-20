@@ -9,6 +9,7 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import com.manager.assistant.data.backup.DataBackupDao;
 import com.manager.assistant.data.save.db.converters.DateTimeConverter;
 import com.manager.assistant.data.save.db.converters.UriConverter;
 import com.manager.assistant.data.save.db.daos.AccountDao;
@@ -25,7 +26,7 @@ import com.manager.assistant.data.save.db.entities.TagEntity;
 import com.manager.assistant.data.save.db.entities.TagGroupEntity;
 import com.manager.assistant.data.save.db.entities.AccountTransferEntity;
 import com.manager.assistant.data.save.db.entities.NotificationRuleTransferEntity;
-import com.manager.assistant.data.save.db.entities.composite.NotificationRuleTagRefEntity;
+import com.manager.assistant.data.save.db.entities.NotificationRuleTagRefEntity;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
@@ -95,7 +96,10 @@ public abstract class BookkeepingDb extends RoomDatabase {
     public abstract TagDao tagDao();
 
     public abstract RuleDao ruleDao();
+
     public abstract BudgetDao budgetDao();
+
+    public abstract DataBackupDao dataBackupDao();
 
     /**
      * 初始化标签默认分组

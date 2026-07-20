@@ -25,6 +25,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class ManagerAssistant extends Application {
+    private static boolean isLifecycleObserverLocked = false;   //生命周期观察者是否被锁定
     @Override
     public void onCreate() {
         super.onCreate();
@@ -88,5 +89,12 @@ public class ManagerAssistant extends Application {
     private void initThemeMode() {
         int themeMode = AppSettingsPreference.getThemeMode(this);
         ThemeHelper.applyTheme(themeMode);
+    }
+
+    /**
+     * 锁定生命周期观察者
+     */
+    public static void lockLifecycleObserver() {
+        isLifecycleObserverLocked = true;
     }
 }

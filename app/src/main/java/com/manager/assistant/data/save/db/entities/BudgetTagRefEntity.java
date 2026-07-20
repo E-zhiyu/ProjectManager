@@ -7,12 +7,13 @@ import androidx.room.Index;
         tableName = "budgetTagRef",
         primaryKeys = {"budgetId", "tagId"},
         indices = {
-                @Index(value = "budgetId")
+                @Index(value = "budgetId"),
+                @Index(value = "tagId")
         }
 )
 public class BudgetTagRefEntity {
-    long budgetId;
-    long tagId;
+    private long budgetId;
+    private long tagId;
 
     public BudgetTagRefEntity(long budgetId, long tagId) {
         this.budgetId = budgetId;

@@ -5,6 +5,7 @@ import androidx.room.Junction;
 import androidx.room.Relation;
 
 import com.manager.assistant.data.save.db.entities.NotificationRuleEntity;
+import com.manager.assistant.data.save.db.entities.NotificationRuleTagRefEntity;
 import com.manager.assistant.data.save.db.entities.NotificationRuleTransferEntity;
 import com.manager.assistant.data.save.db.entities.TagEntity;
 

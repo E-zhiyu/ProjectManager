@@ -11,7 +11,7 @@ import androidx.room.Update;
 import com.manager.assistant.auxiliary.enums.AccountType;
 import com.manager.assistant.data.save.db.entities.NotificationRuleEntity;
 import com.manager.assistant.data.save.db.entities.NotificationRuleTransferEntity;
-import com.manager.assistant.data.save.db.entities.composite.NotificationRuleTagRefEntity;
+import com.manager.assistant.data.save.db.entities.NotificationRuleTagRefEntity;
 import com.manager.assistant.data.save.db.entities.composite.NotificationRuleWithDetailModel;
 
 import java.util.List;

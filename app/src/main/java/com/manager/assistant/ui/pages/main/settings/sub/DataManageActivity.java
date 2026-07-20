@@ -1,110 +1,66 @@
 package com.manager.assistant.ui.pages.main.settings.sub;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
 import com.manager.assistant.automation.schedulers.BackupScheduler;
+import com.manager.assistant.auxiliary.enums.BackupDataType;
 import com.manager.assistant.auxiliary.enums.RadiusStyle;
-import com.manager.assistant.data.io.helpers.AnalysisRuleDataHelper;
-import com.manager.assistant.data.io.helpers.BudgetDataHelper;
-import com.manager.assistant.data.io.helpers.DataHelperBase;
-import com.manager.assistant.data.io.helpers.RunningAccountDataHelper;
-import com.manager.assistant.data.save.database.BookkeepingDbHelper;
+import com.manager.assistant.data.backup.helpers.BackupHelperBase;
 import com.manager.assistant.data.save.preference.AutoBackupPreference;
-import com.manager.assistant.data.save.preference.BookKeepingStartDatePreference;
 import com.manager.assistant.databinding.ActivityDataManageBinding;
-import com.manager.assistant.generic_enums.LogTags;
 import com.manager.assistant.generic_enums.options.BackupFrequency;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.helpers.file.AutoBackupHelper;
-import com.manager.assistant.helpers.file.DataIOHelper;
+import com.manager.assistant.helpers.file.FileHelper;
+import com.manager.assistant.helpers.file.SAFHelper;
 import com.manager.assistant.helpers.file.UriPathHelper;
+import com.manager.assistant.helpers.file.ZipHelper;
+import com.manager.assistant.ui.others.dialogs.MultiChoiceDialogBuilder;
+import com.manager.assistant.ui.others.dialogs.ProgressDialogBuilder;
 import com.manager.assistant.ui.pages.main.settings.components.SettingClickableTextView;
 import com.manager.assistant.ui.pages.main.settings.components.SettingSpinnerView;
 import com.manager.assistant.ui.pages.main.settings.components.SettingSwitchView;
-import com.manager.assistant.ui.sync.account.AccountUpdateReason;
-import com.manager.assistant.ui.sync.account.RunningAccountRepository;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class DataManageActivity extends AppCompatActivity {
     private ActivityDataManageBinding binding;  //绑定的XML布局
     private final CompositeDisposable disposables = new CompositeDisposable();      //多线程任务列表
     private AutoBackupHelper autoBackupHelper;                                      //自动备份帮助器
-    private DataIOHelper dataIOHelper;                                              //SAF文件帮助器
+    private List<Boolean> exportChoiceStatList = null;                              //导出数据时的选项选择情况
     private ActivityResultLauncher<Intent> importDataLauncher, exportDataLauncher;  //活动启动器
-    private ActivityResultLauncher<Intent> backupDirectorySetLauncher;              //自动备份文件夹选择的启动器
-
-    //导入和导出的数据种类枚举
-    public enum IODataType {
-        ACCOUNT_DATA(
-                "流水记录数据",
-                "RunningAccount.json",
-                RunningAccountDataHelper::new
-        ),
-        RULE_DATA(
-                "通知解析规则数据",
-                "AnalysisRule.json",
-                AnalysisRuleDataHelper::new
-        ),
-        BUDGET_DATA(
-                "预算数据",
-                "Budget.json",
-                BudgetDataHelper::new
-        );
-        private final String name;              //选项名称
-        private final String defaultFileName;   //默认文件名称
-        private final Function<Context, DataHelperBase<BookkeepingDbHelper, ?>> helperFactory;  //数据帮助器的构造方法
-
-        IODataType(
-                String name,
-                String defaultFileName,
-                Function<Context, DataHelperBase<BookkeepingDbHelper, ?>> helperFactory) {
-            this.name = name;
-            this.defaultFileName = defaultFileName;
-            this.helperFactory = helperFactory;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getDefaultFileName() {
-            return defaultFileName;
-        }
-
-        public DataHelperBase<BookkeepingDbHelper, ?> getDataHelper(Context context) {
-            return helperFactory.apply(context);
-        }
-    }
+    private boolean exportIncludeMedia = false;                                     //导出时是否包含媒体文件
+    private ActivityResultLauncher<Intent> backupDirectorySetLauncher;              //自动备份目录选择启动器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +71,7 @@ public class DataManageActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+            v.setPadding(systemBars.left, 0, systemBars.right, 0);
             binding.scrollView.setPadding(
                     0,
                     0,
@@ -125,7 +81,6 @@ public class DataManageActivity extends AppCompatActivity {
             return insets;
         });
 
-        dataIOHelper = new DataIOHelper(this);
         autoBackupHelper = new AutoBackupHelper(this);
         initActivityLaunchers();
 
@@ -136,6 +91,45 @@ public class DataManageActivity extends AppCompatActivity {
      * 初始化活动启动器
      */
     private void initActivityLaunchers() {
+        exportDataLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    int resultCode = result.getResultCode();
+                    Intent data = result.getData();
+                    if (resultCode != Activity.RESULT_OK || data == null || data.getData() == null) {
+                        FileHelper.clearTempDataDir(this);
+                        return;
+                    }
+
+                    exportData(data.getData(), exportChoiceStatList, exportIncludeMedia);
+                }
+        );
+
+        importDataLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    int resultCode = result.getResultCode();
+                    Intent data = result.getData();
+                    if (resultCode != Activity.RESULT_OK || data == null || data.getData() == null) {
+                        FileHelper.clearTempDataDir(this);
+                        return;
+                    }
+
+                    showImportChoiceDialog(data.getData());
+                }
+        );
+
+        backupDirectorySetLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    int resultCode = result.getResultCode();
+                    Intent data = result.getData();
+
+                    //TODO:重构该设置逻辑
+                    autoBackupHelper.handleActivityResult(resultCode, data, binding.backupDirectoryOption.descriptionText);
+                }
+        );
+
 //        exportDataLauncher = registerForActivityResult(
 //                new ActivityResultContracts.StartActivityForResult(),
 //                result -> {
@@ -213,16 +207,6 @@ public class DataManageActivity extends AppCompatActivity {
 //
 //                }
 //        );
-//
-//        backupDirectorySetLauncher = registerForActivityResult(
-//                new ActivityResultContracts.StartActivityForResult(),
-//                result -> {
-//                    int resultCode = result.getResultCode();
-//                    Intent data = result.getData();
-//
-//                    autoBackupHelper.handleActivityResult(resultCode, data, binding.backupDirectoryOption.descriptionText);
-//                }
-//        );
     }
 
     /**
@@ -240,7 +224,7 @@ public class DataManageActivity extends AppCompatActivity {
                 R.drawable.outline_file_export_24,
                 RadiusStyle.TOP
         );
-        exportDataOption.setFunctionListener(v -> exportData());
+        exportDataOption.setFunctionListener(v -> showExportChoiceDialog());
 
         //导入数据
         SettingClickableTextView importDataOption = new SettingClickableTextView(
@@ -249,37 +233,12 @@ public class DataManageActivity extends AppCompatActivity {
                 R.string.import_data,
                 "从外部文件导入数据",
                 R.drawable.outline_download_24,
-                RadiusStyle.MIDDLE
-        );
-        importDataOption.setFunctionListener(v -> importData());
-
-        //清空流水数据
-        SettingClickableTextView clearRunningAccountOption = new SettingClickableTextView(
-                this,
-                binding.clearAccountDataOption,
-                R.string.clear_account_data,
-                "清除流水相关数据",
-                R.drawable.outline_delete_24,
                 RadiusStyle.BOTTOM
         );
-        clearRunningAccountOption.setFunctionListener(
-                v -> new MaterialAlertDialogBuilder(this)
-                        .setTitle("清除数据")
-                        .setMessage("此操作将清除所有流水记录、标签、标签分组和预算数据，确认继续吗？")
-                        .setPositiveButton("确认", (dialog, which) -> {
-                            RunningAccountDataHelper.deleteAllData(this);
-                            BudgetDataHelper.deleteAllData(this);
-                            BookKeepingStartDatePreference.saveStartDate("", this); //清空已保存的开始记账的日期
-
-                            //提醒流水界面刷新数据
-                            RunningAccountRepository accountRepository = RunningAccountRepository.getInstance();
-                            accountRepository.onAccountUpdated(0, "", null, AccountUpdateReason.CLEAR);
-
-                            Toast.makeText(this, "流水数据已清空", Toast.LENGTH_SHORT).show();
-                        })
-                        .setNegativeButton("取消", null)
-                        .show()
-        );
+        importDataOption.setFunctionListener(v -> SAFHelper.openDocumentViaSAF(
+                new String[]{"application/zip"},
+                importDataLauncher
+        ));
 
         //自动备份开关
         SettingSwitchView autoBackupSwitchOption = new SettingSwitchView(
@@ -383,15 +342,248 @@ public class DataManageActivity extends AppCompatActivity {
     }
 
     /**
-     * 导出数据
+     * 显示导出数据时的多选对话框
      */
-    private void exportData() {
-        //获取选项名称和状态
-        String[] itemNames = Arrays.stream(IODataType.values())
-                .map(IODataType::getName)
-                .toArray(String[]::new);
-        boolean[] choiceStats = new boolean[itemNames.length];
-        Arrays.fill(choiceStats, true);
+    private void showExportChoiceDialog() {
+        //实例化选项列表
+        List<MultiChoiceDialogBuilder.ChoiceItem> itemList = Arrays.stream(BackupDataType.values())
+                .map(backupDataType ->
+                        new MultiChoiceDialogBuilder.ChoiceItem(true, backupDataType.getTitle(), true)
+                )
+                .collect(Collectors.toList());
+
+        //显示多选对话框
+        new MultiChoiceDialogBuilder(this, "导出数据", itemList)
+                .setPositiveButton("确定", checkedStatList -> {
+                    //判断是否没有选择任何一个选项
+                    if (checkedStatList.stream().noneMatch(Boolean::booleanValue)) {
+                        Toast.makeText(this, "请选择至少一个选项", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    //保存选择结果引用
+                    exportChoiceStatList = checkedStatList;
+                    exportIncludeMedia = checkedStatList.get(0);
+
+                    //生成默认文件名
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd(HHmmss)");
+                    String fileName = String.format(
+                            Locale.getDefault(),
+                            "WandererJournalBackup_%s.zip",
+                            LocalDateTime.now().format(formatter)
+                    );
+
+                    //打开 SAF 用于创建压缩包文件
+                    SAFHelper.createDocumentViaSAF(
+                            "application/zip",
+                            fileName,
+                            exportDataLauncher
+                    );
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    /**
+     * 导出数据到文件
+     *
+     * @param uri          用户通过 SAF 创建的 zip 文件的 Uri
+     * @param checkedStats 备份数据选项选择情况
+     * @param includeMedia 是否导出媒体文件
+     */
+    private void exportData(Uri uri, List<Boolean> checkedStats, boolean includeMedia) {
+        //显示进度条对话框
+        AlertDialog progressDialog = new ProgressDialogBuilder(this, "导出数据", "正在导出数据……")
+                .setNegativeButton("取消", (dialogInterface, i) -> {
+                    disposables.clear();
+                    Toast.makeText(this, "已取消数据导出", Toast.LENGTH_SHORT).show();
+                })
+                .show();
+
+        //收集用户没有忽略的数据类型，并将这些数据导出为临时文件
+        List<Completable> taskList = new ArrayList<>();
+        for (BackupDataType type : BackupDataType.values()) {
+            if (checkedStats.get(type.ordinal())) {
+                BackupHelperBase<?, ?> backupHelper = type.createBackupHelper(this);
+                taskList.add(backupHelper.exportDataToTempFile(this));
+            }
+        }
+
+        //并行执行数据导出逻辑
+        disposables.add(Completable.merge(taskList)
+                .andThen(ZipHelper.createBackupFile(uri, this, includeMedia))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(() -> {
+                    Toast.makeText(this, "数据导出完毕", Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
+                    FileHelper.clearTempDataDir(this);
+                }, e -> {
+                    ExceptionHelper.showExceptionDialog(this, e);
+                    progressDialog.dismiss();
+                    FileHelper.clearTempDataDir(this);
+                })
+        );
+    }
+
+    /**
+     * 扫描备份文件并显示多选对话框
+     *
+     * @param uri SAF 返回的 Uri 实例
+     */
+    private void showImportChoiceDialog(Uri uri) {
+        //显示扫描文件的进度条对话框
+        AlertDialog progressDialog = new ProgressDialogBuilder(this, "扫描文件", "正在扫描文件……")
+                .setNegativeButton("取消", (dialogInterface, i) -> {
+                    disposables.clear();
+                    Toast.makeText(this, "已取消数据导入", Toast.LENGTH_SHORT).show();
+                })
+                .show();
+
+        //扫描压缩包并显示多选对话框
+        disposables.add(ZipHelper.scanBackupFile(uri, this)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(fileNameList -> {
+                    progressDialog.dismiss();
+
+                    //实例化选项列表
+                    List<MultiChoiceDialogBuilder.ChoiceItem> itemList = Arrays.stream(BackupDataType.values())
+                            .map(backupDataType -> {
+                                if (fileNameList.contains(backupDataType.getFileName())) {
+                                    return new MultiChoiceDialogBuilder.ChoiceItem(
+                                            true,
+                                            backupDataType.getTitle(),
+                                            true
+                                    );
+                                } else {
+                                    return new MultiChoiceDialogBuilder.ChoiceItem(
+                                            false,
+                                            backupDataType.getTitle(),
+                                            false
+                                    );
+                                }
+                            })
+                            .collect(Collectors.toList());
+
+                    //显示多选对话框
+                    new MultiChoiceDialogBuilder(this, "导入数据", itemList)
+                            .setPositiveButton("确认", checkedStatList -> importData(uri, checkedStatList))
+                            .setNegativeButton("取消", null)
+                            .show();
+                }, e -> {
+                    progressDialog.dismiss();
+                    ExceptionHelper.showExceptionDialog(this, e);
+                })
+        );
+    }
+
+    /**
+     * 将用户选择的数据导入到数据库中
+     *
+     * @param uri             备份文件的 Uri
+     * @param checkedStatList 用户选择的选项状态，选项的下标与{@link BackupDataType}的枚举序数一一对应
+     */
+    private void importData(Uri uri, @NonNull List<Boolean> checkedStatList) {
+        //判断是否选择了数据
+        if (checkedStatList.stream().noneMatch(Boolean::booleanValue)) {
+            Toast.makeText(this, "请选择至少一个选项", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        //显示扫描文件的进度条对话框
+        AlertDialog progressDialog = new ProgressDialogBuilder(this, "导入数据", "正在导入数据……")
+                .setNegativeButton("取消", (dialogInterface, i) -> {
+                    disposables.clear();
+                    Toast.makeText(this, "已取消数据导入", Toast.LENGTH_SHORT).show();
+                })
+                .show();
+
+        //获取需要解压的文件名列表
+        List<String> allowedFileNameList = Arrays.stream(BackupDataType.values())
+                .filter(backupDataType -> checkedStatList.get(backupDataType.ordinal()))
+                .map(BackupDataType::getFileName)
+                .collect(Collectors.toList());
+        boolean includeMedia = checkedStatList.get(0);
+
+        //解压文件并导入数据
+        disposables.add(ZipHelper.unpackBackupFileWithFilter(this, uri, allowedFileNameList, includeMedia)
+                .flatMapObservable(Observable::fromIterable)
+                .flatMapCompletable(file -> {
+                    //根据文件名判断数据类型
+                    BackupDataType type = BackupDataType.fromFileName(file.getName());
+
+                    //使用对应的备份Helper导入数据
+                    if (type != null) {
+                        BackupHelperBase<?, ?> helper = type.createBackupHelper(this);
+                        return helper.importDataFromTempFile(file);
+                    } else {
+                        return Completable.complete();
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(() -> {
+                            Toast.makeText(this, "数据导入成功", Toast.LENGTH_SHORT).show();
+                            FileHelper.clearTempDataDir(this);
+                            progressDialog.dismiss();
+                        },
+                        e -> {
+                            ExceptionHelper.showExceptionDialog(this, e);
+                            progressDialog.dismiss();
+                        }
+                )
+        );
+    }
+
+    /**
+     * 自动备份开关状态变更回调
+     *
+     * @param switchView 变更状态的开关视图
+     * @param isChecked  开关最后所在的状态
+     * @param backupDir  自动备份的目录
+     */
+    private void onAutoBackupSwitchChanged(
+            SettingSwitchView switchView,
+            boolean isChecked,
+            @NonNull String backupDir
+    ) {
+        if (backupDir.isEmpty() && isChecked) {    //备份目录无效则先提示设置
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                    .setTitle("功能启用提示")
+                    .setMessage("该功能需要先设置备份文件存储目录，请点击“确定”按钮设置存储目录")
+                    .setNegativeButton("取消", (dialog, which) -> dialog.cancel())
+                    .setPositiveButton("确定",
+                            (dialog, which) -> autoBackupHelper
+                                    .selectBackupDirectory(backupDirectorySetLauncher)
+                    );
+
+            builder.setOnCancelListener(dialog -> {
+                switchView.setChecked(false);
+                BackupScheduler.cancelPeriodicBackup(this);
+            });
+            builder.show();
+        } else if (isChecked) {
+            int frequencyIndex = AutoBackupPreference.getBackupFrequency(this);
+            long intervalMillis = BackupFrequency.values()[frequencyIndex].getIntervalMillis();
+            BackupScheduler.schedulePeriodicBackup(this, intervalMillis);   //开关打开后立刻安排备份任务
+        } else {
+            BackupScheduler.cancelPeriodicBackup(this);
+        }
+
+        AutoBackupPreference.setSwitchStat(this, isChecked);
+    }
+
+//    /**
+//     * 导出数据
+//     */
+//    private void exportData() {
+//        //获取选项名称和状态
+//        String[] itemNames = Arrays.stream(IODataType.values())
+//                .map(IODataType::getName)
+//                .toArray(String[]::new);
+//        boolean[] choiceStats = new boolean[itemNames.length];
+//        Arrays.fill(choiceStats, true);
 
 //        //显示多选对话框
 //        MultiChoiceDialog multiChoiceDialog = new MultiChoiceDialog(
@@ -422,163 +614,163 @@ public class DataManageActivity extends AppCompatActivity {
 //
 //        //显示对话框
 //        multiChoiceDialog.show();
-    }
+//    }
 
-    /**
-     * 导出数据对话框确认回调
-     *
-     * @param choseItem 各数据被选择的情况
-     */
-    private void onExportDialogConfirmed(@NonNull boolean[] choseItem) {
-        Log.i(LogTags.SETTING_FRAGMENT.n(), "开始导出数据");
-        List<String> fileNameList = new ArrayList<>();      //用于导出数据的临时文件名列表
-        List<String> fileContentList = new ArrayList<>();   //用于导出数据的临时文件内容列表
-
-        //根据选择的内容创建临时文件
-        for (IODataType dataType : IODataType.values()) {
-            if (!choseItem[dataType.ordinal()]) continue;
-
-            DataHelperBase<BookkeepingDbHelper, ?> dataHelper = dataType.getDataHelper(this);
-            try {
-                String fileName = dataType.getDefaultFileName();
-                String fileContent = dataHelper.getDataInJSON();
-
-                fileNameList.add(fileName);
-                fileContentList.add(fileContent);
-            } catch (JsonProcessingException e) {
-                ExceptionHelper.showExceptionDialog(this, e);
-                Toast.makeText(this, "JSON序列化时出错", Toast.LENGTH_SHORT).show();
-                return;
-            }
-        }
-
-        //将文件打包至压缩包内
-        boolean isAccountDataChosen = choseItem[IODataType.ACCOUNT_DATA.ordinal()];
-        dataIOHelper.packDataInZip(
-                exportDataLauncher,
-                fileNameList,
-                fileContentList,
-                isAccountDataChosen
-        );
-    }
-
-    /**
-     * 从文件导入数据
-     */
-    private void importData() {
-        Log.i(LogTags.SETTING_FRAGMENT.n(), "开始导入数据……");
-        dataIOHelper.openFileViaSAF(
-                new DataIOHelper.ImportCallback() {
-                    @Override
-                    public void onZipScanned(List<String> entryNameList) {
-                        String[] dataTypeNames = Arrays.stream(IODataType.values())
-                                .map(IODataType::getName)
-                                .toArray(String[]::new);
-                        boolean[] choiceStats = new boolean[dataTypeNames.length];     //选项的选择状态
-                        boolean[] isItemFound = new boolean[dataTypeNames.length];   //是否找到对应名称的文件
-                        Arrays.fill(choiceStats, true);
-                        Arrays.fill(isItemFound, true);
-
-                        //根据扫描结果禁用缺失的选项
-                        boolean isAllDisabled = true;   //标记是否所有选项都被禁用
-                        for (IODataType IODataType : IODataType.values()) {
-                            boolean isFound = false;
-                            for (String entryName : entryNameList) {
-                                if (entryName.equals(IODataType.getDefaultFileName())) {
-                                    isFound = true;
-                                    isAllDisabled = false;
-                                    break;
-                                }
-                            }
-
-                            //标记该项为未包含
-                            if (!isFound) {
-                                int index = IODataType.ordinal();
-                                choiceStats[index] = false;
-                                isItemFound[index] = false;
-                            }
-                        }
-
-                        //判断是否所有选项都被禁用
-                        if (isAllDisabled) {
-                            Toast.makeText(DataManageActivity.this, "请选择正确的备份文件", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        //显示导入数据选择对话框
-                        showImportItemChoiceDialog(choiceStats, isItemFound, dataTypeNames);
-                    }
-
-                    @Override
-                    public void onOneJsonFileRead(File jsonFile) {
-                        //读取选择的单个JSON文件
-                        StringBuilder content_builder = new StringBuilder();
-                        try (BufferedReader reader = new BufferedReader(new FileReader(jsonFile))) {
-                            String line;
-                            while ((line = reader.readLine()) != null) {
-                                content_builder.append(line).append("\n");
-                            }
-                        } catch (IOException e) {
-                            ExceptionHelper.showExceptionDialog(DataManageActivity.this, e);
-                            Toast.makeText(DataManageActivity.this, "临时文件读取失败，请重试", Toast.LENGTH_SHORT).show();
-                            Log.e(LogTags.SETTING_FRAGMENT.n(), "临时文件读取失败");
-                        }
-
-                        //根据文件内容判断数据类型
-                        String contentStr = content_builder.toString();
-                        if (contentStr.startsWith("{\"basic_data\"")) {
-                            Log.i(LogTags.SETTING_FRAGMENT.n(), "数据类型：流水记录数据");
-                            RunningAccountDataHelper dataHelper = new RunningAccountDataHelper(DataManageActivity.this);
-                            if (dataHelper.saveJsonDataToDb(contentStr)) {
-                                //清空已保存的开始记账的日期
-                                BookKeepingStartDatePreference.saveStartDate("", DataManageActivity.this);
-
-                                Toast.makeText(DataManageActivity.this, "流水记录数据导入成功", Toast.LENGTH_SHORT).show();
-                                Log.i(LogTags.SETTING_FRAGMENT.n(), "数据导入成功");
-                            } else {
-                                Toast.makeText(DataManageActivity.this, "无法解析文件内容", Toast.LENGTH_SHORT).show();
-                            }
-                        } else if (contentStr.startsWith("{\"rule_data\"")) {
-                            Log.i(LogTags.SETTING_FRAGMENT.n(), "数据类型：通知解析规则数据");
-                            AnalysisRuleDataHelper dataHelper = new AnalysisRuleDataHelper(DataManageActivity.this);
-                            if (dataHelper.saveJsonDataToDb(contentStr)) {
-                                //清空已保存的开始记账的日期
-                                BookKeepingStartDatePreference.saveStartDate("", DataManageActivity.this);
-
-                                Toast.makeText(DataManageActivity.this, "通知解析规则数据导入成功", Toast.LENGTH_SHORT).show();
-                                Log.i(LogTags.SETTING_FRAGMENT.n(), "数据导入成功");
-                            } else {
-                                Toast.makeText(DataManageActivity.this, "无法解析文件内容", Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            Log.e(LogTags.SETTING_FRAGMENT.n(), "数据类型：未知");
-                            Toast.makeText(DataManageActivity.this, "无法解析文件内容", Toast.LENGTH_SHORT).show();
-                        }
-
-                        //清除临时文件
-                        dataIOHelper.clearTempFile();
-                    }
-
-                    @Override
-                    public void onError(String errMessage) {
-                        Toast.makeText(DataManageActivity.this, "导入失败：" + errMessage, Toast.LENGTH_SHORT).show();
-                    }
-                },
-                importDataLauncher
-        );
-    }
-
-    /**
-     * 显示导入数据选择对话框
-     *
-     * @param choiceStats   可选项的初始状态
-     * @param isItemEnabled 可选项是否启用
-     * @param choiceItems   选项名称数组
-     */
-    private void showImportItemChoiceDialog(
-            boolean[] choiceStats,
-            boolean[] isItemEnabled,
-            String[] choiceItems) {
+//    /**
+//     * 导出数据对话框确认回调
+//     *
+//     * @param choseItem 各数据被选择的情况
+//     */
+//    private void onExportDialogConfirmed(@NonNull boolean[] choseItem) {
+//        Log.i(LogTags.SETTING_FRAGMENT.n(), "开始导出数据");
+//        List<String> fileNameList = new ArrayList<>();      //用于导出数据的临时文件名列表
+//        List<String> fileContentList = new ArrayList<>();   //用于导出数据的临时文件内容列表
+//
+//        //根据选择的内容创建临时文件
+//        for (IODataType dataType : IODataType.values()) {
+//            if (!choseItem[dataType.ordinal()]) continue;
+//
+//            DataHelperBase<BookkeepingDbHelper, ?> dataHelper = dataType.getDataHelper(this);
+//            try {
+//                String fileName = dataType.getDefaultFileName();
+//                String fileContent = dataHelper.getDataInJSON();
+//
+//                fileNameList.add(fileName);
+//                fileContentList.add(fileContent);
+//            } catch (JsonProcessingException e) {
+//                ExceptionHelper.showExceptionDialog(this, e);
+//                Toast.makeText(this, "JSON序列化时出错", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
+//        }
+//
+//        //将文件打包至压缩包内
+//        boolean isAccountDataChosen = choseItem[IODataType.ACCOUNT_DATA.ordinal()];
+//        dataIOHelper.packDataInZip(
+//                exportDataLauncher,
+//                fileNameList,
+//                fileContentList,
+//                isAccountDataChosen
+//        );
+//    }
+//
+//    /**
+//     * 从文件导入数据
+//     */
+//    private void importData() {
+//        Log.i(LogTags.SETTING_FRAGMENT.n(), "开始导入数据……");
+//        dataIOHelper.openFileViaSAF(
+//                new DataIOHelper.ImportCallback() {
+//                    @Override
+//                    public void onZipScanned(List<String> entryNameList) {
+//                        String[] dataTypeNames = Arrays.stream(IODataType.values())
+//                                .map(IODataType::getName)
+//                                .toArray(String[]::new);
+//                        boolean[] choiceStats = new boolean[dataTypeNames.length];     //选项的选择状态
+//                        boolean[] isItemFound = new boolean[dataTypeNames.length];   //是否找到对应名称的文件
+//                        Arrays.fill(choiceStats, true);
+//                        Arrays.fill(isItemFound, true);
+//
+//                        //根据扫描结果禁用缺失的选项
+//                        boolean isAllDisabled = true;   //标记是否所有选项都被禁用
+//                        for (IODataType IODataType : IODataType.values()) {
+//                            boolean isFound = false;
+//                            for (String entryName : entryNameList) {
+//                                if (entryName.equals(IODataType.getDefaultFileName())) {
+//                                    isFound = true;
+//                                    isAllDisabled = false;
+//                                    break;
+//                                }
+//                            }
+//
+//                            //标记该项为未包含
+//                            if (!isFound) {
+//                                int index = IODataType.ordinal();
+//                                choiceStats[index] = false;
+//                                isItemFound[index] = false;
+//                            }
+//                        }
+//
+//                        //判断是否所有选项都被禁用
+//                        if (isAllDisabled) {
+//                            Toast.makeText(DataManageActivity.this, "请选择正确的备份文件", Toast.LENGTH_SHORT).show();
+//                            return;
+//                        }
+//
+//                        //显示导入数据选择对话框
+//                        showImportItemChoiceDialog(choiceStats, isItemFound, dataTypeNames);
+//                    }
+//
+//                    @Override
+//                    public void onOneJsonFileRead(File jsonFile) {
+//                        //读取选择的单个JSON文件
+//                        StringBuilder content_builder = new StringBuilder();
+//                        try (BufferedReader reader = new BufferedReader(new FileReader(jsonFile))) {
+//                            String line;
+//                            while ((line = reader.readLine()) != null) {
+//                                content_builder.append(line).append("\n");
+//                            }
+//                        } catch (IOException e) {
+//                            ExceptionHelper.showExceptionDialog(DataManageActivity.this, e);
+//                            Toast.makeText(DataManageActivity.this, "临时文件读取失败，请重试", Toast.LENGTH_SHORT).show();
+//                            Log.e(LogTags.SETTING_FRAGMENT.n(), "临时文件读取失败");
+//                        }
+//
+//                        //根据文件内容判断数据类型
+//                        String contentStr = content_builder.toString();
+//                        if (contentStr.startsWith("{\"basic_data\"")) {
+//                            Log.i(LogTags.SETTING_FRAGMENT.n(), "数据类型：流水记录数据");
+//                            RunningAccountDataHelper dataHelper = new RunningAccountDataHelper(DataManageActivity.this);
+//                            if (dataHelper.saveJsonDataToDb(contentStr)) {
+//                                //清空已保存的开始记账的日期
+//                                BookKeepingStartDatePreference.saveStartDate("", DataManageActivity.this);
+//
+//                                Toast.makeText(DataManageActivity.this, "流水记录数据导入成功", Toast.LENGTH_SHORT).show();
+//                                Log.i(LogTags.SETTING_FRAGMENT.n(), "数据导入成功");
+//                            } else {
+//                                Toast.makeText(DataManageActivity.this, "无法解析文件内容", Toast.LENGTH_SHORT).show();
+//                            }
+//                        } else if (contentStr.startsWith("{\"rule_data\"")) {
+//                            Log.i(LogTags.SETTING_FRAGMENT.n(), "数据类型：通知解析规则数据");
+//                            AnalysisRuleDataHelper dataHelper = new AnalysisRuleDataHelper(DataManageActivity.this);
+//                            if (dataHelper.saveJsonDataToDb(contentStr)) {
+//                                //清空已保存的开始记账的日期
+//                                BookKeepingStartDatePreference.saveStartDate("", DataManageActivity.this);
+//
+//                                Toast.makeText(DataManageActivity.this, "通知解析规则数据导入成功", Toast.LENGTH_SHORT).show();
+//                                Log.i(LogTags.SETTING_FRAGMENT.n(), "数据导入成功");
+//                            } else {
+//                                Toast.makeText(DataManageActivity.this, "无法解析文件内容", Toast.LENGTH_SHORT).show();
+//                            }
+//                        } else {
+//                            Log.e(LogTags.SETTING_FRAGMENT.n(), "数据类型：未知");
+//                            Toast.makeText(DataManageActivity.this, "无法解析文件内容", Toast.LENGTH_SHORT).show();
+//                        }
+//
+//                        //清除临时文件
+//                        dataIOHelper.clearTempFile();
+//                    }
+//
+//                    @Override
+//                    public void onError(String errMessage) {
+//                        Toast.makeText(DataManageActivity.this, "导入失败：" + errMessage, Toast.LENGTH_SHORT).show();
+//                    }
+//                },
+//                importDataLauncher
+//        );
+//    }
+//
+//    /**
+//     * 显示导入数据选择对话框
+//     *
+//     * @param choiceStats   可选项的初始状态
+//     * @param isItemEnabled 可选项是否启用
+//     * @param choiceItems   选项名称数组
+//     */
+//    private void showImportItemChoiceDialog(
+//            boolean[] choiceStats,
+//            boolean[] isItemEnabled,
+//            String[] choiceItems) {
 //        MultiChoiceDialog multiChoiceDialog = new MultiChoiceDialog(
 //                this,
 //                "导入数据",
@@ -661,113 +853,76 @@ public class DataManageActivity extends AppCompatActivity {
 //
 //        //设置对话框隐藏监听
 //        multiChoiceDialog.show();
-    }
+//    }
 
-    /**
-     * 将选中的备份文件中的数据写入数据库
-     *
-     * @param itemChooseStats 多选对话框的选择状况
-     * @return 数据是否成功写入
-     */
-    private boolean writeDataIntoDb(@NonNull boolean[] itemChooseStats) throws NumberFormatException, IOException {
-        boolean isImportSuccessfully = false;
-        boolean isAccountDataChecked = itemChooseStats[IODataType.ACCOUNT_DATA.ordinal()];   //流水记录文件是否勾选
-        boolean isRuleDataChecked = itemChooseStats[IODataType.RULE_DATA.ordinal()];         //通知解析规则文件是否勾选
-
-        //获取解压得到的临时JSON文件
-        List<File> tempJsonFileList = dataIOHelper.copyZipToTempAndUnpack();
-        if (tempJsonFileList == null) {
-            Log.e(LogTags.SETTING_FRAGMENT.n(), "无法获取解压得到的临时JSON文件");
-            throw new NullPointerException("无法获取解压得到的临时JSON文件");
-        }
-
-        //如果选择了流水记录数据，则将图片解压至图片目录中
-        if (isAccountDataChecked) {
-            dataIOHelper.unpackPictureZip();
-        }
-
-        //将JSON数据写入数据库
-        for (IODataType dataType : IODataType.values()) {
-            if (!itemChooseStats[dataType.ordinal()]) continue;
-
-            String targetFileName = dataType.getDefaultFileName();
-
-            //获取数据帮助器
-            DataHelperBase<BookkeepingDbHelper, ?> dataHelper;
-            if (dataType == IODataType.RULE_DATA && isRuleDataChecked && isAccountDataChecked) {
-                //当流水数据和规则数据都选中时，获取能够写入标签数据的数据帮助器
-                dataHelper = new AnalysisRuleDataHelper(this, true);
-            } else {
-                dataHelper = dataType.getDataHelper(this);
-            }
-
-            for (File file : tempJsonFileList) {
-                if (targetFileName.equals(file.getName())) {
-                    //将数据保存至数据库
-                    Log.i(LogTags.SETTING_FRAGMENT.n(), String.format(Locale.getDefault(), "正在尝试读取临时文件%s", targetFileName));
-                    StringBuilder content = new StringBuilder();
-                    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-                            content.append(line).append("\n");
-                        }
-                        isImportSuccessfully = dataHelper.saveJsonDataToDb(content.toString()) || isImportSuccessfully;
-                    }
-                }
-            }
-        }
-
-        //刷新流水视图
-        RunningAccountRepository accountRepository = RunningAccountRepository.getInstance();
-        accountRepository.onAccountUpdated(0, "", null, AccountUpdateReason.REFRESH);
-
-        if (isImportSuccessfully) {
-            //清空已保存的开始记账的日期
-            BookKeepingStartDatePreference.saveStartDate("", this);
-
-            Log.i(LogTags.SETTING_FRAGMENT.n(), "数据已成功导入");
-            return true;
-        } else {
-            Log.w(LogTags.SETTING_FRAGMENT.n(), "无法解析文件内容");
-            throw new RuntimeException("无法解析文件内容");
-        }
-    }
-
-    /**
-     * 自动备份开关状态变更回调
-     *
-     * @param switchView 变更状态的开关视图
-     * @param isChecked  开关最后所在的状态
-     * @param backupDir  自动备份的目录
-     */
-    private void onAutoBackupSwitchChanged(
-            SettingSwitchView switchView,
-            boolean isChecked,
-            @NonNull String backupDir
-    ) {
-        if (backupDir.isEmpty() && isChecked) {    //备份目录无效则先提示设置
-            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
-                    .setTitle("功能启用提示")
-                    .setMessage("该功能需要先设置备份文件存储目录，请点击“确定”按钮设置存储目录")
-                    .setNegativeButton("取消", (dialog, which) -> dialog.cancel())
-                    .setPositiveButton("确定",
-                            (dialog, which) -> autoBackupHelper
-                                    .selectBackupDirectory(backupDirectorySetLauncher)
-                    );
-
-            builder.setOnCancelListener(dialog -> {
-                switchView.setChecked(false);
-                BackupScheduler.cancelPeriodicBackup(this);
-            });
-            builder.show();
-        } else if (isChecked) {
-            int frequencyIndex = AutoBackupPreference.getBackupFrequency(this);
-            long intervalMillis = BackupFrequency.values()[frequencyIndex].getIntervalMillis();
-            BackupScheduler.schedulePeriodicBackup(this, intervalMillis);   //开关打开后立刻安排备份任务
-        } else {
-            BackupScheduler.cancelPeriodicBackup(this);
-        }
-
-        AutoBackupPreference.setSwitchStat(this, isChecked);
-    }
+//    /**
+//     * 将选中的备份文件中的数据写入数据库
+//     *
+//     * @param itemChooseStats 多选对话框的选择状况
+//     * @return 数据是否成功写入
+//     */
+//    private boolean writeDataIntoDb(@NonNull boolean[] itemChooseStats) throws NumberFormatException, IOException {
+//        boolean isImportSuccessfully = false;
+//        boolean isAccountDataChecked = itemChooseStats[IODataType.ACCOUNT_DATA.ordinal()];   //流水记录文件是否勾选
+//        boolean isRuleDataChecked = itemChooseStats[IODataType.RULE_DATA.ordinal()];         //通知解析规则文件是否勾选
+//
+//        //获取解压得到的临时JSON文件
+//        List<File> tempJsonFileList = dataIOHelper.copyZipToTempAndUnpack();
+//        if (tempJsonFileList == null) {
+//            Log.e(LogTags.SETTING_FRAGMENT.n(), "无法获取解压得到的临时JSON文件");
+//            throw new NullPointerException("无法获取解压得到的临时JSON文件");
+//        }
+//
+//        //如果选择了流水记录数据，则将图片解压至图片目录中
+//        if (isAccountDataChecked) {
+//            dataIOHelper.unpackPictureZip();
+//        }
+//
+//        //将JSON数据写入数据库
+//        for (IODataType dataType : IODataType.values()) {
+//            if (!itemChooseStats[dataType.ordinal()]) continue;
+//
+//            String targetFileName = dataType.getDefaultFileName();
+//
+//            //获取数据帮助器
+//            DataHelperBase<BookkeepingDbHelper, ?> dataHelper;
+//            if (dataType == IODataType.RULE_DATA && isRuleDataChecked && isAccountDataChecked) {
+//                //当流水数据和规则数据都选中时，获取能够写入标签数据的数据帮助器
+//                dataHelper = new AnalysisRuleDataHelper(this, true);
+//            } else {
+//                dataHelper = dataType.getDataHelper(this);
+//            }
+//
+//            for (File file : tempJsonFileList) {
+//                if (targetFileName.equals(file.getName())) {
+//                    //将数据保存至数据库
+//                    Log.i(LogTags.SETTING_FRAGMENT.n(), String.format(Locale.getDefault(), "正在尝试读取临时文件%s", targetFileName));
+//                    StringBuilder content = new StringBuilder();
+//                    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+//                        String line;
+//                        while ((line = reader.readLine()) != null) {
+//                            content.append(line).append("\n");
+//                        }
+//                        isImportSuccessfully = dataHelper.saveJsonDataToDb(content.toString()) || isImportSuccessfully;
+//                    }
+//                }
+//            }
+//        }
+//
+//        //刷新流水视图
+//        RunningAccountRepository accountRepository = RunningAccountRepository.getInstance();
+//        accountRepository.onAccountUpdated(0, "", null, AccountUpdateReason.REFRESH);
+//
+//        if (isImportSuccessfully) {
+//            //清空已保存的开始记账的日期
+//            BookKeepingStartDatePreference.saveStartDate("", this);
+//
+//            Log.i(LogTags.SETTING_FRAGMENT.n(), "数据已成功导入");
+//            return true;
+//        } else {
+//            Log.w(LogTags.SETTING_FRAGMENT.n(), "无法解析文件内容");
+//            throw new RuntimeException("无法解析文件内容");
+//        }
+//    }
+//
 }

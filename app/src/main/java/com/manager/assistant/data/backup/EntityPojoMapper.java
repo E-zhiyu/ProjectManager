@@ -1,0 +1,166 @@
+package com.manager.assistant.data.backup;
+
+import android.net.Uri;
+
+import com.manager.assistant.data.backup.pojo.AccountPojo;
+import com.manager.assistant.data.backup.pojo.AccountTagRefPojo;
+import com.manager.assistant.data.backup.pojo.AccountTransferPojo;
+import com.manager.assistant.data.backup.pojo.BudgetPojo;
+import com.manager.assistant.data.backup.pojo.BudgetTagRefPojo;
+import com.manager.assistant.data.backup.pojo.MediaPojo;
+import com.manager.assistant.data.backup.pojo.NotificationRulePojo;
+import com.manager.assistant.data.backup.pojo.NotificationRuleTagRefPojo;
+import com.manager.assistant.data.backup.pojo.NotificationRuleTransferPojo;
+import com.manager.assistant.data.backup.pojo.TagGroupPojo;
+import com.manager.assistant.data.backup.pojo.TagPojo;
+import com.manager.assistant.data.save.db.converters.DateTimeConverter;
+import com.manager.assistant.data.save.db.converters.UriConverter;
+import com.manager.assistant.data.save.db.entities.AccountEntity;
+import com.manager.assistant.data.save.db.entities.AccountTagRefEntity;
+import com.manager.assistant.data.save.db.entities.AccountTransferEntity;
+import com.manager.assistant.data.save.db.entities.BudgetEntity;
+import com.manager.assistant.data.save.db.entities.BudgetTagRefEntity;
+import com.manager.assistant.data.save.db.entities.MediaEntity;
+import com.manager.assistant.data.save.db.entities.NotificationRuleEntity;
+import com.manager.assistant.data.save.db.entities.NotificationRuleTagRefEntity;
+import com.manager.assistant.data.save.db.entities.NotificationRuleTransferEntity;
+import com.manager.assistant.data.save.db.entities.TagEntity;
+import com.manager.assistant.data.save.db.entities.TagGroupEntity;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+import org.mapstruct.factory.Mappers;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Mapper
+public interface EntityPojoMapper {
+    EntityPojoMapper INSTANCE = Mappers.getMapper(EntityPojoMapper.class);
+
+    @Named("longToTime")
+    default LocalDateTime longToTime(long timeMillis) {
+        return DateTimeConverter.toLocalDateTime(timeMillis);
+    }
+
+    @Named("timeToLong")
+    default long timeToLong(LocalDateTime time) {
+        return DateTimeConverter.fromLocalDateTime(time);
+    }
+
+    @Named("longToDate")
+    default LocalDate longToDate(long timeMillis) {
+        return DateTimeConverter.toLocalDate(timeMillis);
+    }
+
+    @Named("dateToLong")
+    default long dateToLong(LocalDate date) {
+        return DateTimeConverter.fromLocalDate(date);
+    }
+
+    @Named("strToUri")
+    default Uri strToUri(String string) {
+        return UriConverter.toUri(string);
+    }
+
+    @Named("uriToStr")
+    default String uriToStr(Uri uri) {
+        return UriConverter.fromUri(uri);
+    }
+
+    @Mapping(target = "dateTime", source = "dateTime", qualifiedByName = "longToTime")
+    AccountEntity toAccountEntity(AccountPojo pojo);
+
+    List<AccountEntity> toAccountEntityList(List<AccountPojo> pojoList);
+
+    @Mapping(target = "dateTime", source = "dateTime", qualifiedByName = "timeToLong")
+    AccountPojo toAccountPojo(AccountEntity entity);
+
+    List<AccountPojo> toAccountPojoList(List<AccountEntity> entityList);
+
+    AccountTagRefEntity toAccountTagRefEntity(AccountTagRefPojo pojo);
+
+    List<AccountTagRefEntity> toAccountTagRefEntityList(List<AccountTagRefPojo> pojoList);
+
+    AccountTagRefPojo toAccountTagRefPojo(AccountTagRefEntity entity);
+
+    List<AccountTagRefPojo> toAccountTagRefPojoList(List<AccountTagRefEntity> entityList);
+
+    AccountTransferEntity toAccountTransferEntity(AccountTransferPojo pojo);
+
+    List<AccountTransferEntity> toAccountTransferEntityList(List<AccountTransferPojo> pojoList);
+
+    AccountTransferPojo toAccountTransferPojo(AccountTransferEntity entity);
+
+    List<AccountTransferPojo> toAccountTransferPojoList(List<AccountTransferEntity> entityList);
+
+    @Mapping(target = "startDate", source = "startDate", qualifiedByName = "longToDate")
+    BudgetEntity toBudgetEntity(BudgetPojo pojo);
+
+    List<BudgetEntity> toBudgetEntityList(List<BudgetPojo> pojoList);
+
+    @Mapping(target = "startDate", source = "startDate", qualifiedByName = "dateToLong")
+    BudgetPojo toBudgetPojo(BudgetEntity entity);
+
+    List<BudgetPojo> toBudgetPojoList(List<BudgetEntity> entityList);
+
+    BudgetTagRefEntity toBudgetTagRefEntity(BudgetTagRefPojo pojo);
+
+    List<BudgetTagRefEntity> toBudgetTagRefEntityList(List<BudgetTagRefPojo> pojoList);
+
+    BudgetTagRefPojo toBudgetTagRefPojo(BudgetTagRefEntity entity);
+
+    List<BudgetTagRefPojo> toBudgetTagRefPojoList(List<BudgetTagRefEntity> entityList);
+
+    @Mapping(target = "fileUri", source = "fileUri", qualifiedByName = "strToUri")
+    MediaEntity toMediaEntity(MediaPojo pojo);
+
+    List<MediaEntity> toMediaEntityList(List<MediaPojo> pojoList);
+
+    @Mapping(target = "fileUri", source = "fileUri", qualifiedByName = "uriToStr")
+    MediaPojo toMediaPojo(MediaEntity entity);
+
+    List<MediaPojo> toMediaPojoList(List<MediaEntity> entityList);
+
+    NotificationRuleEntity toNotificationRuleEntity(NotificationRulePojo pojo);
+
+    List<NotificationRuleEntity> toNotificationRuleEntityList(List<NotificationRulePojo> pojoList);
+
+    NotificationRulePojo toNotificationRulePojo(NotificationRuleEntity entity);
+
+    List<NotificationRulePojo> toNotificationRulePojoList(List<NotificationRuleEntity> entityList);
+
+    NotificationRuleTagRefEntity toNotificationRuleTagRefEntity(NotificationRuleTagRefPojo pojo);
+
+    List<NotificationRuleTagRefEntity> toNotificationRuleTagRefEntityList(List<NotificationRuleTagRefPojo> pojoList);
+
+    NotificationRuleTagRefPojo toNotificationRuleTagRefPojo(NotificationRuleTagRefEntity entity);
+
+    List<NotificationRuleTagRefPojo> toNotificationRuleTagRefPojoList(List<NotificationRuleTagRefEntity> entityList);
+
+    NotificationRuleTransferEntity toNotificationRuleTransferEntity(NotificationRuleTransferPojo pojo);
+
+    List<NotificationRuleTransferEntity> toNotificationRuleTransferEntityList(List<NotificationRuleTransferPojo> pojoList);
+
+    NotificationRuleTransferPojo toNotificationRuleTransferPojo(NotificationRuleTransferEntity entity);
+
+    List<NotificationRuleTransferPojo> toNotificationRuleTransferPojoList(List<NotificationRuleTransferEntity> entityList);
+
+    TagEntity toTagEntity(TagPojo pojo);
+
+    List<TagEntity> toTagEntityList(List<TagPojo> pojoList);
+
+    TagPojo toTagPojo(TagEntity entity);
+
+    List<TagPojo> toTagPojoList(List<TagEntity> entityList);
+
+    TagGroupEntity toTagGroupEntity(TagGroupPojo pojo);
+
+    List<TagGroupEntity> toTagGroupEntityList(List<TagGroupPojo> pojoList);
+
+    TagGroupPojo toTagGroupPojo(TagGroupEntity entity);
+
+    List<TagGroupPojo> toTagGroupPojoList(List<TagGroupEntity> entityList);
+}
