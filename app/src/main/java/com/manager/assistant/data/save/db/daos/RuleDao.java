@@ -2,6 +2,7 @@ package com.manager.assistant.data.save.db.daos;
 
 import androidx.annotation.NonNull;
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 
@@ -41,6 +43,7 @@ public interface RuleDao {
 
     /**
      * 通过规则 ID 查询通知规则的详细数据
+     *
      * @param ruleId 需要查询的规则编号
      * @return 通知规则的详细数据
      */
@@ -143,4 +146,13 @@ public interface RuleDao {
                 .collect(Collectors.toList());
         insertNotificationTagRef(tagRefList);
     }
+
+    /**
+     * 删除通知规则
+     *
+     * @param entity 待删除的通知规则
+     * @return 是否完成
+     */
+    @Delete
+    Completable deleteNotificationRule(NotificationRuleEntity entity);
 }
