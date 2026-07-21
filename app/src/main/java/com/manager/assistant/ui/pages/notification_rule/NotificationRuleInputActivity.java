@@ -25,9 +25,9 @@ import com.manager.assistant.data.save.db.entities.TagEntity;
 import com.manager.assistant.data.save.db.entities.composite.NotificationRuleWithDetailModel;
 import com.manager.assistant.data.save.db.services.RuleService;
 import com.manager.assistant.databinding.ActivityRuleInputBinding;
-import com.manager.assistant.generic_enums.TagStrings;
+import com.manager.assistant.auxiliary.enums.TagStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
-import com.manager.assistant.generic_enums.KeyStrings;
+import com.manager.assistant.auxiliary.enums.KeyStrings;
 import com.manager.assistant.auxiliary.enums.AccountType;
 import com.manager.assistant.helpers.ImmHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
@@ -316,7 +316,7 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
             Bundle bundle = new Bundle();
             bundle.putInt(KeyStrings.TAG_SCOPE.v(), (int) Math.pow(2, type.ordinal())); //传递标签作用域标识符
             bottomSheet.setArguments(bundle);
-            bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_BOTTOM.getTag());
+            bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_BOTTOM.t());
         });
 
         //确认按钮

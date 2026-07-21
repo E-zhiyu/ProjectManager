@@ -21,8 +21,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
+import com.manager.assistant.automation.workers.BackupWorker;
 import com.manager.assistant.data.save.preference.VersionPreference;
-import com.manager.assistant.automation.schedulers.BackupScheduler;
+import com.manager.assistant.automation.workers.WorkerScheduler;
 import com.manager.assistant.ui.others.dialogs.MarkdownDialogBuilder;
 
 import org.jetbrains.annotations.Unmodifiable;
@@ -321,7 +322,7 @@ public class UpdateHelper {
         Toast.makeText(context, "正在下载安装包，请勿关闭本APP", Toast.LENGTH_SHORT).show();
 
         //下载安装包时就自动备份一次，防止数据丢失(备份文件存放至ExternalCache中)
-        BackupScheduler.executeBackupNow(context);
+        WorkerScheduler.executeWorkOnceNow(context, BackupWorker.class);
 
         //生成文件名
         String fileName = String.format("ManagerAssistant_v%s.apk", versionName);

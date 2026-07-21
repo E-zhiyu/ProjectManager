@@ -1,32 +1,31 @@
-package com.manager.assistant.automation.schedulers;
+package com.manager.assistant.automation.workers;
 
 import android.content.Context;
 import android.util.Log;
 
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ListenableWorker;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
-import com.manager.assistant.automation.workers.BackupWorker;
-import com.manager.assistant.generic_enums.LogTags;
+import com.manager.assistant.auxiliary.enums.LogTags;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-public class BackupScheduler {
-    //唯一工作ID，用于识别和取消工作
-    public static final String BACKUP_WORK_NAME = "auto_backup_work";
-
+public class WorkerScheduler {
     /**
-     * 安排定期备份任务
+     * 安排重复 Worker 任务
      *
      * @param context        上下文
      * @param intervalMillis 备份间隔（毫秒）
+     * @param tag            Worker 的标签
+     * @param workerClass    Worker 的类型
      */
-    public static void schedulePeriodicBackup(Context context, long intervalMillis) {
+    public static void schedulePeriodicBackup(Context context, long intervalMillis, String tag, Class<? extends ListenableWorker> workerClass) {
         //创建约束条件
         Constraints constraints = new Constraints.Builder()
                 .setRequiresBatteryNotLow(true) //电量不低于临界值
@@ -34,7 +33,7 @@ public class BackupScheduler {
 
         //创建周期性工作请求
         PeriodicWorkRequest backupWorkRequest = new PeriodicWorkRequest.Builder(
-                BackupWorker.class,
+                workerClass,
                 intervalMillis,
                 TimeUnit.MILLISECONDS)
                 .setConstraints(constraints)
@@ -43,32 +42,37 @@ public class BackupScheduler {
         //获取WorkManager实例并安排工作
         WorkManager workManager = WorkManager.getInstance(context);
         workManager.enqueueUniquePeriodicWork(
-                BACKUP_WORK_NAME,
+                tag,
                 ExistingPeriodicWorkPolicy.UPDATE,  //如果工作已存在就更新
                 backupWorkRequest);
 
         //打印日志
-        WorkInfo info;
         try {
-            info = workManager.getWorkInfosForUniqueWork(BACKUP_WORK_NAME).get().get(0);
+            WorkInfo info = workManager.getWorkInfosForUniqueWork(tag).get().get(0);
+            Log.d(LogTags.WORK_STATS.n(), "State: " + info.getState());
         } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e);
+            Log.d(LogTags.WORK_STATS.n(), "State: " + workerClass + "未正常工作");
         }
-        Log.d(LogTags.WORK_STATS.n(), "State: " + info.getState());
     }
 
     /**
-     * 取消定期备份
+     * 取消 Worker 的自动任务
+     *
+     * @param context   上下文
+     * @param workerTag Worker 对应的标签
      */
-    public static void cancelPeriodicBackup(Context context) {
-        WorkManager.getInstance(context).cancelUniqueWork(BACKUP_WORK_NAME);
+    public static void cancelPeriodicBackup(Context context, String workerTag) {
+        WorkManager.getInstance(context).cancelUniqueWork(workerTag);
     }
 
     /**
-     * 立即执行一次备份
+     * 立即执行一次 Worker 中的任务
+     *
+     * @param context     上下文
+     * @param workerClass Worker 的类型
      */
-    public static void executeBackupNow(Context context) {
-        OneTimeWorkRequest oneTimeRequest = new OneTimeWorkRequest.Builder(BackupWorker.class)
+    public static void executeWorkOnceNow(Context context, Class<? extends ListenableWorker> workerClass) {
+        OneTimeWorkRequest oneTimeRequest = new OneTimeWorkRequest.Builder(workerClass)
                 .build();
         WorkManager.getInstance(context).enqueue(oneTimeRequest);
     }

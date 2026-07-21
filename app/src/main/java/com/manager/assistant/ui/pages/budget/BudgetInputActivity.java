@@ -21,8 +21,8 @@ import com.manager.assistant.data.save.db.entities.TagEntity;
 import com.manager.assistant.data.save.db.entities.composite.BudgetWithDetailModel;
 import com.manager.assistant.data.save.db.services.BudgetService;
 import com.manager.assistant.databinding.ActivityBudgetInputBinding;
-import com.manager.assistant.generic_enums.KeyStrings;
-import com.manager.assistant.generic_enums.TagStrings;
+import com.manager.assistant.auxiliary.enums.KeyStrings;
+import com.manager.assistant.auxiliary.enums.TagStrings;
 import com.manager.assistant.helpers.time.DateTimePickerHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.ImmHelper;
@@ -232,7 +232,7 @@ public class BudgetInputActivity extends AppCompatActivity {
             Bundle bundle = new Bundle();
             bundle.putInt(KeyStrings.TAG_SCOPE.v(), 0); //传递标签作用域标识符
             bottomSheet.setArguments(bundle);
-            bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_BOTTOM.getTag());
+            bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_BOTTOM.t());
         });
 
         //完成按钮

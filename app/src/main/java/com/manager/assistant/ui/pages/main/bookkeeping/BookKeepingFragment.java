@@ -22,9 +22,9 @@ import com.manager.assistant.data.save.db.entities.AccountEntity;
 import com.manager.assistant.data.save.db.services.AccountService;
 import com.manager.assistant.data.save.preference.SearchHistoryPreference;
 import com.manager.assistant.databinding.ViewHolderSeparatorTextChipBinding;
-import com.manager.assistant.generic_enums.KeyStrings;
-import com.manager.assistant.generic_enums.LogTags;
-import com.manager.assistant.generic_enums.TagStrings;
+import com.manager.assistant.auxiliary.enums.KeyStrings;
+import com.manager.assistant.auxiliary.enums.LogTags;
+import com.manager.assistant.auxiliary.enums.TagStrings;
 import com.manager.assistant.helpers.BackPressedCallbackHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.SearchHelper;
@@ -90,7 +90,7 @@ public class BookKeepingFragment extends Fragment {
                         int id = item.getItemId();
                         if (id == R.id.action_filter_account) {
                             AccountFilterBottomSheet bottomSheet = new AccountFilterBottomSheet();
-                            bottomSheet.show(getParentFragmentManager(), TagStrings.ACCOUNT_FILTER_BOTTOM.getTag());
+                            bottomSheet.show(getParentFragmentManager(), TagStrings.ACCOUNT_FILTER_BOTTOM.t());
                             return true;
                         }
                         return false;

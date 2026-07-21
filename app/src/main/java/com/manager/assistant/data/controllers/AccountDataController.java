@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import com.manager.assistant.data.save.database.BookkeepingDbHelper;
 import com.manager.assistant.data.save.database.Columns;
 import com.manager.assistant.data.save.database.Tables;
-import com.manager.assistant.generic_enums.KeyStrings;
+import com.manager.assistant.auxiliary.enums.KeyStrings;
 import com.manager.assistant.auxiliary.enums.AccountType;
 
 public class AccountDataController {

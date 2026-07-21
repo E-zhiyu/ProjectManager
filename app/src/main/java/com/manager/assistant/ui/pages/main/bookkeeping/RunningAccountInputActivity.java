@@ -49,11 +49,11 @@ import com.manager.assistant.data.save.db.entities.TagEntity;
 import com.manager.assistant.data.save.db.entities.composite.AccountWithDetailModel;
 import com.manager.assistant.data.save.db.services.AccountService;
 import com.manager.assistant.databinding.ActivityRunningAccountInputBinding;
-import com.manager.assistant.generic_enums.DirectoryPaths;
-import com.manager.assistant.generic_enums.KeyStrings;
+import com.manager.assistant.auxiliary.enums.DirectoryPaths;
+import com.manager.assistant.auxiliary.enums.KeyStrings;
 import com.manager.assistant.auxiliary.enums.AccountType;
-import com.manager.assistant.generic_enums.LogTags;
-import com.manager.assistant.generic_enums.TagStrings;
+import com.manager.assistant.auxiliary.enums.LogTags;
+import com.manager.assistant.auxiliary.enums.TagStrings;
 import com.manager.assistant.helpers.BackPressedCallbackHelper;
 import com.manager.assistant.helpers.time.DateTimePickerHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
@@ -216,7 +216,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         );
         binding.mediaRecycler.setAdapter(mediaAdapter);
         selectionTracker = new SelectionTracker.Builder<>(
-                TagStrings.MEDIA_SELECTION.getTag(),
+                TagStrings.MEDIA_SELECTION.t(),
                 binding.mediaRecycler,
                 new MediaIdKeyProvider(mediaAdapter),
                 new MediaLookup(binding.mediaRecycler),
@@ -403,13 +403,13 @@ public class RunningAccountInputActivity extends AppCompatActivity {
             Bundle bundle = new Bundle();
             bundle.putInt(KeyStrings.TAG_SCOPE.v(), (int) Math.pow(2, type.ordinal())); //传递标签作用域标识符
             bottomSheet.setArguments(bundle);
-            bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_BOTTOM.getTag());
+            bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_BOTTOM.t());
         });
 
         //媒体添加按钮
         binding.mediaAddBtn.setOnClickListener(view -> {
             MediaAddBottomSheet bottomSheet = new MediaAddBottomSheet();
-            bottomSheet.show(getSupportFragmentManager(), TagStrings.MEDIA_ADD_BOTTOM.getTag());
+            bottomSheet.show(getSupportFragmentManager(), TagStrings.MEDIA_ADD_BOTTOM.t());
         });
 
         //媒体删除按钮

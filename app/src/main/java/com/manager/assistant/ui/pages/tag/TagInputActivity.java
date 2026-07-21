@@ -19,7 +19,7 @@ import com.manager.assistant.data.save.db.entities.TagGroupEntity;
 import com.manager.assistant.data.save.db.services.TagService;
 import com.manager.assistant.databinding.ActivityTagInputBinding;
 import com.manager.assistant.auxiliary.enums.AccountType;
-import com.manager.assistant.generic_enums.KeyStrings;
+import com.manager.assistant.auxiliary.enums.KeyStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.ImmHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;

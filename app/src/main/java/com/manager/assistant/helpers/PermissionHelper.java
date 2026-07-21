@@ -26,7 +26,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.hjq.device.compat.DeviceOs;
 import com.manager.assistant.LifecycleManager;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
-import com.manager.assistant.generic_enums.LogTags;
+import com.manager.assistant.auxiliary.enums.LogTags;
 import com.manager.assistant.ui.others.dialogs.MarkdownDialogBuilder;
 
 import java.util.ArrayList;

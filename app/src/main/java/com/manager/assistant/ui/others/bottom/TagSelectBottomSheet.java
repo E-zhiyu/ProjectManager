@@ -22,7 +22,7 @@ import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.entities.composite.ui.TagGroupUiModel;
 import com.manager.assistant.data.save.db.services.TagService;
 import com.manager.assistant.databinding.BottomSheetTagSelectBinding;
-import com.manager.assistant.generic_enums.KeyStrings;
+import com.manager.assistant.auxiliary.enums.KeyStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.appearence.VisibilityHelper;
 import com.manager.assistant.ui.others.adapters.GroupTagMultiSelectAdapter;

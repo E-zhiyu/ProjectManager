@@ -7,7 +7,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.generic_enums.LogTags;
+import com.manager.assistant.auxiliary.enums.LogTags;
 
 /**
  * 自动记账相关的广播接收器

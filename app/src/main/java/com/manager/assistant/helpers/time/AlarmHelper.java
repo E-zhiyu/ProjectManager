@@ -10,8 +10,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.manager.assistant.automation.broadcast.BudgetResetReceiver;
-import com.manager.assistant.generic_enums.LogTags;
-import com.manager.assistant.generic_enums.RequestResultCode;
+import com.manager.assistant.auxiliary.enums.LogTags;
+import com.manager.assistant.auxiliary.enums.RequestResultCode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

@@ -23,8 +23,8 @@ import com.manager.assistant.data.save.db.entities.TagGroupEntity;
 import com.manager.assistant.data.save.db.entities.composite.ui.TagListUiModel;
 import com.manager.assistant.data.save.db.services.TagService;
 import com.manager.assistant.databinding.ActivityTagListBinding;
-import com.manager.assistant.generic_enums.KeyStrings;
-import com.manager.assistant.generic_enums.TagStrings;
+import com.manager.assistant.auxiliary.enums.KeyStrings;
+import com.manager.assistant.auxiliary.enums.TagStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.ui.others.bottom.TagSelectBottomSheet;
@@ -238,7 +238,7 @@ public class TagListActivity extends AppCompatActivity {
 
         TagSelectBottomSheet bottomSheet = new TagSelectBottomSheet();
         bottomSheet.setArguments(bundle);
-        bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_BOTTOM.getTag());
+        bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_BOTTOM.t());
     }
 
     /**

@@ -12,7 +12,7 @@ import androidx.annotation.RequiresPermission;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import com.manager.assistant.generic_enums.ChannelInfo;
+import com.manager.assistant.auxiliary.enums.ChannelInfo;
 
 import java.util.ArrayList;
 import java.util.List;

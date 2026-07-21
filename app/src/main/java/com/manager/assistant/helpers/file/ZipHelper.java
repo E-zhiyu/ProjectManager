@@ -7,8 +7,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.manager.assistant.generic_enums.DirectoryPaths;
-import com.manager.assistant.generic_enums.LogTags;
+import com.manager.assistant.auxiliary.enums.DirectoryPaths;
+import com.manager.assistant.auxiliary.enums.LogTags;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -13,7 +13,7 @@ import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.DynamicColorsOptions;
 import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.R;
-import com.manager.assistant.generic_enums.options.ThemeMode;
+import com.manager.assistant.auxiliary.enums.options.ThemeMode;
 
 public class ThemeHelper {
     /**

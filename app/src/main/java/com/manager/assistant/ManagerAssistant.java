@@ -9,13 +9,15 @@ import androidx.work.WorkManager;
 
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.DynamicColorsOptions;
+import com.manager.assistant.automation.workers.BackupWorker;
+import com.manager.assistant.auxiliary.enums.TagStrings;
 import com.manager.assistant.data.save.preference.AutoBackupPreference;
 import com.manager.assistant.data.save.preference.AppSettingsPreference;
 import com.manager.assistant.data.save.preference.VersionPreference;
-import com.manager.assistant.generic_enums.LogTags;
-import com.manager.assistant.generic_enums.options.BackupFrequency;
+import com.manager.assistant.auxiliary.enums.LogTags;
+import com.manager.assistant.auxiliary.enums.options.BackupFrequency;
 import com.manager.assistant.helpers.NotificationHelper;
-import com.manager.assistant.automation.schedulers.BackupScheduler;
+import com.manager.assistant.automation.workers.WorkerScheduler;
 import com.manager.assistant.helpers.appearence.ThemeHelper;
 import com.manager.assistant.helpers.time.AlarmHelper;
 
@@ -26,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 
 public class ManagerAssistant extends Application {
     private static boolean isLifecycleObserverLocked = false;   //生命周期观察者是否被锁定
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -55,18 +58,15 @@ public class ManagerAssistant extends Application {
             if (AutoBackupPreference.getSwitchStat(this)) {
                 int frequency = AutoBackupPreference.getBackupFrequency(this);
                 long intervalMillis = BackupFrequency.values()[frequency].getIntervalMillis();
-                BackupScheduler.schedulePeriodicBackup(this, intervalMillis);
+                WorkerScheduler.schedulePeriodicBackup(this, intervalMillis, TagStrings.BACKUP_WORKER.t(), BackupWorker.class);
 
                 //打印任务状态日志
-                WorkInfo info;
                 try {
-                    info = WorkManager.getInstance(this).
-                            getWorkInfosForUniqueWork(BackupScheduler.BACKUP_WORK_NAME).
-                            get().get(0);
+                    WorkInfo info = WorkManager.getInstance(this).getWorkInfosForUniqueWork(TagStrings.BACKUP_WORKER.t()).get().get(0);
+                    Log.d(LogTags.WORK_STATS.n(), "State: " + info.getState());
                 } catch (ExecutionException | InterruptedException e) {
-                    throw new RuntimeException(e);
+                    Log.d(LogTags.WORK_STATS.n(), "State: " + BackupWorker.class + "未正常工作");
                 }
-                Log.d(LogTags.WORK_STATS.n(), "State: " + info.getState());
             }
 
             //启动时检测是否有需要删除的安装包

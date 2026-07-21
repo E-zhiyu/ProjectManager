@@ -17,9 +17,9 @@ import com.manager.assistant.R;
 import com.manager.assistant.automation.broadcast.BroadcastActions;
 import com.manager.assistant.data.controllers.AccountDataController;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
-import com.manager.assistant.generic_enums.ChannelInfo;
-import com.manager.assistant.generic_enums.KeyStrings;
-import com.manager.assistant.generic_enums.PendingRequestCode;
+import com.manager.assistant.auxiliary.enums.ChannelInfo;
+import com.manager.assistant.auxiliary.enums.KeyStrings;
+import com.manager.assistant.auxiliary.enums.PendingRequestCode;
 import com.manager.assistant.helpers.NotificationHelper;
 import com.manager.assistant.ui.pages.main.bookkeeping.RunningAccountInputActivity;
 

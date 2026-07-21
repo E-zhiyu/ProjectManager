@@ -13,7 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.manager.assistant.ManagerAssistant;
-import com.manager.assistant.generic_enums.LogTags;
+import com.manager.assistant.auxiliary.enums.LogTags;
 
 public class SAFHelper {
     /**

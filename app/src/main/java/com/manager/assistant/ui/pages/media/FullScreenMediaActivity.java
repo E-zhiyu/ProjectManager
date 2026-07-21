@@ -24,12 +24,12 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.manager.assistant.databinding.ActivityFullScreenMediaBinding;
-import com.manager.assistant.generic_enums.LogTags;
+import com.manager.assistant.auxiliary.enums.LogTags;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.helpers.file.FileHelper;
 import com.manager.assistant.helpers.file.MediaHelper;
-import com.manager.assistant.generic_enums.KeyStrings;
+import com.manager.assistant.auxiliary.enums.KeyStrings;
 
 import java.io.File;
 import java.util.ArrayList;

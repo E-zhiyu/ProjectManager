@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 
-import com.manager.assistant.generic_enums.options.AuthOpportunity;
+import com.manager.assistant.auxiliary.enums.options.AuthOpportunity;
 
 public class SecurityPreference {
     private static final String PREF_NAME = "SecurityPreference";

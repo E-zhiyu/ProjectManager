@@ -18,8 +18,8 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.data.save.preference.SecurityPreference;
-import com.manager.assistant.generic_enums.LogTags;
-import com.manager.assistant.generic_enums.options.AuthOpportunity;
+import com.manager.assistant.auxiliary.enums.LogTags;
+import com.manager.assistant.auxiliary.enums.options.AuthOpportunity;
 import com.manager.assistant.helpers.BiometricHelper;
 
 import java.util.List;

@@ -19,13 +19,15 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
-import com.manager.assistant.automation.schedulers.BackupScheduler;
+import com.manager.assistant.automation.workers.WorkerScheduler;
+import com.manager.assistant.automation.workers.BackupWorker;
 import com.manager.assistant.auxiliary.enums.BackupDataType;
 import com.manager.assistant.auxiliary.enums.RadiusStyle;
+import com.manager.assistant.auxiliary.enums.TagStrings;
 import com.manager.assistant.data.backup.helpers.BackupHelperBase;
 import com.manager.assistant.data.save.preference.AutoBackupPreference;
 import com.manager.assistant.databinding.ActivityDataManageBinding;
-import com.manager.assistant.generic_enums.options.BackupFrequency;
+import com.manager.assistant.auxiliary.enums.options.BackupFrequency;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.helpers.file.FileHelper;
@@ -37,12 +39,9 @@ import com.manager.assistant.ui.pages.main.settings.components.SettingClickableT
 import com.manager.assistant.ui.pages.main.settings.components.SettingSpinnerView;
 import com.manager.assistant.ui.pages.main.settings.components.SettingSwitchView;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -197,13 +196,16 @@ public class DataManageActivity extends AppCompatActivity {
                             SAFHelper.openDocumentTreeViaSAF(backupDirUri, backupDirSelectLauncher);
                         })
                         .show();
+                return;
             } else if (isChecked) {
                 int frequencyIndex = AutoBackupPreference.getBackupFrequency(this);
                 long intervalMillis = BackupFrequency.values()[frequencyIndex].getIntervalMillis();
-                BackupScheduler.schedulePeriodicBackup(this, intervalMillis);   //开关打开后立刻安排备份任务
+                WorkerScheduler.schedulePeriodicBackup(this, intervalMillis, TagStrings.BACKUP_WORKER.t(), BackupWorker.class);
             } else {
-                BackupScheduler.cancelPeriodicBackup(this);
+                WorkerScheduler.cancelPeriodicBackup(this, TagStrings.BACKUP_WORKER.t());
             }
+
+            AutoBackupPreference.setSwitchStat(this, isChecked);
         });
 
         //备份频率
@@ -257,10 +259,10 @@ public class DataManageActivity extends AppCompatActivity {
                         if (AutoBackupPreference.getSwitchStat(this)) {
                             //更新工作内容
                             long intervalMillis = frequency.getIntervalMillis();
-                            BackupScheduler.schedulePeriodicBackup(this, intervalMillis);
+                            WorkerScheduler.schedulePeriodicBackup(this, intervalMillis, TagStrings.BACKUP_WORKER.t(), BackupWorker.class);
 
                             //立即备份一次
-                            BackupScheduler.executeBackupNow(this);
+                            WorkerScheduler.executeWorkOnceNow(this, BackupWorker.class);
                         }
                     }
                 }
@@ -315,18 +317,10 @@ public class DataManageActivity extends AppCompatActivity {
                     exportChoiceStatList = checkedStatList;
                     exportIncludeMedia = checkedStatList.get(0);
 
-                    //生成默认文件名
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd(HHmmss)");
-                    String fileName = String.format(
-                            Locale.getDefault(),
-                            "ManagerAssistantBackup_%s.zip",
-                            LocalDateTime.now().format(formatter)
-                    );
-
                     //打开 SAF 用于创建压缩包文件
                     SAFHelper.createDocumentViaSAF(
                             "application/zip",
-                            fileName,
+                            FileHelper.generateBackupFileName(),
                             exportDataLauncher
                     );
                 })

@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 
 import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.entities.BudgetEntity;
-import com.manager.assistant.generic_enums.LogTags;
+import com.manager.assistant.auxiliary.enums.LogTags;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.time.AlarmHelper;
 import com.manager.assistant.ui.pages.budget.ResetFrequency;

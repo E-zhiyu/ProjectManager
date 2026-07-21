@@ -11,9 +11,10 @@ import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
 
+import com.manager.assistant.auxiliary.classes.CustomDateTimeFormatter;
 import com.manager.assistant.auxiliary.classes.text.TextFileData;
-import com.manager.assistant.generic_enums.DirectoryPaths;
-import com.manager.assistant.generic_enums.LogTags;
+import com.manager.assistant.auxiliary.enums.DirectoryPaths;
+import com.manager.assistant.auxiliary.enums.LogTags;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -37,6 +38,20 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 
 public class FileHelper {
+    /**
+     * 生成备份文件名称
+     *
+     * @return 备份文件名称
+     */
+    @NonNull
+    public static String generateBackupFileName() {
+        return String.format(
+                Locale.getDefault(),
+                "ManagerAssistantBackup_%s.zip",
+                LocalDateTime.now().format(CustomDateTimeFormatter.BACKUP)
+        );
+    }
+
     /**
      * 分享单个图片
      *

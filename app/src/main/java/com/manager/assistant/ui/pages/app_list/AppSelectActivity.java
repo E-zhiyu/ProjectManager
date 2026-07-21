@@ -18,7 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.manager.assistant.R;
 import com.manager.assistant.data.save.preference.SearchHistoryPreference;
 import com.manager.assistant.databinding.ActivityPackageNameSelectBinding;
-import com.manager.assistant.generic_enums.KeyStrings;
+import com.manager.assistant.auxiliary.enums.KeyStrings;
 import com.manager.assistant.helpers.BackPressedCallbackHelper;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.PermissionHelper;
