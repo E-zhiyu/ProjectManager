@@ -24,7 +24,6 @@ photoview = "2.3.0"
 recyclerview = "1.4.0"
 rxandroid = "3.0.2"
 rxjava = "3.1.12"
-swiperefreshlayout = "1.2.0"
 viewpager2 = "1.1.0"
 workRuntime = "2.11.2"
 biometric = "1.1.0"
@@ -58,7 +57,6 @@ photoview = { module = "com.github.chrisbanes:PhotoView", version.ref = "photovi
 recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
 rxandroid = { module = "io.reactivex.rxjava3:rxandroid", version.ref = "rxandroid" }
 rxjava = { module = "io.reactivex.rxjava3:rxjava", version.ref = "rxjava" }
-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
 viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "viewpager2" }
 work-runtime = { module = "androidx.work:work-runtime", version.ref = "workRuntime" }
 biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
@@ -69,6 +67,7 @@ room-rxjava3 = { module = "androidx.room:room-rxjava3", version.ref = "roomRunti
 mapstruct = { module = "org.mapstruct:mapstruct", version.ref = "mapstruct" }
 mapstruct-processor = { module = "org.mapstruct:mapstruct-processor", version.ref = "mapstruct" }
 recyclerview-selection = { group = "androidx.recyclerview", name = "recyclerview-selection", version.ref = "recyclerviewSelection" }
+work-rxjava3 = { module = "androidx.work:work-rxjava3", version.ref = "workRuntime" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
