@@ -1,4 +1,4 @@
-package com.manager.assistant.generic_enums;
+package com.manager.assistant.auxiliary.enums;
 
 public enum LogTags {
     FULL_SCREEN_MEDIA_ACTIVITY("FullScreenMediaActivity"),

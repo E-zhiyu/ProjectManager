@@ -1,4 +1,4 @@
-package com.manager.assistant.generic_enums;
+package com.manager.assistant.auxiliary.enums;
 
 import android.app.NotificationManager;
 

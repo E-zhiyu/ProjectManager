@@ -1,4 +1,4 @@
-package com.manager.assistant.generic_enums;
+package com.manager.assistant.auxiliary.enums;
 
 public enum NotificationID {
     BUDGET_AMOUNT_WARNING,      //低预算警告

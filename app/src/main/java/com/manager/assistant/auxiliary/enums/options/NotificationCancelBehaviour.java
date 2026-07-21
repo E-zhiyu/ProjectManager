@@ -1,15 +1,14 @@
-package com.manager.assistant.generic_enums.options;
+package com.manager.assistant.auxiliary.enums.options;
 
-public enum NotificationClickBehaviour {
-    NONE(0,0,0,"无"),
-    KEEP(0, 1, 1, "保留记录"),
-    DELETE(0, 2, 2, "删除记录");
+public enum NotificationCancelBehaviour {
+    KEEP(0, 0, 0, "保留记录"),
+    DELETE(0, 1, 1, "删除记录");
     private final int groupId;  //分组编号
     private final int itemId;   //选项编号
     private final int order;    //顺序
     private final String title; //显示标题
 
-    NotificationClickBehaviour(int groupId, int itemId, int order, String title) {
+    NotificationCancelBehaviour(int groupId, int itemId, int order, String title) {
         this.groupId = groupId;
         this.itemId = itemId;
         this.order = order;

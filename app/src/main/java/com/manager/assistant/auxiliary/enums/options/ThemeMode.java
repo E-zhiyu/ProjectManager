@@ -1,4 +1,4 @@
-package com.manager.assistant.generic_enums.options;
+package com.manager.assistant.auxiliary.enums.options;
 
 import androidx.appcompat.app.AppCompatDelegate;
 

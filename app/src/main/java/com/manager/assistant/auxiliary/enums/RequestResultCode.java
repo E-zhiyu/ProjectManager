@@ -1,4 +1,4 @@
-package com.manager.assistant.generic_enums;
+package com.manager.assistant.auxiliary.enums;
 
 public enum RequestResultCode {
     RESULT_CANCEL,                      //应答拒绝

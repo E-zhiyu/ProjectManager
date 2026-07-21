@@ -1,4 +1,4 @@
-package com.manager.assistant.generic_enums;
+package com.manager.assistant.auxiliary.enums;
 
 public enum PendingRequestCode {
     BUDGET_NOTIFICATION,                    //预算余额低提醒通知发送

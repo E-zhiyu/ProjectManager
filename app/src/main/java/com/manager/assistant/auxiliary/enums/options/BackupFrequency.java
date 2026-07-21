@@ -1,4 +1,4 @@
-package com.manager.assistant.generic_enums.options;
+package com.manager.assistant.auxiliary.enums.options;
 
 public enum BackupFrequency {
     MIN_15(0, 0, 0, "每15分钟", 1000 * 60 * 15),                //每15分钟

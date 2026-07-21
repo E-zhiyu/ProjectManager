@@ -1,4 +1,4 @@
-package com.manager.assistant.generic_enums.options;
+package com.manager.assistant.auxiliary.enums.options;
 
 public enum FirstScreen {
     BOOKKEEPING(0,0,0,"记账"),

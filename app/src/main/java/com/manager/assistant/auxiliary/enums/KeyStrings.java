@@ -1,4 +1,4 @@
-package com.manager.assistant.generic_enums;
+package com.manager.assistant.auxiliary.enums;
 
 //用作关键字的字符串枚举
 public enum KeyStrings {

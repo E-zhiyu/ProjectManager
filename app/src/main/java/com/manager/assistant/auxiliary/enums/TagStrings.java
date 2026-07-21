@@ -1,6 +1,7 @@
-package com.manager.assistant.generic_enums;
+package com.manager.assistant.auxiliary.enums;
 
 public enum TagStrings {
+    BACKUP_WORKER("backup_worker"),             //自动备份的 Worker
     MEDIA_SELECTION("media_selection"),         //媒体多选追踪器
     TIME_PICKER("time_picker"),                 //时间选择弹窗
     DATE_PICKER("date_picker"),                 //日期选择弹窗
@@ -14,7 +15,7 @@ public enum TagStrings {
         this.value = value;
     }
 
-    public String getTag() {
+    public String t() {
         return value;
     }
 }
