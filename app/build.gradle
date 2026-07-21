@@ -65,9 +65,9 @@ dependencies {
     implementation libs.core                        //多线程
     implementation libs.rxandroid                   //线程切换
     implementation libs.rxjava                      //多线程
+    implementation libs.work.runtime                //自动任务执行
     implementation libs.work.rxjava3                // WorkManager 的 RxJava 支持
     implementation libs.documentfile
-    implementation libs.work.runtime
     implementation libs.glide                       //图片显示
     implementation libs.photoview
     implementation libs.dynamicanimation

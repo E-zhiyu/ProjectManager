@@ -27,7 +27,7 @@ import com.manager.assistant.auxiliary.enums.TagStrings;
 import com.manager.assistant.data.backup.helpers.BackupHelperBase;
 import com.manager.assistant.data.save.preference.AutoBackupPreference;
 import com.manager.assistant.databinding.ActivityDataManageBinding;
-import com.manager.assistant.auxiliary.enums.options.BackupFrequency;
+import com.manager.assistant.auxiliary.enums.settings.BackupFrequency;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.helpers.file.FileHelper;

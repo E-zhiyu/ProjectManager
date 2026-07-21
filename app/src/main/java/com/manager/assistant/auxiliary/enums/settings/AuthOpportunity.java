@@ -1,4 +1,4 @@
-package com.manager.assistant.auxiliary.enums.options;
+package com.manager.assistant.auxiliary.enums.settings;
 
 public enum AuthOpportunity {
     EVERY_TIME(0, 0, 0, 0, "每次"),

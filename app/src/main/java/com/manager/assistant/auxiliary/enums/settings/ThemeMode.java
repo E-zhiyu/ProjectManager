@@ -1,4 +1,4 @@
-package com.manager.assistant.auxiliary.enums.options;
+package com.manager.assistant.auxiliary.enums.settings;
 
 import androidx.appcompat.app.AppCompatDelegate;
 

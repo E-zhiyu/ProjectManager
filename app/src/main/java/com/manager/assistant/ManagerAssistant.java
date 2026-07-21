@@ -15,7 +15,7 @@ import com.manager.assistant.data.save.preference.AutoBackupPreference;
 import com.manager.assistant.data.save.preference.AppSettingsPreference;
 import com.manager.assistant.data.save.preference.VersionPreference;
 import com.manager.assistant.auxiliary.enums.LogTags;
-import com.manager.assistant.auxiliary.enums.options.BackupFrequency;
+import com.manager.assistant.auxiliary.enums.settings.BackupFrequency;
 import com.manager.assistant.helpers.NotificationHelper;
 import com.manager.assistant.automation.workers.WorkerScheduler;
 import com.manager.assistant.helpers.appearence.ThemeHelper;
