@@ -11,7 +11,6 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
 import androidx.fragment.app.FragmentActivity;
@@ -79,24 +78,6 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
         manager.doNotHideOnce = true;
 
         context.startActivity(intent);
-    }
-
-    /**
-     * 启动有回调的外部活动并豁免一次后台隐藏
-     *
-     * @param launcher 活动启动器
-     * @param intent   意图
-     */
-    public static void startExternalActivity(@NonNull ActivityResultLauncher<Intent> launcher, Intent intent) {
-        if (intent == null) {
-            return;
-        }
-
-        //设置豁免标识
-        LifecycleManager manager = get();
-        manager.doNotHideOnce = true;
-
-        launcher.launch(intent);
     }
 
     // =========================
