@@ -1,4 +1,4 @@
-package com.manager.assistant.automation.broadcast.bookkeeping;
+package com.manager.assistant.automation.broadcast;
 
 import android.Manifest;
 import android.app.PendingIntent;
@@ -14,7 +14,6 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
 
 import com.manager.assistant.R;
-import com.manager.assistant.automation.broadcast.BroadcastActions;
 import com.manager.assistant.data.controllers.AccountDataController;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.auxiliary.enums.ChannelInfo;

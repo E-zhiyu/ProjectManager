@@ -8,7 +8,6 @@ public enum LogTags {
     ACCOUNT_INPUT("RunningAccountInputActivity"),
     HOME_PAGE("HomePage"),
     NOTIFICATION_SERVICE("NotificationService"),
-    RULE_UPDATE_RECEIVER("RuleUpdateReceiver"),
     DATA_IO_HELPER("DataIOHelper"),
     SETTING_FRAGMENT("SettingFragment"),
     BACKUP_WORKER("BackupWorker"),
