@@ -1,4 +1,4 @@
-package com.manager.assistant.ui.sync;
+package com.manager.assistant.ui.others.viewmodel;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
