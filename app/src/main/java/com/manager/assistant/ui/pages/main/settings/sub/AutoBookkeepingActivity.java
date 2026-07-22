@@ -33,18 +33,18 @@ import java.util.stream.Collectors;
 
 public class AutoBookkeepingActivity extends AppCompatActivity {
     private ActivityAutoBookkeepingBinding binding; //绑定的XML布局
+    //TODO:重构该界面
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityAutoBookkeepingBinding.inflate(getLayoutInflater());
 
-        //设置边距
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+            v.setPadding(systemBars.left, 0, systemBars.right, 0);
             binding.scrollView.setPadding(
                     0,
                     0,
@@ -61,6 +61,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
      * 初始化自动记账设置项
      */
     private void initAutoBookkeepingSettings() {
+        //工具栏
         binding.toolbar.setNavigationOnClickListener(view -> finish());
 
         //通知解析自动记账
@@ -72,7 +73,6 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                 R.drawable.outline_notifications_active_24,
                 RadiusStyle.TOP
         );
-        notificationAnalysisSwitchOption.setDividerVisibility(true);
         boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getSwitchStat(this);
         if (isNotificationAnalysisOpened && PermissionHelper.isNotificationServiceEnabled(this)) {
             notificationAnalysisSwitchOption.setChecked(true);
@@ -85,15 +85,6 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
         notificationAnalysisSwitchOption.setFunctionListener(
                 (buttonView, isChecked) -> onNotificationAnalysisSwitchChanged(notificationAnalysisSwitchOption, isChecked)
         );
-
-        //开关左侧文本长按功能
-        notificationAnalysisSwitchOption.setOnLongClickListener(v -> {
-            ManagerAssistant.lockLifecycleObserver();
-            Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            return true;
-        });
 
         //通知解析规则管理
         SettingClickableTextView ruleManageOption = new SettingClickableTextView(
@@ -110,27 +101,6 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                     Intent intent = new Intent(this, NotificationRuleListActivity.class);
                     startActivity(intent);
                 }
-        );
-
-        //规则重置
-        SettingClickableTextView resetRuleOption = new SettingClickableTextView(
-                this,
-                binding.resetRuleOption,
-                R.string.reset_rule,
-                "将现有规则重置为默认状态",
-                R.drawable.outline_reset_settings_24,
-                RadiusStyle.MIDDLE
-        );
-        resetRuleOption.setFunctionListener(
-                v -> new MaterialAlertDialogBuilder(this)
-                        .setTitle("重置规则")
-                        .setMessage("此操作将删除现有的规则并替换为默认规则，确认继续吗？")
-                        .setPositiveButton("确认", (dialog, which) -> {
-                            dialog.dismiss();
-                            AnalysisRuleDataHelper.resetRule(this);
-                        })
-                        .setNegativeButton("取消", null)
-                        .show()
         );
 
         //通知取消行为

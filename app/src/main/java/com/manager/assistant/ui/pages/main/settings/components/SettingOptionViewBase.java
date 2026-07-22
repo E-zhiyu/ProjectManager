@@ -92,19 +92,6 @@ abstract public class SettingOptionViewBase<C, L> {
     }
 
     /**
-     * 设置文本和右侧视图之间的分隔线的可见性
-     *
-     * @param isVisible 分割线是否可见
-     */
-    public void setDividerVisibility(boolean isVisible) {
-        if (isVisible) {
-            binding.settingViewDivider.setVisibility(View.VISIBLE);
-        } else {
-            binding.settingViewDivider.setVisibility(View.GONE);
-        }
-    }
-
-    /**
      * 设置圆角类型
      *
      * @param radiusStyle 圆角类型

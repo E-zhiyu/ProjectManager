@@ -4,8 +4,6 @@ import android.net.Uri;
 
 import androidx.lifecycle.ViewModel;
 
-import com.manager.assistant.ui.sync.UnPeekLiveData;
-
 public class MediaAddOptionViewModel extends ViewModel {
     private Uri cameraFileUri = null;   //相机拍照得到的临时图片 File 类型的 Uri
     private final UnPeekLiveData<Integer> clickEvent = new UnPeekLiveData<>();
