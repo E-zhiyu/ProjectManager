@@ -180,14 +180,9 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
         //决定是否保存记录
         int behaviour = AutoBookKeepingPreference.getNotificationCancelBehaviour(context);
         if (behaviour == 0) {
-            //将数据写入数据库
+            //TODO:将数据写入数据库（处理这几种不同的情况）
             long rno = AccountDataController.saveNewAccount(dataBundle, context);
             dataBundle.putLong(KeyStrings.ACCOUNT_ID.v(), rno);
-
-            //发送本地广播更新UI
-            Intent accountAdded = new Intent(BroadcastActions.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
-            accountAdded.putExtras(dataBundle);
-            context.sendBroadcast(accountAdded);
         }
     }
 
@@ -205,11 +200,6 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
             //将数据写入数据库
             long rno = AccountDataController.saveNewAccount(dataBundle, context);
             dataBundle.putLong(KeyStrings.ACCOUNT_ID.v(), rno);
-
-            //发送本地广播更新UI
-            Intent accountAdded = new Intent(BroadcastActions.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
-            accountAdded.putExtras(dataBundle);
-            context.sendBroadcast(accountAdded);
 
             //创建通知构建器
             String content = String.format(Locale.getDefault(), "已保留由“%s”触发的记录，点击查看详情", ruleName);
@@ -265,11 +255,6 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
         //将数据写入数据库
         long rno = AccountDataController.saveNewAccount(dataBundle, context);
         dataBundle.putLong(KeyStrings.ACCOUNT_ID.v(), rno);
-
-        //发送本地广播以保存数据
-        Intent accountAdded = new Intent(BroadcastActions.ACTION_RUNNING_ACCOUNT_UPDATED.toString());
-        accountAdded.putExtras(dataBundle);
-        context.sendBroadcast(accountAdded);
     }
 
     /**

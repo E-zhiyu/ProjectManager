@@ -13,9 +13,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.R;
-import com.manager.assistant.automation.broadcast.BroadcastActions;
 import com.manager.assistant.auxiliary.enums.RadiusStyle;
-import com.manager.assistant.data.io.helpers.AnalysisRuleDataHelper;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.databinding.ActivityAutoBookkeepingBinding;
 import com.manager.assistant.auxiliary.enums.settings.NotificationCancelBehaviour;
@@ -82,9 +80,25 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
             //考虑到无授权情况下自动关闭通知解析功能
             AutoBookKeepingPreference.setSwitchStat(false, this);
         }
-        notificationAnalysisSwitchOption.setFunctionListener(
-                (buttonView, isChecked) -> onNotificationAnalysisSwitchChanged(notificationAnalysisSwitchOption, isChecked)
-        );
+        notificationAnalysisSwitchOption.setFunctionListener((buttonView, isChecked) -> {
+            //没有权限时提示授权
+            if (!PermissionHelper.isNotificationServiceEnabled(this) && isChecked) {
+                AutoBookKeepingPreference.setSwitchStat(false, this);   //将打开状态写入文件
+                buttonView.setChecked(false);
+                new MaterialAlertDialogBuilder(this)
+                        .setTitle("权限申请说明")
+                        .setMessage("此功能需要使用“通知使用权”权限，该权限允许应用读取其他软件发送的通知内容。是否为本应用授权？")
+                        .setPositiveButton("确认", (dialog, which) -> {
+                            ManagerAssistant.lockLifecycleObserver();
+                            Intent intent = PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.getIntent(this);
+                            startActivity(intent);
+                        })
+                        .setNegativeButton("取消", null)
+                        .show();
+            } else {
+                AutoBookKeepingPreference.setSwitchStat(isChecked, this);   //将打开状态写入文件
+            }
+        });
 
         //通知解析规则管理
         SettingClickableTextView ruleManageOption = new SettingClickableTextView(
@@ -95,13 +109,11 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                 R.drawable.baseline_rule_24,
                 RadiusStyle.MIDDLE
         );
-        ruleManageOption.setFunctionListener(
-                v -> {
-                    ManagerAssistant.lockLifecycleObserver();
-                    Intent intent = new Intent(this, NotificationRuleListActivity.class);
-                    startActivity(intent);
-                }
-        );
+        ruleManageOption.setFunctionListener(v -> {
+            ManagerAssistant.lockLifecycleObserver();
+            Intent intent = new Intent(this, NotificationRuleListActivity.class);
+            startActivity(intent);
+        });
 
         //通知取消行为
         SettingSpinnerView notificationCancelBehaviour = new SettingSpinnerView(
@@ -194,39 +206,5 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
 
             behaviourMenu.show();
         });
-    }
-
-    /**
-     * 通知解析开关状态变更调用的方法
-     *
-     * @param switchView 开关视图
-     * @param isChecked  开关状态
-     */
-    private void onNotificationAnalysisSwitchChanged(
-            SettingSwitchView switchView,
-            boolean isChecked
-    ) {
-        AutoBookKeepingPreference.setSwitchStat(isChecked, this);   //将打开状态写入文件
-
-        //开启开关时检测是否没有权限，如果没有则提示用户授权
-        if (!PermissionHelper.isNotificationServiceEnabled(this) && isChecked) {
-            switchView.setChecked(false);
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle("权限申请说明")
-                    .setMessage("此功能需要使用“通知使用权”权限，该权限允许应用读取其他软件发送的通知内容。本应用不会也无法使用该权限获取用户隐私信息，仅用于解析通知中可能出现的流水账信息，请您放心使用。\n\n是否为本应用授权？")
-                    .setPositiveButton("确认", (dialog, which) -> {
-                        //申请通知监听权限
-                        ManagerAssistant.lockLifecycleObserver();
-                        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                    })
-                    .setNegativeButton("取消", null)
-                    .show();
-        } else {
-            //发送功能开关变更广播
-            Intent functionSwitched = new Intent(BroadcastActions.ACTION_NOTIFICATION_ANALYSIS_FUNCTION_SWITCHED.toString());
-            sendBroadcast(functionSwitched);
-        }
     }
 }

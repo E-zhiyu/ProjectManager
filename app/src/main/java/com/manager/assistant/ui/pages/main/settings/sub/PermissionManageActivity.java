@@ -176,7 +176,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                         "- 读取其他应用的通知实现自动记账\n",
                 () -> {
                     ManagerAssistant.lockLifecycleObserver();
-                    Intent skip2NotificationListener = PermissionHelper.buildNotificationListenerIntent();
+                    Intent skip2NotificationListener = PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.getIntent(this);
                     startActivity(skip2NotificationListener);
                 }
         ));
