@@ -1,6 +1,7 @@
 package com.manager.assistant.auxiliary.enums;
 
 public enum LogTags {
+    AUTH_ACTIVITY("AuthActivity"),
     FULL_SCREEN_MEDIA_ACTIVITY("FullScreenMediaActivity"),
     MEDIA_HELPER("MediaHelper"),
     FILE_HELPER("FileHelper"),

@@ -24,7 +24,7 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.hjq.device.compat.DeviceOs;
-import com.manager.assistant.LifecycleManager;
+import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.auxiliary.enums.LogTags;
 import com.manager.assistant.ui.others.dialogs.MarkdownDialogBuilder;
@@ -258,7 +258,8 @@ public class PermissionHelper {
                     .setPositiveButton("去设置", (d, w) -> {
                         isProcessing = false;    //未直接调用processNextSpecial()，需要标记为未处理
 
-                        LifecycleManager.startExternalActivity(activity, type.getIntent(activity));
+                        ManagerAssistant.lockLifecycleObserver();
+                        activity.startActivity(type.getIntent(activity));
                     })
                     .setNegativeButton("取消", (d, w) -> processNextSpecial())
                     .setCancelable(false)

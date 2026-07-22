@@ -11,8 +11,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.R;
-import com.manager.assistant.LifecycleManager;
 import com.manager.assistant.automation.broadcast.BroadcastActions;
 import com.manager.assistant.auxiliary.enums.RadiusStyle;
 import com.manager.assistant.data.io.helpers.AnalysisRuleDataHelper;
@@ -88,9 +88,10 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
 
         //开关左侧文本长按功能
         notificationAnalysisSwitchOption.setOnLongClickListener(v -> {
+            ManagerAssistant.lockLifecycleObserver();
             Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            LifecycleManager.startExternalActivity(this, intent);
+            startActivity(intent);
             return true;
         });
 
@@ -105,8 +106,9 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
         );
         ruleManageOption.setFunctionListener(
                 v -> {
+                    ManagerAssistant.lockLifecycleObserver();
                     Intent intent = new Intent(this, NotificationRuleListActivity.class);
-                    LifecycleManager.startExternalActivity(this, intent);
+                    startActivity(intent);
                 }
         );
 
@@ -244,9 +246,10 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                     .setMessage("此功能需要使用“通知使用权”权限，该权限允许应用读取其他软件发送的通知内容。本应用不会也无法使用该权限获取用户隐私信息，仅用于解析通知中可能出现的流水账信息，请您放心使用。\n\n是否为本应用授权？")
                     .setPositiveButton("确认", (dialog, which) -> {
                         //申请通知监听权限
+                        ManagerAssistant.lockLifecycleObserver();
                         Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        LifecycleManager.startExternalActivity(this, intent);
+                        startActivity(intent);
                     })
                     .setNegativeButton("取消", null)
                     .show();

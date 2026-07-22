@@ -2,6 +2,7 @@ package com.manager.assistant.ui.pages.main.settings.sub;
 
 import android.Manifest;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -17,8 +18,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.manager.assistant.ManagerAssistant;
 import com.manager.assistant.R;
-import com.manager.assistant.LifecycleManager;
 import com.manager.assistant.auxiliary.enums.RadiusStyle;
 import com.manager.assistant.databinding.ActivityPermissionManageBinding;
 import com.manager.assistant.helpers.PermissionHelper;
@@ -94,6 +95,13 @@ public class PermissionManageActivity extends AppCompatActivity {
                         "- 添加流水记录图片时使用内置拍照功能拍照\n",
                 () -> requestRuntimePermission(Manifest.permission.CAMERA)
         ));
+        camera.setOnLongClickListener(view -> {
+            Intent skip2Settings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            Uri uri = Uri.fromParts("package", getPackageName(), null);
+            skip2Settings.setData(uri);
+            startActivity(skip2Settings);
+            return true;
+        });
 
         //应用列表权限
         if (PermissionHelper.isRuntimePermissionDefined("com.android.permission.GET_INSTALLED_APPS", this)) {
@@ -111,6 +119,13 @@ public class PermissionManageActivity extends AppCompatActivity {
                             "- 在输入通知解析规则时读取应用列表以便快速输入包名\n",
                     () -> requestRuntimePermission("com.android.permission.GET_INSTALLED_APPS")
             ));
+            appList.setOnLongClickListener(view -> {
+                Intent skip2Settings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                Uri uri = Uri.fromParts("package", getPackageName(), null);
+                skip2Settings.setData(uri);
+                startActivity(skip2Settings);
+                return true;
+            });
         } else {
             binding.appListOption.getRoot().setVisibility(View.GONE);
         }
@@ -138,6 +153,13 @@ public class PermissionManageActivity extends AppCompatActivity {
                         }
                 )
         );
+        notification.setOnLongClickListener(view -> {
+            Intent skip2Settings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            Uri uri = Uri.fromParts("package", getPackageName(), null);
+            skip2Settings.setData(uri);
+            startActivity(skip2Settings);
+            return true;
+        });
 
         //通知监听权限
         notificationListener = new SettingClickableTextView(
@@ -153,8 +175,9 @@ public class PermissionManageActivity extends AppCompatActivity {
                 "该权限允许应用读取其他应用发送的通知，本应用不会利用该权限获取用户隐私。该权限应用范围如下：\n" +
                         "- 读取其他应用的通知实现自动记账\n",
                 () -> {
+                    ManagerAssistant.lockLifecycleObserver();
                     Intent skip2NotificationListener = PermissionHelper.buildNotificationListenerIntent();
-                    LifecycleManager.startExternalActivity(this, skip2NotificationListener);
+                    startActivity(skip2NotificationListener);
                 }
         ));
 
@@ -173,8 +196,9 @@ public class PermissionManageActivity extends AppCompatActivity {
                             "该权限是定制安卓中特有的权限，其允许应用在后台启动服务，应用范围如下：\n" +
                                     "- 在退出应用后自动启动通知监听服务，确保自动记账功能能够运行\n",
                             () -> {
+                                ManagerAssistant.lockLifecycleObserver();
                                 Intent skip2AutoStartPermission = PermissionHelper.buildAutoStartPermissionIntent(this);
-                                LifecycleManager.startExternalActivity(this, skip2AutoStartPermission);
+                                startActivity(skip2AutoStartPermission);
                             }
                     )
             );
@@ -206,13 +230,15 @@ public class PermissionManageActivity extends AppCompatActivity {
                         return;
                     }
 
+                    ManagerAssistant.lockLifecycleObserver();
                     Intent skip2IgnoringBatteryOptimizations = PermissionHelper.buildIgnoringBatteryOptimizationsIntent(this);
-                    LifecycleManager.startExternalActivity(this, skip2IgnoringBatteryOptimizations);
+                    startActivity(skip2IgnoringBatteryOptimizations);
                 }
         ));
         batteryOptimizations.setOnLongClickListener(view -> {
+            ManagerAssistant.lockLifecycleObserver();
             Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-            LifecycleManager.startExternalActivity(this, intent);
+            startActivity(intent);
             return true;
         });
 
@@ -230,8 +256,9 @@ public class PermissionManageActivity extends AppCompatActivity {
                 "该权限允许应用执行某些定时任务，以实现一些自动化功能，应用范围如下：\n" +
                         "- 每日0点自动检查并重置预算\n",
                 () -> {
+                    ManagerAssistant.lockLifecycleObserver();
                     Intent skip2ExactAlarm = PermissionHelper.buildExactAlarmIntent(this);
-                    LifecycleManager.startExternalActivity(this, skip2ExactAlarm);
+                    startActivity(skip2ExactAlarm);
                 }
         ));
     }

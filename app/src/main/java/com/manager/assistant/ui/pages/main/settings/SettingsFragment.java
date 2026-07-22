@@ -16,7 +16,6 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
 import com.manager.assistant.auxiliary.enums.RadiusStyle;
-import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.data.save.preference.SecurityPreference;
 import com.manager.assistant.databinding.FragmentSettingsBinding;
 import com.manager.assistant.auxiliary.enums.settings.AuthOpportunity;
@@ -318,11 +317,11 @@ public class SettingsFragment extends Fragment {
                 R.drawable.outline_visibility_off_24,
                 RadiusStyle.BOTTOM
         );
-        boolean isHidden = AutoBookKeepingPreference.getHideRecentTask(requireContext());
+        boolean isHidden = SecurityPreference.getHideRecentTask(requireContext());
         hideRecentTask.setChecked(isHidden);
         hideRecentTask.setFunctionListener(
                 (compoundButton, checked) ->
-                        AutoBookKeepingPreference.setHideRecentTask(checked, requireContext())
+                        SecurityPreference.setHideRecentTask(checked, requireContext())
         );
     }
 

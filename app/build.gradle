@@ -79,4 +79,5 @@ dependencies {
     implementation libs.room.rxjava3                // Room的 RxJava 支持
     implementation libs.mapstruct                   // Pojo 与 Entity 转换
     annotationProcessor libs.mapstruct.processor    // Mapstruct 注解处理器
+    implementation libs.lifecycle.process           // 生命周期监听
 }

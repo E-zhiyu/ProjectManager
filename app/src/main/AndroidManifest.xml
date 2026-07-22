@@ -93,6 +93,10 @@
             android:windowSoftInputMode="adjustResize"
             android:exported="false" />
         <activity
+            android:name=".ui.pages.AuthActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+        <activity
             android:name=".ui.pages.main.MainActivity"
             android:exported="true">
             <intent-filter>
@@ -146,5 +150,4 @@
             </intent-filter>
         </service>
     </application>
-
 </manifest>

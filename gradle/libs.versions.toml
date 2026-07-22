@@ -31,6 +31,7 @@ roomRuntime = "2.8.4"
 roomCompiler = "2.8.4"
 mapstruct = "1.6.3"
 recyclerviewSelection = "1.2.0"
+lifecycleProcess = "2.10.0"
 
 [libraries]
 core = { module = "io.noties.markwon:core", version.ref = "core" }
@@ -68,6 +69,7 @@ mapstruct = { module = "org.mapstruct:mapstruct", version.ref = "mapstruct" }
 mapstruct-processor = { module = "org.mapstruct:mapstruct-processor", version.ref = "mapstruct" }
 recyclerview-selection = { group = "androidx.recyclerview", name = "recyclerview-selection", version.ref = "recyclerviewSelection" }
 work-rxjava3 = { module = "androidx.work:work-rxjava3", version.ref = "workRuntime" }
+lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "lifecycleProcess" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
