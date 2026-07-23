@@ -3,6 +3,7 @@ package com.manager.assistant.ui.pages.notification_rule;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -308,6 +309,14 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
                     binding.regexLayout.setError("内容正则表达式不能为空");
                 }
             }
+        });
+        binding.regexLayout.setEndIconOnClickListener(v -> {
+            int cursorPosition = binding.regexInput.getSelectionStart();
+            Editable editable = binding.regexInput.getEditableText();
+            final String INSERT_REGEX = "(\\d+\\.?\\d{0,2})";
+
+            //在光标位置插入文本
+            editable.insert(cursorPosition, INSERT_REGEX);
         });
 
         //标签选择按钮

@@ -131,7 +131,6 @@
     <style name="UserInputEditTextStyle" parent="Widget.Material3.TextInputEditText.OutlinedBox.Dense">
         <item name="android:inputType">text</item>
         <item name="android:textColorHighlight">?attr/colorSurfaceVariant</item>
-        <item name="android:maxLength">20</item>
     </style>
 
     <!-- 自动填充文本框样式 -->
