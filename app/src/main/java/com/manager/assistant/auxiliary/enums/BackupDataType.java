@@ -21,7 +21,7 @@ public enum BackupDataType {
             RunningAccountBackupHelper::new
     ),
     NOTIFICATION_RULE(
-            "通知解析规则数据",
+            "通知规则数据",
             "notification_rule.json",
             NotificationRuleBackupHelper::new
     ),
