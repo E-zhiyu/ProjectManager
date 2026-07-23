@@ -61,10 +61,12 @@
         <activity
             android:name=".ui.pages.budget.BudgetInputActivity"
             android:exported="false"
+            android:parentActivityName=".ui.pages.budget.BudgetListActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.pages.budget.BudgetListActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".ui.pages.main.MainActivity" />
         <activity
             android:name=".ui.pages.media.FullScreenMediaActivity"
             android:exported="false" />
@@ -74,24 +76,30 @@
         <activity
             android:name=".ui.pages.notification_rule.NotificationRuleInputActivity"
             android:exported="false"
+            android:parentActivityName=".ui.pages.notification_rule.NotificationRuleListActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.pages.notification_rule.NotificationRuleListActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".ui.pages.main.MainActivity" />
         <activity
             android:name=".ui.pages.tag.TagListActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".ui.pages.main.MainActivity" />
         <activity
             android:name=".ui.pages.tag.TagInputActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".ui.pages.tag.TagListActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.pages.report.ReportActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".ui.pages.main.MainActivity" />
         <activity
             android:name=".ui.pages.main.bookkeeping.RunningAccountInputActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".ui.pages.main.MainActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.pages.AuthActivity"
             android:exported="false"

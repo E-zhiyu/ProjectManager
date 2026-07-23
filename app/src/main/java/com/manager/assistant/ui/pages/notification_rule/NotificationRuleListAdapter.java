@@ -38,6 +38,30 @@ public class NotificationRuleListAdapter extends ListAdapter<NotificationRuleEnt
         super(ITEM_CALLBACK);
         this.clickListener = clickListener;
         this.longClickListener = longClickListener;
+
+        //注册数据变更监听器，用于自动更新圆角
+        registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                notifyItemChanged(positionStart - 1);           //更新前面的
+                notifyItemChanged(positionStart + itemCount);   //更新后面的
+            }
+
+            @Override
+            public void onItemRangeRemoved(int positionStart, int itemCount) {
+                notifyItemChanged(positionStart - 1);   //更新前面的
+                notifyItemChanged(positionStart);               //更新后面的
+            }
+
+            @Override
+            public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+                notifyItemChanged(fromPosition - 1);    //更新前面的
+                notifyItemChanged(fromPosition);                //更新后面的
+
+                notifyItemChanged(toPosition - 1);      //更新前面的
+                notifyItemChanged(toPosition + 1);      //更新后面的
+            }
+        });
     }
 
     public static class NotificationRuleViewHolder extends RecyclerView.ViewHolder {
@@ -99,5 +123,8 @@ public class NotificationRuleListAdapter extends ListAdapter<NotificationRuleEnt
 
         //包名
         holder.binding.packageNameText.setText(rule.getPackageName());
+
+        //设置圆角
+        AppearanceHelper.setRecyclerItemRadius(holder.itemView, getItemCount(), position);
     }
 }

@@ -14,7 +14,13 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
 
 import com.manager.assistant.R;
-import com.manager.assistant.data.controllers.AccountDataController;
+import com.manager.assistant.auxiliary.enums.settings.NotificationCancelBehaviour;
+import com.manager.assistant.auxiliary.enums.settings.NotificationClickBehaviour;
+import com.manager.assistant.data.save.db.BookkeepingDb;
+import com.manager.assistant.data.save.db.converters.DateTimeConverter;
+import com.manager.assistant.data.save.db.entities.AccountEntity;
+import com.manager.assistant.data.save.db.entities.AccountTransferEntity;
+import com.manager.assistant.data.save.db.services.AccountService;
 import com.manager.assistant.data.save.preference.AutoBookKeepingPreference;
 import com.manager.assistant.auxiliary.enums.ChannelInfo;
 import com.manager.assistant.auxiliary.enums.KeyStrings;
@@ -22,18 +28,30 @@ import com.manager.assistant.auxiliary.enums.PendingRequestCode;
 import com.manager.assistant.helpers.NotificationHelper;
 import com.manager.assistant.ui.pages.main.bookkeeping.RunningAccountInputActivity;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
+    private final CompositeDisposable disposable = new CompositeDisposable();
+
     @Override
     public void onReceive(Context context, @NonNull Intent intent) {
-        Bundle dataBundle = intent.getExtras();
-        String ruleName = intent.getStringExtra(KeyStrings.ANALYSIS_RULE_NAME.v()); //规则名称
+        Bundle bundle = intent.getExtras();                                         //流水记录数据包
+        String ruleName = intent.getStringExtra(KeyStrings.NOTIFICATION_RULE_NAME.v()); //规则名称
         int notificationID = intent.getIntExtra(KeyStrings.NOTIFICATION_ID.v(), -1);
         String action = intent.getAction();
-        if (action == null || dataBundle == null || notificationID == -1) {
+        if (action == null || bundle == null || notificationID == -1) {
             return;
         }
+
+        //设置为异步状态
+        PendingResult syncResult = goAsync();
 
         //根据action执行接下来的逻辑
         if (action.equals(BroadcastActions.ACTION_INPUT_REMARK.toString())) {
@@ -42,240 +60,186 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
                 return;
             }
 
-            String remark = inputResults.getString(KeyStrings.ACCOUNT_REMARK.v());
+            String remark = inputResults.getString(KeyStrings.RUNNING_REMARK.v());
             if (remark == null) {
                 return;
             }
 
-            //选取前20个字符
-            if (remark.length() > 20) {
-                remark = remark.substring(0, 19);
-            }
-
-            onRemarkInput(context, notificationID, remark, dataBundle, ruleName);  //限制备注为20长度
+            bundle.putString(KeyStrings.RUNNING_REMARK.v(), remark);    //覆盖数据包中的备注
+            saveAccountData(syncResult, bundle, ruleName, notificationID, context);
         } else if (action.equals(BroadcastActions.ACTION_KEEP.toString())) {
-            onAccountKept(context, notificationID, dataBundle, ruleName);
+            saveAccountData(syncResult, bundle, ruleName, notificationID, context);
         } else if (action.equals(BroadcastActions.ACTION_DELETE.toString())) {
-            onAccountDeleted(context, notificationID, ruleName);
-        } else if (action.equals(BroadcastActions.ACTION_AUTO_BOOKKEEPING_NOTIFICATION_DELETED.toString())) {
-            onNotificationDeleted(context, dataBundle);
-        } else if (action.equals(BroadcastActions.ACTION_AUTO_BOOKKEEPING_NOTIFICATION_CLICKED.toString())) {
-            onNotificationClicked(context, dataBundle, notificationID, ruleName);
-        }
-    }
-
-    /**
-     * 保留按钮点击回调
-     *
-     * @param context        上下文
-     * @param notificationID 触发该接收器的通知的ID
-     * @param dataBundle     流水数据包
-     * @param ruleName       触发自动记账的规则名称
-     */
-    private void onAccountKept(Context context, int notificationID, @NonNull Bundle dataBundle, String ruleName) {
-        //保存数据并更新UI
-        writeDataAndBroadcast(dataBundle, context);
-
-        //创建通知构建器
-        String content = String.format(Locale.getDefault(), "已保留由“%s”触发的记录，点击查看详情", ruleName);
-        String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
-        PendingIntent accountModifyPendingIntent = getAccountDetailPendingIntent(dataBundle, context);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("保留成功")
-                .setContentText(content)
-                .setContentIntent(accountModifyPendingIntent)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setCategory(NotificationCompat.CATEGORY_CALL)
-                .setTimeoutAfter(3000)
-                .setAutoCancel(true);
-
-        //发送通知
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-            NotificationHelper.sendNotification(
-                    notificationID,
-                    builder,
-                    context
-            );
-        }
-    }
-
-    /**
-     * 备注输入回调
-     *
-     * @param context        上下文
-     * @param notificationID 触发该接收器的通知的ID
-     * @param remark         用户输入的备注
-     * @param dataBundle     流水数据包
-     * @param ruleName       触发自动记账的规则名称
-     */
-    private void onRemarkInput(Context context, int notificationID, String remark, @NonNull Bundle dataBundle, String ruleName) {
-        //修改数据包中的备注
-        dataBundle.putString(KeyStrings.ACCOUNT_REMARK.v(), remark);
-
-        //保存数据并更新UI
-        writeDataAndBroadcast(dataBundle, context);
-
-        //创建通知构建器
-        String content = String.format(Locale.getDefault(), "备注成功并保留由“%s”触发的记录，点击查看详情", ruleName);
-        String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
-        PendingIntent accountModifyPendingIntent = getAccountDetailPendingIntent(dataBundle, context);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("备注输入成功")
-                .setContentText(content)
-                .setContentIntent(accountModifyPendingIntent)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setCategory(NotificationCompat.CATEGORY_CALL)
-                .setTimeoutAfter(3000)
-                .setAutoCancel(true);
-
-        //发送通知
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-            NotificationHelper.sendNotification(
-                    notificationID,
-                    builder,
-                    context
-            );
-        }
-    }
-
-    /**
-     * 删除按钮点击回调
-     *
-     * @param context        上下文
-     * @param notificationID 触发该接收器的通知的ID
-     * @param ruleName       触发自动记账的规则名称
-     */
-    private void onAccountDeleted(Context context, int notificationID, String ruleName) {
-        //创建通知构建器
-        String content = String.format(Locale.getDefault(), "已删除由“%s”触发的记录", ruleName);
-        String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("删除成功")
-                .setContentText(content)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setCategory(NotificationCompat.CATEGORY_CALL)
-                .setTimeoutAfter(1500)
-                .setAutoCancel(true);
-
-        //发送通知
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-            NotificationHelper.sendNotification(
-                    notificationID,
-                    builder,
-                    context
-            );
-        }
-    }
-
-    /**
-     * 通知被划走回调
-     *
-     * @param context    上下文
-     * @param dataBundle 流水记录数据包
-     */
-    private void onNotificationDeleted(@NonNull Context context, Bundle dataBundle) {
-        //决定是否保存记录
-        int behaviour = AutoBookKeepingPreference.getNotificationCancelBehaviour(context);
-        if (behaviour == 0) {
-            //TODO:将数据写入数据库（处理这几种不同的情况）
-            long rno = AccountDataController.saveNewAccount(dataBundle, context);
-            dataBundle.putLong(KeyStrings.ACCOUNT_ID.v(), rno);
-        }
-    }
-
-    /**
-     * 记账确认通知点击回调
-     *
-     * @param context        上下文
-     * @param dataBundle     流水数据包
-     * @param notificationID 自动记账确认通知的ID
-     * @param ruleName       触发自动记账的规则名称
-     */
-    private void onNotificationClicked(Context context, Bundle dataBundle, int notificationID, String ruleName) {
-        int behaviour = AutoBookKeepingPreference.getNotificationClickBehaviour(context);
-        if (behaviour == 1) {
-            //将数据写入数据库
-            long rno = AccountDataController.saveNewAccount(dataBundle, context);
-            dataBundle.putLong(KeyStrings.ACCOUNT_ID.v(), rno);
-
-            //创建通知构建器
-            String content = String.format(Locale.getDefault(), "已保留由“%s”触发的记录，点击查看详情", ruleName);
-            String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
-            PendingIntent accountModifyPendingIntent = getAccountDetailPendingIntent(dataBundle, context);
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle("保留成功")
-                    .setContentText(content)
-                    .setContentIntent(accountModifyPendingIntent)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setCategory(NotificationCompat.CATEGORY_CALL)
-                    .setTimeoutAfter(3000)
-                    .setAutoCancel(true);
-
-            //发送通知
-            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-                NotificationHelper.sendNotification(
-                        notificationID,
-                        builder,
-                        context
-                );
+            sendAbadonNotification(context, notificationID, ruleName);
+            disposable.dispose();
+            syncResult.finish();
+        } else if (action.equals(BroadcastActions.ACTION_NOTIFICATION_CANCELED.toString())) {
+            int behaviour = AutoBookKeepingPreference.getNotificationCancelBehaviour(context);
+            if (behaviour == NotificationCancelBehaviour.KEEP.getItemId()) {
+                saveAccountData(syncResult, bundle, ruleName, notificationID, context);
+            } else {
+                sendAbadonNotification(context, notificationID, ruleName);
+                disposable.dispose();
+                syncResult.finish();
             }
-        } else if (behaviour == 2) {
-            //创建通知构建器
-            String content = String.format(Locale.getDefault(), "已删除由“%s”触发的记录", ruleName);
-            String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle("删除成功")
-                    .setContentText(content)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setCategory(NotificationCompat.CATEGORY_CALL)
-                    .setTimeoutAfter(1500)
-                    .setAutoCancel(true);
-
-            //发送通知
-            NotificationHelper.sendNotification(
-                    notificationID,
-                    builder,
-                    context
-            );
+        } else if (action.equals(BroadcastActions.ACTION_NOTIFICATION_CLICKED.toString())) {
+            int behaviour = AutoBookKeepingPreference.getNotificationClickBehaviour(context);
+            if (behaviour == NotificationClickBehaviour.KEEP.getItemId()) {
+                saveAccountData(syncResult, bundle, ruleName, notificationID, context);
+            } else if (behaviour == NotificationClickBehaviour.ABADON.getItemId()) {
+                sendAbadonNotification(context, notificationID, ruleName);
+                disposable.dispose();
+                syncResult.finish();
+            }
         }
     }
 
     /**
-     * 将流水数据写入数据库并发送本地广播更新UI
+     * 获取能够跳转到流水记录输入界面的 PendingInten
      *
-     * @param dataBundle 流水记录数据包
-     * @param context    上下文
+     * @param accountId 新添加的流水记录的编号
+     * @param context   上下文
+     * @return 能够跳转到流水记录输入界面的 PendingIntent
      */
-    private void writeDataAndBroadcast(Bundle dataBundle, Context context) {
-        //将数据写入数据库
-        long rno = AccountDataController.saveNewAccount(dataBundle, context);
-        dataBundle.putLong(KeyStrings.ACCOUNT_ID.v(), rno);
-    }
+    private PendingIntent getAccountDetailPendingIntent(long accountId, Context context) {
+        //生成数据包
+        Bundle bundle = new Bundle();
+        bundle.putLong(KeyStrings.RUNNING_ID.v(), accountId);
 
-    /**
-     * 获取能够跳转到流水记录输入界面的PendingInten
-     *
-     * @param dataBundle 需要传递的流水记录数据包
-     * @param context    上下文
-     * @return 能够跳转到流水记录输入界面的PendingInten
-     */
-    private PendingIntent getAccountDetailPendingIntent(Bundle dataBundle, Context context) {
-        Intent skip2AccountModify = new Intent(context, RunningAccountInputActivity.class);
-        skip2AccountModify.putExtras(dataBundle);
+        //生成 Intent
+        Intent skip2AccountInput = new Intent(context, RunningAccountInputActivity.class);
+        skip2AccountInput.putExtras(bundle);
+        skip2AccountInput.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); //新开一个任务栈
 
-        //传递标识：新建任务并清除旧任务
-        skip2AccountModify.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
+        //生成 PendingIntent
         return PendingIntent.getActivity(
                 context,
                 PendingRequestCode.SKIP_TO_ACCOUNT_INPUT.ordinal(),
-                skip2AccountModify,
+                skip2AccountInput,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
+    }
+
+    /**
+     * 将流水记录数据保存到数据库中
+     *
+     * @param syncResult     保持异步状态的对象
+     * @param bundle         包含流水记录数据的数据包
+     * @param ruleName       触发的通知规则的名称
+     * @param notificationID 通知唯一标识符，用于覆盖通知监听服务中发送的通知
+     * @param context        上下文
+     */
+    private void saveAccountData(PendingResult syncResult, @NonNull Bundle bundle, String ruleName, int notificationID, Context context) {
+        //解包数据包
+        long dateTimeMillis = bundle.getLong(KeyStrings.RUNNING_DATETIME.v());
+        int type = bundle.getInt(KeyStrings.RUNNING_TYPE.v());
+        String remark = bundle.getString(KeyStrings.RUNNING_REMARK.v());
+        double amount = bundle.getDouble(KeyStrings.RUNNING_AMOUNT.v());
+        long[] tagIds = bundle.getLongArray(KeyStrings.TAG_ID.v());
+        List<Long> tagIdList;
+        if (tagIds != null) {
+            tagIdList = Arrays.stream(tagIds)
+                    .boxed()
+                    .collect(Collectors.toList());
+        } else {
+            tagIdList = null;
+        }
+        String exportAccount = bundle.getString(KeyStrings.RUNNING_EXPORT_ACCOUNT.v());
+        String importAccount = bundle.getString(KeyStrings.RUNNING_IMPORT_ACCOUNT.v());
+
+        //实例化实体类
+        AccountEntity account = new AccountEntity(amount, remark, type, DateTimeConverter.toLocalDateTime(dateTimeMillis));
+        AccountTransferEntity transfer = new AccountTransferEntity(exportAccount, importAccount);
+
+        //保存数据
+        BookkeepingDb db = BookkeepingDb.getInstance(context);
+        disposable.add(AccountService.addNewAccount(account, transfer, null, tagIdList, db)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(
+                        accountId -> {
+                            //创建通知构建器
+                            String content = String.format(Locale.getDefault(), "已保留由“%s”触发的记录，点击查看详情", ruleName);
+                            String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
+                            PendingIntent accountModifyPendingIntent = getAccountDetailPendingIntent(accountId, context);
+                            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
+                                    .setSmallIcon(R.mipmap.ic_launcher)
+                                    .setContentTitle("自动记账")
+                                    .setContentText(content)
+                                    .setContentIntent(accountModifyPendingIntent)
+                                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                                    .setCategory(NotificationCompat.CATEGORY_CALL)
+                                    .setTimeoutAfter(3000)
+                                    .setAutoCancel(true);
+
+                            //发送通知
+                            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                                NotificationHelper.sendNotification(
+                                        notificationID,
+                                        builder,
+                                        context
+                                );
+                            }
+
+                            disposable.dispose();
+                            syncResult.finish();
+                        },
+                        e -> {
+                            //创建通知构建器
+                            String content = String.format(Locale.getDefault(), "写入由“%s”触发的记录时出错", ruleName);
+                            String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
+                            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
+                                    .setSmallIcon(R.mipmap.ic_launcher)
+                                    .setContentTitle("自动记账")
+                                    .setContentText(content)
+                                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                                    .setCategory(NotificationCompat.CATEGORY_CALL)
+                                    .setTimeoutAfter(3000)
+                                    .setAutoCancel(true);
+
+                            //发送通知
+                            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                                NotificationHelper.sendNotification(
+                                        notificationID,
+                                        builder,
+                                        context
+                                );
+                            }
+
+                            disposable.dispose();
+                            syncResult.finish();
+                        }
+                )
+        );
+    }
+
+    /**
+     * 舍弃操作
+     *
+     * @param context        上下文
+     * @param notificationID 触发该接收器的通知的ID
+     * @param ruleName       触发自动记账的规则名称
+     */
+    private void sendAbadonNotification(Context context, int notificationID, String ruleName) {
+        //创建通知构建器
+        String content = String.format(Locale.getDefault(), "已舍弃由“%s”触发的记录", ruleName);
+        String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("自动记账")
+                .setContentText(content)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_CALL)
+                .setTimeoutAfter(3000)
+                .setAutoCancel(true);
+
+        //发送通知
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            NotificationHelper.sendNotification(
+                    notificationID,
+                    builder,
+                    context
+            );
+        }
     }
 }

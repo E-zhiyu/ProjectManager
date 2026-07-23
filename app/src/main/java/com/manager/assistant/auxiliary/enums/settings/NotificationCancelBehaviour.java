@@ -2,7 +2,7 @@ package com.manager.assistant.auxiliary.enums.settings;
 
 public enum NotificationCancelBehaviour {
     KEEP(0, 0, 0, "保留记录"),
-    DELETE(0, 1, 1, "删除记录");
+    ABADON(0, 1, 1, "舍弃记录");
     private final int groupId;  //分组编号
     private final int itemId;   //选项编号
     private final int order;    //顺序

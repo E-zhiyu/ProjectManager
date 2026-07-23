@@ -11,6 +11,7 @@ public class NotificationRulePojo {
     private String targetTitle;
     private String contentRegex;
     private int captureGroupPos;
+    private boolean enabled;
 
     public NotificationRulePojo() {
     }
@@ -69,5 +70,13 @@ public class NotificationRulePojo {
 
     public void setCaptureGroupPos(int captureGroupPos) {
         this.captureGroupPos = captureGroupPos;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

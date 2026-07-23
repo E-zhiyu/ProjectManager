@@ -29,11 +29,11 @@ public class AccountDataController {
         SQLiteDatabase db = dbHelper.openWriteLink();
 
         //读取数据包的数据
-        AccountType type = AccountType.valueOf(dataBundle.getString(KeyStrings.ACCOUNT_TYPE.v()));
-        String remark = dataBundle.getString(KeyStrings.ACCOUNT_REMARK.v());
+        AccountType type = AccountType.valueOf(dataBundle.getString(KeyStrings.RUNNING_TYPE.v()));
+        String remark = dataBundle.getString(KeyStrings.RUNNING_REMARK.v());
         if (remark == null) remark = "";
-        double amount = dataBundle.getDouble(KeyStrings.ACCOUNT_AMOUNT.v(), -1);
-        String datetime = dataBundle.getString(KeyStrings.ACCOUNT_DATETIME.v());
+        double amount = dataBundle.getDouble(KeyStrings.RUNNING_AMOUNT.v(), -1);
+        String datetime = dataBundle.getString(KeyStrings.RUNNING_DATETIME.v());
         long tagNo = dataBundle.getLong(KeyStrings.TAG_ID.v());
 
         //生成ContentValues
@@ -49,8 +49,8 @@ public class AccountDataController {
 
         //判断是否为特殊类型
         if (type == AccountType.TRANSFER) {
-            String exportAccount = dataBundle.getString(KeyStrings.ACCOUNT_EXPORT.v());
-            String importAccount = dataBundle.getString(KeyStrings.ACCOUNT_IMPORT.v());
+            String exportAccount = dataBundle.getString(KeyStrings.RUNNING_EXPORT_ACCOUNT.v());
+            String importAccount = dataBundle.getString(KeyStrings.RUNNING_IMPORT_ACCOUNT.v());
 
             ContentValues specialValues = new ContentValues();
             specialValues.put(Columns.EXPORT.toString(), exportAccount);

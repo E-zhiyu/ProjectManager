@@ -38,13 +38,13 @@ public class AppListViewModel extends ViewModel {
                 searchKeywordProcessor.debounce(50, TimeUnit.MILLISECONDS),
                 sysAppVisibilityProcessor.debounce(50, TimeUnit.MILLISECONDS),
                 (keyword, sysAppVisible) -> {
-                    if (appListCache == null || sysAppVisible != isSysAppVisible) {
+//                    if (sysAppVisible != isSysAppVisible) {
                         appListCache = AppListHelper.getInstalledApps(sysAppVisible, context);
                         isSysAppVisible = sysAppVisible;
-                    }
+//                    }
 
                     return appListCache.stream()
-                            .filter(app -> keyword.isEmpty() || app.getAppName().contains(keyword))
+                            .filter(app -> keyword.isEmpty() || app.getAppName().toLowerCase().contains(keyword.toLowerCase()))
                             .sorted(Comparator.comparing(AppInfo::getAppName))
                             .collect(Collectors.toList());
                 }

@@ -173,6 +173,7 @@ public class AppSelectActivity extends AppCompatActivity {
         searchBackHandler = new BackPressedCallbackHelper.BackHandler() {
             @Override
             public boolean handleBack() {
+                VisibilityHelper.toggleVisibilityWithFade(binding.loadingIndicator, true);
                 setSearchMode(false);
                 AppListViewModel viewModel = new ViewModelProvider(AppSelectActivity.this).get(AppListViewModel.class);
                 viewModel.executeSearch("");

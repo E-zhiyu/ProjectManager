@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -168,8 +169,8 @@ public interface AccountDao {
      * @param tagIdList       与该记录绑定的标签的 ID 列表
      */
     @Transaction
-    default void addAccount(AccountEntity account, AccountTransferEntity transfer, @NonNull List<MediaEntity> mediaEntityList, @NonNull List<Long> tagIdList) {
-        Long accountId = insertAccount(account);
+    default long addAccount(AccountEntity account, AccountTransferEntity transfer, @Nullable List<MediaEntity> mediaEntityList, @Nullable List<Long> tagIdList) {
+        long accountId = insertAccount(account);
 
         //写入转账账户数据
         if (account.getType() == AccountType.TRANSFER.ordinal()) {
@@ -178,20 +179,26 @@ public interface AccountDao {
         }
 
         //生成媒体实体列表并写入数据
-        List<MediaEntity> availableMediaList = mediaEntityList.stream() //赋予流水记录编号
-                .peek(mediaEntity -> mediaEntity.setAccountId(accountId))
-                .collect(Collectors.toList());
-        insertMedia(availableMediaList);
+        if (mediaEntityList != null) {
+            List<MediaEntity> availableMediaList = mediaEntityList.stream() //赋予流水记录编号
+                    .peek(mediaEntity -> mediaEntity.setAccountId(accountId))
+                    .collect(Collectors.toList());
+            insertMedia(availableMediaList);
+        }
 
         //生成标签映射列表并写入数据
-        List<AccountTagRefEntity> tagRefEntityList = tagIdList.stream()
-                .map(id -> new AccountTagRefEntity(accountId, id))
-                .collect(Collectors.toList());
-        insertAccountTagRef(tagRefEntityList);
+        if (tagIdList != null) {
+            List<AccountTagRefEntity> tagRefEntityList = tagIdList.stream()
+                    .map(id -> new AccountTagRefEntity(accountId, id))
+                    .collect(Collectors.toList());
+            insertAccountTagRef(tagRefEntityList);
+        }
 
         //更新预算余额
         updateBudgetListAmountByTagId(-account.getAmount(), tagIdList, account.getDateTime());
         limitBudgetLeftAmountByTagId(tagIdList, account.getDateTime());
+
+        return accountId;
     }
 
     /**

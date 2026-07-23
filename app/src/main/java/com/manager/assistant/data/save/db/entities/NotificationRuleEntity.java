@@ -23,6 +23,8 @@ public class NotificationRuleEntity {
     private String contentRegex;        //通知内容正则
     @ColumnInfo(defaultValue = "1")
     private int captureGroupPos;        //金额捕获组位置
+    @ColumnInfo(defaultValue = "true")
+    private boolean enabled;            //是否启用
 
     public NotificationRuleEntity(String name, int type, String packageName, String targetTitle, String contentRegex, int captureGroupPos) {
         this.name = name;
@@ -31,6 +33,7 @@ public class NotificationRuleEntity {
         this.targetTitle = targetTitle;
         this.contentRegex = contentRegex;
         this.captureGroupPos = captureGroupPos;
+        enabled = true;
     }
 
     public long getRuleId() {
@@ -87,5 +90,13 @@ public class NotificationRuleEntity {
 
     public void setCaptureGroupPos(int captureGroupPos) {
         this.captureGroupPos = captureGroupPos;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

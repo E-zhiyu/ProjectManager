@@ -110,7 +110,7 @@ public class BookKeepingFragment extends Fragment {
                 (entity, anchor) -> {
                     long accountId = entity.getAccountId();
                     Bundle bundle = new Bundle();
-                    bundle.putLong(KeyStrings.ACCOUNT_ID.v(), accountId);
+                    bundle.putLong(KeyStrings.RUNNING_ID.v(), accountId);
 
                     Intent skip2AccountInput = new Intent(requireContext(), RunningAccountInputActivity.class);
                     skip2AccountInput.putExtras(bundle);

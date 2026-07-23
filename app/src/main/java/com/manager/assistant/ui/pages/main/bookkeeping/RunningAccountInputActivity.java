@@ -75,7 +75,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -251,7 +250,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
             binding.toolbar.setTitle(R.string.modify_running_account);
 
             //读取初始数据
-            long accountId = initBundle.getLong(KeyStrings.ACCOUNT_ID.v());
+            long accountId = initBundle.getLong(KeyStrings.RUNNING_ID.v());
             BookkeepingDb db = BookkeepingDb.getInstance(this);
             disposable.add(db.accountDao().getAccountWithDetailSingleById(accountId)
                     .observeOn(AndroidSchedulers.mainThread())
@@ -272,8 +271,9 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                                 binding.remarkInput.setText(account.getRemark());                   //备注
                                 type = AccountType.values()[account.getType()];
                                 binding.typeInput.setText(type.getTitle());                         //种类
-                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-                                binding.datetimeInput.setText(account.getDateTime().format(formatter)); //日期和时间
+                                binding.datetimeInput.setText(account.getDateTime().format(
+                                        CustomDateTimeFormatter.DATE_TIME
+                                ));                                                                 //日期和时间
                                 if (type == AccountType.TRANSFER) {
                                     binding.exportAccountLayout.setVisibility(View.VISIBLE);
                                     binding.importAccountLayout.setVisibility(View.VISIBLE);
@@ -466,7 +466,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
             //创建移动任务，并逐个返回移动成功的 File 型 Uri
             Observable<MediaEntity> moveTask = Observable.create(emitter -> {
                 File targetDir = DirectoryPaths.MEDIA.getDir(this);
-                long accountId = initBundle == null ? 0 : initBundle.getLong(KeyStrings.ACCOUNT_ID.v());
+                long accountId = initBundle == null ? 0 : initBundle.getLong(KeyStrings.RUNNING_ID.v());
 
                 for (MediaEntity originMedia : currentMediaList) {
                     if (newMediaSet.contains(originMedia)) {
@@ -699,7 +699,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
         List<MediaEntity> mediaList = new ArrayList<>(mediaAdapter.getCurrentList());
 
         //更新列表
-        long accountId = initBundle == null ? 0 : initBundle.getLong(KeyStrings.ACCOUNT_ID.v());
+        long accountId = initBundle == null ? 0 : initBundle.getLong(KeyStrings.RUNNING_ID.v());
         mediaList.add(new MediaEntity(tempPictureUri, accountId));
         mediaAdapter.submitList(mediaList);
     }
@@ -749,7 +749,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
 
                 //保存到列表中
                 Uri successfulUri = Uri.fromFile(resultFile);
-                long accountId = initBundle == null ? 0 : initBundle.getLong(KeyStrings.ACCOUNT_ID.v());
+                long accountId = initBundle == null ? 0 : initBundle.getLong(KeyStrings.RUNNING_ID.v());
                 MediaEntity media = new MediaEntity(successfulUri, accountId);
                 mediaList.add(media);
 
@@ -856,7 +856,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(
-                            () -> {
+                            accountId -> {
                                 Toast.makeText(this, "流水记录添加成功", Toast.LENGTH_SHORT).show();
                                 finish();
                             },
@@ -872,7 +872,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                     )
             );
         } else {
-            long accountId = initBundle.getLong(KeyStrings.ACCOUNT_ID.v());
+            long accountId = initBundle.getLong(KeyStrings.RUNNING_ID.v());
             account.setAccountId(accountId);
             disposable.add(AccountService.modifyAccount(account, transfer, copiedMediaUriList, tagIdList, this)
                     .observeOn(AndroidSchedulers.mainThread())

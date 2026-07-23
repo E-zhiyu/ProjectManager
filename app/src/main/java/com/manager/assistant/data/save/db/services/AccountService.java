@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 
+import com.manager.assistant.auxiliary.classes.CustomDateTimeFormatter;
 import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.converters.DateTimeConverter;
 import com.manager.assistant.data.save.db.daos.AccountDao;
@@ -15,7 +16,6 @@ import com.manager.assistant.data.save.db.entities.MediaEntity;
 import com.manager.assistant.data.save.db.entities.composite.ui.AccountUiModel;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Single;
 
 public class AccountService {
     /**
@@ -134,11 +135,10 @@ public class AccountService {
                             ));
 
                     //转换为 UiModel
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd EEEE");
                     List<AccountUiModel> resultList = new ArrayList<>();
                     for (Map.Entry<LocalDate, List<AccountEntity>> entry : dateGroupedMap.entrySet()) {
                         LocalDate date = entry.getKey();
-                        String dateStr = date.format(formatter);
+                        String dateStr = date.format(CustomDateTimeFormatter.DATE_WITH_WEEK);
                         resultList.add(new AccountUiModel.Separator(dateStr));
 
                         List<AccountUiModel.Item> itemList = entry.getValue().stream()
@@ -159,12 +159,12 @@ public class AccountService {
      * @param mediaEntityList 位于永久目录下的媒体文件实体列表
      * @param tagIdList       与该记录绑定的标签的 ID 列表
      * @param db              数据库实例
-     * @return 是否完成
+     * @return 新添加的流水记录的编号
      */
-    public static Completable addNewAccount(AccountEntity account, AccountTransferEntity transfer, List<MediaEntity> mediaEntityList, List<Long> tagIdList, BookkeepingDb db) {
-        return Completable.defer(() -> {
-            db.accountDao().addAccount(account, transfer, mediaEntityList, tagIdList);
-            return Completable.complete();
+    public static Single<Long> addNewAccount(AccountEntity account, AccountTransferEntity transfer, @Nullable List<MediaEntity> mediaEntityList, @Nullable List<Long> tagIdList, BookkeepingDb db) {
+        return Single.defer(() -> {
+            long accountId = db.accountDao().addAccount(account, transfer, mediaEntityList, tagIdList);
+            return Single.just(accountId);
         });
     }
 

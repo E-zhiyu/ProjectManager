@@ -3,7 +3,7 @@ package com.manager.assistant.auxiliary.enums.settings;
 public enum NotificationClickBehaviour {
     NONE(0,0,0,"无"),
     KEEP(0, 1, 1, "保留记录"),
-    DELETE(0, 2, 2, "删除记录");
+    ABADON(0, 2, 2, "舍弃记录");
     private final int groupId;  //分组编号
     private final int itemId;   //选项编号
     private final int order;    //顺序

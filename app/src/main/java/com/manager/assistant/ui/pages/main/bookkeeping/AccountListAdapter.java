@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.manager.assistant.R;
+import com.manager.assistant.auxiliary.classes.CustomDateTimeFormatter;
 import com.manager.assistant.auxiliary.enums.RadiusStyle;
 import com.manager.assistant.auxiliary.interfaces.adapter.AdapterOnClickListener;
 import com.manager.assistant.auxiliary.interfaces.adapter.AdapterOnLongClickListener;
@@ -23,12 +24,10 @@ import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.ui.others.decoration.sticky.StickyHeaderAdapter;
 import com.manager.assistant.auxiliary.enums.AccountType;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 public class AccountListAdapter extends ListAdapter<AccountUiModel, RecyclerView.ViewHolder>
         implements StickyHeaderAdapter<String> {
-    private final static DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final int TYPE_ITEM = 1;
     private static final int TYPE_SEPARATOR = 0;
     public static final DiffUtil.ItemCallback<AccountUiModel> ITEM_CALLBACK = new DiffUtil.ItemCallback<>() {
@@ -138,7 +137,7 @@ public class AccountListAdapter extends ListAdapter<AccountUiModel, RecyclerView
         if (model instanceof AccountUiModel.Separator) {
             return ((AccountUiModel.Separator) model).text;
         } else if (model instanceof AccountUiModel.Item) {
-            return ((AccountUiModel.Item) model).entity.getDateTime().format(FORMATTER);
+            return ((AccountUiModel.Item) model).entity.getDateTime().format(CustomDateTimeFormatter.DATE_WITH_WEEK);
         } else {
             return context.getString(R.string.not_applicable);
         }
@@ -199,7 +198,7 @@ public class AccountListAdapter extends ListAdapter<AccountUiModel, RecyclerView
 
             //获取流水数据
             String type = AccountType.values()[account.getType()].getTitle();
-            String datetime = account.getDateTime().format(FORMATTER);
+            String datetime = account.getDateTime().format(CustomDateTimeFormatter.DATE_TIME);
             String typeAndDatetime = String.format(Locale.getDefault(), "%s·%s", type, datetime);
             String remark = account.getRemark();
             double amount = account.getAmount();

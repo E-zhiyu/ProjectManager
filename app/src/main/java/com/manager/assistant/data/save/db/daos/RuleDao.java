@@ -52,6 +52,15 @@ public interface RuleDao {
     Single<Optional<NotificationRuleWithDetailModel>> getNotificationRuleWithDetailSingleById(long ruleId);
 
     /**
+     * 获取已启用的通知规则
+     *
+     * @return 已启用的通知规则，带有标签和转账账户等信息
+     */
+    @Transaction
+    @Query("SELECT * FROM notificationRules WHERE enabled = 1")
+    Flowable<List<NotificationRuleWithDetailModel>> getEnabledNotificationRuleFlowable();
+
+    /**
      * 插入通知规则
      *
      * @param rule 需要插入的通知规则

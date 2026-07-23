@@ -113,5 +113,6 @@ public abstract class BookkeepingDb extends RoomDatabase {
             tagDao().insertTagGroup(defaultGroup);
             return Completable.complete();
         });
+        //TODO:填充默认规则
     }
 }

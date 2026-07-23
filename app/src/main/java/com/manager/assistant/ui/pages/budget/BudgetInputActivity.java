@@ -34,7 +34,6 @@ import com.manager.assistant.ui.others.viewmodel.TagMultiSelectViewModel;
 import com.manager.assistant.ui.pages.main.bookkeeping.AccountTagAdapter;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -292,10 +291,9 @@ public class BudgetInputActivity extends AppCompatActivity {
      */
     private void refreshFrequencyHelpText() {
         //获取上一次重置日期
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate lastResetDate = LocalDate.parse(
                 String.valueOf(binding.startDateInput.getText()),
-                formatter
+                CustomDateTimeFormatter.DATE
         );
 
         //计算下一次重置日期
@@ -319,11 +317,10 @@ public class BudgetInputActivity extends AppCompatActivity {
 
         //更新重置频率输入框布局的 help 文本
         if (nextResetDate != null) {
-            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             String helpText = String.format(
                     Locale.getDefault(),
                     "预算将在%s重置",
-                    nextResetDate.atStartOfDay().format(timeFormatter)
+                    nextResetDate.atStartOfDay().format(CustomDateTimeFormatter.DATE_TIME)
             );
             binding.resetFrequencyLayout.setHelperText(helpText);
         }
