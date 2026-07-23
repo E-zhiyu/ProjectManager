@@ -21,7 +21,6 @@ public class AppListViewModel extends ViewModel {
     private final BehaviorProcessor<Boolean> sysAppVisibilityProcessor =
             BehaviorProcessor.createDefault(false); //搜索关键词处理器
     private boolean isSysAppVisible = false;                   //是否显示系统应用
-    private List<AppInfo> appListCache = null;                 //应用列表缓存
 
     public boolean isSysAppVisible() {
         return isSysAppVisible;
@@ -38,13 +37,14 @@ public class AppListViewModel extends ViewModel {
                 searchKeywordProcessor.debounce(50, TimeUnit.MILLISECONDS),
                 sysAppVisibilityProcessor.debounce(50, TimeUnit.MILLISECONDS),
                 (keyword, sysAppVisible) -> {
-//                    if (sysAppVisible != isSysAppVisible) {
-                        appListCache = AppListHelper.getInstalledApps(sysAppVisible, context);
-                        isSysAppVisible = sysAppVisible;
-//                    }
+                    List<AppInfo> appListCache = AppListHelper.getInstalledApps(sysAppVisible, context);
+                    isSysAppVisible = sysAppVisible;
 
                     return appListCache.stream()
-                            .filter(app -> keyword.isEmpty() || app.getAppName().toLowerCase().contains(keyword.toLowerCase()))
+                            .filter(app ->
+                                    keyword.isEmpty() ||
+                                            app.getAppName().toLowerCase().contains(keyword.toLowerCase())
+                            )
                             .sorted(Comparator.comparing(AppInfo::getAppName))
                             .collect(Collectors.toList());
                 }

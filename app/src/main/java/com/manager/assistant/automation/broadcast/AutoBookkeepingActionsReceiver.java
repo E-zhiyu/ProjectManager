@@ -1,15 +1,12 @@
 package com.manager.assistant.automation.broadcast;
 
-import android.Manifest;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
 
@@ -173,13 +170,11 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
                                     .setAutoCancel(true);
 
                             //发送通知
-                            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-                                NotificationHelper.sendNotification(
-                                        notificationID,
-                                        builder,
-                                        context
-                                );
-                            }
+                            NotificationHelper.sendNotification(
+                                    notificationID,
+                                    builder,
+                                    context
+                            );
 
                             disposable.dispose();
                             syncResult.finish();
@@ -198,13 +193,11 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
                                     .setAutoCancel(true);
 
                             //发送通知
-                            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-                                NotificationHelper.sendNotification(
-                                        notificationID,
-                                        builder,
-                                        context
-                                );
-                            }
+                            NotificationHelper.sendNotification(
+                                    notificationID,
+                                    builder,
+                                    context
+                            );
 
                             disposable.dispose();
                             syncResult.finish();
@@ -234,12 +227,10 @@ public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
                 .setAutoCancel(true);
 
         //发送通知
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-            NotificationHelper.sendNotification(
-                    notificationID,
-                    builder,
-                    context
-            );
-        }
+        NotificationHelper.sendNotification(
+                notificationID,
+                builder,
+                context
+        );
     }
 }

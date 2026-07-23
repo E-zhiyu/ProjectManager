@@ -4,11 +4,12 @@ import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.RingtoneManager;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresPermission;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -83,12 +84,18 @@ public class NotificationHelper {
      * @param builder        已经设置好的通知构建器
      * @param context        上下文
      */
-    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     public static void sendNotification(
             int notificationID,
             @NonNull NotificationCompat.Builder builder,
             @NonNull Context context
     ) {
-        NotificationManagerCompat.from(context).notify(notificationID, builder.build());
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            //兼容性
+            builder.setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setDefaults(NotificationCompat.DEFAULT_ALL);
+
+            //发送通知
+            NotificationManagerCompat.from(context).notify(notificationID, builder.build());
+        }
     }
 }

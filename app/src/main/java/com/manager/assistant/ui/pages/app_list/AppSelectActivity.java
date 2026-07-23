@@ -203,6 +203,7 @@ public class AppSelectActivity extends AppCompatActivity {
                     }
 
                     if (allGranted) {
+                        VisibilityHelper.toggleVisibilityWithFade(binding.loadingIndicator, true);
                         AppListViewModel viewModel1 = new ViewModelProvider(this).get(AppListViewModel.class);
                         viewModel1.executeSearch("");
                     }
