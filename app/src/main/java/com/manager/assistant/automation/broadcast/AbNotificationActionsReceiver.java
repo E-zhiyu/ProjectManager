@@ -34,7 +34,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class AutoBookkeepingActionsReceiver extends BroadcastReceiver {
+public class AbNotificationActionsReceiver extends BroadcastReceiver {
     private final CompositeDisposable disposable = new CompositeDisposable();
 
     @Override

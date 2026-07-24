@@ -14,7 +14,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
 
 import com.manager.assistant.R;
-import com.manager.assistant.automation.broadcast.AutoBookkeepingActionsReceiver;
+import com.manager.assistant.automation.broadcast.AbNotificationActionsReceiver;
 import com.manager.assistant.auxiliary.enums.ChannelInfo;
 import com.manager.assistant.auxiliary.enums.LogTags;
 import com.manager.assistant.automation.broadcast.BroadcastActions;
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class AutoBkNotificationListenerService extends NotificationListenerService {
+public class AbNotificationListenerService extends NotificationListenerService {
     private final CompositeDisposable disposable = new CompositeDisposable();
     private final Map<RuleKey, List<NotificationRuleWithDetailModel>> ruleMap = new HashMap<>(); //解析规则哈希表
     private String lastPackageName = "";                                //上一次接收通知的包名
@@ -355,7 +355,7 @@ public class AutoBkNotificationListenerService extends NotificationListenerServi
         );
 
         //创建通知被取消的 PendingIntent
-        Intent notificationCancelIntent = new Intent(context, AutoBookkeepingActionsReceiver.class);
+        Intent notificationCancelIntent = new Intent(context, AbNotificationActionsReceiver.class);
         notificationCancelIntent.setAction(BroadcastActions.ACTION_NOTIFICATION_CANCELED.toString());
         notificationCancelIntent.putExtra(KeyStrings.NOTIFICATION_ID.v(), notificationId);
         notificationCancelIntent.putExtras(bundle);                                        //发送流水记录数据包
@@ -386,7 +386,7 @@ public class AutoBkNotificationListenerService extends NotificationListenerServi
         //创建通知点击 PendingIntent
         int clickBehaviourCode = AutoBookKeepingPreference.getNotificationClickBehaviour(context);
         if (clickBehaviourCode != NotificationClickBehaviour.NONE.getItemId()) {
-            Intent notificationClickIntent = new Intent(context, AutoBookkeepingActionsReceiver.class);
+            Intent notificationClickIntent = new Intent(context, AbNotificationActionsReceiver.class);
             notificationClickIntent.setAction(BroadcastActions.ACTION_NOTIFICATION_CLICKED.toString());
             notificationClickIntent.putExtra(KeyStrings.NOTIFICATION_ID.v(), notificationId);
             notificationClickIntent.putExtras(bundle);                                      //发送流水记录数据
@@ -436,7 +436,7 @@ public class AutoBkNotificationListenerService extends NotificationListenerServi
             RemoteInput remoteInput
     ) {
         //创建Intent
-        Intent intent = new Intent(context, AutoBookkeepingActionsReceiver.class);
+        Intent intent = new Intent(context, AbNotificationActionsReceiver.class);
         intent.setAction(actionId);
         intent.putExtra(KeyStrings.NOTIFICATION_ID.v(), notificationId);
         intent.putExtras(dataBundle);                                   //发送流水记录数据包
