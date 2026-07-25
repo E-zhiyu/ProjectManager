@@ -1,119 +1,183 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.pages.report.ReportActivity">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:title="@string/title_report" />
-
-    <com.google.android.material.button.MaterialSplitButton
-        android:id="@+id/date_select_split_btn"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar">
+        android:fitsSystemWindows="true">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/date_select_btn"
-            style="?attr/materialSplitButtonLeadingFilledStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/select_date"
-            app:icon="@drawable/outline_calendar_month_24" />
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            style="@style/CollapsingToolbarLayoutStyle"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/collapsingToolbarLayoutMediumSize"
+            app:toolbarId="@id/toolbar">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/date_range_select_btn"
-            style="?attr/materialSplitButtonIconFilledStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:icon="@drawable/outline_unfold_more_24" />
-    </com.google.android.material.button.MaterialSplitButton>
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
+                app:title="@string/report" />
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
-        android:id="@id/scroll_view"
+        android:id="@+id/scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
         android:clipToPadding="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/date_select_split_btn">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
+            android:id="@+id/scroll_layout"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <com.google.android.material.button.MaterialSplitButton
+                android:id="@+id/date_select_split_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/date_select_btn"
+                    style="?attr/materialSplitButtonLeadingFilledStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/select_date"
+                    app:icon="@drawable/outline_calendar_month_24" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/date_range_select_btn"
+                    style="?attr/materialSplitButtonIconFilledStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/outline_unfold_more_24" />
+            </com.google.android.material.button.MaterialSplitButton>
+
+            <!-- 日期范围卡片 -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/report_balance_cardview"
+                android:id="@+id/date_card"
                 style="@style/MediumRadiusCardStyle"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="1dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:paddingStart="5dp"
-                    android:paddingEnd="5dp">
+                    android:paddingTop="20dp"
+                    android:paddingBottom="20dp">
 
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/balance_title_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingBottom="5dp"
-                        android:text="@string/balance"
-                        android:textAppearance="?attr/textAppearanceTitleLarge"
-                        app:layout_constraintBottom_toTopOf="@id/date_range_text"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
+                    <!-- 日期范围文本 -->
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/date_range_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingTop="0dp"
-                        android:paddingBottom="5dp"
-                        android:text="@string/this_month"
-                        android:textAppearance="?attr/textAppearanceTitleMedium"
-                        app:layout_constraintBottom_toTopOf="@id/balance_text"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/balance_title_text" />
+                        android:gravity="center"
+                        android:text="@string/not_applicable"
+                        android:textAppearance="?attr/textAppearanceHeadline6"
+                        app:layout_constraintBottom_toTopOf="@id/date_range_title"
+                        app:layout_constraintEnd_toEndOf="@id/date_range_title"
+                        app:layout_constraintStart_toStartOf="@id/date_range_title"
+                        app:layout_constraintTop_toTopOf="parent" />
 
+                    <!-- 日期范围标题 -->
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/date_range_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:text="@string/date_range"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="?attr/colorOutline"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/date_range_text" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 金额卡片 -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/amount_card"
+                style="@style/MediumRadiusCardStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                app:layout_constraintBottom_toTopOf="@id/report_card"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/date_card">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingTop="20dp"
+                    android:paddingBottom="20dp">
+
+                    <!-- 结余文本 -->
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/balance_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingTop="0dp"
-                        android:paddingBottom="5dp"
-                        android:text="@string/balance"
-                        android:textAppearance="?attr/textAppearanceTitleLarge"
-                        app:layout_constraintBottom_toTopOf="@id/expense_income_text"
+                        android:gravity="center"
+                        android:text="@string/not_applicable"
+                        android:textAppearance="?attr/textAppearanceHeadline5"
+                        app:layout_constraintBottom_toTopOf="@id/balance_title"
+                        app:layout_constraintEnd_toStartOf="@id/income_and_expense_text"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/date_range_text" />
+                        app:layout_constraintTop_toTopOf="parent" />
 
+                    <!-- 结余标题 -->
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/expense_income_text"
+                        android:id="@+id/balance_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingStart="10dp"
-                        android:paddingEnd="0dp"
-                        android:paddingBottom="10dp"
-                        android:text="@string/expense_and_income"
-                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:text="@string/balance"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="?attr/colorOutline"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="@id/balance_text"
+                        app:layout_constraintStart_toStartOf="@id/balance_text"
                         app:layout_constraintTop_toBottomOf="@id/balance_text" />
+
+                    <!-- 收支文本 -->
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/income_and_expense_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/not_applicable"
+                        android:textAppearance="?attr/textAppearanceHeadline5"
+                        app:layout_constraintBottom_toTopOf="@id/income_and_expense_title"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/balance_text"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <!-- 收支标题 -->
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/income_and_expense_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/income_and_expense"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="?attr/colorOutline"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="@id/income_and_expense_text"
+                        app:layout_constraintStart_toStartOf="@id/income_and_expense_text"
+                        app:layout_constraintTop_toBottomOf="@id/income_and_expense_text" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- 收入来源卡片 -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/income_source_card"
                 style="@style/MediumRadiusCardStyle"
@@ -129,20 +193,24 @@
                     <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginBottom="7dp"
                         android:text="@string/income"
-                        android:textAppearance="?attr/textAppearanceTitleLarge" />
+                        android:textAppearance="?attr/textAppearanceHeadline6" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/income_source_recycler"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:clipToPadding="false"
                         android:nestedScrollingEnabled="false"
-                        android:orientation="vertical"
-                        android:paddingBottom="5dp"
+                        android:paddingBottom="10dp"
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- 支出来源卡片 -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/expense_source_card"
                 style="@style/MediumRadiusCardStyle"
@@ -158,75 +226,55 @@
                     <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginBottom="7dp"
                         android:text="@string/expense"
-                        android:textAppearance="?attr/textAppearanceTitleLarge" />
+                        android:textAppearance="?attr/textAppearanceHeadline6" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/expense_source_recycler"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:clipToPadding="false"
                         android:nestedScrollingEnabled="false"
-                        android:orientation="vertical"
-                        android:paddingBottom="5dp"
+                        android:paddingBottom="10dp"
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 展示每月流水信息 -->
+            <!-- 每月结余 -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/month_account_card"
                 style="@style/MediumRadiusCardStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="vertical"
                     android:paddingBottom="5dp">
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/month_account_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="5dp"
-                        android:text="@string/running_account_every_month"
-                        android:textAppearance="?attr/textAppearanceTitleLarge"
-                        app:layout_constraintBottom_toBottomOf="@id/month_account_type_btn_group"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="@+id/month_account_type_btn_group" />
-
-                    <com.google.android.material.button.MaterialSplitButton
-                        android:id="@+id/month_account_type_btn_group"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="10dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/month_account_type_leading_btn"
-                            style="?attr/materialSplitButtonLeadingFilledStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/balance" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/month_account_type_select_btn"
-                            style="?attr/materialSplitButtonIconFilledStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:icon="@drawable/outline_unfold_more_24" />
-                    </com.google.android.material.button.MaterialSplitButton>
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginBottom="7dp"
+                        android:text="@string/balance_every_month"
+                        android:textAppearance="?attr/textAppearanceHeadline6" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/month_account_recycler"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:clipToPadding="false"
                         android:nestedScrollingEnabled="false"
-                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                        app:layout_constraintTop_toBottomOf="@+id/month_account_type_btn_group" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

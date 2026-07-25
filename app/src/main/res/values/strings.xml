@@ -2,7 +2,7 @@
     <string name="app_name">经理助手</string>
     <string name="title_bookkeeping">记账</string>
     <string name="title_setting">设置</string>
-    <string name="title_report">报表统计</string>
+    <string name="report">报表统计</string>
     <string name="title_manage_tag">标签管理</string>
     <string name="add_tag">新建标签</string>
     <string name="modify_tag">修改标签</string>
@@ -20,7 +20,7 @@
     <string name="date">日期</string>
     <string name="account_statistics">流水统计</string>
     <string name="balance">结余</string>
-    <string name="expense_and_income">支出:∞ | 收入:∞</string>
+    <string name="income_and_expense">收入和支出</string>
     <string name="expenditure_income_source">收支来源</string>
     <string name="income">收入</string>
     <string name="expense">支出</string>
@@ -31,10 +31,9 @@
     <string name="select_tag">选择标签</string>
     <string name="expand_fold_btn">press_to_expand_or_fold</string>
     <string name="group_name">分组名称</string>
-    <string name="today">这一天</string>
-    <string name="this_month">这个月</string>
-    <string name="recent_3_month">近三个月</string>
-    <string name="this_year">这一年</string>
+    <string name="date_range_day">这一天</string>
+    <string name="date_range_month">一个月</string>
+    <string name="date_range_year">一整年</string>
     <string name="percentage_100">100%</string>
     <string name="tag_add">新建标签</string>
     <string name="settings">设置</string>
@@ -53,7 +52,7 @@
     <string name="changelog">更新日志</string>
     <string name="merge_tag">合并标签</string>
     <string name="merge_group">合并分组</string>
-    <string name="running_account_every_month">每月流水</string>
+    <string name="balance_every_month">每月结余</string>
     <string name="num_of_bookkeeping_days">记账天数</string>
     <string name="num_of_running_account">流水记录数量</string>
     <string name="auto_bookkeeping">自动记账</string>
@@ -201,6 +200,7 @@
     <string name="wavy_line">~</string>
     <string name="icon_of_auth">身份验证图标</string>
     <string name="click_to_auth">点击屏幕进行身份验证</string>
+    <string name="others">其他</string>
     <string-array name="tips_array">
         <item>在报表界面可以点击某个收支来源以排除它，还不赶快去试试？</item>
         <item>你知道吗？下面的这些卡片是可以点击的。</item>

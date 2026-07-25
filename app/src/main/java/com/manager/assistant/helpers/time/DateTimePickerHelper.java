@@ -51,6 +51,9 @@ public class DateTimePickerHelper {
 
         //初始化已选中的日期范围
         if (start != null && end != null) {
+            if (end.isAfter(LocalDate.now())) {
+                end = LocalDate.now();
+            }
             long startTimeMilli = start.atStartOfDay()
                     .toInstant(ZoneOffset.UTC)
                     .toEpochMilli();

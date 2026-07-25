@@ -25,6 +25,7 @@ import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
 import com.manager.assistant.ui.pages.budget.BudgetListActivity;
 import com.manager.assistant.ui.pages.notification_rule.NotificationRuleListActivity;
+import com.manager.assistant.ui.pages.report.ReportActivity;
 import com.manager.assistant.ui.pages.tag.TagListActivity;
 
 import java.time.LocalDate;
@@ -98,7 +99,8 @@ public class HomeFragment extends Fragment {
 
         //设置点击监听
         binding.dateCard.setOnClickListener(view -> {
-            //TODO:跳转到报表统计
+            Intent skip2Report = new Intent(requireContext(), ReportActivity.class);
+            startActivity(skip2Report);
         });
         AppearanceHelper.attachMorphAnimation(binding.dateCard);
 
@@ -151,7 +153,8 @@ public class HomeFragment extends Fragment {
 
         //设置点击监听
         binding.reportCard.setOnClickListener(view -> {
-            //TODO:跳转到报表统计
+            Intent skip2Report = new Intent(requireContext(), ReportActivity.class);
+            startActivity(skip2Report);
         });
         AppearanceHelper.attachMorphAnimation(binding.reportCard);
 
@@ -190,7 +193,7 @@ public class HomeFragment extends Fragment {
                             //收支
                             binding.todayIncomeAndExpenseText.setText(String.format(
                                     Locale.getDefault(),
-                                    "%.2f/%.2f",
+                                    "+%.2f/-%.2f",
                                     income,
                                     expense
                             ));
