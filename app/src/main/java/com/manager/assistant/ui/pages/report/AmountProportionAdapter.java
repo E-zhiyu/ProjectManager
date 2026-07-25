@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.manager.assistant.R;
-import com.manager.assistant.data.classes.AmountProportionInfo;
+import com.manager.assistant.auxiliary.classes.AmountProportionInfo;
 import com.manager.assistant.databinding.ViewHolderAmountProportionBinding;
 
 import java.util.Locale;

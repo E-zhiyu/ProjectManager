@@ -1,4 +1,4 @@
-package com.manager.assistant.data.classes;
+package com.manager.assistant.auxiliary.classes;
 
 public class AmountProportionInfo {
     private final int percentage;       //此来源占支出/收入的比例

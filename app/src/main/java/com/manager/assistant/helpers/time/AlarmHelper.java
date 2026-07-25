@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 
 import com.manager.assistant.automation.broadcast.BudgetResetReceiver;
 import com.manager.assistant.auxiliary.enums.LogTags;
-import com.manager.assistant.auxiliary.enums.RequestResultCode;
+import com.manager.assistant.auxiliary.enums.PendingRequestCode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -67,7 +67,7 @@ public class AlarmHelper {
     public static void setBudgetCheckAlarm(Context context) {
         Intent intent = new Intent(context, BudgetResetReceiver.class);
         LocalDateTime tomorrowStart = LocalDate.now().plusDays(1).atStartOfDay();
-        setAlarm(tomorrowStart, RequestResultCode.REQUEST_BUDGET_RESET_ALARM.ordinal(), intent, context);
+        setAlarm(tomorrowStart, PendingRequestCode.BUDGET_RESET_ALARM.ordinal(), intent, context);
     }
 
     /**

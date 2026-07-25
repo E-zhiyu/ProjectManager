@@ -18,7 +18,7 @@ import com.manager.assistant.R;
 import com.manager.assistant.auxiliary.classes.CustomDateTimeFormatter;
 import com.manager.assistant.auxiliary.enums.AccountType;
 import com.manager.assistant.auxiliary.enums.DateRangeType;
-import com.manager.assistant.data.classes.AmountProportionInfo;
+import com.manager.assistant.auxiliary.classes.AmountProportionInfo;
 import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.entities.AccountEntity;
 import com.manager.assistant.data.save.db.entities.TagEntity;
