@@ -16,8 +16,8 @@
         <item name="layout_scrollFlags">scroll|exitUntilCollapsed|snap</item>
     </style>
 
-    <style name="CardStyleBase" parent="Widget.Material3.CardView.Filled">
-        <item name="cardBackgroundColor">@color/card_background_color</item>
+    <style name="CardStyleBase" parent="Widget.Material3.CardView.Elevated">
+        <item name="strokeWidth">0dp</item>
     </style>
 
     <!-- 大圆角卡片容器器样式 -->
@@ -36,16 +36,6 @@
         <item name="android:layout_marginStart">10dp</item>
         <item name="android:layout_marginEnd">10dp</item>
         <item name="android:layout_marginBottom">10dp</item>
-    </style>
-
-    <!-- 淡色中等圆角卡片容器 -->
-    <style name="LightMediumRadiusCardStyle" parent="CardStyleBase">
-        <item name="cardCornerRadius">20dp</item>
-        <item name="android:layout_marginTop">10dp</item>
-        <item name="android:layout_marginStart">10dp</item>
-        <item name="android:layout_marginEnd">10dp</item>
-        <item name="android:layout_marginBottom">10dp</item>
-        <item name="cardBackgroundColor">@color/light_card_background_color</item>
     </style>
 
     <!-- 开关样式 -->

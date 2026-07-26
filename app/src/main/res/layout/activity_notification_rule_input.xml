@@ -151,7 +151,7 @@
                 style="@style/CommonTextInputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:endIconDrawable="@drawable/outline_text_increase_24"
+                app:endIconDrawable="@drawable/outline_add_24"
                 app:endIconMode="custom"
                 app:helperText="@string/rule_notification_content_help">
 

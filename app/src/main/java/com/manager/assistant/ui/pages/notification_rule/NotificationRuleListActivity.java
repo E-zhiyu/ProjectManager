@@ -25,6 +25,7 @@ import com.manager.assistant.auxiliary.enums.KeyStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.helpers.PermissionHelper;
 import com.manager.assistant.helpers.appearence.AppearanceHelper;
+import com.manager.assistant.ui.others.dialogs.MarkdownDialogBuilder;
 
 import java.util.Locale;
 
@@ -75,6 +76,48 @@ public class NotificationRuleListActivity extends AppCompatActivity {
     private void initViews() {
         //设置标题栏的图标点击监听器
         binding.toolbar.setNavigationOnClickListener(v -> finish());
+
+        //功能说明按钮
+        binding.helpBtn.setOnClickListener(view -> {
+            final String EXPLANATION = "### 1. 工作原理\n" +
+                    "当手机上的其他应用（如支付宝、微信、银行APP、短信）发出包含交易金额的通知时，本APP会：\n" +
+                    "\n" +
+                    "1. 识别通知来自哪个应用；\n" +
+                    "2. 根据应用来源和通知标题，找到合适的“通知规则”；\n" +
+                    "3. 用“通知规则”中的“正则表达式”从通知内容中“抓取”金额数字；\n" +
+                    "4. 自动生成一条流水记录，存入账本。\n" +
+                    "\n" +
+                    "整个过程全自动，您无需手动输入金额。\n" +
+                    "\n" +
+                    "---\n" +
+                    "\n" +
+                    "### 2. 几个关键概念\n" +
+                    "- **正则表达式**：一种“文本搜索模板”，可以精确地从一段文字中找出您想要的内容（比如“¥123.45”或“+88.00”）。\n" +
+                    "- **捕获组**：正则表达式中用圆括号 `( )` 括起来的部分，表示“我只想提取括号里的那一小段”。  \n" +
+                    "> 例：通知内容是“消费￥99.00元”，正则写为 `消费￥([\\d.]+)元`，捕获组 `([\\d.]+)` 就会提取出 `99.00`。\n\n" +
+                    "> 若您不清楚正则表达式的用法，请尝试询问AI工具，并使用[Regex101](https://regex101.com/)进行测试。\n" +
+                    "\n" +
+                    "---\n" +
+                    "\n" +
+                    "### 3. 使用建议（非常重要）\n" +
+                    "为保证规则能实时生效，请务必完成以下设置：\n" +
+                    "\n" +
+                    "- **开启自启动权限**（不同手机路径略不同）：允许APP在手机重启后自动运行；\n" +
+                    "- **电池优化设为“无限制”**：避免系统休眠时关闭APP的通知监听服务；\n" +
+                    "- **在最近任务列表中锁定APP**（通常下拉应用卡片或点击锁图标）：防止一键清理后台时被误杀。\n" +
+                    "\n" +
+                    "> 若未完成上述设置，可能会出现通知收不到或无法自动记账的情况。\n" +
+                    "\n" +
+                    "---\n" +
+                    "\n" +
+                    "### 4. 免责声明\n" +
+                    "- 本功能 **完全在本地运行**，所有通知数据仅用于金额提取和记账；\n" +
+                    "- **APP不会以任何形式收集、存储或上传您的通知内容、金额信息或任何个人数据**；\n" +
+                    "- 您创建的所有规则仅保存在本机，请您放心使用。";
+            new MarkdownDialogBuilder(this, "功能介绍", EXPLANATION)
+                    .setNegativeButton("关闭", null)
+                    .show();
+        });
 
         //添加规则按钮
         binding.addFab.setOnClickListener(v -> {
