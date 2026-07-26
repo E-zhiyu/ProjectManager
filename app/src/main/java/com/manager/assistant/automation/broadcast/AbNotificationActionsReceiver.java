@@ -9,6 +9,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
+import androidx.core.app.TaskStackBuilder;
 
 import com.manager.assistant.R;
 import com.manager.assistant.auxiliary.enums.settings.NotificationCancelBehaviour;
@@ -105,15 +106,14 @@ public class AbNotificationActionsReceiver extends BroadcastReceiver {
         //生成 Intent
         Intent skip2AccountInput = new Intent(context, RunningAccountInputActivity.class);
         skip2AccountInput.putExtras(bundle);
-        skip2AccountInput.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); //新开一个任务栈
 
         //生成 PendingIntent
-        return PendingIntent.getActivity(
-                context,
-                PendingRequestCode.SKIP_TO_ACCOUNT_INPUT.ordinal(),
-                skip2AccountInput,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
+        return TaskStackBuilder.create(context)
+                .addNextIntentWithParentStack(skip2AccountInput)
+                .getPendingIntent(
+                        PendingRequestCode.SKIP_TO_ACCOUNT_INPUT.ordinal(),
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                );
     }
 
     /**
