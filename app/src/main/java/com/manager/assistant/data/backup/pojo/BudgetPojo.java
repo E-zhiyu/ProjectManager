@@ -10,6 +10,7 @@ public class BudgetPojo {
     private double leftAmount;
     private long startDate;
     private int resetFrequency;
+    private int lowBalanceRatio;
 
     public BudgetPojo() {
     }
@@ -60,5 +61,13 @@ public class BudgetPojo {
 
     public void setResetFrequency(int resetFrequency) {
         this.resetFrequency = resetFrequency;
+    }
+
+    public int getLowBalanceRatio() {
+        return lowBalanceRatio;
+    }
+
+    public void setLowBalanceRatio(int lowBalanceRatio) {
+        this.lowBalanceRatio = lowBalanceRatio;
     }
 }

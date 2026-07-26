@@ -1,5 +1,6 @@
 package com.manager.assistant.data.save.db.entities;
 
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
@@ -21,13 +22,16 @@ public class BudgetEntity {
     private double leftAmount;      //余额
     private LocalDate startDate;    //起算日期
     private int resetFrequency;     //重置频率
+    @ColumnInfo(defaultValue = "10")
+    private int lowBalanceRatio;    //余额抵预警百分比
 
-    public BudgetEntity(String name, double initAmount, double leftAmount, LocalDate startDate, int resetFrequency) {
+    public BudgetEntity(String name, double initAmount, double leftAmount, LocalDate startDate, int resetFrequency, int lowBalanceRatio) {
         this.name = name;
         this.initAmount = initAmount;
         this.leftAmount = leftAmount;
         this.startDate = startDate;
         this.resetFrequency = resetFrequency;
+        this.lowBalanceRatio = lowBalanceRatio;
     }
 
     public long getBudgetId() {
@@ -76,5 +80,13 @@ public class BudgetEntity {
 
     public void setResetFrequency(int resetFrequency) {
         this.resetFrequency = resetFrequency;
+    }
+
+    public int getLowBalanceRatio() {
+        return lowBalanceRatio;
+    }
+
+    public void setLowBalanceRatio(int lowBalanceRatio) {
+        this.lowBalanceRatio = lowBalanceRatio;
     }
 }
