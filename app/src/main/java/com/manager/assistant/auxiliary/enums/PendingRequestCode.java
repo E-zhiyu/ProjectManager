@@ -2,7 +2,7 @@ package com.manager.assistant.auxiliary.enums;
 
 public enum PendingRequestCode {
     BUDGET_RESET_ALARM,                     //设置预算重置闹钟
-    BUDGET_NOTIFICATION,                    //TODO:预算余额低提醒通知发送
+    BUDGET_LOW_BALANCE,                     //预算余额低提醒通知
     ACCOUNT_KEEP,                           //自动记账通知中保留按钮的请求代码
     ACCOUNT_DELETE,                         //自动记账通知中删除按钮的请求代码
     ACCOUNT_INPUT_REMARK,                   //自动记账通知中输入备注的请求代码
