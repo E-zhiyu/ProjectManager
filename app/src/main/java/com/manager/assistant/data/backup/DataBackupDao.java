@@ -100,6 +100,18 @@ public interface DataBackupDao {
         clearTagGroupData();
         clearTagData();
 
+        //标签分组数据
+        List<TagGroupPojo> tagGroupPojoList = data.getTagGroupList();
+        if (tagGroupPojoList != null && !tagGroupPojoList.isEmpty()) {
+            writeTagGroupData(mapper.toTagGroupEntityList(tagGroupPojoList));
+        }
+
+        //标签数据
+        List<TagPojo> tagPojoList = data.getTagList();
+        if (tagPojoList != null && !tagPojoList.isEmpty()) {
+            writeTagData(mapper.toTagEntityList(tagPojoList));
+        }
+
         //流水记录数据
         List<AccountPojo> accountPojoList = data.getAccountList();
         if (accountPojoList != null && !accountPojoList.isEmpty()) {
@@ -122,18 +134,6 @@ public interface DataBackupDao {
         List<MediaPojo> mediaPojoList = data.getMediaList();
         if (mediaPojoList != null && !mediaPojoList.isEmpty()) {
             writeMediaData(mapper.toMediaEntityList(mediaPojoList));
-        }
-
-        //标签分组数据
-        List<TagGroupPojo> tagGroupPojoList = data.getTagGroupList();
-        if (tagGroupPojoList != null && !tagGroupPojoList.isEmpty()) {
-            writeTagGroupData(mapper.toTagGroupEntityList(tagGroupPojoList));
-        }
-
-        //标签数据
-        List<TagPojo> tagPojoList = data.getTagList();
-        if (tagPojoList != null && !tagPojoList.isEmpty()) {
-            writeTagData(mapper.toTagEntityList(tagPojoList));
         }
     }
 
