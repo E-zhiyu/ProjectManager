@@ -193,7 +193,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <!-- 添加按钮 -->
+                <!-- 标签选择按钮 -->
                 <ImageButton
                     android:id="@+id/tag_select_btn"
                     style="@style/ImageButtonStyle"
@@ -201,6 +201,18 @@
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/btn_of_media_add"
                     android:src="@drawable/outline_edit_note_24"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/tag_explain_btn"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <!-- 说明按钮 -->
+                <ImageButton
+                    android:id="@+id/tag_explain_btn"
+                    style="@style/ImageButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/btn_of_explanation"
+                    android:src="@drawable/outline_help_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />

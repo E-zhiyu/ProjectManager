@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -48,6 +49,7 @@ import com.manager.assistant.data.save.db.entities.MediaEntity;
 import com.manager.assistant.data.save.db.entities.TagEntity;
 import com.manager.assistant.data.save.db.entities.composite.AccountWithDetailModel;
 import com.manager.assistant.data.save.db.services.AccountService;
+import com.manager.assistant.data.save.preference.TipPreference;
 import com.manager.assistant.databinding.ActivityRunningAccountInputBinding;
 import com.manager.assistant.auxiliary.enums.DirectoryPaths;
 import com.manager.assistant.auxiliary.enums.KeyStrings;
@@ -406,6 +408,12 @@ public class RunningAccountInputActivity extends AppCompatActivity {
             bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_BOTTOM.t());
         });
 
+        //标签说明按钮
+        binding.tagExplainBtn.setOnClickListener(view -> {
+            final String EXPLANATION = "使用标签标记，便于分类，同时还能支持预算自动管理等自动化功能";
+            TipPreference.showTipWithoutKey(view, Gravity.START, EXPLANATION);
+        });
+
         //媒体添加按钮
         binding.mediaAddBtn.setOnClickListener(view -> {
             MediaAddBottomSheet bottomSheet = new MediaAddBottomSheet();
@@ -430,6 +438,12 @@ public class RunningAccountInputActivity extends AppCompatActivity {
             List<MediaEntity> mediaList = new ArrayList<>(mediaAdapter.getCurrentList());
             mediaList.removeAll(mediaListToBeDeleted);
             mediaAdapter.submitList(mediaList);
+        });
+
+        //媒体说明按钮
+        binding.mediaExplainBtn.setOnClickListener(view -> {
+            final String EXPLANATION = "利用媒体文件保存更多流水信息，便于日后快速了解详情";
+            TipPreference.showTipWithoutKey(view, Gravity.START, EXPLANATION);
         });
 
         //完成按钮

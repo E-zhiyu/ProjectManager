@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -25,7 +26,8 @@ import com.manager.assistant.data.save.db.entities.NotificationRuleTransferEntit
 import com.manager.assistant.data.save.db.entities.TagEntity;
 import com.manager.assistant.data.save.db.entities.composite.NotificationRuleWithDetailModel;
 import com.manager.assistant.data.save.db.services.RuleService;
-import com.manager.assistant.databinding.ActivityRuleInputBinding;
+import com.manager.assistant.data.save.preference.TipPreference;
+import com.manager.assistant.databinding.ActivityNotificationRuleInputBinding;
 import com.manager.assistant.auxiliary.enums.TagStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
 import com.manager.assistant.auxiliary.enums.KeyStrings;
@@ -55,7 +57,7 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
     private Bundle initBundle = null;                               //存有初始数据数据包
     private AccountType type = AccountType.EXPENSE;                 //流水种类
     private ActivityResultLauncher<Intent> packageNameSelectLauncher;   //包名选择启动器
-    private ActivityRuleInputBinding binding;                       //绑定的XML视图引用
+    private ActivityNotificationRuleInputBinding binding;                       //绑定的XML视图引用
     private final CompositeDisposable disposable = new CompositeDisposable();
     private AccountTagAdapter tagAdapter;                           //标签适配器
 
@@ -64,7 +66,7 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
 
-        binding = ActivityRuleInputBinding.inflate(getLayoutInflater());
+        binding = ActivityNotificationRuleInputBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
@@ -326,6 +328,12 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
             bundle.putInt(KeyStrings.TAG_SCOPE.v(), (int) Math.pow(2, type.ordinal())); //传递标签作用域标识符
             bottomSheet.setArguments(bundle);
             bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_BOTTOM.t());
+        });
+
+        //标签说明按钮
+        binding.tagExplainBtn.setOnClickListener(view -> {
+            final String EXPLANATION = "自动为生成的流水记录添加下列标签";
+            TipPreference.showTipWithoutKey(view, Gravity.START, EXPLANATION);
         });
 
         //确认按钮

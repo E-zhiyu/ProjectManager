@@ -1,6 +1,7 @@
 package com.manager.assistant.ui.pages.budget;
 
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Toast;
 
@@ -20,6 +21,7 @@ import com.manager.assistant.data.save.db.entities.BudgetEntity;
 import com.manager.assistant.data.save.db.entities.TagEntity;
 import com.manager.assistant.data.save.db.entities.composite.BudgetWithDetailModel;
 import com.manager.assistant.data.save.db.services.BudgetService;
+import com.manager.assistant.data.save.preference.TipPreference;
 import com.manager.assistant.databinding.ActivityBudgetInputBinding;
 import com.manager.assistant.auxiliary.enums.KeyStrings;
 import com.manager.assistant.auxiliary.enums.TagStrings;
@@ -154,6 +156,7 @@ public class BudgetInputActivity extends AppCompatActivity {
                                 );
                                 resetFrequency = ResetFrequency.values()[budget.getResetFrequency()];
                                 binding.resetFrequencyInput.setText(resetFrequency.getTitle());             //重置频率
+                                binding.lowBalanceRatioSlider.setValue(budget.getLowBalanceRatio());        //低余额比例
 
                                 //显示标签
                                 if (!tagList.isEmpty()) {
@@ -224,6 +227,18 @@ public class BudgetInputActivity extends AppCompatActivity {
                     refreshFrequencyHelpText();
                 }
         );
+
+        //低余额比例说明按钮
+        binding.lowBalanceRatioExplainBtn.setOnClickListener(view -> {
+            final String EXPLANATION = "余额低于该百分比时发送提醒通知";
+            TipPreference.showTipWithoutKey(view, Gravity.START, EXPLANATION);
+        });
+
+        //标签说明按钮
+        binding.tagExplainBtn.setOnClickListener(view -> {
+            final String EXPLANATION = "当包含下列标签的流水记录变更时自动更新余额";
+            TipPreference.showTipWithoutKey(view, Gravity.START, EXPLANATION);
+        });
 
         //标签选择按钮
         binding.tagSelectBtn.setOnClickListener(view -> {
@@ -415,6 +430,7 @@ public class BudgetInputActivity extends AppCompatActivity {
             leftAmount = 0;
         }
         LocalDate startDate = LocalDate.parse(String.valueOf(binding.startDateInput.getText()).trim(), CustomDateTimeFormatter.DATE);
+        int lowBalanceRatio = (int) binding.lowBalanceRatioSlider.getValue();
 
         //生成标签 ID 列表
         List<Long> tagIdList = tagAdapter.getCurrentList().stream()
@@ -422,7 +438,7 @@ public class BudgetInputActivity extends AppCompatActivity {
                 .collect(Collectors.toList());
 
         BookkeepingDb db = BookkeepingDb.getInstance(this);
-        BudgetEntity budget = new BudgetEntity(name, initAmount, leftAmount, startDate, resetFrequency.ordinal());
+        BudgetEntity budget = new BudgetEntity(name, initAmount, leftAmount, startDate, resetFrequency.ordinal(), lowBalanceRatio);
         if (initBundle == null) {
             disposable.add(BudgetService.addBudget(budget, tagIdList, db)
                     .observeOn(AndroidSchedulers.mainThread())

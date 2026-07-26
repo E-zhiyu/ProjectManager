@@ -1,6 +1,7 @@
 package com.manager.assistant.ui.pages.tag;
 
 import android.os.Bundle;
+import android.view.Gravity;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -17,6 +18,7 @@ import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.entities.TagEntity;
 import com.manager.assistant.data.save.db.entities.TagGroupEntity;
 import com.manager.assistant.data.save.db.services.TagService;
+import com.manager.assistant.data.save.preference.TipPreference;
 import com.manager.assistant.databinding.ActivityTagInputBinding;
 import com.manager.assistant.auxiliary.enums.AccountType;
 import com.manager.assistant.auxiliary.enums.KeyStrings;
@@ -141,6 +143,12 @@ public class TagInputActivity extends AppCompatActivity {
                         e -> ExceptionHelper.showExceptionDialog(this, e)
                 )
         );
+
+        //标签作用域提示文本
+        binding.tagScopeExplainBtn.setOnClickListener(view -> {
+            final String EXPLANATION = "控制该标签的可见范围";
+            TipPreference.showTipWithoutKey(view, Gravity.START, EXPLANATION);
+        });
 
         //完成按钮
         binding.confirmButton.setOnClickListener(v -> {
