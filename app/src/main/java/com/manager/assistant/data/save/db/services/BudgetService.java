@@ -1,16 +1,21 @@
 package com.manager.assistant.data.save.db.services;
 
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.TaskStackBuilder;
 
 import com.manager.assistant.R;
 import com.manager.assistant.auxiliary.enums.ChannelInfo;
 import com.manager.assistant.auxiliary.enums.NotificationID;
+import com.manager.assistant.auxiliary.enums.PendingRequestCode;
 import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.entities.BudgetEntity;
 import com.manager.assistant.helpers.NotificationHelper;
+import com.manager.assistant.ui.pages.budget.BudgetListActivity;
 
 import org.jetbrains.annotations.Contract;
 
@@ -92,12 +97,23 @@ public class BudgetService {
         //构建通知内容
         StringBuilder contentBuilder = getBudgetBalanceContentBuilder(lowBalanceBudgetList);
 
+        //生成通知点击的 PendingIntent
+        Intent skip2BudgetList = new Intent(context, BudgetListActivity.class);
+        PendingIntent clickPendingIntent = TaskStackBuilder.create(context)
+                .addNextIntentWithParentStack(skip2BudgetList)
+                .getPendingIntent(
+                        PendingRequestCode.BUDGET_LOW_BALANCE.ordinal(),
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                );
+
         //生成通知构建器
         int notificationId = NotificationID.BUDGET_AMOUNT_WARNING.ordinal();
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, ChannelInfo.BUDGET_BALANCE.getId())
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("预算提醒")
                 .setContentText(contentBuilder.toString())
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setContentIntent(clickPendingIntent)
                 .setAutoCancel(true);
         NotificationHelper.sendNotification(notificationId, notificationBuilder, context);
     }
