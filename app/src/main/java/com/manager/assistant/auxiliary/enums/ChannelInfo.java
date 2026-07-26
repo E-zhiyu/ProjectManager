@@ -3,16 +3,16 @@ package com.manager.assistant.auxiliary.enums;
 import android.app.NotificationManager;
 
 public enum ChannelInfo {
-    BUDGET_AMOUNT(
-            "budget_amount_channel",
+    BUDGET_BALANCE(
+            "budget_balance_channel",
             "预算提醒",
-            "当预算余额过低时发送通知提醒",
+            "当预算余额低于阈值时发送提醒通知",
             NotificationManager.IMPORTANCE_HIGH
     ),
     AUTO_BOOKKEEPING(
             "auto_bookkeeping_channel",
             "自动记账",
-            "触发自动记账后发送用于确认或修改信息的通知",
+            "触发自动记账后发送确认通知",
             NotificationManager.IMPORTANCE_HIGH
     );
 

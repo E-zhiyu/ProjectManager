@@ -13,7 +13,6 @@ import androidx.core.app.RemoteInput;
 import com.manager.assistant.R;
 import com.manager.assistant.auxiliary.enums.settings.NotificationCancelBehaviour;
 import com.manager.assistant.auxiliary.enums.settings.NotificationClickBehaviour;
-import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.converters.DateTimeConverter;
 import com.manager.assistant.data.save.db.entities.AccountEntity;
 import com.manager.assistant.data.save.db.entities.AccountTransferEntity;
@@ -149,8 +148,7 @@ public class AbNotificationActionsReceiver extends BroadcastReceiver {
         AccountTransferEntity transfer = new AccountTransferEntity(exportAccount, importAccount);
 
         //保存数据
-        BookkeepingDb db = BookkeepingDb.getInstance(context);
-        disposable.add(AccountService.addNewAccount(account, transfer, null, tagIdList, db)
+        disposable.add(AccountService.addNewAccount(account, transfer, null, tagIdList, context)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(

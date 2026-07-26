@@ -1,6 +1,5 @@
 package com.manager.assistant.data.save.db.daos;
 
-import android.content.Context;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
@@ -21,7 +20,6 @@ import com.manager.assistant.data.save.db.entities.AccountEntity;
 import com.manager.assistant.data.save.db.entities.AccountTransferEntity;
 import com.manager.assistant.data.save.db.entities.MediaEntity;
 import com.manager.assistant.data.save.db.entities.composite.AccountWithDetailModel;
-import com.manager.assistant.helpers.file.FileHelper;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -262,12 +260,11 @@ public interface AccountDao {
      * @param tagIdList       修改后的标签列表
      */
     @Transaction
-    default void modifyAccount(
+    default Set<Uri> modifyAccount(
             @NonNull AccountEntity account,
             AccountTransferEntity transfer,
             @NonNull List<MediaEntity> mediaEntityList,
-            @NonNull List<Long> tagIdList,
-            Context context
+            @NonNull List<Long> tagIdList
     ) {
         long accountId = account.getAccountId();
 
@@ -309,10 +306,7 @@ public interface AccountDao {
         limitBudgetLeftAmountByTagId(oldTagIdList, oldDateTime);
         limitBudgetLeftAmountByTagId(tagIdList, dateTime);
 
-        //删除旧媒体文件
-        for (Uri uri : oldMediaUriSet) {
-            FileHelper.deleteFile(uri, context);
-        }
+        return oldMediaUriSet;
     }
 
     /**
@@ -327,9 +321,9 @@ public interface AccountDao {
      * 删除流水记录的事务
      *
      * @param account 需要删除的流水记录
-     * @param context 上下文
+     * @return 需要删除的媒体文件的 Uri
      */
-    default void removeAccount(@NonNull AccountEntity account, Context context) {
+    default Set<Uri> removeAccount(@NonNull AccountEntity account) {
         //获取媒体数据
         Set<Uri> uriSet = new HashSet<>(getMediaUriByAccountId(account.getAccountId()));
 
@@ -342,9 +336,6 @@ public interface AccountDao {
         //删除流水记录
         deleteAccount(account);
 
-        //移除媒体文件
-        for (Uri uri : uriSet) {
-            FileHelper.deleteFile(uri, context);
-        }
+        return uriSet;
     }
 }

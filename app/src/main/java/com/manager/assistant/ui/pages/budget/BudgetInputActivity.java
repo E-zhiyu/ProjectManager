@@ -437,10 +437,9 @@ public class BudgetInputActivity extends AppCompatActivity {
                 .map(TagEntity::getTagId)
                 .collect(Collectors.toList());
 
-        BookkeepingDb db = BookkeepingDb.getInstance(this);
         BudgetEntity budget = new BudgetEntity(name, initAmount, leftAmount, startDate, resetFrequency.ordinal(), lowBalanceRatio);
         if (initBundle == null) {
-            disposable.add(BudgetService.addBudget(budget, tagIdList, db)
+            disposable.add(BudgetService.addBudget(budget, tagIdList, this)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(
@@ -454,7 +453,7 @@ public class BudgetInputActivity extends AppCompatActivity {
         } else {
             long budgetId = initBundle.getLong(KeyStrings.BUDGET_ID.v());
             budget.setBudgetId(budgetId);
-            disposable.add(BudgetService.modifyBudget(budget, tagIdList, db)
+            disposable.add(BudgetService.modifyBudget(budget, tagIdList, this)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(

@@ -52,10 +52,9 @@ public interface BudgetDao {
      * 删除预算
      *
      * @param budget 需要删除的预算
-     * @return 是否完成
      */
     @Delete
-    Completable deleteBudget(BudgetEntity budget);
+    void deleteBudget(BudgetEntity budget);
 
     /**
      * 通过预算 ID 重置预算
@@ -153,4 +152,12 @@ public interface BudgetDao {
                 .collect(Collectors.toList());
         insertBudgetTagRef(refList);
     }
+
+    /**
+     * 获取余额低的预算
+     *
+     * @return 低余额预算列表
+     */
+    @Query("SELECT * FROM budgets WHERE leftAmount <= initAmount * lowBalanceRatio / 100")
+    List<BudgetEntity> getLowBalanceBudget();
 }

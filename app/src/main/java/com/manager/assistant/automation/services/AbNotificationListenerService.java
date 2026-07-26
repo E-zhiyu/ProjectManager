@@ -375,8 +375,6 @@ public class AbNotificationListenerService extends NotificationListenerService {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("自动记账确认")
                 .setContentText(content)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setAutoCancel(true)
                 .addAction(keepAction)                  //点击保留按钮
                 .addAction(remarkInputAction)           //点击更改备注按钮

@@ -864,9 +864,8 @@ public class RunningAccountInputActivity extends AppCompatActivity {
 
         AccountEntity account = new AccountEntity(amount, remark, typeOrdinal, dateTime);
         AccountTransferEntity transfer = new AccountTransferEntity(exportAccount, importAccount);
-        BookkeepingDb db = BookkeepingDb.getInstance(this);
         if (initBundle == null) {
-            disposable.add(AccountService.addNewAccount(account, transfer, copiedMediaUriList, tagIdList, db)
+            disposable.add(AccountService.addNewAccount(account, transfer, copiedMediaUriList, tagIdList, this)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(

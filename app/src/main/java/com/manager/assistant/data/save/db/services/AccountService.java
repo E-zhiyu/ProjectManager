@@ -1,6 +1,7 @@
 package com.manager.assistant.data.save.db.services;
 
 import android.content.Context;
+import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,6 +15,7 @@ import com.manager.assistant.data.save.db.entities.AccountEntity;
 import com.manager.assistant.data.save.db.entities.AccountTransferEntity;
 import com.manager.assistant.data.save.db.entities.MediaEntity;
 import com.manager.assistant.data.save.db.entities.composite.ui.AccountUiModel;
+import com.manager.assistant.helpers.file.FileHelper;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -158,12 +160,23 @@ public class AccountService {
      * @param transfer        转账账户数据（仅当记录类型为转账时会写入）
      * @param mediaEntityList 位于永久目录下的媒体文件实体列表
      * @param tagIdList       与该记录绑定的标签的 ID 列表
-     * @param db              数据库实例
+     * @param context         上下文
      * @return 新添加的流水记录的编号
      */
-    public static Single<Long> addNewAccount(AccountEntity account, AccountTransferEntity transfer, @Nullable List<MediaEntity> mediaEntityList, @Nullable List<Long> tagIdList, BookkeepingDb db) {
+    public static Single<Long> addNewAccount(
+            AccountEntity account,
+            AccountTransferEntity transfer,
+            @Nullable List<MediaEntity> mediaEntityList,
+            @Nullable List<Long> tagIdList,
+            Context context
+    ) {
         return Single.defer(() -> {
+            BookkeepingDb db = BookkeepingDb.getInstance(context);
             long accountId = db.accountDao().addAccount(account, transfer, mediaEntityList, tagIdList);
+
+            //检查预算
+            BudgetService.checkAndSendLowBalanceNotification(context);
+
             return Single.just(accountId);
         });
     }
@@ -187,7 +200,16 @@ public class AccountService {
     ) {
         return Completable.defer(() -> {
             BookkeepingDb db = BookkeepingDb.getInstance(context);
-            db.accountDao().modifyAccount(account, transfer, mediaEntityList, tagIdList, context);
+            Set<Uri> oldMediaUriSet = db.accountDao().modifyAccount(account, transfer, mediaEntityList, tagIdList);
+
+            //删除旧媒体文件
+            for (Uri uri : oldMediaUriSet) {
+                FileHelper.deleteFile(uri, context);
+            }
+
+            //检查预算
+            BudgetService.checkAndSendLowBalanceNotification(context);
+
             return Completable.complete();
         });
     }
@@ -200,9 +222,18 @@ public class AccountService {
      * @return 是否完成
      */
     public static Completable deleteAccount(AccountEntity account, Context context) {
-        BookkeepingDb db = BookkeepingDb.getInstance(context);
         return Completable.defer(() -> {
-            db.accountDao().removeAccount(account, context);
+            BookkeepingDb db = BookkeepingDb.getInstance(context);
+            Set<Uri> oldMediaUriSet = db.accountDao().removeAccount(account);
+
+            //移除媒体文件
+            for (Uri uri : oldMediaUriSet) {
+                FileHelper.deleteFile(uri, context);
+            }
+
+            //检查预算
+            BudgetService.checkAndSendLowBalanceNotification(context);
+
             return Completable.complete();
         });
     }
