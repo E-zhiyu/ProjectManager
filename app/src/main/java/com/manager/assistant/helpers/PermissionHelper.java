@@ -21,6 +21,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.hjq.device.compat.DeviceOs;
@@ -128,6 +130,19 @@ public class PermissionHelper {
                             @Nullable ActivityResultLauncher<String[]> customLauncher) {
         this.activity = activity;
 
+        //注册活动生命周期监听器，用于申请权限
+        activity.getLifecycle().addObserver(new DefaultLifecycleObserver() {
+            @Override
+            public void onResume(@NonNull LifecycleOwner owner) {
+                start();    //每当 Activity 重新运行时，都检查一遍权限
+            }
+
+            @Override
+            public void onDestroy(@NonNull LifecycleOwner owner) {
+                activity.getLifecycle().removeObserver(this);
+            }
+        });
+
         if (customLauncher != null) {
             this.runtimeLauncher = customLauncher;
         } else {
@@ -192,7 +207,7 @@ public class PermissionHelper {
     /**
      * 开始申请权限
      */
-    public void start() {
+    private void start() {
         //检查是否正在处理权限，如果是则直接结束
         if (isProcessing) {
             return;

@@ -21,6 +21,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.manager.assistant.R;
 import com.manager.assistant.data.save.db.BookkeepingDb;
 import com.manager.assistant.data.save.db.entities.BudgetEntity;
+import com.manager.assistant.data.save.db.services.BudgetService;
 import com.manager.assistant.databinding.ActivityBudgetListBinding;
 import com.manager.assistant.auxiliary.enums.KeyStrings;
 import com.manager.assistant.helpers.ExceptionHelper;
@@ -37,7 +38,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class BudgetListActivity extends AppCompatActivity {
     private ActivityBudgetListBinding binding;              //绑定的 XML 布局
     private final CompositeDisposable disposable = new CompositeDisposable();
-    private final PermissionHelper permissionHelper = new PermissionHelper(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,16 +72,11 @@ public class BudgetListActivity extends AppCompatActivity {
         disposable.dispose();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        permissionHelper.start();
-    }
-
     /**
      * 申请一些必要的权限
      */
     private void addPermissionRequests() {
+        PermissionHelper permissionHelper = new PermissionHelper(this);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissionHelper.addPermission(
                     Manifest.permission.POST_NOTIFICATIONS,
@@ -174,17 +169,16 @@ public class BudgetListActivity extends AppCompatActivity {
         new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.delete_budget)
                 .setMessage(message)
-                .setPositiveButton("确定", (dialogInterface, i) -> {
-                    BookkeepingDb db = BookkeepingDb.getInstance(this);
-                    disposable.add(db.budgetDao().deleteBudget(budget)
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribeOn(Schedulers.io())
-                            .subscribe(
-                                    () -> Toast.makeText(this, "预算删除成功", Toast.LENGTH_SHORT).show(),
-                                    e -> ExceptionHelper.showExceptionDialog(this, e)
-                            )
-                    );
-                })
+                .setPositiveButton("确定", (dialogInterface, i) ->
+                        disposable.add(BudgetService.deleteBudget(budget, this)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeOn(Schedulers.io())
+                                .subscribe(
+                                        () -> Toast.makeText(this, "预算删除成功", Toast.LENGTH_SHORT).show(),
+                                        e -> ExceptionHelper.showExceptionDialog(this, e)
+                                )
+                        )
+                )
                 .setNegativeButton("取消", null)
                 .show();
     }

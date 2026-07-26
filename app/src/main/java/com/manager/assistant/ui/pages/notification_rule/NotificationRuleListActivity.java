@@ -36,7 +36,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class NotificationRuleListActivity extends AppCompatActivity {
     private ActivityNotificationRuleListBinding binding;                                    //绑定的 XML 布局
     private final CompositeDisposable disposable = new CompositeDisposable();
-    private final PermissionHelper permissionHelper = new PermissionHelper(this);   //权限申请帮助器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,12 +61,6 @@ public class NotificationRuleListActivity extends AppCompatActivity {
         super.onDestroy();
         binding = null;
         disposable.dispose();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        permissionHelper.start();
     }
 
     /**
@@ -107,7 +100,7 @@ public class NotificationRuleListActivity extends AppCompatActivity {
                     "- **电池优化设为“无限制”**：避免系统休眠时关闭APP的通知监听服务；\n" +
                     "- **在最近任务列表中锁定APP**（通常下拉应用卡片或点击锁图标）：防止一键清理后台时被误杀。\n" +
                     "\n" +
-                    "> 该功能性能开销极小，您无需担心应用常驻后台导致耗电异常。若未完成上述设置，可能会出现通知收不到或无法自动记账的情况。\n" +
+                    "> 通知监听性能开销极小，您无需担心应用常驻后台导致耗电异常。若未完成上述设置，可能会出现通知收不到或无法自动记账的情况。\n" +
                     "\n" +
                     "---\n" +
                     "\n" +
@@ -179,11 +172,13 @@ public class NotificationRuleListActivity extends AppCompatActivity {
      * 添加权限申请
      */
     private void addPermissionRequests() {
+        PermissionHelper permissionHelper = new PermissionHelper(this);   //权限申请帮助器
+
         //添加权限申请
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissionHelper.addPermission(
                     Manifest.permission.POST_NOTIFICATIONS,
-                    "通知权限，用于触发自动记账后发送确认通知。"
+                    "请授予通知权限用于触发自动记账后发送确认通知。"
             );
         }
         permissionHelper.addPermission(

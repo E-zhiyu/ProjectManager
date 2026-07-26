@@ -37,7 +37,6 @@ public class AppSelectActivity extends AppCompatActivity {
     private final CompositeDisposable disposable = new CompositeDisposable();
     private AppListAdapter appListAdapter;              //应用列表适配器
     private ActivityPackageNameSelectBinding binding;   //绑定的 XML 视图
-    private PermissionHelper permissionHelper = null;   //权限帮助器
     private BackPressedCallbackHelper backHelper;   //返回手势拦截器
     private BackPressedCallbackHelper.BackHandler searchBackHandler;    //搜索返回处理器
 
@@ -70,18 +69,8 @@ public class AppSelectActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        binding = null;
-
-        //防止内存泄漏
         disposable.dispose();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (permissionHelper != null) {
-            permissionHelper.start();
-        }
+        binding = null;
     }
 
     /**
@@ -210,14 +199,15 @@ public class AppSelectActivity extends AppCompatActivity {
                 }
         );
 
-        permissionHelper = new PermissionHelper(    //权限申请器
+        //权限申请器
+        PermissionHelper permissionHelper = new PermissionHelper(    //权限申请器
                 this,
                 requestPermissionLauncher
         );
 
         permissionHelper.addPermission(
                 "com.android.permission.GET_INSTALLED_APPS",
-                "授予应用列表权限以显示并快速选择应用。"
+                "请授予应用列表权限以允许APP获取已安装的应用。"
         );
     }
 
