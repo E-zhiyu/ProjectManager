@@ -94,6 +94,7 @@ public class NotificationRuleListActivity extends AppCompatActivity {
                     "### 2. 几个关键概念\n" +
                     "- **正则表达式**：一种“文本搜索模板”，可以精确地从一段文字中找出您想要的内容（比如“¥123.45”或“+88.00”）。\n" +
                     "- **捕获组**：正则表达式中用圆括号 `( )` 括起来的部分，表示“我只想提取括号里的那一小段”。  \n" +
+                    "- **捕获组数量**：一个正则表达式中可以包含多个捕获组，且能够通过位置提取不同捕获组的内容。特别地，位置为0的捕获组就是整个正则表达式匹配的文本。  \n" +
                     "> 例：通知内容是“消费￥99.00元”，正则写为 `消费￥([\\d.]+)元`，捕获组 `([\\d.]+)` 就会提取出 `99.00`。\n\n" +
                     "> 若您不清楚正则表达式的用法，请尝试询问AI工具，并使用[Regex101](https://regex101.com/)进行测试。\n" +
                     "\n" +
@@ -106,7 +107,7 @@ public class NotificationRuleListActivity extends AppCompatActivity {
                     "- **电池优化设为“无限制”**：避免系统休眠时关闭APP的通知监听服务；\n" +
                     "- **在最近任务列表中锁定APP**（通常下拉应用卡片或点击锁图标）：防止一键清理后台时被误杀。\n" +
                     "\n" +
-                    "> 若未完成上述设置，可能会出现通知收不到或无法自动记账的情况。\n" +
+                    "> 该功能性能开销极小，您无需担心应用常驻后台导致耗电异常。若未完成上述设置，可能会出现通知收不到或无法自动记账的情况。\n" +
                     "\n" +
                     "---\n" +
                     "\n" +
@@ -182,18 +183,18 @@ public class NotificationRuleListActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissionHelper.addPermission(
                     Manifest.permission.POST_NOTIFICATIONS,
-                    "通知权限：触发自动记账后发送确认通知"
+                    "通知权限，用于触发自动记账后发送确认通知。"
             );
         }
         permissionHelper.addPermission(
                 PermissionHelper.SpecialPermissionType.AUTO_START,
                 "自启动权限",
-                "该功能需要在后台运行通知监听服务，如果系统中有自启动权限，请为本应用授权，否则该功能可能无法正常运行。为了进一步保障在后台正常运行，建议您在最近任务锁定本应用"
+                "通知监听服务需要常驻后台，请允许应用自启动，否则该功能可能无法正常运行。为了进一步保障在后台正常运行，建议您在最近任务锁定本应用。"
         );
         permissionHelper.addPermission(
                 PermissionHelper.SpecialPermissionType.BATTERY,
                 "电池优化",
-                "为保证软件退出后仍然可以自动监听通知实现自动记账，请将本应用的电池优化策略改为“无限制”"
+                "为保证软件退出后仍然可以自动监听通知实现自动记账，请将本应用的电池优化策略改为“无限制”。"
         );
     }
 
