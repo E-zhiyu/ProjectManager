@@ -46,7 +46,11 @@
             <!-- 通知解析开关 -->
             <include
                 android:id="@+id/notification_analysis_switch_option"
-                layout="@layout/view_setting_option" />
+                layout="@layout/view_setting_option"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp" />
 
             <!-- 规则管理 -->
             <include
@@ -56,7 +60,12 @@
             <!-- 通知取消选项 -->
             <include
                 android:id="@+id/notification_cancel_behaviour"
-                layout="@layout/view_setting_option" />
+                layout="@layout/view_setting_option"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="10dp" />
 
             <!-- 通知点击选项 -->
             <include

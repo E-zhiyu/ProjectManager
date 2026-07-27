@@ -30,8 +30,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class AutoBookkeepingActivity extends AppCompatActivity {
-    private ActivityAutoBookkeepingBinding binding; //绑定的XML布局
-    //TODO:重构该界面
+    private ActivityAutoBookkeepingBinding binding; //绑定的 XML 布局
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,7 +106,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                 R.string.notification_rule,
                 "点击进入规则管理界面",
                 R.drawable.baseline_rule_24,
-                RadiusStyle.MIDDLE
+                RadiusStyle.BOTTOM
         );
         ruleManageOption.setFunctionListener(v -> {
             ManagerAssistant.lockLifecycleObserver();
@@ -122,7 +121,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                 R.string.notification_cancel_behaviour,
                 "划走确认通知后执行的操作",
                 R.drawable.outline_comments_disabled_24,
-                RadiusStyle.MIDDLE
+                RadiusStyle.TOP
         );
         int cancelBehaviourCode = AutoBookKeepingPreference.getNotificationCancelBehaviour(this);
         notificationCancelBehaviour.setSpinnerText(
