@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace 'com.manager.assistant'
+    namespace 'com.sly.coffer'
     compileSdkVersion 37
 
     defaultConfig {
