@@ -111,6 +111,10 @@ public class SearchHistoryAdapter extends ListAdapter<String, SearchHistoryAdapt
                         );
                         changeListener.onChange(historyList, SearchHistoryAdapter.this);
                     }
+
+                    @Override
+                    public void onCheckedChange(int pos, boolean finalStat, View anchor) {
+                    }
                 }
         );
     }

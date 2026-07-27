@@ -201,6 +201,11 @@ public class AccountMediaAdapter extends ListAdapter<MediaEntity, AccountMediaAd
                     @Override
                     public void onLongClick(int pos, View anchor) {
                     }
+
+                    @Override
+                    public void onCheckedChange(int pos, boolean finalStat, View anchor) {
+
+                    }
                 }
         );
     }

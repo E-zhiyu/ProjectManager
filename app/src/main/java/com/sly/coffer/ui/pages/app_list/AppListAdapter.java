@@ -96,6 +96,10 @@ public class AppListAdapter extends ListAdapter<AppInfo, AppListAdapter.AppInfoV
                     @Override
                     public void onLongClick(int pos, View anchor) {
                     }
+
+                    @Override
+                    public void onCheckedChange(int pos, boolean finalStat, View anchor) {
+                    }
                 }
         );
     }

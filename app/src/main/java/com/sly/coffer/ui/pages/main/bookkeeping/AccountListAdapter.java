@@ -177,6 +177,11 @@ public class AccountListAdapter extends ListAdapter<AccountUiModel, RecyclerView
                                 longClickListener.onLongClick(((AccountUiModel.Item) uiModel).entity, anchor);
                             }
                         }
+
+                        @Override
+                        public void onCheckedChange(int pos, boolean finalStat, View anchor) {
+
+                        }
                     }
             );
         } else {

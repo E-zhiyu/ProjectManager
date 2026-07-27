@@ -172,6 +172,10 @@ public class TagListAdapter extends ListAdapter<TagListUiModel, RecyclerView.Vie
                                 itemLongClickListener.onLongClick(((TagListUiModel.Item) tag).entity, view);
                             }
                         }
+
+                        @Override
+                        public void onCheckedChange(int pos, boolean finalStat, View anchor) {
+                        }
                     }
             );
         } else {
@@ -193,6 +197,10 @@ public class TagListAdapter extends ListAdapter<TagListUiModel, RecyclerView.Vie
                             if (group instanceof TagListUiModel.Group) {
                                 separatorLongClickListener.onLongClick(((TagListUiModel.Group) group).group, anchor);
                             }
+                        }
+
+                        @Override
+                        public void onCheckedChange(int pos, boolean finalStat, View anchor) {
                         }
                     }
             );

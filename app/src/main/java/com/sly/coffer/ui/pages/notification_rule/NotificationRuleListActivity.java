@@ -146,6 +146,25 @@ public class NotificationRuleListActivity extends AppCompatActivity {
                     });
 
                     popupMenu.show();
+                },
+                (entity, finalStat, anchor) -> {
+                    BookkeepingDb db = BookkeepingDb.getInstance(this);
+                    disposable.add(db.ruleDao().setRuleEnabled(finalStat, entity.getRuleId())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe(
+                                    () -> {
+                                        String tip = String.format(
+                                                Locale.getDefault(),
+                                                "%s“%s”",
+                                                finalStat ? "已启用" : "已禁用",
+                                                entity.getName()
+                                        );
+                                        Toast.makeText(this, tip, Toast.LENGTH_SHORT).show();
+                                    },
+                                    e -> ExceptionHelper.showExceptionDialog(this, e)
+                            )
+                    );
                 }
         );
         binding.recycler.setAdapter(adapter);

@@ -18,4 +18,13 @@ public interface ViewHolderListener {
      * @param anchor 显示 PopupMenu 的锚点
      */
     void onLongClick(int pos, View anchor);
+
+    /**
+     * 选中状态变化监听
+     *
+     * @param pos       被点击的 ViewHolder 在适配器中的位置
+     * @param finalStat 变化后是否被选中
+     * @param anchor    显示 PopupMenu 的锚点
+     */
+    void onCheckedChange(int pos, boolean finalStat, View anchor);
 }

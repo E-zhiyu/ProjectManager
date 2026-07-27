@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sly.coffer.auxiliary.enums.AccountType;
+import com.sly.coffer.auxiliary.interfaces.adapter.AdapterOnCheckedChangeListener;
 import com.sly.coffer.auxiliary.interfaces.adapter.AdapterOnClickListener;
 import com.sly.coffer.auxiliary.interfaces.adapter.AdapterOnLongClickListener;
 import com.sly.coffer.auxiliary.interfaces.adapter.ViewHolderListener;
@@ -33,11 +34,17 @@ public class NotificationRuleListAdapter extends ListAdapter<NotificationRuleEnt
     };
     private final AdapterOnClickListener<NotificationRuleEntity> clickListener;
     private final AdapterOnLongClickListener<NotificationRuleEntity> longClickListener;
+    private final AdapterOnCheckedChangeListener<NotificationRuleEntity> checkedChangeListener;
 
-    public NotificationRuleListAdapter(AdapterOnClickListener<NotificationRuleEntity> clickListener, AdapterOnLongClickListener<NotificationRuleEntity> longClickListener) {
+    public NotificationRuleListAdapter(
+            AdapterOnClickListener<NotificationRuleEntity> clickListener,
+            AdapterOnLongClickListener<NotificationRuleEntity> longClickListener,
+            AdapterOnCheckedChangeListener<NotificationRuleEntity> checkedChangeListener
+    ) {
         super(ITEM_CALLBACK);
         this.clickListener = clickListener;
         this.longClickListener = longClickListener;
+        this.checkedChangeListener = checkedChangeListener;
 
         //注册数据变更监听器，用于自动更新圆角
         registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -66,6 +73,7 @@ public class NotificationRuleListAdapter extends ListAdapter<NotificationRuleEnt
 
     public static class NotificationRuleViewHolder extends RecyclerView.ViewHolder {
         ViewHolderNotificationRuleListBinding binding;
+        boolean isBlocked = false;
 
         public NotificationRuleViewHolder(@NonNull ViewHolderNotificationRuleListBinding binding, ViewHolderListener listener) {
             super(binding.getRoot());
@@ -83,6 +91,13 @@ public class NotificationRuleListAdapter extends ListAdapter<NotificationRuleEnt
             binding.getRoot().setOnLongClickListener(view -> {
                 listener.onLongClick(getBindingAdapterPosition(), binding.getRoot());
                 return true;
+            });
+
+            //开关状态变更
+            binding.enableSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
+                if (isBlocked) return;
+
+                listener.onCheckedChange(getBindingAdapterPosition(), b, binding.getRoot());
             });
         }
     }
@@ -107,6 +122,13 @@ public class NotificationRuleListAdapter extends ListAdapter<NotificationRuleEnt
                     public void onLongClick(int pos, View anchor) {
                         longClickListener.onLongClick(getItem(pos), anchor);
                     }
+
+                    @Override
+                    public void onCheckedChange(int pos, boolean finalStat, View anchor) {
+                        NotificationRuleEntity rule = getItem(pos);
+                        rule.setEnabled(finalStat);
+                        checkedChangeListener.onCheckedChange(rule, finalStat, anchor);
+                    }
                 }
         );
     }
@@ -123,6 +145,11 @@ public class NotificationRuleListAdapter extends ListAdapter<NotificationRuleEnt
 
         //包名
         holder.binding.packageNameText.setText(rule.getPackageName());
+
+        //是否启用
+        holder.isBlocked = true;
+        holder.binding.enableSwitch.setChecked(rule.isEnabled());
+        holder.isBlocked = false;
 
         //设置圆角
         AppearanceHelper.setRecyclerItemRadius(holder.itemView, getItemCount(), position);

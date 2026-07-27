@@ -113,6 +113,11 @@ public class BudgetListAdapter extends ListAdapter<BudgetEntity, BudgetListAdapt
                         BudgetEntity budget = getItem(pos);
                         longClickListener.onLongClick(budget, anchor);
                     }
+
+                    @Override
+                    public void onCheckedChange(int pos, boolean finalStat, View anchor) {
+
+                    }
                 }
         );
     }

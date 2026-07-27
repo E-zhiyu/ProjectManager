@@ -10,7 +10,13 @@ import com.sly.coffer.R;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 
 public class AboutHelper {
-    private static final String UPDATE_LOG_MD = "# v1.8.17  \n" +
+    private static final String UPDATE_LOG_MD = "# v1.9.0\n" +
+            "\n" +
+            "### 新增内容\n" +
+            "\n" +
+            "- 通知规则列表界面添加规则启用的开关\n" +
+            "\n" +
+            "# v1.8.17  \n" +
             "### BUG修复  \n" +
             "- 修复删除流水记录时显示重复Toast提示的BUG  \n" +
             "- 修复数据管理和自动记账设置界面无法通过工具栏返回上一级的BUG  \n" +
@@ -465,8 +471,8 @@ public class AboutHelper {
      * @param context 上下文
      */
     public static void showUpdateLogDialog(Context context) {
-        new MarkdownDialogBuilder(context,context.getString(R.string.changelog),UPDATE_LOG_MD)
-                .setNegativeButton("关闭",null)
+        new MarkdownDialogBuilder(context, context.getString(R.string.changelog), UPDATE_LOG_MD)
+                .setNegativeButton("关闭", null)
                 .show();
     }
 }
