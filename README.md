@@ -1,4 +1,4 @@
-# ManagerAssistant
+# Sly's Coffer
 
 > 这是一款极简的个人记账工具，界面采用Material You风格，无多余功能，为用户提供清爽的记账体验。
 
@@ -103,8 +103,6 @@
 本软件的官方发布渠道如下：
 
 - [Gitee仓库](https://gitee.com/e-zhiyu/manager-assistant-web/releases)
-- [123云盘](https://www.123865.com/s/C5xcVv-kRYT3)
-- [小飞机网盘](https://share.feijipan.com/s/kTVc2PiI)
 
 如果您在其他地方看到有人分享本软件，请私信我的社交账号，在跟别人分享该软件时也请您引用本仓库界面，谢谢您的配合。
 
