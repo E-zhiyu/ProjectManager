@@ -42,7 +42,7 @@ public class FileHelper {
     public static String generateBackupFileName() {
         return String.format(
                 Locale.getDefault(),
-                "ManagerAssistantBackup_%s.zip",
+                "Sly's Coffer Backup_%s.zip",
                 LocalDateTime.now().format(CustomDateTimeFormatter.BACKUP)
         );
     }
