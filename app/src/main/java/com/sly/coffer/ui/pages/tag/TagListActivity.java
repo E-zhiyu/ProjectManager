@@ -29,6 +29,7 @@ import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.ui.others.bottom.TagSelectBottomSheet;
 import com.sly.coffer.ui.others.dialogs.EditTextDialogBuilder;
+import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 import com.sly.coffer.ui.others.viewmodel.TagSingleSelectViewModel;
 
 import java.util.List;
@@ -88,6 +89,27 @@ public class TagListActivity extends AppCompatActivity {
         });
         AppearanceHelper.attachMorphAnimation(binding.addFab);
         AppearanceHelper.setMarginToNavigation(binding.addFab, this);
+
+        //功能说明按钮
+        binding.helpBtn.setOnClickListener(view -> {
+            final String EXPLANATION = "### 1. 设计理念\n" +
+                    "流水标签是一种快速标记流水记录的工具，同时还是某些自动化功能的底层逻辑。\n" +
+                    "\n" +
+                    "---\n" +
+                    "\n" +
+                    "### 2. 作用和用法\n" +
+                    "以下场景可以使用到流水标签：\n" +
+                    "\n" +
+                    "- 为流水记录打上标记；\n" +
+                    "- 当添加、修改或删除流水记录时，自动更新带有同样标签的预算余额；\n" +
+                    "> 例：添加标记有`早中晚餐`和`日常消费`的流水记录时，只要预算条目包含`早中晚餐`和`日常消费`中的任意一个标签，就会自动更新预算余额。\n" +
+                    "- 在触发通知解析自动记账时，自动为流水记录加上规则中填充的流水标签。\n" +
+                    "> 例：成功触发某条标记有`早中晚餐`的通知规则后，由其自动生成的流水记录也会带有`早中晚餐`标签。" +
+                    "\n";
+            new MarkdownDialogBuilder(this, "功能介绍", EXPLANATION)
+                    .setNegativeButton("关闭", null)
+                    .show();
+        });
 
         //标签列表
         TagListAdapter adapter = new TagListAdapter(
