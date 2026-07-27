@@ -10,9 +10,6 @@ public class VersionPreference {
     private static final String KEY_SKIP_VERSION_CODE = "skip_version_code";            //跳过更新的版本代码
     private static final String KEY_START_VERSION_CHECK = "start_version_check";        //控制软件启动时运行更新检测的整数值
     private static final String KEY_FIND_MANDATORY_UPDATE = "find_mandatory_update";    //是否发现强制更新条目
-    private static final String KEY_MANDATORY_VERSION_NAME = "m_version_name";          //强制更新版本名称
-    private static final String KEY_MANDATORY_UPDATE_LOG = "m_update_log";              //强制更新版本的更新日志
-    private static final String KEY_MANDATORY_DOWNLOAD_URL = "m_download_url";          //强制更新版本的下载链接
     private static final String KEY_APK_URI = "apk_uri";                                //安装包Uri
 
     /**
@@ -68,39 +65,6 @@ public class VersionPreference {
     public static void setFindMandatoryUpdate(@NonNull Context context, boolean findMandatoryUpdate) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         pref.edit().putBoolean(KEY_FIND_MANDATORY_UPDATE, findMandatoryUpdate).apply();
-    }
-
-    /**
-     * 写入强制更新版本的版本名称
-     *
-     * @param context      上下文
-     * @param version_name 强制更新的版本名称
-     */
-    public static void setMandatoryVersionName(@NonNull Context context, String version_name) {
-        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        pref.edit().putString(KEY_MANDATORY_VERSION_NAME, version_name).apply();
-    }
-
-    /**
-     * 写入强制更新版本的更新日志
-     *
-     * @param context    上下文
-     * @param update_log 强制更新版本的更新日志
-     */
-    public static void setMandatoryUpdateLog(@NonNull Context context, String update_log) {
-        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        pref.edit().putString(KEY_MANDATORY_UPDATE_LOG, update_log).apply();
-    }
-
-    /**
-     * 写入强制更新安装包的下载链接
-     *
-     * @param context     上下文
-     * @param downloadUrl 强制更新安装包的下载链接
-     */
-    public static void setMandatoryDownloadUrl(@NonNull Context context, String downloadUrl) {
-        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        pref.edit().putString(KEY_MANDATORY_DOWNLOAD_URL, downloadUrl).apply();
     }
 
     /**

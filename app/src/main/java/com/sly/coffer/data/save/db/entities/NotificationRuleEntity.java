@@ -24,7 +24,7 @@ public class NotificationRuleEntity {
     @ColumnInfo(defaultValue = "1")
     private int captureGroupPos;        //金额捕获组位置
     @ColumnInfo(defaultValue = "true")
-    private boolean enabled;            //TODO:是否启用
+    private boolean enabled;            //是否启用
 
     public NotificationRuleEntity(String name, int type, String packageName, String targetTitle, String contentRegex, int captureGroupPos) {
         this.name = name;
