@@ -7,7 +7,7 @@ android {
     compileSdkVersion 37
 
     defaultConfig {
-        applicationId 'com.manager.assistant'
+        applicationId 'com.sly.coffer'
         minSdk 28
         targetSdk 37
         //noinspection OldTargetApi
