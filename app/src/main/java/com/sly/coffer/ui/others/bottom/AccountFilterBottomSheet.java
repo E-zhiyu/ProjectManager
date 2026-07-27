@@ -28,6 +28,7 @@ import com.sly.coffer.ui.others.viewmodel.AccountFilterViewModel;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.Locale;
 import java.util.Set;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -80,18 +81,22 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
         binding.dateRangeClearBtn.setOnClickListener(view -> {
             viewModel.setStart(null);
             viewModel.setEnd(null);
-            binding.startDateText.setText(R.string.not_applicable);
-            binding.endDateText.setText(R.string.not_applicable);
+            binding.dateRangeText.setText(R.string.not_applicable);
         });
 
         //日期范围显示
         LocalDate startDate = viewModel.getStart();
         LocalDate endDate = viewModel.getEnd();
-        if (startDate != null) {
-            binding.startDateText.setText(startDate.format(CustomDateTimeFormatter.DATE_SLASH));
-        }
-        if (endDate != null) {
-            binding.endDateText.setText(endDate.format(CustomDateTimeFormatter.DATE_SLASH));
+        if (startDate != null && endDate != null) {
+            String dateRangeStr = String.format(
+                    Locale.getDefault(),
+                    "%s ~ %s",
+                    startDate.format(CustomDateTimeFormatter.LOCAL_DATE),
+                    endDate.format(CustomDateTimeFormatter.LOCAL_DATE)
+            );
+            binding.dateRangeText.setText(dateRangeStr);
+        } else {
+            binding.dateRangeText.setText(R.string.not_applicable);
         }
 
         //流水种类 ChipGroup
@@ -145,9 +150,9 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
                         modelList -> {
                             VisibilityHelper.toggleVisibilityWithFade(binding.loadingIndicator, false);
                             if (modelList.isEmpty()) {
-                                VisibilityHelper.toggleVisibilityWithFade(binding.emptyText, true);
+                                binding.noTagSelectionChip.setVisibility(View.GONE);
                             } else {
-                                binding.emptyText.setVisibility(View.GONE);
+                                VisibilityHelper.toggleVisibilityWithFade(binding.noTagSelectionChip, true);
                             }
 
                             adapter.submitList(modelList);
@@ -174,7 +179,6 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
                             .atZone(ZoneOffset.UTC)
                             .toLocalDate();
                     viewModel.setStart(startDate);
-                    binding.startDateText.setText(startDate.format(CustomDateTimeFormatter.DATE_SLASH));
 
                     //结束日期
                     long secondSelection = selection.second;
@@ -182,7 +186,15 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
                             .atZone(ZoneOffset.UTC)
                             .toLocalDate();
                     viewModel.setEnd(endDate);
-                    binding.endDateText.setText(endDate.format(CustomDateTimeFormatter.DATE_SLASH));
+
+                    //日期范围文本
+                    String dateRangeStr = String.format(
+                            Locale.getDefault(),
+                            "%s ~ %s",
+                            startDate.format(CustomDateTimeFormatter.LOCAL_DATE),
+                            endDate.format(CustomDateTimeFormatter.LOCAL_DATE)
+                    );
+                    binding.dateRangeText.setText(dateRangeStr);
                 }
         );
     }

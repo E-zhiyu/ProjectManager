@@ -4,7 +4,7 @@
     android:id="@+id/chip_group"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="10dp"
-    android:paddingEnd="10dp"
+    android:paddingStart="15dp"
+    android:paddingEnd="15dp"
     app:chipSpacingHorizontal="6dp"
     app:chipSpacingVertical="2dp" />
