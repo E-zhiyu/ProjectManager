@@ -9,6 +9,7 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import com.sly.coffer.auxiliary.enums.AccountType;
 import com.sly.coffer.data.backup.DataBackupDao;
 import com.sly.coffer.data.save.db.converters.DateTimeConverter;
 import com.sly.coffer.data.save.db.converters.UriConverter;
@@ -28,7 +29,6 @@ import com.sly.coffer.data.save.db.entities.AccountTransferEntity;
 import com.sly.coffer.data.save.db.entities.NotificationRuleTransferEntity;
 import com.sly.coffer.data.save.db.entities.NotificationRuleTagRefEntity;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
@@ -76,8 +76,7 @@ public abstract class BookkeepingDb extends RoomDatabase {
                                     super.onCreate(db);
 
                                     //初始化默认分组逻辑
-                                    getInstance(context).initDefaultTagGroup()
-                                            .observeOn(AndroidSchedulers.mainThread())
+                                    getInstance(context).insertDefaultData()
                                             .subscribeOn(Schedulers.io())
                                             .subscribe();
                                 }
@@ -102,17 +101,38 @@ public abstract class BookkeepingDb extends RoomDatabase {
     public abstract DataBackupDao dataBackupDao();
 
     /**
-     * 初始化标签默认分组
+     * 填充默认数据
      *
      * @return 是否完成
      */
-    private Completable initDefaultTagGroup() {
+    private Completable insertDefaultData() {
         return Completable.defer(() -> {
+            //默认标签分组
             TagGroupEntity defaultGroup = new TagGroupEntity("默认分组");
             defaultGroup.setGroupId(-1);
             tagDao().insertTagGroup(defaultGroup);
+
+            //默认通知规则
+            NotificationRuleEntity weChatPay = new NotificationRuleEntity(  //微信支付
+                    "微信支付",
+                    AccountType.EXPENSE.ordinal(),
+                    "com.tencent.mm",
+                    "微信支付",
+                    "已支付.(\\d+\\.?\\d{0,2})",
+                    1
+            );
+            ruleDao().insertNotificationRule(weChatPay);
+            NotificationRuleEntity aliPay = new NotificationRuleEntity(     //支付宝支付
+                    "支付宝支付",
+                    AccountType.EXPENSE.ordinal(),
+                    "com.eg.android.AlipayGphone",
+                    "交易提醒",
+                    "你有一笔(\\d+\\.?\\d{0,2})元的支出",
+                    1
+            );
+            ruleDao().insertNotificationRule(aliPay);
+
             return Completable.complete();
         });
-        //TODO:填充默认规则
     }
 }
