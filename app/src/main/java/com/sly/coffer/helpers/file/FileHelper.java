@@ -12,7 +12,6 @@ import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.sly.coffer.auxiliary.classes.CustomDateTimeFormatter;
-import com.sly.coffer.auxiliary.classes.text.TextFileData;
 import com.sly.coffer.auxiliary.enums.DirectoryPaths;
 import com.sly.coffer.auxiliary.enums.LogTags;
 
@@ -24,18 +23,14 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Objects;
 
 import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Single;
 
 public class FileHelper {
     /**
@@ -228,83 +223,6 @@ public class FileHelper {
         }
 
         return targetFile;
-    }
-
-    /**
-     * 通过多线程读取文件内容以及最后编辑时间
-     *
-     * @param uri     待读取的文件的 Uri
-     * @param context 上下文
-     * @return 文件数据实例
-     */
-    public static Single<TextFileData> readContentWithLastModifyTime(Uri uri, Context context) {
-        return Single.fromCallable(() -> {
-            String content = readContent(uri, context);
-            LocalDateTime lastModifyTime = getFileLastModifyTime(uri, context);
-            return new TextFileData(content, lastModifyTime);
-        });
-    }
-
-    /**
-     * 获取文件最后的编辑时间
-     *
-     * @param uri     需要获取创建时间的文件的 Uri
-     * @param context 上下文
-     * @return 文件最后编辑时间的时间戳
-     */
-    public static LocalDateTime getFileLastModifyTime(Uri uri, Context context) {
-        long lastModified = 0;
-
-        DocumentFile documentFile = DocumentFile.fromSingleUri(context, uri);
-        if (documentFile.exists()) {
-            lastModified = documentFile.lastModified();
-        }
-
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(lastModified), ZoneId.systemDefault());
-    }
-
-    /**
-     * 获取文本文件的总行数
-     *
-     * @param uri     待获取行数的文件 Uri
-     * @param context 上下文
-     * @return 总行数
-     * @throws IOException 文件读取失败引发的异常
-     */
-    public static int getLines(Uri uri, Context context) throws IOException {
-        int lineCount = 0;
-        try (InputStream is = context.getContentResolver().openInputStream(uri);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
-            while (reader.readLine() != null) {
-                lineCount++;
-            }
-        }
-
-        return lineCount;
-    }
-
-    /**
-     * 读取文本文件的内容
-     *
-     * @param uri     待读取的文本文件的 Uri
-     * @param context 上下文
-     * @return 文本文件的内容字符串
-     * @throws IOException 文件内容读取失败引发的异常
-     */
-    @NonNull
-    public static String readContent(Uri uri, Context context) throws IOException {
-        StringBuilder builder = new StringBuilder();
-
-        try (InputStream is = context.getContentResolver().openInputStream(uri);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                builder.append(line);
-                builder.append("\n");
-            }
-        }
-
-        return builder.toString();
     }
 
     /**

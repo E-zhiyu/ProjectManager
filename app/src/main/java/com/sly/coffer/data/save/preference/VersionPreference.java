@@ -71,17 +71,6 @@ public class VersionPreference {
     }
 
     /**
-     * 读取是否获取到强制更新版本
-     *
-     * @param context 上下文
-     * @return 是否获取到强制更新版本
-     */
-    public static boolean getFindMandatoryUpdate(@NonNull Context context) {
-        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        return pref.getBoolean(KEY_FIND_MANDATORY_UPDATE, false);
-    }
-
-    /**
      * 写入强制更新版本的版本名称
      *
      * @param context      上下文
@@ -90,17 +79,6 @@ public class VersionPreference {
     public static void setMandatoryVersionName(@NonNull Context context, String version_name) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         pref.edit().putString(KEY_MANDATORY_VERSION_NAME, version_name).apply();
-    }
-
-    /**
-     * 获取强制更新的版本名称
-     *
-     * @param context 上下文
-     * @return 强制更新的版本名称
-     */
-    public static String getMandatoryVersionName(@NonNull Context context) {
-        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        return pref.getString(KEY_MANDATORY_VERSION_NAME, "");
     }
 
     /**
@@ -115,17 +93,6 @@ public class VersionPreference {
     }
 
     /**
-     * 获取强制更新版本的更新日志
-     *
-     * @param context 上下文
-     * @return 强制更新版本的更新日志
-     */
-    public static String getMandatoryUpdateLog(@NonNull Context context) {
-        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        return pref.getString(KEY_MANDATORY_UPDATE_LOG, "");
-    }
-
-    /**
      * 写入强制更新安装包的下载链接
      *
      * @param context     上下文
@@ -134,17 +101,6 @@ public class VersionPreference {
     public static void setMandatoryDownloadUrl(@NonNull Context context, String downloadUrl) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         pref.edit().putString(KEY_MANDATORY_DOWNLOAD_URL, downloadUrl).apply();
-    }
-
-    /**
-     * 获取强制更新安装包的下载链接
-     *
-     * @param context 上下文
-     * @return 强制更新安装包的下载链接
-     */
-    public static String getMandatoryDownloadUrl(@NonNull Context context) {
-        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        return pref.getString(KEY_MANDATORY_DOWNLOAD_URL, "");
     }
 
     /**

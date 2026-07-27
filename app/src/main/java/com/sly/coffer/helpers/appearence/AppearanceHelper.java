@@ -44,8 +44,7 @@ public class AppearanceHelper {
         }
 
         Shapeable shapeableView = (Shapeable) view;
-        Vibrator vibrator = (Vibrator) view.getContext()
-                .getSystemService(Context.VIBRATOR_SERVICE);
+        Vibrator vibrator = view.getContext().getSystemService(Vibrator.class);
 
         view.setOnTouchListener(new SpringAnimationOnTouchListener(shapeableView, vibrator, percentage));
     }

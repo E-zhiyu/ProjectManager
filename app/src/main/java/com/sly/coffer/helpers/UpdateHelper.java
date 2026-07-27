@@ -236,7 +236,7 @@ public class UpdateHelper {
             String cutUpdateLog = getUpdateContentByVersion(updateInfo.updateLogInfo, versionName);
             String updateLog = cutUpdateLog.isEmpty() ? versionInfo.getUpdateLog() : cutUpdateLog;
 
-            //保存强制更新数据
+            //TODO:保存强制更新数据
             VersionPreference.setFindMandatoryUpdate(context, isMandatory);
             if (isMandatory) {
                 VersionPreference.setMandatoryVersionName(context, versionName);

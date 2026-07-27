@@ -15,7 +15,7 @@ public class ImmHelper {
     public static void showImm(@NonNull View view) {
         Context context = view.getContext();
         view.requestFocus();
-        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = context.getSystemService(InputMethodManager.class);
         if (imm == null) {
             return;
         }
