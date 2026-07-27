@@ -27,6 +27,7 @@ import com.sly.coffer.auxiliary.enums.KeyStrings;
 import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.PermissionHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
+import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 
 import java.time.LocalDate;
 import java.util.Locale;
@@ -104,6 +105,26 @@ public class BudgetListActivity extends AppCompatActivity {
         });
         AppearanceHelper.attachMorphAnimation(binding.addFab);
         AppearanceHelper.setMarginToNavigation(binding.addFab, this);
+
+        //功能说明按钮
+        binding.helpBtn.setOnClickListener(view -> {
+            final String EXPLANATION = "### 1. 工作原理\n" +
+                    "当您添加预算条目并记录若干流水记录后，APP会：\n" +
+                    "\n" +
+                    "1. 获取添加/修改/删除的流水记录的`流水标签`；\n" +
+                    "2. 根据`流水标签`和`时间`获取受影响的预算数据；\n" +
+                    "3. 根据`流水类型`和`金额`自动更新受影响的预算余额；\n" +
+                    "4. 检查预算余额，若有余额低于阈值的预算则发送提醒通知。\n" +
+                    "\n" +
+                    "整个过程完全自动化，仅需您在处理流水记录时用`流水标签`标记即可。\n" +
+                    "\n" +
+                    "---\n" +
+                    "### 2. 预算重置\n" +
+                    "预算重置会将预算的`余额`重置为初始值，并将预算的`起算日期`重置为`今天`。您可以长按预算条目，并在弹出的菜单中选择“重置预算”，也可以设置预算重置频率，使其能够自动重置。";
+            new MarkdownDialogBuilder(this, "功能介绍", EXPLANATION)
+                    .setNegativeButton("关闭", null)
+                    .show();
+        });
 
         //列表
         BudgetListAdapter adapter = new BudgetListAdapter(
