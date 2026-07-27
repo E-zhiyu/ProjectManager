@@ -2,6 +2,7 @@ package com.sly.coffer.ui.others.viewmodel;
 
 import android.content.Context;
 
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.sly.coffer.auxiliary.classes.AppInfo;
@@ -16,14 +17,19 @@ import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.processors.BehaviorProcessor;
 
 public class AppListViewModel extends ViewModel {
+    private final MutableLiveData<Void> filterUpdatedLiveData = new MutableLiveData<>();    //提醒宿主更新 UI 的 LiveData
     private final BehaviorProcessor<String> searchKeywordProcessor =
             BehaviorProcessor.createDefault("");    //搜索关键词处理器
     private final BehaviorProcessor<Boolean> sysAppVisibilityProcessor =
             BehaviorProcessor.createDefault(false); //搜索关键词处理器
-    private boolean isSysAppVisible = false;                   //是否显示系统应用
 
     public boolean isSysAppVisible() {
-        return isSysAppVisible;
+        Boolean isVisible = sysAppVisibilityProcessor.getValue();
+        return isVisible != null && isVisible;
+    }
+
+    public MutableLiveData<Void> getFilterUpdatedLiveData() {
+        return filterUpdatedLiveData;
     }
 
     /**
@@ -38,7 +44,6 @@ public class AppListViewModel extends ViewModel {
                 sysAppVisibilityProcessor.debounce(50, TimeUnit.MILLISECONDS),
                 (keyword, sysAppVisible) -> {
                     List<AppInfo> appListCache = AppListHelper.getInstalledApps(sysAppVisible, context);
-                    isSysAppVisible = sysAppVisible;
 
                     return appListCache.stream()
                             .filter(app ->
@@ -58,6 +63,8 @@ public class AppListViewModel extends ViewModel {
      */
     public void executeSearch(String keyword) {
         searchKeywordProcessor.onNext(keyword);
+
+        filterUpdatedLiveData.setValue(null);
     }
 
     /**
@@ -65,5 +72,26 @@ public class AppListViewModel extends ViewModel {
      */
     public void toggleSysAppVisibility(boolean isVisible) {
         sysAppVisibilityProcessor.onNext(isVisible);
+
+        filterUpdatedLiveData.setValue(null);
+    }
+
+    /**
+     * 清除过滤条件
+     */
+    public void clearFilter() {
+        searchKeywordProcessor.onNext("");
+
+        filterUpdatedLiveData.setValue(null);
+    }
+
+    /**
+     * 判断是否没有过滤条件
+     *
+     * @return 是否没有过滤条件
+     */
+    public boolean isNoFilter() {
+        String searchText = searchKeywordProcessor.getValue();
+        return (searchText == null || searchText.isEmpty());
     }
 }

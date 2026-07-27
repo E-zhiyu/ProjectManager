@@ -62,6 +62,7 @@ public class AppSelectActivity extends AppCompatActivity {
         });
 
         initViews();
+        observeLiveData();
         initBackHandlers();
         addPermissionRequests();
     }
@@ -118,9 +119,6 @@ public class AppSelectActivity extends AppCompatActivity {
                     VisibilityHelper.toggleVisibilityWithFade(binding.loadingIndicator, true);
                     AppListViewModel viewModel = new ViewModelProvider(this).get(AppListViewModel.class);
                     viewModel.executeSearch(keyword);
-
-                    //根据搜索关键词是否为空开启和关闭搜索模式
-                    setSearchMode(!keyword.trim().isEmpty());
                 },
                 item -> {
                     int id = item.getItemId();
@@ -134,14 +132,21 @@ public class AppSelectActivity extends AppCompatActivity {
                         item.setChecked(toggledStat);
                         viewModel.toggleSysAppVisibility(toggledStat);
 
-                        //设置搜索模式状态
-                        setSearchMode(true);
-
                         return true;
                     }
 
                     return false;
                 }
+        );
+    }
+
+    /**
+     * 观察 ViewModel 的 LiveData
+     */
+    private void observeLiveData() {
+        AppListViewModel listViewModel = new ViewModelProvider(this).get(AppListViewModel.class);
+        listViewModel.getFilterUpdatedLiveData().observe(this, v ->
+                setSearchMode(!listViewModel.isNoFilter())
         );
     }
 
@@ -163,9 +168,8 @@ public class AppSelectActivity extends AppCompatActivity {
             @Override
             public boolean handleBack() {
                 VisibilityHelper.toggleVisibilityWithFade(binding.loadingIndicator, true);
-                setSearchMode(false);
                 AppListViewModel viewModel = new ViewModelProvider(AppSelectActivity.this).get(AppListViewModel.class);
-                viewModel.executeSearch("");
+                viewModel.clearFilter();
                 return true;
             }
 
