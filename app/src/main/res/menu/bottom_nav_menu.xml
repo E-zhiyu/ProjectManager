@@ -3,7 +3,7 @@
     <item
         android:id="@+id/navigation_bookkeeping"
         android:icon="@drawable/baseline_attach_money_24"
-        android:title="@string/title_bookkeeping" />
+        android:title="@string/bookkeeping" />
     <item
         android:id="@+id/navigation_home"
         android:icon="@drawable/baseline_home_24"

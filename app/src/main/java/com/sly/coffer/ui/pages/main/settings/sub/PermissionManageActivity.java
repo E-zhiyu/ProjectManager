@@ -108,13 +108,13 @@ public class PermissionManageActivity extends AppCompatActivity {
             appList = new SettingClickableTextView(
                     this,
                     binding.appListOption,
-                    R.string.app_list_option,
+                    R.string.app_list_permission,
                     "允许获取应用列表",
                     R.drawable.outline_apps_24,
                     RadiusStyle.MIDDLE
             );
             appList.setFunctionListener(v -> showExplanationDialog(
-                    R.string.app_list_option,
+                    R.string.app_list_permission,
                     "该权限允许应用读取应用列表，应用范围如下：\n" +
                             "- 在输入通知解析规则时读取应用列表以便快速输入包名\n",
                     () -> requestRuntimePermission("com.android.permission.GET_INSTALLED_APPS")

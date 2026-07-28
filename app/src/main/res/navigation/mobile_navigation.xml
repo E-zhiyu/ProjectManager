@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/navigation_bookkeeping"
         android:name="com.sly.coffer.ui.pages.main.bookkeeping.BookKeepingFragment"
-        android:label="@string/title_bookkeeping"
+        android:label="@string/bookkeeping"
         tools:layout="@layout/fragment_bookkeeping" />
     <fragment
         android:id="@+id/navigation_home"
@@ -18,6 +18,6 @@
     <fragment
         android:id="@+id/navigation_settings"
         android:name="com.sly.coffer.ui.pages.main.settings.SettingsFragment"
-        android:label="@string/title_setting"
+        android:label="@string/settings"
         tools:layout="@layout/fragment_settings" />
 </navigation>
