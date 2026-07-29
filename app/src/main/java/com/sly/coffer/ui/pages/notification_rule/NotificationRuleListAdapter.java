@@ -29,7 +29,8 @@ public class NotificationRuleListAdapter extends ListAdapter<NotificationRuleEnt
         public boolean areContentsTheSame(@NonNull NotificationRuleEntity oldItem, @NonNull NotificationRuleEntity newItem) {
             return oldItem.getName().equals(newItem.getName()) &&
                     oldItem.getType() == newItem.getType() &&
-                    oldItem.getPackageName().equals(newItem.getPackageName());
+                    oldItem.getPackageName().equals(newItem.getPackageName()) &&
+                    oldItem.isEnabled() == newItem.isEnabled();
         }
     };
     private final AdapterOnClickListener<NotificationRuleEntity> clickListener;
