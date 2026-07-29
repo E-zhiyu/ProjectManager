@@ -177,7 +177,7 @@ public class DataManageActivity extends AppCompatActivity {
                 this,
                 binding.importDataOption,
                 R.string.import_data,
-                "从外部文件导入数据",
+                "长按可导入v1.9.0之前的数据",
                 R.drawable.outline_download_24,
                 RadiusStyle.BOTTOM
         );
