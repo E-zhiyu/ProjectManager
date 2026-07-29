@@ -7,10 +7,10 @@ public class BudgetPojo {
     private long budgetId;
     private String name;
     private double initAmount;
-    private double leftAmount;
+    private double balance;
     private long startDate;
     private int resetFrequency;
-    private int lowBalanceRatio;
+    private int lowBalanceRatio = 10;
 
     public BudgetPojo() {
     }
@@ -39,12 +39,12 @@ public class BudgetPojo {
         this.initAmount = initAmount;
     }
 
-    public double getLeftAmount() {
-        return leftAmount;
+    public double getBalance() {
+        return balance;
     }
 
-    public void setLeftAmount(double leftAmount) {
-        this.leftAmount = leftAmount;
+    public void setBalance(double balance) {
+        this.balance = balance;
     }
 
     public long getStartDate() {

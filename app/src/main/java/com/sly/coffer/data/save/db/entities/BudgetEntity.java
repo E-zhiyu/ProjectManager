@@ -19,16 +19,16 @@ public class BudgetEntity {
     private long budgetId;          //主键
     private String name;            //名称
     private double initAmount;      //初始金额
-    private double leftAmount;      //余额
+    private double balance;         //余额
     private LocalDate startDate;    //起算日期
     private int resetFrequency;     //重置频率
     @ColumnInfo(defaultValue = "10")
     private int lowBalanceRatio;    //余额抵预警百分比
 
-    public BudgetEntity(String name, double initAmount, double leftAmount, LocalDate startDate, int resetFrequency, int lowBalanceRatio) {
+    public BudgetEntity(String name, double initAmount, double balance, LocalDate startDate, int resetFrequency, int lowBalanceRatio) {
         this.name = name;
         this.initAmount = initAmount;
-        this.leftAmount = leftAmount;
+        this.balance = balance;
         this.startDate = startDate;
         this.resetFrequency = resetFrequency;
         this.lowBalanceRatio = lowBalanceRatio;
@@ -58,12 +58,12 @@ public class BudgetEntity {
         this.initAmount = initAmount;
     }
 
-    public double getLeftAmount() {
-        return leftAmount;
+    public double getBalance() {
+        return balance;
     }
 
-    public void setLeftAmount(double leftAmount) {
-        this.leftAmount = leftAmount;
+    public void setBalance(double balance) {
+        this.balance = balance;
     }
 
     public LocalDate getStartDate() {

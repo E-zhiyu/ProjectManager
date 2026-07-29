@@ -155,7 +155,7 @@ public interface AccountDao {
      * @param tagIdList       需要更新的预算对应的标签编号的列表
      * @param accountDateTime 流水记录的日期和时间
      */
-    @Query("UPDATE budgets SET leftAmount = leftAmount + :increase " +
+    @Query("UPDATE budgets SET balance = balance + :increase " +
             "WHERE startDate <= :accountDateTime AND budgetId IN (SELECT budgetId FROM budgetTagRef WHERE tagId IN (:tagIdList))")
     void updateBudgetListAmountByTagId(double increase, List<Long> tagIdList, LocalDateTime accountDateTime);
 
@@ -165,7 +165,7 @@ public interface AccountDao {
      * @param tagIdList       需要限制余额的预算所绑定的标签编号列表
      * @param accountDateTime 流水记录的日期和时间
      */
-    @Query("UPDATE budgets SET leftAmount = MAX(0, MIN(initAmount, leftAmount)) " +
+    @Query("UPDATE budgets SET balance = MAX(0, MIN(initAmount, balance)) " +
             "WHERE startDate <= :accountDateTime AND budgetId IN (SELECT budgetId FROM budgetTagRef WHERE tagId IN (:tagIdList))")
     void limitBudgetLeftAmountByTagId(List<Long> tagIdList, LocalDateTime accountDateTime);
 

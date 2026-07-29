@@ -1,18 +1,26 @@
 package com.sly.coffer.data.save.db.entities;
 
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 @Entity(
         tableName = "notificationRuleTransfers",
+        foreignKeys = {
+                @ForeignKey(
+                        entity = NotificationRuleEntity.class,
+                        parentColumns = "ruleId",
+                        childColumns = "ruleId",
+                        onDelete = ForeignKey.CASCADE
+                )
+        },
         indices = {
                 @Index(value = "ruleId")
         }
 )
 public class NotificationRuleTransferEntity {
-    @PrimaryKey(autoGenerate = true)
-    private long transferId;        //主键
+    @PrimaryKey
     private long ruleId;            //规则编号
     private String exportAccount;   //转出账户
     private String importAccount;   //转入账户
@@ -20,14 +28,6 @@ public class NotificationRuleTransferEntity {
     public NotificationRuleTransferEntity(String importAccount, String exportAccount) {
         this.importAccount = importAccount;
         this.exportAccount = exportAccount;
-    }
-
-    public long getTransferId() {
-        return transferId;
-    }
-
-    public void setTransferId(long transferId) {
-        this.transferId = transferId;
     }
 
     public long getRuleId() {

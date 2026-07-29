@@ -63,7 +63,7 @@ public interface BudgetDao {
      * @param currentDate 当前日期
      * @return 是否完成
      */
-    @Query("UPDATE budgets SET leftAmount = initAmount, startDate = :currentDate WHERE budgetId = :budgetId")
+    @Query("UPDATE budgets SET balance = initAmount, startDate = :currentDate WHERE budgetId = :budgetId")
     Completable resetBudgetById(long budgetId, LocalDate currentDate);
 
     /**
@@ -73,7 +73,7 @@ public interface BudgetDao {
      * @param currentDate  当前日期
      * @return 是否完成
      */
-    @Query("UPDATE budgets SET leftAmount = initAmount, startDate = :currentDate WHERE budgetId IN (:budgetIdList)")
+    @Query("UPDATE budgets SET balance = initAmount, startDate = :currentDate WHERE budgetId IN (:budgetIdList)")
     Completable resetBudgetById(List<Long> budgetIdList, LocalDate currentDate);
 
     /**
@@ -110,7 +110,7 @@ public interface BudgetDao {
      */
     @Transaction
     default void addBudget(@NonNull BudgetEntity budget, @NonNull List<Long> tagIdList) {
-        budget.setLeftAmount(budget.getInitAmount());   //将余额重置为初始值
+        budget.setBalance(budget.getInitAmount());   //将余额重置为初始值
         long budgetId = insertBudget(budget);
 
         List<BudgetTagRefEntity> refList = tagIdList.stream()
@@ -158,6 +158,6 @@ public interface BudgetDao {
      *
      * @return 低余额预算列表
      */
-    @Query("SELECT * FROM budgets WHERE leftAmount <= initAmount * lowBalanceRatio / 100")
+    @Query("SELECT * FROM budgets WHERE balance <= initAmount * lowBalanceRatio / 100")
     List<BudgetEntity> getLowBalanceBudget();
 }

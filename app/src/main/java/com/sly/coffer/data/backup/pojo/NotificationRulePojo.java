@@ -10,8 +10,8 @@ public class NotificationRulePojo {
     private String packageName;
     private String targetTitle;
     private String contentRegex;
-    private int captureGroupPos;
-    private boolean enabled;
+    private int captureGroupPos = 1;
+    private boolean enabled = true;
 
     public NotificationRulePojo() {
     }

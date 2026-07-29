@@ -4,20 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true) // 忽略JSON中多余字段
 public class NotificationRuleTransferPojo {
-    private long transferId;
     private long ruleId;
     private String exportAccount;
     private String importAccount;
 
     public NotificationRuleTransferPojo() {
-    }
-
-    public long getTransferId() {
-        return transferId;
-    }
-
-    public void setTransferId(long transferId) {
-        this.transferId = transferId;
     }
 
     public long getRuleId() {

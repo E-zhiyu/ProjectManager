@@ -150,7 +150,7 @@ public class BudgetInputActivity extends AppCompatActivity {
                                 //初始化输入框
                                 binding.budgetNameInput.setText(budget.getName());                          //名称
                                 binding.initAmountInput.setText(String.valueOf(budget.getInitAmount()));    //初始金额
-                                binding.leftAmountInput.setText(String.valueOf(budget.getLeftAmount()));    //余额
+                                binding.leftAmountInput.setText(String.valueOf(budget.getBalance()));    //余额
                                 binding.startDateInput.setText(                                             //起算日期
                                         budget.getStartDate().format(CustomDateTimeFormatter.DATE)
                                 );

@@ -30,7 +30,7 @@ public class BudgetListAdapter extends ListAdapter<BudgetEntity, BudgetListAdapt
         public boolean areContentsTheSame(@NonNull BudgetEntity oldItem, @NonNull BudgetEntity newItem) {
             return oldItem.getName().equals(newItem.getName()) &&
                     oldItem.getInitAmount() == newItem.getInitAmount() &&
-                    oldItem.getLeftAmount() == newItem.getLeftAmount() &&
+                    oldItem.getBalance() == newItem.getBalance() &&
                     oldItem.getStartDate().isEqual(newItem.getStartDate()) &&
                     oldItem.getResetFrequency() == newItem.getResetFrequency();
         }
@@ -136,7 +136,7 @@ public class BudgetListAdapter extends ListAdapter<BudgetEntity, BudgetListAdapt
 
         //余额和初始金额
         double initAmount = budget.getInitAmount();
-        double leftAmount = budget.getLeftAmount();
+        double leftAmount = budget.getBalance();
         String amountStr = String.format(Locale.getDefault(), "%.2f/%.2f", leftAmount, initAmount);
         holder.binding.amountText.setText(amountStr);
 

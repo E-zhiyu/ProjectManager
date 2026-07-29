@@ -40,7 +40,16 @@ abstract public class BackupHelperBase<D extends RoomDatabase, M> {
 
     protected abstract String getTempDataFileName();    //设置临时数据文件名称
 
-    public Completable importDataFromTempFile(File file) {
+    protected abstract M convertOldData(String json) throws JsonProcessingException;   //将旧数据的 JSON 文本转换为新数据集合
+
+    /**
+     * 从临时文件中导入数据
+     *
+     * @param file      临时文件对象
+     * @param isOldData 是否导入的是旧版数据（v1.9.0之前的版本）
+     * @return 是否完成
+     */
+    public Completable importDataFromTempFile(File file, boolean isOldData) {
         return Completable.defer(() -> {
             try {
                 //读取文件内容
@@ -48,7 +57,12 @@ abstract public class BackupHelperBase<D extends RoomDatabase, M> {
 
                 //得到数据字典实例
                 ObjectMapper mapper = new ObjectMapper();
-                M dataMap = mapper.readValue(json, mapClass);
+                M dataMap;
+                if (isOldData) {
+                    dataMap = convertOldData(json);
+                } else {
+                    dataMap = mapper.readValue(json, mapClass);
+                }
 
                 //将对应的数据写入数据库
                 saveDataInMapToDb(dataMap);

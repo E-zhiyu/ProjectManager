@@ -18,23 +18,14 @@ import androidx.room.PrimaryKey;
         }
 )
 public class AccountTransferEntity {
-    @PrimaryKey(autoGenerate = true)
-    private long transferId;        //主键
-    private long accountId;         //流水账 ID
+    @PrimaryKey
+    private long accountId;         //流水记录 ID
     private String exportAccount;   //转出账户
     private String importAccount;   //转入账户
 
     public AccountTransferEntity(String exportAccount, String importAccount) {
         this.exportAccount = exportAccount;
         this.importAccount = importAccount;
-    }
-
-    public long getTransferId() {
-        return transferId;
-    }
-
-    public void setTransferId(long transferId) {
-        this.transferId = transferId;
     }
 
     public long getAccountId() {

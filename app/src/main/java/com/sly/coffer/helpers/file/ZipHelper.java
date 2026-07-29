@@ -17,7 +17,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -135,24 +137,24 @@ public class ZipHelper {
      *
      * @param uri     需要扫描的压缩文件的 Uri
      * @param context 上下文
-     * @return 可通过 RxJava 观察的文件名字符串列表
+     * @return 可通过 RxJava 观察的文件名字符串集合
      */
-    public static Single<List<String>> scanBackupFile(Uri uri, @NonNull Context context) {
+    public static Single<Set<String>> scanBackupFile(Uri uri, @NonNull Context context) {
         return Single.fromCallable(() -> {
-            List<String> fileNameList = new ArrayList<>();
+            Set<String> fileNameSet = new HashSet<>();
             try (InputStream is = context.getContentResolver().openInputStream(uri);
                  ZipInputStream zis = new ZipInputStream(is)) {
 
                 ZipEntry entry;
                 while ((entry = zis.getNextEntry()) != null) {
-                    fileNameList.add(entry.getName());
+                    fileNameSet.add(entry.getName());
                     zis.closeEntry();
                 }
             } catch (IOException e) {
                 throw new RuntimeException("压缩包扫描失败", e);
             }
 
-            return fileNameList;
+            return fileNameSet;
         });
     }
 
@@ -195,11 +197,18 @@ public class ZipHelper {
                 while ((entry = zis.getNextEntry()) != null) {
                     String name = entry.getName();
 
-                    if (name.startsWith(mediaDirName)
+                    if (name.equals("pictures.zip")) {          //处理旧版媒体文件
+                        File outFile = new File(tempJsonDir, name);
+                        extractFile(zis, outFile, mediaBuffer);
+                        zis.closeEntry();
+
+                        //第二次解压
+                        unpackOldMediaZip(outFile, mediaDir, mediaBuffer);
+                    } else if (name.startsWith(mediaDirName)
                             && !name.equals(mediaDirName)
                             && includeMedia
-                    ) {  //处理媒体文件
-                        File outFile = new File(mediaDir, name.substring(mediaDirName.length()));    //去掉开头的文件夹路径
+                    ) {  //处理新版媒体文件
+                        File outFile = new File(mediaDir, name.substring(mediaDirName.length()));   //去掉开头的文件夹路径
                         extractFile(zis, outFile, mediaBuffer);
                         zis.closeEntry();
                     } else if (allowedFiles.contains(name)) {   //处理根目录下的 JSON 文件
@@ -217,7 +226,12 @@ public class ZipHelper {
     }
 
     /**
-     * 具体解压写入文件的实现
+     * 将文件真正地从压缩包中解压出来
+     *
+     * @param zis     {@link ZipInputStream}实例
+     * @param outFile 输出文件
+     * @param buffer  读写缓冲区
+     * @throws IOException 文件解压失败引发的异常
      */
     private static void extractFile(ZipInputStream zis, @NonNull File outFile, byte[] buffer) throws IOException {
         // 确保父目录存在
@@ -234,6 +248,30 @@ public class ZipHelper {
             }
             // 刷新缓冲区并同步到磁盘
             fos.getFD().sync();
+        }
+    }
+
+    /**
+     * 二次解压旧版媒体文件压缩包
+     *
+     * @param zipFile  已经从主备份文件解压出来的包含媒体文件的压缩包文件
+     * @param mediaDir 永久存放媒体文件的目录
+     * @param buffer   缓冲区
+     * @throws IOException 解压失败引发的异常
+     */
+    private static void unpackOldMediaZip(File zipFile, File mediaDir, byte[] buffer) throws IOException {
+        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile))) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                String fileName = entry.getName();
+                File outFile = new File(mediaDir, fileName);
+                extractFile(zis, outFile, buffer);
+                zis.closeEntry();
+            }
+
+            if (!zipFile.delete()) {
+                Log.w(LogTags.ZIP_HELPER.n(), "解压旧媒体文件后压缩包删除失败");
+            }
         }
     }
 }

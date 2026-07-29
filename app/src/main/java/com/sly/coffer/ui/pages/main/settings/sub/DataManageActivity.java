@@ -55,6 +55,7 @@ public class DataManageActivity extends AppCompatActivity {
     private final CompositeDisposable disposables = new CompositeDisposable();      //多线程任务列表
     private List<Boolean> exportChoiceStatList = null;                              //导出数据时的选项选择情况
     private ActivityResultLauncher<Intent> importDataLauncher, exportDataLauncher;  //活动启动器
+    private ActivityResultLauncher<Intent> importOldDataLauncher;                   //导入旧版数据的启动器
     private boolean exportIncludeMedia = false;                                     //导出时是否包含媒体文件
     private ActivityResultLauncher<Intent> backupDirSelectLauncher;                 //自动备份目录选择启动器
 
@@ -110,7 +111,21 @@ public class DataManageActivity extends AppCompatActivity {
                         return;
                     }
 
-                    showImportChoiceDialog(data.getData());
+                    showImportChoiceDialog(data.getData(), false);
+                }
+        );
+
+        importOldDataLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    int resultCode = result.getResultCode();
+                    Intent data = result.getData();
+                    if (resultCode != Activity.RESULT_OK || data == null || data.getData() == null) {
+                        FileHelper.clearTempDataDir(this);
+                        return;
+                    }
+
+                    showImportChoiceDialog(data.getData(), true);
                 }
         );
 
@@ -170,6 +185,13 @@ public class DataManageActivity extends AppCompatActivity {
                 new String[]{"application/zip"},
                 importDataLauncher
         ));
+        importDataOption.setOnLongClickListener(view -> {
+            SAFHelper.openDocumentViaSAF(
+                    new String[]{"application/zip"},
+                    importOldDataLauncher
+            );
+            return true;
+        });
 
         //自动备份开关
         SettingSwitchView autoBackupSwitchOption = new SettingSwitchView(
@@ -373,9 +395,10 @@ public class DataManageActivity extends AppCompatActivity {
     /**
      * 扫描备份文件并显示多选对话框
      *
-     * @param uri SAF 返回的 Uri 实例
+     * @param uri       SAF 返回的 Uri 实例
+     * @param isOldData 是否是旧版数据
      */
-    private void showImportChoiceDialog(Uri uri) {
+    private void showImportChoiceDialog(Uri uri, boolean isOldData) {
         //显示扫描文件的进度条对话框
         AlertDialog progressDialog = new ProgressDialogBuilder(this, "扫描文件", "正在扫描文件……")
                 .setNegativeButton("取消", (dialogInterface, i) -> {
@@ -388,13 +411,14 @@ public class DataManageActivity extends AppCompatActivity {
         disposables.add(ZipHelper.scanBackupFile(uri, this)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(fileNameList -> {
+                .subscribe(fileNameSet -> {
                     progressDialog.dismiss();
 
                     //实例化选项列表
                     List<MultiChoiceDialogBuilder.ChoiceItem> itemList = Arrays.stream(BackupDataType.values())
                             .map(backupDataType -> {
-                                if (fileNameList.contains(backupDataType.getFileName())) {
+                                if (!isOldData && fileNameSet.contains(backupDataType.getFileName()) ||
+                                        isOldData && fileNameSet.contains(backupDataType.getOldFileName())) {
                                     return new MultiChoiceDialogBuilder.ChoiceItem(
                                             true,
                                             backupDataType.getTitle(),
@@ -412,7 +436,9 @@ public class DataManageActivity extends AppCompatActivity {
 
                     //显示多选对话框
                     new MultiChoiceDialogBuilder(this, "导入数据", itemList)
-                            .setPositiveButton("确认", checkedStatList -> importData(uri, checkedStatList))
+                            .setPositiveButton("确认", checkedStatList ->
+                                    importData(uri, checkedStatList, isOldData)
+                            )
                             .setNegativeButton("取消", null)
                             .show();
                 }, e -> {
@@ -427,8 +453,9 @@ public class DataManageActivity extends AppCompatActivity {
      *
      * @param uri             备份文件的 Uri
      * @param checkedStatList 用户选择的选项状态，选项的下标与{@link BackupDataType}的枚举序数一一对应
+     * @param isOldData       是否是旧版数据
      */
-    private void importData(Uri uri, @NonNull List<Boolean> checkedStatList) {
+    private void importData(Uri uri, @NonNull List<Boolean> checkedStatList, boolean isOldData) {
         //判断是否选择了数据
         if (checkedStatList.stream().noneMatch(Boolean::booleanValue)) {
             Toast.makeText(this, "请选择至少一个选项", Toast.LENGTH_SHORT).show();
@@ -446,7 +473,13 @@ public class DataManageActivity extends AppCompatActivity {
         //获取需要解压的文件名列表
         List<String> allowedFileNameList = Arrays.stream(BackupDataType.values())
                 .filter(backupDataType -> checkedStatList.get(backupDataType.ordinal()))
-                .map(BackupDataType::getFileName)
+                .map(type -> {
+                    if (isOldData) {
+                        return type.getOldFileName();
+                    } else {
+                        return type.getFileName();
+                    }
+                })
                 .collect(Collectors.toList());
         boolean includeMedia = checkedStatList.get(0);
 
@@ -455,12 +488,17 @@ public class DataManageActivity extends AppCompatActivity {
                 .flatMapObservable(Observable::fromIterable)
                 .flatMapCompletable(file -> {
                     //根据文件名判断数据类型
-                    BackupDataType type = BackupDataType.fromFileName(file.getName());
+                    BackupDataType type;
+                    if (isOldData) {
+                        type = BackupDataType.fromOldFileName(file.getName());
+                    } else {
+                        type = BackupDataType.fromFileName(file.getName());
+                    }
 
                     //使用对应的备份Helper导入数据
                     if (type != null) {
                         BackupHelperBase<?, ?> helper = type.createBackupHelper(this);
-                        return helper.importDataFromTempFile(file);
+                        return helper.importDataFromTempFile(file, isOldData);
                     } else {
                         return Completable.complete();
                     }
