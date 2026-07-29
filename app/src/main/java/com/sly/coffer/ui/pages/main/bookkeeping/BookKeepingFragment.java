@@ -14,11 +14,17 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.sly.coffer.R;
+import com.sly.coffer.auxiliary.classes.CustomDateTimeFormatter;
+import com.sly.coffer.auxiliary.interfaces.RecyclerViewScrollListener;
 import com.sly.coffer.data.save.db.BookkeepingDb;
+import com.sly.coffer.data.save.db.daos.AccountDao;
 import com.sly.coffer.data.save.db.entities.AccountEntity;
+import com.sly.coffer.data.save.db.entities.composite.ui.AccountUiModel;
 import com.sly.coffer.data.save.db.services.AccountService;
 import com.sly.coffer.data.save.preference.SearchHistoryPreference;
 import com.sly.coffer.databinding.ViewHolderSeparatorTextChipBinding;
@@ -28,6 +34,8 @@ import com.sly.coffer.auxiliary.enums.TagStrings;
 import com.sly.coffer.helpers.BackPressedCallbackHelper;
 import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.SearchHelper;
+import com.sly.coffer.helpers.appearence.ScrollHelper;
+import com.sly.coffer.helpers.time.DateTimePickerHelper;
 import com.sly.coffer.ui.others.bottom.AccountFilterBottomSheet;
 import com.sly.coffer.ui.others.decoration.sticky.StickyHeaderItemDecoration;
 import com.sly.coffer.ui.others.viewmodel.AccountFilterViewModel;
@@ -35,14 +43,16 @@ import com.sly.coffer.ui.pages.main.MainActivity;
 import com.sly.coffer.databinding.FragmentBookkeepingBinding;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 
+import java.time.LocalDate;
+
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class BookKeepingFragment extends Fragment {
-    private FragmentBookkeepingBinding binding;             //绑定的XML视图
+    private FragmentBookkeepingBinding binding;                         //绑定的XML视图
     private final CompositeDisposable disposable = new CompositeDisposable();  //订阅列表（便于取消订阅）
-    private BackPressedCallbackHelper backHelper;   //返回手势拦截器
+    private BackPressedCallbackHelper backHelper;                       //返回手势拦截器
     private BackPressedCallbackHelper.BackHandler searchBackHandler;    //搜索返回处理器
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -92,6 +102,42 @@ public class BookKeepingFragment extends Fragment {
                             AccountFilterBottomSheet bottomSheet = new AccountFilterBottomSheet();
                             bottomSheet.show(getParentFragmentManager(), TagStrings.ACCOUNT_FILTER_BOTTOM.t());
                             return true;
+                        } else if (id == R.id.action_skip_date) {
+                            //获取初始日期
+                            LocalDate initDate = null;
+                            if (binding.accountRecycler.getLayoutManager() instanceof LinearLayoutManager) {
+                                int firstViewPosition = ((LinearLayoutManager) binding.accountRecycler.getLayoutManager())
+                                        .findFirstVisibleItemPosition();
+                                if (binding.accountRecycler.getAdapter() instanceof AccountListAdapter &&
+                                        firstViewPosition != RecyclerView.NO_POSITION) {
+                                    AccountUiModel model = ((AccountListAdapter) binding.accountRecycler.getAdapter())
+                                            .getCurrentList().get(firstViewPosition);
+                                    if (model instanceof AccountUiModel.Item) {
+                                        initDate = ((AccountUiModel.Item) model).entity.getDateTime().toLocalDate();
+                                    } else if (model instanceof AccountUiModel.Separator) {
+                                        initDate = LocalDate.parse(((AccountUiModel.Separator) model).text, CustomDateTimeFormatter.DATE_WITH_WEEK);
+                                    }
+                                }
+                            }
+
+                            //弹出日期选择对话框
+                            DateTimePickerHelper.selectDate(
+                                    initDate,
+                                    getParentFragmentManager(),
+                                    "选择跳转到的日期",
+                                    selection -> {
+                                        LocalDate selectedDate = DateTimePickerHelper.getLocalDateFromTimeMilli(selection);
+                                        AccountDao dao = BookkeepingDb.getInstance(requireContext()).accountDao();
+                                        disposable.add(dao.getAccountCountAfterDateSingle(selectedDate.plusDays(1))
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .subscribeOn(Schedulers.io())
+                                                .subscribe(
+                                                        count -> scrollToTargetPosition(count, selectedDate),
+                                                        e -> ExceptionHelper.showExceptionDialog(requireContext(), e)
+                                                )
+                                        );
+                                    }
+                            );
                         }
                         return false;
                     }
@@ -192,6 +238,59 @@ public class BookKeepingFragment extends Fragment {
         AccountFilterViewModel filterViewModel = new ViewModelProvider(requireActivity()).get(AccountFilterViewModel.class);
         filterViewModel.getFilterUpdatedLiveData().observe(getViewLifecycleOwner(), v ->
                 setSearchMode(!filterViewModel.isNoFilter())
+        );
+    }
+
+    /**
+     * 跳转到指定位置
+     *
+     * @param targetPosition 目标下标，实际为大于目标日期的日记数量
+     * @param targetDate     希望跳转到的日期
+     */
+    private void scrollToTargetPosition(int targetPosition, LocalDate targetDate) {
+        //判断位置是否在有效范围内
+        RecyclerView.Adapter<?> adapter = binding.accountRecycler.getAdapter();
+        if (adapter == null || targetPosition >= adapter.getItemCount()) {
+            targetPosition -= 1;    //防止超出范围
+            Toast.makeText(requireContext(), "已跳转至最早的日期", Toast.LENGTH_SHORT).show();
+        } else if (targetPosition == 0) {
+            Toast.makeText(requireContext(), "已跳转至最晚的日期", Toast.LENGTH_SHORT).show();
+        } else {
+            //判断跳转到的位置是否是目标日期
+            if (adapter instanceof AccountListAdapter) {
+                AccountUiModel model = ((AccountListAdapter) adapter).getCurrentList().get(targetPosition);
+                LocalDate exactDate = null;
+                if (model instanceof AccountUiModel.Item) {
+                    exactDate = ((AccountUiModel.Item) model).entity.getDateTime().toLocalDate();
+                } else if (model instanceof AccountUiModel.Separator) {
+                    exactDate = LocalDate.parse(((AccountUiModel.Separator) model).text, CustomDateTimeFormatter.DATE_WITH_WEEK);
+                }
+                if (exactDate == null || !exactDate.isEqual(targetDate)) {
+                    Toast.makeText(requireContext(), "当天未记账，已跳转至相邻日期", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+
+        //折叠 AppBarLayout
+        binding.appBarLayout.setExpanded(false);
+
+        //滚动列表视图
+        ScrollHelper.scrollRecycler(
+                binding.accountRecycler,
+                (LinearLayoutManager) binding.accountRecycler.getLayoutManager(),
+                targetPosition,
+                30,
+                AppearanceHelper.dpToPx(requireContext(), 63),
+                new RecyclerViewScrollListener() {
+                    @Override
+                    public void onSucceed() {
+                    }
+
+                    @Override
+                    public void onFailed(String errMessage) {
+                        Toast.makeText(requireContext(), errMessage, Toast.LENGTH_SHORT).show();
+                    }
+                }
         );
     }
 

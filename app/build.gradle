@@ -47,6 +47,7 @@ android {
 dependencies {
     implementation libs.appcompat
     implementation libs.material.v1130
+    implementation libs.paging.runtime              //分页加载
     implementation libs.recyclerview
     implementation libs.constraintlayout
     implementation libs.lifecycle.livedata.ktx

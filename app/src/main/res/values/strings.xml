@@ -159,6 +159,7 @@
     <string name="others">其他</string>
     <string name="low_balance_ratio">低余额比例</string>
     <string name="btn_of_explanation">功能说明按钮</string>
+    <string name="skip_date">日期跳转</string>
     <string-array name="tips_array">
         <item>在报表界面可以点击某个收支来源以排除它，还不赶快去试试？</item>
         <item>你知道吗？下面的这些卡片是可以点击的。</item>

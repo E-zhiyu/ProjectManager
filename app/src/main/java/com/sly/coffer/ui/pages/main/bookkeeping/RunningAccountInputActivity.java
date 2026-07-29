@@ -77,6 +77,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -347,10 +348,10 @@ public class RunningAccountInputActivity extends AppCompatActivity {
 
         //日期和时间
         binding.datetimeInput.setText(LocalDateTime.now().format(CustomDateTimeFormatter.DATE_TIME));
-        binding.datetimeInput.setOnClickListener(v -> showMaterialDatePicker());
+        binding.datetimeInput.setOnClickListener(v -> selectDateTime());
         binding.datetimeInput.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
-                showMaterialDatePicker();
+                selectDateTime();
                 binding.datetimeLayout.setError(null);
             }
         });
@@ -910,9 +911,9 @@ public class RunningAccountInputActivity extends AppCompatActivity {
     }
 
     /**
-     * 弹出日期和时间选择框
+     * 显示时间选择对话框
      */
-    private void showMaterialDatePicker() {
+    private void selectDateTime() {
         //解析已输入的时间
         String datetimeStr = String.valueOf(binding.datetimeInput.getText());
         LocalDateTime inputDatetime = datetimeStr.isEmpty() ?
@@ -920,38 +921,25 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                 LocalDateTime.parse(datetimeStr, CustomDateTimeFormatter.DATE_TIME);
         LocalDate date = inputDatetime.toLocalDate();
 
-        //显示日期选择对话框
         DateTimePickerHelper.selectDate(
                 date,
                 getSupportFragmentManager(),
-                selection -> {
-                    //时间戳转换为LocalDateTime
-                    LocalDateTime selectedDatetime = DateTimePickerHelper.getLocalDateTimeFromTimeMilli(selection);
-
-                    //选择日期后，再弹出时间选择器
-                    showMaterialTimePicker(selectedDatetime, inputDatetime);
-                }
-        );
-    }
-
-    /**
-     * 显示时间选择对话框
-     *
-     * @param selectedDatetime 日期选择对话框选择的日期
-     * @param initialDatetime  初始化日期
-     */
-    private void showMaterialTimePicker(@NonNull LocalDateTime selectedDatetime, @NonNull LocalDateTime initialDatetime) {
-        DateTimePickerHelper.selectDateTime(
-                initialDatetime.toLocalTime(),
-                getSupportFragmentManager(),
-                timePicker -> {
+                dateTimeMillis -> {
                     //组合日期和时间
-                    int hour = timePicker.getHour();
-                    int minute = timePicker.getMinute();
-                    LocalDateTime finalDatetime = selectedDatetime.withHour(hour).withMinute(minute);
+                    LocalDate selectedDate = DateTimePickerHelper.getLocalDateFromTimeMilli(dateTimeMillis);
+                    DateTimePickerHelper.selectTime(
+                            inputDatetime,
+                            getSupportFragmentManager(),
+                            timePicker -> {
+                                int hour = timePicker.getHour();
+                                int minute = timePicker.getMinute();
 
-                    //修改文本框的日期和时间
-                    binding.datetimeInput.setText(CustomDateTimeFormatter.DATE_TIME.format(finalDatetime));
+                                LocalTime selectedTime = LocalTime.of(hour, minute);
+                                LocalDateTime finalDatetime = selectedDate.atTime(selectedTime);
+                                //修改文本框的日期和时间
+                                binding.datetimeInput.setText(CustomDateTimeFormatter.DATE_TIME.format(finalDatetime));
+                            }
+                    );
                 }
         );
     }

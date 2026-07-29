@@ -11,6 +11,7 @@ public enum LogTags {
     WORK_STATS("WorkStats"),
     ACCOUNT_FRAGMENT("AccountFragment"),
     SAF_HELPER("SAFHelper"),
+    SCROLL_HELPER("ScrollHelper"),
     ZIP_HELPER("ZipHelper"),
     ALARM_HELPER("AlarmHelper"),
     APPLICATION("Application"),
