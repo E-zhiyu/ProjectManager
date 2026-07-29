@@ -128,8 +128,11 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/tag_group_recycler"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginTop="5dp"
+        android:clipToPadding="false"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/no_tag_selection_chip" />
 
     <!-- 加载指示器 -->

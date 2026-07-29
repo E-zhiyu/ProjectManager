@@ -1,9 +1,11 @@
 package com.sly.coffer.ui.others.bottom;
 
+import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,6 +14,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.chip.Chip;
 import com.sly.coffer.R;
 import com.sly.coffer.auxiliary.classes.CustomDateTimeFormatter;
@@ -59,6 +63,34 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
         });
 
         return binding.getRoot();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Dialog dialog = getDialog();
+        if (dialog instanceof BottomSheetDialog) {
+            // 1. 捞出系统的底座容器
+            FrameLayout bottomSheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet != null) {
+                BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
+
+                // 2. 强行把底座的高度设置为固定值，防止 ViewPager2 高度不同而突变
+                int screenHeight = getResources().getDisplayMetrics().heightPixels;
+                int desiredHeight = (int) (screenHeight * 0.85);
+
+                ViewGroup.LayoutParams layoutParams = bottomSheet.getLayoutParams();
+                layoutParams.height = desiredHeight;
+                bottomSheet.setLayoutParams(layoutParams);
+
+                // 3. 配置展开状态：一探头就直接进入完全展开状态，不给它留半折腾的空间
+                behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                behavior.setSkipCollapsed(true); // 往下滑直接关闭，不允许停留在半高状态
+
+                // 4. 设置默认的起跳高度，防止高度坍塌
+                behavior.setPeekHeight(desiredHeight);
+            }
+        }
     }
 
     @Override
