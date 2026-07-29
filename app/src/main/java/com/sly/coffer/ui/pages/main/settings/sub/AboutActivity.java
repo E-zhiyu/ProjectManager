@@ -12,7 +12,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.sly.coffer.ManagerAssistant;
+import com.sly.coffer.SlyCoffer;
 import com.sly.coffer.databinding.ActivityAboutBinding;
 import com.sly.coffer.helpers.AboutHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
@@ -51,7 +51,7 @@ public class AboutActivity extends AppCompatActivity {
 
         //作者卡片
         binding.authorCard.setOnClickListener(view -> {
-            ManagerAssistant.lockLifecycleObserver();
+            SlyCoffer.lockLifecycleObserver();
             Uri uri = Uri.parse("https://github.com/E-zhiyu");
             Intent skip2GitHub = new Intent(Intent.ACTION_VIEW, uri);
             startActivity(skip2GitHub);
@@ -60,7 +60,7 @@ public class AboutActivity extends AppCompatActivity {
 
         //项目地址卡片
         binding.projectAddressCard.setOnClickListener(view -> {
-            ManagerAssistant.lockLifecycleObserver();
+            SlyCoffer.lockLifecycleObserver();
             Uri uri = Uri.parse("https://gitee.com/e-zhiyu/manager-assistant-web");
             Intent skip2Project = new Intent(Intent.ACTION_VIEW, uri);
             startActivity(skip2Project);

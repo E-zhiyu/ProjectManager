@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.DynamicColorsOptions;
-import com.sly.coffer.ManagerAssistant;
+import com.sly.coffer.SlyCoffer;
 import com.sly.coffer.R;
 import com.sly.coffer.auxiliary.enums.settings.ThemeMode;
 
@@ -34,7 +34,7 @@ public class ThemeHelper {
      * @param modeIndex {@link ThemeMode}的枚举序数
      */
     public static void switchNightModeWithAnimation(@NonNull Activity activity, int modeIndex) {
-        ManagerAssistant.lockLifecycleObserver();
+        SlyCoffer.lockLifecycleObserver();
 
         // 1. 获取根布局
         ViewGroup rootView = (ViewGroup) activity.getWindow().getDecorView().getRootView();
@@ -74,7 +74,7 @@ public class ThemeHelper {
      * @param isOpened 是否启用动态配色
      */
     public static void applyDynamicColor(@NonNull Activity activity, boolean isOpened) {
-        ManagerAssistant app = (ManagerAssistant) activity.getApplication();
+        SlyCoffer app = (SlyCoffer) activity.getApplication();
         DynamicColorsOptions options;
         if (isOpened) {
             options = new DynamicColorsOptions.Builder()
@@ -96,7 +96,7 @@ public class ThemeHelper {
      * @param isOpened 是否启用动态配色
      */
     public static void switchDynamicColorWithAnimation(@NonNull Activity activity, boolean isOpened) {
-        ManagerAssistant.lockLifecycleObserver();
+        SlyCoffer.lockLifecycleObserver();
 
         // 1. 获取根布局
         ViewGroup rootView = (ViewGroup) activity.getWindow().getDecorView().getRootView();

@@ -39,7 +39,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
-public class ManagerAssistant extends Application {
+public class SlyCoffer extends Application {
     private static boolean isLifecycleObserverLocked = false;   //生命周期观察者是否被锁定
     private int startedActivityCount = 0;                       //在前台的活动数量
 
@@ -96,13 +96,13 @@ public class ManagerAssistant extends Application {
                     long currentTimeMillis = System.currentTimeMillis();
                     long lastSuccessTimeMillis = AuthActivity.getLastSuccessTimeMillis();
                     long minDifference = AuthOpportunity.values()[
-                            SecurityPreference.getAuthOpportunity(ManagerAssistant.this)
+                            SecurityPreference.getAuthOpportunity(SlyCoffer.this)
                             ].getTimeMilli();
                     if (
-                            SecurityPreference.getAuthSwitchStat(ManagerAssistant.this) &&
+                            SecurityPreference.getAuthSwitchStat(SlyCoffer.this) &&
                                     currentTimeMillis - lastSuccessTimeMillis >= minDifference
                     ) {
-                        Intent intent = new Intent(ManagerAssistant.this, AuthActivity.class);
+                        Intent intent = new Intent(SlyCoffer.this, AuthActivity.class);
                         // FLAG_ACTIVITY_NEW_TASK 是从 Application 启动 Activity 必须带的
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
@@ -125,7 +125,7 @@ public class ManagerAssistant extends Application {
 
                     // 当计数器归零，说明【此时此刻】没有任何 Activity 在前台了，用户刚按了 Home 键或锁屏
                     if (startedActivityCount == 0) {
-                        if (SecurityPreference.getHideRecentTask(ManagerAssistant.this)) {
+                        if (SecurityPreference.getHideRecentTask(SlyCoffer.this)) {
                             // 这里的 onStop 是跟随 Activity 的，会立刻执行，不会拖延到下次启动
                             removeTaskFromRecents();
                         }

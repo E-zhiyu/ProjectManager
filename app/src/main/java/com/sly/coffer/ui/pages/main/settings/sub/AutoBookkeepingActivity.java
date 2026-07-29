@@ -11,7 +11,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.sly.coffer.ManagerAssistant;
+import com.sly.coffer.SlyCoffer;
 import com.sly.coffer.R;
 import com.sly.coffer.auxiliary.enums.RadiusStyle;
 import com.sly.coffer.data.save.preference.AutoBookKeepingPreference;
@@ -88,7 +88,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                         .setTitle("权限申请说明")
                         .setMessage("此功能需要使用“通知使用权”权限，该权限允许应用读取其他软件发送的通知内容。是否为本应用授权？")
                         .setPositiveButton("确认", (dialog, which) -> {
-                            ManagerAssistant.lockLifecycleObserver();
+                            SlyCoffer.lockLifecycleObserver();
                             Intent intent = PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.getIntent(this);
                             startActivity(intent);
                         })
@@ -109,7 +109,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                 RadiusStyle.BOTTOM
         );
         ruleManageOption.setFunctionListener(v -> {
-            ManagerAssistant.lockLifecycleObserver();
+            SlyCoffer.lockLifecycleObserver();
             Intent intent = new Intent(this, NotificationRuleListActivity.class);
             startActivity(intent);
         });

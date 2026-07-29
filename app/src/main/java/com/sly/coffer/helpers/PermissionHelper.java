@@ -26,7 +26,7 @@ import androidx.lifecycle.LifecycleOwner;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.hjq.device.compat.DeviceOs;
-import com.sly.coffer.ManagerAssistant;
+import com.sly.coffer.SlyCoffer;
 import com.sly.coffer.data.save.preference.AutoBookKeepingPreference;
 import com.sly.coffer.auxiliary.enums.LogTags;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
@@ -278,7 +278,7 @@ public class PermissionHelper {
                     .setPositiveButton("去设置", (d, w) -> {
                         isProcessing = false;    //未直接调用processNextSpecial()，需要标记为未处理
 
-                        ManagerAssistant.lockLifecycleObserver();
+                        SlyCoffer.lockLifecycleObserver();
                         activity.startActivity(type.getIntent(activity));
                     })
                     .setNegativeButton("取消", (d, w) -> processNextSpecial())
