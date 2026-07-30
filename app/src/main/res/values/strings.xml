@@ -116,7 +116,7 @@
     <string name="no_budget">无预算</string>
     <string name="no_running_account">无流水记录</string>
     <string name="right_arrow_of_tag_card">标签卡片的右侧箭头</string>
-    <string name="app_description">这是一款极简的个人记账工具，界面采用Material You风格，无多余功能，为用户提供清爽的记账体验。</string>
+    <string name="app_description">一款极简的个人记账工具，界面采用Material You风格，无多余功能，为用户提供清爽的记账体验。</string>
     <string name="author_name">E_zhiyu</string>
     <string name="author_of_app">软件创作者</string>
     <string name="project_address">项目地址</string>
