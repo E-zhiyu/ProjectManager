@@ -19,3 +19,10 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class com.sly.coffer.data.save.** { *; }            # 保护数据保存相关的类
+-keep class com.sly.coffer.data.backup.** { *; }          # 保护POJO类
+-keep class com.sly.coffer.auxiliary.classes.** { *; }    # 保护辅助类
+
+# 保护更新信息类
+-keep class com.sly.coffer.helpers.UpdateHelper$VersionInfo { *; }

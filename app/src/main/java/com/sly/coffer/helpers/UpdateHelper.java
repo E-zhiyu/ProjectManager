@@ -105,6 +105,7 @@ public class UpdateHelper {
                         info.setVersionName("v" + versionName);
                     }
                     long versionCode = info.getVersionCode();
+                    info.setVersionCode(0);
 
                     //与跳过的版本比较
                     long skippedVersionCode = VersionPreference.getSkipVersionCode(context);
