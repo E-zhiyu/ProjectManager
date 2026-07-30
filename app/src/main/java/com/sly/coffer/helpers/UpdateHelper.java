@@ -131,18 +131,23 @@ public class UpdateHelper {
                             long versionCode = info.getVersionCode();
                             String changeLog = info.getChangeLog();
 
-                            new MarkdownDialogBuilder(context, "发现新版本", changeLog)
-                                    .setNegativeButton("跳过", (dialogInterface, i) ->
-                                            VersionPreference.setSkipVersionCode(context, versionCode)
-                                    )
-                                    .setPositiveButton("更新", (dialogInterface, i) -> {
-                                        //下载安装包时就自动备份一次，防止数据丢失
-                                        WorkerScheduler.executeWorkOnceNow(context, BackupWorker.class);
+                            long currentVersionCode = AboutHelper.getVersionCode(context);
+                            if (currentVersionCode < versionCode) {
+                                new MarkdownDialogBuilder(context, "发现新版本", changeLog)
+                                        .setNegativeButton("跳过", (dialogInterface, i) ->
+                                                VersionPreference.setSkipVersionCode(context, versionCode)
+                                        )
+                                        .setPositiveButton("更新", (dialogInterface, i) -> {
+                                            //下载安装包时就自动备份一次，防止数据丢失
+                                            WorkerScheduler.executeWorkOnceNow(context, BackupWorker.class);
 
-                                        Toast.makeText(context, "正在下载安装包，请勿关闭本APP", Toast.LENGTH_SHORT).show();
-                                        downloadLatestFile(context, versionName);
-                                    })
-                                    .show();
+                                            Toast.makeText(context, "正在下载安装包，请勿关闭本APP", Toast.LENGTH_SHORT).show();
+                                            downloadLatestFile(context, versionName);
+                                        })
+                                        .show();
+                            } else {
+                                Toast.makeText(context, "当前已是最新版本", Toast.LENGTH_SHORT).show();
+                            }
                         },
                         e -> {
                             if (!isManual) return;
@@ -150,7 +155,7 @@ public class UpdateHelper {
                             if (e instanceof ProtocolException) {
                                 Toast.makeText(context, "未知远程主机名", Toast.LENGTH_SHORT).show();
                             } else if (e instanceof FileNotFoundException) {
-                                Toast.makeText(context, "未找到版本信息远程文件", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, "无法获取最新版本", Toast.LENGTH_SHORT).show();
                             } else if (e instanceof SocketTimeoutException) {
                                 Toast.makeText(context, "与服务器的连接超时", Toast.LENGTH_SHORT).show();
                             } else if (e instanceof ConnectException || e instanceof UnknownHostException) {
