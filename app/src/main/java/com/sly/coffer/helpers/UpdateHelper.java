@@ -116,6 +116,8 @@ public class UpdateHelper {
                     String changeLog = readChangeLogFromRemote(versionName);
                     if (!changeLog.isEmpty()) {
                         info.setChangeLog(changeLog);
+                    } else {
+                        info.setChangeLog("修复了一些已知问题🥰");
                     }
 
                     //返回带有更新日志的版本信息
@@ -231,7 +233,7 @@ public class UpdateHelper {
                 }
 
                 // 判断是否是我们要找的目标版本
-                if (trimmedLine.startsWith("# " + targetVersion)) {
+                if (trimmedLine.contains(targetVersion)) {
                     isCollecting = true;
                     content.append(line).append("\n");
                 }
