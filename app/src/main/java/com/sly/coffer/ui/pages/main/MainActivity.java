@@ -16,7 +16,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.search.SearchView;
 import com.sly.coffer.R;
-import com.sly.coffer.data.save.preference.VersionPreference;
 import com.sly.coffer.databinding.ActivityMainBinding;
 import com.sly.coffer.data.save.preference.AppSettingsPreference;
 import com.sly.coffer.helpers.UpdateHelper;
@@ -62,13 +61,11 @@ public class MainActivity extends AppCompatActivity {
 
         initViews();
 
-        //启动时更新检测
-        int startVersionCheckNum = VersionPreference.getStartVersionCheckNum(this);
+        //启动主界面时自动检测更新（不一定触发）
         final int MODULAR = 2;
         if (System.currentTimeMillis() % MODULAR == 0) {
-            UpdateHelper.checkUpdate(this, disposable, false, false);
+            UpdateHelper.checkUpdate(this, disposable, false);
         }
-        VersionPreference.setStartVersionCheckNum(this, (startVersionCheckNum + 1) % MODULAR);
     }
 
     @Override
