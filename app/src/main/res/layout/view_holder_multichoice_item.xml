@@ -1,6 +1,5 @@
 <androidx.appcompat.widget.AppCompatCheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/checked_text"
-    style="@style/MediumTitleTextViewStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
@@ -11,4 +10,5 @@
     android:paddingTop="10dp"
     android:paddingEnd="25dp"
     android:paddingBottom="10dp"
-    android:text="@string/data_manage" />
+    android:text="@string/data_manage"
+    android:textAppearance="?attr/textAppearanceTitleMedium" />

@@ -50,7 +50,6 @@
         <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighest</item>
 
         <item name="toolbarStyle">@style/ToolBarStyle</item>
-        <item name="drawableTint">?attr/colorPrimary</item>
         <item name="colorControlActivated">?attr/colorPrimary</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>
@@ -60,7 +59,6 @@
     <style name="Theme.ManagerAssistant.Dynamic" parent="Theme.Material3.DynamicColors.Dark.NoActionBar">
         <!-- 自定义颜色和样式 -->
         <item name="toolbarStyle">@style/ToolBarStyle</item>
-        <item name="drawableTint">?attr/colorPrimary</item>
         <item name="colorControlActivated">?attr/colorPrimary</item>
         <item name="android:windowLightStatusBar">false</item>
 

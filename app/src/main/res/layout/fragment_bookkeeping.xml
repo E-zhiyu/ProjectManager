@@ -6,65 +6,22 @@
     tools:context=".ui.pages.main.bookkeeping.BookKeepingFragment">
 
     <com.google.android.material.appbar.AppBarLayout
-        style="@style/AppBarLayoutStyle"
+        android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        android:touchscreenBlocksFocus="false"
+        app:liftOnScroll="false"
+        app:statusBarForeground="?attr/colorSurface">
 
-        <!-- 顶部按钮视图 -->
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <com.google.android.material.search.SearchBar
+            android:id="@+id/remark_search_bar"
+            style="@style/Widget.Material3Expressive.SearchBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorSurface"
-            android:orientation="horizontal"
-            app:layout_scrollFlags="scroll|enterAlways|snap">
-
-            <com.google.android.material.search.SearchBar
-                android:id="@+id/remark_search_bar"
-                style="@style/SearchBarStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/search_remark"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/account_num_text"
-                style="@style/MediumTitleTextViewStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:text="@string/num_of_shown"
-                app:layout_constraintBottom_toBottomOf="@id/split_btn"
-                app:layout_constraintEnd_toStartOf="@+id/split_btn"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/split_btn" />
-
-            <com.google.android.material.button.MaterialSplitButton
-                android:id="@+id/split_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/remark_search_bar">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/filter_leading_btn"
-                    style="?attr/materialSplitButtonLeadingFilledStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/set_filter"
-                    app:icon="@drawable/outline_filter_alt_24" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/filter_select_btn"
-                    style="?attr/materialSplitButtonIconFilledStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:icon="@drawable/outline_unfold_more_24" />
-            </com.google.android.material.button.MaterialSplitButton>
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            android:hint="@string/search_remark"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:menu="@menu/menu_account_list_search_bar" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -73,30 +30,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
-        android:contentDescription="@string/add_floating_btn_description" />
+        android:contentDescription="@string/button_to_add"
+        app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior" />
 
     <!-- 空内容提示文本 -->
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/empty_tip_text"
-        style="@style/MediumBodyTextViewStyle"
+        android:id="@+id/empty_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@string/there_is_no_running_account"
+        android:layout_marginTop="50dp"
+        android:text="@string/no_running_account"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
         android:visibility="gone" />
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/refresh_layout"
+    <!-- 流水列表视图 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/account_recycler"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <!-- 流水列表视图 -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/account_recycler"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

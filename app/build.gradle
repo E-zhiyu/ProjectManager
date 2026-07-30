@@ -3,18 +3,25 @@ plugins {
 }
 
 android {
-    namespace 'com.manager.assistant'
+    namespace 'com.sly.coffer'
     compileSdkVersion 37
 
     defaultConfig {
-        applicationId "com.manager.assitant"
+        applicationId 'com.sly.coffer'
         minSdk 28
+        targetSdk 37
         //noinspection OldTargetApi
-        targetSdk 36
-        versionCode 61
-        versionName "1.8.17"
+        versionCode 62
+        versionName '1.9.0'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                // 告诉 Room 将数据库架构导出到指定的 JSON 文件中
+                arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
     }
 
     buildTypes {
@@ -24,8 +31,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -41,6 +47,7 @@ android {
 dependencies {
     implementation libs.appcompat
     implementation libs.material.v1130
+    implementation libs.paging.runtime              //分页加载
     implementation libs.recyclerview
     implementation libs.constraintlayout
     implementation libs.lifecycle.livedata.ktx
@@ -49,21 +56,29 @@ dependencies {
     implementation libs.navigation.ui
     implementation libs.activity
     implementation libs.materialdatetimepicker
-    implementation libs.biometric
+    implementation libs.biometric                   //生物验证依赖
+    implementation libs.recyclerview.selection      // Recycler 多选支持
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
     implementation libs.jackson.databind
     implementation libs.viewpager2
-    implementation libs.core
-    implementation libs.rxandroid
-    implementation libs.rxjava
-    implementation libs.swiperefreshlayout
+    implementation libs.core                        //多线程
+    implementation libs.rxandroid                   //线程切换
+    implementation libs.rxjava                      //多线程
+    implementation libs.work.runtime                //自动任务执行
+    implementation libs.work.rxjava3                // WorkManager 的 RxJava 支持
     implementation libs.documentfile
-    implementation libs.work.runtime
-    implementation libs.glide
+    implementation libs.glide                       //图片显示
     implementation libs.photoview
     implementation libs.dynamicanimation
     implementation libs.flexbox                     //Web上的Flex布局
     implementation libs.devicecompat                //系统名称判断
+    implementation libs.room.runtime                // Room 核心库
+    implementation libs.room.paging                 // Room 的Paging 3支持
+    annotationProcessor libs.room.compiler          // Room 注解处理器
+    implementation libs.room.rxjava3                // Room的 RxJava 支持
+    implementation libs.mapstruct                   // Pojo 与 Entity 转换
+    annotationProcessor libs.mapstruct.processor    // Mapstruct 注解处理器
+    implementation libs.lifecycle.process           // 生命周期监听
 }

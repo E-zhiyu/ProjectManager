@@ -5,13 +5,13 @@
         name="download"
         path="Download/" />
 
-    <!-- 流水图片目录，用于保存流水记录里的图片 -->
+    <!-- 流水媒体目录，用于保存流水记录里的媒体文件 -->
     <external-files-path
-        name="account_pictures"
-        path="pictures" />
+        name="account_medias"
+        path="medias" />
 
-    <!-- 照片临时目录，用于临时保存拍摄的照片文件 -->
+    <!-- 媒体文件临时目录，用于临时保存拍摄的媒体文件 -->
     <external-cache-path
-        name="picture_temp"
-        path="picture_temp" />
+        name="media_temp"
+        path="media_temp" />
 </paths>

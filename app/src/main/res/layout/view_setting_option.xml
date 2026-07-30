@@ -21,19 +21,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.divider.MaterialDivider
-            android:id="@+id/setting_view_divider"
-            android:layout_width="1dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:visibility="gone"
-            app:dividerColor="?attr/colorOutline"
-            app:dividerThickness="1dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/component_layout"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <ImageView
             android:id="@+id/icon_view"
             style="@style/ImageViewStyle"
@@ -47,10 +34,10 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/title_text"
-            style="@style/LargeBodyTextViewStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/title_setting"
+            android:text="@string/settings"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
             app:layout_constraintBottom_toTopOf="@id/description_text"
             app:layout_constraintStart_toEndOf="@id/icon_view"
             app:layout_constraintTop_toTopOf="parent"
@@ -58,10 +45,11 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/description_text"
-            style="@style/MediumBodyTextViewStyle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/setting"
+            android:layout_marginEnd="10dp"
+            android:text="@string/settings"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
             android:textColor="?attr/colorOutline"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/component_layout"

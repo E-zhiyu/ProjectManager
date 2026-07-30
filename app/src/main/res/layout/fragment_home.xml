@@ -1,201 +1,339 @@
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.pages.main.home.HomeFragment">
 
-    <!-- 主内容布局 -->
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp">
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/welcome_card"
-            style="@style/LargeRadiusCardStyle"
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            style="@style/CollapsingToolbarLayoutStyle"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/collapsingToolbarLayoutMediumSize"
+            app:toolbarId="@id/toolbar">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
+                app:navigationIcon="@null"
+                app:title="@string/home_page" />
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/scroll_view_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent">
+            android:clipToPadding="false"
+            android:paddingBottom="5dp">
 
-            <LinearLayout
+            <!-- 随机提示文本卡片 -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/random_tip_card"
+                style="@style/MediumRadiusCardStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_marginBottom="10dp"
+                app:layout_constraintBottom_toTopOf="@id/date_card"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/LargeTitleTextViewStyle"
+                    android:id="@+id/random_tip_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:paddingBottom="0dp"
-                    android:text="@string/welcome_string" />
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="15dp"
+                    android:layout_marginBottom="10dp" />
+            </com.google.android.material.card.MaterialCardView>
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/bookkeeping_days_text"
-                    style="@style/MediumTitleTextViewStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:paddingTop="0dp"
-                    android:text="@string/num_of_bookkeeping_days" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/tips_card"
-            style="@style/MediumRadiusCardStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@id/report_balance_cardview"
-            app:layout_constraintTop_toBottomOf="@+id/welcome_card">
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <!-- 日期统计卡片 -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/date_card"
+                style="@style/MediumRadiusCardStyle"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="10dp">
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="0dp"
+                app:layout_constraintBottom_toTopOf="@id/report_card"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/random_tip_card">
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/tips_text"
-                    style="@style/MediumBodyTextViewStyle"
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                    android:layout_height="match_parent"
+                    android:paddingTop="20dp"
+                    android:paddingBottom="20dp">
 
-        <!-- 结余卡片 -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/report_balance_cardview"
-            style="@style/MediumRadiusCardStyle"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="0dp"
-            android:layout_marginEnd="0dp"
-            android:layout_marginBottom="0dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintBottom_toBottomOf="@+id/budget_card"
-            app:layout_constraintEnd_toStartOf="@id/tag_card"
-            app:layout_constraintHorizontal_weight="4"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tips_card">
+                    <!-- 开始日期内容文本 -->
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/start_date_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/not_applicable"
+                        android:textAppearance="?attr/textAppearanceHeadline5"
+                        app:layout_constraintBottom_toTopOf="@id/start_date_title"
+                        app:layout_constraintEnd_toEndOf="@id/start_date_title"
+                        app:layout_constraintStart_toStartOf="@id/start_date_title"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                    <!-- 开始日期标题 -->
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/start_date_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/bookkeeping_start_date"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="?attr/colorOutline"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/date_difference_title"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/start_date_text" />
 
-                <com.google.android.material.textview.MaterialTextView
-                    style="@style/LargeTitleTextViewStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="0dp"
-                    android:text="@string/title_report" />
+                    <!-- 日期差文本 -->
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/date_difference_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/not_applicable"
+                        android:textAppearance="?attr/textAppearanceHeadline5"
+                        app:layout_constraintBottom_toTopOf="@id/date_difference_title"
+                        app:layout_constraintEnd_toEndOf="@id/date_difference_title"
+                        app:layout_constraintStart_toStartOf="@id/date_difference_title"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-                <com.google.android.material.textview.MaterialTextView
-                    style="@style/MediumTitleTextViewStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="5dp"
-                    android:paddingBottom="0dp"
-                    android:text="@string/today_balance" />
+                    <!-- 日期差标题 -->
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/date_difference_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/date_difference_to_today"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="?attr/colorOutline"
+                        app:layout_constraintBottom_toBottomOf="@id/start_date_title"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/start_date_title"
+                        app:layout_constraintTop_toBottomOf="@id/date_difference_text"
+                        app:layout_constraintTop_toTopOf="@id/start_date_title" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/balance_text"
-                    style="@style/TextAppearance.Material3.HeadlineLarge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:paddingTop="0dp"
-                    android:paddingBottom="5dp"
-                    android:text="@string/balance" />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/expense_income_text"
-                    style="@style/MediumBodyTextViewStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="0dp"
-                    android:paddingBottom="10dp"
-                    android:text="@string/expense_and_income" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- 标签卡片 -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/tag_card"
-            style="@style/MediumRadiusCardStyle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="3dp"
-            android:layout_marginTop="0dp"
-            android:layout_marginBottom="0dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_weight="3"
-            app:layout_constraintStart_toEndOf="@+id/report_balance_cardview"
-            app:layout_constraintTop_toTopOf="@+id/report_balance_cardview">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <com.google.android.material.textview.MaterialTextView
-                    style="@style/LargeTitleTextViewStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="0dp"
-                    android:text="@string/tag_count" />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/tag_count_text"
-                    style="@style/TextAppearance.Material3.HeadlineLarge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:paddingBottom="5dp"
-                    android:text="@string/count_infinity" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- 预算卡片 -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/budget_card"
-            style="@style/MediumRadiusCardStyle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="0dp"
-            android:layout_marginTop="3dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/tag_card"
-            app:layout_constraintTop_toBottomOf="@+id/tag_card">
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/report_card"
+                style="@style/MediumRadiusCardStyle"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp"
+                app:layout_constraintBottom_toTopOf="@id/report_card"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/date_card">
 
-                <com.google.android.material.textview.MaterialTextView
-                    style="@style/LargeTitleTextViewStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="0dp"
-                    android:text="@string/budget_count" />
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingTop="20dp"
+                    android:paddingBottom="20dp">
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/budget_count_text"
-                    style="@style/TextAppearance.Material3.HeadlineLarge"
-                    android:layout_width="wrap_content"
+                    <!-- 结余文本 -->
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/today_balance_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/not_applicable"
+                        android:textAppearance="?attr/textAppearanceHeadline5"
+                        app:layout_constraintBottom_toTopOf="@id/today_balance_title"
+                        app:layout_constraintEnd_toEndOf="@id/today_balance_title"
+                        app:layout_constraintStart_toStartOf="@id/today_balance_title"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <!-- 结余标题 -->
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/today_balance_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/today_balance"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="?attr/colorOutline"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/income_and_expense_title"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/today_balance_text" />
+
+                    <!-- 收支文本 -->
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/today_income_and_expense_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/not_applicable"
+                        android:textAppearance="?attr/textAppearanceHeadline5"
+                        app:layout_constraintBottom_toTopOf="@id/income_and_expense_title"
+                        app:layout_constraintEnd_toEndOf="@id/income_and_expense_title"
+                        app:layout_constraintStart_toStartOf="@id/income_and_expense_title"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <!-- 收支标题 -->
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/income_and_expense_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/today_income_and_expense"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="?attr/colorOutline"
+                        app:layout_constraintBottom_toBottomOf="@id/today_income_and_expense_text"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/today_balance_title"
+                        app:layout_constraintTop_toBottomOf="@id/today_income_and_expense_text" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 标签卡片 -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/tag_card"
+                style="@style/MediumRadiusCardStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/notification_rule_card"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/report_card">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:paddingBottom="5dp"
-                    android:text="@string/count_infinity" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.core.widget.NestedScrollView>
+                    android:padding="10dp">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tag_count_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/infinity"
+                        android:textAppearance="?attr/textAppearanceHeadline5"
+                        app:layout_constraintBottom_toTopOf="@id/tag_count_title"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tag_count_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/account_tag"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="?attr/colorOutline"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tag_count_text" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 通知规则卡片 -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/notification_rule_card"
+                style="@style/MediumRadiusCardStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="2dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="00dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/budget_card"
+                app:layout_constraintStart_toEndOf="@id/tag_card"
+                app:layout_constraintTop_toBottomOf="@id/report_card">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/notification_rule_count_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/infinity"
+                        android:textAppearance="?attr/textAppearanceHeadline5"
+                        app:layout_constraintBottom_toTopOf="@id/notification_rule_count_title"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/notification_rule_count_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/notification_rule"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="?attr/colorOutline"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/notification_rule_count_text" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 预算卡片 -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/budget_card"
+                style="@style/MediumRadiusCardStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="2dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/notification_rule_card"
+                app:layout_constraintTop_toBottomOf="@id/report_card">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/budget_count_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/infinity"
+                        android:textAppearance="?attr/textAppearanceHeadline5"
+                        app:layout_constraintBottom_toTopOf="@id/budget_count_title"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/budget_count_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/budget"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="?attr/colorOutline"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/budget_count_text" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

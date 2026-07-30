@@ -9,71 +9,15 @@
         <item name="titleTextAppearance">?attr/textAppearanceHeadlineSmall</item>
     </style>
 
-    <!-- 文本样式基类 -->
-    <style name="TextViewStyleBase">
-        <item name="android:paddingStart">10dp</item>
-        <item name="android:paddingEnd">10dp</item>
-        <item name="android:paddingTop">10dp</item>
-        <item name="android:paddingBottom">10dp</item>
+    <!-- 折叠标题栏布局样式 -->
+    <style name="CollapsingToolbarLayoutStyle" parent="Widget.Material3.CollapsingToolbar.Medium">
+        <item name="collapsedTitleGravity">start</item>
+        <item name="expandedTitleGravity">center_horizontal|bottom</item>
+        <item name="layout_scrollFlags">scroll|exitUntilCollapsed|snap</item>
     </style>
 
-    <!-- 中等标题文本视图样式 -->
-    <style name="MediumTitleTextViewStyle" parent="TextViewStyleBase">
-        <item name="android:textAppearance">?attr/textAppearanceTitleMedium</item>
-    </style>
-
-    <!-- 大标题文本视图样式 -->
-    <style name="LargeTitleTextViewStyle" parent="TextViewStyleBase">
-        <item name="android:textAppearance">?attr/textAppearanceTitleLarge</item>
-    </style>
-
-    <!-- 大字号内容文本视图样式 -->
-    <style name="LargeBodyTextViewStyle" parent="TextViewStyleBase">
-        <item name="android:paddingStart">0dp</item>
-        <item name="android:paddingBottom">0dp</item>
-        <item name="android:paddingEnd">0dp</item>
-        <item name="android:paddingTop">0dp</item>
-        <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
-    </style>
-
-    <!-- 中等字号内容文本视图样式 -->
-    <style name="MediumBodyTextViewStyle" parent="TextViewStyleBase">
-        <item name="android:paddingStart">0dp</item>
-        <item name="android:paddingBottom">0dp</item>
-        <item name="android:paddingEnd">0dp</item>
-        <item name="android:paddingTop">0dp</item>
-        <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
-    </style>
-
-    <!-- 可点击的文本框样式 -->
-    <style name="ClickableTextViewStyle">
-        <item name="android:background">?attr/selectableItemBackground</item>
-        <item name="android:focusable">true</item>
-        <item name="android:clickable">true</item>
-        <item name="android:paddingTop">15dp</item>
-        <item name="android:paddingBottom">15dp</item>
-        <item name="android:textSize">17sp</item>
-        <item name="android:drawablePadding">15dp</item>
-        <item name="android:paddingStart">20dp</item>
-    </style>
-
-    <!-- 缩小版标签文本样式 -->
-    <style name="SmallTitleTextViewStyle" parent="TextViewStyleBase">
-        <item name="android:textAppearance">?attr/textAppearanceTitleSmall</item>
-    </style>
-
-    <!-- 提示文本视图样式 -->
-    <style name="TipTextViewStyle">
-        <item name="android:paddingTop">10dp</item>
-        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
-        <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
-        <item name="android:drawablePadding">10dp</item>
-        <item name="android:drawableStart">@drawable/outline_info_24</item>
-        <item name="drawableTint">?attr/colorOnSurfaceVariant</item>
-    </style>
-
-    <style name="CardStyleBase" parent="Widget.Material3.CardView.Filled">
-        <item name="cardBackgroundColor">@color/card_background_color</item>
+    <style name="CardStyleBase" parent="Widget.Material3.CardView.Elevated">
+        <item name="strokeWidth">0dp</item>
     </style>
 
     <!-- 大圆角卡片容器器样式 -->
@@ -92,16 +36,6 @@
         <item name="android:layout_marginStart">10dp</item>
         <item name="android:layout_marginEnd">10dp</item>
         <item name="android:layout_marginBottom">10dp</item>
-    </style>
-
-    <!-- 淡色中等圆角卡片容器 -->
-    <style name="LightMediumRadiusCardStyle" parent="CardStyleBase">
-        <item name="cardCornerRadius">20dp</item>
-        <item name="android:layout_marginTop">10dp</item>
-        <item name="android:layout_marginStart">10dp</item>
-        <item name="android:layout_marginEnd">10dp</item>
-        <item name="android:layout_marginBottom">10dp</item>
-        <item name="cardBackgroundColor">@color/light_card_background_color</item>
     </style>
 
     <!-- 开关样式 -->
@@ -145,9 +79,8 @@
     </style>
 
     <!-- “添加”浮动按钮样式 -->
-    <style name="AddFloatingActionBtnStyle" parent="ThemeOverlay.Material3.FloatingActionButton.Primary">
+    <style name="AddFloatingActionBtnStyle" parent="Widget.Material3.FloatingActionButton.Tertiary">
         <item name="android:src">@drawable/outline_add_24</item>
-        <item name="backgroundTint">?attr/colorTertiaryContainer</item>
         <item name="android:layout_marginEnd">20dp</item>
         <item name="android:layout_marginBottom">20dp</item>
     </style>
@@ -171,9 +104,6 @@
 
     <!-- 普通文本框布局样式 -->
     <style name="CommonTextInputLayoutStyle" parent="Widget.Material3.TextInputLayout.OutlinedBox.Dense">
-        <item name="errorEnabled">true</item>
-        <item name="counterEnabled">true</item>
-        <item name="helperTextEnabled">true</item>
         <item name="android:layout_marginTop">4dp</item>
         <item name="android:layout_marginBottom">4dp</item>
         <item name="endIconDrawable">@drawable/baseline_clear_24</item>
@@ -191,7 +121,6 @@
     <style name="UserInputEditTextStyle" parent="Widget.Material3.TextInputEditText.OutlinedBox.Dense">
         <item name="android:inputType">text</item>
         <item name="android:textColorHighlight">?attr/colorSurfaceVariant</item>
-        <item name="android:maxLength">20</item>
     </style>
 
     <!-- 自动填充文本框样式 -->
@@ -205,21 +134,6 @@
     <style name="EditableAutoCompleteTextViewStyle" parent="UneditableAutoCompleteTextViewStyle">
         <item name="android:inputType">text</item>
         <item name="maxLines">1</item>
-    </style>
-
-    <!-- AppBarLayout样式 -->
-    <style name="AppBarLayoutStyle" parent="Widget.Material3.AppBarLayout">
-        <item name="android:background">?attr/colorSurface</item>
-    </style>
-
-    <!-- SearchBar样式 -->
-    <style name="SearchBarStyle" parent="Widget.Material3.SearchBar">
-        <item name="backgroundTint">?attr/colorSurface</item>
-    </style>
-
-    <!-- SearchView样式 -->
-    <style name="SearchViewStyle" parent="Widget.Material3.SearchView">
-        <item name="backgroundTint">?attr/colorSurfaceContainer</item>
     </style>
 
     <!-- 底部导航栏样式 -->
@@ -239,5 +153,16 @@
     <style name="TabLayoutStyle" parent="android:Widget">
         <item name="android:backgroundTint">?attr/colorSurface</item>
         <item name="tabIndicatorColor">?attr/colorPrimary</item>
+    </style>
+
+    <!-- 可点击的文本框样式 -->
+    <style name="ClickableTextViewStyle">
+        <item name="drawableTint">?attr/colorPrimary</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:paddingTop">15dp</item>
+        <item name="android:paddingBottom">15dp</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:drawablePadding">15dp</item>
+        <item name="android:paddingStart">20dp</item>
     </style>
 </resources>
