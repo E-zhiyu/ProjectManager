@@ -263,7 +263,7 @@ public class UpdateHelper {
             String versionName
     ) throws IllegalArgumentException {
         //生成文件名
-        String fileName = String.format("Sly's-Coffer_%s.apk", versionName);
+        String fileName = String.format("Sly.s-Coffer_%s.apk", versionName);
 
         //生成下载链接
         String downloadUrl = String.format(

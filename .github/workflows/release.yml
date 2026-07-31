@@ -42,7 +42,7 @@ jobs:
       - name: Rename APK
         run: |
           # 1. 定义你的自定义前缀
-          APP_NAME="Sly's-Coffer"
+          APP_NAME="Sly.s-Coffer"
           # 2. 获取当前的 Tag 标签名 (例如 v1.0)
           TAG_NAME="${{ github.ref_name }}"
           # 3. 执行重命名 (请确保路径与你实际生成的 APK 路径一致)
