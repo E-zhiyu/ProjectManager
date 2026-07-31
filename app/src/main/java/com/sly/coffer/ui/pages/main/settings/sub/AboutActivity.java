@@ -61,7 +61,7 @@ public class AboutActivity extends AppCompatActivity {
         //项目地址卡片
         binding.projectAddressCard.setOnClickListener(view -> {
             SlyCoffer.lockLifecycleObserver();
-            Uri uri = Uri.parse("https://gitee.com/e-zhiyu/manager-assistant-web");
+            Uri uri = Uri.parse("https://gitee.com/e-zhiyu/sly-coffer");
             Intent skip2Project = new Intent(Intent.ACTION_VIEW, uri);
             startActivity(skip2Project);
         });
