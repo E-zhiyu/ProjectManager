@@ -146,7 +146,7 @@ public class UpdateHelper {
                                             downloadLatestFile(context, versionName);
                                         })
                                         .show();
-                            } else {
+                            } else if (isManual) {
                                 Toast.makeText(context, "当前已是最新版本", Toast.LENGTH_SHORT).show();
                             }
                         },
@@ -154,7 +154,7 @@ public class UpdateHelper {
                             if (!isManual) return;
 
                             if (e instanceof ProtocolException) {
-                                Toast.makeText(context, "未知远程主机名", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, "未知的远程主机名", Toast.LENGTH_SHORT).show();
                             } else if (e instanceof FileNotFoundException) {
                                 Toast.makeText(context, "无法获取最新版本", Toast.LENGTH_SHORT).show();
                             } else if (e instanceof SocketTimeoutException) {
@@ -370,7 +370,6 @@ public class UpdateHelper {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
-        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         context.startActivity(intent);
     }
 }
