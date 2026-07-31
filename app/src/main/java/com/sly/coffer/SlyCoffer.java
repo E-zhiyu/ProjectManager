@@ -30,13 +30,11 @@ import com.sly.coffer.auxiliary.enums.settings.BackupFrequency;
 import com.sly.coffer.helpers.NotificationHelper;
 import com.sly.coffer.automation.workers.WorkerScheduler;
 import com.sly.coffer.helpers.appearence.ThemeHelper;
+import com.sly.coffer.helpers.file.FileHelper;
 import com.sly.coffer.helpers.time.AlarmHelper;
 import com.sly.coffer.ui.pages.AuthActivity;
 
-import java.io.File;
 import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class SlyCoffer extends Application {
@@ -157,13 +155,9 @@ public class SlyCoffer extends Application {
             //启动时检测是否有需要删除的安装包
             String apkUri = VersionPreference.getApkUri(this);
             if (!apkUri.isEmpty()) {
-                File apkFile = new File(Objects.requireNonNull(Uri.parse(apkUri).getPath()));
-                if (apkFile.exists() && apkFile.delete()) {
-                    Log.d(LogTags.APPLICATION.n(), String.format(Locale.getDefault(), "成功删除“%s”", apkFile.getName()));
-                    VersionPreference.setApkUri(this, "");
-                } else {
-                    Log.w(LogTags.APPLICATION.n(), String.format(Locale.getDefault(), "“%s”删除失败", apkFile.getName()));
-                }
+                Uri contentUri = Uri.parse(apkUri);
+                FileHelper.deleteFile(contentUri, this);
+                VersionPreference.setApkUri(this, "");
             }
         }
     }

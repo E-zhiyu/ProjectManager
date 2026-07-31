@@ -13,7 +13,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,7 +24,6 @@ import com.sly.coffer.automation.workers.WorkerScheduler;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -35,7 +33,6 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Locale;
-import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -47,6 +44,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class UpdateHelper {
+    private static final String RELEASE_FILE_NAME = "Sly.s-Coffer";
     private static final String REPOSITORY_ADDRESS = "https://gitee.com/e-zhiyu/sly-coffer";
     private static final String VERSION_INFO_PART = "/raw/main/VERSION.json";
     private static final String CHANGE_LOG_PART = "/raw/main/CHANGELOG.md";
@@ -141,7 +139,7 @@ public class UpdateHelper {
                                             //下载安装包时就自动备份一次，防止数据丢失
                                             WorkerScheduler.executeWorkOnceNow(context, BackupWorker.class);
 
-                                            Toast.makeText(context, "正在下载安装包，请勿关闭本APP", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(context, "正在下载安装包，请在通知栏查看进度", Toast.LENGTH_SHORT).show();
                                             downloadLatestFile(context, versionName);
                                         })
                                         .show();
@@ -263,7 +261,7 @@ public class UpdateHelper {
             String versionName
     ) throws IllegalArgumentException {
         //生成文件名
-        String fileName = String.format("Sly.s-Coffer_%s.apk", versionName);
+        String fileName = String.format("%s_%s.apk", RELEASE_FILE_NAME, versionName);
 
         //生成下载链接
         String downloadUrl = String.format(
@@ -277,9 +275,14 @@ public class UpdateHelper {
         //请求下载
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadUrl));
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
-        request.setTitle("应用更新");
-        request.setDescription("正在更新" + context.getString(R.string.app_name));
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);  //设置通知永远可见
+        request.setTitle("软件更新");
+        request.setDescription(String.format(
+                Locale.getDefault(),
+                "正在更新“%s”……",
+                context.getString(R.string.app_name)
+        ));
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 
         //设置下载路径
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
@@ -319,9 +322,10 @@ public class UpdateHelper {
                                 new MaterialAlertDialogBuilder(context)
                                         .setTitle("安装更新")
                                         .setMessage("安装包已下载完毕，是否立刻更新？")
-                                        .setPositiveButton("立刻更新", (dialog, which) ->
-                                                installLatestApk(context, fileUriStr)
-                                        )
+                                        .setPositiveButton("立刻更新", (dialog, which) -> {
+                                            Uri contentUri = downloadManager.getUriForDownloadedFile(downloadId);
+                                            installLatestApk(context, contentUri);
+                                        })
                                         .setNegativeButton("取消", null)
                                         .show();
                             } else {
@@ -352,23 +356,14 @@ public class UpdateHelper {
      * 安装下载好的APK安装包
      *
      * @param context 上下文
-     * @param fileUri 安装包Uri
+     * @param fileUri 安装包的 content 类型 Uri
      */
-    private static void installLatestApk(@NonNull Context context, String fileUri) {
-        //获取下载的文件 Uri
-        File apkFile = new File(Objects.requireNonNull(Uri.parse(fileUri).getPath()));
-        if (!apkFile.exists()) return;
-        Uri apkUri = FileProvider.getUriForFile(
-                context,
-                context.getPackageName() + ".fileprovider",
-                apkFile
-        );
-
+    private static void installLatestApk(@NonNull Context context, Uri fileUri) {
         //启动安装逻辑
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+        intent.setDataAndType(fileUri, "application/vnd.android.package-archive");
         context.startActivity(intent);
     }
 }

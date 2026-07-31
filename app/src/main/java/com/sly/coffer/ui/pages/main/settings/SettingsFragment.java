@@ -42,8 +42,8 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 
 public class SettingsFragment extends Fragment {
-    private FragmentSettingsBinding binding;                                         //绑定的XML视图
-    private final CompositeDisposable disposables = new CompositeDisposable();      //多线程任务列表
+    private FragmentSettingsBinding binding;                                        //绑定的XML视图
+    private final CompositeDisposable disposable = new CompositeDisposable();       //多线程任务列表
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentSettingsBinding.inflate(inflater, container, false);
@@ -56,8 +56,8 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        disposable.dispose();
         binding = null;
-        disposables.dispose();
     }
 
     /**
@@ -368,7 +368,7 @@ public class SettingsFragment extends Fragment {
         updateCheckOption.setFunctionListener(
                 v -> {
                     Toast.makeText(requireContext(), "正在检查更新……", Toast.LENGTH_SHORT).show();
-                    UpdateHelper.checkUpdate(requireContext(), disposables, true);
+                    UpdateHelper.checkUpdate(requireContext(), disposable, true);
                 }
         );
     }
