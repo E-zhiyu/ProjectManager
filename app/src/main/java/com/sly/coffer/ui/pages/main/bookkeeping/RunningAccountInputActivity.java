@@ -468,7 +468,6 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                     })
                     .create();
 
-
             //如果有新媒体，则显示对话框
             List<MediaEntity> currentMediaList = mediaAdapter.getCurrentList();
             Set<MediaEntity> newMediaSet = currentMediaList.stream()    //获取新添加的媒体
@@ -514,12 +513,12 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                                 dialog.dismiss();
 
                                 //排除移动失败的文件
-                                List<MediaEntity> succeedFileUriList = resultList.stream()
+                                List<MediaEntity> succeedMediaList = resultList.stream()
                                         .filter(mediaEntity -> mediaEntity.getFileUri() != null)
                                         .collect(Collectors.toList());
 
                                 //调用数据写入方法
-                                saveData(succeedFileUriList);
+                                saveData(succeedMediaList);
                             }
                     )
             );
