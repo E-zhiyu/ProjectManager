@@ -115,7 +115,7 @@ public class StickyHeaderItemDecoration<VB extends ViewBinding> extends Recycler
 
             if (position != RecyclerView.NO_POSITION && adapter.isHeader(position)) {
                 // 如果下一个分隔符快要碰到顶部固定的 Header 了
-                if (child.getTop() <= headerHeight) {
+                if (child.getTop() < headerHeight) {
                     // 返回一个负值，随着滚动，把当前的 Header 往上推
                     return child.getTop() - headerHeight;
                 }
@@ -140,7 +140,7 @@ public class StickyHeaderItemDecoration<VB extends ViewBinding> extends Recycler
 
             if (position != RecyclerView.NO_POSITION && adapter.isHeader(position)) {
                 // 如果这个真实的分隔符的底部，已经进入或穿过了粘性头部的覆盖区域
-                if (child.getBottom() <= headerHeight) {
+                if (child.getBottom() < headerHeight) {
                     // 将其设为完全透明
                     child.setAlpha(0f);
                 } else {
