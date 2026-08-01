@@ -10,7 +10,15 @@ import com.sly.coffer.R;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 
 public class AboutHelper {
-    private static final String UPDATE_LOG_MD = "# v1.9.1\n" +
+    private static final String UPDATE_LOG_MD = "# v1.9.2\n" +
+            "\n" +
+            "### BUG修复\n" +
+            "\n" +
+            "- 修复流水记录列表跳转到最顶部时，最顶部的日期分隔符不会闪烁的BUG\n" +
+            "- 修复启用后台隐藏时在权限管理界面长按设置项跳转至系统设置会意外退出的BUG\n" +
+            "- 修复启用后台隐藏时无法开启系统相机进行拍照的BUG\n" +
+            "\n" +
+            "# v1.9.1\n" +
             "\n" +
             "### BUG修复\n" +
             "\n" +

@@ -35,7 +35,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                     o -> {
                     }
             );
-    private SettingClickableTextView camera, appList, notification, notificationListener, alarm;   //权限申请视图
+    private SettingClickableTextView camera, appList, notification, notificationListener, battery, alarm;   //权限申请视图
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +96,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                 () -> requestRuntimePermission(Manifest.permission.CAMERA)
         ));
         camera.setOnLongClickListener(view -> {
+            SlyCoffer.lockLifecycleObserver();
             Intent skip2Settings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
             Uri uri = Uri.fromParts("package", getPackageName(), null);
             skip2Settings.setData(uri);
@@ -120,6 +121,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                     () -> requestRuntimePermission("com.android.permission.GET_INSTALLED_APPS")
             ));
             appList.setOnLongClickListener(view -> {
+                SlyCoffer.lockLifecycleObserver();
                 Intent skip2Settings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                 Uri uri = Uri.fromParts("package", getPackageName(), null);
                 skip2Settings.setData(uri);
@@ -154,6 +156,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                 )
         );
         notification.setOnLongClickListener(view -> {
+            SlyCoffer.lockLifecycleObserver();
             Intent skip2Settings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
             Uri uri = Uri.fromParts("package", getPackageName(), null);
             skip2Settings.setData(uri);
@@ -207,7 +210,7 @@ public class PermissionManageActivity extends AppCompatActivity {
         }
 
         //电池优化策略
-        SettingClickableTextView batteryOptimizations = new SettingClickableTextView(
+        battery = new SettingClickableTextView(
                 this,
                 binding.batteryOptimizationsOption,
                 R.string.battery_optimization,
@@ -215,7 +218,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                 R.drawable.outline_battery_android_frame_3_24,
                 RadiusStyle.MIDDLE
         );
-        batteryOptimizations.setFunctionListener(v -> showExplanationDialog(
+        battery.setFunctionListener(v -> showExplanationDialog(
                 R.string.battery_optimization,
                 "该设置项是原生安卓的一个重要设置项，可以更加底层地调整应用的省电策略。" +
                         "如果需要确保应用在后台能够运行，请在电池优化设置界面找到对应应用，点击开关左侧的文本并勾选“无限制”。" +
@@ -235,7 +238,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                     startActivity(skip2IgnoringBatteryOptimizations);
                 }
         ));
-        batteryOptimizations.setOnLongClickListener(view -> {
+        battery.setOnLongClickListener(view -> {
             SlyCoffer.lockLifecycleObserver();
             Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
             startActivity(intent);
@@ -299,11 +302,7 @@ public class PermissionManageActivity extends AppCompatActivity {
 
         //相机权限
         boolean isCameraGranted = PermissionHelper.isRuntimePermissionGranted(Manifest.permission.CAMERA, this);
-        if (isCameraGranted) {
-            camera.getFunctionComponent().setText(GRANTED);
-        } else {
-            camera.getFunctionComponent().setText(NOT_GRANTED);
-        }
+        camera.getFunctionComponent().setText(isCameraGranted ? GRANTED : NOT_GRANTED);
 
         //应用列表权限
         if (appList != null) {
@@ -311,36 +310,24 @@ public class PermissionManageActivity extends AppCompatActivity {
                     "com.android.permission.GET_INSTALLED_APPS",
                     this
             );
-            if (isAppListGranted) {
-                appList.getFunctionComponent().setText(GRANTED);
-            } else {
-                appList.getFunctionComponent().setText(NOT_GRANTED);
-            }
+            appList.getFunctionComponent().setText(isAppListGranted ? GRANTED : NOT_GRANTED);
         }
 
         //通知权限
         boolean isNotificationGranted = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
                 PermissionHelper.isRuntimePermissionGranted(Manifest.permission.POST_NOTIFICATIONS, this);
-        if (isNotificationGranted) {
-            notification.getFunctionComponent().setText(GRANTED);
-        } else {
-            notification.getFunctionComponent().setText(NOT_GRANTED);
-        }
+        notification.getFunctionComponent().setText(isNotificationGranted ? GRANTED : NOT_GRANTED);
 
         //通知监听
         boolean isNotificationListenerGranted = PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.isGranted(this);
-        if (isNotificationListenerGranted) {
-            notificationListener.getFunctionComponent().setText(GRANTED);
-        } else {
-            notificationListener.getFunctionComponent().setText(NOT_GRANTED);
-        }
+        notificationListener.getFunctionComponent().setText(isNotificationListenerGranted ? GRANTED : NOT_GRANTED);
+
+        //电池优化
+        boolean isBatteryIgnored = PermissionHelper.SpecialPermissionType.BATTERY.isGranted(this);
+        battery.getFunctionComponent().setText(isBatteryIgnored ? "已忽略" : "未忽略");
 
         //精确闹钟权限
         boolean isAlarmGranted = PermissionHelper.SpecialPermissionType.ALARM.isGranted(this);
-        if (isAlarmGranted) {
-            alarm.getFunctionComponent().setText(GRANTED);
-        } else {
-            alarm.getFunctionComponent().setText(NOT_GRANTED);
-        }
+        alarm.getFunctionComponent().setText(isAlarmGranted ? GRANTED : NOT_GRANTED);
     }
 }

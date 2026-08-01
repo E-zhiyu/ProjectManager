@@ -1,12 +1,10 @@
 package com.sly.coffer;
 
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -39,7 +37,6 @@ import java.util.concurrent.ExecutionException;
 
 public class SlyCoffer extends Application {
     private static boolean isLifecycleObserverLocked = false;   //生命周期观察者是否被锁定
-    private int startedActivityCount = 0;                       //在前台的活动数量
 
     @Override
     public void onCreate() {
@@ -106,49 +103,15 @@ public class SlyCoffer extends Application {
                         startActivity(intent);
                     }
                 }
-            });
-
-            //注册活动生命周期监听器，用于更新活动数量
-            registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
-                @Override
-                public void onActivityStarted(@NonNull Activity activity) {
-                    startedActivityCount++;
-                }
 
                 @Override
-                public void onActivityStopped(@NonNull Activity activity) {
-                    startedActivityCount--;
-
+                public void onStop(@NonNull LifecycleOwner owner) {
                     if (isLifecycleObserverLocked) return;  //如果生命周期观察者被锁定，不执行任何操作
 
-                    // 当计数器归零，说明【此时此刻】没有任何 Activity 在前台了，用户刚按了 Home 键或锁屏
-                    if (startedActivityCount == 0) {
-                        if (SecurityPreference.getHideRecentTask(SlyCoffer.this)) {
-                            // 这里的 onStop 是跟随 Activity 的，会立刻执行，不会拖延到下次启动
-                            removeTaskFromRecents();
-                        }
+                    if (SecurityPreference.getHideRecentTask(SlyCoffer.this)) {
+                        // 这里的 onStop 是跟随 Activity 的，会立刻执行，不会拖延到下次启动
+                        removeTaskFromRecents();
                     }
-                }
-
-                // 其他生命周期方法留空...
-                @Override
-                public void onActivityCreated(@NonNull Activity activity, Bundle savedInstanceState) {
-                }
-
-                @Override
-                public void onActivityResumed(@NonNull Activity activity) {
-                }
-
-                @Override
-                public void onActivityPaused(@NonNull Activity activity) {
-                }
-
-                @Override
-                public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
-                }
-
-                @Override
-                public void onActivityDestroyed(@NonNull Activity activity) {
                 }
             });
 
