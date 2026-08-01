@@ -39,6 +39,7 @@ import androidx.transition.TransitionSet;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.sly.coffer.R;
+import com.sly.coffer.SlyCoffer;
 import com.sly.coffer.auxiliary.classes.CustomDateTimeFormatter;
 import com.sly.coffer.auxiliary.enums.TransitionName;
 import com.sly.coffer.auxiliary.enums.bottom_options.MediaAddOption;
@@ -695,6 +696,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
             );
 
             //启动相机
+            SlyCoffer.lockLifecycleObserver();
             takePictureLauncher.launch(contentUri);
         } catch (IOException e) {
             Toast.makeText(this, "无法创建相片文件", Toast.LENGTH_SHORT).show();
