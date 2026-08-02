@@ -1,6 +1,7 @@
 package com.sly.coffer.ui.pages.main.settings;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -86,21 +87,25 @@ public class SettingsFragment extends Fragment {
         themeModeOption.setFunctionListener(v -> showThemeModeSelectDialog());
 
         //动态配色
-        SettingSwitchView dynamicColorOption = new SettingSwitchView(
-                requireContext(),
-                binding.dynamicColorOption,
-                R.string.dynamic_color,
-                "将壁纸颜色作为APP主题色",
-                R.drawable.outline_colorize_24,
-                RadiusStyle.MIDDLE
-        );
-        dynamicColorOption.setChecked(AppSettingsPreference.getDynamicColorStat(requireContext()));
-        dynamicColorOption.setFunctionListener(
-                (buttonView, isChecked) -> {
-                    AppSettingsPreference.setDynamicColorStat(requireContext(), isChecked);
-                    ThemeHelper.switchDynamicColorWithAnimation(requireActivity(), isChecked);
-                }
-        );
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S_V2) {
+            SettingSwitchView dynamicColorOption = new SettingSwitchView(
+                    requireContext(),
+                    binding.dynamicColorOption,
+                    R.string.dynamic_color,
+                    "将壁纸颜色作为APP主题色",
+                    R.drawable.outline_colorize_24,
+                    RadiusStyle.MIDDLE
+            );
+            dynamicColorOption.setChecked(AppSettingsPreference.getDynamicColorStat(requireContext()));
+            dynamicColorOption.setFunctionListener(
+                    (buttonView, isChecked) -> {
+                        AppSettingsPreference.setDynamicColorStat(requireContext(), isChecked);
+                        ThemeHelper.switchDynamicColorWithAnimation(requireActivity(), isChecked);
+                    }
+            );
+        } else {
+            binding.dynamicColorOption.getRoot().setVisibility(View.GONE);
+        }
 
         //首页选项
         SettingSpinnerView firstScreenOption = new SettingSpinnerView(
