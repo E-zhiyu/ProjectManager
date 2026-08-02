@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 public class AutoBookKeepingPreference {
     private static final String PREF_NAME = "AutoBookKeepingPreference";
     private static final String KEY_NOTIFICATION_ANALYSIS_OPENED = "notification_analysis_opened";
-    private static final String KEY_HINT_AUTO_START = "hint_auto_start";            //是否提示打开自启动权限
     private static final String KEY_NOTIFICATION_CANCEL = "notification_cancel";    //自动记账通知点击行为
     private static final String KEY_NOTIFICATION_CLICK = "notification_click";      //自动记账确认通知点击行为
 
@@ -23,16 +22,6 @@ public class AutoBookKeepingPreference {
     public static boolean getSwitchStat(@NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return pref.getBoolean(KEY_NOTIFICATION_ANALYSIS_OPENED, false);
-    }
-
-    public static void setHintAutoStart(boolean isHinted, @NonNull Context context) {
-        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        pref.edit().putBoolean(KEY_HINT_AUTO_START, isHinted).apply();
-    }
-
-    public static boolean getHintAutoStart(@NonNull Context context) {
-        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        return pref.getBoolean(KEY_HINT_AUTO_START, false);
     }
 
     /**
