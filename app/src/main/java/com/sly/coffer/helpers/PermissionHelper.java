@@ -27,7 +27,7 @@ import androidx.lifecycle.LifecycleOwner;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.hjq.device.compat.DeviceOs;
 import com.sly.coffer.SlyCoffer;
-import com.sly.coffer.data.save.preference.AutoBookKeepingPreference;
+import com.sly.coffer.data.save.preference.AppSettingsPreference;
 import com.sly.coffer.auxiliary.enums.LogTags;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 
@@ -269,7 +269,7 @@ public class PermissionHelper {
         } else {
             //以后不再提示申请自启动权限
             if (type == SpecialPermissionType.AUTO_START) {
-                AutoBookKeepingPreference.setHintAutoStart(true, activity);
+                AppSettingsPreference.setHintAutoStart(true, activity);
             }
 
             new MaterialAlertDialogBuilder(activity)
@@ -357,7 +357,7 @@ public class PermissionHelper {
      * @return 是否提醒了需要开启自启动权限
      */
     public static boolean isAutoStartHinted(Context context) {
-        return !isAutoStartDefined() || AutoBookKeepingPreference.getHintAutoStart(context);
+        return !isAutoStartDefined() || AppSettingsPreference.getHintAutoStart(context);
     }
 
     /**
@@ -371,7 +371,7 @@ public class PermissionHelper {
             return false;
         }
 
-        //判断系统名称是否为空，为空说明为类原生系统，否则为拥有自启动设置的定制安卓
+        //类原生没有自启动权限
         return !DeviceOs.getOsName().isEmpty();
     }
 

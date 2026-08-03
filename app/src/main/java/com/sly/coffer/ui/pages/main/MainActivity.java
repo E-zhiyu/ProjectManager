@@ -3,7 +3,6 @@ package com.sly.coffer.ui.pages.main;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -12,7 +11,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.search.SearchView;
 import com.sly.coffer.R;
@@ -85,23 +83,23 @@ public class MainActivity extends AppCompatActivity {
         fragmentList.add(new BookKeepingFragment());
         fragmentList.add(new HomeFragment());
         fragmentList.add(new SettingsFragment());
-        ViewPager2 viewPager2 = getViewPager2(fragmentList, binding.bottomNavi);
+        initViewPager2(fragmentList);
 
         //设置APP启动第一屏
         int firstScreenCode = AppSettingsPreference.getFirstScreen(this);
-        viewPager2.setCurrentItem(firstScreenCode, false);
+        binding.viewPager2.setCurrentItem(firstScreenCode, false);
 
         //设置底部导航栏点击监听
         binding.bottomNavi.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.navigation_bookkeeping) {
-                viewPager2.setCurrentItem(0, true);
+                binding.viewPager2.setCurrentItem(0, true);
                 return true;
             } else if (id == R.id.navigation_home) {
-                viewPager2.setCurrentItem(1, true);
+                binding.viewPager2.setCurrentItem(1, true);
                 return true;
             } else if (id == R.id.navigation_settings) {
-                viewPager2.setCurrentItem(2, true);
+                binding.viewPager2.setCurrentItem(2, true);
                 return true;
             }
             return false;
@@ -109,14 +107,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 获取翻页视图
+     * 初始化翻页视图
      *
-     * @param fragmentList   页面Fragment列表
-     * @param navigationView 底部导航栏视图
-     * @return 带有列表中所有页面且与底部导航栏绑定的翻页视图
+     * @param fragmentList 页面Fragment列表
      */
-    @NonNull
-    private ViewPager2 getViewPager2(List<Fragment> fragmentList, BottomNavigationView navigationView) {
+    private void initViewPager2(List<Fragment> fragmentList) {
         ViewPager2 viewPager2 = binding.viewPager2;
         FragmentPagerAdapter viewPagerAdapter = new FragmentPagerAdapter(this, fragmentList);
         viewPager2.setAdapter(viewPagerAdapter);
@@ -127,11 +122,9 @@ public class MainActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 // 更新底部导航栏选中状态
-                navigationView.getMenu().getItem(position).setChecked(true);
+                binding.bottomNavi.getMenu().getItem(position).setChecked(true);
             }
         });
         viewPager2.setOffscreenPageLimit(2);    //设置保留邻近Fragment
-
-        return viewPager2;
     }
 }

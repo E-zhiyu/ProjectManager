@@ -57,6 +57,11 @@
                 android:id="@+id/rule_manage_option"
                 layout="@layout/view_setting_option" />
 
+            <!-- 直接入账开关 -->
+            <include
+                android:id="@+id/direct_deposit"
+                layout="@layout/view_setting_option" />
+
             <!-- 通知取消选项 -->
             <include
                 android:id="@+id/notification_cancel_behaviour"

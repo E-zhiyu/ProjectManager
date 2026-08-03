@@ -56,7 +56,7 @@
     <string name="show_sys_app">显示系统应用</string>
     <string name="home_page">主页</string>
     <string name="today_balance">今日结余</string>
-    <string name="select_first_screen">首页选择</string>
+    <string name="select_first_screen">启动页选择</string>
     <string name="save_picture_btn">保存图片按钮</string>
     <string name="share_picture_btn">分享图片按钮</string>
     <string name="add_picture_via_camera">使用相机拍照</string>
@@ -160,33 +160,26 @@
     <string name="low_balance_ratio">低余额比例</string>
     <string name="btn_of_explanation">功能说明按钮</string>
     <string name="skip_date">日期跳转</string>
+    <string name="direct_deposit">直接入账</string>
     <string-array name="tips_array">
-        <item>在报表界面可以点击某个收支来源以排除它，还不赶快去试试？</item>
-        <item>你知道吗？下面的这些卡片是可以点击的。</item>
-        <item>如果你发现设置项的右侧有一根竖线，那么请长按左侧的文本试试。</item>
-        <item>为什么不试试自动记账呢？在设置界面可以打开自动记账功能，建议在最近任务中锁定本应用。</item>
-        <item>每条流水记录都可以添加若干图片，用于记录当时的交易详情。</item>
-        <item>为了让软件能在后台正常运行，强烈建议授予自启动权限并忽略电池优化</item>
-        <item>调整魔改系统的省电策略可能无法保活软件，这个时候可以去本软件的设置-权限管理-电池优化策略中调整原生电池优化策略。</item>
-        <item>本软件没有云服务，如果你担心数据丢失，可以在设置界面自行导出数据作为备份。</item>
-        <item>动态色彩支持Android 12以上的系统，能够根据壁纸颜色生成配色方案，当然你也可以在设置界面切换成静态色彩。</item>
+        <item>如果设置了自动备份目录，进行软件更新时会自动备份一次。</item>
+        <item>长按某条搜索历史可以删除它。</item>
+        <item>设置界面有自动记账选项，可以利用软件发送的通知实现自动记账。</item>
+        <item>为了让软件能在后台正常运行，强烈建议授予自启动权限并忽略电池优化。</item>
+        <item>本APP只有更新检测需要联网，其他功能完全基于本地运行。</item>
+        <item>Android 12开始能够根据壁纸颜色动态生成配色方案，当然您也可以在设置界面切换成静态色彩。</item>
         <item>设置界面可以调整开屏界面，这样每次打开应用就不用手动跳转记账界面了。</item>
-        <item>自动记账功能需要常驻后台，如果你不想让APP一直显示在最近任务中，可以打开“隐藏最近任务”设置项。</item>
+        <item>如果您喜欢这款APP，能麻烦您前往“设置-关于软件-项目地址”为我的项目点一个⭐吗？</item>
 
-        <item>这句话是错……误……的😵‍💫</item>
         <item>手握两把锟斤拷，口中直呼烫烫烫……</item>
-        <item>你说得对，但Material You是由谷歌推出的一套全新动态设计语言系统。它构建于名为「Material Design」的视觉框架之上，通过智能算法实现「以你为本」的个性化体验。在这个充满活力的数字世界中，用户将通过「动态色彩」技术获得专属的视觉风格。</item>
+        <item>你说得对，但Material You是由谷歌推出的一套全新动态设计语言系统……</item>
         <item>软件图标中的角色叫斯莱，是游戏《空洞骑士》中一位很有个性的人物。</item>
-        <item>AI真的太好用了你知道吗？这里几乎所有动画都是AI写的！</item>
         <item>何意味是什么意思</item>
-        <item>大手子云控中😈……什么？我根本没写云服务？😦</item>
         <item>The system has been destroyed!</item>
-        <item>Android恩情还不完✋😭🤚</item>
-        <item>Android一定要开放✍️</item>
         <item>老婆饼没有老婆，“小而美”也不小而美😡</item>
         <item>先有鸡还是先有蛋？先有编译器还是先有代码？🤔</item>
         <item>好！把他们上市！</item>
-        <item>今天我们为被害的侧载哀悼，明天我们就要让Google付出代价！我们Google公司的朋友们，要为可耻共谋修改侧载作出回答！</item>
+        <item>我忘记了所有悲剧，看到的都是奇迹……</item>
     </string-array>
     <string-array name="xiaomi_tips">
         <item>两行干碎一加魂，长官我是小米人。</item>

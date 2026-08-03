@@ -12,10 +12,14 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.sly.coffer.SlyCoffer;
+import com.sly.coffer.auxiliary.enums.settings.RepositoryAddress;
 import com.sly.coffer.databinding.ActivityAboutBinding;
 import com.sly.coffer.helpers.AboutHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
+
+import java.util.Arrays;
 
 public class AboutActivity extends AppCompatActivity {
     private ActivityAboutBinding binding;
@@ -59,12 +63,28 @@ public class AboutActivity extends AppCompatActivity {
         AppearanceHelper.attachMorphAnimation(binding.authorCard);
 
         //项目地址卡片
-        binding.projectAddressCard.setOnClickListener(view -> {
-            SlyCoffer.lockLifecycleObserver();
-            Uri uri = Uri.parse("https://gitee.com/e-zhiyu/sly-coffer");
-            Intent skip2Project = new Intent(Intent.ACTION_VIEW, uri);
-            startActivity(skip2Project);
-        });
+        binding.projectAddressCard.setOnClickListener(view -> showRepositoryAddressDialog());
         AppearanceHelper.attachMorphAnimation(binding.projectAddressCard);
+    }
+
+    /**
+     * 显示项目仓库地址对话框
+     */
+    private void showRepositoryAddressDialog() {
+        RepositoryAddress[] addresses = RepositoryAddress.values();
+        String[] addressTitles = Arrays.stream(addresses)
+                .map(RepositoryAddress::getTitle)
+                .toArray(String[]::new);
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("选择项目仓库")
+                .setItems(addressTitles, (dialogInterface, i) -> {
+                    SlyCoffer.lockLifecycleObserver();
+                    Uri uri = Uri.parse(addresses[i].getAddress());
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                })
+                .setNegativeButton("取消", null)
+                .show();
     }
 }

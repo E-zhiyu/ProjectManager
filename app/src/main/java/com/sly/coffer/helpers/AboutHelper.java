@@ -10,7 +10,14 @@ import com.sly.coffer.R;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 
 public class AboutHelper {
-    private static final String UPDATE_LOG_MD = "# v1.9.2\n" +
+    private static final String UPDATE_LOG_MD = "# v1.9.3\n" +
+            "\n" +
+            "### 新增功能\n" +
+            "\n" +
+            "- 自动记账新增直接入账功能，开启后用户无需通过通知确认即可自动保留流水记录\n" +
+            "- 关于软件界面可以选择前往的仓库地址\n" +
+            "\n" +
+            "# v1.9.2\n" +
             "\n" +
             "### BUG修复\n" +
             "\n" +

@@ -106,13 +106,26 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                 R.string.notification_rule,
                 "点击进入规则管理界面",
                 R.drawable.baseline_rule_24,
-                RadiusStyle.BOTTOM
+                RadiusStyle.MIDDLE
         );
         ruleManageOption.setFunctionListener(v -> {
-            SlyCoffer.lockLifecycleObserver();
             Intent intent = new Intent(this, NotificationRuleListActivity.class);
             startActivity(intent);
         });
+
+        //直接入账开关
+        SettingSwitchView directDepositSwitch = new SettingSwitchView(
+                this,
+                binding.directDeposit,
+                R.string.direct_deposit,
+                "无需确认是否保留而直接入账",
+                R.drawable.outline_notifications_off_24,
+                RadiusStyle.BOTTOM
+        );
+        directDepositSwitch.setChecked(AutoBookKeepingPreference.getDirectDeposit(this));
+        directDepositSwitch.setFunctionListener((compoundButton, b) ->
+                AutoBookKeepingPreference.setDirectDeposit(b, this)
+        );
 
         //通知取消行为
         SettingSpinnerView notificationCancelBehaviour = new SettingSpinnerView(
