@@ -24,7 +24,7 @@ import com.sly.coffer.databinding.FragmentHomeBinding;
 import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.ui.pages.budget.BudgetListActivity;
-import com.sly.coffer.ui.pages.notification_rule.NotificationRuleListActivity;
+import com.sly.coffer.ui.pages.notification.rule.NotificationRuleListActivity;
 import com.sly.coffer.ui.pages.report.ReportActivity;
 import com.sly.coffer.ui.pages.tag.TagListActivity;
 

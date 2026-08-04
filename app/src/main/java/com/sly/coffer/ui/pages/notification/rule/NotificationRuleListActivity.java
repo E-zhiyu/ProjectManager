@@ -1,4 +1,4 @@
-package com.sly.coffer.ui.pages.notification_rule;
+package com.sly.coffer.ui.pages.notification.rule;
 
 import android.Manifest;
 import android.content.Intent;

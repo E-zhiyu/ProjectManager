@@ -75,12 +75,12 @@
             android:name=".ui.pages.app_list.AppSelectActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.notification_rule.NotificationRuleInputActivity"
+            android:name=".ui.pages.notification.rule.NotificationRuleInputActivity"
             android:exported="false"
-            android:parentActivityName=".ui.pages.notification_rule.NotificationRuleListActivity"
+            android:parentActivityName=".ui.pages.notification.rule.NotificationRuleListActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.pages.notification_rule.NotificationRuleListActivity"
+            android:name=".ui.pages.notification.rule.NotificationRuleListActivity"
             android:exported="false"
             android:parentActivityName=".ui.pages.main.MainActivity" />
         <activity

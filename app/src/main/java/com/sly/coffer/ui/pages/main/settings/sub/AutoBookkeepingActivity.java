@@ -20,7 +20,7 @@ import com.sly.coffer.auxiliary.enums.settings.NotificationCancelBehaviour;
 import com.sly.coffer.auxiliary.enums.settings.NotificationClickBehaviour;
 import com.sly.coffer.helpers.PermissionHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
-import com.sly.coffer.ui.pages.notification_rule.NotificationRuleListActivity;
+import com.sly.coffer.ui.pages.notification.rule.NotificationRuleListActivity;
 import com.sly.coffer.ui.pages.main.settings.components.SettingClickableTextView;
 import com.sly.coffer.ui.pages.main.settings.components.SettingSpinnerView;
 import com.sly.coffer.ui.pages.main.settings.components.SettingSwitchView;

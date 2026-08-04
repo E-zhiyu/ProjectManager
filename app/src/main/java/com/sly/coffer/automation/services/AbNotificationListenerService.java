@@ -37,7 +37,7 @@ import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.NotificationHelper;
 import com.sly.coffer.auxiliary.enums.AccountType;
 import com.sly.coffer.ui.pages.main.bookkeeping.RunningAccountInputActivity;
-import com.sly.coffer.ui.pages.notification_rule.NotificationRuleListActivity;
+import com.sly.coffer.ui.pages.notification.rule.NotificationRuleListActivity;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
