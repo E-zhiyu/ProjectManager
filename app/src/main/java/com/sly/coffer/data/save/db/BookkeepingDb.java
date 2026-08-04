@@ -15,6 +15,7 @@ import com.sly.coffer.data.save.db.converters.DateTimeConverter;
 import com.sly.coffer.data.save.db.converters.UriConverter;
 import com.sly.coffer.data.save.db.daos.AccountDao;
 import com.sly.coffer.data.save.db.daos.BudgetDao;
+import com.sly.coffer.data.save.db.daos.CapturedNotificationDao;
 import com.sly.coffer.data.save.db.daos.RuleDao;
 import com.sly.coffer.data.save.db.daos.TagDao;
 import com.sly.coffer.data.save.db.entities.AccountTagRefEntity;
@@ -101,6 +102,8 @@ public abstract class BookkeepingDb extends RoomDatabase {
     public abstract RuleDao ruleDao();
 
     public abstract BudgetDao budgetDao();
+
+    public abstract CapturedNotificationDao capturedNotificationDao();
 
     public abstract DataBackupDao dataBackupDao();
 

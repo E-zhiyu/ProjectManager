@@ -76,6 +76,21 @@
             <include
                 android:id="@+id/notification_click_behaviour"
                 layout="@layout/view_setting_option" />
+
+            <!-- 通知捕获开关 -->
+            <include
+                android:id="@+id/notification_capture_switch"
+                layout="@layout/view_setting_option"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="10dp"/>
+
+            <!-- 清空捕获的通知 -->
+            <include
+                android:id="@+id/captured_notification_clear_option"
+                layout="@layout/view_setting_option" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

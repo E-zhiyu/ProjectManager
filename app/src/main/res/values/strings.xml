@@ -163,9 +163,10 @@
     <string name="direct_deposit">直接入账</string>
     <string name="notification_search_hint">搜索通知……</string>
     <string name="no_captured_notification">没有捕获的通知</string>
-    <string name="notification_capture_is_not_opened">通知捕获功能尚未开启</string>
-    <string name="open_notification_capture">开启捕获</string>
     <string name="get_help">获取帮助</string>
+    <string name="notification_capture_not_enabled">未启用捕获功能，无法捕获新通知\n点击启用捕获功能</string>
+    <string name="capture_notification">捕获通知</string>
+    <string name="clear_captured_notification">清空捕获通知</string>
     <string-array name="tips_array">
         <item>如果设置了自动备份目录，进行软件更新时会自动备份一次。</item>
         <item>长按某条搜索历史可以删除它。</item>
