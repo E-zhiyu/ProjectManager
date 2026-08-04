@@ -130,7 +130,7 @@
     <string name="not_included">未包含</string>
     <string name="add_media_files">添加媒体文件</string>
     <string name="preview_of_media_file">媒体文件预览</string>
-    <string name="button_to_add">添加按钮</string>
+    <string name="btn_add">添加按钮</string>
     <string name="no_tag">无标签</string>
     <string name="bookkeeping_start_date">记账开始日期</string>
     <string name="date_difference_to_today">距今天数</string>
@@ -161,6 +161,11 @@
     <string name="btn_of_explanation">功能说明按钮</string>
     <string name="skip_date">日期跳转</string>
     <string name="direct_deposit">直接入账</string>
+    <string name="notification_search_hint">搜索通知……</string>
+    <string name="no_captured_notification">没有捕获的通知</string>
+    <string name="notification_capture_is_not_opened">通知捕获功能尚未开启</string>
+    <string name="open_notification_capture">开启捕获</string>
+    <string name="get_help">获取帮助</string>
     <string-array name="tips_array">
         <item>如果设置了自动备份目录，进行软件更新时会自动备份一次。</item>
         <item>长按某条搜索历史可以删除它。</item>

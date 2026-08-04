@@ -6,9 +6,11 @@
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
+
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
     </queries>
+
     <uses-permission android:name="com.android.permission.GET_INSTALLED_APPS" /> <!-- 读取应用列表权限 -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" /> <!-- 闹钟设置权限 -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" /> <!-- 请求忽略电池优化 -->
@@ -158,5 +160,11 @@
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
+
+        <activity
+            android:name=".ui.pages.notification.capture.NotificationCaptureListActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
     </application>
+
 </manifest>
