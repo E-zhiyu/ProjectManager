@@ -20,6 +20,7 @@ import com.sly.coffer.data.save.db.daos.TagDao;
 import com.sly.coffer.data.save.db.entities.AccountTagRefEntity;
 import com.sly.coffer.data.save.db.entities.BudgetEntity;
 import com.sly.coffer.data.save.db.entities.BudgetTagRefEntity;
+import com.sly.coffer.data.save.db.entities.CapturedNotificationEntity;
 import com.sly.coffer.data.save.db.entities.MediaEntity;
 import com.sly.coffer.data.save.db.entities.NotificationRuleEntity;
 import com.sly.coffer.data.save.db.entities.AccountEntity;
@@ -44,9 +45,10 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
                 AccountTagRefEntity.class,
                 MediaEntity.class,
                 TagEntity.class,
-                TagGroupEntity.class
+                TagGroupEntity.class,
+                CapturedNotificationEntity.class
         },
-        version = 1
+        version = 2
 )
 @TypeConverters({
         DateTimeConverter.class,
@@ -81,7 +83,9 @@ public abstract class BookkeepingDb extends RoomDatabase {
                                             .subscribe();
                                 }
                             })
-                            .addMigrations()
+                            .addMigrations(
+                                    DatabaseMigrations.MIGRATION_1_2
+                            )
                             .build();
                 }
             }
