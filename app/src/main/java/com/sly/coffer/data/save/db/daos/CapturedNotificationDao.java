@@ -1,6 +1,7 @@
 package com.sly.coffer.data.save.db.daos;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Query;
 
 import com.sly.coffer.data.save.db.entities.CapturedNotificationEntity;
@@ -27,4 +28,13 @@ public interface CapturedNotificationDao {
      */
     @Query("DELETE FROM capturedNotifications")
     Completable clearCapturedNotification();
+
+    /**
+     * 删除捕获的通知
+     *
+     * @param notification 需要删除的通知
+     * @return 是否完成
+     */
+    @Delete
+    Completable deleteCapturedNotification(CapturedNotificationEntity notification);
 }

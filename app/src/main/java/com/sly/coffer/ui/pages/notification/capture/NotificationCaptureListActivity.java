@@ -2,11 +2,14 @@ package com.sly.coffer.ui.pages.notification.capture;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -15,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.sly.coffer.R;
 import com.sly.coffer.data.save.db.BookkeepingDb;
+import com.sly.coffer.data.save.db.entities.CapturedNotificationEntity;
 import com.sly.coffer.data.save.preference.AutoBookKeepingPreference;
 import com.sly.coffer.data.save.preference.SearchHistoryPreference;
 import com.sly.coffer.databinding.ActivityNotificationCaptureListBinding;
@@ -27,7 +31,9 @@ import com.sly.coffer.helpers.appearence.VisibilityHelper;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 import com.sly.coffer.ui.others.viewmodel.CapturedNotificationViewModel;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class NotificationCaptureListActivity extends AppCompatActivity {
     private ActivityNotificationCaptureListBinding binding;
@@ -103,7 +109,13 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
                                 "1. 点击某条通知进入规则输入界面；\n" +
                                 "2. 输入界面会自动选出通知内容中的数字文本，您需要选择这些数字文本之一作为流水金额；\n" +
                                 "3. 选完金额数字和流水类型后点击右上角的确认按钮，创建新通知规则；\n" +
-                                "4. 返回上一级界面即可看到新增的通知规则。\n";
+                                "4. 返回上一级界面即可看到新增的通知规则。\n" +
+                                "\n" +
+                                "### 3. 通知捕获\n" +
+                                "- 通知捕获功能依赖安卓的“通知使用权”，使用该功能时请确保权限已授予；\n" +
+                                "- 为了节省性能，通知捕获功能将在开启5分钟后自动关闭，避免频繁保存通知导致性能浪费；\n" +
+                                "- 当捕获功能开启时，任何应用发送的通知都会被保存，包括通知标题、内容、应用来源和时间；\n" +
+                                "- **捕获的通知仅保存在本地，本APP决不会利用权限窃取您的隐私。**\n";
                         new MarkdownDialogBuilder(this, "功能说明", EXPLANATION)
                                 .setNegativeButton("关闭", null)
                                 .show();
@@ -140,9 +152,7 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
                 (entity, anchor) -> {
                     //TODO:点击监听
                 },
-                (entity, anchor) -> {
-                    //TODO:长按监听
-                }
+                this::showPopupMenu
         );
         binding.recycler.setAdapter(adapter);
         CapturedNotificationViewModel viewModel = new ViewModelProvider(this).get(CapturedNotificationViewModel.class);
@@ -196,6 +206,44 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
         roleListViewModel.getFilterUpdatedLiveData().observe(this, v ->
                 setSearchMode(!roleListViewModel.isNoFilter())
         );
+    }
+
+    /**
+     * 显示角色长按菜单
+     *
+     * @param notification   角色实体
+     * @param anchor 锚点视图
+     */
+    private void showPopupMenu(CapturedNotificationEntity notification, View anchor) {
+        PopupMenu popupMenu = new PopupMenu(this, anchor, Gravity.END);
+        popupMenu.getMenuInflater().inflate(R.menu.menu_captured_notification_edit, popupMenu.getMenu());
+
+        //设置监听
+        popupMenu.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_delete) {
+                new MaterialAlertDialogBuilder(this)
+                        .setTitle(R.string.delete_captured_notification)
+                        .setMessage("即将删除该通知，确认继续吗？")
+                        .setPositiveButton("确定", (dialogInterface, i) -> {
+                            BookkeepingDb db = BookkeepingDb.getInstance(this);
+                            disposable.add(db.capturedNotificationDao().deleteCapturedNotification(notification)
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribeOn(Schedulers.io())
+                                    .subscribe(
+                                            () -> Toast.makeText(this, "通知删除成功", Toast.LENGTH_SHORT).show(),
+                                            e -> ExceptionHelper.showExceptionDialog(this, e)
+                                    )
+                            );
+                        })
+                        .setNegativeButton("取消", null)
+                        .show();
+
+                return true;
+            }
+            return false;
+        });
+
+        popupMenu.show();
     }
 
     /**
