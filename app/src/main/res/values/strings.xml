@@ -44,7 +44,7 @@
     <string name="balance_every_month">每月结余</string>
     <string name="auto_bookkeeping">自动记账</string>
     <string name="hide_recent_task">隐藏最近任务</string>
-    <string name="notification_analysis_mode">通知解析</string>
+    <string name="notification_analysis">通知解析</string>
     <string name="add_rule">添加规则</string>
     <string name="modify_rule">修改规则</string>
     <string name="rule_name">规则名称</string>

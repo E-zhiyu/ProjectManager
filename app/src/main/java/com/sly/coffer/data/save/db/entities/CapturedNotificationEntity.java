@@ -4,6 +4,8 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+import java.time.LocalDateTime;
+
 @Entity(
         tableName = "capturedNotifications",
         indices = {
@@ -19,9 +21,9 @@ public class CapturedNotificationEntity {
     private String content;         //内容
     private String packageName;     //发送通知的应用的包名
     private String appName;         //发送通知的应用名称
-    private long time;              //捕获的时间
+    private LocalDateTime time;     //捕获的时间
 
-    public CapturedNotificationEntity(String title, String content, String packageName, String appName, long time) {
+    public CapturedNotificationEntity(String title, String content, String packageName, String appName, LocalDateTime time) {
         this.title = title;
         this.content = content;
         this.packageName = packageName;
@@ -69,11 +71,11 @@ public class CapturedNotificationEntity {
         this.appName = appName;
     }
 
-    public long getTime() {
+    public LocalDateTime getTime() {
         return time;
     }
 
-    public void setTime(long time) {
+    public void setTime(LocalDateTime time) {
         this.time = time;
     }
 }

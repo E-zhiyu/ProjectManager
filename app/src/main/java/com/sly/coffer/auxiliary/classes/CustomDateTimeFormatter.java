@@ -8,6 +8,6 @@ public class CustomDateTimeFormatter {
     public static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     public static final DateTimeFormatter LOCAL_DATE = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM);
     public static final DateTimeFormatter DATE_WITH_WEEK = DateTimeFormatter.ofPattern("yyyy-MM-dd EEEE");
-    public static final DateTimeFormatter DATE_SLASH = DateTimeFormatter.ofPattern("yyyy/MM/dd");
     public static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    public static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("HH:mm");
 }

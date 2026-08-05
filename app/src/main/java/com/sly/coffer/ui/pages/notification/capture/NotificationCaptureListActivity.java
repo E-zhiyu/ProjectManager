@@ -5,23 +5,35 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.sly.coffer.R;
+import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.preference.AutoBookKeepingPreference;
+import com.sly.coffer.data.save.preference.SearchHistoryPreference;
 import com.sly.coffer.databinding.ActivityNotificationCaptureListBinding;
+import com.sly.coffer.helpers.BackPressedCallbackHelper;
+import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.PermissionHelper;
+import com.sly.coffer.helpers.SearchHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.helpers.appearence.VisibilityHelper;
+import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
+import com.sly.coffer.ui.others.viewmodel.CapturedNotificationViewModel;
 
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 public class NotificationCaptureListActivity extends AppCompatActivity {
     private ActivityNotificationCaptureListBinding binding;
     private final CompositeDisposable disposable = new CompositeDisposable();
+    private BackPressedCallbackHelper backHelper;   //返回手势拦截器
+    private BackPressedCallbackHelper.BackHandler searchBackHandler;    //搜索返回处理器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +53,8 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
         });
 
         initViews();
+        initBackHandlers();
+        observeLiveData();
     }
 
     @Override
@@ -66,7 +80,39 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
      * 初始化视图
      */
     private void initViews() {
-        //TODO:搜索框
+        //搜索框
+        SearchHelper.initSearchComponents(
+                binding.searchBar,
+                binding.searchView,
+                binding.searchHistoryRecycler,
+                binding.clearHistoryBtn,
+                SearchHistoryPreference.KEY_CAPTURED_NOTIFICATION,
+                keyword -> {
+                    CapturedNotificationViewModel viewModel = new ViewModelProvider(this).get(CapturedNotificationViewModel.class);
+                    viewModel.executeSearch(keyword.trim());
+
+                    //根据搜索关键词是否为空开启和关闭搜索模式
+                    setSearchMode(!keyword.trim().isEmpty());
+                },
+                item -> {
+                    int id = item.getItemId();
+                    if (id == R.id.action_help) {
+                        final String EXPLANATION = "### 1. 主要功能\n" +
+                                "此界面会显示被捕获的应用通知，您可以根据捕获的通知快速创建通知规则以实现自动记账。\n" +
+                                "### 2. 使用方法\n" +
+                                "1. 点击某条通知进入规则输入界面；\n" +
+                                "2. 输入界面会自动选出通知内容中的数字文本，您需要选择这些数字文本之一作为流水金额；\n" +
+                                "3. 选完金额数字和流水类型后点击右上角的确认按钮，创建新通知规则；\n" +
+                                "4. 返回上一级界面即可看到新增的通知规则。\n";
+                        new MarkdownDialogBuilder(this, "功能说明", EXPLANATION)
+                                .setNegativeButton("关闭", null)
+                                .show();
+                        return true;
+                    }
+
+                    return false;
+                }
+        );
 
         //捕获功能未启用提示卡片
         AppearanceHelper.setMarginToNavigation(binding.notEnabledTipCard, this);
@@ -80,15 +126,89 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
                 new MaterialAlertDialogBuilder(this)
                         .setTitle("权限申请说明")
                         .setMessage(message)
-                        .setPositiveButton("去授权",(dialogInterface, i) -> {
+                        .setPositiveButton("去授权", (dialogInterface, i) -> {
                             Intent intent = PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.getIntent(this);
                             startActivity(intent);
                         })
-                        .setNegativeButton("取消",null)
+                        .setNegativeButton("取消", null)
                         .show();
             }
         });
 
-        //TODO:Recycler
+        //Recycler 列表
+        NotificationCaptureListAdapter adapter = new NotificationCaptureListAdapter(
+                (entity, anchor) -> {
+                    //TODO:点击监听
+                },
+                (entity, anchor) -> {
+                    //TODO:长按监听
+                }
+        );
+        binding.recycler.setAdapter(adapter);
+        CapturedNotificationViewModel viewModel = new ViewModelProvider(this).get(CapturedNotificationViewModel.class);
+        BookkeepingDb db = BookkeepingDb.getInstance(this);
+        disposable.add(viewModel.getRoleListFlowable(db)
+                .subscribe(
+                        roleList -> {
+                            VisibilityHelper.toggleVisibilityWithFade(binding.emptyText, roleList.isEmpty());
+
+                            adapter.submitList(roleList);
+                        },
+                        e -> ExceptionHelper.showExceptionDialog(this, e)
+                )
+        );
+    }
+
+    /**
+     * 初始化返回手势拦截器
+     */
+    private void initBackHandlers() {
+        OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(false) {
+            @Override
+            public void handleOnBackPressed() {
+                backHelper.dispatchBackPressed();
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(backPressedCallback);
+        backHelper = new BackPressedCallbackHelper(backPressedCallback);
+
+        //搜索
+        searchBackHandler = new BackPressedCallbackHelper.BackHandler() {
+            @Override
+            public boolean handleBack() {
+                CapturedNotificationViewModel viewModel = new ViewModelProvider(NotificationCaptureListActivity.this).get(CapturedNotificationViewModel.class);
+                viewModel.clearFilter();
+                return true;
+            }
+
+            @Override
+            public int getPriority() {
+                return 1;
+            }
+        };
+    }
+
+    /**
+     * 观察 ViewModel 的 LiveData
+     */
+    private void observeLiveData() {
+        CapturedNotificationViewModel roleListViewModel = new ViewModelProvider(NotificationCaptureListActivity.this).get(CapturedNotificationViewModel.class);
+        roleListViewModel.getFilterUpdatedLiveData().observe(this, v ->
+                setSearchMode(!roleListViewModel.isNoFilter())
+        );
+    }
+
+    /**
+     * 设置搜索模式
+     *
+     * @param isSearchMode 是否为搜索模式
+     */
+    private void setSearchMode(boolean isSearchMode) {
+        if (!isSearchMode) {
+            binding.searchBar.setText("");
+            backHelper.unregisterHandler(searchBackHandler);
+        } else {
+            backHelper.registerHandler(searchBackHandler);
+        }
     }
 }

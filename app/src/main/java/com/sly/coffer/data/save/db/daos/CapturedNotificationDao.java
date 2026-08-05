@@ -3,10 +3,23 @@ package com.sly.coffer.data.save.db.daos;
 import androidx.room.Dao;
 import androidx.room.Query;
 
+import com.sly.coffer.data.save.db.entities.CapturedNotificationEntity;
+
+import java.util.List;
+
 import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Flowable;
 
 @Dao
 public interface CapturedNotificationDao {
+    @Query("SELECT * FROM capturedNotifications " +
+            "WHERE :useSearchFilter = 0 " +
+            "OR title LIKE '%' || :keyword || '%' " +
+            "OR content LIKE '%' || :keyword || '%' " +
+            "OR appName LIKE '%' || :keyword || '%' " +
+            "ORDER BY time DESC")
+    Flowable<List<CapturedNotificationEntity>> getAllCapturedNotificationFlowable(String keyword, int useSearchFilter);
+
     /**
      * 清空捕获的通知
      *
