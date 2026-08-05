@@ -2,11 +2,11 @@ package com.sly.coffer.data.save.db.services;
 
 import com.sly.coffer.auxiliary.classes.CustomDateTimeFormatter;
 import com.sly.coffer.data.save.db.BookkeepingDb;
-import com.sly.coffer.data.save.db.converters.DateTimeConverter;
 import com.sly.coffer.data.save.db.daos.CapturedNotificationDao;
 import com.sly.coffer.data.save.db.entities.CapturedNotificationEntity;
 import com.sly.coffer.data.save.db.entities.composite.ui.CapturedNotificationUiModel;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,16 +44,16 @@ public class CapturedNotificationService {
                     }
 
                     //通过关系远近进行分组
-                    Map<Long, List<CapturedNotificationEntity>> groupedMap = rawList.stream()
+                    Map<LocalDate, List<CapturedNotificationEntity>> groupedMap = rawList.stream()
                             .collect(Collectors.groupingBy(
-                                    entity -> DateTimeConverter.fromLocalDate(entity.getTime().toLocalDate()),
+                                    entity -> entity.getTime().toLocalDate(),
                                     LinkedHashMap::new,
                                     Collectors.toList()
                             ));
 
                     //循环插入分隔符和 Item
-                    for (Map.Entry<Long, List<CapturedNotificationEntity>> entry : groupedMap.entrySet()) {
-                        String separatorText = DateTimeConverter.toLocalDate(entry.getKey()).format(CustomDateTimeFormatter.DATE);
+                    for (Map.Entry<LocalDate, List<CapturedNotificationEntity>> entry : groupedMap.entrySet()) {
+                        String separatorText = entry.getKey().format(CustomDateTimeFormatter.DATE);
                         resultList.add(new CapturedNotificationUiModel.Separator(separatorText));
 
                         List<CapturedNotificationUiModel.Item> itemList = entry.getValue().stream()

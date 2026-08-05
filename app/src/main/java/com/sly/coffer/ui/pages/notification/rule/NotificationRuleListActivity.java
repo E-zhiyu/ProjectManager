@@ -26,6 +26,7 @@ import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.PermissionHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
+import com.sly.coffer.ui.pages.notification.capture.NotificationCaptureListActivity;
 
 import java.util.Locale;
 
@@ -110,8 +111,13 @@ public class NotificationRuleListActivity extends AppCompatActivity {
 
         //添加规则按钮
         binding.addFab.setOnClickListener(v -> {
+            Intent skip2RuleInput = new Intent(this, NotificationCaptureListActivity.class);
+            startActivity(skip2RuleInput);
+        });
+        binding.addFab.setOnLongClickListener(view -> {
             Intent skip2RuleInput = new Intent(this, NotificationRuleInputActivity.class);
             startActivity(skip2RuleInput);
+            return true;
         });
         AppearanceHelper.setMarginToNavigation(binding.addFab, this);
         AppearanceHelper.attachMorphAnimation(binding.addFab);

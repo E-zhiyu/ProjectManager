@@ -2,6 +2,8 @@ package com.sly.coffer.data.save.db.daos;
 
 import androidx.room.Dao;
 import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import com.sly.coffer.data.save.db.entities.CapturedNotificationEntity;
@@ -28,6 +30,14 @@ public interface CapturedNotificationDao {
      */
     @Query("DELETE FROM capturedNotifications")
     Completable clearCapturedNotification();
+
+    /**
+     * 添加捕获的通知
+     * @param notification 被捕获的通知
+     * @return 是否完成
+     */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    Completable insertCapturedNotification(CapturedNotificationEntity notification);
 
     /**
      * 删除捕获的通知
