@@ -243,6 +243,11 @@ public class AbNotificationListenerService extends NotificationListenerService {
         String text = sbn.getNotification().extras.getString("android.text");
         if (text == null || text.isEmpty() || title == null || title.isEmpty()) return;
 
+        //判断是否有数字
+        Pattern numPattern = Pattern.compile("\\d");
+        Matcher matcher = numPattern.matcher(text);
+        if (!matcher.matches()) return;
+
         //保存数据
         Context context = getApplicationContext();
         CapturedNotificationEntity notification = new CapturedNotificationEntity(title, text, packageName, appName, LocalDateTime.now());

@@ -114,6 +114,7 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
                                 "### 3. 通知捕获\n" +
                                 "- 通知捕获功能依赖安卓的“通知使用权”，使用该功能时请确保权限已授予；\n" +
                                 "- 为了节省性能，通知捕获功能将在开启5分钟后自动关闭，避免频繁保存通知导致性能浪费；\n" +
+                                "- 仅会捕获内容中带有数字的通知；\n" +
                                 "- 当捕获功能开启时，任何应用发送的通知都会被保存，包括通知标题、内容、应用来源和时间；\n" +
                                 "- **捕获的通知仅保存在本地，本APP决不会利用权限窃取您的隐私。**\n";
                         new MarkdownDialogBuilder(this, "功能说明", EXPLANATION)
