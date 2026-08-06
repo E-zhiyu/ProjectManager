@@ -1,17 +1,12 @@
-package com.sly.coffer.ui.pages.notification.rule;
+package com.sly.coffer.ui.pages.notification.capture;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -19,56 +14,56 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.chip.Chip;
 import com.sly.coffer.R;
+import com.sly.coffer.auxiliary.enums.AccountType;
+import com.sly.coffer.auxiliary.enums.KeyStrings;
+import com.sly.coffer.auxiliary.enums.TagStrings;
 import com.sly.coffer.data.save.db.BookkeepingDb;
+import com.sly.coffer.data.save.db.entities.CapturedNotificationEntity;
 import com.sly.coffer.data.save.db.entities.NotificationRuleEntity;
 import com.sly.coffer.data.save.db.entities.NotificationRuleTransferEntity;
 import com.sly.coffer.data.save.db.entities.TagEntity;
-import com.sly.coffer.data.save.db.entities.composite.NotificationRuleWithDetailModel;
 import com.sly.coffer.data.save.db.services.RuleService;
 import com.sly.coffer.data.save.preference.TipPreference;
-import com.sly.coffer.databinding.ActivityNotificationRuleInputBinding;
-import com.sly.coffer.auxiliary.enums.TagStrings;
+import com.sly.coffer.databinding.ActivityCapturedNotificationRuleInputBinding;
 import com.sly.coffer.helpers.ExceptionHelper;
-import com.sly.coffer.auxiliary.enums.KeyStrings;
-import com.sly.coffer.auxiliary.enums.AccountType;
 import com.sly.coffer.helpers.ImmHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.helpers.appearence.VisibilityHelper;
 import com.sly.coffer.ui.others.adapters.NoFilteringArrayAdapter;
 import com.sly.coffer.ui.others.bottom.TagSelectBottomSheet;
+import com.sly.coffer.ui.others.viewmodel.CNRInputViewModel;
 import com.sly.coffer.ui.others.viewmodel.TagMultiSelectViewModel;
 import com.sly.coffer.ui.pages.main.bookkeeping.AccountTagAdapter;
-import com.sly.coffer.ui.pages.app_list.AppSelectActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class NotificationRuleInputActivity extends AppCompatActivity {
-    @Nullable
-    private Bundle initBundle = null;                               //存有初始数据数据包
-    private AccountType type = AccountType.EXPENSE;                 //流水种类
-    private ActivityResultLauncher<Intent> packageNameSelectLauncher;   //包名选择启动器
-    private ActivityNotificationRuleInputBinding binding;                       //绑定的XML视图引用
+public class CapturedNotificationRuleInputActivity extends AppCompatActivity {
+    private ActivityCapturedNotificationRuleInputBinding binding;
     private final CompositeDisposable disposable = new CompositeDisposable();
-    private AccountTagAdapter tagAdapter;                           //标签适配器
+    @Nullable
+    private Bundle initBundle = null;                       //带有初始数据的数据包
+    @Nullable
+    private CapturedNotificationEntity notification = null; //捕获的通知实例
+    private AccountTagAdapter tagAdapter;                   //标签适配器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        binding = ActivityCapturedNotificationRuleInputBinding.inflate(getLayoutInflater());
+
         EdgeToEdge.enable(this);
-
-        binding = ActivityNotificationRuleInputBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
@@ -88,7 +83,6 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
         initBundle = getIntent().getExtras();
         initViews();
         observeLiveData();
-        initLaunchers();
     }
 
     @Override
@@ -137,52 +131,49 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
         //工具栏
         binding.toolbar.setNavigationOnClickListener(view -> finish());
         if (initBundle != null) {
-            binding.toolbar.setTitle(R.string.modify_rule);
+            long notificationId = initBundle.getLong(KeyStrings.CAPTURED_NOTIFICATION_ID.v());
 
-            long ruleId = initBundle.getLong(KeyStrings.NOTIFICATION_RULE_ID.v());
             BookkeepingDb db = BookkeepingDb.getInstance(this);
-            disposable.add(db.ruleDao().getNotificationRuleWithDetailSingleById(ruleId)
+            disposable.add(db.capturedNotificationDao().getCapturedNotificationById(notificationId)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(
                             optional -> {
                                 if (optional.isEmpty()) return;
 
-                                //解析数据
-                                NotificationRuleWithDetailModel model = optional.get();
-                                NotificationRuleEntity rule = model.getRule();
-                                NotificationRuleTransferEntity transfer = model.getTransfer();
-                                List<TagEntity> tagList = model.getTagList();
+                                notification = optional.get();
 
-                                //填充文本框
-                                binding.nameInput.setText(rule.getName());                      //名称
-                                type = AccountType.values()[rule.getType()];
-                                binding.typeInput.setText(type.getTitle());                     //种类
-                                binding.packageNameInput.setText(rule.getPackageName());        //包名
-                                binding.notificationTitleInput.setText(rule.getTargetTitle());  //标题
-                                binding.regexInput.setText(rule.getContentRegex());             //正则表达式
-                                binding.captureGroupPositionInput.setText(String.valueOf(rule.getCaptureGroupPos()));   //捕获组位置
-                                if (type == AccountType.TRANSFER) {
-                                    binding.exportAccountLayout.setVisibility(View.VISIBLE);
-                                    binding.importAccountLayout.setVisibility(View.VISIBLE);
+                                //通知内容文本
+                                String content = notification.getContent();
+                                binding.notificationContentText.setText(content);
 
-                                    binding.exportAccountInput.setText(transfer.getExportAccount());    //转出账户
-                                    binding.importAccountInput.setText(transfer.getImportAccount());    //转入账户
+                                CNRInputViewModel viewModel = new ViewModelProvider(this).get(CNRInputViewModel.class);
+                                int groupPos = viewModel.getGroupPos();
+
+                                //金额选择 ChipGroup
+                                Pattern amountPattern = Pattern.compile("\\d+\\.?\\d{0,2}");
+                                Matcher matcher = amountPattern.matcher(content);
+                                int i = 1;
+                                while (matcher.find()) {
+                                    String amountText = matcher.group();
+
+                                    int finalPosition = i;
+                                    Chip amountChip = new Chip(this);
+                                    amountChip.setCheckable(true);
+                                    if (i == groupPos) {
+                                        amountChip.setChecked(true);
+                                    }
+                                    amountChip.setText(amountText);
+                                    amountChip.setCheckedIconVisible(true);
+                                    amountChip.setOnCheckedChangeListener((compoundButton, b) -> {
+                                        if (b) {
+                                            viewModel.setGroupPos(finalPosition);
+                                        }
+                                    });
+                                    binding.amountSelectChipGroup.addView(amountChip);
+
+                                    i++;
                                 }
-
-                                //显示标签
-                                if (!tagList.isEmpty()) {
-                                    tagAdapter.submitList(tagList);
-                                    binding.tagRecycler.setVisibility(View.VISIBLE);
-                                } else {
-                                    binding.tagRecycler.setVisibility(View.GONE);
-                                }
-                                List<Long> tagIdList = tagList.stream()
-                                        .map(TagEntity::getTagId)
-                                        .collect(Collectors.toList());
-                                TagMultiSelectViewModel tagMultiSelectViewModel = new ViewModelProvider(this).get(TagMultiSelectViewModel.class);
-                                tagMultiSelectViewModel.getCheckedTagIdSet().clear();
-                                tagMultiSelectViewModel.getCheckedTagIdSet().addAll(tagIdList);
                             },
                             e -> ExceptionHelper.showExceptionDialog(this, e)
                     )
@@ -203,13 +194,17 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
         ImmHelper.showImm(binding.nameInput);
 
         //种类
+        CNRInputViewModel viewModel = new ViewModelProvider(this).get(CNRInputViewModel.class);
+        int visibility = viewModel.getType() == AccountType.TRANSFER ? View.VISIBLE : View.GONE;
+        binding.exportAccountLayout.setVisibility(visibility);
+        binding.importAccountLayout.setVisibility(visibility);
         NoFilteringArrayAdapter<String> typeAdapter = new NoFilteringArrayAdapter<>(
                 this,
                 Arrays.stream(AccountType.values())
                         .map(AccountType::getTitle)
                         .toArray(String[]::new)
         );
-        binding.typeInput.setText(type.getTitle());
+        binding.typeInput.setText(viewModel.getType().getTitle());
         binding.typeInput.setAdapter(typeAdapter);
         binding.typeInput.setOnItemClickListener(
                 (parent, view, position, id) -> {
@@ -222,7 +217,7 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
                             binding.importAccountLayout
                     );
 
-                    type = AccountType.values()[position];
+                    viewModel.setType(AccountType.values()[position]);
                 }
         );
 
@@ -252,7 +247,7 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
                 binding.exportAccountLayout.setError(null);
             } else {
                 String input = String.valueOf(binding.exportAccountInput.getText()).trim();
-                if (type == AccountType.TRANSFER && input.isEmpty()) {
+                if (viewModel.getType() == AccountType.TRANSFER && input.isEmpty()) {
                     binding.exportAccountLayout.setError("转出账户不能为空");
                 }
             }
@@ -264,69 +259,17 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
                 binding.importAccountLayout.setError(null);
             } else {
                 String input = String.valueOf(binding.importAccountInput.getText()).trim();
-                if (type == AccountType.TRANSFER && input.isEmpty()) {
+                if (viewModel.getType() == AccountType.TRANSFER && input.isEmpty()) {
                     binding.importAccountLayout.setError("转出账户不能为空");
                 }
             }
-        });
-
-        //包名
-        binding.packageNameInput.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) {
-                binding.packageNameLayout.setError(null);
-                Intent skip2PackageNameSelect = new Intent(this, AppSelectActivity.class);
-                packageNameSelectLauncher.launch(skip2PackageNameSelect);
-            } else {
-                String packageName = String.valueOf(binding.packageNameInput.getText());
-                if (packageName.isEmpty()) {
-                    binding.packageNameLayout.setErrorEnabled(true);
-                    binding.packageNameLayout.setError("包名不能为空");
-                }
-            }
-        });
-        binding.packageNameInput.setOnClickListener(view -> {
-            binding.packageNameLayout.setError(null);
-            Intent skip2PackageNameSelect = new Intent(this, AppSelectActivity.class);
-            packageNameSelectLauncher.launch(skip2PackageNameSelect);
-        });
-
-        //通知标题
-        binding.notificationTitleInput.setOnFocusChangeListener((view, b) -> {
-            if (b) {
-                binding.notificationTitleLayout.setError(null);
-            } else {
-                String input = String.valueOf(binding.notificationTitleInput.getText()).trim();
-                if (input.isEmpty()) {
-                    binding.notificationTitleLayout.setError("通知标题不能为空");
-                }
-            }
-        });
-
-        //内容正则表达式
-        binding.regexInput.setOnFocusChangeListener((view, b) -> {
-            if (b) {
-                binding.regexLayout.setError(null);
-            } else {
-                String input = String.valueOf(binding.regexInput.getText()).trim();
-                if (input.isEmpty()) {
-                    binding.regexLayout.setError("内容正则表达式不能为空");
-                }
-            }
-        });
-        binding.regexLayout.setEndIconOnClickListener(v -> {
-            int cursorPosition = binding.regexInput.getSelectionStart();
-            Editable editable = binding.regexInput.getEditableText();
-            final String INSERT_REGEX = "(\\d+\\.?\\d{0,2})";
-
-            //在光标位置插入文本
-            editable.insert(cursorPosition, INSERT_REGEX);
         });
 
         //标签选择按钮
         binding.tagSelectBtn.setOnClickListener(view -> {
             TagSelectBottomSheet bottomSheet = new TagSelectBottomSheet();
             Bundle bundle = new Bundle();
-            bundle.putInt(KeyStrings.TAG_SCOPE.v(), (int) Math.pow(2, type.ordinal())); //传递标签作用域标识符
+            bundle.putInt(KeyStrings.TAG_SCOPE.v(), (int) Math.pow(2, viewModel.getType().ordinal())); //传递标签作用域标识符
             bottomSheet.setArguments(bundle);
             bottomSheet.show(getSupportFragmentManager(), TagStrings.TAG_SELECT_BOTTOM.t());
         });
@@ -334,6 +277,12 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
         //标签说明按钮
         binding.tagExplainBtn.setOnClickListener(view -> {
             final String EXPLANATION = "自动为生成的流水记录添加下列标签";
+            TipPreference.showTipWithoutKey(view, Gravity.START, EXPLANATION);
+        });
+
+        //金额文本选择说明按钮
+        binding.amountSelectHelpBtn.setOnClickListener(view -> {
+            final String EXPLANATION = "选择通知中表示金额的文本，此后触发自动记账都将使用该位置的数字作为金额";
             TipPreference.showTipWithoutKey(view, Gravity.START, EXPLANATION);
         });
 
@@ -390,89 +339,33 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
     }
 
     /**
-     * 初始化启动器
-     */
-    private void initLaunchers() {
-        packageNameSelectLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    int resultCode = result.getResultCode();
-                    Intent data = result.getData();
-
-                    if (resultCode == Activity.RESULT_OK) {
-                        if (data != null) {
-                            String packageName = data.getStringExtra(KeyStrings.PACKAGE_NAME.v());
-                            binding.packageNameInput.setText(packageName);
-                            binding.packageNameLayout.setError(null);
-                        } else {
-                            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据");
-                            ExceptionHelper.showExceptionDialog(this, e);
-                        }
-                    }
-                }
-        );
-    }
-
-    /**
      * 检测输入内容的有效性
      *
      * @return 错误提示字符串（无错误为null）
      */
-    @Nullable
     private String verifyInput() {
         String err = null;
         String name = String.valueOf(binding.nameInput.getText()).trim();
-        String packageName = String.valueOf(binding.packageNameInput.getText()).trim();
-        String notificationTitle = String.valueOf(binding.notificationTitleInput.getText()).trim();
-        String contentRegexStr = String.valueOf(binding.regexInput.getText()).trim();
-        String captureGroupPosStr = String.valueOf(binding.captureGroupPositionInput.getText()).trim();
         String exportAccount = String.valueOf(binding.exportAccountInput.getText()).trim();
         String importAccount = String.valueOf(binding.importAccountInput.getText()).trim();
 
+        CNRInputViewModel viewModel = new ViewModelProvider(this).get(CNRInputViewModel.class);
         if (name.isEmpty()) {
             err = "名称不能为空";
             binding.nameLayout.setError(err);
-        } else if (packageName.isEmpty()) {
-            err = "包名不能为空";
-            binding.packageNameLayout.setError(err);
-        } else if (notificationTitle.isEmpty()) {
-            err = "通知标题不能为空";
-            binding.notificationTitleLayout.setError(err);
-        } else if (contentRegexStr.isEmpty()) {
-            err = "内容正则表达式不能为空";
-            binding.regexLayout.setError(err);
-        } else if (type == AccountType.TRANSFER && exportAccount.isEmpty()) {
+        } else if (viewModel.getType() == AccountType.TRANSFER && exportAccount.isEmpty()) {
             err = "转出账户不能为空";
             binding.exportAccountLayout.setError(err);
-        } else if (type == AccountType.TRANSFER && importAccount.isEmpty()) {
+        } else if (viewModel.getType() == AccountType.TRANSFER && importAccount.isEmpty()) {
             err = "转入账户不能为空";
             binding.importAccountLayout.setError(err);
+        } else if (notification == null) {
+            err = "错误：通知数据获取失败";
         } else {
-            try {
-                Pattern pattern = Pattern.compile(contentRegexStr);
-                int captureGroupPos;
-                try {
-                    captureGroupPos = Integer.parseInt(captureGroupPosStr);
-                } catch (NumberFormatException e) {
-                    captureGroupPos = 1;
-                }
-                int groupCount = pattern.matcher("").groupCount();
-                if (groupCount < 1) {
-                    err = "正则表达式至少应有一个捕获组";
-                    binding.regexLayout.setError(err);
-                    return err;
-                } else if (captureGroupPos <= 0) {
-                    err = "捕获组位置必须为非负数";
-                    binding.captureGroupPositionLayout.setError(err);
-                    return err;
-                } else if (captureGroupPos > groupCount) {
-                    err = "捕获组位置不能超出捕获组总数";
-                    binding.captureGroupPositionLayout.setError(err);
-                    return err;
-                }
-            } catch (PatternSyntaxException e) {
-                err = "内容正则表达式存在语法错误";
-                binding.regexLayout.setError(err);
+            final String NUM_REGEX = "\\d";
+            Matcher matcher = Pattern.compile(NUM_REGEX).matcher(notification.getContent());
+            if (!matcher.find()) {
+                err = "错误：通知内容不包含数字";
             }
         }
 
@@ -483,19 +376,13 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
      * 将数据保存到数据库
      */
     private void saveData() {
-        //获取输入内容
+        if (notification == null) return;
+
+        //获取必要数据
+        CNRInputViewModel viewModel = new ViewModelProvider(this).get(CNRInputViewModel.class);
         String name = String.valueOf(binding.nameInput.getText()).trim();
-        String packageName = String.valueOf(binding.packageNameInput.getText()).trim();
-        String targetTitle = String.valueOf(binding.notificationTitleInput.getText()).trim();
-        String contentRegexStr = String.valueOf(binding.regexInput.getText()).trim();
-        String captureGroupPosStr = String.valueOf(binding.captureGroupPositionInput.getText()).trim();
-        int captureGroupPos;
-        try {
-            captureGroupPos = Integer.parseInt(captureGroupPosStr);
-        } catch (NumberFormatException e) {
-            captureGroupPos = 1;
-        }
-        int typeOrdinal = this.type.ordinal();
+        String packageName = notification.getPackageName();
+        String title = notification.getTitle();
         String exportAccount = String.valueOf(binding.exportAccountInput.getText()).trim();
         String importAccount = String.valueOf(binding.importAccountInput.getText()).trim();
 
@@ -504,43 +391,32 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
                 .map(TagEntity::getTagId)
                 .collect(Collectors.toList());
 
+        //生成通知内容正则表达式
+        final String REGEX = "\\d+\\.?\\d{0,2}";
+        final String REPLACEMENT = "(\\\\d+\\\\.?\\\\d{0,2})";
+        String contentRegex = notification.getContent().replaceAll(REGEX, REPLACEMENT);
+
         //保存数据
         NotificationRuleEntity rule = new NotificationRuleEntity(
                 name,
-                typeOrdinal,
+                viewModel.getType().ordinal(),
                 packageName,
-                targetTitle,
-                contentRegexStr,
-                captureGroupPos
+                title,
+                contentRegex,
+                viewModel.getGroupPos()
         );
-        NotificationRuleTransferEntity ruleTransfer = new NotificationRuleTransferEntity(exportAccount, importAccount);
+        NotificationRuleTransferEntity transfer = new NotificationRuleTransferEntity(importAccount, exportAccount);
         BookkeepingDb db = BookkeepingDb.getInstance(this);
-        if (initBundle == null) {
-            disposable.add(RuleService.addNewNotificationRule(rule, ruleTransfer, tagIdList, db)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.io())
-                    .subscribe(
-                            () -> {
-                                Toast.makeText(this, "规则添加成功", Toast.LENGTH_SHORT).show();
-                                finish();
-                            },
-                            e -> ExceptionHelper.showExceptionDialog(this, e)
-                    )
-            );
-        } else {
-            long ruleId = initBundle.getLong(KeyStrings.NOTIFICATION_RULE_ID.v());
-            rule.setRuleId(ruleId);
-            disposable.add(RuleService.modifyNotificationRule(rule, ruleTransfer, tagIdList, db)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.io())
-                    .subscribe(
-                            () -> {
-                                Toast.makeText(this, "规则修改成功", Toast.LENGTH_SHORT).show();
-                                finish();
-                            },
-                            e -> ExceptionHelper.showExceptionDialog(this, e)
-                    )
-            );
-        }
+        disposable.add(RuleService.addNewNotificationRule(rule, transfer, tagIdList, db)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(
+                        () -> {
+                            Toast.makeText(this, "规则添加成功", Toast.LENGTH_SHORT).show();
+                            finish();
+                        },
+                        e -> ExceptionHelper.showExceptionDialog(this, e)
+                )
+        );
     }
 }

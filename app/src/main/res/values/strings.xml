@@ -168,6 +168,8 @@
     <string name="capture_notification">捕获通知</string>
     <string name="clear_captured_notification">清空捕获通知</string>
     <string name="delete_captured_notification">删除通知</string>
+    <string name="select_amount_text">选择金额文本</string>
+    <string name="notification_content">通知内容</string>
     <string-array name="tips_array">
         <item>如果设置了自动备份目录，进行软件更新时会自动备份一次。</item>
         <item>长按某条搜索历史可以删除它。</item>

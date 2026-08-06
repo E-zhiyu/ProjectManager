@@ -9,9 +9,11 @@ import androidx.room.Query;
 import com.sly.coffer.data.save.db.entities.CapturedNotificationEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Single;
 
 @Dao
 public interface CapturedNotificationDao {
@@ -33,6 +35,7 @@ public interface CapturedNotificationDao {
 
     /**
      * 添加捕获的通知
+     *
      * @param notification 被捕获的通知
      * @return 是否完成
      */
@@ -47,4 +50,13 @@ public interface CapturedNotificationDao {
      */
     @Delete
     Completable deleteCapturedNotification(CapturedNotificationEntity notification);
+
+    /**
+     * 通过通知编号获取捕获的通知
+     *
+     * @param id 通知编号
+     * @return 该编号对应的通知
+     */
+    @Query("SELECT * FROM capturedNotifications WHERE notificationId = :id")
+    Single<Optional<CapturedNotificationEntity>> getCapturedNotificationById(long id);
 }

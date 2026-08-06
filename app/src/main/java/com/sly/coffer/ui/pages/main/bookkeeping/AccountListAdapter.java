@@ -203,7 +203,7 @@ public class AccountListAdapter extends ListAdapter<AccountUiModel, RecyclerView
 
             //获取流水数据
             String type = AccountType.values()[account.getType()].getTitle();
-            String datetime = account.getDateTime().format(CustomDateTimeFormatter.DATE_TIME);
+            String datetime = account.getDateTime().format(CustomDateTimeFormatter.TIME);
             String typeAndDatetime = String.format(Locale.getDefault(), "%s·%s", type, datetime);
             String remark = account.getRemark();
             double amount = account.getAmount();

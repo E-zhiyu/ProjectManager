@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.sly.coffer.R;
+import com.sly.coffer.auxiliary.enums.KeyStrings;
 import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.entities.CapturedNotificationEntity;
 import com.sly.coffer.data.save.preference.AutoBookKeepingPreference;
@@ -151,7 +152,12 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
         //Recycler 列表
         NotificationCaptureListAdapter adapter = new NotificationCaptureListAdapter(
                 (entity, anchor) -> {
-                    //TODO:点击监听
+                    Bundle bundle = new Bundle();
+                    bundle.putLong(KeyStrings.CAPTURED_NOTIFICATION_ID.v(), entity.getNotificationId());
+
+                    Intent intent = new Intent(this, CapturedNotificationRuleInputActivity.class);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
                 },
                 this::showPopupMenu
         );
@@ -212,8 +218,8 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
     /**
      * 显示角色长按菜单
      *
-     * @param notification   角色实体
-     * @param anchor 锚点视图
+     * @param notification 角色实体
+     * @param anchor       锚点视图
      */
     private void showPopupMenu(CapturedNotificationEntity notification, View anchor) {
         PopupMenu popupMenu = new PopupMenu(this, anchor, Gravity.END);

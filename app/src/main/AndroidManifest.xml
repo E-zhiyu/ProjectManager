@@ -165,6 +165,10 @@
             android:name=".ui.pages.notification.capture.NotificationCaptureListActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.pages.notification.capture.CapturedNotificationRuleInputActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>
