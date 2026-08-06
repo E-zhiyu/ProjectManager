@@ -10,7 +10,18 @@ import com.sly.coffer.R;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 
 public class AboutHelper {
-    private static final String UPDATE_LOG_MD = "# v1.9.3\n" +
+    private static final String UPDATE_LOG_MD = "# v1.9.4\n" +
+            "\n" +
+            "### 新增功能\n" +
+            "\n" +
+            "- 新增通知捕获功能\n" +
+            "- 新增根据捕获的通知生成通知规则的功能\n" +
+            "\n" +
+            "### 修改内容\n" +
+            "\n" +
+            "- 旧版通知规则输入界面需要长按添加按钮进入，点按进入的界面替换为通知捕获列表界面\n" +
+            "\n" +
+            "# v1.9.3\n" +
             "\n" +
             "### 新增功能\n" +
             "\n" +
