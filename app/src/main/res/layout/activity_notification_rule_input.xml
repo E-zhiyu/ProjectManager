@@ -199,7 +199,7 @@
                     style="@style/ImageButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:contentDescription="@string/btn_of_media_add"
+                    android:contentDescription="@string/btn_add"
                     android:src="@drawable/outline_edit_note_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/tag_explain_btn"

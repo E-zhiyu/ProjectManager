@@ -20,6 +20,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.sly.coffer.R;
 import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.entities.NotificationRuleEntity;
+import com.sly.coffer.data.save.preference.TipPreference;
 import com.sly.coffer.databinding.ActivityNotificationRuleListBinding;
 import com.sly.coffer.auxiliary.enums.KeyStrings;
 import com.sly.coffer.helpers.ExceptionHelper;
@@ -54,14 +55,15 @@ public class NotificationRuleListActivity extends AppCompatActivity {
         });
 
         initViews();
+        initGuide();
         addPermissionRequests();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        binding = null;
         disposable.dispose();
+        binding = null;
     }
 
     /**
@@ -92,11 +94,12 @@ public class NotificationRuleListActivity extends AppCompatActivity {
                     "> 若您不清楚正则表达式的用法，请尝试询问AI工具，并使用[Regex101](https://regex101.com/)进行测试。\n" +
                     "\n" +
                     "### 3. 使用建议\n" +
-                    "为保证规则能实时生效，请务必完成以下设置：\n" +
                     "\n" +
-                    "- **开启自启动权限**：允许APP在手机重启后自动运行；\n" +
-                    "- **电池优化设为“无限制”**：避免系统休眠时关闭APP的通知监听服务；\n" +
-                    "- **在最近任务列表中锁定APP**：防止一键清理后台时被误杀。\n" +
+                    "- 不建议输入过短的通知内容正则表达式，这可能导致解析通知时没有找到符合预期的文本；\n" +
+                    "> 例：如果仅输入`(\\d+)`，当遇到类似`您有3笔订单，共花费50元`这种包含多个数字的通知时，APP只会提取到“3”而不是代表金额的“50”。" +
+                    "- 开启自启动权限，允许APP在手机在后台自动运行；\n" +
+                    "- 电池优化设为“无限制”，避免系统休眠时关闭APP的通知监听服务；\n" +
+                    "- 在最近任务列表中锁定APP，防止一键清理后台时被误杀，并提升后台保活优先级。\n" +
                     "\n" +
                     "> 通知监听性能开销极小，您无需担心应用常驻后台导致耗电异常。若未完成上述设置，可能会出现通知收不到或无法自动记账的情况。\n" +
                     "\n" +
@@ -185,6 +188,20 @@ public class NotificationRuleListActivity extends AppCompatActivity {
                         },
                         e -> ExceptionHelper.showExceptionDialog(this, e)
                 )
+        );
+    }
+
+    /**
+     * 初始化用户引导
+     */
+    private void initGuide() {
+        final String ADD_LONG_CLICK_TIP = "点按根据捕获的通知生成通知规则，长按手动输入通知规则";
+        TipPreference.showTip(
+                binding.addFab,
+                Gravity.START,
+                ADD_LONG_CLICK_TIP,
+                TipPreference.KEY_NOTIFICATION_RULE_LIST,
+                3
         );
     }
 
