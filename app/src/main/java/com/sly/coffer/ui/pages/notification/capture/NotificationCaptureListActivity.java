@@ -148,6 +148,7 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
                         .show();
             }
         });
+        AppearanceHelper.attachMorphAnimation(binding.notEnabledTipCard);
 
         //Recycler 列表
         NotificationCaptureListAdapter adapter = new NotificationCaptureListAdapter(
