@@ -175,8 +175,9 @@ public class PermissionManageActivity extends AppCompatActivity {
         );
         notificationListener.setFunctionListener(v -> showExplanationDialog(
                 R.string.notification_listener_permission,
-                "该权限允许应用读取其他应用发送的通知，本应用不会利用该权限获取用户隐私。该权限应用范围如下：\n" +
-                        "- 读取其他应用的通知实现自动记账\n",
+                "该权限允许应用读取其他应用发送的通知，应用范围如下：\n" +
+                        "- 读取其他应用的通知实现自动记账\n" +
+                        "- 捕获其他应用发送的通知用于快速生成通知规则\n",
                 () -> {
                     SlyCoffer.lockLifecycleObserver();
                     Intent skip2NotificationListener = PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.getIntent(this);
