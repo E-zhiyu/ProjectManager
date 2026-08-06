@@ -108,6 +108,16 @@
             android:exported="false"
             android:launchMode="singleTop" />
         <activity
+            android:name=".ui.pages.notification.capture.NotificationCaptureListActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.pages.notification.rule.NotificationRuleListActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.pages.notification.capture.CapturedNotificationRuleInputActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.pages.notification.capture.NotificationCaptureListActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".ui.pages.main.MainActivity"
             android:exported="true">
             <intent-filter>
@@ -160,15 +170,6 @@
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
-
-        <activity
-            android:name=".ui.pages.notification.capture.NotificationCaptureListActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".ui.pages.notification.capture.CapturedNotificationRuleInputActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>
