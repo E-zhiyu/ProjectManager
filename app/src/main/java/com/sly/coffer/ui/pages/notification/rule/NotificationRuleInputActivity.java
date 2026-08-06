@@ -1,4 +1,4 @@
-package com.sly.coffer.ui.pages.notification_rule;
+package com.sly.coffer.ui.pages.notification.rule;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -94,6 +94,7 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        disposable.dispose();
         binding = null;
     }
 

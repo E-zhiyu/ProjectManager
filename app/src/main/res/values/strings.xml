@@ -44,7 +44,7 @@
     <string name="balance_every_month">每月结余</string>
     <string name="auto_bookkeeping">自动记账</string>
     <string name="hide_recent_task">隐藏最近任务</string>
-    <string name="notification_analysis_mode">通知解析</string>
+    <string name="notification_analysis">通知解析</string>
     <string name="add_rule">添加规则</string>
     <string name="modify_rule">修改规则</string>
     <string name="rule_name">规则名称</string>
@@ -67,7 +67,7 @@
     <string name="rule_account_type_help">由该规则生成流水记录的种类</string>
     <string name="rule_package_name_help">发送通知应用的包名</string>
     <string name="rule_notification_title_help">通知的标题，仅当标题匹配时才尝试解析内容</string>
-    <string name="rule_notification_content_help">解析通知内容，并利用捕获组提取金额数字。右侧按钮可以快速添加捕获组</string>
+    <string name="rule_notification_content_help">用捕获组替代通知内容中的金额数字，右侧图标按钮可以快速添加捕获组</string>
     <string name="account_amount_help">流水金额</string>
     <string name="account_remark_help">简单描述该流水记录</string>
     <string name="account_datetime_help">产生该条记录的具体时间</string>
@@ -130,7 +130,7 @@
     <string name="not_included">未包含</string>
     <string name="add_media_files">添加媒体文件</string>
     <string name="preview_of_media_file">媒体文件预览</string>
-    <string name="button_to_add">添加按钮</string>
+    <string name="btn_add">添加按钮</string>
     <string name="no_tag">无标签</string>
     <string name="bookkeeping_start_date">记账开始日期</string>
     <string name="date_difference_to_today">距今天数</string>
@@ -161,6 +161,15 @@
     <string name="btn_of_explanation">功能说明按钮</string>
     <string name="skip_date">日期跳转</string>
     <string name="direct_deposit">直接入账</string>
+    <string name="notification_search_hint">搜索通知……</string>
+    <string name="no_captured_notification">没有捕获的通知</string>
+    <string name="get_help">获取帮助</string>
+    <string name="notification_capture_not_enabled">未启用捕获功能，无法捕获新通知\n点击启用捕获功能</string>
+    <string name="capture_notification">捕获通知</string>
+    <string name="clear_captured_notification">清空捕获通知</string>
+    <string name="delete_captured_notification">删除通知</string>
+    <string name="select_amount_text">选择金额文本</string>
+    <string name="notification_content">通知内容</string>
     <string-array name="tips_array">
         <item>如果设置了自动备份目录，进行软件更新时会自动备份一次。</item>
         <item>长按某条搜索历史可以删除它。</item>

@@ -115,70 +115,7 @@
                     android:hint="@string/import_account" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/package_name_layout"
-                style="@style/CommonTextInputLayoutStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:helperText="@string/rule_package_name_help">
-
-                <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                    android:id="@+id/package_name_input"
-                    style="@style/UneditableAutoCompleteTextViewStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/package_name" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/notification_title_layout"
-                style="@style/CommonTextInputLayoutStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:endIconDrawable="@drawable/baseline_clear_24"
-                app:helperText="@string/rule_notification_title_help">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/notification_title_input"
-                    style="@style/UserInputEditTextStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:hint="@string/notification_title" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/regex_layout"
-                style="@style/CommonTextInputLayoutStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:endIconDrawable="@drawable/outline_add_24"
-                app:endIconMode="custom"
-                app:helperText="@string/rule_notification_content_help">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/regex_input"
-                    style="@style/UserInputEditTextStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:hint="@string/notification_content_regex" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/capture_group_position_layout"
-                style="@style/CommonTextInputLayoutStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:helperText="@string/notification_rule_match_group_helper">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/capture_group_position_input"
-                    style="@style/UserInputEditTextStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:hint="@string/match_group_position"
-                    android:inputType="number" />
-            </com.google.android.material.textfield.TextInputLayout>
-
+            <!-- 标签标题 -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -199,7 +136,7 @@
                     style="@style/ImageButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:contentDescription="@string/btn_add"
+                    android:contentDescription="@string/btn_of_media_add"
                     android:src="@drawable/outline_edit_note_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/tag_explain_btn"
@@ -218,6 +155,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <!-- 标签列表 -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/tag_recycler"
                 android:layout_width="match_parent"
@@ -225,6 +163,74 @@
                 android:orientation="horizontal"
                 android:visibility="gone"
                 app:layoutManager="com.google.android.flexbox.FlexboxLayoutManager" />
+
+            <!-- 金额数字选择标题 -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="@string/select_amount_text"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <!-- 说明按钮 -->
+                <ImageButton
+                    android:id="@+id/amount_select_help_btn"
+                    style="@style/ImageButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/btn_of_explanation"
+                    android:src="@drawable/outline_help_24"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- 金额数字选择 Chip 的容器 -->
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/amount_select_chip_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                app:selectionRequired="true"
+                app:singleSelection="true" />
+
+            <!-- 金额数字选择标题 -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/notification_content"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- 通知内容文本 -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/notification_content_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:text="@string/notification_content"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                android:textColor="?attr/colorOutline" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

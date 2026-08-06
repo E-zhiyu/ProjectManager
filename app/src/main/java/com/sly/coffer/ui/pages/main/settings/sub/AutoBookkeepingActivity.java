@@ -2,6 +2,7 @@ package com.sly.coffer.ui.pages.main.settings.sub;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,13 +15,15 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.sly.coffer.SlyCoffer;
 import com.sly.coffer.R;
 import com.sly.coffer.auxiliary.enums.RadiusStyle;
+import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.preference.AutoBookKeepingPreference;
 import com.sly.coffer.databinding.ActivityAutoBookkeepingBinding;
 import com.sly.coffer.auxiliary.enums.settings.NotificationCancelBehaviour;
 import com.sly.coffer.auxiliary.enums.settings.NotificationClickBehaviour;
+import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.PermissionHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
-import com.sly.coffer.ui.pages.notification_rule.NotificationRuleListActivity;
+import com.sly.coffer.ui.pages.notification.rule.NotificationRuleListActivity;
 import com.sly.coffer.ui.pages.main.settings.components.SettingClickableTextView;
 import com.sly.coffer.ui.pages.main.settings.components.SettingSpinnerView;
 import com.sly.coffer.ui.pages.main.settings.components.SettingSwitchView;
@@ -29,8 +32,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public class AutoBookkeepingActivity extends AppCompatActivity {
     private ActivityAutoBookkeepingBinding binding; //绑定的 XML 布局
+    private final CompositeDisposable disposable = new CompositeDisposable();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +62,14 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
         initAutoBookkeepingSettings();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        disposable.dispose();
+        binding = null;
+    }
+
     /**
      * 初始化自动记账设置项
      */
@@ -65,8 +81,8 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
         SettingSwitchView notificationAnalysisSwitchOption = new SettingSwitchView(
                 this,
                 binding.notificationAnalysisSwitchOption,
-                R.string.notification_analysis_mode,
-                "解析通知实现自动记账",
+                R.string.notification_analysis,
+                "通过应用发送的通知来记账",
                 R.drawable.outline_notifications_active_24,
                 RadiusStyle.TOP
         );
@@ -217,6 +233,60 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
             });
 
             behaviourMenu.show();
+        });
+
+        //通知捕获开关
+        SettingSwitchView captureNotificationSwitch = new SettingSwitchView(
+                this,
+                binding.notificationCaptureSwitch,
+                R.string.capture_notification,
+                "保存通知以便添加通知规则",
+                R.drawable.outline_download_24,
+                RadiusStyle.TOP
+        );
+        captureNotificationSwitch.setChecked(AutoBookKeepingPreference.getNotificationCapture(this));
+        captureNotificationSwitch.setFunctionListener((compoundButton, b) -> {
+            if (b) {
+                if (PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.isGranted(this)) {
+                    AutoBookKeepingPreference.setNotificationCapture(this, true);
+                    Toast.makeText(this, "5分钟后自动关闭通知捕获以节省性能", Toast.LENGTH_SHORT).show();
+                } else {
+                    compoundButton.setChecked(false);
+                    String message = "通知捕获依赖通知监听服务，请授权后再启用通知捕获功能。";
+                    new MaterialAlertDialogBuilder(this)
+                            .setTitle("权限申请说明")
+                            .setMessage(message)
+                            .setPositiveButton("去授权", (dialogInterface, i) -> {
+                                Intent intent = PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.getIntent(this);
+                                startActivity(intent);
+                            })
+                            .setNegativeButton("取消", null)
+                            .show();
+                }
+            } else {
+                AutoBookKeepingPreference.setNotificationCapture(this, b);
+            }
+        });
+
+        //清空捕获通知
+        SettingClickableTextView clearCapturedNotification = new SettingClickableTextView(
+                this,
+                binding.capturedNotificationClearOption,
+                R.string.clear_captured_notification,
+                "清空数据库中捕获的通知",
+                R.drawable.baseline_clear_24,
+                RadiusStyle.BOTTOM
+        );
+        clearCapturedNotification.setFunctionListener(view -> {
+            BookkeepingDb db = BookkeepingDb.getInstance(this);
+            disposable.add(db.capturedNotificationDao().clearCapturedNotification()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe(
+                            () -> Toast.makeText(this, "捕获的通知已清除", Toast.LENGTH_SHORT).show(),
+                            e -> ExceptionHelper.showExceptionDialog(this, e)
+                    )
+            );
         });
     }
 }

@@ -11,6 +11,7 @@ import com.sly.coffer.ui.others.popup.TextPopupWindow;
 
 public class TipPreference {
     private static final String PREF_NAME = "TipPreference";
+    public static final String KEY_NOTIFICATION_RULE_LIST = "notification_rule_list";   //通知规则列表长按添加按钮
 
     /**
      * 保存是否提示过的数据
@@ -46,14 +47,17 @@ public class TipPreference {
      * @param maxTipCount 最大提醒次数
      */
     public static void showTip(@NonNull View anchor, int gravity, String tipMessage, String key, int maxTipCount) {
-        Context context = anchor.getContext();
-        int currentValue = getValue(context, key);
-        if (currentValue < maxTipCount) {
-            TextPopupWindow window = new TextPopupWindow(tipMessage, context);
-            window.show(anchor, gravity);
+        anchor.postDelayed(() -> {
+                    Context context = anchor.getContext();
+                    int currentValue = getValue(context, key);
+                    if (currentValue < maxTipCount) {
+                        TextPopupWindow window = new TextPopupWindow(tipMessage, context);
+                        window.show(anchor, gravity);
 
-            setValue(context, key, currentValue + 1);
-        }
+                        setValue(context, key, currentValue + 1);
+                    }
+                },
+                100);
     }
 
     /**

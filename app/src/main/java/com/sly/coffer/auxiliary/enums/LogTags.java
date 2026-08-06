@@ -5,7 +5,7 @@ public enum LogTags {
     FULL_SCREEN_MEDIA_ACTIVITY("FullScreenMediaActivity"),
     FILE_HELPER("FileHelper"),
     ACCOUNT_INPUT("RunningAccountInputActivity"),
-    NOTIFICATION_SERVICE("NotificationService"),
+    AB_NOTIFICATION_LISTENER_SERVICE("AbNotificationListenerService"),
     DATA_IO_HELPER("DataIOHelper"),
     BACKUP_WORKER("BackupWorker"),
     WORK_STATS("WorkStats"),

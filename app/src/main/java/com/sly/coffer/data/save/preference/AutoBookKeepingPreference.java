@@ -14,6 +14,7 @@ public class AutoBookKeepingPreference {
     private static final String KEY_DIRECT_DEPOSIT = "direct_deposit";              //直接入账开关
     private static final String KEY_NOTIFICATION_CANCEL = "notification_cancel";    //自动记账通知点击行为
     private static final String KEY_NOTIFICATION_CLICK = "notification_click";      //自动记账确认通知点击行为
+    private static final String KEY_NOTIFICATION_CAPTURE = "notification_capture";  //通知捕获功能是否开启（保存时间戳，用于自动关闭）
 
     public static void setSwitchStat(boolean isOpened, @NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -89,5 +90,30 @@ public class AutoBookKeepingPreference {
     public static int getNotificationClickBehaviour(@NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return pref.getInt(KEY_NOTIFICATION_CLICK, 0);
+    }
+
+    /**
+     * 设置通知捕获功能开启状态
+     *
+     * @param context 上下文
+     * @param stat    是否开启
+     */
+    public static void setNotificationCapture(@NonNull Context context, boolean stat) {
+        long timeMillis = stat ? System.currentTimeMillis() : 0;
+        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        pref.edit().putLong(KEY_NOTIFICATION_CAPTURE, timeMillis).apply();
+    }
+
+    /**
+     * 获取通知捕获功能开启状态
+     *
+     * @param context 上下文
+     * @return 是否开启
+     */
+    public static boolean getNotificationCapture(@NonNull Context context) {
+        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        long timeMillis = pref.getLong(KEY_NOTIFICATION_CAPTURE, 0);
+
+        return System.currentTimeMillis() - timeMillis <= 1000 * 60 * 5;    //5分钟后自动关闭
     }
 }

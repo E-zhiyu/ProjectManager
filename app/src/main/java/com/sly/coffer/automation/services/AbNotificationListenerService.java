@@ -3,6 +3,8 @@ package com.sly.coffer.automation.services;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
@@ -24,6 +26,7 @@ import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.converters.DateTimeConverter;
 import com.sly.coffer.data.save.db.entities.AccountEntity;
 import com.sly.coffer.data.save.db.entities.AccountTransferEntity;
+import com.sly.coffer.data.save.db.entities.CapturedNotificationEntity;
 import com.sly.coffer.data.save.db.entities.NotificationRuleEntity;
 import com.sly.coffer.data.save.db.entities.NotificationRuleTransferEntity;
 import com.sly.coffer.data.save.db.entities.TagEntity;
@@ -37,7 +40,7 @@ import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.NotificationHelper;
 import com.sly.coffer.auxiliary.enums.AccountType;
 import com.sly.coffer.ui.pages.main.bookkeeping.RunningAccountInputActivity;
-import com.sly.coffer.ui.pages.notification_rule.NotificationRuleListActivity;
+import com.sly.coffer.ui.pages.notification.rule.NotificationRuleListActivity;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -90,7 +93,7 @@ public class AbNotificationListenerService extends NotificationListenerService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(LogTags.NOTIFICATION_SERVICE.n(), "服务已启动");
+        Log.d(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "服务已启动");
         return START_STICKY;
     }
 
@@ -98,7 +101,7 @@ public class AbNotificationListenerService extends NotificationListenerService {
     public void onCreate() {
         super.onCreate();
         Context context = getApplicationContext();
-        Log.d(LogTags.NOTIFICATION_SERVICE.n(), "服务已创建");
+        Log.d(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "服务已创建");
 
         //启动时则加载规则
         BookkeepingDb db = BookkeepingDb.getInstance(context);
@@ -121,7 +124,7 @@ public class AbNotificationListenerService extends NotificationListenerService {
                         },
                         e -> {
                             ExceptionHelper.showExceptionDialog(context, e);
-                            Log.e(LogTags.NOTIFICATION_SERVICE.n(), "通知监听服务获取通知规则失败");
+                            Log.e(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "通知监听服务获取通知规则失败");
                         }
                 )
         );
@@ -131,7 +134,7 @@ public class AbNotificationListenerService extends NotificationListenerService {
     public void onDestroy() {
         super.onDestroy();
 
-        Log.d(LogTags.NOTIFICATION_SERVICE.n(), "服务已关闭");
+        Log.d(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "服务已关闭");
         disposable.dispose();
     }
 
@@ -139,9 +142,14 @@ public class AbNotificationListenerService extends NotificationListenerService {
     public void onNotificationPosted(@NonNull StatusBarNotification sbn) {
         Context context = getApplicationContext();
 
-        //未开启通知监听功能则不运行
+        //保存通知内容
+        if (AutoBookKeepingPreference.getNotificationCapture(context)) {
+            saveNotification(sbn);
+        }
+
+        //判断是否开启通知解析功能
         if (!AutoBookKeepingPreference.getSwitchStat(context)) {
-            Log.d(LogTags.NOTIFICATION_SERVICE.n(), "自动记账功能未启用");
+            Log.d(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "通知自动记账未启用");
             return;
         }
 
@@ -149,22 +157,22 @@ public class AbNotificationListenerService extends NotificationListenerService {
         String packageName = sbn.getPackageName();
         String title = sbn.getNotification().extras.getString("android.title");
         String text = sbn.getNotification().extras.getString("android.text");
-        if (text == null || title == null) return;
+        if (text == null || text.isEmpty() || title == null || title.isEmpty()) return;
 
         //同一应用发送太频繁直接不运行
         long currentEpochMilli = System.currentTimeMillis();
         long difference = currentEpochMilli - lastReceiveEpochMilli;        //求时间差
         if (difference <= 1000 && title.equals(lastTitle) && packageName.equals(lastPackageName)) {
-            Log.d(LogTags.NOTIFICATION_SERVICE.n(), "同一应用发送通知过于频繁，不执行任何操作");
+            Log.d(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "同一应用发送通知过于频繁，不执行任何操作");
             return;
         }
         lastReceiveEpochMilli = currentEpochMilli;
         lastPackageName = packageName;
         lastTitle = title;
 
-        Log.d(LogTags.NOTIFICATION_SERVICE.n(), String.format("通知发送者包名：%s", packageName));
-        Log.d(LogTags.NOTIFICATION_SERVICE.n(), String.format("通知标题：%s", title));
-        Log.d(LogTags.NOTIFICATION_SERVICE.n(), String.format("通知内容：%s", text));
+        Log.d(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), String.format("通知发送者包名：%s", packageName));
+        Log.d(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), String.format("通知标题：%s", title));
+        Log.d(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), String.format("通知内容：%s", text));
 
         //处理通知内容
         RuleKey key = new RuleKey(packageName, title);
@@ -181,7 +189,7 @@ public class AbNotificationListenerService extends NotificationListenerService {
                     Pattern pattern = Pattern.compile(contentRegex);
                     matcher = pattern.matcher(text);
                 } catch (PatternSyntaxException e) {                    //处理无法编译为Matcher的情况
-                    Log.e(LogTags.NOTIFICATION_SERVICE.n(), "正则表达式编译出错");
+                    Log.e(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "正则表达式编译出错");
                     String err = String.format(
                             Locale.getDefault(),
                             "规则“%s”的正则表达式编译出错",
@@ -192,15 +200,15 @@ public class AbNotificationListenerService extends NotificationListenerService {
                 }
 
                 if (matcher.find()) {
-                    Log.d(LogTags.NOTIFICATION_SERVICE.n(), "成功匹配正则表达式");
+                    Log.d(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "成功匹配正则表达式");
 
                     //生成流水数据包
                     Bundle bundle = getNewAccountData(matcher, model);
                     if (bundle == null) {
-                        Log.e(LogTags.NOTIFICATION_SERVICE.n(), "流水数据生成失败");
+                        Log.e(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "流水数据生成失败");
                         return;
                     }
-                    Log.i(LogTags.NOTIFICATION_SERVICE.n(), "流水数据生成成功");
+                    Log.i(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "流水数据生成成功");
 
                     //根据偏好设置决定直接入帐还是发送通知
                     if (!AutoBookKeepingPreference.getDirectDeposit(context)) {
@@ -209,10 +217,48 @@ public class AbNotificationListenerService extends NotificationListenerService {
                         saveInDbDirectly(bundle, rule);
                     }
                 } else {
-                    Log.d(LogTags.NOTIFICATION_SERVICE.n(), "正则表达式不匹配");
+                    Log.d(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "正则表达式不匹配");
                 }
             }
         }
+    }
+
+    /**
+     * 将通知保存到数据库
+     *
+     * @param sbn 需要保存的通知
+     */
+    private void saveNotification(@NonNull StatusBarNotification sbn) {
+        //获取通知数据
+        String appName;
+        String packageName = sbn.getPackageName();
+        try {
+            PackageManager packageManager = getApplicationContext().getPackageManager();
+            ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
+            appName = packageManager.getApplicationLabel(appInfo).toString();
+        } catch (PackageManager.NameNotFoundException e) {
+            appName = "<未知应用>";
+        }
+        String title = sbn.getNotification().extras.getString("android.title");
+        String text = sbn.getNotification().extras.getString("android.text");
+        if (text == null || text.isEmpty() || title == null || title.isEmpty()) return;
+
+        //判断是否有数字
+        Pattern numPattern = Pattern.compile("\\d");
+        Matcher matcher = numPattern.matcher(text);
+        if (!matcher.matches()) return;
+
+        //保存数据
+        Context context = getApplicationContext();
+        CapturedNotificationEntity notification = new CapturedNotificationEntity(title, text, packageName, appName, LocalDateTime.now());
+        BookkeepingDb db = BookkeepingDb.getInstance(context);
+        disposable.add(db.capturedNotificationDao().insertCapturedNotification(notification)
+                .subscribeOn(Schedulers.io())
+                .subscribe(
+                        () -> Log.i(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "通知捕获成功"),
+                        e -> Log.e(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), e.getMessage() == null ? "通知捕获失败" : e.getMessage())
+                )
+        );
     }
 
     /**

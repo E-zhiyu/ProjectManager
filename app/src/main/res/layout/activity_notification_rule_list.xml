@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.pages.notification_rule.NotificationRuleListActivity">
+    tools:context=".ui.pages.notification.rule.NotificationRuleListActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
@@ -61,6 +61,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:contentDescription="@string/button_to_add"
+        android:contentDescription="@string/btn_add"
         app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

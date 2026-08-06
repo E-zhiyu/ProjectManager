@@ -6,9 +6,11 @@
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
+
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
     </queries>
+
     <uses-permission android:name="com.android.permission.GET_INSTALLED_APPS" /> <!-- 读取应用列表权限 -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" /> <!-- 闹钟设置权限 -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" /> <!-- 请求忽略电池优化 -->
@@ -75,12 +77,12 @@
             android:name=".ui.pages.app_list.AppSelectActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.pages.notification_rule.NotificationRuleInputActivity"
+            android:name=".ui.pages.notification.rule.NotificationRuleInputActivity"
             android:exported="false"
-            android:parentActivityName=".ui.pages.notification_rule.NotificationRuleListActivity"
+            android:parentActivityName=".ui.pages.notification.rule.NotificationRuleListActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.pages.notification_rule.NotificationRuleListActivity"
+            android:name=".ui.pages.notification.rule.NotificationRuleListActivity"
             android:exported="false"
             android:parentActivityName=".ui.pages.main.MainActivity" />
         <activity
@@ -105,6 +107,16 @@
             android:name=".ui.pages.AuthActivity"
             android:exported="false"
             android:launchMode="singleTop" />
+        <activity
+            android:name=".ui.pages.notification.capture.NotificationCaptureListActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.pages.notification.rule.NotificationRuleListActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.pages.notification.capture.CapturedNotificationRuleInputActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.pages.notification.capture.NotificationCaptureListActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.pages.main.MainActivity"
             android:exported="true">
@@ -159,4 +171,5 @@
             </intent-filter>
         </service>
     </application>
+
 </manifest>

@@ -16,6 +16,7 @@ public class SearchHistoryPreference {
     private static final String PREF_NAME = "SearchHistoryPreference";
     public static final String KEY_ACCOUNT_REMARK = "account_remark";   //流水记录备注搜索历史
     public static final String KEY_APP_LIST = "app_list";               //应用列表搜索历史
+    public static final String KEY_CAPTURED_NOTIFICATION = "captured_notification"; //捕获的通知
 
     /**
      * 读取搜索历史
