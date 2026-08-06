@@ -67,7 +67,7 @@
     <string name="rule_account_type_help">由该规则生成流水记录的种类</string>
     <string name="rule_package_name_help">发送通知应用的包名</string>
     <string name="rule_notification_title_help">通知的标题，仅当标题匹配时才尝试解析内容</string>
-    <string name="rule_notification_content_help">解析通知内容，并利用捕获组提取金额数字。右侧按钮可以快速添加捕获组</string>
+    <string name="rule_notification_content_help">用捕获组替代通知内容中的金额数字，右侧图标按钮可以快速添加捕获组</string>
     <string name="account_amount_help">流水金额</string>
     <string name="account_remark_help">简单描述该流水记录</string>
     <string name="account_datetime_help">产生该条记录的具体时间</string>
