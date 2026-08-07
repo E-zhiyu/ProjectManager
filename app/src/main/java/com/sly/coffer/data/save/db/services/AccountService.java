@@ -81,23 +81,31 @@ public class AccountService {
         }
 
         //标签过滤
-        if (useTagFilter) {
-            sql.append(" AND ");
-            sql.append("(accountId IN (SELECT accountId FROM accountTagRef WHERE tagId IN (");
+        if (useTagFilter || includeNoTag) {
+            sql.append(" AND (");
 
-            int i = 0;
-            for (Long tagId : filterTagSet) {
-                sql.append("?");
-                args.add(tagId);
-                if (i < filterTagSet.size() - 1) sql.append(",");
-                i++;
+            //拼接标签过滤
+            if (useTagFilter) {
+                sql.append("accountId IN (SELECT accountId FROM accountTagRef WHERE tagId IN (");
+
+                int i = 0;
+                for (Long tagId : filterTagSet) {
+                    sql.append("?");
+                    args.add(tagId);
+                    if (i < filterTagSet.size() - 1) sql.append(",");
+                    i++;
+                }
+
+                sql.append("))");
             }
 
-            sql.append("))");
+            //拼接连接词
+            if (useTagFilter && includeNoTag) {
+                sql.append(" OR ");
+            }
 
             //添加无标签的筛选条件
             if (includeNoTag) {
-                sql.append(" OR ");
                 sql.append("accountId NOT IN (SELECT accountId FROM accountTagRef)");
             }
 

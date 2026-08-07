@@ -246,7 +246,7 @@ public class AbNotificationListenerService extends NotificationListenerService {
         //判断是否有数字
         Pattern numPattern = Pattern.compile("\\d");
         Matcher matcher = numPattern.matcher(text);
-        if (!matcher.matches()) return;
+        if (!matcher.find()) return;
 
         //保存数据
         Context context = getApplicationContext();

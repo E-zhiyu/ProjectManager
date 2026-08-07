@@ -158,6 +158,7 @@ public class AccountFilterBottomSheet extends BaseBottomSheetDialogFragment {
         }
 
         //无标签的流水记录筛选 Chip
+        binding.noTagSelectionChip.setChecked(viewModel.isIncludeNoTag());
         binding.noTagSelectionChip.setOnCheckedChangeListener((compoundButton, b) ->
                 viewModel.setIncludeNoTag(b)
         );

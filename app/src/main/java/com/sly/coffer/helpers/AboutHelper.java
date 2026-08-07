@@ -10,7 +10,16 @@ import com.sly.coffer.R;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 
 public class AboutHelper {
-    private static final String UPDATE_LOG_MD = "# v1.9.4\n" +
+    private static final String UPDATE_LOG_MD = "# v1.9.5\n" +
+            "\n" +
+            "### BUG修复\n" +
+            "\n" +
+            "- 修复无法正常捕获带数字的通知的BUG\n" +
+            "- 修复无法直接搜索未被标记的流水记录的BUG\n" +
+            "- 修复标签过滤对话框中无标签Chip的选中状态不会保存的BUG\n" +
+            "- 修复通知捕获列表界面底部功能未启用卡片没有点击效果的BUG\n" +
+            "\n" +
+            "# v1.9.4\n" +
             "\n" +
             "### 新增功能\n" +
             "\n" +
