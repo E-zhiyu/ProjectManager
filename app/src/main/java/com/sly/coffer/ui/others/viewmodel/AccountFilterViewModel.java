@@ -55,6 +55,13 @@ public class AccountFilterViewModel extends ViewModel {
         this.includeNoTag = includeNoTag;
     }
 
+    public boolean isIncludeNoTag() {
+        return includeNoTag;
+    }
+    public MutableLiveData<Void> getFilterUpdatedLiveData() {
+        return filterUpdatedLiveData;
+    }
+
     /**
      * 加载流水记录列表数据
      *
@@ -123,9 +130,5 @@ public class AccountFilterViewModel extends ViewModel {
         searchKeywordProcessor.onNext("");
 
         filterUpdatedLiveData.setValue(null);
-    }
-
-    public MutableLiveData<Void> getFilterUpdatedLiveData() {
-        return filterUpdatedLiveData;
     }
 }
