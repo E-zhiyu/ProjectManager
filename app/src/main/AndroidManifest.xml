@@ -21,12 +21,6 @@
         android:name="android.permission.REQUEST_INSTALL_PACKAGES"
         tools:ignore="RequestInstallPackagesPolicy" /> <!-- 安装APK权限 -->
     <uses-permission android:name="android.permission.INTERNET" /> <!-- 网络权限 -->
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" /> <!-- 读取外部存储权限 -->
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" /> <!-- 写入外部存储权限 -->
     <uses-permission android:name="android.permission.CAMERA" /> <!-- 相机权限 -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> <!-- 开机监听权限 -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" /> <!-- 通知权限 -->
@@ -169,6 +163,21 @@
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
+        </service>
+        <service
+            android:name=".automation.services.AbAccessibilityService"
+            android:exported="false"
+
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            tools:ignore="AccessibilityPolicy">
+
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
         </service>
     </application>
 
