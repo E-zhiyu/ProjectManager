@@ -170,6 +170,7 @@
     <string name="delete_captured_notification">删除通知</string>
     <string name="select_amount_text">选择金额文本</string>
     <string name="notification_content">通知内容</string>
+    <string name="accessibility_service_description">用于实现自动记账的服务\n通过读取当前界面的名称和布局，根据已保存的规则实现自动记账\n\n提示：Sly\'s Coffer仅利用无障碍服务读取屏幕内容实现自动记账，不会执行任何可能侵害您利益的行为，请您放心使用</string>
     <string-array name="tips_array">
         <item>如果设置了自动备份目录，进行软件更新时会自动备份一次。</item>
         <item>长按某条搜索历史可以删除它。</item>

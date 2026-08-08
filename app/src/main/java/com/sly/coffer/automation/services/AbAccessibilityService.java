@@ -143,4 +143,6 @@ public class AbAccessibilityService extends AccessibilityService {
         }
         return null;
     }
+
+    //TODO:设计无障碍规则输入逻辑
 }

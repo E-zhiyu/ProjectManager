@@ -167,7 +167,7 @@
         <service
             android:name=".automation.services.AbAccessibilityService"
             android:exported="false"
-
+            android:label="@string/auto_bookkeeping"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             tools:ignore="AccessibilityPolicy">
 
