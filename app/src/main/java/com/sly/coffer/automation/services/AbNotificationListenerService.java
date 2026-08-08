@@ -1,7 +1,6 @@
 package com.sly.coffer.automation.services;
 
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -100,11 +99,10 @@ public class AbNotificationListenerService extends NotificationListenerService {
     @Override
     public void onCreate() {
         super.onCreate();
-        Context context = getApplicationContext();
         Log.d(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "服务已创建");
 
         //启动时则加载规则
-        BookkeepingDb db = BookkeepingDb.getInstance(context);
+        BookkeepingDb db = BookkeepingDb.getInstance(this);
         disposable.add(db.ruleDao().getEnabledNotificationRuleFlowable()
                 .subscribeOn(Schedulers.io())
                 .subscribe(
@@ -123,7 +121,7 @@ public class AbNotificationListenerService extends NotificationListenerService {
                             ruleMap.putAll(map);
                         },
                         e -> {
-                            ExceptionHelper.showExceptionDialog(context, e);
+                            ExceptionHelper.showExceptionDialog(this, e);
                             Log.e(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "通知监听服务获取通知规则失败");
                         }
                 )
@@ -135,20 +133,18 @@ public class AbNotificationListenerService extends NotificationListenerService {
         super.onDestroy();
 
         Log.d(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "服务已关闭");
-        disposable.dispose();
+        disposable.clear();
     }
 
     @Override
     public void onNotificationPosted(@NonNull StatusBarNotification sbn) {
-        Context context = getApplicationContext();
-
         //保存通知内容
-        if (AutoBookKeepingPreference.getNotificationCapture(context)) {
+        if (AutoBookKeepingPreference.getNotificationCapture(this)) {
             saveNotification(sbn);
         }
 
         //判断是否开启通知解析功能
-        if (!AutoBookKeepingPreference.getSwitchStat(context)) {
+        if (!AutoBookKeepingPreference.getSwitchStat(this)) {
             Log.d(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "通知自动记账未启用");
             return;
         }
@@ -211,8 +207,8 @@ public class AbNotificationListenerService extends NotificationListenerService {
                     Log.i(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "流水数据生成成功");
 
                     //根据偏好设置决定直接入帐还是发送通知
-                    if (!AutoBookKeepingPreference.getDirectDeposit(context)) {
-                        sendConfirmNotification(bundle, rule, context);
+                    if (!AutoBookKeepingPreference.getDirectDeposit(this)) {
+                        sendConfirmNotification(bundle, rule);
                     } else {
                         saveInDbDirectly(bundle, rule);
                     }
@@ -233,7 +229,7 @@ public class AbNotificationListenerService extends NotificationListenerService {
         String appName;
         String packageName = sbn.getPackageName();
         try {
-            PackageManager packageManager = getApplicationContext().getPackageManager();
+            PackageManager packageManager = getPackageManager();
             ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
             appName = packageManager.getApplicationLabel(appInfo).toString();
         } catch (PackageManager.NameNotFoundException e) {
@@ -249,9 +245,8 @@ public class AbNotificationListenerService extends NotificationListenerService {
         if (!matcher.find()) return;
 
         //保存数据
-        Context context = getApplicationContext();
         CapturedNotificationEntity notification = new CapturedNotificationEntity(title, text, packageName, appName, LocalDateTime.now());
-        BookkeepingDb db = BookkeepingDb.getInstance(context);
+        BookkeepingDb db = BookkeepingDb.getInstance(this);
         disposable.add(db.capturedNotificationDao().insertCapturedNotification(notification)
                 .subscribeOn(Schedulers.io())
                 .subscribe(
@@ -331,9 +326,9 @@ public class AbNotificationListenerService extends NotificationListenerService {
     private void sendErrorNotification(String content, long ruleId) {
         //发送错误提示通知
         int notificationID = (int) (ruleId + System.currentTimeMillis() + NotificationID.AUTO_BOOKKEEPING_ERROR.ordinal());
-        Intent skip2RuleManage = new Intent(getApplicationContext(), NotificationRuleListActivity.class);
+        Intent skip2RuleManage = new Intent(this, NotificationRuleListActivity.class);
         PendingIntent pi = PendingIntent.getActivity(
-                getApplicationContext(),
+                this,
                 notificationID,
                 skip2RuleManage,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
@@ -342,7 +337,7 @@ public class AbNotificationListenerService extends NotificationListenerService {
         //实例化构建器
         String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
         NotificationCompat.Builder builder = new NotificationCompat.Builder(
-                getApplicationContext(),
+                this,
                 channelID
         )
                 .setSmallIcon(R.mipmap.ic_launcher)
@@ -357,18 +352,17 @@ public class AbNotificationListenerService extends NotificationListenerService {
         NotificationHelper.sendNotification(
                 notificationID,
                 builder,
-                getApplicationContext()
+                this
         );
     }
 
     /**
      * 发送通知以提醒用户确认
      *
-     * @param bundle  自动生成的账单的数据包
-     * @param rule    触发自动记账的规则对象
-     * @param context 上下文
+     * @param bundle 自动生成的账单的数据包
+     * @param rule   触发自动记账的规则对象
      */
-    private void sendConfirmNotification(@NonNull Bundle bundle, @NonNull NotificationRuleEntity rule, Context context) {
+    private void sendConfirmNotification(@NonNull Bundle bundle, @NonNull NotificationRuleEntity rule) {
         //生成通知唯一标识符
         String ruleName = rule.getName();
         long ruleId = rule.getRuleId();
@@ -376,7 +370,6 @@ public class AbNotificationListenerService extends NotificationListenerService {
 
         //创建保留 Action
         NotificationCompat.Action keepAction = createAction(
-                context,
                 bundle,
                 ruleName,
                 BroadcastActions.ACTION_KEEP.toString(),
@@ -391,7 +384,6 @@ public class AbNotificationListenerService extends NotificationListenerService {
                 .setLabel("输入备注")
                 .build();
         NotificationCompat.Action remarkInputAction = createAction(
-                context,
                 bundle,
                 ruleName,
                 BroadcastActions.ACTION_INPUT_REMARK.toString(),
@@ -403,7 +395,6 @@ public class AbNotificationListenerService extends NotificationListenerService {
 
         //创建舍弃 Action
         NotificationCompat.Action deleteAction = createAction(
-                context,
                 bundle,
                 ruleName,
                 BroadcastActions.ACTION_DELETE.toString(),
@@ -414,14 +405,14 @@ public class AbNotificationListenerService extends NotificationListenerService {
         );
 
         //创建通知被取消的 PendingIntent
-        Intent notificationCancelIntent = new Intent(context, AbNotificationActionsReceiver.class);
+        Intent notificationCancelIntent = new Intent(this, AbNotificationActionsReceiver.class);
         notificationCancelIntent.setAction(BroadcastActions.ACTION_NOTIFICATION_CANCELED.toString());
         notificationCancelIntent.putExtra(KeyStrings.NOTIFICATION_ID.v(), notificationId);
         notificationCancelIntent.putExtras(bundle);                                        //发送流水记录数据包
         notificationCancelIntent.putExtra(KeyStrings.NOTIFICATION_RULE_NAME.v(), ruleName);    //发送规则名称
         int pendingCancelId = notificationId * 10 + PendingRequestCode.AUTO_BOOKKEEPING_NOTIFICATION_DELETE.ordinal();
         PendingIntent deletePendingIntent = PendingIntent.getBroadcast(
-                context,
+                this,
                 pendingCancelId,
                 notificationCancelIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
@@ -430,7 +421,7 @@ public class AbNotificationListenerService extends NotificationListenerService {
         //创建通知构建器
         String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
         String content = String.format(Locale.getDefault(), "“%s”产生了一条流水记录", ruleName);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelID)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("自动记账确认")
                 .setContentText(content)
@@ -441,16 +432,16 @@ public class AbNotificationListenerService extends NotificationListenerService {
                 .setDeleteIntent(deletePendingIntent);  //通知被划走
 
         //创建通知点击 PendingIntent
-        int clickBehaviourCode = AutoBookKeepingPreference.getNotificationClickBehaviour(context);
+        int clickBehaviourCode = AutoBookKeepingPreference.getNotificationClickBehaviour(this);
         if (clickBehaviourCode != NotificationClickBehaviour.NONE.getItemId()) {
-            Intent notificationClickIntent = new Intent(context, AbNotificationActionsReceiver.class);
+            Intent notificationClickIntent = new Intent(this, AbNotificationActionsReceiver.class);
             notificationClickIntent.setAction(BroadcastActions.ACTION_NOTIFICATION_CLICKED.toString());
             notificationClickIntent.putExtra(KeyStrings.NOTIFICATION_ID.v(), notificationId);
             notificationClickIntent.putExtras(bundle);                                      //发送流水记录数据
             notificationClickIntent.putExtra(KeyStrings.NOTIFICATION_RULE_NAME.v(), ruleName);  //发送规则名称
             int pendingClickedId = notificationId * 10 + PendingRequestCode.AUTO_BOOKKEEPING_NOTIFICATION_CLICK.ordinal();
             PendingIntent clickPendingIntent = PendingIntent.getBroadcast(
-                    context,
+                    this,
                     pendingClickedId,
                     notificationClickIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
@@ -465,14 +456,13 @@ public class AbNotificationListenerService extends NotificationListenerService {
         NotificationHelper.sendNotification(
                 notificationId,
                 builder,
-                context
+                this
         );
     }
 
     /**
      * 创建用于处理自动记账流水记录的通知Action（即通知按钮）
      *
-     * @param context     上下文
      * @param dataBundle  自动生成的账单的数据包
      * @param ruleName    触发自动记账的规则名称
      * @param actionId    {@link Intent}的action标识符，用于区别不同的操作，可使用{@link BroadcastActions}中的枚举对象的.toString()方法
@@ -483,7 +473,6 @@ public class AbNotificationListenerService extends NotificationListenerService {
      */
     @NonNull
     private NotificationCompat.Action createAction(
-            Context context,
             @NonNull Bundle dataBundle,
             String ruleName,
             String actionId,
@@ -493,7 +482,7 @@ public class AbNotificationListenerService extends NotificationListenerService {
             RemoteInput remoteInput
     ) {
         //创建Intent
-        Intent intent = new Intent(context, AbNotificationActionsReceiver.class);
+        Intent intent = new Intent(this, AbNotificationActionsReceiver.class);
         intent.setAction(actionId);
         intent.putExtra(KeyStrings.NOTIFICATION_ID.v(), notificationId);
         intent.putExtras(dataBundle);                                   //发送流水记录数据包
@@ -501,7 +490,7 @@ public class AbNotificationListenerService extends NotificationListenerService {
 
         //创建PendingIntent
         PendingIntent pi = PendingIntent.getBroadcast(
-                context,
+                this,
                 notificationId * 10 + requestCode,  //为了区分不同通知和不同的 Action，必须将通知标识符和 Action 标识符组合
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE
@@ -549,10 +538,9 @@ public class AbNotificationListenerService extends NotificationListenerService {
         AccountTransferEntity transfer = new AccountTransferEntity(exportAccount, importAccount);
 
         //保存数据
-        Context context = getApplicationContext();
         String ruleName = rule.getName();
         int notificationId = (int) (rule.getRuleId() + System.currentTimeMillis() + NotificationID.AUTO_BOOKKEEPING_CONFIRM.ordinal());
-        disposable.add(AccountService.addNewAccount(account, transfer, null, tagIdList, context)
+        disposable.add(AccountService.addNewAccount(account, transfer, null, tagIdList, this)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(
@@ -560,8 +548,8 @@ public class AbNotificationListenerService extends NotificationListenerService {
                             //创建通知构建器
                             String content = String.format(Locale.getDefault(), "“%s”生成的流水记录已自动入账，点击查看详情", ruleName);
                             String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
-                            PendingIntent accountModifyPendingIntent = getAccountDetailPendingIntent(accountId, context);
-                            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
+                            PendingIntent accountModifyPendingIntent = getAccountDetailPendingIntent(accountId);
+                            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelID)
                                     .setSmallIcon(R.mipmap.ic_launcher)
                                     .setContentTitle("自动记账")
                                     .setContentText(content)
@@ -574,14 +562,14 @@ public class AbNotificationListenerService extends NotificationListenerService {
                             NotificationHelper.sendNotification(
                                     notificationId,
                                     builder,
-                                    context
+                                    this
                             );
                         },
                         e -> {
                             //创建通知构建器
                             String content = String.format(Locale.getDefault(), "写入由“%s”触发的记录时出错", ruleName);
                             String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
-                            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
+                            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelID)
                                     .setSmallIcon(R.mipmap.ic_launcher)
                                     .setContentTitle("自动记账")
                                     .setContentText(content)
@@ -593,7 +581,7 @@ public class AbNotificationListenerService extends NotificationListenerService {
                             NotificationHelper.sendNotification(
                                     notificationId,
                                     builder,
-                                    context
+                                    this
                             );
                         }
                 )
@@ -604,20 +592,19 @@ public class AbNotificationListenerService extends NotificationListenerService {
      * 获取能够跳转到流水记录输入界面的 PendingInten
      *
      * @param accountId 新添加的流水记录的编号
-     * @param context   上下文
      * @return 能够跳转到流水记录输入界面的 PendingIntent
      */
-    private PendingIntent getAccountDetailPendingIntent(long accountId, Context context) {
+    private PendingIntent getAccountDetailPendingIntent(long accountId) {
         //生成数据包
         Bundle bundle = new Bundle();
         bundle.putLong(KeyStrings.RUNNING_ID.v(), accountId);
 
         //生成 Intent
-        Intent skip2AccountInput = new Intent(context, RunningAccountInputActivity.class);
+        Intent skip2AccountInput = new Intent(this, RunningAccountInputActivity.class);
         skip2AccountInput.putExtras(bundle);
 
         //生成 PendingIntent
-        return TaskStackBuilder.create(context)
+        return TaskStackBuilder.create(this)
                 .addNextIntentWithParentStack(skip2AccountInput)
                 .getPendingIntent(
                         PendingRequestCode.SKIP_TO_ACCOUNT_INPUT.ordinal(),
