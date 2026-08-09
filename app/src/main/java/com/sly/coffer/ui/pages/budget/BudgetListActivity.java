@@ -2,7 +2,6 @@ package com.sly.coffer.ui.pages.budget;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -61,16 +60,10 @@ public class BudgetListActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        ViewCompat.requestApplyInsets(getWindow().getDecorView());
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
-        binding = null;
         disposable.dispose();
+        binding = null;
     }
 
     /**

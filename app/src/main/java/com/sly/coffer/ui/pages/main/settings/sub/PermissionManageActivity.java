@@ -33,9 +33,15 @@ public class PermissionManageActivity extends AppCompatActivity {
             registerForActivityResult(
                     new ActivityResultContracts.RequestPermission(),
                     o -> {
+                        if (o) {
+                            Toast.makeText(this, "权限授予成功", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(this, "权限被拒绝", Toast.LENGTH_SHORT).show();
+                        }
                     }
             );
-    private SettingClickableTextView camera, appList, notification, notificationListener, battery, alarm;   //权限申请视图
+    private SettingClickableTextView camera, appList, notification, notificationListener, battery, alarm;
+    private SettingClickableTextView accessibility;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -201,7 +207,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                                     "- 在退出应用后自动启动通知监听服务，确保自动记账功能能够运行\n",
                             () -> {
                                 SlyCoffer.lockLifecycleObserver();
-                                Intent skip2AutoStartPermission = PermissionHelper.buildAutoStartPermissionIntent(this);
+                                Intent skip2AutoStartPermission = PermissionHelper.SpecialPermissionType.AUTO_START.getIntent(this);
                                 startActivity(skip2AutoStartPermission);
                             }
                     )
@@ -235,7 +241,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                     }
 
                     SlyCoffer.lockLifecycleObserver();
-                    Intent skip2IgnoringBatteryOptimizations = PermissionHelper.buildIgnoringBatteryOptimizationsIntent(this);
+                    Intent skip2IgnoringBatteryOptimizations = PermissionHelper.SpecialPermissionType.BATTERY.getIntent(this);
                     startActivity(skip2IgnoringBatteryOptimizations);
                 }
         ));
@@ -253,7 +259,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                 R.string.alarm_permission,
                 "允许设置定时任务",
                 R.drawable.outline_alarm_24,
-                RadiusStyle.BOTTOM
+                RadiusStyle.MIDDLE
         );
         alarm.setFunctionListener(v -> showExplanationDialog(
                 R.string.alarm_permission,
@@ -261,8 +267,28 @@ public class PermissionManageActivity extends AppCompatActivity {
                         "- 每日0点自动检查并重置预算\n",
                 () -> {
                     SlyCoffer.lockLifecycleObserver();
-                    Intent skip2ExactAlarm = PermissionHelper.buildExactAlarmIntent(this);
+                    Intent skip2ExactAlarm = PermissionHelper.SpecialPermissionType.ALARM.getIntent(this);
                     startActivity(skip2ExactAlarm);
+                }
+        ));
+
+        //无障碍权限
+        accessibility = new SettingClickableTextView(
+                this,
+                binding.accessibilityOption,
+                R.string.accessibility_permission,
+                "允许识别屏幕内容",
+                R.drawable.outline_accessibility_new_24,
+                RadiusStyle.BOTTOM
+        );
+        accessibility.setFunctionListener(view -> showExplanationDialog(
+                R.string.accessibility_permission,
+                "该权限允许应用读取屏幕内容并控制屏幕，应用范围如下：\n" +
+                        "- 读取屏幕内容实现自动记账\n",
+                () -> {
+                    SlyCoffer.lockLifecycleObserver();
+                    Intent intent = PermissionHelper.SpecialPermissionType.ACCESSIBILITY.getIntent(this);
+                    startActivity(intent);
                 }
         ));
     }
@@ -330,5 +356,9 @@ public class PermissionManageActivity extends AppCompatActivity {
         //精确闹钟权限
         boolean isAlarmGranted = PermissionHelper.SpecialPermissionType.ALARM.isGranted(this);
         alarm.getFunctionComponent().setText(isAlarmGranted ? GRANTED : NOT_GRANTED);
+
+        //无障碍权限
+        boolean isAccessibilityGranted = PermissionHelper.SpecialPermissionType.ACCESSIBILITY.isGranted(this);
+        accessibility.getFunctionComponent().setText(isAccessibilityGranted ? GRANTED : NOT_GRANTED);
     }
 }

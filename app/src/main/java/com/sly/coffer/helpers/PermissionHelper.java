@@ -1,17 +1,20 @@
 package com.sly.coffer.helpers;
 
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
+import android.content.pm.ServiceInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.accessibility.AccessibilityManager;
 import android.widget.Toast;
 
 import androidx.activity.ComponentActivity;
@@ -27,6 +30,7 @@ import androidx.lifecycle.LifecycleOwner;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.hjq.device.compat.DeviceOs;
 import com.sly.coffer.SlyCoffer;
+import com.sly.coffer.automation.services.AbAccessibilityService;
 import com.sly.coffer.data.save.preference.AppSettingsPreference;
 import com.sly.coffer.auxiliary.enums.LogTags;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
@@ -72,6 +76,11 @@ public class PermissionHelper {
         AUTO_START(
                 PermissionHelper::isAutoStartHinted,
                 PermissionHelper::buildAutoStartPermissionIntent
+        ),
+        //无障碍权限
+        ACCESSIBILITY(
+                PermissionHelper::isAccessibilityServiceEnabled,
+                PermissionHelper::buildAccessibilityIntent
         );
         private final Function<Context, Boolean> checker;              //如何检查权限是否授予
         private final Function<Context, Intent> intentBuilder;  //跳转权限界面所需的Intent构建器
@@ -411,6 +420,39 @@ public class PermissionHelper {
     }
 
     /**
+     * 判断本应用的无障碍服务是否开启
+     *
+     * @param context 上下文
+     * @return true 表示已开启
+     */
+    public static boolean isAccessibilityServiceEnabled(@NonNull Context context) {
+        AccessibilityManager am = context.getSystemService(AccessibilityManager.class);
+        if (am == null) return false;
+
+        // 获取所有已开启的无障碍服务列表
+        List<AccessibilityServiceInfo> enabledServices = am.getEnabledAccessibilityServiceList(
+                AccessibilityServiceInfo.FEEDBACK_ALL_MASK);
+
+        // 获取当前 App 的包名
+        String packageName = context.getPackageName();
+        // 获取服务的完整类名
+        String targetServiceName = packageName + "/" + AbAccessibilityService.class.getSimpleName();
+
+        for (AccessibilityServiceInfo info : enabledServices) {
+            // 获取该服务的 ResolveInfo
+            ServiceInfo serviceInfo = info.getResolveInfo().serviceInfo;
+            if (serviceInfo == null) continue;
+
+            // 拼接出完整的组件名称进行比对
+            String enabledServiceName = serviceInfo.packageName + "/" + serviceInfo.name;
+            if (targetServiceName.equals(enabledServiceName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 判断是否能够跳转到原生忽略电池优化白名单界面
      *
      * @return 是否能跳转原生界面
@@ -484,5 +526,25 @@ public class PermissionHelper {
             Toast.makeText(context, "请手动前往自启动界面授权", Toast.LENGTH_SHORT).show();
             return new Intent(Settings.ACTION_SETTINGS);
         }
+    }
+
+    /**
+     * 生成跳转到无障碍界面的意图
+     *
+     * @param context 上下文
+     * @return 跳转到无障碍设置界面的意图
+     */
+    @NonNull
+    public static Intent buildAccessibilityIntent(@NonNull Context context) {
+        // 替换为你的无障碍服务类名（完整路径，例如: com.example.app/com.example.app.MyAccessibilityService）
+        String serviceName = context.getPackageName() + "/" + AbAccessibilityService.class.getCanonicalName();
+
+        Intent intent = new Intent();
+        intent.setAction(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+        intent.putExtra(":settings:fragment_args_key", serviceName);
+        intent.putExtra(":settings:show_fragment_args", true);
+
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        return intent;
     }
 }
