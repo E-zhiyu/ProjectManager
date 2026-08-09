@@ -87,7 +87,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                 RadiusStyle.TOP
         );
         boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getSwitchStat(this);
-        if (isNotificationAnalysisOpened && PermissionHelper.isNotificationServiceEnabled(this)) {
+        if (isNotificationAnalysisOpened && PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.isGranted(this)) {
             notificationAnalysisSwitchOption.setChecked(true);
         } else {
             notificationAnalysisSwitchOption.setChecked(false);
@@ -97,7 +97,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
         }
         notificationAnalysisSwitchOption.setFunctionListener((buttonView, isChecked) -> {
             //没有权限时提示授权
-            if (!PermissionHelper.isNotificationServiceEnabled(this) && isChecked) {
+            if (!PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.isGranted(this) && isChecked) {
                 AutoBookKeepingPreference.setSwitchStat(false, this);   //将打开状态写入文件
                 buttonView.setChecked(false);
                 new MaterialAlertDialogBuilder(this)

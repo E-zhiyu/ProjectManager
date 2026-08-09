@@ -83,6 +83,11 @@
             <include
                 android:id="@+id/accessibility_option"
                 layout="@layout/view_setting_option" />
+
+            <!-- 悬浮窗 -->
+            <include
+                android:id="@+id/alert_window_option"
+                layout="@layout/view_setting_option" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -27,6 +27,8 @@ import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 import com.sly.coffer.ui.pages.main.settings.components.SettingClickableTextView;
 
+import java.util.Objects;
+
 public class PermissionManageActivity extends AppCompatActivity {
     private ActivityPermissionManageBinding binding;                //绑定的XML视图
     private final ActivityResultLauncher<String> runtimeLauncher =  //申请运行时权限的启动器
@@ -41,7 +43,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                     }
             );
     private SettingClickableTextView camera, appList, notification, notificationListener, battery, alarm;
-    private SettingClickableTextView accessibility;
+    private SettingClickableTextView accessibility, alertWindow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -233,16 +235,17 @@ public class PermissionManageActivity extends AppCompatActivity {
                         "- 自动记账的通知监听服务能否在后台保持运行\n" +
                         "- 自动记账触发后能否第一时间发送通知\n",
                 () -> {
-                    if (PermissionHelper.isIgnoringBatteryOptimizations(this) &&
-                            PermissionHelper.canSkip2ProtogeneticBatteryOptimizationsPage()
-                    ) {
+                    if (PermissionHelper.SpecialPermissionType.BATTERY.isGranted(this)) {
                         Toast.makeText(this, "已忽略电池优化，长按强制跳转电池优化界面", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
+                    Intent intent = PermissionHelper.SpecialPermissionType.BATTERY.getIntent(this);
+                    if (Objects.equals(intent.getAction(), Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)) {
+                        Toast.makeText(this, "请找到本应用并设置电池优化策略为“无限制”", Toast.LENGTH_SHORT).show();
+                    }
                     SlyCoffer.lockLifecycleObserver();
-                    Intent skip2IgnoringBatteryOptimizations = PermissionHelper.SpecialPermissionType.BATTERY.getIntent(this);
-                    startActivity(skip2IgnoringBatteryOptimizations);
+                    startActivity(intent);
                 }
         ));
         battery.setOnLongClickListener(view -> {
@@ -279,7 +282,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                 R.string.accessibility_permission,
                 "允许识别屏幕内容",
                 R.drawable.outline_accessibility_new_24,
-                RadiusStyle.BOTTOM
+                RadiusStyle.MIDDLE
         );
         accessibility.setFunctionListener(view -> showExplanationDialog(
                 R.string.accessibility_permission,
@@ -288,6 +291,26 @@ public class PermissionManageActivity extends AppCompatActivity {
                 () -> {
                     SlyCoffer.lockLifecycleObserver();
                     Intent intent = PermissionHelper.SpecialPermissionType.ACCESSIBILITY.getIntent(this);
+                    startActivity(intent);
+                }
+        ));
+
+        //悬浮窗权限
+        alertWindow = new SettingClickableTextView(
+                this,
+                binding.alertWindowOption,
+                R.string.alert_window_permission,
+                "允许显示悬浮窗",
+                R.drawable.outline_select_window_24,
+                RadiusStyle.BOTTOM
+        );
+        alertWindow.setFunctionListener(view -> showExplanationDialog(
+                R.string.alert_window_permission,
+                "该权限允许应用显示悬浮在所有应用顶部的悬浮窗，应用范围如下：\n" +
+                        "- 录入无障碍规则时显示用于选择金额视图的悬浮窗\n",
+                () -> {
+                    SlyCoffer.lockLifecycleObserver();
+                    Intent intent = PermissionHelper.SpecialPermissionType.ALERT_WINDOW.getIntent(this);
                     startActivity(intent);
                 }
         ));
@@ -360,5 +383,9 @@ public class PermissionManageActivity extends AppCompatActivity {
         //无障碍权限
         boolean isAccessibilityGranted = PermissionHelper.SpecialPermissionType.ACCESSIBILITY.isGranted(this);
         accessibility.getFunctionComponent().setText(isAccessibilityGranted ? GRANTED : NOT_GRANTED);
+
+        //悬浮窗权限
+        boolean isAlertWindowGranted = PermissionHelper.SpecialPermissionType.ALERT_WINDOW.isGranted(this);
+        alertWindow.getFunctionComponent().setText(isAlertWindowGranted ? GRANTED : NOT_GRANTED);
     }
 }
