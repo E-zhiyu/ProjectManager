@@ -170,7 +170,6 @@
             android:label="@string/auto_bookkeeping"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             tools:ignore="AccessibilityPolicy">
-
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>
@@ -179,6 +178,11 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service_config" />
         </service>
+
+        <activity
+            android:name=".ui.pages.accessibility.AccessibilityRuleListActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

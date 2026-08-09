@@ -1,4 +1,4 @@
-package com.sly.coffer.ui.pages.notification.rule;
+package com.sly.coffer.ui.pages.accessibility;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,34 +14,34 @@ import com.sly.coffer.auxiliary.interfaces.adapter.AdapterOnCheckedChangeListene
 import com.sly.coffer.auxiliary.interfaces.adapter.AdapterOnClickListener;
 import com.sly.coffer.auxiliary.interfaces.adapter.AdapterOnLongClickListener;
 import com.sly.coffer.auxiliary.interfaces.adapter.ViewHolderListener;
-import com.sly.coffer.data.save.db.entities.NotificationRuleEntity;
-import com.sly.coffer.databinding.ViewHolderNotificationRuleListBinding;
+import com.sly.coffer.data.save.db.entities.AccessibilityRuleEntity;
+import com.sly.coffer.databinding.ViewHolderAccessibilityRuleListBinding;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 
-public class NotificationRuleListAdapter extends ListAdapter<NotificationRuleEntity, NotificationRuleListAdapter.NotificationRuleViewHolder> {
-    private final static DiffUtil.ItemCallback<NotificationRuleEntity> ITEM_CALLBACK = new DiffUtil.ItemCallback<>() {
+public class AccessibilityRuleListAdapter extends ListAdapter<AccessibilityRuleEntity, AccessibilityRuleListAdapter.RuleViewHolder> {
+    private final static DiffUtil.ItemCallback<AccessibilityRuleEntity> ITEM_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
-        public boolean areItemsTheSame(@NonNull NotificationRuleEntity oldItem, @NonNull NotificationRuleEntity newItem) {
+        public boolean areItemsTheSame(@NonNull AccessibilityRuleEntity oldItem, @NonNull AccessibilityRuleEntity newItem) {
             return oldItem.getRuleId() == newItem.getRuleId();
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull NotificationRuleEntity oldItem, @NonNull NotificationRuleEntity newItem) {
+        public boolean areContentsTheSame(@NonNull AccessibilityRuleEntity oldItem, @NonNull AccessibilityRuleEntity newItem) {
             return oldItem.getName().equals(newItem.getName()) &&
                     oldItem.getType() == newItem.getType() &&
                     oldItem.getPackageName().equals(newItem.getPackageName()) &&
                     oldItem.isEnabled() == newItem.isEnabled();
         }
     };
-    private final AdapterOnClickListener<NotificationRuleEntity> clickListener;
-    private final AdapterOnLongClickListener<NotificationRuleEntity> longClickListener;
-    private final AdapterOnCheckedChangeListener<NotificationRuleEntity> checkedChangeListener;
+    private final AdapterOnClickListener<AccessibilityRuleEntity> clickListener;
+    private final AdapterOnLongClickListener<AccessibilityRuleEntity> longClickListener;
+    private final AdapterOnCheckedChangeListener<AccessibilityRuleEntity> checkedChangeListener;
 
-    public static class NotificationRuleViewHolder extends RecyclerView.ViewHolder {
-        ViewHolderNotificationRuleListBinding binding;
+    public static class RuleViewHolder extends RecyclerView.ViewHolder {
+        ViewHolderAccessibilityRuleListBinding binding;
         boolean isBlocked = false;
 
-        public NotificationRuleViewHolder(@NonNull ViewHolderNotificationRuleListBinding binding, ViewHolderListener listener) {
+        public RuleViewHolder(@NonNull ViewHolderAccessibilityRuleListBinding binding, ViewHolderListener listener) {
             super(binding.getRoot());
             this.binding = binding;
 
@@ -68,11 +68,7 @@ public class NotificationRuleListAdapter extends ListAdapter<NotificationRuleEnt
         }
     }
 
-    public NotificationRuleListAdapter(
-            AdapterOnClickListener<NotificationRuleEntity> clickListener,
-            AdapterOnLongClickListener<NotificationRuleEntity> longClickListener,
-            AdapterOnCheckedChangeListener<NotificationRuleEntity> checkedChangeListener
-    ) {
+    public AccessibilityRuleListAdapter(AdapterOnClickListener<AccessibilityRuleEntity> clickListener, AdapterOnLongClickListener<AccessibilityRuleEntity> longClickListener, AdapterOnCheckedChangeListener<AccessibilityRuleEntity> checkedChangeListener) {
         super(ITEM_CALLBACK);
         this.clickListener = clickListener;
         this.longClickListener = longClickListener;
@@ -105,13 +101,13 @@ public class NotificationRuleListAdapter extends ListAdapter<NotificationRuleEnt
 
     @NonNull
     @Override
-    public NotificationRuleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ViewHolderNotificationRuleListBinding binding = ViewHolderNotificationRuleListBinding.inflate(
+    public RuleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        ViewHolderAccessibilityRuleListBinding binding = ViewHolderAccessibilityRuleListBinding.inflate(
                 LayoutInflater.from(parent.getContext()),
                 parent,
                 false
         );
-        return new NotificationRuleViewHolder(
+        return new RuleViewHolder(
                 binding,
                 new ViewHolderListener() {
                     @Override
@@ -126,7 +122,7 @@ public class NotificationRuleListAdapter extends ListAdapter<NotificationRuleEnt
 
                     @Override
                     public void onCheckedChange(int pos, boolean finalStat, View anchor) {
-                        NotificationRuleEntity rule = getItem(pos);
+                        AccessibilityRuleEntity rule = getItem(pos);
                         rule.setEnabled(finalStat);
                         checkedChangeListener.onCheckedChange(rule, finalStat, anchor);
                     }
@@ -135,8 +131,8 @@ public class NotificationRuleListAdapter extends ListAdapter<NotificationRuleEnt
     }
 
     @Override
-    public void onBindViewHolder(@NonNull NotificationRuleViewHolder holder, int position) {
-        NotificationRuleEntity rule = getItem(position);
+    public void onBindViewHolder(@NonNull RuleViewHolder holder, int position) {
+        AccessibilityRuleEntity rule = getItem(position);
 
         //名称
         holder.binding.nameText.setText(rule.getName());

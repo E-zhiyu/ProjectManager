@@ -1,0 +1,178 @@
+package com.sly.coffer.ui.pages.accessibility;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.Toast;
+
+import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.sly.coffer.R;
+import com.sly.coffer.auxiliary.enums.KeyStrings;
+import com.sly.coffer.data.save.db.BookkeepingDb;
+import com.sly.coffer.data.save.db.entities.AccessibilityRuleEntity;
+import com.sly.coffer.databinding.ActivityAccessibilityRuleListBinding;
+import com.sly.coffer.helpers.ExceptionHelper;
+import com.sly.coffer.helpers.appearence.AppearanceHelper;
+import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
+import com.sly.coffer.ui.pages.notification.rule.NotificationRuleInputActivity;
+
+import java.util.Locale;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
+public class AccessibilityRuleListActivity extends AppCompatActivity {
+    private ActivityAccessibilityRuleListBinding binding;
+    private final CompositeDisposable disposable = new CompositeDisposable();
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivityAccessibilityRuleListBinding.inflate(getLayoutInflater());
+
+        EdgeToEdge.enable(this);
+        setContentView(binding.getRoot());
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, 0, systemBars.right, 0);
+            binding.recycler.setPadding(systemBars.left, 0, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
+        initViews();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        disposable.dispose();
+        binding = null;
+    }
+
+    /**
+     * 初始化视图
+     */
+    private void initViews() {
+        //工具栏
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
+
+        //添加按钮
+        binding.addFab.setOnClickListener(view -> {
+            //TODO:点击监听
+        });
+        AppearanceHelper.attachMorphAnimation(binding.addFab);
+        AppearanceHelper.setMarginToNavigation(binding.addFab, this);
+
+        //功能说明按钮
+        binding.helpBtn.setOnClickListener(view -> {
+            //TODO:功能说明
+            final String EXPLANATION = "";
+            new MarkdownDialogBuilder(this, "功能介绍", EXPLANATION)
+                    .setNegativeButton("关闭", null)
+                    .show();
+        });
+
+        AccessibilityRuleListAdapter adapter = new AccessibilityRuleListAdapter(
+                (entity, anchor) -> {
+                    Bundle bundle = new Bundle();
+                    bundle.putLong(KeyStrings.NOTIFICATION_RULE_ID.v(), entity.getRuleId());
+
+                    Intent skip2RuleInput = new Intent(this, NotificationRuleInputActivity.class);
+                    skip2RuleInput.putExtras(bundle);
+                    startActivity(skip2RuleInput);
+                },
+                (entity, anchor) -> {
+                    PopupMenu popupMenu = new PopupMenu(this, anchor, Gravity.END);
+                    popupMenu.getMenuInflater().inflate(R.menu.menu_accessibility_rule_edit, popupMenu.getMenu());
+
+                    popupMenu.setOnMenuItemClickListener(item -> {
+                        int id = item.getItemId();
+                        if (id == R.id.action_delete_accessibility_rule) {
+                            deleteRule(entity);
+                            return true;
+                        }
+
+                        return false;
+                    });
+
+                    popupMenu.show();
+                },
+                (entity, finalStat, anchor) -> {
+                    BookkeepingDb db = BookkeepingDb.getInstance(this);
+                    disposable.add(db.ruleDao().setRuleEnabled(finalStat, entity.getRuleId())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe(
+                                    () -> {
+                                        String tip = String.format(
+                                                Locale.getDefault(),
+                                                "%s“%s”",
+                                                finalStat ? "已启用" : "已禁用",
+                                                entity.getName()
+                                        );
+                                        Toast.makeText(this, tip, Toast.LENGTH_SHORT).show();
+                                    },
+                                    e -> ExceptionHelper.showExceptionDialog(this, e)
+                            )
+                    );
+                }
+        );
+        binding.recycler.setAdapter(adapter);
+        BookkeepingDb db = BookkeepingDb.getInstance(this);
+        disposable.add(db.accessibilityRuleDao().getAllAccessibilityRuleFlowable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(
+                        ruleList -> {
+                            if (ruleList.isEmpty()) {
+                                binding.emptyText.setVisibility(View.VISIBLE);
+                            } else {
+                                binding.emptyText.setVisibility(View.GONE);
+                            }
+
+                            adapter.submitList(ruleList);
+                        },
+                        e -> ExceptionHelper.showExceptionDialog(this, e)
+                )
+        );
+    }
+
+    /**
+     * 删除通知规则
+     *
+     * @param rule 待删除的通知规则
+     */
+    private void deleteRule(@NonNull AccessibilityRuleEntity rule) {
+        String message = String.format(
+                Locale.getDefault(),
+                "确认删除“%s”吗？",
+                rule.getName()
+        );
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.delete_accessibility_rule)
+                .setMessage(message)
+                .setPositiveButton("确定", (dialogInterface, i) -> {
+                    BookkeepingDb db = BookkeepingDb.getInstance(this);
+                    disposable.add(db.accessibilityRuleDao().deleteAccessibilityRule(rule)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe(
+                                    () -> Toast.makeText(this, "无障碍规则删除成功", Toast.LENGTH_SHORT).show(),
+                                    e -> ExceptionHelper.showExceptionDialog(this, e)
+                            )
+                    );
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+}

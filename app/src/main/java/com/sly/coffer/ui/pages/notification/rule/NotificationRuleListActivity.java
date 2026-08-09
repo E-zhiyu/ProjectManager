@@ -242,7 +242,7 @@ public class NotificationRuleListActivity extends AppCompatActivity {
                 rule.getName()
         );
         new MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.delete_budget)
+                .setTitle(R.string.delete_notification_rule)
                 .setMessage(message)
                 .setPositiveButton("确定", (dialogInterface, i) -> {
                     BookkeepingDb db = BookkeepingDb.getInstance(this);

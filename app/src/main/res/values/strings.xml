@@ -174,6 +174,8 @@
     <string name="accessibility_rule">无障碍规则</string>
     <string name="no_accessibility_rule">没有无障碍规则</string>
     <string name="accessibility_permission">无障碍权限</string>
+    <string name="delete_notification_rule">删除通知规则</string>
+    <string name="delete_accessibility_rule">删除无障碍规则</string>
     <string-array name="tips_array">
         <item>如果设置了自动备份目录，进行软件更新时会自动备份一次。</item>
         <item>长按某条搜索历史可以删除它。</item>
