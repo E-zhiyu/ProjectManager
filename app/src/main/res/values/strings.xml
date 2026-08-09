@@ -63,7 +63,7 @@
     <string name="add_picture_via_album">从相册中添加</string>
     <string name="progress_0">0/0 (0%)</string>
     <string name="progressing">正在处理……</string>
-    <string name="rule_name_help_text">该通知解析规则的名称</string>
+    <string name="rule_name_help_text">规则的显示名称</string>
     <string name="rule_account_type_help">由该规则生成流水记录的种类</string>
     <string name="rule_package_name_help">发送通知应用的包名</string>
     <string name="rule_notification_title_help">通知的标题，仅当标题匹配时才尝试解析内容</string>
@@ -180,6 +180,10 @@
     <string name="alert_window_permission">悬浮窗权限</string>
     <string name="auto_bookkeeping_view_pick">自动记账-视图拾取</string>
     <string name="view_pick">视图拾取</string>
+    <string name="amount_view">金额视图</string>
+    <string name="btn_select">选择按钮</string>
+    <string name="activity_name">界面名称</string>
+    <string name="view_id">视图标识符</string>
     <string-array name="tips_array">
         <item>如果设置了自动备份目录，进行软件更新时会自动备份一次。</item>
         <item>长按某条搜索历史可以删除它。</item>

@@ -35,4 +35,14 @@ public interface AccessibilityRuleDao {
      */
     @Query("SELECT * FROM accessibilityRules ORDER BY type")
     Flowable<List<AccessibilityRuleEntity>> getAllAccessibilityRuleFlowable();
+
+    /**
+     * 设置通知规则是否启用
+     *
+     * @param enabled 是否启用
+     * @param ruleId  需要更新的规则的 ID
+     * @return 是否完成
+     */
+    @Query("UPDATE accessibilityRules SET enabled = :enabled WHERE ruleId = :ruleId")
+    Completable setRuleEnabled(boolean enabled, long ruleId);
 }

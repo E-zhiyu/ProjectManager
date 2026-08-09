@@ -57,7 +57,7 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
     private Bundle initBundle = null;                               //存有初始数据数据包
     private AccountType type = AccountType.EXPENSE;                 //流水种类
     private ActivityResultLauncher<Intent> packageNameSelectLauncher;   //包名选择启动器
-    private ActivityNotificationRuleInputBinding binding;                       //绑定的XML视图引用
+    private ActivityNotificationRuleInputBinding binding;           //绑定的XML视图引用
     private final CompositeDisposable disposable = new CompositeDisposable();
     private AccountTagAdapter tagAdapter;                           //标签适配器
 
@@ -68,7 +68,6 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
 
         binding = ActivityNotificationRuleInputBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());

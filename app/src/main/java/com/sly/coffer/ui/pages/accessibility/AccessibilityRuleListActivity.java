@@ -23,7 +23,6 @@ import com.sly.coffer.databinding.ActivityAccessibilityRuleListBinding;
 import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
-import com.sly.coffer.ui.pages.notification.rule.NotificationRuleInputActivity;
 
 import java.util.Locale;
 
@@ -68,7 +67,8 @@ public class AccessibilityRuleListActivity extends AppCompatActivity {
 
         //添加按钮
         binding.addFab.setOnClickListener(view -> {
-            //TODO:点击监听
+            Intent intent = new Intent(this, AccessibilityRuleInputActivity.class);
+            startActivity(intent);
         });
         AppearanceHelper.attachMorphAnimation(binding.addFab);
         AppearanceHelper.setMarginToNavigation(binding.addFab, this);
@@ -82,12 +82,13 @@ public class AccessibilityRuleListActivity extends AppCompatActivity {
                     .show();
         });
 
+        //RecyclerView
         AccessibilityRuleListAdapter adapter = new AccessibilityRuleListAdapter(
                 (entity, anchor) -> {
                     Bundle bundle = new Bundle();
                     bundle.putLong(KeyStrings.NOTIFICATION_RULE_ID.v(), entity.getRuleId());
 
-                    Intent skip2RuleInput = new Intent(this, NotificationRuleInputActivity.class);
+                    Intent skip2RuleInput = new Intent(this, AccessibilityRuleInputActivity.class);
                     skip2RuleInput.putExtras(bundle);
                     startActivity(skip2RuleInput);
                 },
@@ -109,7 +110,7 @@ public class AccessibilityRuleListActivity extends AppCompatActivity {
                 },
                 (entity, finalStat, anchor) -> {
                     BookkeepingDb db = BookkeepingDb.getInstance(this);
-                    disposable.add(db.ruleDao().setRuleEnabled(finalStat, entity.getRuleId())
+                    disposable.add(db.accessibilityRuleDao().setRuleEnabled(finalStat, entity.getRuleId())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribeOn(Schedulers.io())
                             .subscribe(
