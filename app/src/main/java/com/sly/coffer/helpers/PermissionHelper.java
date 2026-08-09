@@ -1,5 +1,6 @@
 package com.sly.coffer.helpers;
 
+import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
@@ -30,11 +31,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.hjq.device.compat.DeviceOs;
 import com.sly.coffer.SlyCoffer;
 import com.sly.coffer.automation.services.AbAccessibilityService;
+import com.sly.coffer.automation.services.PickAccessibilityService;
 import com.sly.coffer.data.save.preference.AppSettingsPreference;
 import com.sly.coffer.auxiliary.enums.LogTags;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
-
-import org.jetbrains.annotations.Contract;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +47,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * 在打开Activity时申请权限的工具类
+ * 申请权限的工具类
  */
 public class PermissionHelper {
     private final ComponentActivity activity;   //需要申请权限的Activity
@@ -79,17 +79,15 @@ public class PermissionHelper {
                 PermissionHelper::isAutoStartHinted,
                 PermissionHelper::buildAutoStartPermissionIntent
         ),
-        //无障碍权限
-        ACCESSIBILITY(
-                PermissionHelper::isAccessibilityServiceEnabled,
+        ACCESSIBILITY_BOOKKEEPING(
+                context -> isAccessibilityServiceEnabled(context, AbAccessibilityService.class),
                 PermissionHelper::buildAccessibilityIntent
         ),
-        //显示悬浮窗
-        ALERT_WINDOW(
-                PermissionHelper::isAlertWindowGranted,
-                PermissionHelper::buildAlertWindowIntent
+        ACCESSIBILITY_PICK(
+                context -> isAccessibilityServiceEnabled(context, PickAccessibilityService.class),
+                PermissionHelper::buildAccessibilityIntent
         );
-        private final Function<Context, Boolean> checker;              //如何检查权限是否授予
+        private final Function<Context, Boolean> checker;       //如何检查权限是否授予
         private final Function<Context, Intent> intentBuilder;  //跳转权限界面所需的Intent构建器
 
         SpecialPermissionType(Function<Context, Boolean> c, Function<Context, Intent> i) {
@@ -434,7 +432,7 @@ public class PermissionHelper {
      * @param context 上下文
      * @return true 表示已开启
      */
-    private static boolean isAccessibilityServiceEnabled(@NonNull Context context) {
+    private static boolean isAccessibilityServiceEnabled(@NonNull Context context, Class<? extends AccessibilityService> serviceClass) {
         AccessibilityManager am = context.getSystemService(AccessibilityManager.class);
         if (am == null) return false;
 
@@ -444,7 +442,7 @@ public class PermissionHelper {
                         | AccessibilityServiceInfo.FEEDBACK_ALL_MASK);
 
         String packageName = context.getPackageName().toLowerCase();
-        String serviceId = AbAccessibilityService.class.getSimpleName().toLowerCase();
+        String serviceId = serviceClass.getSimpleName().toLowerCase();
 
         for (AccessibilityServiceInfo service : enabledServices) {
             String id = service.getId().toLowerCase();
@@ -453,16 +451,6 @@ public class PermissionHelper {
             }
         }
         return false;
-    }
-
-    /**
-     * 判断是否有悬浮窗权限
-     *
-     * @param context 上下文
-     * @return 是否拥有悬浮窗权限
-     */
-    private static boolean isAlertWindowGranted(Context context) {
-        return Settings.canDrawOverlays(context);
     }
 
     /**
@@ -559,20 +547,5 @@ public class PermissionHelper {
 
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         return intent;
-    }
-
-    /**
-     * 构建跳转到悬浮窗设置界面的意图
-     *
-     * @param context 上下文
-     * @return 跳转到悬浮窗设置界面的意图
-     */
-    @NonNull
-    @Contract("_ -> new")
-    private static Intent buildAlertWindowIntent(@NonNull Context context) {
-        return new Intent(
-                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:" + context.getPackageName())
-        );
     }
 }
