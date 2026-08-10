@@ -52,6 +52,15 @@ public interface RuleDao {
     Single<Optional<NotificationRuleWithDetailModel>> getNotificationRuleWithDetailSingleById(long ruleId);
 
     /**
+     * 通过编号获取规则数据
+     *
+     * @param id 规则编号
+     * @return 该编号对应的规则数据
+     */
+    @Query("SELECT * FROM notificationRules WHERE ruleId = :id")
+    Optional<NotificationRuleEntity> getNotificationRuleOptionalById(long id);
+
+    /**
      * 获取已启用的通知规则
      *
      * @return 已启用的通知规则，带有标签和转账账户等信息
@@ -139,6 +148,11 @@ public interface RuleDao {
     default void modifyNotificationRule(@NonNull NotificationRuleEntity rule, NotificationRuleTransferEntity transfer, List<Long> tagIdList) {
         long ruleId = rule.getRuleId();
 
+        //获取旧数据
+        Optional<NotificationRuleEntity> optional = getNotificationRuleOptionalById(ruleId);
+        optional.ifPresent(oldRule -> rule.setEnabled(oldRule.isEnabled()));
+
+        //更新数据
         updateNotificationRule(rule);
 
         //转账账户数据
