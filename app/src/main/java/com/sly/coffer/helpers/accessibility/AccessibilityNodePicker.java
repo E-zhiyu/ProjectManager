@@ -5,20 +5,25 @@ import android.graphics.Rect;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.sly.coffer.auxiliary.classes.PickResult;
 
 public final class AccessibilityNodePicker {
-
-    private AccessibilityNodePicker() {
-    }
-
+    /**
+     * 拾取视图
+     *
+     * @param service 无障碍服务
+     * @param x       x轴位置
+     * @param y       y轴位置
+     * @return 拾取到的无障碍节点
+     */
+    @Nullable
     public static PickResult pick(
-            AccessibilityService service,
+            @NonNull AccessibilityService service,
             float x,
             float y
     ) {
-
         AccessibilityNodeInfo root =
                 service.getRootInActiveWindow();
 
@@ -38,14 +43,23 @@ public final class AccessibilityNodePicker {
         return createResult(target, x, y);
     }
 
+    /**
+     * 找到层级最深的节点
+     *
+     * @param node 起始节点
+     * @param x    x轴位置
+     * @param y    y轴位置
+     * @return 层级最深的无障碍节点
+     */
     private static AccessibilityNodeInfo findDeepestNode(
             AccessibilityNodeInfo node,
             int x,
-            int y) {
-
+            int y
+    ) {
         if (node == null) {
             return null;
         }
+
         Rect bounds = new Rect();
         node.getBoundsInScreen(bounds);
         if (!bounds.contains(x, y)) {
@@ -74,9 +88,17 @@ public final class AccessibilityNodePicker {
             return bestChild;
         }
 
-        return AccessibilityNodeInfo.obtain(node);
+        return node;
     }
 
+    /**
+     * 生成拾取结果
+     *
+     * @param node 拾取到的节点
+     * @param x    x轴位置
+     * @param y    y轴位置
+     * @return 视图拾取结果
+     */
     @NonNull
     private static PickResult createResult(
             @NonNull AccessibilityNodeInfo node,
@@ -87,27 +109,6 @@ public final class AccessibilityNodePicker {
         result.y = y;
 
         result.viewId = node.getViewIdResourceName();
-        CharSequence className = node.getClassName();
-        if (className != null) {
-            result.className = className.toString();
-        }
-
-        CharSequence text = node.getText();
-        if (text != null) {
-            result.text = text.toString();
-        }
-
-        CharSequence description = node.getContentDescription();
-        if (description != null) {
-            result.contentDescription =
-                    description.toString();
-        }
-
-        result.clickable = node.isClickable();
-        result.enabled = node.isEnabled();
-        result.visible = node.isVisibleToUser();
-        result.bounds = new Rect();
-        node.getBoundsInScreen(result.bounds);
 
         CharSequence packageName = node.getPackageName();
         if (packageName != null) {

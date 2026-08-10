@@ -108,10 +108,6 @@ public class PickAccessibilityService extends AccessibilityService {
                 "package = " + result.packageName
                         + "\nactivity = " + result.activityName
                         + "\nviewId = " + result.viewId
-                        + "\nclass = " + result.className
-                        + "\ntext = " + result.text
-                        + "\ncontentDescription = " + result.contentDescription
-                        + "\nbounds = " + result.bounds
         );
 
         // TODO:

@@ -119,6 +119,7 @@ public class AbAccessibilityService extends AccessibilityService {
     private String extractTextByViewId(AccessibilityNodeInfo rootNode, String viewId) {
         if (TextUtils.isEmpty(viewId)) return null;
 
+        //TODO:加上位置匹配
         List<AccessibilityNodeInfo> nodes = rootNode.findAccessibilityNodeInfosByViewId(viewId);
         if (nodes != null && !nodes.isEmpty()) {
             for (AccessibilityNodeInfo node : nodes) {

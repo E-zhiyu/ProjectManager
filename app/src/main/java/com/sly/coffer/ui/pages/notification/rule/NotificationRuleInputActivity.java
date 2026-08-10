@@ -512,10 +512,10 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
                 contentRegexStr,
                 captureGroupPos
         );
-        NotificationRuleTransferEntity ruleTransfer = new NotificationRuleTransferEntity(exportAccount, importAccount);
+        NotificationRuleTransferEntity transfer = new NotificationRuleTransferEntity(exportAccount, importAccount);
         BookkeepingDb db = BookkeepingDb.getInstance(this);
         if (initBundle == null) {
-            disposable.add(RuleService.addNewNotificationRule(rule, ruleTransfer, tagIdList, db)
+            disposable.add(RuleService.addNewNotificationRule(rule, transfer, tagIdList, db)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(
@@ -529,7 +529,7 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
         } else {
             long ruleId = initBundle.getLong(KeyStrings.NOTIFICATION_RULE_ID.v());
             rule.setRuleId(ruleId);
-            disposable.add(RuleService.modifyNotificationRule(rule, ruleTransfer, tagIdList, db)
+            disposable.add(RuleService.modifyNotificationRule(rule, transfer, tagIdList, db)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(
