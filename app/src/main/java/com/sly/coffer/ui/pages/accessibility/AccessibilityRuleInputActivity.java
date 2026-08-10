@@ -178,8 +178,6 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                                     pickResult.activityName = rule.getTargetActivity();
                                     pickResult.packageName = rule.getPackageName();
                                     pickResult.viewId = rule.getViewId();
-                                    pickResult.x = rule.getPosX();
-                                    pickResult.y = rule.getPosY();
                                     viewModel.setPickResult(pickResult);
                                 }
                                 binding.viewIdText.setText(viewIdStr);                      //视图 ID
@@ -432,8 +430,6 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
         AccessibilityRuleInputViewModel viewModel = new ViewModelProvider(this).get(AccessibilityRuleInputViewModel.class);
         int typeOrdinal = viewModel.getType().ordinal();
         PickResult pickResult = viewModel.getPickResult();
-        float posX = pickResult.x;
-        float posY = pickResult.y;
         String packageName = pickResult.packageName;
         String activityName = pickResult.activityName;
         String viewId = pickResult.viewId;
@@ -451,9 +447,7 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                 typeOrdinal,
                 packageName,
                 activityName,
-                viewId,
-                posX,
-                posY
+                viewId
         );
         AccessibilityRuleTransferEntity transfer = new AccessibilityRuleTransferEntity(exportAccount, importAccount);
         BookkeepingDb db = BookkeepingDb.getInstance(this);

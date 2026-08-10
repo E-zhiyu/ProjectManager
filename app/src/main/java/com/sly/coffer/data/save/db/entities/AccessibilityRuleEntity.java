@@ -21,18 +21,14 @@ public class AccessibilityRuleEntity {
     private String packageName; //应用包名
     private String targetActivity;  //目标 Activity 的名称（可选）
     private String viewId;      //金额视图的 ID
-    private float posX;         //X轴上点击的位置
-    private float posY;         //Y轴上点击的位置
 
-    public AccessibilityRuleEntity(String name, int type, String packageName, String targetActivity, String viewId, float posX, float posY) {
+    public AccessibilityRuleEntity(String name, int type, String packageName, String targetActivity, String viewId) {
         this.name = name;
         this.type = type;
         this.enabled = true;
         this.packageName = packageName;
         this.targetActivity = targetActivity;
         this.viewId = viewId;
-        this.posX = posX;
-        this.posY = posY;
     }
 
     public long getRuleId() {
@@ -89,21 +85,5 @@ public class AccessibilityRuleEntity {
 
     public void setViewId(String viewId) {
         this.viewId = viewId;
-    }
-
-    public float getPosX() {
-        return posX;
-    }
-
-    public void setPosX(float posX) {
-        this.posX = posX;
-    }
-
-    public float getPosY() {
-        return posY;
-    }
-
-    public void setPosY(float posY) {
-        this.posY = posY;
     }
 }

@@ -75,8 +75,25 @@ public class AccessibilityRuleListActivity extends AppCompatActivity {
 
         //功能说明按钮
         binding.helpBtn.setOnClickListener(view -> {
-            //TODO:功能说明
-            final String EXPLANATION = "";
+            final String EXPLANATION = "### 1. 工作原理\n" +
+                    "开启无障碍自动记账时，本APP会：\n" +
+                    "\n" +
+                    "1. 识别当前屏幕的内容；\n" +
+                    "2. 根据已保存的规则尝试定位金额视图；\n" +
+                    "3. 提取视图中的数字作为金额，生成流水记录并发送通知反馈；\n" +
+                    "\n" +
+                    "### 2. 使用建议\n" +
+                    "\n" +
+                    "- 开启自启动权限，允许APP在手机在后台自动运行；\n" +
+                    "- 电池优化设为“无限制”，避免系统休眠时关闭APP的通知监听服务；\n" +
+                    "- 在最近任务列表中锁定APP，防止一键清理后台时被误杀，并提升后台保活优先级。\n" +
+                    "\n" +
+                    "> 此功能对性能影响较小，仅在目标应用中尝试解析屏幕内容。\n" +
+                    "\n" +
+                    "### 3. 免责声明\n" +
+                    "- 本功能**完全在本地运行**，所有通知数据仅用于金额提取和记账；\n" +
+                    "- **APP不会以任何形式收集、存储或上传您的通知内容、金额信息或任何个人数据**；\n" +
+                    "- 您创建的所有规则仅保存在本机，请您放心使用。";
             new MarkdownDialogBuilder(this, "功能介绍", EXPLANATION)
                     .setNegativeButton("关闭", null)
                     .show();

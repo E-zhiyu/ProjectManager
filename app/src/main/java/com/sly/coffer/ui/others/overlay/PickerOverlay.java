@@ -9,6 +9,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
+
 public class PickerOverlay {
 
     public interface OnPickListener {
@@ -26,7 +28,7 @@ public class PickerOverlay {
      * @param listener 拾取回调
      */
     public PickerOverlay(
-            AccessibilityService service,
+            @NonNull AccessibilityService service,
             OnPickListener listener
     ) {
         this.service = service;

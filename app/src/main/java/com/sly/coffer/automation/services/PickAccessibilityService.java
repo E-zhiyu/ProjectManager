@@ -44,8 +44,8 @@ public class PickAccessibilityService extends AccessibilityService {
         //获取包名
         CharSequence packageName = event.getPackageName();
         if (packageName == null) return;
-        String pkgName = packageName.toString();
-        Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "包名：" + pkgName);
+        currentPackageName = packageName.toString();
+        Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "包名：" + currentPackageName);
 
         //获取活动名
         if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
