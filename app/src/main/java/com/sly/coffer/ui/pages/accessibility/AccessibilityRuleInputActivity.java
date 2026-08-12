@@ -214,48 +214,11 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                                 TagMultiSelectViewModel tagMultiSelectViewModel = new ViewModelProvider(this).get(TagMultiSelectViewModel.class);
                                 tagMultiSelectViewModel.getCheckedTagIdSet().clear();
                                 tagMultiSelectViewModel.getCheckedTagIdSet().addAll(tagIdList);
-
-                                //显示金额选择文本
-                                showAmountSelect();
                             },
                             e -> ExceptionHelper.showExceptionDialog(this, e)
                     )
             );
         }
-
-        AccessibilityRuleInputViewModel viewModel =
-                new ViewModelProvider(this).get(AccessibilityRuleInputViewModel.class);
-        PickResult pickResult = viewModel.getPickResult();
-
-        //拾取的视图
-        String pkgStr = String.format(
-                Locale.getDefault(),
-                "%s : %s",
-                getString(R.string.package_name),
-                pickResult == null ? "<未设置>" : pickResult.packageName
-        );
-        binding.packageNameText.setText(pkgStr);
-        String activityStr = String.format(
-                Locale.getDefault(),
-                "%s : %s",
-                getString(R.string.activity_name),
-                pickResult == null ? "<未设置>" : pickResult.activityName
-        );
-        binding.activityNameText.setText(activityStr);
-        String viewIdStr = String.format(
-                Locale.getDefault(),
-                "%s : %s",
-                getString(R.string.view_id),
-                pickResult == null ? "<未设置>" : pickResult.viewId
-        );
-        binding.viewIdText.setText(viewIdStr);
-        String content = String.format(
-                Locale.getDefault(),
-                "%s : %s",
-                getString(R.string.str_content),
-                pickResult == null ? "<未设置>" : pickResult.content
-        );
-        binding.pickContentText.setText(content);
 
         //名称
         binding.nameInput.setOnFocusChangeListener((view, b) -> {
@@ -271,6 +234,8 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
         ImmHelper.showImm(binding.nameInput);
 
         //种类
+        AccessibilityRuleInputViewModel viewModel =
+                new ViewModelProvider(this).get(AccessibilityRuleInputViewModel.class);
         NoFilteringArrayAdapter<String> typeAdapter = new NoFilteringArrayAdapter<>(
                 this,
                 Arrays.stream(AccountType.values())
@@ -414,6 +379,79 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                 );
             }
         });
+
+        //金额文本选择
+        AccessibilityRuleInputViewModel ruleInputViewModel = new ViewModelProvider(this)
+                .get(AccessibilityRuleInputViewModel.class);
+        ruleInputViewModel.getPickResult().observe(this, result -> {
+            //拾取的视图
+            String pkgStr = String.format(
+                    Locale.getDefault(),
+                    "%s : %s",
+                    getString(R.string.package_name),
+                    result == null ? "<未设置>" : result.packageName
+            );
+            binding.packageNameText.setText(pkgStr);
+            String activityStr = String.format(
+                    Locale.getDefault(),
+                    "%s : %s",
+                    getString(R.string.activity_name),
+                    result == null ? "<未设置>" : result.activityName
+            );
+            binding.activityNameText.setText(activityStr);
+            String viewIdStr = String.format(
+                    Locale.getDefault(),
+                    "%s : %s",
+                    getString(R.string.view_id),
+                    result == null ? "<未设置>" : result.viewId
+            );
+            binding.viewIdText.setText(viewIdStr);
+            String content = String.format(
+                    Locale.getDefault(),
+                    "%s : %s",
+                    getString(R.string.str_content),
+                    result == null ? "<未设置>" : result.content
+            );
+            binding.pickContentText.setText(content);
+
+            if (result == null) {
+                VisibilityHelper.toggleViewExpansion(
+                        binding.scrollLayout,
+                        false,
+                        null,
+                        binding.amountSelectLayout
+                );
+            } else {
+                AccessibilityRuleInputViewModel viewModel = new ViewModelProvider(this).get(AccessibilityRuleInputViewModel.class);
+                int capturePos = viewModel.getCapturePos();
+
+                //填充 Chip
+                Pattern amountPattern = Pattern.compile("\\d+\\.?\\d{0,2}");
+                Matcher matcher = amountPattern.matcher(result.content);
+                int i = 1;
+                binding.amountSelectChipGroup.removeAllViews();
+                while (matcher.find()) {
+                    String amountText = matcher.group();
+
+                    int finalPosition = i;
+                    Chip amountChip = new Chip(this);
+                    amountChip.setCheckable(true);
+                    if (i == capturePos) {
+                        amountChip.setChecked(true);
+                    }
+                    amountChip.setText(amountText);
+                    amountChip.setCheckedIconVisible(true);
+                    amountChip.setOnCheckedChangeListener((compoundButton, b) -> {
+                        if (b) {
+                            viewModel.setCapturePos(finalPosition);
+                        }
+                    });
+                    binding.amountSelectChipGroup.addView(amountChip);
+
+                    i++;
+                }
+            }
+        });
     }
 
     /**
@@ -452,7 +490,11 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
         AccessibilityRuleInputViewModel viewModel = new ViewModelProvider(this).get(AccessibilityRuleInputViewModel.class);
         int typeOrdinal = viewModel.getType().ordinal();
         int capturePos = viewModel.getCapturePos();
-        PickResult pickResult = viewModel.getPickResult();
+        PickResult pickResult = viewModel.getPickResult().getValue();
+        if (pickResult == null) {
+            Toast.makeText(this, "尚未拾取视图", Toast.LENGTH_SHORT).show();
+            return;
+        }
         String packageName = pickResult.packageName;
         String activityName = pickResult.activityName;
         String viewId = pickResult.viewId;
@@ -510,46 +552,5 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                     )
             );
         }
-    }
-
-    /**
-     * 显示金额选择视图
-     */
-    private void showAmountSelect() {
-        AccessibilityRuleInputViewModel viewModel = new ViewModelProvider(this).get(AccessibilityRuleInputViewModel.class);
-        int capturePos = viewModel.getCapturePos();
-        PickResult pickResult = viewModel.getPickResult();
-
-        //填充 Chip
-        Pattern amountPattern = Pattern.compile("\\d+\\.?\\d{0,2}");
-        Matcher matcher = amountPattern.matcher(pickResult.content);
-        int i = 1;
-        while (matcher.find()) {
-            String amountText = matcher.group();
-
-            int finalPosition = i;
-            Chip amountChip = new Chip(this);
-            amountChip.setCheckable(true);
-            if (i == capturePos) {
-                amountChip.setChecked(true);
-            }
-            amountChip.setText(amountText);
-            amountChip.setCheckedIconVisible(true);
-            amountChip.setOnCheckedChangeListener((compoundButton, b) -> {
-                if (b) {
-                    viewModel.setCapturePos(finalPosition);
-                }
-            });
-            binding.amountSelectChipGroup.addView(amountChip);
-
-            i++;
-        }
-
-        VisibilityHelper.toggleViewExpansion(
-                binding.scrollLayout,
-                true,
-                null,
-                binding.amountSelectLayout
-        );
     }
 }

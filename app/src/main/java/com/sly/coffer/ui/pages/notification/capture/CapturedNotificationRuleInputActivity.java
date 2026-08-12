@@ -154,6 +154,7 @@ public class CapturedNotificationRuleInputActivity extends AppCompatActivity {
                                 Pattern amountPattern = Pattern.compile("\\d+\\.?\\d{0,2}");
                                 Matcher matcher = amountPattern.matcher(content);
                                 int i = 1;
+                                binding.amountSelectChipGroup.removeAllViews();
                                 while (matcher.find()) {
                                     String amountText = matcher.group();
 

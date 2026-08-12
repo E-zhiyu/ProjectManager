@@ -19,14 +19,6 @@ public class PickAccessibilityService extends AccessibilityService {
     private String currentActivityName;
     private String currentPackageName;
 
-    public String getCurrentActivityName() {
-        return currentActivityName;
-    }
-
-    public String getCurrentPackageName() {
-        return currentPackageName;
-    }
-
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
@@ -72,7 +64,7 @@ public class PickAccessibilityService extends AccessibilityService {
                 this,
                 (x, y) -> {
                     PickResult result = AccessibilityNodePicker.pick(
-                            PickAccessibilityService.this,
+                            this,
                             x,
                             y
                     );
