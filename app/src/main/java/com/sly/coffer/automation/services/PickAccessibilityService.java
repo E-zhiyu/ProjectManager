@@ -124,5 +124,6 @@ public class PickAccessibilityService extends AccessibilityService {
         // root.findAccessibilityNodeInfosByViewId(viewId)
         //
         // 然后读取 text。
+        //TODO:添加实际的拾取逻辑
     }
 }

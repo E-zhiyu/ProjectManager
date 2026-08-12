@@ -9,7 +9,7 @@ import androidx.annotation.Nullable;
 
 import com.sly.coffer.auxiliary.classes.PickResult;
 
-public final class AccessibilityNodePicker {
+public class AccessibilityNodePicker {
     /**
      * 拾取视图
      *
@@ -40,7 +40,7 @@ public final class AccessibilityNodePicker {
             return null;
         }
 
-        return createResult(target, x, y);
+        return createResult(target);
     }
 
     /**
@@ -95,20 +95,14 @@ public final class AccessibilityNodePicker {
      * 生成拾取结果
      *
      * @param node 拾取到的节点
-     * @param x    x轴位置
-     * @param y    y轴位置
      * @return 视图拾取结果
      */
     @NonNull
-    private static PickResult createResult(
-            @NonNull AccessibilityNodeInfo node,
-            float x,
-            float y) {
+    private static PickResult createResult(@NonNull AccessibilityNodeInfo node) {
         PickResult result = new PickResult();
-        result.x = x;
-        result.y = y;
 
         result.viewId = node.getViewIdResourceName();
+        result.content = node.getContentDescription().toString();
 
         CharSequence packageName = node.getPackageName();
         if (packageName != null) {

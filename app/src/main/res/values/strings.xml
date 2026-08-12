@@ -184,6 +184,7 @@
     <string name="btn_select">选择按钮</string>
     <string name="activity_name">界面名称</string>
     <string name="view_id">视图标识符</string>
+    <string name="str_content">文本内容</string>
     <string-array name="tips_array">
         <item>如果设置了自动备份目录，进行软件更新时会自动备份一次。</item>
         <item>长按某条搜索历史可以删除它。</item>

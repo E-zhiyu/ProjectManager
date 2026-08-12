@@ -14,6 +14,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.chip.Chip;
 import com.sly.coffer.R;
 import com.sly.coffer.auxiliary.classes.PickResult;
 import com.sly.coffer.auxiliary.enums.AccountType;
@@ -41,6 +42,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -150,7 +153,6 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                                 binding.nameInput.setText(rule.getName());                  //名称
                                 viewModel.setType(AccountType.values()[rule.getType()]);
                                 binding.typeInput.setText(viewModel.getType().getTitle());  //种类
-                                String viewIdStr = null;
                                 if (viewModel.getPickResult() == null) {    //仅没有设置拾取时才填充
                                     String pkgStr = String.format(
                                             Locale.getDefault(),
@@ -166,21 +168,31 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                                             rule.getTargetActivity().isEmpty() ? "<未设置>" : rule.getTargetActivity()
                                     );
                                     binding.activityNameText.setText(activityStr);              //活动名
-                                    viewIdStr = String.format(
+                                    String viewIdStr = String.format(
                                             Locale.getDefault(),
                                             "%s : %s",
                                             getString(R.string.view_id),
                                             rule.getViewId().isEmpty() ? "<未设置>" : rule.getViewId()
                                     );
+                                    binding.viewIdText.setText(viewIdStr);                      //视图 ID
+                                    String originContent = String.format(
+                                            Locale.getDefault(),
+                                            "%s : %s",
+                                            getString(R.string.str_content),
+                                            rule.getOriginContent().isEmpty() ? "<未设置>" : rule.getOriginContent()
+                                    );
+                                    binding.pickContentText.setText(originContent);             //内容文本
 
                                     //填充拾取结果
                                     PickResult pickResult = new PickResult();
                                     pickResult.activityName = rule.getTargetActivity();
                                     pickResult.packageName = rule.getPackageName();
                                     pickResult.viewId = rule.getViewId();
+                                    pickResult.content = rule.getOriginContent();
                                     viewModel.setPickResult(pickResult);
+
+                                    viewModel.setCapturePos(rule.getCapturePos());
                                 }
-                                binding.viewIdText.setText(viewIdStr);                      //视图 ID
                                 if (viewModel.getType() == AccountType.TRANSFER) {
                                     binding.exportAccountLayout.setVisibility(View.VISIBLE);
                                     binding.importAccountLayout.setVisibility(View.VISIBLE);
@@ -202,6 +214,9 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                                 TagMultiSelectViewModel tagMultiSelectViewModel = new ViewModelProvider(this).get(TagMultiSelectViewModel.class);
                                 tagMultiSelectViewModel.getCheckedTagIdSet().clear();
                                 tagMultiSelectViewModel.getCheckedTagIdSet().addAll(tagIdList);
+
+                                //显示金额选择文本
+                                showAmountSelect();
                             },
                             e -> ExceptionHelper.showExceptionDialog(this, e)
                     )
@@ -234,6 +249,13 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                 pickResult == null ? "<未设置>" : pickResult.viewId
         );
         binding.viewIdText.setText(viewIdStr);
+        String content = String.format(
+                Locale.getDefault(),
+                "%s : %s",
+                getString(R.string.str_content),
+                pickResult == null ? "<未设置>" : pickResult.content
+        );
+        binding.pickContentText.setText(content);
 
         //名称
         binding.nameInput.setOnFocusChangeListener((view, b) -> {
@@ -429,10 +451,12 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
         String name = String.valueOf(binding.nameInput.getText()).trim();
         AccessibilityRuleInputViewModel viewModel = new ViewModelProvider(this).get(AccessibilityRuleInputViewModel.class);
         int typeOrdinal = viewModel.getType().ordinal();
+        int capturePos = viewModel.getCapturePos();
         PickResult pickResult = viewModel.getPickResult();
         String packageName = pickResult.packageName;
         String activityName = pickResult.activityName;
         String viewId = pickResult.viewId;
+        String originContent = pickResult.content;
         String exportAccount = String.valueOf(binding.exportAccountInput.getText()).trim();
         String importAccount = String.valueOf(binding.importAccountInput.getText()).trim();
 
@@ -441,13 +465,21 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                 .map(TagEntity::getTagId)
                 .collect(Collectors.toList());
 
+        //生成内容正则表达式
+        final String REGEX = "\\d+\\.?\\d{0,2}";
+        final String REPLACEMENT = "(\\\\d+\\\\.?\\\\d{0,2})";
+        String contentRegex = originContent.replaceAll(REGEX, REPLACEMENT);
+
         //保存数据
         AccessibilityRuleEntity rule = new AccessibilityRuleEntity(
                 name,
                 typeOrdinal,
                 packageName,
                 activityName,
-                viewId
+                viewId,
+                originContent,
+                contentRegex,
+                capturePos
         );
         AccessibilityRuleTransferEntity transfer = new AccessibilityRuleTransferEntity(exportAccount, importAccount);
         BookkeepingDb db = BookkeepingDb.getInstance(this);
@@ -478,5 +510,46 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                     )
             );
         }
+    }
+
+    /**
+     * 显示金额选择视图
+     */
+    private void showAmountSelect() {
+        AccessibilityRuleInputViewModel viewModel = new ViewModelProvider(this).get(AccessibilityRuleInputViewModel.class);
+        int capturePos = viewModel.getCapturePos();
+        PickResult pickResult = viewModel.getPickResult();
+
+        //填充 Chip
+        Pattern amountPattern = Pattern.compile("\\d+\\.?\\d{0,2}");
+        Matcher matcher = amountPattern.matcher(pickResult.content);
+        int i = 1;
+        while (matcher.find()) {
+            String amountText = matcher.group();
+
+            int finalPosition = i;
+            Chip amountChip = new Chip(this);
+            amountChip.setCheckable(true);
+            if (i == capturePos) {
+                amountChip.setChecked(true);
+            }
+            amountChip.setText(amountText);
+            amountChip.setCheckedIconVisible(true);
+            amountChip.setOnCheckedChangeListener((compoundButton, b) -> {
+                if (b) {
+                    viewModel.setCapturePos(finalPosition);
+                }
+            });
+            binding.amountSelectChipGroup.addView(amountChip);
+
+            i++;
+        }
+
+        VisibilityHelper.toggleViewExpansion(
+                binding.scrollLayout,
+                true,
+                null,
+                binding.amountSelectLayout
+        );
     }
 }

@@ -21,14 +21,20 @@ public class AccessibilityRuleEntity {
     private String packageName; //应用包名
     private String targetActivity;  //目标 Activity 的名称（可选）
     private String viewId;      //金额视图的 ID
+    private String originContent;   //原始内容文本
+    private String contentRegex;    //完全匹配内容文本的正则表达式
+    private int capturePos;     //金额捕获组位置
 
-    public AccessibilityRuleEntity(String name, int type, String packageName, String targetActivity, String viewId) {
+    public AccessibilityRuleEntity(String name, int type, String packageName, String targetActivity, String viewId, String originContent, String contentRegex, int capturePos) {
         this.name = name;
         this.type = type;
+        this.capturePos = capturePos;
         this.enabled = true;
         this.packageName = packageName;
         this.targetActivity = targetActivity;
         this.viewId = viewId;
+        this.originContent = originContent;
+        this.contentRegex = contentRegex;
     }
 
     public long getRuleId() {
@@ -85,5 +91,29 @@ public class AccessibilityRuleEntity {
 
     public void setViewId(String viewId) {
         this.viewId = viewId;
+    }
+
+    public String getOriginContent() {
+        return originContent;
+    }
+
+    public void setOriginContent(String originContent) {
+        this.originContent = originContent;
+    }
+
+    public String getContentRegex() {
+        return contentRegex;
+    }
+
+    public void setContentRegex(String contentRegex) {
+        this.contentRegex = contentRegex;
+    }
+
+    public int getCapturePos() {
+        return capturePos;
+    }
+
+    public void setCapturePos(int capturePos) {
+        this.capturePos = capturePos;
     }
 }
