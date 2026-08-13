@@ -13,6 +13,7 @@ import com.sly.coffer.auxiliary.enums.AccountType;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleEntity;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleTagRefEntity;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleTransferEntity;
+import com.sly.coffer.data.save.db.entities.PickedView;
 import com.sly.coffer.data.save.db.entities.composite.AccessibilityRuleWithDetailModel;
 
 import java.util.List;
@@ -126,6 +127,7 @@ public interface AccessibilityRuleDao {
 
     /**
      * 更新无障碍规则
+     *
      * @param rule 更新后的无障碍规则
      */
     @Update
@@ -133,6 +135,7 @@ public interface AccessibilityRuleDao {
 
     /**
      * 通过规则编号删除转账账户数据
+     *
      * @param ruleId 规则编号
      */
     @Query("DELETE FROM accessibilityRuleTransfers WHERE ruleId = :ruleId")
@@ -140,6 +143,7 @@ public interface AccessibilityRuleDao {
 
     /**
      * 通过规则编号删除标签映射
+     *
      * @param ruleId 规则编号
      */
     @Query("DELETE FROM accessibilityRuleTagRef WHERE ruleId = :ruleId")
@@ -158,7 +162,7 @@ public interface AccessibilityRuleDao {
 
         //获取旧数据
         Optional<AccessibilityRuleEntity> optional = getAccessibilityRuleOptionalById(ruleId);
-        optional.ifPresent(oldRule->rule.setEnabled(oldRule.isEnabled()));
+        optional.ifPresent(oldRule -> rule.setEnabled(oldRule.isEnabled()));
 
         //更新规则
         updateAccessibilityRule(rule);
@@ -176,5 +180,53 @@ public interface AccessibilityRuleDao {
                 .map(id -> new AccessibilityRuleTagRefEntity(ruleId, id))
                 .collect(Collectors.toList());
         insertAccessibilityTagRef(tagRefList);
+    }
+
+    /**
+     * 插入拾取的视图记录
+     *
+     * @param view 需要插入的视图记录
+     * @return 自动分配的编号
+     */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    long insertPickedView(PickedView view);
+
+    /**
+     * 获取拾取的视图总数
+     *
+     * @return 拾取的视图总数
+     */
+    @Query("SELECT COUNT(*) FROM pickedViews")
+    Single<Integer> getPickedViewCountSingle();
+
+    /**
+     * 通过包名、活动名和视图 ID 获取旧视图数据
+     *
+     * @param packageName  应用包名
+     * @param activityName 视图所在界面的活动名
+     * @param viewId       视图在布局中的 ID
+     * @return 旧视图数据
+     */
+    @Query("SELECT * FROM pickedViews WHERE packageName = :packageName AND activityName = :activityName AND viewId = :viewId")
+    Optional<PickedView> getOldPickedView(String packageName, String activityName, String viewId);
+
+    /**
+     * 添加拾取的视图
+     *
+     * @param view 需要添加的视图记录
+     * @return 为新视图记录分配的编号
+     */
+    @Transaction
+    default long addPickedView(@NonNull PickedView view) {
+        String packageName = view.getPackageName();
+        String activityName = view.getActivityName();
+        String viewId = view.getViewId();
+
+        //获取旧数据
+        Optional<PickedView> optional = getOldPickedView(packageName, activityName, viewId);
+        optional.ifPresent(oldView -> view.setRemark(oldView.getRemark()));
+
+        //插入数据
+        return insertPickedView(view);
     }
 }
