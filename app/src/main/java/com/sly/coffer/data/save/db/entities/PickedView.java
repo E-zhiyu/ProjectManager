@@ -1,5 +1,6 @@
 package com.sly.coffer.data.save.db.entities;
 
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
@@ -9,16 +10,19 @@ import java.time.LocalDateTime;
 @Entity(
         tableName = "pickedViews",
         indices = {
-                @Index(value = "packageName")
+                @Index(value = {"viewId", "packageName", "activityName"}, unique = true)
         }
 )
 public class PickedView {
     @PrimaryKey(autoGenerate = true)
     private long Id;                //主键
     private String remark;          //备注
+    @ColumnInfo(defaultValue = "")
     private String viewId;          //视图ID
     private String describeContent; //描述文本
+    @ColumnInfo(defaultValue = "")
     private String packageName;     //应用包名
+    @ColumnInfo(defaultValue = "")
     private String activityName;    //活动名称
     private LocalDateTime dateTime; //拾取的时间
 
