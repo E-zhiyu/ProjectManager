@@ -36,6 +36,8 @@ import com.sly.coffer.data.save.preference.AppSettingsPreference;
 import com.sly.coffer.auxiliary.enums.LogTags;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 
+import org.jetbrains.annotations.Contract;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -86,6 +88,11 @@ public class PermissionHelper {
         ACCESSIBILITY_PICK(
                 context -> isAccessibilityServiceEnabled(context, PickAccessibilityService.class),
                 PermissionHelper::buildAccessibilityIntent
+        ),
+        //显示悬浮窗
+        ALERT_WINDOW(
+                PermissionHelper::isAlertWindowGranted,
+                PermissionHelper::buildAlertWindowIntent
         );
         private final Function<Context, Boolean> checker;       //如何检查权限是否授予
         private final Function<Context, Intent> intentBuilder;  //跳转权限界面所需的Intent构建器
@@ -454,6 +461,16 @@ public class PermissionHelper {
     }
 
     /**
+     * 判断是否有悬浮窗权限
+     *
+     * @param context 上下文
+     * @return 是否拥有悬浮窗权限
+     */
+    private static boolean isAlertWindowGranted(Context context) {
+        return Settings.canDrawOverlays(context);
+    }
+
+    /**
      * 判断是否能够跳转到原生忽略电池优化白名单界面
      *
      * @return 是否能跳转原生界面
@@ -547,5 +564,20 @@ public class PermissionHelper {
 
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         return intent;
+    }
+
+    /**
+     * 构建跳转到悬浮窗设置界面的意图
+     *
+     * @param context 上下文
+     * @return 跳转到悬浮窗设置界面的意图
+     */
+    @NonNull
+    @Contract("_ -> new")
+    private static Intent buildAlertWindowIntent(@NonNull Context context) {
+        return new Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:" + context.getPackageName())
+        );
     }
 }

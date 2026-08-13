@@ -43,7 +43,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                     }
             );
     private SettingClickableTextView camera, appList, notification, notificationListener, battery, alarm;
-    private SettingClickableTextView autoBookkeeping, pick;
+    private SettingClickableTextView autoBookkeeping, pick, alertWindow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -262,7 +262,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                 R.string.alarm_permission,
                 "允许设置定时任务",
                 R.drawable.outline_alarm_24,
-                RadiusStyle.BOTTOM
+                RadiusStyle.MIDDLE
         );
         alarm.setFunctionListener(v -> showExplanationDialog(
                 R.string.alarm_permission,
@@ -272,6 +272,26 @@ public class PermissionManageActivity extends AppCompatActivity {
                     SlyCoffer.lockLifecycleObserver();
                     Intent skip2ExactAlarm = PermissionHelper.SpecialPermissionType.ALARM.getIntent(this);
                     startActivity(skip2ExactAlarm);
+                }
+        ));
+
+        //悬浮窗权限
+        alertWindow = new SettingClickableTextView(
+                this,
+                binding.alertWindowOption,
+                R.string.alert_window_permission,
+                "允许显示悬浮窗",
+                R.drawable.outline_select_window_24,
+                RadiusStyle.BOTTOM
+        );
+        alertWindow.setFunctionListener(view -> showExplanationDialog(
+                R.string.alert_window_permission,
+                "该权限允许应用显示悬浮在所有应用顶部的悬浮窗，应用范围如下：\n" +
+                        "- 录入无障碍规则时显示用于选择金额视图的悬浮窗\n",
+                () -> {
+                    SlyCoffer.lockLifecycleObserver();
+                    Intent intent = PermissionHelper.SpecialPermissionType.ALERT_WINDOW.getIntent(this);
+                    startActivity(intent);
                 }
         ));
 
@@ -379,6 +399,10 @@ public class PermissionManageActivity extends AppCompatActivity {
         //精确闹钟权限
         boolean isAlarmGranted = PermissionHelper.SpecialPermissionType.ALARM.isGranted(this);
         alarm.getFunctionComponent().setText(isAlarmGranted ? GRANTED : NOT_GRANTED);
+
+        //悬浮窗权限
+        boolean isAlertWindowGranted = PermissionHelper.SpecialPermissionType.ALERT_WINDOW.isGranted(this);
+        alertWindow.getFunctionComponent().setText(isAlertWindowGranted ? GRANTED : NOT_GRANTED);
 
         //无障碍自动记账服务
         boolean isAccessibilityBookkeepingGranted = PermissionHelper.SpecialPermissionType.ACCESSIBILITY_BOOKKEEPING.isGranted(this);
