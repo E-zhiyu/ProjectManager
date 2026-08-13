@@ -1,4 +1,4 @@
-package com.sly.coffer.ui.pages.accessibility;
+package com.sly.coffer.ui.pages.accessibility.rule;
 
 import android.view.LayoutInflater;
 import android.view.View;

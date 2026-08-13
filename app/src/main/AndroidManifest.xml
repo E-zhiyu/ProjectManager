@@ -112,7 +112,7 @@
             android:parentActivityName=".ui.pages.notification.capture.NotificationCaptureListActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.pages.accessibility.AccessibilityRuleListActivity"
+            android:name=".ui.pages.accessibility.rule.AccessibilityRuleListActivity"
             android:exported="false"
             android:parentActivityName=".ui.pages.main.MainActivity"
             android:windowSoftInputMode="adjustResize" />
@@ -199,7 +199,7 @@
         </service>
 
         <activity
-            android:name=".ui.pages.accessibility.AccessibilityRuleInputActivity"
+            android:name=".ui.pages.accessibility.rule.AccessibilityRuleInputActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
     </application>

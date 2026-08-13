@@ -1,4 +1,4 @@
-package com.sly.coffer.ui.pages.accessibility;
+package com.sly.coffer.ui.pages.accessibility.rule;
 
 import android.content.Intent;
 import android.os.Bundle;
