@@ -6,29 +6,36 @@
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
-
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
     </queries>
-
-    <uses-permission android:name="com.android.permission.GET_INSTALLED_APPS" /> <!-- 读取应用列表权限 -->
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" /> <!-- 闹钟设置权限 -->
-    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" /> <!-- 请求忽略电池优化 -->
+    <!-- 读取应用列表权限 -->
+    <uses-permission android:name="com.android.permission.GET_INSTALLED_APPS" />
+    <!-- 闹钟设置权限 -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!-- 请求忽略电池优化 -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <!-- 通知使用权限 -->
     <uses-permission
         android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
-        tools:ignore="ProtectedPermissions" /> <!-- 通知使用权限 -->
+        tools:ignore="ProtectedPermissions" />
+    <!-- 安装APK权限 -->
     <uses-permission
         android:name="android.permission.REQUEST_INSTALL_PACKAGES"
-        tools:ignore="RequestInstallPackagesPolicy" /> <!-- 安装APK权限 -->
-    <uses-permission android:name="android.permission.INTERNET" /> <!-- 网络权限 -->
-    <uses-permission android:name="android.permission.CAMERA" /> <!-- 相机权限 -->
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> <!-- 开机监听权限 -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" /> <!-- 通知权限 -->
-    <uses-permission android:name="android.permission.USE_BIOMETRIC" /> <!-- 生物验证权限 -->
-    <uses-feature android:name="android.hardware.camera.any" />
+        tools:ignore="RequestInstallPackagesPolicy" />
+    <!-- 网络权限 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 相机权限 -->
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature
         android:name="android.hardware.camera"
-        android:required="false" />
+        android:required="true" />
+    <!-- 开机监听权限 -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- 通知权限 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- 生物验证权限 -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 
     <application
         android:name=".SlyCoffer"
