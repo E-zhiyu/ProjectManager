@@ -33,7 +33,6 @@ import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.helpers.appearence.VisibilityHelper;
 import com.sly.coffer.ui.others.adapters.NoFilteringArrayAdapter;
 import com.sly.coffer.ui.others.bottom.TagSelectBottomSheet;
-import com.sly.coffer.ui.others.viewmodel.input.CNRInputViewModel;
 import com.sly.coffer.ui.others.viewmodel.TagMultiSelectViewModel;
 import com.sly.coffer.ui.pages.main.bookkeeping.AccountTagAdapter;
 

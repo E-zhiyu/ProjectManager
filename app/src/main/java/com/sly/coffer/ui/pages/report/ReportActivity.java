@@ -28,7 +28,6 @@ import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.helpers.appearence.VisibilityHelper;
 import com.sly.coffer.helpers.time.DateTimePickerHelper;
-import com.sly.coffer.ui.others.viewmodel.ReportViewModel;
 
 import org.jetbrains.annotations.Contract;
 

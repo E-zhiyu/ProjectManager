@@ -1,4 +1,4 @@
-package com.sly.coffer.ui.others.viewmodel.input;
+package com.sly.coffer.ui.pages.accessibility.rule;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
