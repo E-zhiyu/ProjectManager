@@ -36,7 +36,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class NotificationRuleListActivity extends AppCompatActivity {
-    private ActivityNotificationRuleListBinding binding;                                    //绑定的 XML 布局
+    private ActivityNotificationRuleListBinding binding;    //绑定的 XML 布局
     private final CompositeDisposable disposable = new CompositeDisposable();
 
     @Override
@@ -209,8 +209,6 @@ public class NotificationRuleListActivity extends AppCompatActivity {
      */
     private void addPermissionRequests() {
         PermissionHelper permissionHelper = new PermissionHelper(this);   //权限申请帮助器
-
-        //添加权限申请
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissionHelper.addPermission(
                     Manifest.permission.POST_NOTIFICATIONS,

@@ -22,6 +22,7 @@ import com.sly.coffer.data.save.preference.SearchHistoryPreference;
 import com.sly.coffer.databinding.ActivityPickedViewListBinding;
 import com.sly.coffer.helpers.BackPressedCallbackHelper;
 import com.sly.coffer.helpers.ExceptionHelper;
+import com.sly.coffer.helpers.PermissionHelper;
 import com.sly.coffer.helpers.SearchHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.helpers.appearence.VisibilityHelper;
@@ -55,6 +56,7 @@ public class PickedViewListActivity extends AppCompatActivity {
         });
 
         initViews();
+        addPermissionRequests();
         observeLiveData();
         initBackHandlers();
     }
@@ -77,7 +79,7 @@ public class PickedViewListActivity extends AppCompatActivity {
                 binding.searchView,
                 binding.searchHistoryRecycler,
                 binding.clearHistoryBtn,
-                SearchHistoryPreference.KEY_CAPTURED_NOTIFICATION,
+                SearchHistoryPreference.KEY_PICKED_VIEW,
                 keyword -> {
                     PickedViewViewModel viewModel = new ViewModelProvider(this).get(PickedViewViewModel.class);
                     viewModel.executeSearch(keyword.trim());
@@ -131,9 +133,25 @@ public class PickedViewListActivity extends AppCompatActivity {
 
         //添加按钮
         binding.addFab.setOnClickListener(view -> {
+            if (!PermissionHelper.SpecialPermissionType.ACCESSIBILITY_PICK.isGranted(this)) {
+                Toast.makeText(this, "请开启无障碍中的“自动记账-视图拾取”服务", Toast.LENGTH_SHORT).show();
+                return;
+            }
             //TODO:添加按钮
         });
         AppearanceHelper.attachMorphAnimation(binding.addFab);
+    }
+
+    /**
+     * 添加权限请求
+     */
+    private void addPermissionRequests() {
+        PermissionHelper helper = new PermissionHelper(this);
+        helper.addPermission(
+                PermissionHelper.SpecialPermissionType.ACCESSIBILITY_PICK,
+                "视图拾取服务",
+                "请开启无障碍中的“自动记账-视图拾取”服务，以允许APP获取点击屏幕的位置并保存点击的视图的信息。"
+        );
     }
 
     /**

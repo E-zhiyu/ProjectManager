@@ -21,6 +21,7 @@ import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleEntity;
 import com.sly.coffer.databinding.ActivityAccessibilityRuleListBinding;
 import com.sly.coffer.helpers.ExceptionHelper;
+import com.sly.coffer.helpers.PermissionHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 
@@ -49,6 +50,7 @@ public class AccessibilityRuleListActivity extends AppCompatActivity {
         });
 
         initViews();
+        addPermissionRequests();
     }
 
     @Override
@@ -162,6 +164,18 @@ public class AccessibilityRuleListActivity extends AppCompatActivity {
                         },
                         e -> ExceptionHelper.showExceptionDialog(this, e)
                 )
+        );
+    }
+
+    /**
+     * 添加权限请求
+     */
+    private void addPermissionRequests() {
+        PermissionHelper helper = new PermissionHelper(this);
+        helper.addPermission(
+                PermissionHelper.SpecialPermissionType.ACCESSIBILITY_BOOKKEEPING,
+                "无障碍记账服务",
+                "请开启无障碍中的“自动记账”服务，以允许APP识别屏幕内容实现自动记账。"
         );
     }
 
