@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
                 @Index(value = {"viewId", "packageName", "activityName"}, unique = true)
         }
 )
-public class PickedView {
+public class PickedViewEntity {
     @PrimaryKey(autoGenerate = true)
     private long Id;                //主键
     private String remark;          //备注
@@ -22,15 +22,17 @@ public class PickedView {
     private String describeContent; //描述文本
     @ColumnInfo(defaultValue = "")
     private String packageName;     //应用包名
+    private String appName;         //应用名称
     @ColumnInfo(defaultValue = "")
     private String activityName;    //活动名称
     private LocalDateTime dateTime; //拾取的时间
 
-    public PickedView(String remark, String viewId, String describeContent, String packageName, String activityName, LocalDateTime dateTime) {
+    public PickedViewEntity(String remark, String viewId, String describeContent, String packageName, String appName, String activityName, LocalDateTime dateTime) {
         this.remark = remark;
         this.viewId = viewId;
         this.describeContent = describeContent;
         this.packageName = packageName;
+        this.appName = appName;
         this.activityName = activityName;
         this.dateTime = dateTime;
     }
@@ -73,6 +75,14 @@ public class PickedView {
 
     public void setPackageName(String packageName) {
         this.packageName = packageName;
+    }
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
     }
 
     public String getActivityName() {

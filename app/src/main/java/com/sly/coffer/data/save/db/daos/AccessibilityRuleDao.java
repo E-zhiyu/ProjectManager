@@ -13,7 +13,7 @@ import com.sly.coffer.auxiliary.enums.AccountType;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleEntity;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleTagRefEntity;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleTransferEntity;
-import com.sly.coffer.data.save.db.entities.PickedView;
+import com.sly.coffer.data.save.db.entities.PickedViewEntity;
 import com.sly.coffer.data.save.db.entities.composite.AccessibilityRuleWithDetailModel;
 
 import java.util.List;
@@ -189,7 +189,7 @@ public interface AccessibilityRuleDao {
      * @return 自动分配的编号
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    long insertPickedView(PickedView view);
+    long insertPickedView(PickedViewEntity view);
 
     /**
      * 获取拾取的视图总数
@@ -208,7 +208,15 @@ public interface AccessibilityRuleDao {
      * @return 旧视图数据
      */
     @Query("SELECT * FROM pickedViews WHERE packageName = :packageName AND activityName = :activityName AND viewId = :viewId")
-    Optional<PickedView> getOldPickedView(String packageName, String activityName, String viewId);
+    Optional<PickedViewEntity> getOldPickedView(String packageName, String activityName, String viewId);
+
+    /**
+     * 更新拾取的视图
+     *
+     * @param view 更新后的拾取的视图
+     */
+    @Update
+    void updatePickedView(PickedViewEntity view);
 
     /**
      * 添加拾取的视图
@@ -217,16 +225,50 @@ public interface AccessibilityRuleDao {
      * @return 为新视图记录分配的编号
      */
     @Transaction
-    default long addPickedView(@NonNull PickedView view) {
+    default long addPickedView(@NonNull PickedViewEntity view) {
         String packageName = view.getPackageName();
         String activityName = view.getActivityName();
         String viewId = view.getViewId();
 
         //获取旧数据
-        Optional<PickedView> optional = getOldPickedView(packageName, activityName, viewId);
-        optional.ifPresent(oldView -> view.setRemark(oldView.getRemark()));
+        Optional<PickedViewEntity> optional = getOldPickedView(packageName, activityName, viewId);
 
-        //插入数据
-        return insertPickedView(view);
+        //写入数据
+        if (optional.isEmpty()) {
+            return insertPickedView(view);
+        } else {
+            PickedViewEntity oldView = optional.get();
+            view.setId(oldView.getId());
+            view.setRemark(oldView.getRemark());
+            updatePickedView(view);
+            return oldView.getId();
+        }
     }
+
+    /**
+     * s拿出拾取的视图
+     *
+     * @param view 需要删除的视图
+     * @return 是否完成
+     */
+    @Delete
+    Completable deletePickedViewCompletable(PickedViewEntity view);
+
+
+    /**
+     * 获取所有符合搜索条件的拾取的视图
+     *
+     * @param keyword         搜索关键词
+     * @param useSearchFilter 是否需要过滤搜索条件
+     * @return 拾取的视图列表，支持响应式更新
+     */
+    @Query(
+            "SELECT * FROM pickedViews " +
+                    "WHERE :useSearchFilter = 0 " +
+                    "OR remark LIKE '%' || :keyword || '%' ESCAPE '/' " +
+                    "OR appName LIKE '%' || :keyword || '%' ESCAPE '/' " +
+                    "OR viewId LIKE '%' || :keyword || '%' ESCAPE '/' " +
+                    "OR activityName LIKE '%' || :keyword || '%' ESCAPE '/' "
+    )
+    Flowable<List<PickedViewEntity>> getAllPickedViewFlowable(String keyword, int useSearchFilter);
 }

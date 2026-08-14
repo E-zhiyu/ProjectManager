@@ -1,11 +1,11 @@
-package com.sly.coffer.ui.others.viewmodel;
+package com.sly.coffer.ui.pages.accessibility.pick;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.sly.coffer.data.save.db.BookkeepingDb;
-import com.sly.coffer.data.save.db.entities.composite.ui.CapturedNotificationUiModel;
-import com.sly.coffer.data.save.db.services.CapturedNotificationService;
+import com.sly.coffer.data.save.db.entities.composite.ui.PickedViewUiModel;
+import com.sly.coffer.data.save.db.services.AccessibilityRuleService;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -15,7 +15,7 @@ import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.processors.BehaviorProcessor;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class CapturedNotificationViewModel extends ViewModel {
+public class PickedViewViewModel extends ViewModel {
     private final MutableLiveData<Void> filterUpdatedLiveData = new MutableLiveData<>();    //提醒宿主更新 UI 的 LiveData
     private final BehaviorProcessor<String> searchKeywordProcessor =
             BehaviorProcessor.createDefault("");    //搜索关键词处理器
@@ -30,11 +30,11 @@ public class CapturedNotificationViewModel extends ViewModel {
      * @param db 数据库实例
      * @return 角色数据列表，包含分隔符
      */
-    public Flowable<List<CapturedNotificationUiModel>> getCapturedNotificationFlowable(BookkeepingDb db) {
+    public Flowable<List<PickedViewUiModel>> getPickedViewFlowable(BookkeepingDb db) {
         return searchKeywordProcessor
                 .debounce(50, TimeUnit.MILLISECONDS)
                 .switchMap(
-                        keyword -> CapturedNotificationService.getAllCapturedNotification(db, keyword)
+                        keyword -> AccessibilityRuleService.getAllPickedView(db, keyword)
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribeOn(Schedulers.io())
                 );
@@ -61,6 +61,7 @@ public class CapturedNotificationViewModel extends ViewModel {
 
     /**
      * 判断是否没有过滤条件
+     *
      * @return 是否没有过滤条件
      */
     public boolean isNoFilter() {

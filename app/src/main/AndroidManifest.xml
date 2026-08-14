@@ -202,6 +202,10 @@
             android:name=".ui.pages.accessibility.rule.AccessibilityRuleInputActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.pages.accessibility.pick.PickedViewListActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

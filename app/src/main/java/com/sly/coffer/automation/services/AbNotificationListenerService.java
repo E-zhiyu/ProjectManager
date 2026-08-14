@@ -2,8 +2,6 @@ package com.sly.coffer.automation.services;
 
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
@@ -35,6 +33,7 @@ import com.sly.coffer.data.save.preference.AutoBookKeepingPreference;
 import com.sly.coffer.auxiliary.enums.KeyStrings;
 import com.sly.coffer.auxiliary.enums.NotificationID;
 import com.sly.coffer.auxiliary.enums.PendingRequestCode;
+import com.sly.coffer.helpers.AppListHelper;
 import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.NotificationHelper;
 import com.sly.coffer.auxiliary.enums.AccountType;
@@ -226,15 +225,8 @@ public class AbNotificationListenerService extends NotificationListenerService {
      */
     private void saveNotification(@NonNull StatusBarNotification sbn) {
         //获取通知数据
-        String appName;
         String packageName = sbn.getPackageName();
-        try {
-            PackageManager packageManager = getPackageManager();
-            ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
-            appName = packageManager.getApplicationLabel(appInfo).toString();
-        } catch (PackageManager.NameNotFoundException e) {
-            appName = "<未知应用>";
-        }
+        String appName = AppListHelper.getAppNameByPackageName(packageName, this);
         String title = sbn.getNotification().extras.getString("android.title");
         String text = sbn.getNotification().extras.getString("android.text");
         if (text == null || text.isEmpty() || title == null || title.isEmpty()) return;

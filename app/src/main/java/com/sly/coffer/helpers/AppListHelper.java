@@ -47,4 +47,22 @@ public class AppListHelper {
 
         return appInfoList;
     }
+
+    /**
+     * 通过包名获取应用名称
+     *
+     * @param packageName 包名
+     * @param context     上下文
+     * @return 该包名对应的应用名，未找到返回“<未知应用>”
+     */
+    @NonNull
+    public static String getAppNameByPackageName(String packageName, @NonNull Context context) {
+        try {
+            PackageManager packageManager = context.getPackageManager();
+            ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
+            return packageManager.getApplicationLabel(appInfo).toString();
+        } catch (PackageManager.NameNotFoundException e) {
+            return "<未知应用>";
+        }
+    }
 }

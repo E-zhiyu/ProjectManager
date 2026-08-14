@@ -11,8 +11,9 @@ import androidx.annotation.NonNull;
 import com.sly.coffer.auxiliary.classes.PickResult;
 import com.sly.coffer.auxiliary.enums.LogTags;
 import com.sly.coffer.data.save.db.BookkeepingDb;
-import com.sly.coffer.data.save.db.entities.PickedView;
+import com.sly.coffer.data.save.db.entities.PickedViewEntity;
 import com.sly.coffer.data.save.db.services.AccessibilityRuleService;
+import com.sly.coffer.helpers.AppListHelper;
 import com.sly.coffer.helpers.accessibility.AccessibilityNodePicker;
 import com.sly.coffer.ui.others.overlay.PickerOverlay;
 
@@ -114,6 +115,7 @@ public class PickAccessibilityService extends AccessibilityService {
         //解析拾取数据
         String packageName = result.packageName;
         String activityName = result.activityName;
+        String appName = AppListHelper.getAppNameByPackageName(packageName, this);
         String viewId = result.viewId;
         String content = result.content;
 
@@ -130,7 +132,15 @@ public class PickAccessibilityService extends AccessibilityService {
         disposable.add(db.accessibilityRuleDao().getPickedViewCountSingle()
                 .flatMap(count -> {
                     String remark = "视图" + (count + 1);
-                    PickedView pickedView = new PickedView(remark, viewId, content, packageName, activityName, LocalDateTime.now());
+                    PickedViewEntity pickedView = new PickedViewEntity(
+                            remark,
+                            viewId,
+                            content,
+                            packageName,
+                            appName,
+                            activityName,
+                            LocalDateTime.now()
+                    );
                     return AccessibilityRuleService.addPickedView(pickedView, db);
                 })
                 .observeOn(AndroidSchedulers.mainThread())

@@ -19,6 +19,7 @@ public enum KeyStrings {
     PACKAGE_NAME("package_name"),                           //包名
     FILE_URIS("file_uris"),                                 //文件Uri
     BUDGET_ID("budget_id"),                                 //预算编号
+    PICKED_VIEW_ID("picked_view_id"),                       //拾取的视图的 ID
     NOTIFICATION_ID("notification_id");                     //应用通知ID，用于区分不同的通知
 
     final String value;

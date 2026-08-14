@@ -17,11 +17,17 @@ import io.reactivex.rxjava3.core.Single;
 
 @Dao
 public interface CapturedNotificationDao {
+    /**
+     * 获取所有符合搜索条件的被捕获的通知
+     * @param keyword 搜索关键词
+     * @param useSearchFilter 是否需要过滤搜索条件
+     * @return 捕获的通知列表，支持响应式更新
+     */
     @Query("SELECT * FROM capturedNotifications " +
             "WHERE :useSearchFilter = 0 " +
-            "OR title LIKE '%' || :keyword || '%' " +
-            "OR content LIKE '%' || :keyword || '%' " +
-            "OR appName LIKE '%' || :keyword || '%' " +
+            "OR title LIKE '%' || :keyword || '%' ESCAPE '/' " +
+            "OR content LIKE '%' || :keyword || '%' ESCAPE '/' " +
+            "OR appName LIKE '%' || :keyword || '%' ESCAPE '/' " +
             "ORDER BY time DESC")
     Flowable<List<CapturedNotificationEntity>> getAllCapturedNotificationFlowable(String keyword, int useSearchFilter);
 

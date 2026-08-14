@@ -1,5 +1,7 @@
 package com.sly.coffer.data.save.db.services;
 
+import androidx.annotation.NonNull;
+
 import com.sly.coffer.auxiliary.classes.CustomDateTimeFormatter;
 import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.daos.CapturedNotificationDao;
@@ -23,7 +25,7 @@ public class CapturedNotificationService {
      * @param keyword 搜索关键词
      * @return 捕获的通知列表，包含日期分隔符
      */
-    public static Flowable<List<CapturedNotificationUiModel>> getAllCapturedNotification(BookkeepingDb db, String keyword) {
+    public static Flowable<List<CapturedNotificationUiModel>> getAllCapturedNotification(@NonNull BookkeepingDb db, String keyword) {
         CapturedNotificationDao notificationDao = db.capturedNotificationDao();
         String safeKeyword = "";
 
