@@ -188,6 +188,7 @@
     <string name="picked_view_search_hint">搜索拾取的视图……</string>
     <string name="no_picked_view">没有拾取的视图</string>
     <string name="delete_picked_view">删除拾取记录</string>
+    <string name="picked_view">拾取视图</string>
     <string-array name="tips_array">
         <item>如果设置了自动备份目录，进行软件更新时会自动备份一次。</item>
         <item>长按某条搜索历史可以删除它。</item>

@@ -26,6 +26,14 @@ import io.reactivex.rxjava3.core.Single;
 
 @Dao
 public interface AccessibilityRuleDao {
+    /**
+     * 获取无障碍规则总数
+     *
+     * @return 无障碍规则总数，支持响应式更新
+     */
+    @Query("SELECT COUNT(*) FROM accessibilityRules")
+    Flowable<Integer> getAccessibilityRuleCountFlowable();
+
     @Transaction
     @Query("SELECT * FROM accessibilityRules WHERE enabled = 1")
     Flowable<List<AccessibilityRuleWithDetailModel>> getOpenedAccessibilityRuleWithDetailFlowable();
@@ -198,6 +206,14 @@ public interface AccessibilityRuleDao {
      */
     @Query("SELECT COUNT(*) FROM pickedViews")
     Single<Integer> getPickedViewCountSingle();
+
+    /**
+     * 获取拾取的视图总数
+     *
+     * @return 拾取的视图总数，支持响应式更新
+     */
+    @Query("SELECT COUNT(*) FROM pickedViews")
+    Flowable<Integer> getPickedViewCountFlowable();
 
     /**
      * 通过包名、活动名和视图 ID 获取旧视图数据
