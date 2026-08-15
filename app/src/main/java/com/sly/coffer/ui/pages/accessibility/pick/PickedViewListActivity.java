@@ -140,6 +140,7 @@ public class PickedViewListActivity extends AppCompatActivity {
             //TODO:添加按钮
         });
         AppearanceHelper.attachMorphAnimation(binding.addFab);
+        AppearanceHelper.setMarginToNavigation(binding.addFab, this);
     }
 
     /**
