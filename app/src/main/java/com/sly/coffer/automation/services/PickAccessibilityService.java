@@ -3,11 +3,18 @@ package com.sly.coffer.automation.services;
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
+import com.sly.coffer.automation.broadcast.BroadcastActions;
 import com.sly.coffer.auxiliary.classes.PickResult;
 import com.sly.coffer.auxiliary.enums.LogTags;
 import com.sly.coffer.data.save.db.BookkeepingDb;
@@ -29,6 +36,7 @@ public class PickAccessibilityService extends AccessibilityService {
     private PickerOverlay pickerOverlay;
     private String currentActivityName;
     private String currentPackageName;
+    private BroadcastReceiver startReceiver = null;
 
     @Override
     protected void onServiceConnected() {
@@ -38,6 +46,24 @@ public class PickAccessibilityService extends AccessibilityService {
         info.flags |= AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS;
         info.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
         setServiceInfo(info);
+
+        //注册广播接收器
+        IntentFilter intentFilter = new IntentFilter(BroadcastActions.START_PICK.toString());
+        startReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, @NonNull Intent intent) {
+                if (BroadcastActions.START_PICK.toString().equals(intent.getAction())) {
+                    Log.d(LogTags.PICK_ACCESSIBILITY_SERVICE.n(), "开启视图拾取模式");
+                    startPicker();
+                }
+            }
+        };
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(startReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            ContextCompat.registerReceiver(this, startReceiver, intentFilter, ContextCompat.RECEIVER_NOT_EXPORTED);
+        }
+        Log.d(LogTags.PICK_ACCESSIBILITY_SERVICE.n(), "注册广播接收器");
     }
 
     @Override
@@ -63,6 +89,13 @@ public class PickAccessibilityService extends AccessibilityService {
     public void onDestroy() {
         super.onDestroy();
         disposable.clear();
+
+        //注销广播接收器
+        if (startReceiver != null) {
+            unregisterReceiver(startReceiver);
+            startReceiver = null;
+        }
+        Log.d(LogTags.PICK_ACCESSIBILITY_SERVICE.n(), "注销广播接收器");
     }
 
     @Override

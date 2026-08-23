@@ -17,12 +17,10 @@ import com.sly.coffer.auxiliary.interfaces.adapter.AdapterOnLongClickListener;
 import com.sly.coffer.auxiliary.interfaces.adapter.ViewHolderListener;
 import com.sly.coffer.data.save.db.entities.PickedViewEntity;
 import com.sly.coffer.data.save.db.entities.composite.ui.PickedViewUiModel;
-import com.sly.coffer.databinding.ViewHolderCapturedNotificationListBinding;
 import com.sly.coffer.databinding.ViewHolderPickedViewBinding;
 import com.sly.coffer.databinding.ViewHolderSeparatorTextChipBinding;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.ui.others.decoration.sticky.StickyHeaderAdapter;
-import com.sly.coffer.ui.pages.notification.capture.NotificationCaptureListAdapter;
 
 public class PickedViewListAdapter extends ListAdapter<PickedViewUiModel, RecyclerView.ViewHolder>
         implements StickyHeaderAdapter<String> {
@@ -152,12 +150,12 @@ public class PickedViewListAdapter extends ListAdapter<PickedViewUiModel, Recycl
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_ITEM) {
-            ViewHolderCapturedNotificationListBinding binding = ViewHolderCapturedNotificationListBinding.inflate(
+            ViewHolderPickedViewBinding binding = ViewHolderPickedViewBinding.inflate(
                     LayoutInflater.from(parent.getContext()),
                     parent,
                     false
             );
-            return new NotificationCaptureListAdapter.ItemViewHolder(
+            return new ItemViewHolder(
                     binding,
                     new ViewHolderListener() {
                         @Override
@@ -187,19 +185,19 @@ public class PickedViewListAdapter extends ListAdapter<PickedViewUiModel, Recycl
                     parent,
                     false
             );
-            return new NotificationCaptureListAdapter.SeparatorViewHolder(binding);
+            return new SeparatorViewHolder(binding);
         }
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         PickedViewUiModel model = getItem(position);
-        if (model instanceof PickedViewUiModel.Separator && holder instanceof PickedViewListAdapter.SeparatorViewHolder) {
+        if (model instanceof PickedViewUiModel.Separator && holder instanceof SeparatorViewHolder) {
             String relationship = ((PickedViewUiModel.Separator) model).text;
-            ((PickedViewListAdapter.SeparatorViewHolder) holder).binding.separatorText.setText(relationship);
-        } else if (model instanceof PickedViewUiModel.Item && holder instanceof PickedViewListAdapter.ItemViewHolder) {
+            ((SeparatorViewHolder) holder).binding.separatorText.setText(relationship);
+        } else if (model instanceof PickedViewUiModel.Item && holder instanceof ItemViewHolder) {
             PickedViewEntity entity = ((PickedViewUiModel.Item) model).entity;
-            PickedViewListAdapter.ItemViewHolder itemHolder = (PickedViewListAdapter.ItemViewHolder) holder;
+            ItemViewHolder itemHolder = (ItemViewHolder) holder;
 
             itemHolder.binding.remarkText.setText(entity.getRemark());              //备注
             itemHolder.binding.viewIdText.setText(entity.getViewId());              //视图 ID

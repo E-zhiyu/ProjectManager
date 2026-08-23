@@ -102,7 +102,7 @@ public class AccessibilityNodePicker {
         PickResult result = new PickResult();
 
         result.viewId = node.getViewIdResourceName();
-        result.content = node.getContentDescription().toString();
+        result.content = String.valueOf(node.getContentDescription());
 
         CharSequence packageName = node.getPackageName();
         if (packageName != null) {

@@ -1,5 +1,6 @@
 package com.sly.coffer.ui.pages.accessibility.pick;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -16,16 +17,19 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.sly.coffer.R;
+import com.sly.coffer.automation.broadcast.BroadcastActions;
 import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.entities.PickedViewEntity;
 import com.sly.coffer.data.save.preference.SearchHistoryPreference;
 import com.sly.coffer.databinding.ActivityPickedViewListBinding;
+import com.sly.coffer.databinding.ViewHolderSeparatorTextChipBinding;
 import com.sly.coffer.helpers.BackPressedCallbackHelper;
 import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.PermissionHelper;
 import com.sly.coffer.helpers.SearchHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.helpers.appearence.VisibilityHelper;
+import com.sly.coffer.ui.others.decoration.sticky.StickyHeaderItemDecoration;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -118,6 +122,12 @@ public class PickedViewListActivity extends AppCompatActivity {
                 this::showPopupMenu
         );
         binding.recycler.setAdapter(adapter);
+        StickyHeaderItemDecoration<ViewHolderSeparatorTextChipBinding> decoration = new StickyHeaderItemDecoration<>(
+                adapter,
+                ViewHolderSeparatorTextChipBinding::inflate,
+                (binding1, data) -> binding1.separatorText.setText(data)
+        );
+        binding.recycler.addItemDecoration(decoration);
         PickedViewViewModel viewModel = new ViewModelProvider(this).get(PickedViewViewModel.class);
         BookkeepingDb db = BookkeepingDb.getInstance(this);
         disposable.add(viewModel.getPickedViewFlowable(db)
@@ -135,9 +145,15 @@ public class PickedViewListActivity extends AppCompatActivity {
         binding.addFab.setOnClickListener(view -> {
             if (!PermissionHelper.SpecialPermissionType.ACCESSIBILITY_PICK.isGranted(this)) {
                 Toast.makeText(this, "请开启无障碍中的“自动记账-视图拾取”服务", Toast.LENGTH_SHORT).show();
+                Intent intent = PermissionHelper.SpecialPermissionType.ACCESSIBILITY_PICK.getIntent(this);
+                startActivity(intent);
                 return;
             }
-            //TODO:添加按钮
+
+            //通过广播启动视图拾取
+            Intent startIntent = new Intent(BroadcastActions.START_PICK.toString());
+            startIntent.setPackage(getPackageName());   //明确显式广播，增强安全性
+            sendBroadcast(startIntent);
         });
         AppearanceHelper.attachMorphAnimation(binding.addFab);
         AppearanceHelper.setMarginToNavigation(binding.addFab, this);
