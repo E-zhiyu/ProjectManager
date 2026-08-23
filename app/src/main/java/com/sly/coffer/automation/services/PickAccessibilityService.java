@@ -4,17 +4,22 @@ import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.sly.coffer.automation.broadcast.BroadcastActions;
+import com.sly.coffer.auxiliary.classes.CustomDateTimeFormatter;
 import com.sly.coffer.auxiliary.classes.PickResult;
 import com.sly.coffer.auxiliary.enums.LogTags;
 import com.sly.coffer.data.save.db.BookkeepingDb;
@@ -25,6 +30,8 @@ import com.sly.coffer.helpers.accessibility.AccessibilityNodePicker;
 import com.sly.coffer.ui.others.overlay.PickerOverlay;
 
 import java.time.LocalDateTime;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -78,10 +85,37 @@ public class PickAccessibilityService extends AccessibilityService {
 
         //获取活动名
         if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            // 2. 从事件中获取包名和类名
             CharSequence className = event.getClassName();
+
             if (className != null) {
-                currentActivityName = className.toString();
+                // 3. 组合成完整的组件名
+                ComponentName componentName = new ComponentName(
+                        packageName.toString(),
+                        className.toString()
+                );
+
+                // 这就是当前活动的完整名称 (例如: com.example.app/.MainActivity)
+                if (isActivity(componentName)) {
+                    currentActivityName = componentName.flattenToShortString();
+                }
             }
+        }
+    }
+
+    /**
+     * 判断是否为活动名称
+     *
+     * @param componentName 待判断的字符串
+     * @return 是否为活动名称
+     */
+    private boolean isActivity(ComponentName componentName) {
+        try {
+            // 尝试通过PackageManager获取Activity信息
+            getPackageManager().getActivityInfo(componentName, 0);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false; // 说明这个组件不是Activity
         }
     }
 
@@ -119,6 +153,11 @@ public class PickAccessibilityService extends AccessibilityService {
                             y
                     );
 
+                    //判断是否点击到有内容的视图
+                    if (!isResultUsableAndNotify(result)) {
+                        return;
+                    }
+
                     if (result != null) {
                         result.packageName = currentPackageName;
                         result.activityName = currentActivityName;
@@ -129,6 +168,31 @@ public class PickAccessibilityService extends AccessibilityService {
                 });
 
         pickerOverlay.show();
+    }
+
+    /**
+     * 判断拾取结果是否可用，不可用则发送提醒
+     *
+     * @param result 拾取结果
+     * @return 该结果是否可用
+     */
+    private boolean isResultUsableAndNotify(@Nullable PickResult result) {
+        if (result == null) {
+            Toast.makeText(this, "无法拾取视图，请重试", Toast.LENGTH_SHORT).show();
+            return false;
+        } else if (result.viewId == null || result.viewId.isEmpty()) {
+            Toast.makeText(this, "该视图没有编号，请重新选择", Toast.LENGTH_SHORT).show();
+            return false;
+        } else {
+            Pattern numPattern = Pattern.compile("\\d");
+            Matcher matcher = numPattern.matcher(result.content);
+            if (matcher.find()) {
+                return true;
+            } else {
+                Toast.makeText(this, "视图文本中不含数字，请重新选择", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
     }
 
     /**
@@ -160,28 +224,25 @@ public class PickAccessibilityService extends AccessibilityService {
                         + "\ncontent = " + content
         );
 
+        //实例化数据实体
+        LocalDateTime time = LocalDateTime.now();
+        PickedViewEntity pickedView = new PickedViewEntity(
+                "视图 · " + time.format(CustomDateTimeFormatter.DATE_TIME),
+                viewId,
+                content,
+                packageName,
+                appName,
+                activityName,
+                time
+        );
+
         //保存视图信息
         BookkeepingDb db = BookkeepingDb.getInstance(this);
-        disposable.add(db.accessibilityRuleDao().getPickedViewCountSingle()
-                .flatMap(count -> {
-                    String remark = "视图" + (count + 1);
-                    PickedViewEntity pickedView = new PickedViewEntity(
-                            remark,
-                            viewId,
-                            content,
-                            packageName,
-                            appName,
-                            activityName,
-                            LocalDateTime.now()
-                    );
-                    return AccessibilityRuleService.addPickedView(pickedView, db);
-                })
+        disposable.add(AccessibilityRuleService.addPickedView(pickedView, db)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(
-                        id -> {
-                            //TODO:成功回调
-                        },
+                        id -> Toast.makeText(this, "已保存拾取的视图", Toast.LENGTH_SHORT).show(),
                         e -> Log.e(LogTags.PICK_ACCESSIBILITY_SERVICE.n(), "拾取视图保存失败")
                 )
         );

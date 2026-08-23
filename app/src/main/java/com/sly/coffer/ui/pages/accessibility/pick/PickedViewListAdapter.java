@@ -200,9 +200,16 @@ public class PickedViewListAdapter extends ListAdapter<PickedViewUiModel, Recycl
             ItemViewHolder itemHolder = (ItemViewHolder) holder;
 
             itemHolder.binding.remarkText.setText(entity.getRemark());              //备注
-            itemHolder.binding.viewIdText.setText(entity.getViewId());              //视图 ID
-            itemHolder.binding.activityNameText.setText(entity.getActivityName());  //界面名称
             itemHolder.binding.appNameText.setText(entity.getAppName());            //应用名称
+
+            //视图 ID
+            String viewId = entity.getViewId();
+            itemHolder.binding.viewIdText.setText(viewId == null || viewId.isEmpty() ? "<无编号>" : viewId);
+
+            //界面名称
+            String[] parts = entity.getActivityName().split("\\.");
+            String activityName = parts.length > 0 ? parts[parts.length - 1] : "<未知界面>";
+            itemHolder.binding.activityNameText.setText(activityName);
 
             //设置圆角
             setRadius(itemHolder.binding.getRoot(), position);

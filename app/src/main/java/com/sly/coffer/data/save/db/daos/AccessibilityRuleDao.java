@@ -202,14 +202,6 @@ public interface AccessibilityRuleDao {
     /**
      * 获取拾取的视图总数
      *
-     * @return 拾取的视图总数
-     */
-    @Query("SELECT COUNT(*) FROM pickedViews")
-    Single<Integer> getPickedViewCountSingle();
-
-    /**
-     * 获取拾取的视图总数
-     *
      * @return 拾取的视图总数，支持响应式更新
      */
     @Query("SELECT COUNT(*) FROM pickedViews")
