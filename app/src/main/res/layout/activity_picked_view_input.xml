@@ -98,7 +98,7 @@
                     style="@style/UserInputEditTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="@string/str_content" />
+                    android:hint="@string/content_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- 应用包名 -->

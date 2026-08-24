@@ -16,13 +16,13 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.chip.Chip;
 import com.sly.coffer.R;
-import com.sly.coffer.auxiliary.classes.PickResult;
 import com.sly.coffer.auxiliary.enums.AccountType;
 import com.sly.coffer.auxiliary.enums.KeyStrings;
 import com.sly.coffer.auxiliary.enums.TagStrings;
 import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleEntity;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleTransferEntity;
+import com.sly.coffer.data.save.db.entities.PickedViewEntity;
 import com.sly.coffer.data.save.db.entities.TagEntity;
 import com.sly.coffer.data.save.db.entities.composite.AccessibilityRuleWithDetailModel;
 import com.sly.coffer.data.save.db.services.AccessibilityRuleService;
@@ -37,10 +37,10 @@ import com.sly.coffer.ui.others.bottom.TagSelectBottomSheet;
 import com.sly.coffer.ui.others.viewmodel.TagMultiSelectViewModel;
 import com.sly.coffer.ui.pages.main.bookkeeping.AccountTagAdapter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -152,43 +152,17 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                                 binding.nameInput.setText(rule.getName());                  //名称
                                 viewModel.setType(AccountType.values()[rule.getType()]);
                                 binding.typeInput.setText(viewModel.getType().getTitle());  //种类
-                                if (viewModel.getPickResult() == null) {    //仅没有设置拾取时才填充
-                                    String pkgStr = String.format(
-                                            Locale.getDefault(),
-                                            "%s : %s",
-                                            getString(R.string.package_name),
-                                            rule.getPackageName().isEmpty() ? "<未设置>" : rule.getPackageName()
-                                    );
-                                    binding.packageNameText.setText(pkgStr);                    //包名
-                                    String activityStr = String.format(
-                                            Locale.getDefault(),
-                                            "%s : %s",
-                                            getString(R.string.activity_name),
-                                            rule.getTargetActivity().isEmpty() ? "<未设置>" : rule.getTargetActivity()
-                                    );
-                                    binding.activityNameText.setText(activityStr);              //活动名
-                                    String viewIdStr = String.format(
-                                            Locale.getDefault(),
-                                            "%s : %s",
-                                            getString(R.string.view_id),
-                                            rule.getViewId().isEmpty() ? "<未设置>" : rule.getViewId()
-                                    );
-                                    binding.viewIdText.setText(viewIdStr);                      //视图 ID
-                                    String originContent = String.format(
-                                            Locale.getDefault(),
-                                            "%s : %s",
-                                            getString(R.string.str_content),
-                                            rule.getOriginContent().isEmpty() ? "<未设置>" : rule.getOriginContent()
-                                    );
-                                    binding.pickContentText.setText(originContent);             //内容文本
-
+                                if (viewModel.getPickedView() == null) {    //仅没有设置拾取时才填充
                                     //填充拾取结果
-                                    PickResult pickResult = new PickResult();
-                                    pickResult.activityName = rule.getTargetActivity();
-                                    pickResult.packageName = rule.getPackageName();
-                                    pickResult.viewId = rule.getViewId();
-                                    pickResult.content = rule.getOriginContent();
-                                    viewModel.setPickResult(pickResult);
+                                    PickedViewEntity pickedView = new PickedViewEntity(
+                                            "拾取的视图",
+                                            rule.getViewId(),
+                                            rule.getOriginContent(),
+                                            rule.getPackageName(),
+                                            rule.getTargetActivity(),
+                                            LocalDateTime.now()
+                                    );
+                                    viewModel.setPickResult(pickedView);
 
                                     viewModel.setCapturePos(rule.getCapturePos());
                                 }
@@ -302,9 +276,9 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
             }
         });
 
-        //视图拾取按钮
+        //拾取视图选择按钮
         binding.amountViewSelectBtn.setOnClickListener(view -> {
-            //TODO:开始拾取
+            //TODO:开始选择
         });
 
         //视图拾取说明按钮
@@ -382,38 +356,14 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
         //金额文本选择
         AccessibilityRuleInputViewModel ruleInputViewModel = new ViewModelProvider(this)
                 .get(AccessibilityRuleInputViewModel.class);
-        ruleInputViewModel.getPickResult().observe(this, result -> {
-            //拾取的视图
-            String pkgStr = String.format(
-                    Locale.getDefault(),
-                    "%s : %s",
-                    getString(R.string.package_name),
-                    result == null ? "<未设置>" : result.packageName
-            );
-            binding.packageNameText.setText(pkgStr);
-            String activityStr = String.format(
-                    Locale.getDefault(),
-                    "%s : %s",
-                    getString(R.string.activity_name),
-                    result == null ? "<未设置>" : result.activityName
-            );
-            binding.activityNameText.setText(activityStr);
-            String viewIdStr = String.format(
-                    Locale.getDefault(),
-                    "%s : %s",
-                    getString(R.string.view_id),
-                    result == null ? "<未设置>" : result.viewId
-            );
-            binding.viewIdText.setText(viewIdStr);
-            String content = String.format(
-                    Locale.getDefault(),
-                    "%s : %s",
-                    getString(R.string.str_content),
-                    result == null ? "<未设置>" : result.content
-            );
-            binding.pickContentText.setText(content);
+        ruleInputViewModel.getPickedView().observe(this, pickedView -> {
+            if (pickedView == null) {
+                //清空文本框
+                binding.packageNameInput.setText("");
+                binding.activityNameInput.setText("");
+                binding.viewIdInput.setText("");
+                binding.contentTextInput.setText("");
 
-            if (result == null) {
                 VisibilityHelper.toggleViewExpansion(
                         binding.scrollLayout,
                         false,
@@ -421,12 +371,18 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                         binding.amountSelectLayout
                 );
             } else {
+                //填充文本框
+                binding.packageNameInput.setText(pickedView.getPackageName());      //包名
+                binding.activityNameInput.setText(pickedView.getActivityName());    //界面名称
+                binding.viewIdInput.setText(pickedView.getViewId());                //视图标识符
+                binding.contentTextInput.setText(pickedView.getContentText());      //视图文本
+
                 AccessibilityRuleInputViewModel viewModel = new ViewModelProvider(this).get(AccessibilityRuleInputViewModel.class);
                 int capturePos = viewModel.getCapturePos();
 
                 //填充 Chip
                 Pattern amountPattern = Pattern.compile("\\d+\\.?\\d{0,2}");
-                Matcher matcher = amountPattern.matcher(result.content);
+                Matcher matcher = amountPattern.matcher(pickedView.getContentText());
                 int i = 1;
                 binding.amountSelectChipGroup.removeAllViews();
                 while (matcher.find()) {
@@ -474,7 +430,7 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
         } else if (viewModel.getType() == AccountType.TRANSFER && importAccount.isEmpty()) {
             err = "转入账户不能为空";
             binding.importAccountLayout.setError(err);
-        } else if (viewModel.getPickResult() == null) {
+        } else if (viewModel.getPickedView() == null) {
             err = "必须设置拾取视图";
         }
 
@@ -485,19 +441,14 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
      * 保存数据
      */
     private void saveData() {
-        String name = String.valueOf(binding.nameInput.getText()).trim();
         AccessibilityRuleInputViewModel viewModel = new ViewModelProvider(this).get(AccessibilityRuleInputViewModel.class);
         int typeOrdinal = viewModel.getType().ordinal();
         int capturePos = viewModel.getCapturePos();
-        PickResult pickResult = viewModel.getPickResult().getValue();
-        if (pickResult == null) {
-            Toast.makeText(this, "尚未拾取视图", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        String packageName = pickResult.packageName;
-        String activityName = pickResult.activityName;
-        String viewId = pickResult.viewId;
-        String originContent = pickResult.content;
+        String name = String.valueOf(binding.nameInput.getText()).trim();
+        String packageName = String.valueOf(binding.packageNameInput.getEditableText()).trim();
+        String activityName = String.valueOf(binding.activityNameInput.getEditableText()).trim();
+        String viewId = String.valueOf(binding.viewIdInput.getEditableText()).trim();
+        String originContent = String.valueOf(binding.contentTextInput.getEditableText()).trim();
         String exportAccount = String.valueOf(binding.exportAccountInput.getText()).trim();
         String importAccount = String.valueOf(binding.importAccountInput.getText()).trim();
 

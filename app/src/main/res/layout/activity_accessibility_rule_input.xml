@@ -159,62 +159,73 @@
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- 金额视图信息 -->
-            <LinearLayout
+            <!-- 包名 -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/package_name_layout"
+                style="@style/CommonTextInputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingStart="10dp"
-                android:paddingEnd="0dp">
+                app:helperText="@string/picked_view_package_name_helper">
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/package_name_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:text="@string/package_name"
-                    android:textAppearance="?attr/textAppearanceBodyLarge"
-                    android:textColor="?attr/colorOutline" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/package_name_input"
+                    style="@style/UserInputEditTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="@string/package_name"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/activity_name_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:text="@string/activity_name"
-                    android:textAppearance="?attr/textAppearanceBodyLarge"
-                    android:textColor="?attr/colorOutline" />
+            <!-- 界面名称 -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/activity_name_layout"
+                style="@style/CommonTextInputLayoutStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:helperText="@string/picked_view_activity_name_helper">
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/view_id_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:text="@string/view_id"
-                    android:textAppearance="?attr/textAppearanceBodyLarge"
-                    android:textColor="?attr/colorOutline" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/activity_name_input"
+                    style="@style/UserInputEditTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="@string/activity_name"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/pick_content_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:text="@string/str_content"
-                    android:textAppearance="?attr/textAppearanceBodyLarge"
-                    android:textColor="?attr/colorOutline" />
-            </LinearLayout>
+            <!-- 视图标识符 -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/view_id_layout"
+                style="@style/CommonTextInputLayoutStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:helperText="@string/picked_view_view_id_helper">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/view_id_input"
+                    style="@style/UserInputEditTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="@string/view_id"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- 文本内容 -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/content_text_layout"
+                style="@style/CommonTextInputLayoutStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:helperText="@string/picked_view_content_text_helper">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/content_text_input"
+                    style="@style/UserInputEditTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="@string/content_text"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
                 android:id="@+id/amount_select_layout"
