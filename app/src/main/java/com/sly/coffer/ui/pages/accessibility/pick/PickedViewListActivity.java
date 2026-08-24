@@ -31,6 +31,7 @@ import com.sly.coffer.helpers.SearchHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.helpers.appearence.VisibilityHelper;
 import com.sly.coffer.ui.others.decoration.sticky.StickyHeaderItemDecoration;
+import com.sly.coffer.ui.others.dialogs.EditTextDialogBuilder;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -154,6 +155,7 @@ public class PickedViewListActivity extends AppCompatActivity {
             Intent startIntent = new Intent(BroadcastActions.START_PICK.toString());
             startIntent.setPackage(getPackageName());   //明确显式广播，增强安全性
             sendBroadcast(startIntent);
+            Toast.makeText(this, "请点击表示金额的文字", Toast.LENGTH_SHORT).show();
         });
         AppearanceHelper.attachMorphAnimation(binding.addFab);
         AppearanceHelper.setMarginToNavigation(binding.addFab, this);
@@ -218,11 +220,38 @@ public class PickedViewListActivity extends AppCompatActivity {
      */
     private void showPopupMenu(PickedViewEntity view, View anchor) {
         PopupMenu popupMenu = new PopupMenu(this, anchor, Gravity.END);
-        popupMenu.getMenuInflater().inflate(R.menu.menu_captured_notification_edit, popupMenu.getMenu());
+        popupMenu.getMenuInflater().inflate(R.menu.menu_picked_view_list_edit, popupMenu.getMenu());
 
         //设置监听
         popupMenu.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.action_delete) {
+            int id = item.getItemId();
+
+            if (id == R.id.action_change_remark) {
+                new EditTextDialogBuilder(this, getString(R.string.change_remark), getString(R.string.remark))
+                        .setNegativeButton("取消", null)
+                        .setPositiveButton("确定", inputStr -> {
+                            PickedViewEntity newView = new PickedViewEntity(
+                                    inputStr.trim(),
+                                    view.getViewId(),
+                                    view.getContentText(),
+                                    view.getPackageName(),
+                                    view.getActivityName(),
+                                    view.getDateTime()
+                            );
+                            newView.setId(view.getId());
+
+                            BookkeepingDb db = BookkeepingDb.getInstance(this);
+                            disposable.add(db.accessibilityRuleDao().updatePickedViewCompletable(newView)
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribeOn(Schedulers.io())
+                                    .subscribe(
+                                            () -> Toast.makeText(this, "备注修改成功", Toast.LENGTH_SHORT).show(),
+                                            e -> ExceptionHelper.showExceptionDialog(this, e)
+                                    )
+                            );
+                        })
+                        .show();
+            } else if (item.getItemId() == R.id.action_delete) {
                 new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.delete_picked_view)
                         .setMessage("即将删除该拾取记录，确认继续吗？")

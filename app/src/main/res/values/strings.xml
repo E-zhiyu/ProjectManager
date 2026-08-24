@@ -195,6 +195,7 @@
     <string name="picked_view_content_text_helper">拾取时该视图的原始文本</string>
     <string name="picked_view_package_name_helper">该视图所在的应用的包名</string>
     <string name="picked_view_activity_name_helper">该视图所在界面的名称</string>
+    <string name="change_remark">更改备注</string>
     <string-array name="tips_array">
         <item>如果设置了自动备份目录，进行软件更新时会自动备份一次。</item>
         <item>长按某条搜索历史可以删除它。</item>

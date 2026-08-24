@@ -48,7 +48,8 @@ public class PickedViewListAdapter extends ListAdapter<PickedViewUiModel, Recycl
             if (oldItem instanceof PickedViewUiModel.Item && newItem instanceof PickedViewUiModel.Item) {
                 PickedViewEntity oldEntity = ((PickedViewUiModel.Item) oldItem).entity;
                 PickedViewEntity newEntity = ((PickedViewUiModel.Item) newItem).entity;
-                return oldEntity.getPackageName().equals(newEntity.getPackageName()) &&
+                return oldEntity.getRemark().equals(newEntity.getRemark()) &&
+                        oldEntity.getPackageName().equals(newEntity.getPackageName()) &&
                         oldEntity.getViewId().equals(newEntity.getViewId()) &&
                         oldEntity.getActivityName().equals(newEntity.getActivityName()) &&
                         oldEntity.getContentText().equals(newEntity.getContentText());
