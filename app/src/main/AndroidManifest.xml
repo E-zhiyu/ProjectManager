@@ -128,6 +128,21 @@
             android:parentActivityName=".ui.pages.main.MainActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name=".ui.pages.accessibility.rule.AccessibilityRuleInputActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.pages.accessibility.rule.AccessibilityRuleListActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.pages.accessibility.pick.PickedViewListActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.pages.main.MainActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.pages.accessibility.pick.PickedViewInputActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.pages.accessibility.pick.PickedViewListActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".ui.pages.main.MainActivity"
             android:exported="true">
             <intent-filter>
@@ -208,19 +223,6 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/pick_accessibility_service_config" />
         </service>
-
-        <activity
-            android:name=".ui.pages.accessibility.rule.AccessibilityRuleInputActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".ui.pages.accessibility.pick.PickedViewListActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".ui.pages.accessibility.pick.PickedViewInputActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>
