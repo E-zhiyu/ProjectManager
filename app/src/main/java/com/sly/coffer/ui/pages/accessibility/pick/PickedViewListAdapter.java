@@ -17,7 +17,7 @@ import com.sly.coffer.auxiliary.interfaces.adapter.AdapterOnLongClickListener;
 import com.sly.coffer.auxiliary.interfaces.adapter.ViewHolderListener;
 import com.sly.coffer.data.save.db.entities.PickedViewEntity;
 import com.sly.coffer.data.save.db.entities.composite.ui.PickedViewUiModel;
-import com.sly.coffer.databinding.ViewHolderPickedViewBinding;
+import com.sly.coffer.databinding.ViewHolderPickedViewListBinding;
 import com.sly.coffer.databinding.ViewHolderSeparatorTextChipBinding;
 import com.sly.coffer.helpers.AppListHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
@@ -70,9 +70,9 @@ public class PickedViewListAdapter extends ListAdapter<PickedViewUiModel, Recycl
     }
 
     public static class ItemViewHolder extends RecyclerView.ViewHolder {
-        ViewHolderPickedViewBinding binding;
+        ViewHolderPickedViewListBinding binding;
 
-        public ItemViewHolder(@NonNull ViewHolderPickedViewBinding binding, ViewHolderListener listener) {
+        public ItemViewHolder(@NonNull ViewHolderPickedViewListBinding binding, ViewHolderListener listener) {
             super(binding.getRoot());
             this.binding = binding;
 
@@ -151,7 +151,7 @@ public class PickedViewListAdapter extends ListAdapter<PickedViewUiModel, Recycl
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_ITEM) {
-            ViewHolderPickedViewBinding binding = ViewHolderPickedViewBinding.inflate(
+            ViewHolderPickedViewListBinding binding = ViewHolderPickedViewListBinding.inflate(
                     LayoutInflater.from(parent.getContext()),
                     parent,
                     false

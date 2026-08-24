@@ -20,6 +20,7 @@ import com.sly.coffer.data.save.db.entities.PickedViewEntity;
 import com.sly.coffer.data.save.db.services.AccessibilityRuleService;
 import com.sly.coffer.databinding.ActivityPickedViewInputBinding;
 import com.sly.coffer.helpers.ExceptionHelper;
+import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.ui.pages.app_list.AppSelectActivity;
 
 import java.time.LocalDateTime;
@@ -44,7 +45,17 @@ public class PickedViewInputActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
+            v.setPadding(systemBars.left, 0, systemBars.right, 0);
+
+            //滚动视图的内部布局
+            binding.scrollLayout.setPadding(
+                    AppearanceHelper.dpToPx(this, 10),
+                    AppearanceHelper.dpToPx(this, 10),
+                    AppearanceHelper.dpToPx(this, 10),
+                    AppearanceHelper.dpToPx(this, 10) + Math.max(ime.bottom, systemBars.bottom)
+            );
+
             return insets;
         });
 
