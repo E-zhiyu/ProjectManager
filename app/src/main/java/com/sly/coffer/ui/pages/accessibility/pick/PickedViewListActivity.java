@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.sly.coffer.R;
 import com.sly.coffer.automation.broadcast.BroadcastActions;
+import com.sly.coffer.auxiliary.enums.KeyStrings;
 import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.entities.PickedViewEntity;
 import com.sly.coffer.data.save.preference.SearchHistoryPreference;
@@ -111,13 +112,12 @@ public class PickedViewListActivity extends AppCompatActivity {
         //Recycler 列表
         PickedViewListAdapter adapter = new PickedViewListAdapter(
                 (entity, anchor) -> {
-                    //TODO:点击监听
-//                    Bundle bundle = new Bundle();
-//                    bundle.putLong(KeyStrings.PICKED_VIEW_ID.v(), entity.getId());
-//
-//                    Intent intent = new Intent(this, null);
-//                    intent.putExtras(bundle);
-//                    startActivity(intent);
+                    Bundle bundle = new Bundle();
+                    bundle.putLong(KeyStrings.PICKED_VIEW_ID.v(), entity.getId());
+
+                    Intent intent = new Intent(this, PickedViewInputActivity.class);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
                 },
                 this::showPopupMenu
         );

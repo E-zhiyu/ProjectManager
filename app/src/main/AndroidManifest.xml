@@ -6,6 +6,7 @@
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
+
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
     </queries>
@@ -27,6 +28,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- 相机权限 -->
     <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
@@ -213,6 +215,10 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.pages.accessibility.pick.PickedViewListActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.pages.accessibility.pick.PickedViewInputActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
     </application>

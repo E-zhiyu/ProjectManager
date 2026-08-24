@@ -189,6 +189,12 @@
     <string name="no_picked_view">没有拾取的视图</string>
     <string name="delete_picked_view">删除拾取记录</string>
     <string name="picked_view">拾取视图</string>
+    <string name="modify_picked_view">修改视图</string>
+    <string name="picked_view_remark_helper">简单说明这是哪里的视图</string>
+    <string name="picked_view_view_id_helper">该视图在界面中的标识符，非必要请勿修改</string>
+    <string name="picked_view_content_text_helper">拾取时该视图的原始文本</string>
+    <string name="picked_view_package_name_helper">该视图所在的应用的包名</string>
+    <string name="picked_view_activity_name_helper">该视图所在界面的名称</string>
     <string-array name="tips_array">
         <item>如果设置了自动备份目录，进行软件更新时会自动备份一次。</item>
         <item>长按某条搜索历史可以删除它。</item>

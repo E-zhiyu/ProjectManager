@@ -404,7 +404,7 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
                             binding.packageNameInput.setText(packageName);
                             binding.packageNameLayout.setError(null);
                         } else {
-                            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据");
+                            NullPointerException e = new NullPointerException("无法获取包名");
                             ExceptionHelper.showExceptionDialog(this, e);
                         }
                     }

@@ -106,7 +106,7 @@ public class AccessibilityRuleService {
                     //通过关系远近进行分组
                     Map<String, List<PickedViewEntity>> groupedMap = rawList.stream()
                             .collect(Collectors.groupingBy(
-                                    PickedViewEntity::getAppName,
+                                    PickedViewEntity::getPackageName,
                                     LinkedHashMap::new,
                                     Collectors.toList()
                             ));

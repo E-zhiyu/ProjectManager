@@ -1,0 +1,138 @@
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.pages.notification.rule.NotificationRuleInputActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            style="@style/CollapsingToolbarLayoutStyle"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/collapsingToolbarLayoutMediumSize"
+            app:toolbarId="@id/toolbar">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
+                app:title="@string/modify_picked_view">
+
+                <ImageButton
+                    android:id="@+id/confirm_button"
+                    style="@style/ImageButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginEnd="15dp"
+                    android:contentDescription="@string/confirm_btn"
+                    android:src="@drawable/outline_check_24" />
+            </com.google.android.material.appbar.MaterialToolbar>
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+        <LinearLayout
+            android:id="@+id/scroll_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <!-- 备注 -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/remark_layout"
+                style="@style/CommonTextInputLayoutStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:helperText="@string/picked_view_remark_helper">
+
+                <requestFocus />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/remark_input"
+                    style="@style/UserInputEditTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="@string/remark" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- 视图 ID -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/view_id_layout"
+                style="@style/CommonTextInputLayoutStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:helperText="@string/picked_view_view_id_helper">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/view_id_input"
+                    style="@style/UserInputEditTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="@string/view_id" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- 内容文本 -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/content_text_layout"
+                style="@style/CommonTextInputLayoutStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:helperText="@string/picked_view_content_text_helper">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/content_text_input"
+                    style="@style/UserInputEditTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="@string/str_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- 应用包名 -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/package_name_layout"
+                style="@style/CommonTextInputLayoutStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:helperText="@string/picked_view_package_name_helper">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/package_name_input"
+                    style="@style/UserInputEditTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="@string/package_name"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- 界面名称 -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/activity_name_layout"
+                style="@style/CommonTextInputLayoutStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:helperText="@string/picked_view_activity_name_helper">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/activity_name_input"
+                    style="@style/UserInputEditTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="@string/activity_name" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

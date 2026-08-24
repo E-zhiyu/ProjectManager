@@ -227,6 +227,15 @@ public interface AccessibilityRuleDao {
     void updatePickedView(PickedViewEntity view);
 
     /**
+     * 更新拾取的视图
+     *
+     * @param view 更新后的拾取的视图
+     * @return 是否完成
+     */
+    @Update
+    Completable updatePickedViewCompletable(PickedViewEntity view);
+
+    /**
      * 添加拾取的视图
      *
      * @param view 需要添加的视图记录
@@ -274,9 +283,17 @@ public interface AccessibilityRuleDao {
             "SELECT * FROM pickedViews " +
                     "WHERE :useSearchFilter = 0 " +
                     "OR remark LIKE '%' || :keyword || '%' ESCAPE '/' " +
-                    "OR appName LIKE '%' || :keyword || '%' ESCAPE '/' " +
                     "OR viewId LIKE '%' || :keyword || '%' ESCAPE '/' " +
                     "OR activityName LIKE '%' || :keyword || '%' ESCAPE '/' "
     )
     Flowable<List<PickedViewEntity>> getAllPickedViewFlowable(String keyword, int useSearchFilter);
+
+    /**
+     * 通过 ID 获取拾取的视图
+     *
+     * @param id 拾取的视图的 ID
+     * @return 该 ID 对应的拾取的视图
+     */
+    @Query("SELECT * FROM pickedViews WHERE id = :id")
+    Single<Optional<PickedViewEntity>> getPickedViewSingleById(long id);
 }

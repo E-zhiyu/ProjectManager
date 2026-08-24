@@ -15,34 +15,32 @@ import java.time.LocalDateTime;
 )
 public class PickedViewEntity {
     @PrimaryKey(autoGenerate = true)
-    private long Id;                //主键
+    private long id;                //主键
     private String remark;          //备注
     @ColumnInfo(defaultValue = "")
     private String viewId;          //视图ID
-    private String describeContent; //描述文本
+    private String contentText;     //内容文本
     @ColumnInfo(defaultValue = "")
     private String packageName;     //应用包名
-    private String appName;         //应用名称
     @ColumnInfo(defaultValue = "")
     private String activityName;    //活动名称
     private LocalDateTime dateTime; //拾取的时间
 
-    public PickedViewEntity(String remark, String viewId, String describeContent, String packageName, String appName, String activityName, LocalDateTime dateTime) {
+    public PickedViewEntity(String remark, String viewId, String contentText, String packageName, String activityName, LocalDateTime dateTime) {
         this.remark = remark;
         this.viewId = viewId;
-        this.describeContent = describeContent;
+        this.contentText = contentText;
         this.packageName = packageName;
-        this.appName = appName;
         this.activityName = activityName;
         this.dateTime = dateTime;
     }
 
     public long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(long id) {
-        Id = id;
+        this.id = id;
     }
 
     public String getRemark() {
@@ -61,12 +59,12 @@ public class PickedViewEntity {
         this.viewId = viewId;
     }
 
-    public String getDescribeContent() {
-        return describeContent;
+    public String getContentText() {
+        return contentText;
     }
 
-    public void setDescribeContent(String describeContent) {
-        this.describeContent = describeContent;
+    public void setContentText(String contentText) {
+        this.contentText = contentText;
     }
 
     public String getPackageName() {
@@ -76,15 +74,6 @@ public class PickedViewEntity {
     public void setPackageName(String packageName) {
         this.packageName = packageName;
     }
-
-    public String getAppName() {
-        return appName;
-    }
-
-    public void setAppName(String appName) {
-        this.appName = appName;
-    }
-
     public String getActivityName() {
         return activityName;
     }

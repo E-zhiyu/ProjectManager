@@ -19,6 +19,7 @@ import com.sly.coffer.data.save.db.entities.PickedViewEntity;
 import com.sly.coffer.data.save.db.entities.composite.ui.PickedViewUiModel;
 import com.sly.coffer.databinding.ViewHolderPickedViewBinding;
 import com.sly.coffer.databinding.ViewHolderSeparatorTextChipBinding;
+import com.sly.coffer.helpers.AppListHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.ui.others.decoration.sticky.StickyHeaderAdapter;
 
@@ -47,10 +48,10 @@ public class PickedViewListAdapter extends ListAdapter<PickedViewUiModel, Recycl
             if (oldItem instanceof PickedViewUiModel.Item && newItem instanceof PickedViewUiModel.Item) {
                 PickedViewEntity oldEntity = ((PickedViewUiModel.Item) oldItem).entity;
                 PickedViewEntity newEntity = ((PickedViewUiModel.Item) newItem).entity;
-                return oldEntity.getAppName().equals(newEntity.getAppName()) &&
+                return oldEntity.getPackageName().equals(newEntity.getPackageName()) &&
                         oldEntity.getViewId().equals(newEntity.getViewId()) &&
                         oldEntity.getActivityName().equals(newEntity.getActivityName()) &&
-                        oldEntity.getDescribeContent().equals(newEntity.getDescribeContent());
+                        oldEntity.getContentText().equals(newEntity.getContentText());
             } else
                 return oldItem instanceof PickedViewUiModel.Separator && newItem instanceof PickedViewUiModel.Separator;
         }
@@ -131,9 +132,9 @@ public class PickedViewListAdapter extends ListAdapter<PickedViewUiModel, Recycl
     public String getHeaderData(int position, Context context) {
         PickedViewUiModel model = getItem(position);
         if (model instanceof PickedViewUiModel.Separator) {
-            return ((PickedViewUiModel.Separator) model).text;
+            return AppListHelper.getAppNameByPackageName(((PickedViewUiModel.Separator) model).text, context);
         } else if (model instanceof PickedViewUiModel.Item) {
-            return ((PickedViewUiModel.Item) model).entity.getAppName();
+            return AppListHelper.getAppNameByPackageName(((PickedViewUiModel.Item) model).entity.getPackageName(), context);
         } else {
             return context.getString(R.string.not_applicable);
         }
@@ -192,15 +193,19 @@ public class PickedViewListAdapter extends ListAdapter<PickedViewUiModel, Recycl
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         PickedViewUiModel model = getItem(position);
+        Context context = holder.itemView.getContext();
+
         if (model instanceof PickedViewUiModel.Separator && holder instanceof SeparatorViewHolder) {
-            String relationship = ((PickedViewUiModel.Separator) model).text;
-            ((SeparatorViewHolder) holder).binding.separatorText.setText(relationship);
+            String text = AppListHelper.getAppNameByPackageName(((PickedViewUiModel.Separator) model).text, context);
+            ((SeparatorViewHolder) holder).binding.separatorText.setText(text);
         } else if (model instanceof PickedViewUiModel.Item && holder instanceof ItemViewHolder) {
             PickedViewEntity entity = ((PickedViewUiModel.Item) model).entity;
             ItemViewHolder itemHolder = (ItemViewHolder) holder;
 
             itemHolder.binding.remarkText.setText(entity.getRemark());              //备注
-            itemHolder.binding.appNameText.setText(entity.getAppName());            //应用名称
+            itemHolder.binding.appNameText.setText(AppListHelper.getAppNameByPackageName(   //应用名称
+                    entity.getPackageName(), context
+            ));
 
             //视图 ID
             String viewId = entity.getViewId();
