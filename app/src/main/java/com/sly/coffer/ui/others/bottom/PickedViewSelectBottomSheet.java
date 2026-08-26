@@ -14,50 +14,29 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.ListAdapter;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.sly.coffer.data.save.db.BookkeepingDb;
-import com.sly.coffer.data.save.db.entities.composite.ui.TagGroupUiModel;
-import com.sly.coffer.data.save.db.services.TagService;
-import com.sly.coffer.databinding.BottomSheetTagSelectBinding;
-import com.sly.coffer.auxiliary.enums.KeyStrings;
+import com.sly.coffer.data.save.db.services.AccessibilityRuleService;
+import com.sly.coffer.databinding.BottomSheetPickedViewSelectBinding;
 import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.appearence.VisibilityHelper;
-import com.sly.coffer.ui.others.adapters.GroupTagMultiSelectAdapter;
-import com.sly.coffer.ui.others.adapters.GroupTagSingleSelectAdapter;
-import com.sly.coffer.ui.others.viewmodel.TagMultiSelectViewModel;
-import com.sly.coffer.ui.others.viewmodel.TagSingleSelectViewModel;
-import com.sly.coffer.ui.pages.tag.TagInputActivity;
+import com.sly.coffer.ui.others.adapters.GroupPickedViewSelectAdapter;
+import com.sly.coffer.ui.pages.accessibility.pick.PickedViewListActivity;
+import com.sly.coffer.ui.pages.accessibility.rule.AccessibilityRuleInputViewModel;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
-    private BottomSheetTagSelectBinding binding;        //绑定的 XML 布局
+public class PickedViewSelectBottomSheet extends BaseBottomSheetDialogFragment{
+    private BottomSheetPickedViewSelectBinding binding; //绑定的 XML布局
     private final CompositeDisposable disposable = new CompositeDisposable();
-    private int scopePow = 0;                           //标签作用域标识符
-    private boolean isMultiMode = true;                 //是否为多选模式
-    private long[] exceptedTagIds = null;               //被排除的标签的 ID
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            Bundle bundle = getArguments();
-            scopePow = bundle.getInt(KeyStrings.TAG_SCOPE.v(), 0);
-            isMultiMode = bundle.getBoolean(KeyStrings.TAG_MULTI_CHOICE.v(), true);
-            exceptedTagIds = bundle.getLongArray(KeyStrings.TAG_ID.v());
-        }
-    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = BottomSheetTagSelectBinding.inflate(inflater, container, false);
+        binding = BottomSheetPickedViewSelectBinding.inflate(inflater, container, false);
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -67,14 +46,6 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
         });
 
         initViews();
-
-        //绑定消失监听器
-        if (isMultiMode) {
-            setOnDismissListener(() -> {
-                TagMultiSelectViewModel viewModel = new ViewModelProvider(requireActivity()).get(TagMultiSelectViewModel.class);
-                viewModel.setNeedExecute(true);
-            });
-        }
 
         return binding.getRoot();
     }
@@ -123,7 +94,7 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
 
         //角色添加按钮
         binding.addBtn.setOnClickListener(view -> {
-            Intent skip2TagInput = new Intent(requireContext(), TagInputActivity.class);
+            Intent skip2TagInput = new Intent(requireContext(), PickedViewListActivity.class);
             startActivity(skip2TagInput);
         });
     }
@@ -132,34 +103,17 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
      * 初始化主列表
      */
     private void initMainRecycler() {
-        //设置适配器
-        ListAdapter<TagGroupUiModel, RecyclerView.ViewHolder> adapter;
-        if (isMultiMode) {
-            TagMultiSelectViewModel viewModel = new ViewModelProvider(requireActivity()).get(TagMultiSelectViewModel.class);
-            adapter = new GroupTagMultiSelectAdapter(
-                    viewModel.getCheckedTagIdSet(),
-                    (tag, isChecked, anchor) -> {
-                        if (isChecked) {
-                            viewModel.getCheckedTagIdSet().add(tag.getTagId());
-                        } else {
-                            viewModel.getCheckedTagIdSet().remove(tag.getTagId());
-                        }
-                    }
-            );
-        } else {
-            TagSingleSelectViewModel viewModel = new ViewModelProvider(requireActivity()).get(TagSingleSelectViewModel.class);
-            adapter = new GroupTagSingleSelectAdapter(
-                    (entity, anchor) -> {
-                        viewModel.setClickedEntity(entity);
-                        dismiss();
-                    }
-            );
-        }
+        AccessibilityRuleInputViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccessibilityRuleInputViewModel.class);
+        GroupPickedViewSelectAdapter adapter = new GroupPickedViewSelectAdapter(
+                (entity, anchor) -> {
+                    viewModel.setPickResult(entity);
+                    dismiss();
+                }
+        );
         binding.mainRecycler.setAdapter(adapter);
 
-        //订阅数据
-        BookkeepingDb db = BookkeepingDb.getInstance(requireContext());
-        disposable.add(TagService.getGroupedTagFlowable(db, scopePow, exceptedTagIds)
+        //加载数据
+        disposable.add(AccessibilityRuleService.getGroupedPickedView(requireContext())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(

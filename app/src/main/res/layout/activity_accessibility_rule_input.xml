@@ -165,15 +165,15 @@
                 style="@style/CommonTextInputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:endIconMode="none"
                 app:helperText="@string/picked_view_package_name_helper">
 
-                <com.google.android.material.textfield.TextInputEditText
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/package_name_input"
-                    style="@style/UserInputEditTextStyle"
+                    style="@style/UneditableAutoCompleteTextViewStyle"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:hint="@string/package_name"
-                    android:inputType="none" />
+                    android:layout_height="wrap_content"
+                    android:hint="@string/package_name" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- 界面名称 -->
@@ -182,15 +182,15 @@
                 style="@style/CommonTextInputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:endIconMode="none"
                 app:helperText="@string/picked_view_activity_name_helper">
 
-                <com.google.android.material.textfield.TextInputEditText
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/activity_name_input"
-                    style="@style/UserInputEditTextStyle"
+                    style="@style/UneditableAutoCompleteTextViewStyle"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:hint="@string/activity_name"
-                    android:inputType="none" />
+                    android:layout_height="wrap_content"
+                    android:hint="@string/activity_name" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- 视图标识符 -->
@@ -199,15 +199,15 @@
                 style="@style/CommonTextInputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:endIconMode="none"
                 app:helperText="@string/picked_view_view_id_helper">
 
-                <com.google.android.material.textfield.TextInputEditText
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/view_id_input"
-                    style="@style/UserInputEditTextStyle"
+                    style="@style/UneditableAutoCompleteTextViewStyle"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:hint="@string/view_id"
-                    android:inputType="none" />
+                    android:layout_height="wrap_content"
+                    android:hint="@string/view_id" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- 文本内容 -->
@@ -216,15 +216,15 @@
                 style="@style/CommonTextInputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:endIconMode="none"
                 app:helperText="@string/picked_view_content_text_helper">
 
-                <com.google.android.material.textfield.TextInputEditText
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/content_text_input"
-                    style="@style/UserInputEditTextStyle"
+                    style="@style/UneditableAutoCompleteTextViewStyle"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:hint="@string/content_text"
-                    android:inputType="none" />
+                    android:layout_height="wrap_content"
+                    android:hint="@string/content_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout

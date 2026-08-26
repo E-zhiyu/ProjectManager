@@ -10,53 +10,50 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.chip.Chip;
 import com.sly.coffer.auxiliary.interfaces.adapter.AdapterOnClickListener;
-import com.sly.coffer.data.save.db.entities.TagEntity;
-import com.sly.coffer.data.save.db.entities.composite.ui.TagGroupUiModel;
-import com.sly.coffer.databinding.ViewHolderGroupTagItemBinding;
+import com.sly.coffer.data.save.db.entities.PickedViewEntity;
+import com.sly.coffer.data.save.db.entities.composite.ui.PickedViewGroupUiModel;
+import com.sly.coffer.databinding.ViewHolderGroupPickedViewBinding;
 import com.sly.coffer.databinding.ViewHolderSeparatorTextviewBinding;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class GroupTagSingleSelectAdapter extends ListAdapter <TagGroupUiModel, RecyclerView.ViewHolder> {
-    private static final DiffUtil.ItemCallback<TagGroupUiModel> ITEM_CALLBACK = new DiffUtil.ItemCallback<>() {
+public class GroupPickedViewSelectAdapter extends ListAdapter<PickedViewGroupUiModel, RecyclerView.ViewHolder> {
+    private final static DiffUtil.ItemCallback<PickedViewGroupUiModel> ITEM_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
-        public boolean areItemsTheSame(@NonNull TagGroupUiModel oldItem, @NonNull TagGroupUiModel newItem) {
-            if (oldItem instanceof TagGroupUiModel.Item && newItem instanceof TagGroupUiModel.Item) {
-                TagGroupUiModel.Item oldI = (TagGroupUiModel.Item) oldItem;
-                TagGroupUiModel.Item newI = (TagGroupUiModel.Item) newItem;
-                List<Long> oldItemRoleIdList = oldI.tagList.stream()
-                        .map(TagEntity::getTagId)
+        public boolean areItemsTheSame(@NonNull PickedViewGroupUiModel oldItem, @NonNull PickedViewGroupUiModel newItem) {
+            if (oldItem instanceof PickedViewGroupUiModel.Item && newItem instanceof PickedViewGroupUiModel.Item) {
+                List<Long> oldIdList = ((PickedViewGroupUiModel.Item) oldItem).viewList.stream()
+                        .map(PickedViewEntity::getId)
                         .collect(Collectors.toList());
-                List<Long> newItemRoleIdList = newI.tagList.stream()
-                        .map(TagEntity::getTagId)
+                List<Long> newIdList = ((PickedViewGroupUiModel.Item) newItem).viewList.stream()
+                        .map(PickedViewEntity::getId)
                         .collect(Collectors.toList());
-                return oldItemRoleIdList.equals(newItemRoleIdList);
-            } else if (oldItem instanceof TagGroupUiModel.Separator && newItem instanceof TagGroupUiModel.Separator) {
-                TagGroupUiModel.Separator oldS = (TagGroupUiModel.Separator) oldItem;
-                TagGroupUiModel.Separator newS = (TagGroupUiModel.Separator) newItem;
-                return oldS.text.equals(newS.text);
+                return oldIdList.equals(newIdList);
+            } else if (oldItem instanceof PickedViewGroupUiModel.Separator && newItem instanceof PickedViewGroupUiModel.Separator) {
+                return ((PickedViewGroupUiModel.Separator) oldItem).text.equals(((PickedViewGroupUiModel.Separator) newItem).text);
             } else {
                 return false;
             }
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull TagGroupUiModel oldItem, @NonNull TagGroupUiModel newItem) {
-            if (oldItem instanceof TagGroupUiModel.Item && newItem instanceof TagGroupUiModel.Item) {
+        public boolean areContentsTheSame(@NonNull PickedViewGroupUiModel oldItem, @NonNull PickedViewGroupUiModel newItem) {
+            if (oldItem instanceof PickedViewGroupUiModel.Item && newItem instanceof PickedViewGroupUiModel.Item) {
                 return true;
             } else
-                return oldItem instanceof TagGroupUiModel.Separator && newItem instanceof TagGroupUiModel.Separator;
+                return oldItem instanceof PickedViewGroupUiModel.Separator && newItem instanceof PickedViewGroupUiModel.Separator;
         }
     };
+
     private static final int TYPE_ITEM = 1;
     private static final int TYPE_SEPARATOR = 0;
-    private final AdapterOnClickListener<TagEntity> clickListener;
+    private final AdapterOnClickListener<PickedViewEntity> clickListener;
 
     public static class ItemViewHolder extends RecyclerView.ViewHolder {
-        ViewHolderGroupTagItemBinding binding;
+        ViewHolderGroupPickedViewBinding binding;
 
-        public ItemViewHolder(@NonNull ViewHolderGroupTagItemBinding binding) {
+        public ItemViewHolder(@NonNull ViewHolderGroupPickedViewBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
@@ -66,25 +63,25 @@ public class GroupTagSingleSelectAdapter extends ListAdapter <TagGroupUiModel, R
          *
          * @param listener 标签点击后触发的监听器
          */
-        public void refreshRoleChip(@NonNull List<TagEntity> tagList, AdapterOnClickListener<TagEntity> listener) {
+        public void refreshRoleChip(@NonNull List<PickedViewEntity> tagList, AdapterOnClickListener<PickedViewEntity> listener) {
             //删除之前的视图
             binding.chipGroup.removeAllViews();
 
             //添加新的视图
-            for (TagEntity tag : tagList) {
+            for (PickedViewEntity view : tagList) {
                 //实例化 Chip
                 Chip chip = new Chip(binding.getRoot().getContext());
                 chip.setCheckable(false);
 
                 //设置显示名称
-                chip.setText(tag.getName());
+                chip.setText(view.getRemark());
 
                 //添加到视图
                 binding.chipGroup.addView(chip);
 
                 //绑定点击监听器
                 chip.setOnClickListener(v ->
-                        listener.onClick(tag, binding.getRoot())
+                        listener.onClick(view, binding.getRoot())
                 );
             }
         }
@@ -99,15 +96,15 @@ public class GroupTagSingleSelectAdapter extends ListAdapter <TagGroupUiModel, R
         }
     }
 
-    public GroupTagSingleSelectAdapter(AdapterOnClickListener<TagEntity> clickListener) {
+    public GroupPickedViewSelectAdapter(AdapterOnClickListener<PickedViewEntity> clickListener) {
         super(ITEM_CALLBACK);
         this.clickListener = clickListener;
     }
 
     @Override
     public int getItemViewType(int position) {
-        TagGroupUiModel item = getItem(position);
-        if (item instanceof TagGroupUiModel.Item) return TYPE_ITEM;
+        PickedViewGroupUiModel item = getItem(position);
+        if (item instanceof PickedViewGroupUiModel.Item) return TYPE_ITEM;
         return TYPE_SEPARATOR;
     }
 
@@ -115,7 +112,7 @@ public class GroupTagSingleSelectAdapter extends ListAdapter <TagGroupUiModel, R
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_ITEM) {
-            ViewHolderGroupTagItemBinding binding = ViewHolderGroupTagItemBinding.inflate(
+            ViewHolderGroupPickedViewBinding binding = ViewHolderGroupPickedViewBinding.inflate(
                     LayoutInflater.from(parent.getContext()),
                     parent,
                     false
@@ -133,14 +130,14 @@ public class GroupTagSingleSelectAdapter extends ListAdapter <TagGroupUiModel, R
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        TagGroupUiModel dataItem = getItem(position);
-        if (dataItem instanceof TagGroupUiModel.Item && holder instanceof ItemViewHolder) {
-            TagGroupUiModel.Item item = (TagGroupUiModel.Item) dataItem;
+        PickedViewGroupUiModel dataItem = getItem(position);
+        if (dataItem instanceof PickedViewGroupUiModel.Item && holder instanceof ItemViewHolder) {
+            PickedViewGroupUiModel.Item item = (PickedViewGroupUiModel.Item) dataItem;
             ItemViewHolder itemHolder = (ItemViewHolder) holder;
 
-            itemHolder.refreshRoleChip(item.tagList, clickListener);
-        } else if (dataItem instanceof TagGroupUiModel.Separator && holder instanceof SeparatorViewHolder) {
-            TagGroupUiModel.Separator separator = (TagGroupUiModel.Separator) dataItem;
+            itemHolder.refreshRoleChip(item.viewList, clickListener);
+        } else if (dataItem instanceof PickedViewGroupUiModel.Separator && holder instanceof SeparatorViewHolder) {
+            PickedViewGroupUiModel.Separator separator = (PickedViewGroupUiModel.Separator) dataItem;
             SeparatorViewHolder separatorHolder = (SeparatorViewHolder) holder;
 
             separatorHolder.binding.text.setText(separator.text);

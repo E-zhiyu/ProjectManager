@@ -37,7 +37,7 @@ public class GroupTagMultiSelectAdapter extends ListAdapter<TagGroupUiModel, Rec
             } else if (oldItem instanceof TagGroupUiModel.Separator && newItem instanceof TagGroupUiModel.Separator) {
                 TagGroupUiModel.Separator oldS = (TagGroupUiModel.Separator) oldItem;
                 TagGroupUiModel.Separator newS = (TagGroupUiModel.Separator) newItem;
-                return oldS.separatorText.equals(newS.separatorText);
+                return oldS.text.equals(newS.text);
             } else {
                 return false;
             }
@@ -151,7 +151,7 @@ public class GroupTagMultiSelectAdapter extends ListAdapter<TagGroupUiModel, Rec
             TagGroupUiModel.Separator separator = (TagGroupUiModel.Separator) dataItem;
             GroupRoleSeparatorViewHolder separatorHolder = (GroupRoleSeparatorViewHolder) holder;
 
-            separatorHolder.binding.text.setText(separator.separatorText);
+            separatorHolder.binding.text.setText(separator.text);
         }
     }
 }

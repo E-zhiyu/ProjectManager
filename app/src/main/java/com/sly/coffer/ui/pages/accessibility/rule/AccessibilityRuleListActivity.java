@@ -105,7 +105,7 @@ public class AccessibilityRuleListActivity extends AppCompatActivity {
         AccessibilityRuleListAdapter adapter = new AccessibilityRuleListAdapter(
                 (entity, anchor) -> {
                     Bundle bundle = new Bundle();
-                    bundle.putLong(KeyStrings.NOTIFICATION_RULE_ID.v(), entity.getRuleId());
+                    bundle.putLong(KeyStrings.ACCESSIBILITY_RULE_ID.v(), entity.getRuleId());
 
                     Intent skip2RuleInput = new Intent(this, AccessibilityRuleInputActivity.class);
                     skip2RuleInput.putExtras(bundle);

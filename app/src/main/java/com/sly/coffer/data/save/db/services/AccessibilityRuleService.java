@@ -1,5 +1,7 @@
 package com.sly.coffer.data.save.db.services;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 
 import com.sly.coffer.data.save.db.BookkeepingDb;
@@ -7,9 +9,12 @@ import com.sly.coffer.data.save.db.daos.AccessibilityRuleDao;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleEntity;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleTransferEntity;
 import com.sly.coffer.data.save.db.entities.PickedViewEntity;
-import com.sly.coffer.data.save.db.entities.composite.ui.PickedViewUiModel;
+import com.sly.coffer.data.save.db.entities.composite.ui.PickedViewGroupUiModel;
+import com.sly.coffer.data.save.db.entities.composite.ui.PickedViewListUiModel;
+import com.sly.coffer.helpers.AppListHelper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +88,7 @@ public class AccessibilityRuleService {
      * @param keyword 搜索关键词
      * @return 拾取的视图列表，包含应用分隔符
      */
-    public static Flowable<List<PickedViewUiModel>> getAllPickedView(@NonNull BookkeepingDb db, String keyword) {
+    public static Flowable<List<PickedViewListUiModel>> getAllPickedView(@NonNull BookkeepingDb db, String keyword) {
         AccessibilityRuleDao dao = db.accessibilityRuleDao();
         String safeKeyword = "";
 
@@ -96,7 +101,7 @@ public class AccessibilityRuleService {
         int isSearchFilter = !safeKeyword.isEmpty() ? 1 : 0;
         return dao.getAllPickedViewFlowable(safeKeyword, isSearchFilter)
                 .map(rawList -> {
-                    List<PickedViewUiModel> resultList = new ArrayList<>();
+                    List<PickedViewListUiModel> resultList = new ArrayList<>();
 
                     //判空
                     if (rawList.isEmpty()) {
@@ -114,15 +119,46 @@ public class AccessibilityRuleService {
                     //循环插入分隔符和 Item
                     for (Map.Entry<String, List<PickedViewEntity>> entry : groupedMap.entrySet()) {
                         String separatorText = entry.getKey();
-                        resultList.add(new PickedViewUiModel.Separator(separatorText));
+                        resultList.add(new PickedViewListUiModel.Separator(separatorText));
 
-                        List<PickedViewUiModel.Item> itemList = entry.getValue().stream()
-                                .map(PickedViewUiModel.Item::new)
+                        List<PickedViewListUiModel.Item> itemList = entry.getValue().stream()
+                                .map(PickedViewListUiModel.Item::new)
                                 .collect(Collectors.toList());
                         resultList.addAll(itemList);
                     }
 
                     return resultList;
+                });
+    }
+
+    /**
+     * 获取已根据应用分好组的已拾取的视图
+     *
+     * @param context 上下文
+     * @return 分好组的视图列表，支持响应式更新
+     */
+    public static Flowable<List<PickedViewGroupUiModel>> getGroupedPickedView(Context context) {
+        BookkeepingDb db = BookkeepingDb.getInstance(context);
+        return db.accessibilityRuleDao().getAllPickedViewFlowable()
+                .flatMap(pickedViewList -> {
+                    //分组
+                    Map<String, List<PickedViewEntity>> groupedMap = pickedViewList.stream()
+                            .collect(Collectors.groupingBy(
+                                    PickedViewEntity::getPackageName,
+                                    HashMap::new,
+                                    Collectors.toList()
+                            ));
+
+                    //生成带有分隔符的列表
+                    List<PickedViewGroupUiModel> resultList = new ArrayList<>();
+                    for (Map.Entry<String, List<PickedViewEntity>> entry : groupedMap.entrySet()) {
+                        String appName = AppListHelper.getAppNameByPackageName(entry.getKey(), context);
+                        resultList.add(new PickedViewGroupUiModel.Separator(appName));
+
+                        resultList.add(new PickedViewGroupUiModel.Item(entry.getValue()));
+                    }
+
+                    return Flowable.just(resultList);
                 });
     }
 }

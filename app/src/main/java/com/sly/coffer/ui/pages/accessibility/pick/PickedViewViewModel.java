@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.sly.coffer.data.save.db.BookkeepingDb;
-import com.sly.coffer.data.save.db.entities.composite.ui.PickedViewUiModel;
+import com.sly.coffer.data.save.db.entities.composite.ui.PickedViewListUiModel;
 import com.sly.coffer.data.save.db.services.AccessibilityRuleService;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public class PickedViewViewModel extends ViewModel {
      * @param db 数据库实例
      * @return 角色数据列表，包含分隔符
      */
-    public Flowable<List<PickedViewUiModel>> getPickedViewFlowable(BookkeepingDb db) {
+    public Flowable<List<PickedViewListUiModel>> getPickedViewFlowable(BookkeepingDb db) {
         return searchKeywordProcessor
                 .debounce(50, TimeUnit.MILLISECONDS)
                 .switchMap(

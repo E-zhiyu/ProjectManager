@@ -284,9 +284,18 @@ public interface AccessibilityRuleDao {
                     "WHERE :useSearchFilter = 0 " +
                     "OR remark LIKE '%' || :keyword || '%' ESCAPE '/' " +
                     "OR viewId LIKE '%' || :keyword || '%' ESCAPE '/' " +
-                    "OR activityName LIKE '%' || :keyword || '%' ESCAPE '/' "
+                    "OR activityName LIKE '%' || :keyword || '%' ESCAPE '/' " +
+                    "ORDER BY packageName, dateTime DESC"
     )
     Flowable<List<PickedViewEntity>> getAllPickedViewFlowable(String keyword, int useSearchFilter);
+
+    /**
+     * 获取所有拾取的视图
+     *
+     * @return 所有已拾取的视图，支持响应式更新
+     */
+    @Query("SELECT * FROM pickedViews ORDER BY packageName, dateTime DESC")
+    Flowable<List<PickedViewEntity>> getAllPickedViewFlowable();
 
     /**
      * 通过 ID 获取拾取的视图

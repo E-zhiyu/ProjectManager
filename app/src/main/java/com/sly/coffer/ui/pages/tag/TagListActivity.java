@@ -189,7 +189,7 @@ public class TagListActivity extends AppCompatActivity {
      */
     private void observeLiveData() {
         TagSingleSelectViewModel tagSingleViewModel = new ViewModelProvider(this).get(TagSingleSelectViewModel.class);
-        tagSingleViewModel.getClickedTag().observe(this, tag -> {
+        tagSingleViewModel.getClickedEntity().observe(this, tag -> {
             if (mergedTag == null) return;
 
             String message = String.format(

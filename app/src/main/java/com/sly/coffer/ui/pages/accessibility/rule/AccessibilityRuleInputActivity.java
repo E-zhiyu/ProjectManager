@@ -33,6 +33,7 @@ import com.sly.coffer.helpers.ImmHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.helpers.appearence.VisibilityHelper;
 import com.sly.coffer.ui.others.adapters.NoFilteringArrayAdapter;
+import com.sly.coffer.ui.others.bottom.PickedViewSelectBottomSheet;
 import com.sly.coffer.ui.others.bottom.TagSelectBottomSheet;
 import com.sly.coffer.ui.others.viewmodel.TagMultiSelectViewModel;
 import com.sly.coffer.ui.pages.main.bookkeeping.AccountTagAdapter;
@@ -152,7 +153,7 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                                 binding.nameInput.setText(rule.getName());                  //名称
                                 viewModel.setType(AccountType.values()[rule.getType()]);
                                 binding.typeInput.setText(viewModel.getType().getTitle());  //种类
-                                if (viewModel.getPickedView() == null) {    //仅没有设置拾取时才填充
+                                if (viewModel.getPickedView().getValue() == null) { //仅没有设置拾取时才填充
                                     //填充拾取结果
                                     PickedViewEntity pickedView = new PickedViewEntity(
                                             "拾取的视图",
@@ -278,7 +279,8 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
 
         //拾取视图选择按钮
         binding.amountViewSelectBtn.setOnClickListener(view -> {
-            //TODO:开始选择
+            PickedViewSelectBottomSheet bottomSheet = new PickedViewSelectBottomSheet();
+            bottomSheet.show(getSupportFragmentManager(), TagStrings.PICKED_VIEW_BOTTOM.t());
         });
 
         //视图拾取说明按钮
@@ -377,6 +379,12 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                 binding.viewIdInput.setText(pickedView.getViewId());                //视图标识符
                 binding.contentTextInput.setText(pickedView.getContentText());      //视图文本
 
+                //消除错误提示
+                binding.packageNameLayout.setError(null);   //包名
+                binding.activityNameLayout.setError(null);  //界面名称
+                binding.viewIdLayout.setError(null);        //视图标识符
+                binding.contentTextLayout.setError(null);   //视图文本
+
                 AccessibilityRuleInputViewModel viewModel = new ViewModelProvider(this).get(AccessibilityRuleInputViewModel.class);
                 int capturePos = viewModel.getCapturePos();
 
@@ -405,6 +413,14 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
 
                     i++;
                 }
+
+                //显示 ChipGroup
+                VisibilityHelper.toggleViewExpansion(
+                        binding.scrollLayout,
+                        true,
+                        null,
+                        binding.amountSelectLayout
+                );
             }
         });
     }
@@ -430,8 +446,12 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
         } else if (viewModel.getType() == AccountType.TRANSFER && importAccount.isEmpty()) {
             err = "转入账户不能为空";
             binding.importAccountLayout.setError(err);
-        } else if (viewModel.getPickedView() == null) {
+        } else if (viewModel.getPickedView().getValue() == null) {
             err = "必须设置拾取视图";
+            binding.packageNameLayout.setError(err);
+            binding.activityNameLayout.setError(err);
+            binding.viewIdLayout.setError(err);
+            binding.contentTextLayout.setError(err);
         }
 
         return err;
@@ -448,7 +468,7 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
         String packageName = String.valueOf(binding.packageNameInput.getEditableText()).trim();
         String activityName = String.valueOf(binding.activityNameInput.getEditableText()).trim();
         String viewId = String.valueOf(binding.viewIdInput.getEditableText()).trim();
-        String originContent = String.valueOf(binding.contentTextInput.getEditableText()).trim();
+        String contentText = String.valueOf(binding.contentTextInput.getEditableText()).trim();
         String exportAccount = String.valueOf(binding.exportAccountInput.getText()).trim();
         String importAccount = String.valueOf(binding.importAccountInput.getText()).trim();
 
@@ -460,7 +480,7 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
         //生成内容正则表达式
         final String REGEX = "\\d+\\.?\\d{0,2}";
         final String REPLACEMENT = "(\\\\d+\\\\.?\\\\d{0,2})";
-        String contentRegex = originContent.replaceAll(REGEX, REPLACEMENT);
+        String contentRegex = contentText.replaceAll(REGEX, REPLACEMENT);
 
         //保存数据
         AccessibilityRuleEntity rule = new AccessibilityRuleEntity(
@@ -469,7 +489,7 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                 packageName,
                 activityName,
                 viewId,
-                originContent,
+                contentText,
                 contentRegex,
                 capturePos
         );
