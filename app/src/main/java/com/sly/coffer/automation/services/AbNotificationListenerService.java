@@ -102,7 +102,7 @@ public class AbNotificationListenerService extends NotificationListenerService {
 
         //启动时则加载规则
         BookkeepingDb db = BookkeepingDb.getInstance(this);
-        disposable.add(db.ruleDao().getEnabledNotificationRuleFlowable()
+        disposable.add(db.notificationRuleDao().getEnabledNotificationRuleFlowable()
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         modelList -> {

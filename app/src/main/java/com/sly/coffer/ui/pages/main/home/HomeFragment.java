@@ -265,7 +265,7 @@ public class HomeFragment extends Fragment {
         AppearanceHelper.attachMorphAnimation(binding.notificationRuleCard);
 
         BookkeepingDb db = BookkeepingDb.getInstance(requireContext());
-        disposable.add(db.ruleDao().getNotificationRuleCountFlowable()
+        disposable.add(db.notificationRuleDao().getNotificationRuleCountFlowable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(

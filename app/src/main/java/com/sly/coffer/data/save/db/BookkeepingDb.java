@@ -17,7 +17,7 @@ import com.sly.coffer.data.save.db.daos.AccessibilityRuleDao;
 import com.sly.coffer.data.save.db.daos.AccountDao;
 import com.sly.coffer.data.save.db.daos.BudgetDao;
 import com.sly.coffer.data.save.db.daos.CapturedNotificationDao;
-import com.sly.coffer.data.save.db.daos.RuleDao;
+import com.sly.coffer.data.save.db.daos.NotificationRuleDao;
 import com.sly.coffer.data.save.db.daos.TagDao;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleEntity;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleTagRefEntity;
@@ -109,7 +109,7 @@ public abstract class BookkeepingDb extends RoomDatabase {
 
     public abstract TagDao tagDao();
 
-    public abstract RuleDao ruleDao();
+    public abstract NotificationRuleDao notificationRuleDao();
 
     public abstract BudgetDao budgetDao();
 
@@ -139,7 +139,7 @@ public abstract class BookkeepingDb extends RoomDatabase {
                     "已支付.(\\d+\\.?\\d{0,2})",
                     1
             );
-            ruleDao().insertNotificationRule(weChatPay);
+            notificationRuleDao().insertNotificationRule(weChatPay);
             NotificationRuleEntity aliPay = new NotificationRuleEntity(     //支付宝支付
                     "支付宝支付",
                     AccountType.EXPENSE.ordinal(),
@@ -148,7 +148,7 @@ public abstract class BookkeepingDb extends RoomDatabase {
                     "你有一笔(\\d+\\.?\\d{0,2})元的支出",
                     1
             );
-            ruleDao().insertNotificationRule(aliPay);
+            notificationRuleDao().insertNotificationRule(aliPay);
 
             return Completable.complete();
         });

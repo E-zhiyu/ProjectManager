@@ -152,7 +152,7 @@ public class NotificationRuleListActivity extends AppCompatActivity {
                 },
                 (entity, finalStat, anchor) -> {
                     BookkeepingDb db = BookkeepingDb.getInstance(this);
-                    disposable.add(db.ruleDao().setRuleEnabled(finalStat, entity.getRuleId())
+                    disposable.add(db.notificationRuleDao().setRuleEnabled(finalStat, entity.getRuleId())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribeOn(Schedulers.io())
                             .subscribe(
@@ -172,7 +172,7 @@ public class NotificationRuleListActivity extends AppCompatActivity {
         );
         binding.recycler.setAdapter(adapter);
         BookkeepingDb db = BookkeepingDb.getInstance(this);
-        disposable.add(db.ruleDao().getAllNotificationRuleFlowable()
+        disposable.add(db.notificationRuleDao().getAllNotificationRuleFlowable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(
@@ -243,7 +243,7 @@ public class NotificationRuleListActivity extends AppCompatActivity {
                 .setMessage(message)
                 .setPositiveButton("确定", (dialogInterface, i) -> {
                     BookkeepingDb db = BookkeepingDb.getInstance(this);
-                    disposable.add(db.ruleDao().deleteNotificationRule(rule)
+                    disposable.add(db.notificationRuleDao().deleteNotificationRule(rule)
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribeOn(Schedulers.io())
                             .subscribe(

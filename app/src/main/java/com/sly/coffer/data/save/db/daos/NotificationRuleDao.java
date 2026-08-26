@@ -24,7 +24,7 @@ import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 
 @Dao
-public interface RuleDao {
+public interface NotificationRuleDao {
     /**
      * 获取通知规则数量
      *
