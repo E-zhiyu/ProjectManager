@@ -168,7 +168,7 @@
             android:exported="false"
             android:label="被每天0点检查预算的闹钟触发的预算重置接收器">
             <intent-filter>
-                <action android:name="com.manager.assistant.BudgetResetReceiver" />
+                <action android:name="com.sly.coffer.BudgetResetReceiver" />
             </intent-filter>
         </receiver>
         <!-- 开机启动监听器 -->

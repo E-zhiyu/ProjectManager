@@ -14,6 +14,7 @@ public class AboutHelper {
             "\n" +
             "### BUG修复\n" +
             "\n" +
+            "- 修复无法自动重置预算的BUG\n" +
             "- 修复合并标签提示不完全的BUG\n" +
             "- 修复修改通知规则后会自动启用的BUG\n" +
             "\n" +
