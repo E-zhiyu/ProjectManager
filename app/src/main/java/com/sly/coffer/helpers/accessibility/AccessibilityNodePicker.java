@@ -31,6 +31,7 @@ public class AccessibilityNodePicker {
             return null;
         }
 
+        //TODO:解决无法获取部分应用中的视图的BUG
         AccessibilityNodeInfo target = findDeepestNode(
                 root,
                 (int) x,

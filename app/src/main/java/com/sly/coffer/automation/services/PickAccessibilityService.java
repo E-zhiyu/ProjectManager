@@ -29,6 +29,8 @@ import com.sly.coffer.data.save.db.services.AccessibilityRuleService;
 import com.sly.coffer.helpers.accessibility.AccessibilityNodePicker;
 import com.sly.coffer.ui.others.overlay.PickerOverlay;
 
+import org.jetbrains.annotations.Contract;
+
 import java.time.LocalDateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -150,6 +152,8 @@ public class PickAccessibilityService extends AccessibilityService {
         pickerOverlay = new PickerOverlay(
                 this,
                 (x, y) -> {
+                    stopPicker();
+
                     PickResult result = AccessibilityNodePicker.pick(
                             this,
                             x,
@@ -157,17 +161,15 @@ public class PickAccessibilityService extends AccessibilityService {
                     );
 
                     //判断是否点击到有内容的视图
-                    if (!isResultUsableAndShowToast(result)) {
+                    String err = isResultUsableAndShowToast(result);
+                    if (err != null) {
+                        Toast.makeText(this, err, Toast.LENGTH_SHORT).show();
                         return;
                     }
 
-                    if (result != null) {
-                        result.packageName = currentPackageName;
-                        result.activityName = currentActivityName;
-                        onNodePicked(result);
-                    }
-
-                    stopPicker();
+                    result.packageName = currentPackageName;
+                    result.activityName = currentActivityName;
+                    onNodePicked(result);
                 });
 
         pickerOverlay.show();
@@ -179,21 +181,20 @@ public class PickAccessibilityService extends AccessibilityService {
      * @param result 拾取结果
      * @return 该结果是否可用
      */
-    private boolean isResultUsableAndShowToast(@Nullable PickResult result) {
+    @Nullable
+    @Contract("null -> !null")
+    private String isResultUsableAndShowToast(@Nullable PickResult result) {
         if (result == null) {
-            Toast.makeText(this, "无法拾取视图，请重试", Toast.LENGTH_SHORT).show();
-            return false;
+            return "无法拾取视图，请重新拾取";
         } else if (result.viewId == null || result.viewId.isEmpty()) {
-            Toast.makeText(this, "该视图没有编号，请重新选择", Toast.LENGTH_SHORT).show();
-            return false;
+            return "该视图没有编号，请重新拾取";
         } else {
             Pattern numPattern = Pattern.compile("\\d");
             Matcher matcher = numPattern.matcher(result.content);
             if (matcher.find()) {
-                return true;
+                return null;
             } else {
-                Toast.makeText(this, "视图文本中不含数字，请重新选择", Toast.LENGTH_SHORT).show();
-                return false;
+                return "视图文本中不含数字，请重新拾取";
             }
         }
     }

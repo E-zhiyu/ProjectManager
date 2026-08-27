@@ -1,6 +1,8 @@
 package com.sly.coffer.ui.pages.accessibility.rule;
 
+import android.Manifest;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -177,6 +179,12 @@ public class AccessibilityRuleListActivity extends AppCompatActivity {
                 "无障碍记账服务",
                 "请开启无障碍中的“自动记账”服务，以允许APP识别屏幕内容实现自动记账。"
         );
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            helper.addPermission(
+                    Manifest.permission.POST_NOTIFICATIONS,
+                    "请授予通知权限用于触发自动记账后发送通知。"
+            );
+        }
     }
 
     /**

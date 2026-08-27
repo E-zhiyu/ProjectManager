@@ -212,7 +212,7 @@ public class NotificationRuleListActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissionHelper.addPermission(
                     Manifest.permission.POST_NOTIFICATIONS,
-                    "请授予通知权限用于触发自动记账后发送确认通知。"
+                    "请授予通知权限用于触发自动记账后发送通知。"
             );
         }
         permissionHelper.addPermission(

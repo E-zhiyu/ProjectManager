@@ -37,8 +37,8 @@ import com.sly.coffer.data.save.db.entities.composite.AccessibilityRuleWithDetai
 import com.sly.coffer.data.save.db.services.AccountService;
 import com.sly.coffer.data.save.preference.AutoBookKeepingPreference;
 import com.sly.coffer.helpers.NotificationHelper;
+import com.sly.coffer.ui.pages.accessibility.rule.AccessibilityRuleListActivity;
 import com.sly.coffer.ui.pages.main.bookkeeping.RunningAccountInputActivity;
-import com.sly.coffer.ui.pages.notification.rule.NotificationRuleListActivity;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -209,7 +209,7 @@ public class AbAccessibilityService extends AccessibilityService {
     private void sendErrorNotification(String content, long ruleId) {
         //发送错误提示通知
         int notificationID = (int) (ruleId + System.currentTimeMillis() + NotificationID.AUTO_BOOKKEEPING_ERROR.ordinal());
-        Intent skip2RuleManage = new Intent(this, NotificationRuleListActivity.class);
+        Intent skip2RuleManage = new Intent(this, AccessibilityRuleListActivity.class);
         PendingIntent pi = PendingIntent.getActivity(
                 this,
                 notificationID,
