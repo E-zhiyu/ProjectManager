@@ -178,7 +178,8 @@
     <string name="delete_notification_rule">删除通知规则</string>
     <string name="delete_accessibility_rule">删除无障碍规则</string>
     <string name="alert_window_permission">悬浮窗权限</string>
-    <string name="auto_bookkeeping_view_pick">自动记账-视图拾取</string>
+    <string name="accessibility_title_view_pick">金库-视图拾取</string>
+    <string name="accessibility_title_auto_bookkeeping">金库-自动记账</string>
     <string name="view_pick">视图拾取</string>
     <string name="amount_view">金额视图</string>
     <string name="btn_select">选择按钮</string>

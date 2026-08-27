@@ -203,7 +203,7 @@
         <service
             android:name=".automation.services.AbAccessibilityService"
             android:exported="false"
-            android:label="@string/auto_bookkeeping"
+            android:label="@string/accessibility_title_auto_bookkeeping"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             tools:ignore="AccessibilityPolicy">
             <intent-filter>
@@ -218,7 +218,7 @@
         <service
             android:name=".automation.services.PickAccessibilityService"
             android:exported="false"
-            android:label="@string/auto_bookkeeping_view_pick"
+            android:label="@string/accessibility_title_view_pick"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             tools:ignore="AccessibilityPolicy">
             <intent-filter>
