@@ -29,7 +29,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class PickedViewSelectBottomSheet extends BaseBottomSheetDialogFragment{
+public class PickedViewSelectBottomSheet extends BaseBottomSheetDialogFragment {
     private BottomSheetPickedViewSelectBinding binding; //绑定的 XML布局
     private final CompositeDisposable disposable = new CompositeDisposable();
 
@@ -106,6 +106,7 @@ public class PickedViewSelectBottomSheet extends BaseBottomSheetDialogFragment{
         AccessibilityRuleInputViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccessibilityRuleInputViewModel.class);
         GroupPickedViewSelectAdapter adapter = new GroupPickedViewSelectAdapter(
                 (entity, anchor) -> {
+                    viewModel.setCapturePos(1);
                     viewModel.setPickResult(entity);
                     dismiss();
                 }

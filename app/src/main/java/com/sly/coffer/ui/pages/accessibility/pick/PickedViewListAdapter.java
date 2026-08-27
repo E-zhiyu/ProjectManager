@@ -214,7 +214,7 @@ public class PickedViewListAdapter extends ListAdapter<PickedViewListUiModel, Re
 
             //界面名称
             String[] parts = entity.getActivityName().split("\\.");
-            String activityName = parts.length > 0 ? parts[parts.length - 1] : "<未知界面>";
+            String activityName = parts.length > 1 ? parts[parts.length - 1] : "<未知界面>";
             itemHolder.binding.activityNameText.setText(activityName);
 
             //设置圆角

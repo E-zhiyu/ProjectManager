@@ -29,7 +29,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class AbAccessibilityService extends AccessibilityService {
     private final CompositeDisposable disposable = new CompositeDisposable();
     private final Map<String, List<AccessibilityRuleWithDetailModel>> ruleCacheMap = new HashMap<>();
-    private static final Pattern AMOUNT_PATTERN = Pattern.compile("(\\d+\\.?\\d{0,2})");
 
     @Override
     protected void onServiceConnected() {
@@ -81,19 +80,27 @@ public class AbAccessibilityService extends AccessibilityService {
             AccessibilityRuleEntity rule = model.getRule();
 
             //如果规则指定了 Activity，校验 Activity 类名
-            if (!TextUtils.isEmpty(rule.getTargetActivity())
-                    && event.getClassName() != null
-                    && !rule.getTargetActivity().equals(event.getClassName().toString())) {
+            String classNameStr = event.getClassName() != null ? event.getClassName().toString() : "";
+            String targetActivity = rule.getTargetActivity();
+            Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "className : " + classNameStr + ",\n targetActivity : " + targetActivity);
+            if (!TextUtils.isEmpty(targetActivity)
+                    && !targetActivity.equals(classNameStr)) {
+                Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "活动名不匹配，跳过该规则");
                 continue;
             }
 
             // 3. 根据 viewId 匹配并尝试提取金额文本
             String rawAmountText = extractTextByViewId(rootNode, rule.getViewId());
             if (!TextUtils.isEmpty(rawAmountText)) {
-                String cleanAmount = parseAmountStr(rawAmountText);
+                String cleanAmount = parseAmountStr(rawAmountText, rule.getContentRegex(), rule.getCapturePos());
                 if (!TextUtils.isEmpty(cleanAmount)) {
-                    //TODO:生成流水记录
+                    //TODO:实现记账和防抖
+                    Log.i(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "触发自动记账");
+                } else {
+                    Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "无法提取金额");
                 }
+            } else {
+                Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "无法提取视图文本");
             }
         }
     }
@@ -134,13 +141,15 @@ public class AbAccessibilityService extends AccessibilityService {
     /**
      * 从原始文本中清洗提取出合法的金额字符串（如 "￥88.50" -> "88.50"）
      *
-     * @param rawText 包含金额数据的原始文本
+     * @param rawText     包含金额数据的原始文本
+     * @param capturedPos 金额捕获组位置
      */
     @Nullable
-    private String parseAmountStr(String rawText) {
-        Matcher matcher = AMOUNT_PATTERN.matcher(rawText);
+    private String parseAmountStr(String rawText, String patternStr, int capturedPos) {
+        Pattern pattern = Pattern.compile(patternStr);
+        Matcher matcher = pattern.matcher(rawText);
         if (matcher.find()) {
-            return matcher.group(1);
+            return matcher.group(capturedPos);
         }
         return null;
     }

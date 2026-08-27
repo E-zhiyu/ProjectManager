@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -40,8 +41,8 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class PickAccessibilityService extends AccessibilityService {
     private final CompositeDisposable disposable = new CompositeDisposable();
     private PickerOverlay pickerOverlay;
-    private String currentActivityName;
-    private String currentPackageName;
+    private String currentActivityName = "";
+    private String currentPackageName = "";
     private BroadcastReceiver startReceiver = null;
 
     @Override
@@ -76,27 +77,30 @@ public class PickAccessibilityService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         if (event == null) return;
 
-        //获取包名
-        CharSequence packageName = event.getPackageName();
-        if (packageName == null) return;
-        currentPackageName = packageName.toString();
-        Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "包名：" + currentPackageName);
-
-        //获取活动名
         if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            AccessibilityNodeInfo rootNode = getRootInActiveWindow();
+            if (rootNode != null) {
+                CharSequence rootPackageChar = rootNode.getPackageName();
+                if (rootPackageChar != null) {
+                    currentPackageName = rootPackageChar.toString();
+                }
+            }
+
             // 2. 从事件中获取包名和类名
             CharSequence className = event.getClassName();
 
             if (className != null) {
+                Log.d(LogTags.PICK_ACCESSIBILITY_SERVICE.n(), "事件className : " + className);
+
                 // 3. 组合成完整的组件名
                 ComponentName componentName = new ComponentName(
-                        packageName.toString(),
+                        currentPackageName,
                         className.toString()
                 );
 
                 // 这就是当前活动的完整名称 (例如: com.example.app/.MainActivity)
                 if (isActivity(componentName)) {
-                    currentActivityName = componentName.flattenToShortString();
+                    currentActivityName = className.toString();
                 }
             }
         }
@@ -153,7 +157,7 @@ public class PickAccessibilityService extends AccessibilityService {
                     );
 
                     //判断是否点击到有内容的视图
-                    if (!isResultUsableAndNotify(result)) {
+                    if (!isResultUsableAndShowToast(result)) {
                         return;
                     }
 
@@ -175,7 +179,7 @@ public class PickAccessibilityService extends AccessibilityService {
      * @param result 拾取结果
      * @return 该结果是否可用
      */
-    private boolean isResultUsableAndNotify(@Nullable PickResult result) {
+    private boolean isResultUsableAndShowToast(@Nullable PickResult result) {
         if (result == null) {
             Toast.makeText(this, "无法拾取视图，请重试", Toast.LENGTH_SHORT).show();
             return false;

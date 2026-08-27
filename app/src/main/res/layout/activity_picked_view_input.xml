@@ -107,15 +107,15 @@
                 style="@style/CommonTextInputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:endIconMode="none"
                 app:helperText="@string/picked_view_package_name_helper">
 
-                <com.google.android.material.textfield.TextInputEditText
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/package_name_input"
-                    style="@style/UserInputEditTextStyle"
+                    style="@style/UneditableAutoCompleteTextViewStyle"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:hint="@string/package_name"
-                    android:inputType="none" />
+                    android:layout_height="wrap_content"
+                    android:hint="@string/package_name" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- 界面名称 -->
