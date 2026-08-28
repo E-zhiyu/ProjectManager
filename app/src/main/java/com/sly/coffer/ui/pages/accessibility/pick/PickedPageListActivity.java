@@ -1,6 +1,8 @@
 package com.sly.coffer.ui.pages.accessibility.pick;
 
+import android.Manifest;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -153,7 +155,7 @@ public class PickedPageListActivity extends AppCompatActivity {
 
             //通过广播启动视图拾取
             Intent startIntent = new Intent(BroadcastActions.START_PICK.toString());
-            startIntent.setPackage(getPackageName());   //明确显式广播，增强安全性
+            startIntent.setPackage(getPackageName());
             sendBroadcast(startIntent);
             Toast.makeText(this, "请点击表示金额的文字", Toast.LENGTH_SHORT).show();
         });
@@ -166,6 +168,12 @@ public class PickedPageListActivity extends AppCompatActivity {
      */
     private void addPermissionRequests() {
         PermissionHelper helper = new PermissionHelper(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            helper.addPermission(
+                    Manifest.permission.POST_NOTIFICATIONS,
+                    "授予通知权限，以发送用于关闭界面拾取的通知。"
+            );
+        }
         helper.addPermission(
                 PermissionHelper.SpecialPermissionType.ACCESSIBILITY_PICK,
                 "视图拾取服务",
