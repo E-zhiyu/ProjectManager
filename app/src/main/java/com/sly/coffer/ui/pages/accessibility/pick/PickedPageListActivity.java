@@ -34,6 +34,8 @@ import com.sly.coffer.ui.others.decoration.sticky.StickyHeaderItemDecoration;
 import com.sly.coffer.ui.others.dialogs.EditTextDialogBuilder;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 
+import java.util.Locale;
+
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -171,7 +173,12 @@ public class PickedPageListActivity extends AppCompatActivity {
                 Toast.makeText(this, "已关闭界面拾取", Toast.LENGTH_SHORT).show();
             } else {
                 if (!PermissionHelper.SpecialPermissionType.ACCESSIBILITY_PICK.isGranted(this)) {
-                    Toast.makeText(this, "请开启无障碍中的“自动记账-视图拾取”服务", Toast.LENGTH_SHORT).show();
+                    String tip = String.format(
+                            Locale.getDefault(),
+                            "请开启无障碍中的“%s”服务",
+                            getString(R.string.accessibility_title_page_pick)
+                    );
+                    Toast.makeText(this, tip, Toast.LENGTH_SHORT).show();
                     Intent intent = PermissionHelper.SpecialPermissionType.ACCESSIBILITY_PICK.getIntent(this);
                     startActivity(intent);
                     return;
