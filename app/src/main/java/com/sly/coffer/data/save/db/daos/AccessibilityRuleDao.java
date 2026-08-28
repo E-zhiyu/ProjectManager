@@ -269,6 +269,14 @@ public interface AccessibilityRuleDao {
     @Delete
     Completable deletePickedPageCompletable(PickedPageEntity view);
 
+    /**
+     * 删除所有拾取的界面
+     *
+     * @return 是否完成
+     */
+    @Query("DELETE FROM pickedPages")
+    Completable deleteAllPickedPageCompletable();
+
 
     /**
      * 获取所有符合搜索条件的拾取的视图

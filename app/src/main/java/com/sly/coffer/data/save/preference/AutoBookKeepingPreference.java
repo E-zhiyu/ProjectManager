@@ -15,6 +15,7 @@ public class AutoBookKeepingPreference {
     private static final String KEY_NOTIFICATION_CANCEL = "notification_cancel";    //自动记账通知点击行为
     private static final String KEY_NOTIFICATION_CLICK = "notification_click";      //自动记账确认通知点击行为
     private static final String KEY_NOTIFICATION_CAPTURE = "notification_capture";  //通知捕获功能是否开启（保存时间戳，用于自动关闭）
+    private static final String KEY_PAGE_PICK = "page_pick";                        //记录当前界面信息
 
     public static void setSwitchStat(boolean isOpened, @NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -113,6 +114,31 @@ public class AutoBookKeepingPreference {
     public static boolean getNotificationCapture(@NonNull Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         long timeMillis = pref.getLong(KEY_NOTIFICATION_CAPTURE, 0);
+
+        return System.currentTimeMillis() - timeMillis <= 1000 * 60 * 60 * 24;  //一天后自动关闭
+    }
+
+    /**
+     * 设置界面拾取功能状态
+     *
+     * @param context  上下文
+     * @param isOpened 是否开启该功能
+     */
+    public static void setPagePickStat(@NonNull Context context, boolean isOpened) {
+        long timeMillis = isOpened ? System.currentTimeMillis() : 0;
+        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        pref.edit().putLong(KEY_PAGE_PICK, timeMillis).apply();
+    }
+
+    /**
+     * 读取界面拾取功能状态
+     *
+     * @param context 上下文
+     * @return 该功能是否开启
+     */
+    public static boolean getPagePickStat(@NonNull Context context) {
+        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        long timeMillis = pref.getLong(KEY_PAGE_PICK, 0);
 
         return System.currentTimeMillis() - timeMillis <= 1000 * 60 * 5;    //5分钟后自动关闭
     }

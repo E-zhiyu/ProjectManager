@@ -1,8 +1,6 @@
 package com.sly.coffer.ui.pages.accessibility.pick;
 
-import android.Manifest;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -19,10 +17,10 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.sly.coffer.R;
-import com.sly.coffer.automation.broadcast.BroadcastActions;
 import com.sly.coffer.auxiliary.enums.KeyStrings;
 import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.entities.PickedPageEntity;
+import com.sly.coffer.data.save.preference.AutoBookKeepingPreference;
 import com.sly.coffer.data.save.preference.SearchHistoryPreference;
 import com.sly.coffer.databinding.ActivityPickedPageListBinding;
 import com.sly.coffer.databinding.ViewHolderSeparatorTextChipBinding;
@@ -64,7 +62,6 @@ public class PickedPageListActivity extends AppCompatActivity {
         });
 
         initViews();
-        addPermissionRequests();
         observeLiveData();
         initBackHandlers();
     }
@@ -106,6 +103,23 @@ public class PickedPageListActivity extends AppCompatActivity {
                                 .setNegativeButton("关闭", null)
                                 .show();
                         return true;
+                    } else if (id == R.id.action_delete_all) {
+                        new MaterialAlertDialogBuilder(this)
+                                .setTitle(R.string.delete_all_records)
+                                .setMessage("此操作将清空所有已记录的界面信息，确认继续吗？")
+                                .setNegativeButton("取消", null)
+                                .setPositiveButton("确定", (dialogInterface, i) -> {
+                                    BookkeepingDb db = BookkeepingDb.getInstance(this);
+                                    disposable.add(db.accessibilityRuleDao().deleteAllPickedPageCompletable()
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribeOn(Schedulers.io())
+                                            .subscribe(
+                                                    () -> Toast.makeText(this, "已删除所有拾取的界面", Toast.LENGTH_SHORT).show(),
+                                                    e -> ExceptionHelper.showExceptionDialog(this, e)
+                                            )
+                                    );
+                                })
+                                .show();
                     }
 
                     return false;
@@ -144,40 +158,29 @@ public class PickedPageListActivity extends AppCompatActivity {
                 )
         );
 
-        //添加按钮
-        binding.addFab.setOnClickListener(view -> {
-            if (!PermissionHelper.SpecialPermissionType.ACCESSIBILITY_PICK.isGranted(this)) {
-                Toast.makeText(this, "请开启无障碍中的“自动记账-视图拾取”服务", Toast.LENGTH_SHORT).show();
-                Intent intent = PermissionHelper.SpecialPermissionType.ACCESSIBILITY_PICK.getIntent(this);
-                startActivity(intent);
-                return;
+        //右下角 FAB
+        binding.startStopFab.setOnClickListener(view -> {
+            if (AutoBookKeepingPreference.getPagePickStat(this)) {
+                AutoBookKeepingPreference.setPagePickStat(this, false);
+                binding.startStopFab.setImageResource(R.drawable.outline_play_arrow_24);
+                Toast.makeText(this, "已关闭界面拾取", Toast.LENGTH_SHORT).show();
+            } else {
+                if (!PermissionHelper.SpecialPermissionType.ACCESSIBILITY_PICK.isGranted(this)) {
+                    Toast.makeText(this, "请开启无障碍中的“自动记账-视图拾取”服务", Toast.LENGTH_SHORT).show();
+                    Intent intent = PermissionHelper.SpecialPermissionType.ACCESSIBILITY_PICK.getIntent(this);
+                    startActivity(intent);
+                    return;
+                }
+
+                AutoBookKeepingPreference.setPagePickStat(this, true);
+                binding.startStopFab.setImageResource(R.drawable.outline_pause_24);
+                Toast.makeText(this, "界面拾取已开始，将在5分钟后关闭", Toast.LENGTH_SHORT).show();
             }
-
-            //通过广播启动视图拾取
-            Intent startIntent = new Intent(BroadcastActions.START_PICK.toString());
-            startIntent.setPackage(getPackageName());
-            sendBroadcast(startIntent);
-            Toast.makeText(this, "请点击表示金额的文字", Toast.LENGTH_SHORT).show();
         });
-        AppearanceHelper.attachMorphAnimation(binding.addFab);
-        AppearanceHelper.setMarginToNavigation(binding.addFab, this);
-    }
-
-    /**
-     * 添加权限请求
-     */
-    private void addPermissionRequests() {
-        PermissionHelper helper = new PermissionHelper(this);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            helper.addPermission(
-                    Manifest.permission.POST_NOTIFICATIONS,
-                    "授予通知权限，以发送用于关闭界面拾取的通知。"
-            );
-        }
-        helper.addPermission(
-                PermissionHelper.SpecialPermissionType.ACCESSIBILITY_PICK,
-                "视图拾取服务",
-                "请开启无障碍中的“自动记账-视图拾取”服务，以允许APP获取点击屏幕的位置并保存点击的视图的信息。"
+        AppearanceHelper.attachMorphAnimation(binding.startStopFab);
+        AppearanceHelper.setMarginToNavigation(binding.startStopFab, this);
+        binding.startStopFab.setImageResource(AutoBookKeepingPreference.getPagePickStat(this) ?
+                R.drawable.outline_pause_24 : R.drawable.outline_play_arrow_24
         );
     }
 

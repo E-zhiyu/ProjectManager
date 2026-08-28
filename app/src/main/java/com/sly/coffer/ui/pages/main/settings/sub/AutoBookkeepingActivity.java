@@ -249,7 +249,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
             if (b) {
                 if (PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.isGranted(this)) {
                     AutoBookKeepingPreference.setNotificationCapture(this, true);
-                    Toast.makeText(this, "5分钟后自动关闭通知捕获以节省性能", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "一天后自动关闭通知捕获以节省性能", Toast.LENGTH_SHORT).show();
                 } else {
                     compoundButton.setChecked(false);
                     String message = "通知捕获依赖通知监听服务，请授权后再启用通知捕获功能。";

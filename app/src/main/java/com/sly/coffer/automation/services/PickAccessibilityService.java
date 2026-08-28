@@ -3,29 +3,17 @@ package com.sly.coffer.automation.services;
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
-import android.view.accessibility.AccessibilityNodeInfo;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-
-import com.sly.coffer.automation.broadcast.BroadcastActions;
 import com.sly.coffer.auxiliary.classes.CustomDateTimeFormatter;
-import com.sly.coffer.auxiliary.classes.PickResult;
 import com.sly.coffer.auxiliary.enums.LogTags;
 import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.entities.PickedPageEntity;
 import com.sly.coffer.data.save.db.services.AccessibilityRuleService;
-import com.sly.coffer.ui.others.overlay.PickerOverlay;
+import com.sly.coffer.data.save.preference.AutoBookKeepingPreference;
 
 import java.time.LocalDateTime;
 
@@ -36,10 +24,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 @SuppressLint("AccessibilityPolicy")
 public class PickAccessibilityService extends AccessibilityService {
     private final CompositeDisposable disposable = new CompositeDisposable();
-    private PickerOverlay pickerOverlay;
-    private String currentActivityName = "";
-    private String currentPackageName = "";
-    private BroadcastReceiver startReceiver = null;
 
     @Override
     protected void onServiceConnected() {
@@ -49,54 +33,52 @@ public class PickAccessibilityService extends AccessibilityService {
         info.flags |= AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS;
         info.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
         setServiceInfo(info);
-
-        //注册广播接收器
-        IntentFilter intentFilter = new IntentFilter(BroadcastActions.START_PICK.toString());
-        startReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, @NonNull Intent intent) {
-                if (BroadcastActions.START_PICK.toString().equals(intent.getAction())) {
-                    Log.d(LogTags.PICK_ACCESSIBILITY_SERVICE.n(), "开启视图拾取模式");
-                    startPicker();
-                }
-            }
-        };
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(startReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED);
-        } else {
-            ContextCompat.registerReceiver(this, startReceiver, intentFilter, ContextCompat.RECEIVER_NOT_EXPORTED);
-        }
-        Log.d(LogTags.PICK_ACCESSIBILITY_SERVICE.n(), "注册广播接收器");
     }
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         if (event == null) return;
 
-        if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            AccessibilityNodeInfo rootNode = getRootInActiveWindow();
-            if (rootNode != null) {
-                CharSequence rootPackageChar = rootNode.getPackageName();
-                if (rootPackageChar != null) {
-                    currentPackageName = rootPackageChar.toString();
-                }
-            }
+        if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED ||
+                event.getEventType() == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+            if (!AutoBookKeepingPreference.getPagePickStat(this)) return;
 
-            // 2. 从事件中获取包名和类名
+            String packageName = event.getPackageName().toString();
             CharSequence className = event.getClassName();
+            if (className != null && !packageName.equals(getPackageName())) {
+                Log.d(
+                        LogTags.PICK_ACCESSIBILITY_SERVICE.n(),
+                        "className : " + className +
+                                ",\npackageName : " + packageName
+                );
 
-            if (className != null) {
-                Log.d(LogTags.PICK_ACCESSIBILITY_SERVICE.n(), "事件className : " + className);
-
-                // 3. 组合成完整的组件名
+                //组合成完整的组件名
                 ComponentName componentName = new ComponentName(
-                        currentPackageName,
+                        packageName,
                         className.toString()
                 );
 
-                // 这就是当前活动的完整名称 (例如: com.example.app/.MainActivity)
+                //判断是否为活动名
                 if (isActivity(componentName)) {
-                    currentActivityName = className.toString();
+                    String activityName = className.toString();
+                    LocalDateTime time = LocalDateTime.now();
+                    PickedPageEntity pickedPage = new PickedPageEntity(
+                            "界面 · " + time.format(CustomDateTimeFormatter.DATE_TIME),
+                            packageName,
+                            activityName,
+                            time
+                    );
+
+                    //保存视图信息
+                    BookkeepingDb db = BookkeepingDb.getInstance(this);
+                    disposable.add(AccessibilityRuleService.addPickedPage(pickedPage, db)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe(
+                                    id -> Log.d(LogTags.PICK_ACCESSIBILITY_SERVICE.n(), "已保存界面, id : " + id),
+                                    e -> Log.e(LogTags.PICK_ACCESSIBILITY_SERVICE.n(), "界面保存失败")
+                            )
+                    );
                 }
             }
         }
@@ -122,83 +104,9 @@ public class PickAccessibilityService extends AccessibilityService {
     public void onDestroy() {
         super.onDestroy();
         disposable.clear();
-
-        //注销广播接收器
-        if (startReceiver != null) {
-            unregisterReceiver(startReceiver);
-            startReceiver = null;
-        }
-        Log.d(LogTags.PICK_ACCESSIBILITY_SERVICE.n(), "注销广播接收器");
     }
 
     @Override
     public void onInterrupt() {
-    }
-
-    /**
-     * 开始拾取模式
-     */
-    public void startPicker() {
-        if (pickerOverlay != null) {
-            return;
-        }
-
-        pickerOverlay = new PickerOverlay(
-                this,
-                (x, y) -> {
-                    stopPicker();
-
-                    PickResult pickResult = new PickResult();
-                    pickResult.packageName = currentPackageName;
-                    pickResult.activityName = currentActivityName;
-                    onNodePicked(pickResult);
-                });
-
-        pickerOverlay.show();
-    }
-
-    /**
-     * 结束拾取模式
-     */
-    public void stopPicker() {
-        if (pickerOverlay != null) {
-            pickerOverlay.dismiss();
-            pickerOverlay = null;
-        }
-    }
-
-    /**
-     * 用户成功拾取一个节点
-     */
-    private void onNodePicked(@NonNull PickResult result) {
-        //解析拾取数据
-        String packageName = result.packageName;
-        String activityName = result.activityName;
-
-        Log.d(
-                LogTags.PICK_ACCESSIBILITY_SERVICE.n(),
-                "package = " + packageName
-                        + "\nactivity = " + activityName
-        );
-
-        //实例化数据实体
-        LocalDateTime time = LocalDateTime.now();
-        PickedPageEntity pickedPage = new PickedPageEntity(
-                "界面 · " + time.format(CustomDateTimeFormatter.DATE_TIME),
-                packageName,
-                activityName,
-                time
-        );
-
-        //保存视图信息
-        BookkeepingDb db = BookkeepingDb.getInstance(this);
-        disposable.add(AccessibilityRuleService.addPickedPage(pickedPage, db)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(
-                        id -> Toast.makeText(this, "已保存拾取的视图", Toast.LENGTH_SHORT).show(),
-                        e -> Log.e(LogTags.PICK_ACCESSIBILITY_SERVICE.n(), "拾取视图保存失败")
-                )
-        );
     }
 }

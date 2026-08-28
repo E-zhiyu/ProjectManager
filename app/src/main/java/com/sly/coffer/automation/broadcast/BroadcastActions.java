@@ -9,5 +9,4 @@ public enum BroadcastActions {
     ACTION_DELETE,                  //删除自动记账产生的流水记录
     ACTION_NOTIFICATION_CANCELED,   //自动记账确认通知被删除
     ACTION_NOTIFICATION_CLICKED,    //自动记账确认通知被点击
-    START_PICK,                     //开始拾取视图
 }
