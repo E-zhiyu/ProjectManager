@@ -21,7 +21,7 @@
             style="@style/Widget.Material3Expressive.SearchBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/picked_view_search_hint"
+            android:hint="@string/picked_page_search_hint"
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:menu="@menu/menu_help_search_bar" />
     </com.google.android.material.appbar.AppBarLayout>

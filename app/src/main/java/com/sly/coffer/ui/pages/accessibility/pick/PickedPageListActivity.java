@@ -274,7 +274,7 @@ public class PickedPageListActivity extends AppCompatActivity {
                         .show();
             } else if (item.getItemId() == R.id.action_delete) {
                 new MaterialAlertDialogBuilder(this)
-                        .setTitle(R.string.delete_picked_view)
+                        .setTitle(R.string.delete_picked_page)
                         .setMessage("即将删除该拾取记录，确认继续吗？")
                         .setPositiveButton("确定", (dialogInterface, i) -> {
                             BookkeepingDb db = BookkeepingDb.getInstance(this);

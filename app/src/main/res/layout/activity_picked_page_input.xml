@@ -57,7 +57,7 @@
                 style="@style/CommonTextInputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:helperText="@string/picked_view_remark_helper">
+                app:helperText="@string/picked_page_remark_helper">
 
                 <requestFocus />
 
@@ -76,7 +76,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:endIconMode="none"
-                app:helperText="@string/picked_view_package_name_helper">
+                app:helperText="@string/picked_page_package_name_helper">
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/package_name_input"
@@ -92,7 +92,7 @@
                 style="@style/CommonTextInputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:helperText="@string/picked_view_activity_name_helper">
+                app:helperText="@string/picked_page_activity_name_helper">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/activity_name_input"
