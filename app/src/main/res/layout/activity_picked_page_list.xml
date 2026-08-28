@@ -53,6 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:contentDescription="@string/btn_add"
+        android:src="@drawable/outline_play_arrow_24"
         app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior" />
 
     <!-- 搜索视图 -->
