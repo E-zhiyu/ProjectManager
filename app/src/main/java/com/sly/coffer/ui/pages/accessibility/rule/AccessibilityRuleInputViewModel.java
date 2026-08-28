@@ -5,19 +5,18 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.sly.coffer.auxiliary.enums.AccountType;
-import com.sly.coffer.data.save.db.entities.PickedViewEntity;
+import com.sly.coffer.data.save.db.entities.PickedPageEntity;
 
 public class AccessibilityRuleInputViewModel extends ViewModel {
-    private final MutableLiveData<PickedViewEntity> pickResult = new MutableLiveData<>(null); //视图拾取结果
+    private final MutableLiveData<PickedPageEntity> pickResult = new MutableLiveData<>(null); //视图拾取结果
     private AccountType type = AccountType.EXPENSE;         //流水种类
-    private int capturePos = 1;                             //金额文本捕获组位置
 
-    public LiveData<PickedViewEntity> getPickedView() {
+    public LiveData<PickedPageEntity> getPickedPage() {
         return pickResult;
     }
 
-    public void setPickResult(PickedViewEntity pickedView) {
-        this.pickResult.postValue(pickedView);
+    public void setPickResult(PickedPageEntity pickedPage) {
+        this.pickResult.postValue(pickedPage);
     }
 
     public AccountType getType() {
@@ -26,13 +25,5 @@ public class AccessibilityRuleInputViewModel extends ViewModel {
 
     public void setType(AccountType type) {
         this.type = type;
-    }
-
-    public int getCapturePos() {
-        return capturePos;
-    }
-
-    public void setCapturePos(int capturePos) {
-        this.capturePos = capturePos;
     }
 }

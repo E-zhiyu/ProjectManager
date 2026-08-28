@@ -29,7 +29,7 @@ import com.sly.coffer.data.save.db.entities.CapturedNotificationEntity;
 import com.sly.coffer.data.save.db.entities.MediaEntity;
 import com.sly.coffer.data.save.db.entities.NotificationRuleEntity;
 import com.sly.coffer.data.save.db.entities.AccountEntity;
-import com.sly.coffer.data.save.db.entities.PickedViewEntity;
+import com.sly.coffer.data.save.db.entities.PickedPageEntity;
 import com.sly.coffer.data.save.db.entities.TagEntity;
 import com.sly.coffer.data.save.db.entities.TagGroupEntity;
 import com.sly.coffer.data.save.db.entities.AccountTransferEntity;
@@ -56,7 +56,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
                 AccessibilityRuleEntity.class,
                 AccessibilityRuleTagRefEntity.class,
                 AccessibilityRuleTransferEntity.class,
-                PickedViewEntity.class
+                PickedPageEntity.class
         },
         version = 3
 )

@@ -128,7 +128,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:text="@string/amount_view"
+                    android:text="@string/amount_page"
                     android:textAppearance="?attr/textAppearanceTitleMedium"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -192,87 +192,6 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/activity_name" />
             </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- 视图标识符 -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/view_id_layout"
-                style="@style/CommonTextInputLayoutStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:endIconMode="none"
-                app:helperText="@string/picked_view_view_id_helper">
-
-                <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                    android:id="@+id/view_id_input"
-                    style="@style/UneditableAutoCompleteTextViewStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/view_id" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- 文本内容 -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/content_text_layout"
-                style="@style/CommonTextInputLayoutStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:endIconMode="none"
-                app:helperText="@string/picked_view_content_text_helper">
-
-                <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                    android:id="@+id/content_text_input"
-                    style="@style/UneditableAutoCompleteTextViewStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/content_text" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <LinearLayout
-                android:id="@+id/amount_select_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <!-- 金额数字选择标题 -->
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:text="@string/select_amount_text"
-                        android:textAppearance="?attr/textAppearanceTitleMedium"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <!-- 说明按钮 -->
-                    <ImageButton
-                        android:id="@+id/amount_select_help_btn"
-                        style="@style/ImageButtonStyle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:contentDescription="@string/btn_of_explanation"
-                        android:src="@drawable/outline_help_24"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <!-- 金额数字选择 Chip 的容器 -->
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/amount_select_chip_group"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipToPadding="false"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
-                    app:selectionRequired="true"
-                    app:singleSelection="true" />
-            </LinearLayout>
 
             <!-- 标签标题 -->
             <androidx.constraintlayout.widget.ConstraintLayout

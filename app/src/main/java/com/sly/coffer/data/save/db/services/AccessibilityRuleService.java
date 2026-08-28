@@ -8,9 +8,9 @@ import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.daos.AccessibilityRuleDao;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleEntity;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleTransferEntity;
-import com.sly.coffer.data.save.db.entities.PickedViewEntity;
-import com.sly.coffer.data.save.db.entities.composite.ui.PickedViewGroupUiModel;
-import com.sly.coffer.data.save.db.entities.composite.ui.PickedViewListUiModel;
+import com.sly.coffer.data.save.db.entities.PickedPageEntity;
+import com.sly.coffer.data.save.db.entities.composite.ui.PickedPageGroupUiModel;
+import com.sly.coffer.data.save.db.entities.composite.ui.PickedPageListUiModel;
 import com.sly.coffer.helpers.AppListHelper;
 
 import java.util.ArrayList;
@@ -70,13 +70,13 @@ public class AccessibilityRuleService {
     /**
      * 添加拾取的视图
      *
-     * @param pickedViewEntity 拾取的视图
+     * @param pickedPageEntity 拾取的视图
      * @param db               数据库实例
      * @return 分配的编号
      */
-    public static Single<Long> addPickedView(PickedViewEntity pickedViewEntity, BookkeepingDb db) {
+    public static Single<Long> addPickedPage(PickedPageEntity pickedPageEntity, BookkeepingDb db) {
         return Single.defer(() -> {
-            long id = db.accessibilityRuleDao().addPickedView(pickedViewEntity);
+            long id = db.accessibilityRuleDao().addPickedPage(pickedPageEntity);
             return Single.just(id);
         });
     }
@@ -88,7 +88,7 @@ public class AccessibilityRuleService {
      * @param keyword 搜索关键词
      * @return 拾取的视图列表，包含应用分隔符
      */
-    public static Flowable<List<PickedViewListUiModel>> getAllPickedView(@NonNull BookkeepingDb db, String keyword) {
+    public static Flowable<List<PickedPageListUiModel>> getAllPickedPage(@NonNull BookkeepingDb db, String keyword) {
         AccessibilityRuleDao dao = db.accessibilityRuleDao();
         String safeKeyword = "";
 
@@ -99,9 +99,9 @@ public class AccessibilityRuleService {
         }
 
         int isSearchFilter = !safeKeyword.isEmpty() ? 1 : 0;
-        return dao.getAllPickedViewFlowable(safeKeyword, isSearchFilter)
+        return dao.getAllPickedPageFlowable(safeKeyword, isSearchFilter)
                 .map(rawList -> {
-                    List<PickedViewListUiModel> resultList = new ArrayList<>();
+                    List<PickedPageListUiModel> resultList = new ArrayList<>();
 
                     //判空
                     if (rawList.isEmpty()) {
@@ -109,20 +109,20 @@ public class AccessibilityRuleService {
                     }
 
                     //通过关系远近进行分组
-                    Map<String, List<PickedViewEntity>> groupedMap = rawList.stream()
+                    Map<String, List<PickedPageEntity>> groupedMap = rawList.stream()
                             .collect(Collectors.groupingBy(
-                                    PickedViewEntity::getPackageName,
+                                    PickedPageEntity::getPackageName,
                                     LinkedHashMap::new,
                                     Collectors.toList()
                             ));
 
                     //循环插入分隔符和 Item
-                    for (Map.Entry<String, List<PickedViewEntity>> entry : groupedMap.entrySet()) {
+                    for (Map.Entry<String, List<PickedPageEntity>> entry : groupedMap.entrySet()) {
                         String separatorText = entry.getKey();
-                        resultList.add(new PickedViewListUiModel.Separator(separatorText));
+                        resultList.add(new PickedPageListUiModel.Separator(separatorText));
 
-                        List<PickedViewListUiModel.Item> itemList = entry.getValue().stream()
-                                .map(PickedViewListUiModel.Item::new)
+                        List<PickedPageListUiModel.Item> itemList = entry.getValue().stream()
+                                .map(PickedPageListUiModel.Item::new)
                                 .collect(Collectors.toList());
                         resultList.addAll(itemList);
                     }
@@ -137,25 +137,25 @@ public class AccessibilityRuleService {
      * @param context 上下文
      * @return 分好组的视图列表，支持响应式更新
      */
-    public static Flowable<List<PickedViewGroupUiModel>> getGroupedPickedView(Context context) {
+    public static Flowable<List<PickedPageGroupUiModel>> getGroupedPickedPage(Context context) {
         BookkeepingDb db = BookkeepingDb.getInstance(context);
-        return db.accessibilityRuleDao().getAllPickedViewFlowable()
-                .flatMap(pickedViewList -> {
+        return db.accessibilityRuleDao().getAllPickedPageFlowable()
+                .flatMap(pickedPageList -> {
                     //分组
-                    Map<String, List<PickedViewEntity>> groupedMap = pickedViewList.stream()
+                    Map<String, List<PickedPageEntity>> groupedMap = pickedPageList.stream()
                             .collect(Collectors.groupingBy(
-                                    PickedViewEntity::getPackageName,
+                                    PickedPageEntity::getPackageName,
                                     HashMap::new,
                                     Collectors.toList()
                             ));
 
                     //生成带有分隔符的列表
-                    List<PickedViewGroupUiModel> resultList = new ArrayList<>();
-                    for (Map.Entry<String, List<PickedViewEntity>> entry : groupedMap.entrySet()) {
+                    List<PickedPageGroupUiModel> resultList = new ArrayList<>();
+                    for (Map.Entry<String, List<PickedPageEntity>> entry : groupedMap.entrySet()) {
                         String appName = AppListHelper.getAppNameByPackageName(entry.getKey(), context);
-                        resultList.add(new PickedViewGroupUiModel.Separator(appName));
+                        resultList.add(new PickedPageGroupUiModel.Separator(appName));
 
-                        resultList.add(new PickedViewGroupUiModel.Item(entry.getValue()));
+                        resultList.add(new PickedPageGroupUiModel.Item(entry.getValue()));
                     }
 
                     return Flowable.just(resultList);

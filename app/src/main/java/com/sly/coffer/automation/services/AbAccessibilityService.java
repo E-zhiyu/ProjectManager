@@ -45,9 +45,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -111,7 +108,7 @@ public class AbAccessibilityService extends AccessibilityService {
 
             //如果规则指定了 Activity，校验 Activity 类名
             String classNameStr = event.getClassName() != null ? event.getClassName().toString() : "";
-            String targetActivity = rule.getTargetActivity();
+            String targetActivity = rule.getActivityName();
             Log.d(
                     LogTags.AB_ACCESSIBILITY_SERVICE.n(),
                     "className : " + classNameStr +
@@ -133,41 +130,41 @@ public class AbAccessibilityService extends AccessibilityService {
                 continue;
             }
 
-            //尝试提取金额文本
-            String rawAmountText = extractTextByViewId(rootNode, rule.getViewId());
-            if (!TextUtils.isEmpty(rawAmountText)) {
-                //提取金额文本
-                double amount;
-                Pattern pattern = Pattern.compile(rule.getContentRegex());
-                Matcher matcher = pattern.matcher(rawAmountText);
-                try {
-                    if (matcher.find()) {
-                        String cleanAmount = matcher.group(rule.getCapturePos());
-                        amount = Double.parseDouble(Objects.requireNonNull(cleanAmount));
-                    } else {
-                        continue;
-                    }
-                } catch (IndexOutOfBoundsException | NumberFormatException e) {
-                    String err = String.format(Locale.getDefault(), "“%s”无法提取金额数据", rule.getName());
-                    sendErrorNotification(err, ruleId);
-                    Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), err);
-                    continue;
-                }
-
-                //根据偏好设置决定直接入帐还是发送通知
-                if (!AutoBookKeepingPreference.getDirectDeposit(this)) {
-                    sendConfirmNotification(amount, model);
-                } else {
-                    saveInDbDirectly(amount, model);
-                }
-
-                //更新规则的触发时间
-                antiShakeMap.put(ruleId, currentTimeMillis);
-            } else {
-                String err = String.format(Locale.getDefault(), "“%s”无法提取目标视图的文本", rule.getName());
-                sendErrorNotification(err, ruleId);
-                Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), err);
-            }
+            //TODO:尝试提取金额文本
+//            String rawAmountText = extractTextByViewId(rootNode, rule.getViewId());
+//            if (!TextUtils.isEmpty(rawAmountText)) {
+//                //提取金额文本
+//                double amount;
+//                Pattern pattern = Pattern.compile(rule.getContentRegex());
+//                Matcher matcher = pattern.matcher(rawAmountText);
+//                try {
+//                    if (matcher.find()) {
+//                        String cleanAmount = matcher.group(rule.getCapturePos());
+//                        amount = Double.parseDouble(Objects.requireNonNull(cleanAmount));
+//                    } else {
+//                        continue;
+//                    }
+//                } catch (IndexOutOfBoundsException | NumberFormatException e) {
+//                    String err = String.format(Locale.getDefault(), "“%s”无法提取金额数据", rule.getName());
+//                    sendErrorNotification(err, ruleId);
+//                    Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), err);
+//                    continue;
+//                }
+//
+//                //根据偏好设置决定直接入帐还是发送通知
+//                if (!AutoBookKeepingPreference.getDirectDeposit(this)) {
+//                    sendConfirmNotification(amount, model);
+//                } else {
+//                    saveInDbDirectly(amount, model);
+//                }
+//
+//                //更新规则的触发时间
+//                antiShakeMap.put(ruleId, currentTimeMillis);
+//            } else {
+//                String err = String.format(Locale.getDefault(), "“%s”无法提取目标视图的文本", rule.getName());
+//                sendErrorNotification(err, ruleId);
+//                Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), err);
+//            }
         }
     }
 

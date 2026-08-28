@@ -16,9 +16,9 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.sly.coffer.auxiliary.enums.KeyStrings;
 import com.sly.coffer.data.save.db.BookkeepingDb;
-import com.sly.coffer.data.save.db.entities.PickedViewEntity;
+import com.sly.coffer.data.save.db.entities.PickedPageEntity;
 import com.sly.coffer.data.save.db.services.AccessibilityRuleService;
-import com.sly.coffer.databinding.ActivityPickedViewInputBinding;
+import com.sly.coffer.databinding.ActivityPickedPageInputBinding;
 import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.ui.pages.app_list.AppSelectActivity;
@@ -29,8 +29,8 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class PickedViewInputActivity extends AppCompatActivity {
-    private ActivityPickedViewInputBinding binding;                     //绑定的 XML 布局
+public class PickedPageInputActivity extends AppCompatActivity {
+    private ActivityPickedPageInputBinding binding;                     //绑定的 XML 布局
     @Nullable
     private Bundle initBundle = null;                                   //包含初始化数据的数据包
     private ActivityResultLauncher<Intent> packageNameSelectLauncher;   //包名选择启动器
@@ -39,7 +39,7 @@ public class PickedViewInputActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityPickedViewInputBinding.inflate(getLayoutInflater());
+        binding = ActivityPickedPageInputBinding.inflate(getLayoutInflater());
 
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
@@ -102,50 +102,24 @@ public class PickedViewInputActivity extends AppCompatActivity {
         //工具栏
         binding.toolbar.setNavigationOnClickListener(view -> finish());
         if (initBundle != null) {
-            long id = initBundle.getLong(KeyStrings.PICKED_VIEW_ID.v());
+            long id = initBundle.getLong(KeyStrings.PICKED_PAGE_ID.v());
             BookkeepingDb db = BookkeepingDb.getInstance(this);
-            disposable.add(db.accessibilityRuleDao().getPickedViewSingleById(id)
+            disposable.add(db.accessibilityRuleDao().getPickedPageSingleById(id)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(
                             optional -> {
                                 if (optional.isEmpty()) return;
 
-                                PickedViewEntity pickedView = optional.get();
-                                binding.remarkInput.setText(pickedView.getRemark());                //备注
-                                binding.viewIdInput.setText(pickedView.getViewId());                //视图标识符
-                                binding.contentTextInput.setText(pickedView.getContentText());      //内容文本
-                                binding.packageNameInput.setText(pickedView.getPackageName());      //应用包名
-                                binding.activityNameInput.setText(pickedView.getActivityName());    //界面名称
+                                PickedPageEntity pickedPage = optional.get();
+                                binding.remarkInput.setText(pickedPage.getRemark());                //备注
+                                binding.packageNameInput.setText(pickedPage.getPackageName());      //应用包名
+                                binding.activityNameInput.setText(pickedPage.getActivityName());    //界面名称
                             },
                             e -> ExceptionHelper.showExceptionDialog(this, e)
                     )
             );
         }
-
-        //视图标识符
-        binding.viewIdInput.setOnFocusChangeListener((view, b) -> {
-            if (b) {
-                binding.viewIdLayout.setError(null);
-            } else {
-                String input = String.valueOf(binding.viewIdInput.getEditableText()).trim();
-                if (input.isEmpty()) {
-                    binding.viewIdLayout.setError("视图标识符不能为空");
-                }
-            }
-        });
-
-        //文本内容
-        binding.contentTextInput.setOnFocusChangeListener((view, b) -> {
-            if (b) {
-                binding.contentTextLayout.setError(null);
-            } else {
-                String input = String.valueOf(binding.contentTextInput.getEditableText()).trim();
-                if (input.isEmpty()) {
-                    binding.contentTextLayout.setError("文本内容不能为空");
-                }
-            }
-        });
 
         //包名
         binding.packageNameInput.setOnFocusChangeListener((v, hasFocus) -> {
@@ -198,18 +172,10 @@ public class PickedViewInputActivity extends AppCompatActivity {
      */
     private String verifyInput() {
         String err = null;
-        String viewId = String.valueOf(binding.viewIdInput.getEditableText()).trim();
-        String contentText = String.valueOf(binding.contentTextInput.getEditableText()).trim();
         String packageName = String.valueOf(binding.packageNameInput.getEditableText()).trim();
         String activityName = String.valueOf(binding.activityNameInput.getEditableText()).trim();
 
-        if (viewId.isEmpty()) {
-            err = "视图标识符不能为空";
-            binding.viewIdLayout.setError(err);
-        } else if (contentText.isEmpty()) {
-            err = "文本内容不能为空";
-            binding.contentTextLayout.setError(err);
-        } else if (packageName.isEmpty()) {
+        if (packageName.isEmpty()) {
             err = "包名不能为空";
             binding.packageNameLayout.setError(err);
         } else if (activityName.isEmpty()) {
@@ -226,16 +192,12 @@ public class PickedViewInputActivity extends AppCompatActivity {
     private void saveData() {
         //获取输入的内容
         String remark = String.valueOf(binding.remarkInput.getEditableText()).trim();
-        String viewId = String.valueOf(binding.viewIdInput.getEditableText()).trim();
-        String contentText = String.valueOf(binding.contentTextInput.getEditableText()).trim();
         String packageName = String.valueOf(binding.packageNameInput.getEditableText()).trim();
         String activityName = String.valueOf(binding.activityNameInput.getEditableText()).trim();
 
         //实例化数据实体
-        PickedViewEntity pickedView = new PickedViewEntity(
+        PickedPageEntity pickedPage = new PickedPageEntity(
                 remark,
-                viewId,
-                contentText,
                 packageName,
                 activityName,
                 LocalDateTime.now()
@@ -244,10 +206,10 @@ public class PickedViewInputActivity extends AppCompatActivity {
         //保存数据
         BookkeepingDb db = BookkeepingDb.getInstance(this);
         if (initBundle != null) {
-            long id = initBundle.getLong(KeyStrings.PICKED_VIEW_ID.v());
-            pickedView.setId(id);
+            long id = initBundle.getLong(KeyStrings.PICKED_PAGE_ID.v());
+            pickedPage.setId(id);
 
-            disposable.add(db.accessibilityRuleDao().updatePickedViewCompletable(pickedView)
+            disposable.add(db.accessibilityRuleDao().updatePickedPageCompletable(pickedPage)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(
@@ -259,7 +221,7 @@ public class PickedViewInputActivity extends AppCompatActivity {
                     )
             );
         } else {
-            disposable.add(AccessibilityRuleService.addPickedView(pickedView, db)
+            disposable.add(AccessibilityRuleService.addPickedPage(pickedPage, db)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(

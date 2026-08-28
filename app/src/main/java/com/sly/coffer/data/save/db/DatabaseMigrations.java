@@ -28,11 +28,11 @@ public class DatabaseMigrations {
             db.execSQL("DROP INDEX IF EXISTS index_notificationRules_targetTitle");
             db.execSQL("CREATE INDEX IF NOT EXISTS `index_notificationRules_enabled` ON `notificationRules` (`enabled`)");
 
-            db.execSQL( "CREATE TABLE IF NOT EXISTS `accessibilityRules` (`ruleId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `type` INTEGER NOT NULL, `enabled` INTEGER NOT NULL DEFAULT true, `packageName` TEXT, `targetActivity` TEXT, `viewId` TEXT, `originContent` TEXT, `contentRegex` TEXT, `capturePos` INTEGER NOT NULL)");
+            db.execSQL( "CREATE TABLE IF NOT EXISTS `accessibilityRules` (`ruleId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `type` INTEGER NOT NULL, `enabled` INTEGER NOT NULL DEFAULT true, `packageName` TEXT, `targetActivity` TEXT)");
             db.execSQL( "CREATE INDEX IF NOT EXISTS `index_accessibilityRules_enabled` ON `accessibilityRules` (`enabled`)");
             db.execSQL( "CREATE TABLE IF NOT EXISTS `accessibilityRuleTagRef` (`ruleId` INTEGER NOT NULL, `tagId` INTEGER NOT NULL, PRIMARY KEY(`ruleId`, `tagId`), FOREIGN KEY(`ruleId`) REFERENCES `accessibilityRules`(`ruleId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`tagId`) REFERENCES `tags`(`tagId`) ON UPDATE NO ACTION ON DELETE CASCADE )");
             db.execSQL( "CREATE TABLE IF NOT EXISTS `accessibilityRuleTransfers` (`ruleId` INTEGER NOT NULL, `exportAccount` TEXT, `importAccount` TEXT, PRIMARY KEY(`ruleId`), FOREIGN KEY(`ruleId`) REFERENCES `accessibilityRules`(`ruleId`) ON UPDATE NO ACTION ON DELETE CASCADE )");
-            db.execSQL( "CREATE TABLE IF NOT EXISTS `pickedViews` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `remark` TEXT, `viewId` TEXT DEFAULT '', `contentText` TEXT, `packageName` TEXT DEFAULT '', `activityName` TEXT DEFAULT '', `dateTime` INTEGER)");
+            db.execSQL( "CREATE TABLE IF NOT EXISTS `pickedPages` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `remark` TEXT, `packageName` TEXT DEFAULT '', `activityName` TEXT DEFAULT '', `dateTime` INTEGER)");
             db.execSQL( "CREATE UNIQUE INDEX IF NOT EXISTS `index_pickedViews_viewId_packageName_activityName` ON `pickedViews` (`viewId`, `packageName`, `activityName`)");
         }
     };

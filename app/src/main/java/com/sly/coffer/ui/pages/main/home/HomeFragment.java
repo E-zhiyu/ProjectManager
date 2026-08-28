@@ -23,7 +23,7 @@ import com.sly.coffer.data.save.db.entities.AccountEntity;
 import com.sly.coffer.databinding.FragmentHomeBinding;
 import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
-import com.sly.coffer.ui.pages.accessibility.pick.PickedViewListActivity;
+import com.sly.coffer.ui.pages.accessibility.pick.PickedPageListActivity;
 import com.sly.coffer.ui.pages.accessibility.rule.AccessibilityRuleListActivity;
 import com.sly.coffer.ui.pages.budget.BudgetListActivity;
 import com.sly.coffer.ui.pages.notification.rule.NotificationRuleListActivity;
@@ -83,7 +83,7 @@ public class HomeFragment extends Fragment {
         initTagCard();
         initNotificationRuleCard();
         initBudgetCard();
-        initPickedViewCard();
+        initPickedPageCard();
         initAccessibilityRuleCard();
     }
 
@@ -310,11 +310,11 @@ public class HomeFragment extends Fragment {
     /**
      * 初始化拾取视图卡片
      */
-    private void initPickedViewCard() {
+    private void initPickedPageCard() {
         //设置卡片圆角
         AppearanceHelper.setRadius(
                 requireContext(),
-                binding.pickedViewCard,
+                binding.pickedPageCard,
                 AppearanceHelper.SMALL_CARD_RADIUS,
                 AppearanceHelper.SMALL_CARD_RADIUS,
                 AppearanceHelper.MEDIUM_CARD_RADIUS,
@@ -322,18 +322,18 @@ public class HomeFragment extends Fragment {
         );
 
         //点击监听
-        binding.pickedViewCard.setOnClickListener(view -> {
-            Intent intent = new Intent(requireContext(), PickedViewListActivity.class);
+        binding.pickedPageCard.setOnClickListener(view -> {
+            Intent intent = new Intent(requireContext(), PickedPageListActivity.class);
             startActivity(intent);
         });
-        AppearanceHelper.attachMorphAnimation(binding.pickedViewCard);
+        AppearanceHelper.attachMorphAnimation(binding.pickedPageCard);
 
         BookkeepingDb db = BookkeepingDb.getInstance(requireContext());
-        disposable.add(db.accessibilityRuleDao().getPickedViewCountFlowable()
+        disposable.add(db.accessibilityRuleDao().getPickedPageCountFlowable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(
-                        count -> binding.pickedViewCountText.setText(String.valueOf(count)),
+                        count -> binding.pickedPageCountText.setText(String.valueOf(count)),
                         e -> ExceptionHelper.showExceptionDialog(requireContext(), e)
                 )
         );

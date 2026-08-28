@@ -16,7 +16,6 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.sly.coffer.automation.broadcast.BroadcastActions;
@@ -24,16 +23,11 @@ import com.sly.coffer.auxiliary.classes.CustomDateTimeFormatter;
 import com.sly.coffer.auxiliary.classes.PickResult;
 import com.sly.coffer.auxiliary.enums.LogTags;
 import com.sly.coffer.data.save.db.BookkeepingDb;
-import com.sly.coffer.data.save.db.entities.PickedViewEntity;
+import com.sly.coffer.data.save.db.entities.PickedPageEntity;
 import com.sly.coffer.data.save.db.services.AccessibilityRuleService;
-import com.sly.coffer.helpers.accessibility.AccessibilityNodePicker;
 import com.sly.coffer.ui.others.overlay.PickerOverlay;
 
-import org.jetbrains.annotations.Contract;
-
 import java.time.LocalDateTime;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -154,49 +148,13 @@ public class PickAccessibilityService extends AccessibilityService {
                 (x, y) -> {
                     stopPicker();
 
-                    PickResult result = AccessibilityNodePicker.pick(
-                            this,
-                            x,
-                            y
-                    );
-
-                    //判断是否点击到有内容的视图
-                    String err = isResultUsableAndShowToast(result);
-                    if (err != null) {
-                        Toast.makeText(this, err, Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    result.packageName = currentPackageName;
-                    result.activityName = currentActivityName;
-                    onNodePicked(result);
+                    PickResult pickResult = new PickResult();
+                    pickResult.packageName = currentPackageName;
+                    pickResult.activityName = currentActivityName;
+                    onNodePicked(pickResult);
                 });
 
         pickerOverlay.show();
-    }
-
-    /**
-     * 判断拾取结果是否可用，不可用则发送提醒
-     *
-     * @param result 拾取结果
-     * @return 该结果是否可用
-     */
-    @Nullable
-    @Contract("null -> !null")
-    private String isResultUsableAndShowToast(@Nullable PickResult result) {
-        if (result == null) {
-            return "无法拾取视图，请重新拾取";
-        } else if (result.viewId == null || result.viewId.isEmpty()) {
-            return "该视图没有编号，请重新拾取";
-        } else {
-            Pattern numPattern = Pattern.compile("\\d");
-            Matcher matcher = numPattern.matcher(result.content);
-            if (matcher.find()) {
-                return null;
-            } else {
-                return "视图文本中不含数字，请重新拾取";
-            }
-        }
     }
 
     /**
@@ -216,23 +174,17 @@ public class PickAccessibilityService extends AccessibilityService {
         //解析拾取数据
         String packageName = result.packageName;
         String activityName = result.activityName;
-        String viewId = result.viewId;
-        String content = result.content;
 
         Log.d(
                 LogTags.PICK_ACCESSIBILITY_SERVICE.n(),
                 "package = " + packageName
                         + "\nactivity = " + activityName
-                        + "\nviewId = " + viewId
-                        + "\ncontent = " + content
         );
 
         //实例化数据实体
         LocalDateTime time = LocalDateTime.now();
-        PickedViewEntity pickedView = new PickedViewEntity(
-                "视图 · " + time.format(CustomDateTimeFormatter.DATE_TIME),
-                viewId,
-                content,
+        PickedPageEntity pickedPage = new PickedPageEntity(
+                "界面 · " + time.format(CustomDateTimeFormatter.DATE_TIME),
                 packageName,
                 activityName,
                 time
@@ -240,7 +192,7 @@ public class PickAccessibilityService extends AccessibilityService {
 
         //保存视图信息
         BookkeepingDb db = BookkeepingDb.getInstance(this);
-        disposable.add(AccessibilityRuleService.addPickedView(pickedView, db)
+        disposable.add(AccessibilityRuleService.addPickedPage(pickedPage, db)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(

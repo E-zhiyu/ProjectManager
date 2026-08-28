@@ -13,7 +13,7 @@ import com.sly.coffer.auxiliary.enums.AccountType;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleEntity;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleTagRefEntity;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleTransferEntity;
-import com.sly.coffer.data.save.db.entities.PickedViewEntity;
+import com.sly.coffer.data.save.db.entities.PickedPageEntity;
 import com.sly.coffer.data.save.db.entities.composite.AccessibilityRuleWithDetailModel;
 
 import java.util.List;
@@ -197,26 +197,25 @@ public interface AccessibilityRuleDao {
      * @return 自动分配的编号
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    long insertPickedView(PickedViewEntity view);
+    long insertPickedPage(PickedPageEntity view);
 
     /**
      * 获取拾取的视图总数
      *
      * @return 拾取的视图总数，支持响应式更新
      */
-    @Query("SELECT COUNT(*) FROM pickedViews")
-    Flowable<Integer> getPickedViewCountFlowable();
+    @Query("SELECT COUNT(*) FROM pickedPages")
+    Flowable<Integer> getPickedPageCountFlowable();
 
     /**
      * 通过包名、活动名和视图 ID 获取旧视图数据
      *
      * @param packageName  应用包名
      * @param activityName 视图所在界面的活动名
-     * @param viewId       视图在布局中的 ID
      * @return 旧视图数据
      */
-    @Query("SELECT * FROM pickedViews WHERE packageName = :packageName AND activityName = :activityName AND viewId = :viewId")
-    Optional<PickedViewEntity> getOldPickedView(String packageName, String activityName, String viewId);
+    @Query("SELECT * FROM pickedPages WHERE packageName = :packageName AND activityName = :activityName")
+    Optional<PickedPageEntity> getOldPickedPage(String packageName, String activityName);
 
     /**
      * 更新拾取的视图
@@ -224,7 +223,7 @@ public interface AccessibilityRuleDao {
      * @param view 更新后的拾取的视图
      */
     @Update
-    void updatePickedView(PickedViewEntity view);
+    void updatePickedPage(PickedPageEntity view);
 
     /**
      * 更新拾取的视图
@@ -233,7 +232,7 @@ public interface AccessibilityRuleDao {
      * @return 是否完成
      */
     @Update
-    Completable updatePickedViewCompletable(PickedViewEntity view);
+    Completable updatePickedPageCompletable(PickedPageEntity view);
 
     /**
      * 添加拾取的视图
@@ -242,22 +241,21 @@ public interface AccessibilityRuleDao {
      * @return 为新视图记录分配的编号
      */
     @Transaction
-    default long addPickedView(@NonNull PickedViewEntity view) {
+    default long addPickedPage(@NonNull PickedPageEntity view) {
         String packageName = view.getPackageName();
         String activityName = view.getActivityName();
-        String viewId = view.getViewId();
 
         //获取旧数据
-        Optional<PickedViewEntity> optional = getOldPickedView(packageName, activityName, viewId);
+        Optional<PickedPageEntity> optional = getOldPickedPage(packageName, activityName);
 
         //写入数据
         if (optional.isEmpty()) {
-            return insertPickedView(view);
+            return insertPickedPage(view);
         } else {
-            PickedViewEntity oldView = optional.get();
+            PickedPageEntity oldView = optional.get();
             view.setId(oldView.getId());
             view.setRemark(oldView.getRemark());
-            updatePickedView(view);
+            updatePickedPage(view);
             return oldView.getId();
         }
     }
@@ -269,7 +267,7 @@ public interface AccessibilityRuleDao {
      * @return 是否完成
      */
     @Delete
-    Completable deletePickedViewCompletable(PickedViewEntity view);
+    Completable deletePickedPageCompletable(PickedPageEntity view);
 
 
     /**
@@ -280,22 +278,21 @@ public interface AccessibilityRuleDao {
      * @return 拾取的视图列表，支持响应式更新
      */
     @Query(
-            "SELECT * FROM pickedViews " +
+            "SELECT * FROM pickedPages " +
                     "WHERE :useSearchFilter = 0 " +
                     "OR remark LIKE '%' || :keyword || '%' ESCAPE '/' " +
-                    "OR viewId LIKE '%' || :keyword || '%' ESCAPE '/' " +
                     "OR activityName LIKE '%' || :keyword || '%' ESCAPE '/' " +
                     "ORDER BY packageName, dateTime DESC"
     )
-    Flowable<List<PickedViewEntity>> getAllPickedViewFlowable(String keyword, int useSearchFilter);
+    Flowable<List<PickedPageEntity>> getAllPickedPageFlowable(String keyword, int useSearchFilter);
 
     /**
      * 获取所有拾取的视图
      *
      * @return 所有已拾取的视图，支持响应式更新
      */
-    @Query("SELECT * FROM pickedViews ORDER BY packageName, dateTime DESC")
-    Flowable<List<PickedViewEntity>> getAllPickedViewFlowable();
+    @Query("SELECT * FROM pickedPages ORDER BY packageName, dateTime DESC")
+    Flowable<List<PickedPageEntity>> getAllPickedPageFlowable();
 
     /**
      * 通过 ID 获取拾取的视图
@@ -303,6 +300,6 @@ public interface AccessibilityRuleDao {
      * @param id 拾取的视图的 ID
      * @return 该 ID 对应的拾取的视图
      */
-    @Query("SELECT * FROM pickedViews WHERE id = :id")
-    Single<Optional<PickedViewEntity>> getPickedViewSingleById(long id);
+    @Query("SELECT * FROM pickedPages WHERE id = :id")
+    Single<Optional<PickedPageEntity>> getPickedPageSingleById(long id);
 }

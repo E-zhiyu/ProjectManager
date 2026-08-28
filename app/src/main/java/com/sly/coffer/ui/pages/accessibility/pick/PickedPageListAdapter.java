@@ -15,28 +15,28 @@ import com.sly.coffer.auxiliary.enums.RadiusStyle;
 import com.sly.coffer.auxiliary.interfaces.adapter.AdapterOnClickListener;
 import com.sly.coffer.auxiliary.interfaces.adapter.AdapterOnLongClickListener;
 import com.sly.coffer.auxiliary.interfaces.adapter.ViewHolderListener;
-import com.sly.coffer.data.save.db.entities.PickedViewEntity;
-import com.sly.coffer.data.save.db.entities.composite.ui.PickedViewListUiModel;
-import com.sly.coffer.databinding.ViewHolderPickedViewListBinding;
+import com.sly.coffer.data.save.db.entities.PickedPageEntity;
+import com.sly.coffer.data.save.db.entities.composite.ui.PickedPageListUiModel;
+import com.sly.coffer.databinding.ViewHolderPickedPageListBinding;
 import com.sly.coffer.databinding.ViewHolderSeparatorTextChipBinding;
 import com.sly.coffer.helpers.AppListHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.ui.others.decoration.sticky.StickyHeaderAdapter;
 
-public class PickedViewListAdapter extends ListAdapter<PickedViewListUiModel, RecyclerView.ViewHolder>
+public class PickedPageListAdapter extends ListAdapter<PickedPageListUiModel, RecyclerView.ViewHolder>
         implements StickyHeaderAdapter<String> {
     private static final int TYPE_ITEM = 1;
     private static final int TYPE_SEPARATOR = 0;
-    private static final DiffUtil.ItemCallback<PickedViewListUiModel> ITEM_CALLBACK = new DiffUtil.ItemCallback<>() {
+    private static final DiffUtil.ItemCallback<PickedPageListUiModel> ITEM_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
-        public boolean areItemsTheSame(@NonNull PickedViewListUiModel oldItem, @NonNull PickedViewListUiModel newItem) {
-            if (oldItem instanceof PickedViewListUiModel.Item && newItem instanceof PickedViewListUiModel.Item) {
-                PickedViewEntity oldEntity = ((PickedViewListUiModel.Item) oldItem).entity;
-                PickedViewEntity newEntity = ((PickedViewListUiModel.Item) newItem).entity;
+        public boolean areItemsTheSame(@NonNull PickedPageListUiModel oldItem, @NonNull PickedPageListUiModel newItem) {
+            if (oldItem instanceof PickedPageListUiModel.Item && newItem instanceof PickedPageListUiModel.Item) {
+                PickedPageEntity oldEntity = ((PickedPageListUiModel.Item) oldItem).entity;
+                PickedPageEntity newEntity = ((PickedPageListUiModel.Item) newItem).entity;
                 return oldEntity.getId() == newEntity.getId();
-            } else if (oldItem instanceof PickedViewListUiModel.Separator && newItem instanceof PickedViewListUiModel.Separator) {
-                String oldSeparator = ((PickedViewListUiModel.Separator) oldItem).text;
-                String newSeparator = ((PickedViewListUiModel.Separator) newItem).text;
+            } else if (oldItem instanceof PickedPageListUiModel.Separator && newItem instanceof PickedPageListUiModel.Separator) {
+                String oldSeparator = ((PickedPageListUiModel.Separator) oldItem).text;
+                String newSeparator = ((PickedPageListUiModel.Separator) newItem).text;
                 return oldSeparator.equals(newSeparator);
             } else {
                 return false;
@@ -44,22 +44,20 @@ public class PickedViewListAdapter extends ListAdapter<PickedViewListUiModel, Re
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull PickedViewListUiModel oldItem, @NonNull PickedViewListUiModel newItem) {
-            if (oldItem instanceof PickedViewListUiModel.Item && newItem instanceof PickedViewListUiModel.Item) {
-                PickedViewEntity oldEntity = ((PickedViewListUiModel.Item) oldItem).entity;
-                PickedViewEntity newEntity = ((PickedViewListUiModel.Item) newItem).entity;
+        public boolean areContentsTheSame(@NonNull PickedPageListUiModel oldItem, @NonNull PickedPageListUiModel newItem) {
+            if (oldItem instanceof PickedPageListUiModel.Item && newItem instanceof PickedPageListUiModel.Item) {
+                PickedPageEntity oldEntity = ((PickedPageListUiModel.Item) oldItem).entity;
+                PickedPageEntity newEntity = ((PickedPageListUiModel.Item) newItem).entity;
                 return oldEntity.getRemark().equals(newEntity.getRemark()) &&
                         oldEntity.getPackageName().equals(newEntity.getPackageName()) &&
-                        oldEntity.getViewId().equals(newEntity.getViewId()) &&
-                        oldEntity.getActivityName().equals(newEntity.getActivityName()) &&
-                        oldEntity.getContentText().equals(newEntity.getContentText());
+                        oldEntity.getActivityName().equals(newEntity.getActivityName());
             } else
-                return oldItem instanceof PickedViewListUiModel.Separator && newItem instanceof PickedViewListUiModel.Separator;
+                return oldItem instanceof PickedPageListUiModel.Separator && newItem instanceof PickedPageListUiModel.Separator;
         }
     };
 
-    private final AdapterOnClickListener<PickedViewEntity> clickListener;            //单击监听
-    private final AdapterOnLongClickListener<PickedViewEntity> longClickListener;    //长按监听
+    private final AdapterOnClickListener<PickedPageEntity> clickListener;            //单击监听
+    private final AdapterOnLongClickListener<PickedPageEntity> longClickListener;    //长按监听
 
     public static class SeparatorViewHolder extends RecyclerView.ViewHolder {
         ViewHolderSeparatorTextChipBinding binding;
@@ -71,9 +69,9 @@ public class PickedViewListAdapter extends ListAdapter<PickedViewListUiModel, Re
     }
 
     public static class ItemViewHolder extends RecyclerView.ViewHolder {
-        ViewHolderPickedViewListBinding binding;
+        ViewHolderPickedPageListBinding binding;
 
-        public ItemViewHolder(@NonNull ViewHolderPickedViewListBinding binding, ViewHolderListener listener) {
+        public ItemViewHolder(@NonNull ViewHolderPickedPageListBinding binding, ViewHolderListener listener) {
             super(binding.getRoot());
             this.binding = binding;
 
@@ -91,9 +89,9 @@ public class PickedViewListAdapter extends ListAdapter<PickedViewListUiModel, Re
         }
     }
 
-    public PickedViewListAdapter(
-            AdapterOnClickListener<PickedViewEntity> clickListener,
-            AdapterOnLongClickListener<PickedViewEntity> longClickListener
+    public PickedPageListAdapter(
+            AdapterOnClickListener<PickedPageEntity> clickListener,
+            AdapterOnLongClickListener<PickedPageEntity> longClickListener
     ) {
         super(ITEM_CALLBACK);
         this.clickListener = clickListener;
@@ -126,16 +124,16 @@ public class PickedViewListAdapter extends ListAdapter<PickedViewListUiModel, Re
 
     @Override
     public boolean isHeader(int position) {
-        return getItem(position) instanceof PickedViewListUiModel.Separator;
+        return getItem(position) instanceof PickedPageListUiModel.Separator;
     }
 
     @Override
     public String getHeaderData(int position, Context context) {
-        PickedViewListUiModel model = getItem(position);
-        if (model instanceof PickedViewListUiModel.Separator) {
-            return AppListHelper.getAppNameByPackageName(((PickedViewListUiModel.Separator) model).text, context);
-        } else if (model instanceof PickedViewListUiModel.Item) {
-            return AppListHelper.getAppNameByPackageName(((PickedViewListUiModel.Item) model).entity.getPackageName(), context);
+        PickedPageListUiModel model = getItem(position);
+        if (model instanceof PickedPageListUiModel.Separator) {
+            return AppListHelper.getAppNameByPackageName(((PickedPageListUiModel.Separator) model).text, context);
+        } else if (model instanceof PickedPageListUiModel.Item) {
+            return AppListHelper.getAppNameByPackageName(((PickedPageListUiModel.Item) model).entity.getPackageName(), context);
         } else {
             return context.getString(R.string.not_applicable);
         }
@@ -143,8 +141,8 @@ public class PickedViewListAdapter extends ListAdapter<PickedViewListUiModel, Re
 
     @Override
     public int getItemViewType(int position) {
-        PickedViewListUiModel item = getItem(position);
-        if (item instanceof PickedViewListUiModel.Item) return TYPE_ITEM;
+        PickedPageListUiModel item = getItem(position);
+        if (item instanceof PickedPageListUiModel.Item) return TYPE_ITEM;
         return TYPE_SEPARATOR;
     }
 
@@ -152,7 +150,7 @@ public class PickedViewListAdapter extends ListAdapter<PickedViewListUiModel, Re
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_ITEM) {
-            ViewHolderPickedViewListBinding binding = ViewHolderPickedViewListBinding.inflate(
+            ViewHolderPickedPageListBinding binding = ViewHolderPickedPageListBinding.inflate(
                     LayoutInflater.from(parent.getContext()),
                     parent,
                     false
@@ -162,17 +160,17 @@ public class PickedViewListAdapter extends ListAdapter<PickedViewListUiModel, Re
                     new ViewHolderListener() {
                         @Override
                         public void onClick(int position, View anchor) {
-                            PickedViewListUiModel model = getItem(position);
-                            if (model instanceof PickedViewListUiModel.Item) {
-                                clickListener.onClick(((PickedViewListUiModel.Item) model).entity, anchor);
+                            PickedPageListUiModel model = getItem(position);
+                            if (model instanceof PickedPageListUiModel.Item) {
+                                clickListener.onClick(((PickedPageListUiModel.Item) model).entity, anchor);
                             }
                         }
 
                         @Override
                         public void onLongClick(int position, View anchor) {
-                            PickedViewListUiModel model = getItem(position);
-                            if (model instanceof PickedViewListUiModel.Item) {
-                                longClickListener.onLongClick(((PickedViewListUiModel.Item) model).entity, anchor);
+                            PickedPageListUiModel model = getItem(position);
+                            if (model instanceof PickedPageListUiModel.Item) {
+                                longClickListener.onLongClick(((PickedPageListUiModel.Item) model).entity, anchor);
                             }
                         }
 
@@ -193,24 +191,20 @@ public class PickedViewListAdapter extends ListAdapter<PickedViewListUiModel, Re
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        PickedViewListUiModel model = getItem(position);
+        PickedPageListUiModel model = getItem(position);
         Context context = holder.itemView.getContext();
 
-        if (model instanceof PickedViewListUiModel.Separator && holder instanceof SeparatorViewHolder) {
-            String text = AppListHelper.getAppNameByPackageName(((PickedViewListUiModel.Separator) model).text, context);
+        if (model instanceof PickedPageListUiModel.Separator && holder instanceof SeparatorViewHolder) {
+            String text = AppListHelper.getAppNameByPackageName(((PickedPageListUiModel.Separator) model).text, context);
             ((SeparatorViewHolder) holder).binding.separatorText.setText(text);
-        } else if (model instanceof PickedViewListUiModel.Item && holder instanceof ItemViewHolder) {
-            PickedViewEntity entity = ((PickedViewListUiModel.Item) model).entity;
+        } else if (model instanceof PickedPageListUiModel.Item && holder instanceof ItemViewHolder) {
+            PickedPageEntity entity = ((PickedPageListUiModel.Item) model).entity;
             ItemViewHolder itemHolder = (ItemViewHolder) holder;
 
             itemHolder.binding.remarkText.setText(entity.getRemark());              //备注
             itemHolder.binding.appNameText.setText(AppListHelper.getAppNameByPackageName(   //应用名称
                     entity.getPackageName(), context
             ));
-
-            //视图 ID
-            String viewId = entity.getViewId();
-            itemHolder.binding.viewIdText.setText(viewId == null || viewId.isEmpty() ? "<无编号>" : viewId);
 
             //界面名称
             String[] parts = entity.getActivityName().split("\\.");
@@ -234,21 +228,21 @@ public class PickedViewListAdapter extends ListAdapter<PickedViewListUiModel, Re
         }
 
         //不需要考虑当前是分隔视图的情况，因为不是Shapable不会执行任何操作
-        PickedViewListUiModel front = getItem(position - 1);
+        PickedPageListUiModel front = getItem(position - 1);
         if (position == getItemCount() - 1) {   //处理最后一个卡片的圆角
-            if (front instanceof PickedViewListUiModel.Separator) {
+            if (front instanceof PickedPageListUiModel.Separator) {
                 AppearanceHelper.setRadiusStyle(view, RadiusStyle.SINGLE); //前一个是分隔视图，判断为单独类型
             } else {
                 AppearanceHelper.setRadiusStyle(view, RadiusStyle.BOTTOM); //前一个不是分隔视图，判断为底部类型
             }
         } else {
-            PickedViewListUiModel behind = getItem(position + 1);
+            PickedPageListUiModel behind = getItem(position + 1);
 
-            if (front instanceof PickedViewListUiModel.Separator && behind instanceof PickedViewListUiModel.Separator) {
+            if (front instanceof PickedPageListUiModel.Separator && behind instanceof PickedPageListUiModel.Separator) {
                 AppearanceHelper.setRadiusStyle(view, RadiusStyle.SINGLE); //前后都是分隔视图，判断为单独类型
-            } else if (front instanceof PickedViewListUiModel.Separator) {
+            } else if (front instanceof PickedPageListUiModel.Separator) {
                 AppearanceHelper.setRadiusStyle(view, RadiusStyle.TOP);    //前一个是分隔但后一个不是，判断为顶部类型
-            } else if (behind instanceof PickedViewListUiModel.Separator) {
+            } else if (behind instanceof PickedPageListUiModel.Separator) {
                 AppearanceHelper.setRadiusStyle(view, RadiusStyle.BOTTOM); //后一个是分隔但前一个不是，判断为底部类型
             } else {
                 AppearanceHelper.setRadiusStyle(view, RadiusStyle.MIDDLE); //前后都不是分隔视图，判断为中间类型

@@ -318,13 +318,13 @@ public class PermissionManageActivity extends AppCompatActivity {
         pick = new SettingClickableTextView(
                 this,
                 binding.viewPickService,
-                R.string.view_pick,
+                R.string.page_pick,
                 "允许获取屏幕点击位置",
                 R.drawable.outline_ads_click_24,
                 RadiusStyle.BOTTOM
         );
         pick.setFunctionListener(view -> showExplanationDialog(
-                R.string.view_pick,
+                R.string.page_pick,
                 "该服务用于输入无障碍规则时获取屏幕点击位置，以此得到点击的视图信息作为金额来源。",
                 () -> {
                     SlyCoffer.lockLifecycleObserver();

@@ -22,7 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
-                app:title="@string/modify_picked_view">
+                app:title="@string/modify_picked_page">
 
                 <ImageButton
                     android:id="@+id/confirm_button"
@@ -67,38 +67,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:hint="@string/remark" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- 视图 ID -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/view_id_layout"
-                style="@style/CommonTextInputLayoutStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:helperText="@string/picked_view_view_id_helper">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/view_id_input"
-                    style="@style/UserInputEditTextStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:hint="@string/view_id" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- 内容文本 -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/content_text_layout"
-                style="@style/CommonTextInputLayoutStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:helperText="@string/picked_view_content_text_helper">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/content_text_input"
-                    style="@style/UserInputEditTextStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:hint="@string/content_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- 应用包名 -->

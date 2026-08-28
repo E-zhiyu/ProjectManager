@@ -20,9 +20,9 @@ import com.sly.coffer.R;
 import com.sly.coffer.automation.broadcast.BroadcastActions;
 import com.sly.coffer.auxiliary.enums.KeyStrings;
 import com.sly.coffer.data.save.db.BookkeepingDb;
-import com.sly.coffer.data.save.db.entities.PickedViewEntity;
+import com.sly.coffer.data.save.db.entities.PickedPageEntity;
 import com.sly.coffer.data.save.preference.SearchHistoryPreference;
-import com.sly.coffer.databinding.ActivityPickedViewListBinding;
+import com.sly.coffer.databinding.ActivityPickedPageListBinding;
 import com.sly.coffer.databinding.ViewHolderSeparatorTextChipBinding;
 import com.sly.coffer.helpers.BackPressedCallbackHelper;
 import com.sly.coffer.helpers.ExceptionHelper;
@@ -38,16 +38,16 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class PickedViewListActivity extends AppCompatActivity {
+public class PickedPageListActivity extends AppCompatActivity {
     private final CompositeDisposable disposable = new CompositeDisposable();
-    private ActivityPickedViewListBinding binding;  //绑定的 XML 布局
+    private ActivityPickedPageListBinding binding;  //绑定的 XML 布局
     private BackPressedCallbackHelper backHelper;   //返回手势拦截器
     private BackPressedCallbackHelper.BackHandler searchBackHandler;    //搜索返回处理器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityPickedViewListBinding.inflate(getLayoutInflater());
+        binding = ActivityPickedPageListBinding.inflate(getLayoutInflater());
 
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
@@ -87,7 +87,7 @@ public class PickedViewListActivity extends AppCompatActivity {
                 binding.clearHistoryBtn,
                 SearchHistoryPreference.KEY_PICKED_VIEW,
                 keyword -> {
-                    PickedViewViewModel viewModel = new ViewModelProvider(this).get(PickedViewViewModel.class);
+                    PickedPageViewModel viewModel = new ViewModelProvider(this).get(PickedPageViewModel.class);
                     viewModel.executeSearch(keyword.trim());
                 },
                 item -> {
@@ -111,12 +111,12 @@ public class PickedViewListActivity extends AppCompatActivity {
         );
 
         //Recycler 列表
-        PickedViewListAdapter adapter = new PickedViewListAdapter(
+        PickedPageListAdapter adapter = new PickedPageListAdapter(
                 (entity, anchor) -> {
                     Bundle bundle = new Bundle();
-                    bundle.putLong(KeyStrings.PICKED_VIEW_ID.v(), entity.getId());
+                    bundle.putLong(KeyStrings.PICKED_PAGE_ID.v(), entity.getId());
 
-                    Intent intent = new Intent(this, PickedViewInputActivity.class);
+                    Intent intent = new Intent(this, PickedPageInputActivity.class);
                     intent.putExtras(bundle);
                     startActivity(intent);
                 },
@@ -129,9 +129,9 @@ public class PickedViewListActivity extends AppCompatActivity {
                 (binding1, data) -> binding1.separatorText.setText(data)
         );
         binding.recycler.addItemDecoration(decoration);
-        PickedViewViewModel viewModel = new ViewModelProvider(this).get(PickedViewViewModel.class);
+        PickedPageViewModel viewModel = new ViewModelProvider(this).get(PickedPageViewModel.class);
         BookkeepingDb db = BookkeepingDb.getInstance(this);
-        disposable.add(viewModel.getPickedViewFlowable(db)
+        disposable.add(viewModel.getPickedPageFlowable(db)
                 .subscribe(
                         roleList -> {
                             VisibilityHelper.toggleVisibilityWithFade(binding.emptyText, roleList.isEmpty());
@@ -177,7 +177,7 @@ public class PickedViewListActivity extends AppCompatActivity {
      * 观察 ViewModel 的 LiveData
      */
     private void observeLiveData() {
-        PickedViewViewModel roleListViewModel = new ViewModelProvider(PickedViewListActivity.this).get(PickedViewViewModel.class);
+        PickedPageViewModel roleListViewModel = new ViewModelProvider(PickedPageListActivity.this).get(PickedPageViewModel.class);
         roleListViewModel.getFilterUpdatedLiveData().observe(this, v ->
                 setSearchMode(!roleListViewModel.isNoFilter())
         );
@@ -200,7 +200,7 @@ public class PickedViewListActivity extends AppCompatActivity {
         searchBackHandler = new BackPressedCallbackHelper.BackHandler() {
             @Override
             public boolean handleBack() {
-                PickedViewViewModel viewModel = new ViewModelProvider(PickedViewListActivity.this).get(PickedViewViewModel.class);
+                PickedPageViewModel viewModel = new ViewModelProvider(PickedPageListActivity.this).get(PickedPageViewModel.class);
                 viewModel.clearFilter();
                 return true;
             }
@@ -218,7 +218,7 @@ public class PickedViewListActivity extends AppCompatActivity {
      * @param view   角色实体
      * @param anchor 锚点视图
      */
-    private void showPopupMenu(PickedViewEntity view, View anchor) {
+    private void showPopupMenu(PickedPageEntity view, View anchor) {
         PopupMenu popupMenu = new PopupMenu(this, anchor, Gravity.END);
         popupMenu.getMenuInflater().inflate(R.menu.menu_picked_view_list_edit, popupMenu.getMenu());
 
@@ -230,18 +230,16 @@ public class PickedViewListActivity extends AppCompatActivity {
                 new EditTextDialogBuilder(this, getString(R.string.change_remark), getString(R.string.remark))
                         .setNegativeButton("取消", null)
                         .setPositiveButton("确定", inputStr -> {
-                            PickedViewEntity newView = new PickedViewEntity(
+                            PickedPageEntity newPage = new PickedPageEntity(
                                     inputStr.trim(),
-                                    view.getViewId(),
-                                    view.getContentText(),
                                     view.getPackageName(),
                                     view.getActivityName(),
                                     view.getDateTime()
                             );
-                            newView.setId(view.getId());
+                            newPage.setId(view.getId());
 
                             BookkeepingDb db = BookkeepingDb.getInstance(this);
-                            disposable.add(db.accessibilityRuleDao().updatePickedViewCompletable(newView)
+                            disposable.add(db.accessibilityRuleDao().updatePickedPageCompletable(newPage)
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribeOn(Schedulers.io())
                                     .subscribe(
@@ -257,7 +255,7 @@ public class PickedViewListActivity extends AppCompatActivity {
                         .setMessage("即将删除该拾取记录，确认继续吗？")
                         .setPositiveButton("确定", (dialogInterface, i) -> {
                             BookkeepingDb db = BookkeepingDb.getInstance(this);
-                            disposable.add(db.accessibilityRuleDao().deletePickedViewCompletable(view)
+                            disposable.add(db.accessibilityRuleDao().deletePickedPageCompletable(view)
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribeOn(Schedulers.io())
                                     .subscribe(

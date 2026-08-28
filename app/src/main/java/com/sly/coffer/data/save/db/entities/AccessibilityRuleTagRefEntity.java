@@ -2,10 +2,15 @@ package com.sly.coffer.data.save.db.entities;
 
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Index;
 
 @Entity(
         tableName = "accessibilityRuleTagRef",
         primaryKeys = {"ruleId", "tagId"},
+        indices = {
+                @Index(value = "ruleId"),
+                @Index(value = "tagId")
+        },
         foreignKeys = {
                 @ForeignKey(
                         entity = AccessibilityRuleEntity.class,

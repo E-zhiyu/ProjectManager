@@ -27,19 +27,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- 视图 ID -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/view_id_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:text="@string/view_id"
-            android:textAppearance="?attr/textAppearanceBodyLarge"
-            android:textColor="?attr/colorOutline"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/remark_text" />
-
         <!-- 活动名 -->
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/activity_name_text"
@@ -50,7 +37,7 @@
             android:textAppearance="?attr/textAppearanceBodyLarge"
             android:textColor="?attr/colorOutline"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/view_id_text" />
+            app:layout_constraintTop_toBottomOf="@id/remark_text" />
 
         <!-- 应用名 -->
         <com.google.android.material.textview.MaterialTextView
@@ -58,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/app_name"
-            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textAppearance="?attr/textAppearanceBodySmall"
             android:textColor="?attr/colorOutline"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/activity_name_text" />

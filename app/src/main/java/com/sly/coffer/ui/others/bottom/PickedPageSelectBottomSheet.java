@@ -18,25 +18,25 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.sly.coffer.data.save.db.services.AccessibilityRuleService;
-import com.sly.coffer.databinding.BottomSheetPickedViewSelectBinding;
+import com.sly.coffer.databinding.BottomSheetPickedPageSelectBinding;
 import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.appearence.VisibilityHelper;
-import com.sly.coffer.ui.others.adapters.GroupPickedViewSelectAdapter;
-import com.sly.coffer.ui.pages.accessibility.pick.PickedViewListActivity;
+import com.sly.coffer.ui.others.adapters.GroupPickedPageSelectAdapter;
+import com.sly.coffer.ui.pages.accessibility.pick.PickedPageListActivity;
 import com.sly.coffer.ui.pages.accessibility.rule.AccessibilityRuleInputViewModel;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class PickedViewSelectBottomSheet extends BaseBottomSheetDialogFragment {
-    private BottomSheetPickedViewSelectBinding binding; //绑定的 XML布局
+public class PickedPageSelectBottomSheet extends BaseBottomSheetDialogFragment {
+    private BottomSheetPickedPageSelectBinding binding; //绑定的 XML布局
     private final CompositeDisposable disposable = new CompositeDisposable();
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = BottomSheetPickedViewSelectBinding.inflate(inflater, container, false);
+        binding = BottomSheetPickedPageSelectBinding.inflate(inflater, container, false);
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -94,7 +94,7 @@ public class PickedViewSelectBottomSheet extends BaseBottomSheetDialogFragment {
 
         //角色添加按钮
         binding.addBtn.setOnClickListener(view -> {
-            Intent skip2TagInput = new Intent(requireContext(), PickedViewListActivity.class);
+            Intent skip2TagInput = new Intent(requireContext(), PickedPageListActivity.class);
             startActivity(skip2TagInput);
         });
     }
@@ -104,9 +104,8 @@ public class PickedViewSelectBottomSheet extends BaseBottomSheetDialogFragment {
      */
     private void initMainRecycler() {
         AccessibilityRuleInputViewModel viewModel = new ViewModelProvider(requireActivity()).get(AccessibilityRuleInputViewModel.class);
-        GroupPickedViewSelectAdapter adapter = new GroupPickedViewSelectAdapter(
+        GroupPickedPageSelectAdapter adapter = new GroupPickedPageSelectAdapter(
                 (entity, anchor) -> {
-                    viewModel.setCapturePos(1);
                     viewModel.setPickResult(entity);
                     dismiss();
                 }
@@ -114,7 +113,7 @@ public class PickedViewSelectBottomSheet extends BaseBottomSheetDialogFragment {
         binding.mainRecycler.setAdapter(adapter);
 
         //加载数据
-        disposable.add(AccessibilityRuleService.getGroupedPickedView(requireContext())
+        disposable.add(AccessibilityRuleService.getGroupedPickedPage(requireContext())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(

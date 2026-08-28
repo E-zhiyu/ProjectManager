@@ -14,7 +14,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.google.android.material.chip.Chip;
 import com.sly.coffer.R;
 import com.sly.coffer.auxiliary.enums.AccountType;
 import com.sly.coffer.auxiliary.enums.KeyStrings;
@@ -22,7 +21,7 @@ import com.sly.coffer.auxiliary.enums.TagStrings;
 import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleEntity;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleTransferEntity;
-import com.sly.coffer.data.save.db.entities.PickedViewEntity;
+import com.sly.coffer.data.save.db.entities.PickedPageEntity;
 import com.sly.coffer.data.save.db.entities.TagEntity;
 import com.sly.coffer.data.save.db.entities.composite.AccessibilityRuleWithDetailModel;
 import com.sly.coffer.data.save.db.services.AccessibilityRuleService;
@@ -33,7 +32,7 @@ import com.sly.coffer.helpers.ImmHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.helpers.appearence.VisibilityHelper;
 import com.sly.coffer.ui.others.adapters.NoFilteringArrayAdapter;
-import com.sly.coffer.ui.others.bottom.PickedViewSelectBottomSheet;
+import com.sly.coffer.ui.others.bottom.PickedPageSelectBottomSheet;
 import com.sly.coffer.ui.others.bottom.TagSelectBottomSheet;
 import com.sly.coffer.ui.others.viewmodel.TagMultiSelectViewModel;
 import com.sly.coffer.ui.pages.main.bookkeeping.AccountTagAdapter;
@@ -42,8 +41,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -153,19 +150,15 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                                 binding.nameInput.setText(rule.getName());                  //名称
                                 viewModel.setType(AccountType.values()[rule.getType()]);
                                 binding.typeInput.setText(viewModel.getType().getTitle());  //种类
-                                if (viewModel.getPickedView().getValue() == null) { //仅没有设置拾取时才填充
+                                if (viewModel.getPickedPage().getValue() == null) { //仅没有设置拾取时才填充
                                     //填充拾取结果
-                                    PickedViewEntity pickedView = new PickedViewEntity(
+                                    PickedPageEntity pickedPage = new PickedPageEntity(
                                             "拾取的视图",
-                                            rule.getViewId(),
-                                            rule.getOriginContent(),
                                             rule.getPackageName(),
-                                            rule.getTargetActivity(),
+                                            rule.getActivityName(),
                                             LocalDateTime.now()
                                     );
-                                    viewModel.setPickResult(pickedView);
-
-                                    viewModel.setCapturePos(rule.getCapturePos());
+                                    viewModel.setPickResult(pickedPage);
                                 }
                                 if (viewModel.getType() == AccountType.TRANSFER) {
                                     binding.exportAccountLayout.setVisibility(View.VISIBLE);
@@ -208,8 +201,7 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
         ImmHelper.showImm(binding.nameInput);
 
         //种类
-        AccessibilityRuleInputViewModel viewModel =
-                new ViewModelProvider(this).get(AccessibilityRuleInputViewModel.class);
+        AccessibilityRuleInputViewModel viewModel = new ViewModelProvider(this).get(AccessibilityRuleInputViewModel.class);
         NoFilteringArrayAdapter<String> typeAdapter = new NoFilteringArrayAdapter<>(
                 this,
                 Arrays.stream(AccountType.values())
@@ -279,13 +271,13 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
 
         //拾取视图选择按钮
         binding.amountViewSelectBtn.setOnClickListener(view -> {
-            PickedViewSelectBottomSheet bottomSheet = new PickedViewSelectBottomSheet();
+            PickedPageSelectBottomSheet bottomSheet = new PickedPageSelectBottomSheet();
             bottomSheet.show(getSupportFragmentManager(), TagStrings.PICKED_VIEW_BOTTOM.t());
         });
 
         //视图拾取说明按钮
         binding.amountViewExplainBtn.setOnClickListener(view -> {
-            final String EXPLANATION = "作为金额填充到流水记录的文本的来源";
+            final String EXPLANATION = "从选择的界面中提取金额信息并生成流水记录";
             TipPreference.showTipWithoutKey(view, Gravity.START, EXPLANATION);
         });
 
@@ -358,69 +350,19 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
         //金额文本选择
         AccessibilityRuleInputViewModel ruleInputViewModel = new ViewModelProvider(this)
                 .get(AccessibilityRuleInputViewModel.class);
-        ruleInputViewModel.getPickedView().observe(this, pickedView -> {
-            if (pickedView == null) {
+        ruleInputViewModel.getPickedPage().observe(this, pickedPage -> {
+            if (pickedPage == null) {
                 //清空文本框
                 binding.packageNameInput.setText("");
                 binding.activityNameInput.setText("");
-                binding.viewIdInput.setText("");
-                binding.contentTextInput.setText("");
-
-                VisibilityHelper.toggleViewExpansion(
-                        binding.scrollLayout,
-                        false,
-                        null,
-                        binding.amountSelectLayout
-                );
             } else {
                 //填充文本框
-                binding.packageNameInput.setText(pickedView.getPackageName());      //包名
-                binding.activityNameInput.setText(pickedView.getActivityName());    //界面名称
-                binding.viewIdInput.setText(pickedView.getViewId());                //视图标识符
-                binding.contentTextInput.setText(pickedView.getContentText());      //视图文本
+                binding.packageNameInput.setText(pickedPage.getPackageName());      //包名
+                binding.activityNameInput.setText(pickedPage.getActivityName());    //界面名称
 
                 //消除错误提示
                 binding.packageNameLayout.setError(null);   //包名
                 binding.activityNameLayout.setError(null);  //界面名称
-                binding.viewIdLayout.setError(null);        //视图标识符
-                binding.contentTextLayout.setError(null);   //视图文本
-
-                AccessibilityRuleInputViewModel viewModel = new ViewModelProvider(this).get(AccessibilityRuleInputViewModel.class);
-                int capturePos = viewModel.getCapturePos();
-
-                //填充 Chip
-                Pattern amountPattern = Pattern.compile("\\d+\\.?\\d{0,2}");
-                Matcher matcher = amountPattern.matcher(pickedView.getContentText());
-                int i = 1;
-                binding.amountSelectChipGroup.removeAllViews();
-                while (matcher.find()) {
-                    String amountText = matcher.group();
-
-                    int finalPosition = i;
-                    Chip amountChip = new Chip(this);
-                    amountChip.setCheckable(true);
-                    if (i == capturePos) {
-                        amountChip.setChecked(true);
-                    }
-                    amountChip.setText(amountText);
-                    amountChip.setCheckedIconVisible(true);
-                    amountChip.setOnCheckedChangeListener((compoundButton, b) -> {
-                        if (b) {
-                            viewModel.setCapturePos(finalPosition);
-                        }
-                    });
-                    binding.amountSelectChipGroup.addView(amountChip);
-
-                    i++;
-                }
-
-                //显示 ChipGroup
-                VisibilityHelper.toggleViewExpansion(
-                        binding.scrollLayout,
-                        true,
-                        null,
-                        binding.amountSelectLayout
-                );
             }
         });
     }
@@ -446,12 +388,10 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
         } else if (viewModel.getType() == AccountType.TRANSFER && importAccount.isEmpty()) {
             err = "转入账户不能为空";
             binding.importAccountLayout.setError(err);
-        } else if (viewModel.getPickedView().getValue() == null) {
+        } else if (viewModel.getPickedPage().getValue() == null) {
             err = "必须设置拾取视图";
             binding.packageNameLayout.setError(err);
             binding.activityNameLayout.setError(err);
-            binding.viewIdLayout.setError(err);
-            binding.contentTextLayout.setError(err);
         }
 
         return err;
@@ -463,12 +403,9 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
     private void saveData() {
         AccessibilityRuleInputViewModel viewModel = new ViewModelProvider(this).get(AccessibilityRuleInputViewModel.class);
         int typeOrdinal = viewModel.getType().ordinal();
-        int capturePos = viewModel.getCapturePos();
         String name = String.valueOf(binding.nameInput.getText()).trim();
         String packageName = String.valueOf(binding.packageNameInput.getEditableText()).trim();
         String activityName = String.valueOf(binding.activityNameInput.getEditableText()).trim();
-        String viewId = String.valueOf(binding.viewIdInput.getEditableText()).trim();
-        String contentText = String.valueOf(binding.contentTextInput.getEditableText()).trim();
         String exportAccount = String.valueOf(binding.exportAccountInput.getText()).trim();
         String importAccount = String.valueOf(binding.importAccountInput.getText()).trim();
 
@@ -477,21 +414,12 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                 .map(TagEntity::getTagId)
                 .collect(Collectors.toList());
 
-        //生成内容正则表达式
-        final String REGEX = "\\d+\\.?\\d{0,2}";
-        final String REPLACEMENT = "(\\\\d+\\\\.?\\\\d{0,2})";
-        String contentRegex = contentText.replaceAll(REGEX, REPLACEMENT);
-
         //保存数据
         AccessibilityRuleEntity rule = new AccessibilityRuleEntity(
                 name,
                 typeOrdinal,
                 packageName,
-                activityName,
-                viewId,
-                contentText,
-                contentRegex,
-                capturePos
+                activityName
         );
         AccessibilityRuleTransferEntity transfer = new AccessibilityRuleTransferEntity(exportAccount, importAccount);
         BookkeepingDb db = BookkeepingDb.getInstance(this);

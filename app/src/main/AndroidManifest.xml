@@ -133,14 +133,14 @@
             android:parentActivityName=".ui.pages.accessibility.rule.AccessibilityRuleListActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.pages.accessibility.pick.PickedViewListActivity"
+            android:name=".ui.pages.accessibility.pick.PickedPageListActivity"
             android:exported="false"
             android:parentActivityName=".ui.pages.main.MainActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.pages.accessibility.pick.PickedViewInputActivity"
+            android:name=".ui.pages.accessibility.pick.PickedPageInputActivity"
             android:exported="false"
-            android:parentActivityName=".ui.pages.accessibility.pick.PickedViewListActivity"
+            android:parentActivityName=".ui.pages.accessibility.pick.PickedPageListActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.pages.main.MainActivity"

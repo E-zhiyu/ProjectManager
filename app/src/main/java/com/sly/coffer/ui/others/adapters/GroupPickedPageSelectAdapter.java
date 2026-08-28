@@ -10,50 +10,50 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.chip.Chip;
 import com.sly.coffer.auxiliary.interfaces.adapter.AdapterOnClickListener;
-import com.sly.coffer.data.save.db.entities.PickedViewEntity;
-import com.sly.coffer.data.save.db.entities.composite.ui.PickedViewGroupUiModel;
-import com.sly.coffer.databinding.ViewHolderGroupPickedViewBinding;
+import com.sly.coffer.data.save.db.entities.PickedPageEntity;
+import com.sly.coffer.data.save.db.entities.composite.ui.PickedPageGroupUiModel;
+import com.sly.coffer.databinding.ViewHolderGroupPickedPageBinding;
 import com.sly.coffer.databinding.ViewHolderSeparatorTextviewBinding;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class GroupPickedViewSelectAdapter extends ListAdapter<PickedViewGroupUiModel, RecyclerView.ViewHolder> {
-    private final static DiffUtil.ItemCallback<PickedViewGroupUiModel> ITEM_CALLBACK = new DiffUtil.ItemCallback<>() {
+public class GroupPickedPageSelectAdapter extends ListAdapter<PickedPageGroupUiModel, RecyclerView.ViewHolder> {
+    private final static DiffUtil.ItemCallback<PickedPageGroupUiModel> ITEM_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
-        public boolean areItemsTheSame(@NonNull PickedViewGroupUiModel oldItem, @NonNull PickedViewGroupUiModel newItem) {
-            if (oldItem instanceof PickedViewGroupUiModel.Item && newItem instanceof PickedViewGroupUiModel.Item) {
-                List<Long> oldIdList = ((PickedViewGroupUiModel.Item) oldItem).viewList.stream()
-                        .map(PickedViewEntity::getId)
+        public boolean areItemsTheSame(@NonNull PickedPageGroupUiModel oldItem, @NonNull PickedPageGroupUiModel newItem) {
+            if (oldItem instanceof PickedPageGroupUiModel.Item && newItem instanceof PickedPageGroupUiModel.Item) {
+                List<Long> oldIdList = ((PickedPageGroupUiModel.Item) oldItem).viewList.stream()
+                        .map(PickedPageEntity::getId)
                         .collect(Collectors.toList());
-                List<Long> newIdList = ((PickedViewGroupUiModel.Item) newItem).viewList.stream()
-                        .map(PickedViewEntity::getId)
+                List<Long> newIdList = ((PickedPageGroupUiModel.Item) newItem).viewList.stream()
+                        .map(PickedPageEntity::getId)
                         .collect(Collectors.toList());
                 return oldIdList.equals(newIdList);
-            } else if (oldItem instanceof PickedViewGroupUiModel.Separator && newItem instanceof PickedViewGroupUiModel.Separator) {
-                return ((PickedViewGroupUiModel.Separator) oldItem).text.equals(((PickedViewGroupUiModel.Separator) newItem).text);
+            } else if (oldItem instanceof PickedPageGroupUiModel.Separator && newItem instanceof PickedPageGroupUiModel.Separator) {
+                return ((PickedPageGroupUiModel.Separator) oldItem).text.equals(((PickedPageGroupUiModel.Separator) newItem).text);
             } else {
                 return false;
             }
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull PickedViewGroupUiModel oldItem, @NonNull PickedViewGroupUiModel newItem) {
-            if (oldItem instanceof PickedViewGroupUiModel.Item && newItem instanceof PickedViewGroupUiModel.Item) {
+        public boolean areContentsTheSame(@NonNull PickedPageGroupUiModel oldItem, @NonNull PickedPageGroupUiModel newItem) {
+            if (oldItem instanceof PickedPageGroupUiModel.Item && newItem instanceof PickedPageGroupUiModel.Item) {
                 return true;
             } else
-                return oldItem instanceof PickedViewGroupUiModel.Separator && newItem instanceof PickedViewGroupUiModel.Separator;
+                return oldItem instanceof PickedPageGroupUiModel.Separator && newItem instanceof PickedPageGroupUiModel.Separator;
         }
     };
 
     private static final int TYPE_ITEM = 1;
     private static final int TYPE_SEPARATOR = 0;
-    private final AdapterOnClickListener<PickedViewEntity> clickListener;
+    private final AdapterOnClickListener<PickedPageEntity> clickListener;
 
     public static class ItemViewHolder extends RecyclerView.ViewHolder {
-        ViewHolderGroupPickedViewBinding binding;
+        ViewHolderGroupPickedPageBinding binding;
 
-        public ItemViewHolder(@NonNull ViewHolderGroupPickedViewBinding binding) {
+        public ItemViewHolder(@NonNull ViewHolderGroupPickedPageBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
@@ -63,12 +63,12 @@ public class GroupPickedViewSelectAdapter extends ListAdapter<PickedViewGroupUiM
          *
          * @param listener 标签点击后触发的监听器
          */
-        public void refreshRoleChip(@NonNull List<PickedViewEntity> tagList, AdapterOnClickListener<PickedViewEntity> listener) {
+        public void refreshRoleChip(@NonNull List<PickedPageEntity> tagList, AdapterOnClickListener<PickedPageEntity> listener) {
             //删除之前的视图
             binding.chipGroup.removeAllViews();
 
             //添加新的视图
-            for (PickedViewEntity view : tagList) {
+            for (PickedPageEntity view : tagList) {
                 //实例化 Chip
                 Chip chip = new Chip(binding.getRoot().getContext());
                 chip.setCheckable(false);
@@ -96,15 +96,15 @@ public class GroupPickedViewSelectAdapter extends ListAdapter<PickedViewGroupUiM
         }
     }
 
-    public GroupPickedViewSelectAdapter(AdapterOnClickListener<PickedViewEntity> clickListener) {
+    public GroupPickedPageSelectAdapter(AdapterOnClickListener<PickedPageEntity> clickListener) {
         super(ITEM_CALLBACK);
         this.clickListener = clickListener;
     }
 
     @Override
     public int getItemViewType(int position) {
-        PickedViewGroupUiModel item = getItem(position);
-        if (item instanceof PickedViewGroupUiModel.Item) return TYPE_ITEM;
+        PickedPageGroupUiModel item = getItem(position);
+        if (item instanceof PickedPageGroupUiModel.Item) return TYPE_ITEM;
         return TYPE_SEPARATOR;
     }
 
@@ -112,7 +112,7 @@ public class GroupPickedViewSelectAdapter extends ListAdapter<PickedViewGroupUiM
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_ITEM) {
-            ViewHolderGroupPickedViewBinding binding = ViewHolderGroupPickedViewBinding.inflate(
+            ViewHolderGroupPickedPageBinding binding = ViewHolderGroupPickedPageBinding.inflate(
                     LayoutInflater.from(parent.getContext()),
                     parent,
                     false
@@ -130,14 +130,14 @@ public class GroupPickedViewSelectAdapter extends ListAdapter<PickedViewGroupUiM
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        PickedViewGroupUiModel dataItem = getItem(position);
-        if (dataItem instanceof PickedViewGroupUiModel.Item && holder instanceof ItemViewHolder) {
-            PickedViewGroupUiModel.Item item = (PickedViewGroupUiModel.Item) dataItem;
+        PickedPageGroupUiModel dataItem = getItem(position);
+        if (dataItem instanceof PickedPageGroupUiModel.Item && holder instanceof ItemViewHolder) {
+            PickedPageGroupUiModel.Item item = (PickedPageGroupUiModel.Item) dataItem;
             ItemViewHolder itemHolder = (ItemViewHolder) holder;
 
             itemHolder.refreshRoleChip(item.viewList, clickListener);
-        } else if (dataItem instanceof PickedViewGroupUiModel.Separator && holder instanceof SeparatorViewHolder) {
-            PickedViewGroupUiModel.Separator separator = (PickedViewGroupUiModel.Separator) dataItem;
+        } else if (dataItem instanceof PickedPageGroupUiModel.Separator && holder instanceof SeparatorViewHolder) {
+            PickedPageGroupUiModel.Separator separator = (PickedPageGroupUiModel.Separator) dataItem;
             SeparatorViewHolder separatorHolder = (SeparatorViewHolder) holder;
 
             separatorHolder.binding.text.setText(separator.text);
