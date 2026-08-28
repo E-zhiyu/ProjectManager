@@ -132,7 +132,6 @@ public class AbAccessibilityService extends AccessibilityService {
                 Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), log);
                 continue;
             }
-            antiShakeMap.put(ruleId, currentTimeMillis);
 
             //尝试提取金额文本
             String rawAmountText = extractTextByViewId(rootNode, rule.getViewId());
@@ -161,6 +160,9 @@ public class AbAccessibilityService extends AccessibilityService {
                 } else {
                     saveInDbDirectly(amount, model);
                 }
+
+                //更新规则的触发时间
+                antiShakeMap.put(ruleId, currentTimeMillis);
             } else {
                 String err = String.format(Locale.getDefault(), "“%s”无法提取目标视图的文本", rule.getName());
                 sendErrorNotification(err, ruleId);

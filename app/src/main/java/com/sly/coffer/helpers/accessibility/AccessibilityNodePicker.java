@@ -2,12 +2,14 @@ package com.sly.coffer.helpers.accessibility;
 
 import android.accessibilityservice.AccessibilityService;
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.sly.coffer.auxiliary.classes.PickResult;
+import com.sly.coffer.auxiliary.enums.LogTags;
 
 public class AccessibilityNodePicker {
     /**
@@ -24,12 +26,12 @@ public class AccessibilityNodePicker {
             float x,
             float y
     ) {
-        AccessibilityNodeInfo root =
-                service.getRootInActiveWindow();
+        AccessibilityNodeInfo root = service.getRootInActiveWindow();
 
         if (root == null) {
             return null;
         }
+        Log.d(LogTags.ACCESSIBILITY_NODE_PICKER.n(), "节点包名 : " + root.getPackageName());
 
         //TODO:解决无法获取部分应用中的视图的BUG
         AccessibilityNodeInfo target = findDeepestNode(
