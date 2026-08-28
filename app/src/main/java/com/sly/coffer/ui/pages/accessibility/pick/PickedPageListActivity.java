@@ -93,12 +93,17 @@ public class PickedPageListActivity extends AppCompatActivity {
                     int id = item.getItemId();
                     if (id == R.id.action_help) {
                         final String EXPLANATION = "### 1. 工作原理\n" +
-                                "处于视图拾取模式时，本APP会：\n" +
-                                "1. 识别点击的屏幕位置；\n" +
-                                "2. 获取点击位置对应的视图的信息，并保存至本地数据库。\n" +
+                                "当界面拾取功能启用时，本APP会：\n" +
+                                "1. 获取当前界面的信息（所属应用的包名、界面名称）；\n" +
+                                "2. 将获取到的界面信息保存到数据库，以便输入无障碍规则时选择。\n" +
                                 "\n" +
-                                "### 2. 与无障碍规则的关系\n" +
-                                "输入无障碍规则时的目标视图时，可以从已保存的视图信息中选择。\n";
+                                "### 2. 拾取的界面的用处\n" +
+                                "作为输入无障碍规则时的一个必填选项。\n" +
+                                "\n" +
+                                "### 3. 免责声明\n" +
+                                "- 本功能**完全在本地运行**，无障碍服务仅用于金额提取和记账；\n" +
+                                "- **APP不会以任何形式收集、存储或上传您的屏幕内容、金额信息或任何个人数据**；\n" +
+                                "- 拾取的所有界面信息仅保存在本机，请您放心使用。";
                         new MarkdownDialogBuilder(this, "功能说明", EXPLANATION)
                                 .setNegativeButton("关闭", null)
                                 .show();
