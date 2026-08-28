@@ -79,16 +79,11 @@
                 android:id="@+id/alarm_option"
                 layout="@layout/view_setting_option" />
 
-            <!-- 悬浮窗 -->
-            <include
-                android:id="@+id/alert_window_option"
-                layout="@layout/view_setting_option" />
-
             <com.google.android.material.textview.MaterialTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:text="@string/accessibility_service"
                 android:textAppearance="?attr/textAppearanceBodyLarge" />
@@ -100,7 +95,7 @@
 
             <!-- 视图拾取服务 -->
             <include
-                android:id="@+id/view_pick_service"
+                android:id="@+id/page_pick_service"
                 layout="@layout/view_setting_option" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
