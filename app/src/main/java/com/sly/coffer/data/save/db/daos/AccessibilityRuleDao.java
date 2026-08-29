@@ -11,6 +11,7 @@ import androidx.room.Update;
 
 import com.sly.coffer.auxiliary.enums.AccountType;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleEntity;
+import com.sly.coffer.data.save.db.entities.AccessibilityRuleKeywordGroupEntity;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleTagRefEntity;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleTransferEntity;
 import com.sly.coffer.data.save.db.entities.PickedPageEntity;
@@ -101,14 +102,28 @@ public interface AccessibilityRuleDao {
     void insertAccessibilityTagRef(List<AccessibilityRuleTagRefEntity> tagList);
 
     /**
+     * 插入无障碍关键词组合
+     *
+     * @param list 关键词组合列表
+     */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    void insertKeywordGroup(List<AccessibilityRuleKeywordGroupEntity> list);
+
+    /**
      * 添加无障碍规则事务
      *
-     * @param rule      新规则
-     * @param transfer  新规则对应的转账数据
-     * @param tagIdList 新规则对应的标签编号列表
+     * @param rule             新规则
+     * @param transfer         新规则对应的转账数据
+     * @param keywordGroupList 关键词组合列表
+     * @param tagIdList        新规则对应的标签编号列表
      */
     @Transaction
-    default void addAccessibilityRule(AccessibilityRuleEntity rule, AccessibilityRuleTransferEntity transfer, List<Long> tagIdList) {
+    default void addAccessibilityRule(
+            AccessibilityRuleEntity rule,
+            AccessibilityRuleTransferEntity transfer,
+            List<AccessibilityRuleKeywordGroupEntity> keywordGroupList,
+            List<Long> tagIdList
+    ) {
         long ruleId = insertAccessibilityRule(rule);
 
         //转账账户数据
@@ -116,6 +131,12 @@ public interface AccessibilityRuleDao {
             transfer.setRuleId(ruleId);
             insertAccessibilityTransfer(transfer);
         }
+
+        //关键词组合
+        for (AccessibilityRuleKeywordGroupEntity group : keywordGroupList) {
+            group.setRuleId(ruleId);
+        }
+        insertKeywordGroup(keywordGroupList);
 
         //标签数据
         List<AccessibilityRuleTagRefEntity> tagRefList = tagIdList.stream()
@@ -158,14 +179,28 @@ public interface AccessibilityRuleDao {
     void deleteAccessibilityRuleTagRefByRuleId(long ruleId);
 
     /**
+     * 根据无障碍规则编号删除关键词组合
+     *
+     * @param ruleId 需要删除的组合所属的无障碍规则编号
+     */
+    @Query("DELETE FROM accessibilityRuleKeywordGroups WHERE ruleId = :ruleId")
+    void deleteKeywordGroupByRuleId(long ruleId);
+
+    /**
      * 修改无障碍规则
      *
-     * @param rule      修改后的无障碍规则
-     * @param transfer  转账账户
-     * @param tagIdList 标签编号列表
+     * @param rule             修改后的无障碍规则
+     * @param transfer         转账账户
+     * @param keywordGroupList 关键词组合列表
+     * @param tagIdList        标签编号列表
      */
     @Transaction
-    default void modifyAccessibilityRule(@NonNull AccessibilityRuleEntity rule, AccessibilityRuleTransferEntity transfer, List<Long> tagIdList) {
+    default void modifyAccessibilityRule(
+            @NonNull AccessibilityRuleEntity rule,
+            AccessibilityRuleTransferEntity transfer,
+            List<AccessibilityRuleKeywordGroupEntity> keywordGroupList,
+            List<Long> tagIdList
+    ) {
         long ruleId = rule.getRuleId();
 
         //获取旧数据
@@ -181,6 +216,13 @@ public interface AccessibilityRuleDao {
             transfer.setRuleId(ruleId);
             insertAccessibilityTransfer(transfer);
         }
+
+        //关键词组合
+        deleteKeywordGroupByRuleId(ruleId);
+        for (AccessibilityRuleKeywordGroupEntity group : keywordGroupList) {
+            group.setRuleId(ruleId);
+        }
+        insertKeywordGroup(keywordGroupList);
 
         //标签数据
         deleteAccessibilityRuleTagRefByRuleId(ruleId);

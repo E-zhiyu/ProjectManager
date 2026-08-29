@@ -5,6 +5,7 @@ import androidx.room.Junction;
 import androidx.room.Relation;
 
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleEntity;
+import com.sly.coffer.data.save.db.entities.AccessibilityRuleKeywordGroupEntity;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleTagRefEntity;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleTransferEntity;
 import com.sly.coffer.data.save.db.entities.TagEntity;
@@ -26,11 +27,18 @@ public class AccessibilityRuleWithDetailModel {
             associateBy = @Junction(AccessibilityRuleTagRefEntity.class)
     )
     private final List<TagEntity> tagList;
+    @Relation(
+            entity = AccessibilityRuleKeywordGroupEntity.class,
+            parentColumn = "ruleId",
+            entityColumn = "ruleId"
+    )
+    private final List<AccessibilityRuleKeywordGroupEntity> keywordGroupList;
 
-    public AccessibilityRuleWithDetailModel(AccessibilityRuleEntity rule, AccessibilityRuleTransferEntity transfer, List<TagEntity> tagList) {
+    public AccessibilityRuleWithDetailModel(AccessibilityRuleEntity rule, AccessibilityRuleTransferEntity transfer, List<TagEntity> tagList, List<AccessibilityRuleKeywordGroupEntity> keywordGroupList) {
         this.rule = rule;
         this.transfer = transfer;
         this.tagList = tagList;
+        this.keywordGroupList = keywordGroupList;
     }
 
     public AccessibilityRuleEntity getRule() {
@@ -43,5 +51,9 @@ public class AccessibilityRuleWithDetailModel {
 
     public List<TagEntity> getTagList() {
         return tagList;
+    }
+
+    public List<AccessibilityRuleKeywordGroupEntity> getKeywordGroupList() {
+        return keywordGroupList;
     }
 }

@@ -20,6 +20,7 @@ import com.sly.coffer.data.save.db.daos.CapturedNotificationDao;
 import com.sly.coffer.data.save.db.daos.NotificationRuleDao;
 import com.sly.coffer.data.save.db.daos.TagDao;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleEntity;
+import com.sly.coffer.data.save.db.entities.AccessibilityRuleKeywordGroupEntity;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleTagRefEntity;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleTransferEntity;
 import com.sly.coffer.data.save.db.entities.AccountTagRefEntity;
@@ -56,6 +57,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
                 AccessibilityRuleEntity.class,
                 AccessibilityRuleTagRefEntity.class,
                 AccessibilityRuleTransferEntity.class,
+                AccessibilityRuleKeywordGroupEntity.class,
                 PickedPageEntity.class
         },
         version = 3

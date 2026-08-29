@@ -14,12 +14,14 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.sly.coffer.R;
 import com.sly.coffer.auxiliary.enums.AccountType;
 import com.sly.coffer.auxiliary.enums.KeyStrings;
 import com.sly.coffer.auxiliary.enums.TagStrings;
 import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleEntity;
+import com.sly.coffer.data.save.db.entities.AccessibilityRuleKeywordGroupEntity;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleTransferEntity;
 import com.sly.coffer.data.save.db.entities.PickedPageEntity;
 import com.sly.coffer.data.save.db.entities.TagEntity;
@@ -34,6 +36,7 @@ import com.sly.coffer.helpers.appearence.VisibilityHelper;
 import com.sly.coffer.ui.others.adapters.NoFilteringArrayAdapter;
 import com.sly.coffer.ui.others.bottom.PickedPageSelectBottomSheet;
 import com.sly.coffer.ui.others.bottom.TagSelectBottomSheet;
+import com.sly.coffer.ui.others.dialogs.EditTextDialogBuilder;
 import com.sly.coffer.ui.others.viewmodel.TagMultiSelectViewModel;
 import com.sly.coffer.ui.pages.main.bookkeeping.AccountTagAdapter;
 
@@ -50,9 +53,10 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class AccessibilityRuleInputActivity extends AppCompatActivity {
     private ActivityAccessibilityRuleInputBinding binding;
     @Nullable
-    private Bundle initBundle = null;                               //存有初始数据数据包
+    private Bundle initBundle = null;               //存有初始数据数据包
     private final CompositeDisposable disposable = new CompositeDisposable();
-    private AccountTagAdapter tagAdapter;                           //标签适配器
+    private AccountTagAdapter tagAdapter;           //标签适配器
+    private KeywordGroupListAdapter keywordAdapter; //关键词组合适配器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +97,49 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
      * 初始化视图
      */
     private void initViews() {
+        //关键词组合 Recycler
+        keywordAdapter = new KeywordGroupListAdapter(
+                (entity, anchor, adapter) -> {
+                    //切换视图可见性
+                    List<AccessibilityRuleKeywordGroupEntity> removedList = new ArrayList<>(adapter.getCurrentList());
+                    removedList.remove(entity);
+                    if (!removedList.isEmpty()) {
+                        adapter.submitList(
+                                removedList,
+                                () -> VisibilityHelper.toggleViewExpansion(
+                                        binding.scrollLayout,
+                                        true,
+                                        null,
+                                        binding.keywordGroupRecycler
+                                )
+                        );
+                    } else {
+                        VisibilityHelper.toggleViewExpansion(
+                                binding.scrollLayout,
+                                false,
+                                () -> adapter.submitList(removedList),
+                                binding.keywordGroupRecycler
+                        );
+                    }
+                },
+                (entity, anchor) -> {
+                    String[] parts = entity.getContent().split("\\s+");
+                    StringBuilder display = new StringBuilder();
+                    for (int i = 0; i < parts.length; i++) {
+                        display.append(parts[i]);
+                        if (i < parts.length - 1) {
+                            display.append("、");
+                        }
+                    }
+                    new MaterialAlertDialogBuilder(this)
+                            .setTitle(R.string.keyword_group)
+                            .setMessage(display.toString())
+                            .setNegativeButton("关闭", null)
+                            .show();
+                }
+        );
+        binding.keywordGroupRecycler.setAdapter(keywordAdapter);
+
         //标签 Recycler
         tagAdapter = new AccountTagAdapter(
                 (entity, anchor, adapter) -> {
@@ -100,7 +147,7 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                     List<TagEntity> removedList = new ArrayList<>(adapter.getCurrentList());
                     removedList.remove(entity);
                     if (!removedList.isEmpty()) {
-                        tagAdapter.submitList(
+                        adapter.submitList(
                                 removedList,
                                 () -> VisibilityHelper.toggleViewExpansion(
                                         binding.scrollLayout,
@@ -113,7 +160,7 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                         VisibilityHelper.toggleViewExpansion(
                                 binding.scrollLayout,
                                 false,
-                                () -> tagAdapter.submitList(removedList),
+                                () -> adapter.submitList(removedList),
                                 binding.tagRecycler
                         );
                     }
@@ -125,6 +172,7 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
         );
         binding.tagRecycler.setAdapter(tagAdapter);
 
+        //工具栏
         binding.toolbar.setNavigationOnClickListener(view -> finish());
         if (initBundle != null) {
             binding.toolbar.setTitle(R.string.modify_rule);
@@ -143,6 +191,7 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                                 AccessibilityRuleEntity rule = model.getRule();
                                 AccessibilityRuleTransferEntity transfer = model.getTransfer();
                                 List<TagEntity> tagList = model.getTagList();
+                                List<AccessibilityRuleKeywordGroupEntity> keywordGroupList = model.getKeywordGroupList();
 
                                 //填充数据
                                 AccessibilityRuleInputViewModel viewModel =
@@ -153,7 +202,7 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                                 if (viewModel.getPickedPage().getValue() == null) { //仅没有设置拾取时才填充
                                     //填充拾取结果
                                     PickedPageEntity pickedPage = new PickedPageEntity(
-                                            "拾取的视图",
+                                            "拾取的界面",
                                             rule.getPackageName(),
                                             rule.getActivityName(),
                                             LocalDateTime.now()
@@ -166,6 +215,14 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
 
                                     binding.exportAccountInput.setText(transfer.getExportAccount());    //转出账户
                                     binding.importAccountInput.setText(transfer.getImportAccount());    //转入账户
+                                }
+
+                                //显示关键词组合
+                                if (!keywordGroupList.isEmpty()) {
+                                    keywordAdapter.submitList(keywordGroupList);
+                                    binding.keywordGroupRecycler.setVisibility(View.VISIBLE);
+                                } else {
+                                    binding.keywordGroupRecycler.setVisibility(View.GONE);
                                 }
 
                                 //显示标签
@@ -269,15 +326,43 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
             }
         });
 
-        //拾取视图选择按钮
-        binding.amountViewSelectBtn.setOnClickListener(view -> {
+        //拾取界面选择按钮
+        binding.amountPageSelectBtn.setOnClickListener(view -> {
             PickedPageSelectBottomSheet bottomSheet = new PickedPageSelectBottomSheet();
             bottomSheet.show(getSupportFragmentManager(), TagStrings.PICKED_VIEW_BOTTOM.t());
         });
 
-        //视图拾取说明按钮
-        binding.amountViewExplainBtn.setOnClickListener(view -> {
-            final String EXPLANATION = "从选择的界面中提取金额信息并生成流水记录";
+        //拾取界面说明按钮
+        binding.amountPageExplainBtn.setOnClickListener(view -> {
+            final String EXPLANATION = "当处于选中的界面时尝试提取金额信息并生成流水记录";
+            TipPreference.showTipWithoutKey(view, Gravity.START, EXPLANATION);
+        });
+
+        //关键词组合添加按钮
+        binding.keywordGroupAddBtn.setOnClickListener(view -> {
+            String keywordGroup = getString(R.string.keyword_group);
+            new EditTextDialogBuilder(this, "输入" + keywordGroup, keywordGroup)
+                    .setNegativeButton("取消", null)
+                    .setPositiveButton("确定", inputStr -> {
+                        long ruleId = initBundle == null ? 0 : initBundle.getLong(KeyStrings.ACCESSIBILITY_RULE_ID.v());
+                        List<AccessibilityRuleKeywordGroupEntity> keywordGroupList = new ArrayList<>(keywordAdapter.getCurrentList());
+                        keywordGroupList.add(new AccessibilityRuleKeywordGroupEntity(ruleId, inputStr.trim()));
+                        keywordAdapter.submitList(
+                                keywordGroupList,
+                                () -> VisibilityHelper.toggleViewExpansion(
+                                        binding.scrollLayout,
+                                        true,
+                                        null,
+                                        binding.keywordGroupRecycler
+                                )
+                        );
+                    })
+                    .show();
+        });
+
+        //关键词组合说明按钮
+        binding.keywordGroupExplainBtn.setOnClickListener(view -> {
+            final String EXPLANATION = "当任意一个组合中的关键词都在界面中出现时，才触发该规则并生成流水记录\n使用空格区分不同的关键词";
             TipPreference.showTipWithoutKey(view, Gravity.START, EXPLANATION);
         });
 
@@ -389,7 +474,7 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
             err = "转入账户不能为空";
             binding.importAccountLayout.setError(err);
         } else if (viewModel.getPickedPage().getValue() == null) {
-            err = "必须设置拾取视图";
+            err = "必须设置金额界面";
             binding.packageNameLayout.setError(err);
             binding.activityNameLayout.setError(err);
         }
@@ -422,9 +507,10 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
                 activityName
         );
         AccessibilityRuleTransferEntity transfer = new AccessibilityRuleTransferEntity(exportAccount, importAccount);
+        List<AccessibilityRuleKeywordGroupEntity> keywordGroupList = new ArrayList<>(keywordAdapter.getCurrentList());
         BookkeepingDb db = BookkeepingDb.getInstance(this);
         if (initBundle == null) {
-            disposable.add(AccessibilityRuleService.addNewAccessibilityRule(rule, transfer, tagIdList, db)
+            disposable.add(AccessibilityRuleService.addNewAccessibilityRule(rule, transfer, keywordGroupList, tagIdList, db)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(
@@ -438,7 +524,7 @@ public class AccessibilityRuleInputActivity extends AppCompatActivity {
         } else {
             long ruleId = initBundle.getLong(KeyStrings.ACCESSIBILITY_RULE_ID.v());
             rule.setRuleId(ruleId);
-            disposable.add(AccessibilityRuleService.modifyAccessibilityRule(rule, transfer, tagIdList, db)
+            disposable.add(AccessibilityRuleService.modifyAccessibilityRule(rule, transfer, keywordGroupList, tagIdList, db)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(
