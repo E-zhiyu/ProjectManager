@@ -23,7 +23,7 @@ public class AccessibilityRuleKeywordGroupEntity {
     @PrimaryKey(autoGenerate = true)
     private long keywordId; //主键
     private long ruleId;    //所属的无障碍规则的外键
-    private String content; //分组内容
+    private String content; //组合内容
 
     public AccessibilityRuleKeywordGroupEntity(long ruleId, String content) {
         this.ruleId = ruleId;

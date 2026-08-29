@@ -223,7 +223,7 @@ public class NotificationRuleListActivity extends AppCompatActivity {
         permissionHelper.addPermission(
                 PermissionHelper.SpecialPermissionType.BATTERY,
                 "电池优化",
-                "为保证软件退出后仍然可以自动监听通知实现自动记账，请将本应用的电池优化策略改为“无限制”。"
+                "为保证软件在后台也可以监听通知，请将本应用的电池优化策略改为“无限制”。"
         );
     }
 

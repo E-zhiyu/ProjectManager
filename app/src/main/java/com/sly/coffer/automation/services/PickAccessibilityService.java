@@ -4,7 +4,6 @@ import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
-import android.content.pm.PackageManager;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 
@@ -14,6 +13,7 @@ import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.entities.PickedPageEntity;
 import com.sly.coffer.data.save.db.services.AccessibilityRuleService;
 import com.sly.coffer.data.save.preference.AutoBookKeepingPreference;
+import com.sly.coffer.helpers.AppListHelper;
 
 import java.time.LocalDateTime;
 
@@ -59,7 +59,7 @@ public class PickAccessibilityService extends AccessibilityService {
                 );
 
                 //判断是否为活动名
-                if (isActivity(componentName)) {
+                if (AppListHelper.isActivity(componentName, this)) {
                     String activityName = className.toString();
                     LocalDateTime time = LocalDateTime.now();
                     PickedPageEntity pickedPage = new PickedPageEntity(
@@ -81,22 +81,6 @@ public class PickAccessibilityService extends AccessibilityService {
                     );
                 }
             }
-        }
-    }
-
-    /**
-     * 判断是否为活动名称
-     *
-     * @param componentName 待判断的字符串
-     * @return 是否为活动名称
-     */
-    private boolean isActivity(ComponentName componentName) {
-        try {
-            // 尝试通过PackageManager获取Activity信息
-            getPackageManager().getActivityInfo(componentName, 0);
-            return true;
-        } catch (PackageManager.NameNotFoundException e) {
-            return false; // 说明这个组件不是Activity
         }
     }
 

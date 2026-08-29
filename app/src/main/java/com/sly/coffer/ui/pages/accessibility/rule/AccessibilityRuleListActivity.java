@@ -174,6 +174,17 @@ public class AccessibilityRuleListActivity extends AppCompatActivity {
      */
     private void addPermissionRequests() {
         PermissionHelper helper = new PermissionHelper(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            helper.addPermission(
+                    Manifest.permission.POST_NOTIFICATIONS,
+                    "请授予通知权限用于触发自动记账后发送通知。"
+            );
+        }
+        helper.addPermission(
+                PermissionHelper.SpecialPermissionType.BATTERY,
+                "电池优化",
+                "为保证软件在后台也可以识别屏幕内容，请将本应用的电池优化策略改为“无限制”。"
+        );
         helper.addPermission(
                 PermissionHelper.SpecialPermissionType.ACCESSIBILITY_BOOKKEEPING,
                 "无障碍记账服务",
@@ -184,12 +195,6 @@ public class AccessibilityRuleListActivity extends AppCompatActivity {
                 "自启动权限",
                 "通知监听服务需要常驻后台，请允许应用自启动，否则该功能可能无法正常运行。为了进一步保障在后台正常运行，建议您在最近任务锁定本应用。"
         );
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            helper.addPermission(
-                    Manifest.permission.POST_NOTIFICATIONS,
-                    "请授予通知权限用于触发自动记账后发送通知。"
-            );
-        }
     }
 
     /**

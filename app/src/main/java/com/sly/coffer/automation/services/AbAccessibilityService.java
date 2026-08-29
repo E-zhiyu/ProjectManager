@@ -5,10 +5,10 @@ import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityWindowInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,6 +29,7 @@ import com.sly.coffer.auxiliary.enums.settings.NotificationClickBehaviour;
 import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.converters.DateTimeConverter;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleEntity;
+import com.sly.coffer.data.save.db.entities.AccessibilityRuleKeywordGroupEntity;
 import com.sly.coffer.data.save.db.entities.AccessibilityRuleTransferEntity;
 import com.sly.coffer.data.save.db.entities.AccountEntity;
 import com.sly.coffer.data.save.db.entities.AccountTransferEntity;
@@ -36,15 +37,21 @@ import com.sly.coffer.data.save.db.entities.TagEntity;
 import com.sly.coffer.data.save.db.entities.composite.AccessibilityRuleWithDetailModel;
 import com.sly.coffer.data.save.db.services.AccountService;
 import com.sly.coffer.data.save.preference.AutoBookKeepingPreference;
+import com.sly.coffer.helpers.TextHelper;
 import com.sly.coffer.helpers.NotificationHelper;
 import com.sly.coffer.ui.pages.accessibility.rule.AccessibilityRuleListActivity;
 import com.sly.coffer.ui.pages.main.bookkeeping.RunningAccountInputActivity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -54,8 +61,30 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 @SuppressLint("AccessibilityPolicy")
 public class AbAccessibilityService extends AccessibilityService {
     private final CompositeDisposable disposable = new CompositeDisposable();
-    private final Map<String, List<AccessibilityRuleWithDetailModel>> ruleCacheMap = new HashMap<>();
+    private final Map<CacheKey, List<AccessibilityRuleWithDetailModel>> ruleCacheMap = new HashMap<>();
     private final Map<Long, Long> antiShakeMap = new HashMap<>();   //用于防抖的哈希表，防止规则重复触发多次
+
+    static class CacheKey {
+        String packageName;
+        String activityName;
+
+        public CacheKey(String packageName, String activityName) {
+            this.packageName = packageName;
+            this.activityName = activityName;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof CacheKey)) return false;
+            CacheKey cacheKey = (CacheKey) o;
+            return Objects.equals(packageName, cacheKey.packageName) && Objects.equals(activityName, cacheKey.activityName);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(packageName, activityName);
+        }
+    }
 
     @Override
     protected void onServiceConnected() {
@@ -67,9 +96,12 @@ public class AbAccessibilityService extends AccessibilityService {
                 .subscribe(
                         modelList -> {
                             ruleCacheMap.clear();
-                            Map<String, List<AccessibilityRuleWithDetailModel>> map = modelList.stream()
+                            Map<CacheKey, List<AccessibilityRuleWithDetailModel>> map = modelList.stream()
                                     .collect(Collectors.groupingBy(
-                                            model -> model.getRule().getPackageName(),
+                                            model -> {
+                                                AccessibilityRuleEntity rule = model.getRule();
+                                                return new CacheKey(rule.getPackageName(), rule.getActivityName());
+                                            },
                                             HashMap::new,
                                             Collectors.toList()
                                     ));
@@ -85,40 +117,79 @@ public class AbAccessibilityService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         if (event == null) return;
 
-        //获取包名
-        CharSequence packageName = event.getPackageName();
-        if (packageName == null) return;
-        String pkgName = packageName.toString();
-        Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "包名：" + pkgName);
+        //判断 WindowType
+        AccessibilityNodeInfo source = event.getSource();
+        if (source != null) {
+            AccessibilityWindowInfo window = source.getWindow();
+            if (window != null) {
+                int windowType = window.getType();
+                if (windowType != AccessibilityWindowInfo.TYPE_APPLICATION) {
+                    return;
+                }
+            } else {
+                Log.w(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "无法获取窗口信息");
+                return;
+            }
+        }
 
-        //获取匹配的规则
-        List<AccessibilityRuleWithDetailModel> modelList = ruleCacheMap.get(pkgName);
-        if (modelList == null || modelList.isEmpty()) {
-            Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "规则中不包含该包名");
+        //获取界面根节点
+        AccessibilityNodeInfo root = getRootInActiveWindow();
+        if (root == null) {
+            Log.w(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "无法获取当前界面根节点");
             return;
         }
 
-        //获取当前窗口根节点
-        AccessibilityNodeInfo rootNode = getRootInActiveWindow();
-        if (rootNode == null) return;
+        //获取包名和活动名
+        String packageName = root.getPackageName() != null ? root.getPackageName().toString() : "";
+        String activityName = event.getClassName() != null ? event.getClassName().toString() : "";
+        Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(),
+                "种类 : " + event.getEventType() + ",\n包名 : " + packageName + ",\n活动名 : " + activityName
+        );
 
-        //遍历该应用下的规则进行匹配与数据提取
+        //获取对应活动名和包名的规则列表
+        CacheKey key = new CacheKey(packageName, activityName);
+        List<AccessibilityRuleWithDetailModel> modelList = ruleCacheMap.get(key);
+        if (modelList == null || modelList.isEmpty()) {
+            Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "当前界面没有匹配的规则");
+            return;
+        } else {
+            String log = String.format(
+                    Locale.getDefault(),
+                    "获取到%d个规则",
+                    modelList.size()
+            );
+            Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), log);
+        }
+
+        //获取出现过的文本
+        Set<String> allTextSet = TextHelper.extractAllTextsFromNode(root);
+
+        //提取金额
+        Double amount = null;
+        Pattern amountPattern = Pattern.compile("\\D?(\\d+\\.?\\d{0,2})\\D?");
+        for (String text : allTextSet) {
+            Matcher matcher = amountPattern.matcher(text);
+
+            //仅当全匹配才提取金额
+            if (matcher.matches()) {
+                String amountStr = matcher.group(1);
+                try {
+                    amount = amountStr == null ? null : Double.parseDouble(amountStr);
+                } catch (NumberFormatException ignored) {
+                }
+                break;
+            }
+        }
+        if (amount == null) {
+            Log.w(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "无法从该界面中提取金额");
+            return;
+        } else {
+            Log.i(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "成功提取金额 : " + amount);
+        }
+
+        //尝试触发符合要求的规则
         for (AccessibilityRuleWithDetailModel model : modelList) {
             AccessibilityRuleEntity rule = model.getRule();
-
-            //如果规则指定了 Activity，校验 Activity 类名
-            String classNameStr = event.getClassName() != null ? event.getClassName().toString() : "";
-            String targetActivity = rule.getActivityName();
-            Log.d(
-                    LogTags.AB_ACCESSIBILITY_SERVICE.n(),
-                    "className : " + classNameStr +
-                            ",\n targetActivity : " + targetActivity
-            );
-            if (!TextUtils.isEmpty(targetActivity)
-                    && !targetActivity.equals(classNameStr)) {
-                Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "活动名不匹配，跳过该规则");
-                continue;
-            }
 
             //获取上一次触发时间，以实现防抖
             long ruleId = rule.getRuleId();
@@ -130,41 +201,19 @@ public class AbAccessibilityService extends AccessibilityService {
                 continue;
             }
 
-            //TODO:尝试提取金额文本
-//            String rawAmountText = extractTextByViewId(rootNode, rule.getViewId());
-//            if (!TextUtils.isEmpty(rawAmountText)) {
-//                //提取金额文本
-//                double amount;
-//                Pattern pattern = Pattern.compile(rule.getContentRegex());
-//                Matcher matcher = pattern.matcher(rawAmountText);
-//                try {
-//                    if (matcher.find()) {
-//                        String cleanAmount = matcher.group(rule.getCapturePos());
-//                        amount = Double.parseDouble(Objects.requireNonNull(cleanAmount));
-//                    } else {
-//                        continue;
-//                    }
-//                } catch (IndexOutOfBoundsException | NumberFormatException e) {
-//                    String err = String.format(Locale.getDefault(), "“%s”无法提取金额数据", rule.getName());
-//                    sendErrorNotification(err, ruleId);
-//                    Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), err);
-//                    continue;
-//                }
-//
-//                //根据偏好设置决定直接入帐还是发送通知
-//                if (!AutoBookKeepingPreference.getDirectDeposit(this)) {
-//                    sendConfirmNotification(amount, model);
-//                } else {
-//                    saveInDbDirectly(amount, model);
-//                }
-//
-//                //更新规则的触发时间
-//                antiShakeMap.put(ruleId, currentTimeMillis);
-//            } else {
-//                String err = String.format(Locale.getDefault(), "“%s”无法提取目标视图的文本", rule.getName());
-//                sendErrorNotification(err, ruleId);
-//                Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), err);
-//            }
+            //验证关键词组合
+            if (!verifyKeywordGroups(model.getKeywordGroupList(), allTextSet)) {
+                Log.w(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "关键词校验不通过");
+                continue;
+            }
+
+            //根据偏好设置决定直接入帐还是发送通知
+            antiShakeMap.put(ruleId, currentTimeMillis);
+            if (!AutoBookKeepingPreference.getDirectDeposit(this)) {
+                sendConfirmNotification(amount, model);
+            } else {
+                saveInDbDirectly(amount, model);
+            }
         }
     }
 
@@ -179,24 +228,41 @@ public class AbAccessibilityService extends AccessibilityService {
     }
 
     /**
-     * 根据 viewId 在节点树中查找对应的文本
+     * 验证关键词组合
      *
-     * @param rootNode 界面的根节点
-     * @param viewId   目标视图的 ID
+     * @param keywordGroupList 关键词组合列表
+     * @param allTextSet       界面中出现的所有文本的集合
+     * @return 列表为空时返回 true，列表不为空时，任意一个关键词组合通过时返回 true，否则为 false
      */
-    @Nullable
-    private String extractTextByViewId(AccessibilityNodeInfo rootNode, String viewId) {
-        if (TextUtils.isEmpty(viewId)) return null;
+    private boolean verifyKeywordGroups(@Nullable List<AccessibilityRuleKeywordGroupEntity> keywordGroupList, Set<String> allTextSet) {
+        if (keywordGroupList == null || keywordGroupList.isEmpty()) return true;
 
-        List<AccessibilityNodeInfo> nodes = rootNode.findAccessibilityNodeInfosByViewId(viewId);
-        if (nodes != null && !nodes.isEmpty()) {
-            for (AccessibilityNodeInfo node : nodes) {
-                if (node.getText() != null) {
-                    return node.getText().toString();
-                }
+        AccessibilityNodeInfo root = getRootInActiveWindow();
+        if (root == null) {
+            Log.w(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "根节点获取失败，无法验证关键词组合");
+            return false;
+        }
+
+        //按照关键词数量进行升序排序
+        List<AccessibilityRuleKeywordGroupEntity> sortedKeywordGroupList = new ArrayList<>(keywordGroupList);
+        sortedKeywordGroupList.sort((g1, g2) -> {
+            String c1 = g1.getContent();
+            String c2 = g2.getContent();
+            int count1 = c1 == null ? 0 : c1.split("\\s+").length;
+            int count2 = c2 == null ? 0 : c2.split("\\s+").length;
+            return Integer.compare(count1, count2); //关键词少的优先
+        });
+
+        //判断关键词是否出现
+        boolean isVerified = false;
+        for (AccessibilityRuleKeywordGroupEntity group : sortedKeywordGroupList) {
+            String[] keywords = group.getContent().split("\\s+");
+            if (TextHelper.checkGroupMatchOptimized(keywords, allTextSet)) {
+                isVerified = true;
+                break;
             }
         }
-        return null;
+        return isVerified;
     }
 
     /**

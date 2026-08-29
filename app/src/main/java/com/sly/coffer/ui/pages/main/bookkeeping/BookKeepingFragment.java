@@ -2,7 +2,6 @@ package com.sly.coffer.ui.pages.main.bookkeeping;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +28,6 @@ import com.sly.coffer.data.save.db.services.AccountService;
 import com.sly.coffer.data.save.preference.SearchHistoryPreference;
 import com.sly.coffer.databinding.ViewHolderSeparatorTextChipBinding;
 import com.sly.coffer.auxiliary.enums.KeyStrings;
-import com.sly.coffer.auxiliary.enums.LogTags;
 import com.sly.coffer.auxiliary.enums.TagStrings;
 import com.sly.coffer.helpers.BackPressedCallbackHelper;
 import com.sly.coffer.helpers.ExceptionHelper;
@@ -57,7 +55,6 @@ public class BookKeepingFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentBookkeepingBinding.inflate(inflater, container, false);
-        Log.d(LogTags.ACCOUNT_FRAGMENT.n(), "开始创建界面……");
 
         initViews();
         initBackHandlers();
