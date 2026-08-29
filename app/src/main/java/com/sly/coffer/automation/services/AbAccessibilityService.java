@@ -50,11 +50,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
@@ -161,60 +163,66 @@ public class AbAccessibilityService extends AccessibilityService {
             Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), log);
         }
 
-        //获取出现过的文本
-        Set<String> allTextSet = TextHelper.extractAllTextsFromNode(root);
+        disposable.add(Single.fromCallable(() -> TextHelper.extractAllTextsFromNode(root))
+                .delaySubscription(event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED ? 1500 : 10, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.computation())
+                .subscribe(
+                        allTextSet -> {
+                            //提取金额
+                            Double amount = null;
+                            Pattern amountPattern = Pattern.compile("\\D?(\\d+\\.?\\d{0,2})\\D?");
+                            for (String text : allTextSet) {
+                                Matcher matcher = amountPattern.matcher(text);
 
-        //提取金额
-        Double amount = null;
-        Pattern amountPattern = Pattern.compile("\\D?(\\d+\\.?\\d{0,2})\\D?");
-        for (String text : allTextSet) {
-            Matcher matcher = amountPattern.matcher(text);
+                                //仅当全匹配才提取金额
+                                if (matcher.matches()) {
+                                    String amountStr = matcher.group(1);
+                                    try {
+                                        amount = amountStr == null ? null : Double.parseDouble(amountStr);
+                                    } catch (NumberFormatException ignored) {
+                                    }
+                                    break;
+                                }
+                            }
+                            if (amount == null) {
+                                Log.w(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "无法从该界面中提取金额");
+                                return;
+                            } else {
+                                Log.i(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "成功提取金额 : " + amount);
+                            }
 
-            //仅当全匹配才提取金额
-            if (matcher.matches()) {
-                String amountStr = matcher.group(1);
-                try {
-                    amount = amountStr == null ? null : Double.parseDouble(amountStr);
-                } catch (NumberFormatException ignored) {
-                }
-                break;
-            }
-        }
-        if (amount == null) {
-            Log.w(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "无法从该界面中提取金额");
-            return;
-        } else {
-            Log.i(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "成功提取金额 : " + amount);
-        }
+                            //尝试触发符合要求的规则
+                            for (AccessibilityRuleWithDetailModel model : modelList) {
+                                AccessibilityRuleEntity rule = model.getRule();
 
-        //尝试触发符合要求的规则
-        for (AccessibilityRuleWithDetailModel model : modelList) {
-            AccessibilityRuleEntity rule = model.getRule();
+                                //获取上一次触发时间，以实现防抖
+                                long ruleId = rule.getRuleId();
+                                Long lastTimeMillis = antiShakeMap.get(ruleId);
+                                long currentTimeMillis = System.currentTimeMillis();
+                                if (lastTimeMillis != null && currentTimeMillis - lastTimeMillis < 3000L) {
+                                    String log = String.format(Locale.getDefault(), "“%s”触发防抖", rule.getName());
+                                    Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), log);
+                                    continue;
+                                }
 
-            //获取上一次触发时间，以实现防抖
-            long ruleId = rule.getRuleId();
-            Long lastTimeMillis = antiShakeMap.get(ruleId);
-            long currentTimeMillis = System.currentTimeMillis();
-            if (lastTimeMillis != null && currentTimeMillis - lastTimeMillis < 3000L) {
-                String log = String.format(Locale.getDefault(), "“%s”触发防抖", rule.getName());
-                Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), log);
-                continue;
-            }
+                                //验证关键词组合
+                                if (!verifyKeywordGroups(model.getKeywordGroupList(), allTextSet)) {
+                                    Log.w(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "关键词校验不通过");
+                                    continue;
+                                }
 
-            //验证关键词组合
-            if (!verifyKeywordGroups(model.getKeywordGroupList(), allTextSet)) {
-                Log.w(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "关键词校验不通过");
-                continue;
-            }
-
-            //根据偏好设置决定直接入帐还是发送通知
-            antiShakeMap.put(ruleId, currentTimeMillis);
-            if (!AutoBookKeepingPreference.getDirectDeposit(this)) {
-                sendConfirmNotification(amount, model);
-            } else {
-                saveInDbDirectly(amount, model);
-            }
-        }
+                                //根据偏好设置决定直接入帐还是发送通知
+                                antiShakeMap.put(ruleId, currentTimeMillis);
+                                if (!AutoBookKeepingPreference.getDirectDeposit(this)) {
+                                    sendConfirmNotification(amount, model);
+                                } else {
+                                    saveInDbDirectly(amount, model);
+                                }
+                            }
+                        }
+                )
+        );
     }
 
     @Override
