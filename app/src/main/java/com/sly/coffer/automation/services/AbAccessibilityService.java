@@ -6,6 +6,8 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
@@ -17,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
 import androidx.core.app.TaskStackBuilder;
+import androidx.core.content.ContextCompat;
 
 import com.sly.coffer.R;
 import com.sly.coffer.automation.broadcast.AbNotificationActionsReceiver;
@@ -72,6 +75,7 @@ public class AbAccessibilityService extends AccessibilityService {
         public void onReceive(Context context, @NonNull Intent intent) {
             String action = intent.getAction();
             if (BroadcastActions.ACTION_SHUT_DOWN_ACCESSIBILITY_BOOKKEEPING.toString().equals(action)) {
+                Log.i(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "接收到关闭广播");
                 disableSelf();
             }
         }
@@ -124,6 +128,15 @@ public class AbAccessibilityService extends AccessibilityService {
                         e -> Log.e(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "无障碍规则获取失败")
                 )
         );
+
+        //注册监听器
+        IntentFilter filter = new IntentFilter(BroadcastActions.ACTION_SHUT_DOWN_ACCESSIBILITY_BOOKKEEPING.toString());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(SHUT_DOWN_RECEIVER, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            ContextCompat.registerReceiver(this, SHUT_DOWN_RECEIVER, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
+        }
+        Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "注册监听器");
     }
 
     @Override
@@ -241,6 +254,9 @@ public class AbAccessibilityService extends AccessibilityService {
     public void onDestroy() {
         super.onDestroy();
         disposable.clear();
+
+        unregisterReceiver(SHUT_DOWN_RECEIVER);
+        Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "注销监听器");
     }
 
     @Override
