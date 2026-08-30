@@ -12,6 +12,16 @@ import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 public class AboutHelper {
     private static final String UPDATE_LOG_MD = "# v1.10.0\n" +
             "\n" +
+            "### 新增内容\n" +
+            "\n" +
+            "- 新增界面拾取功能，能够保存浏览过的界面信息\n" +
+            "- 新增无障碍自动记账功能，处于目标界面时自动识别金额信息并实现自动记账\n" +
+            "\n" +
+            "### 优化和修改的内容\n" +
+            "\n" +
+            "- 自动记账通知现在会显示流水种类和金额\n" +
+            "- 通知捕获自动关闭的间隔由5分钟改为1天\n" +
+            "\n" +
             "### BUG修复\n" +
             "\n" +
             "- 修复无法自动重置预算的BUG\n" +
