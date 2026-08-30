@@ -118,6 +118,23 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
                                 .setNegativeButton("关闭", null)
                                 .show();
                         return true;
+                    } else if (id == R.id.action_delete_all) {
+                        new MaterialAlertDialogBuilder(this)
+                                .setTitle(R.string.delete_all_records)
+                                .setMessage("此操作将清空所有已捕获的通知记录，确认继续吗？")
+                                .setNegativeButton("取消", null)
+                                .setPositiveButton("确定", (dialogInterface, i) -> {
+                                    BookkeepingDb db = BookkeepingDb.getInstance(this);
+                                    disposable.add(db.capturedNotificationDao().clearCapturedNotification()
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribeOn(Schedulers.io())
+                                            .subscribe(
+                                                    () -> Toast.makeText(this, "已删除所有捕获的通知", Toast.LENGTH_SHORT).show(),
+                                                    e -> ExceptionHelper.showExceptionDialog(this, e)
+                                            )
+                                    );
+                                })
+                                .show();
                     }
 
                     return false;

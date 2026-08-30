@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/notification_search_hint"
             app:layout_scrollFlags="scroll|enterAlways|snap"
-            app:menu="@menu/menu_help_search_bar" />
+            app:menu="@menu/menu_captured_notification_list_search_bar" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- 段落列表 -->
