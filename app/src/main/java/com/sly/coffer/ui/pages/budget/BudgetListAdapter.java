@@ -137,7 +137,7 @@ public class BudgetListAdapter extends ListAdapter<BudgetEntity, BudgetListAdapt
         //余额和初始金额
         double initAmount = budget.getInitAmount();
         double leftAmount = budget.getBalance();
-        String amountStr = String.format(Locale.getDefault(), "%.2f/%.2f", leftAmount, initAmount);
+        String amountStr = String.format(Locale.getDefault(), "%s/%s", leftAmount, initAmount);
         holder.binding.amountText.setText(amountStr);
 
         //重置频率

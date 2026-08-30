@@ -22,6 +22,7 @@ import com.sly.coffer.data.save.db.daos.AccountDao;
 import com.sly.coffer.data.save.db.entities.AccountEntity;
 import com.sly.coffer.databinding.FragmentHomeBinding;
 import com.sly.coffer.helpers.ExceptionHelper;
+import com.sly.coffer.helpers.TextHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.ui.pages.accessibility.pick.PickedPageListActivity;
 import com.sly.coffer.ui.pages.accessibility.rule.AccessibilityRuleListActivity;
@@ -187,19 +188,20 @@ public class HomeFragment extends Fragment {
                                 }
                             }
 
+
                             //结余
                             binding.todayBalanceText.setText(String.format(
                                     Locale.getDefault(),
-                                    "%.2f",
-                                    balance
+                                    "%s",
+                                    TextHelper.abbreviate(balance, 1)
                             ));
 
                             //收支
                             binding.todayIncomeAndExpenseText.setText(String.format(
                                     Locale.getDefault(),
-                                    "+%.2f/-%.2f",
-                                    income,
-                                    expense
+                                    "+%s/-%s",
+                                    TextHelper.abbreviate(income, 1),
+                                    TextHelper.abbreviate(expense, 1)
                             ));
                         },
                         e -> {

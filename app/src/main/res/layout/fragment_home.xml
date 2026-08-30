@@ -156,8 +156,8 @@
                         android:text="@string/not_applicable"
                         android:textAppearance="?attr/textAppearanceHeadline5"
                         app:layout_constraintBottom_toTopOf="@id/today_balance_title"
-                        app:layout_constraintEnd_toEndOf="@id/today_balance_title"
-                        app:layout_constraintStart_toStartOf="@id/today_balance_title"
+                        app:layout_constraintEnd_toStartOf="@id/today_income_and_expense_text"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <!-- 结余标题 -->
@@ -169,8 +169,8 @@
                         android:textAppearance="?attr/textAppearanceBodyLarge"
                         android:textColor="?attr/colorOutline"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/income_and_expense_title"
-                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="@id/today_balance_text"
+                        app:layout_constraintStart_toStartOf="@id/today_balance_text"
                         app:layout_constraintTop_toBottomOf="@id/today_balance_text" />
 
                     <!-- 收支文本 -->
@@ -181,8 +181,8 @@
                         android:text="@string/not_applicable"
                         android:textAppearance="?attr/textAppearanceHeadline5"
                         app:layout_constraintBottom_toTopOf="@id/income_and_expense_title"
-                        app:layout_constraintEnd_toEndOf="@id/income_and_expense_title"
-                        app:layout_constraintStart_toStartOf="@id/income_and_expense_title"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/today_balance_text"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <!-- 收支标题 -->
@@ -194,8 +194,8 @@
                         android:textAppearance="?attr/textAppearanceBodyLarge"
                         android:textColor="?attr/colorOutline"
                         app:layout_constraintBottom_toBottomOf="@id/today_income_and_expense_text"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/today_balance_title"
+                        app:layout_constraintEnd_toEndOf="@id/today_income_and_expense_text"
+                        app:layout_constraintStart_toStartOf="@id/today_income_and_expense_text"
                         app:layout_constraintTop_toBottomOf="@id/today_income_and_expense_text" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>

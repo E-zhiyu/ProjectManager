@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 
 import org.jetbrains.annotations.Contract;
 
+import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
@@ -83,5 +84,47 @@ public class TextHelper {
             }
         }
         return true;
+    }
+
+    /**
+     * 自动缩写数字（可配置语言和精度）
+     *
+     * @param value         要转换的Double值
+     * @param decimalPlaces 保留小数位数
+     * @return 缩写后的字符串
+     */
+    @NonNull
+    public static String abbreviate(double value, int decimalPlaces) {
+        // 英文缩写体系（1000进制）
+        final String[] ENGLISH_SUFFIXES = {
+                "", "K", "M", "B", "T"  // Thousand, Million, Billion, Trillion
+        };
+
+        if (Double.isNaN(value) || Double.isInfinite(value)) {
+            return String.valueOf(value);
+        }
+
+        // 处理负数
+        boolean negative = value < 0;
+        double absValue = Math.abs(value);
+
+        int divisor = 1000;
+
+        // 计算应该使用哪个单位
+        int index = 0;
+        double scaledValue = absValue;
+
+        while (scaledValue >= divisor && index < ENGLISH_SUFFIXES.length - 1) {
+            scaledValue /= divisor;
+            index++;
+        }
+
+        // 格式化数字
+        String pattern = "#0." + "#".repeat(Math.max(0, decimalPlaces));
+        DecimalFormat df = new DecimalFormat(pattern);
+        String formatted = df.format(scaledValue);
+
+        // 组装结果
+        return (negative ? "-" : "") + formatted + ENGLISH_SUFFIXES[index];
     }
 }

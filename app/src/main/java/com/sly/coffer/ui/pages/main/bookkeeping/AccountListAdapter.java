@@ -209,7 +209,7 @@ public class AccountListAdapter extends ListAdapter<AccountUiModel, RecyclerView
             double amount = account.getAmount();
 
             //初始化文本视图
-            itemHolder.binding.amountText.setText(String.format(Locale.getDefault(), "%.2f", amount));
+            itemHolder.binding.amountText.setText(String.format(Locale.getDefault(), "%s", amount));
             itemHolder.binding.remarkText.setText(remark.isEmpty() ? "<无备注>" : remark);
             itemHolder.binding.typeDatetimeText.setText(typeAndDatetime);
 

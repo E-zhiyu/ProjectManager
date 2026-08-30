@@ -25,6 +25,7 @@ import com.sly.coffer.data.save.db.entities.TagEntity;
 import com.sly.coffer.data.save.db.entities.composite.AccountWithDetailModel;
 import com.sly.coffer.databinding.ActivityReportBinding;
 import com.sly.coffer.helpers.ExceptionHelper;
+import com.sly.coffer.helpers.TextHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.helpers.appearence.VisibilityHelper;
 import com.sly.coffer.helpers.time.DateTimePickerHelper;
@@ -178,8 +179,17 @@ public class ReportActivity extends AppCompatActivity {
                             double income = incomePair.second;
                             double expense = expensePair.second;
                             double balance = income - expense;
-                            binding.balanceText.setText(String.format(Locale.getDefault(), "%.2f", balance));
-                            binding.incomeAndExpenseText.setText(String.format(Locale.getDefault(), "+%.2f/-%.2f", income, expense));
+                            binding.balanceText.setText(String.format(
+                                    Locale.getDefault(),
+                                    "%s",
+                                    TextHelper.abbreviate(balance, 1)
+                            ));
+                            binding.incomeAndExpenseText.setText(String.format(
+                                    Locale.getDefault(),
+                                    "+%s/-%s",
+                                    TextHelper.abbreviate(income, 1),
+                                    TextHelper.abbreviate(expense, 1)
+                            ));
                         },
                         e -> ExceptionHelper.showExceptionDialog(this, e)
                 )
