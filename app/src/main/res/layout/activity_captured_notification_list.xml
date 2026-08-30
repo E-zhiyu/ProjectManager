@@ -45,33 +45,16 @@
         android:textAppearance="?attr/textAppearanceBodyLarge"
         android:visibility="gone" />
 
-    <!-- 功能未启用的提醒卡片 -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/not_enabled_tip_card"
-        style="@style/MediumRadiusCardStyle"
+    <!-- 开始/结束按钮 -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/start_stop_fab"
+        style="@style/AddFloatingActionBtnStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|bottom"
-        android:layout_marginBottom="20dp"
-        android:visibility="gone"
-        app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior">
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingStart="10dp"
-            android:paddingTop="15dp"
-            android:paddingEnd="10dp"
-            android:paddingBottom="15dp">
-
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="@string/notification_capture_not_enabled"
-                android:textAppearance="?attr/textAppearanceBodyMedium" />
-        </FrameLayout>
-    </com.google.android.material.card.MaterialCardView>
+        android:layout_gravity="bottom|end"
+        android:contentDescription="@string/btn_start_pause"
+        android:src="@drawable/outline_play_arrow_24"
+        app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior" />
 
     <!-- 搜索视图 -->
     <com.google.android.material.search.SearchView

@@ -22,7 +22,7 @@ import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.entities.CapturedNotificationEntity;
 import com.sly.coffer.data.save.preference.AutoBookKeepingPreference;
 import com.sly.coffer.data.save.preference.SearchHistoryPreference;
-import com.sly.coffer.databinding.ActivityNotificationCaptureListBinding;
+import com.sly.coffer.databinding.ActivityCapturedNotificationListBinding;
 import com.sly.coffer.helpers.BackPressedCallbackHelper;
 import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.PermissionHelper;
@@ -36,7 +36,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class NotificationCaptureListActivity extends AppCompatActivity {
-    private ActivityNotificationCaptureListBinding binding;
+    private ActivityCapturedNotificationListBinding binding;
     private final CompositeDisposable disposable = new CompositeDisposable();
     private BackPressedCallbackHelper backHelper;   //返回手势拦截器
     private BackPressedCallbackHelper.BackHandler searchBackHandler;    //搜索返回处理器
@@ -44,7 +44,7 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityNotificationCaptureListBinding.inflate(getLayoutInflater());
+        binding = ActivityCapturedNotificationListBinding.inflate(getLayoutInflater());
 
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
@@ -61,17 +61,6 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
         initViews();
         initBackHandlers();
         observeLiveData();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        //功能未启用的提示文本
-        VisibilityHelper.toggleVisibilityWithFade(
-                binding.notEnabledTipCard,
-                !AutoBookKeepingPreference.getNotificationCapture(this)
-        );
     }
 
     @Override
@@ -141,27 +130,30 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
                 }
         );
 
-        //捕获功能未启用提示卡片
-        AppearanceHelper.setMarginToNavigation(binding.notEnabledTipCard, this);
-        binding.notEnabledTipCard.setOnClickListener(view -> {
-            if (PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.isGranted(this)) {
-                AutoBookKeepingPreference.setNotificationCapture(this, true);
-                Toast.makeText(this, "一天后自动关闭通知捕获以节省性能", Toast.LENGTH_SHORT).show();
-                VisibilityHelper.toggleVisibilityWithFade(binding.notEnabledTipCard, false);
+        //右下角 FAB
+        binding.startStopFab.setOnClickListener(view -> {
+            if (AutoBookKeepingPreference.getNotificationCapture(this)) {
+                AutoBookKeepingPreference.setNotificationCapture(this, false);
+                binding.startStopFab.setImageResource(R.drawable.outline_play_arrow_24);
+                Toast.makeText(this, "已关闭通知捕获", Toast.LENGTH_SHORT).show();
             } else {
-                String message = "通知捕获依赖通知监听服务，请授权后再启用通知捕获功能。";
-                new MaterialAlertDialogBuilder(this)
-                        .setTitle("权限申请说明")
-                        .setMessage(message)
-                        .setPositiveButton("去授权", (dialogInterface, i) -> {
-                            Intent intent = PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.getIntent(this);
-                            startActivity(intent);
-                        })
-                        .setNegativeButton("取消", null)
-                        .show();
+                if (!PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.isGranted(this)) {
+                    Toast.makeText(this, "请开启通知监听服务", Toast.LENGTH_SHORT).show();
+                    Intent intent = PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.getIntent(this);
+                    startActivity(intent);
+                    return;
+                }
+
+                AutoBookKeepingPreference.setNotificationCapture(this, true);
+                binding.startStopFab.setImageResource(R.drawable.outline_pause_24);
+                Toast.makeText(this, "通知捕获已开始，将在24小时后关闭", Toast.LENGTH_SHORT).show();
             }
         });
-        AppearanceHelper.attachMorphAnimation(binding.notEnabledTipCard);
+        AppearanceHelper.attachMorphAnimation(binding.startStopFab);
+        AppearanceHelper.setMarginToNavigation(binding.startStopFab, this);
+        binding.startStopFab.setImageResource(AutoBookKeepingPreference.getNotificationCapture(this) ?
+                R.drawable.outline_pause_24 : R.drawable.outline_play_arrow_24
+        );
 
         //Recycler 列表
         NotificationCaptureListAdapter adapter = new NotificationCaptureListAdapter(

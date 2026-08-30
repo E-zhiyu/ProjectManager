@@ -192,6 +192,18 @@
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <!-- 通知内容文本 -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/notification_content_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="5dp"
+                android:text="@string/notification_content"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                android:textColor="?attr/colorOutline" />
+
             <!-- 金额数字选择 Chip 的容器 -->
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/amount_select_chip_group"
@@ -202,35 +214,6 @@
                 android:paddingEnd="10dp"
                 app:selectionRequired="true"
                 app:singleSelection="true" />
-
-            <!-- 金额数字选择标题 -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginTop="10dp"
-                    android:text="@string/notification_content"
-                    android:textAppearance="?attr/textAppearanceTitleMedium"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- 通知内容文本 -->
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/notification_content_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="10dp"
-                android:text="@string/notification_content"
-                android:textAppearance="?attr/textAppearanceBodyLarge"
-                android:textColor="?attr/colorOutline" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

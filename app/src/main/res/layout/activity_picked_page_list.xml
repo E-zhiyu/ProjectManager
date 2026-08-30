@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.pages.notification.capture.NotificationCaptureListActivity">
+    tools:context=".ui.pages.accessibility.pick.PickedPageListActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
@@ -45,14 +45,14 @@
         android:textAppearance="?attr/textAppearanceBodyLarge"
         android:visibility="gone" />
 
-    <!-- 添加按钮 -->
+    <!-- 开始/结束按钮 -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/start_stop_fab"
         style="@style/AddFloatingActionBtnStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:contentDescription="@string/btn_add"
+        android:contentDescription="@string/btn_start_pause"
         android:src="@drawable/outline_play_arrow_24"
         app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior" />
 
