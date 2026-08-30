@@ -14,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.sly.coffer.SlyCoffer;
 import com.sly.coffer.R;
+import com.sly.coffer.automation.broadcast.BroadcastActions;
 import com.sly.coffer.auxiliary.enums.RadiusStyle;
 import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.preference.AutoBookKeepingPreference;
@@ -23,6 +24,7 @@ import com.sly.coffer.auxiliary.enums.settings.NotificationClickBehaviour;
 import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.PermissionHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
+import com.sly.coffer.ui.pages.accessibility.rule.AccessibilityRuleListActivity;
 import com.sly.coffer.ui.pages.notification.rule.NotificationRuleListActivity;
 import com.sly.coffer.ui.pages.main.settings.components.SettingClickableTextView;
 import com.sly.coffer.ui.pages.main.settings.components.SettingSpinnerView;
@@ -30,6 +32,7 @@ import com.sly.coffer.ui.pages.main.settings.components.SettingSwitchView;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -40,6 +43,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
     private ActivityAutoBookkeepingBinding binding; //绑定的 XML 布局
     private final CompositeDisposable disposable = new CompositeDisposable();
     private SettingSwitchView notificationBookkeepingSwitch, notificationCaptureSwitch;
+    private SettingSwitchView accessibilityBookkeepingSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +90,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
         binding.toolbar.setNavigationOnClickListener(view -> finish());
 
         initNotificationBookkeepingSettings();
+        initAccessibilityBookkeepingSettings();
         initCommonSettings();
     }
 
@@ -113,7 +118,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
         }
         notificationBookkeepingSwitch.setFunctionListener((buttonView, isChecked) -> {
             //没有权限时提示授权
-            if (!PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.isGranted(this) && isChecked) {
+            if (isChecked && !PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.isGranted(this)) {
                 new MaterialAlertDialogBuilder(this)
                         .setTitle("需要权限")
                         .setMessage("此功能需要读取其他应用发送的通知，请授予“通知使用”权限。")
@@ -132,10 +137,10 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
         //通知解析规则管理
         SettingClickableTextView ruleManageOption = new SettingClickableTextView(
                 this,
-                binding.ruleManageOption,
+                binding.notificationRuleManageOption,
                 R.string.notification_rule,
                 "点击进入规则管理界面",
-                R.drawable.baseline_rule_24,
+                R.drawable.outline_rule_24,
                 RadiusStyle.MIDDLE
         );
         ruleManageOption.setFunctionListener(v -> {
@@ -155,7 +160,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
         notificationCaptureSwitch.setChecked(AutoBookKeepingPreference.getNotificationCapture(this));
         notificationCaptureSwitch.setFunctionListener((compoundButton, isChecked) -> {
             //没有权限时提示授权
-            if (!PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.isGranted(this) && isChecked) {
+            if (isChecked && !PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.isGranted(this)) {
                 new MaterialAlertDialogBuilder(this)
                         .setTitle("需要权限")
                         .setMessage("此功能需要读取其他应用发送的通知，请授予“通知使用”权限。")
@@ -190,6 +195,62 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                             e -> ExceptionHelper.showExceptionDialog(this, e)
                     )
             );
+        });
+    }
+
+    /**
+     * 初始化无障碍记账设置项
+     */
+    private void initAccessibilityBookkeepingSettings() {
+        //无障碍记账开关
+        accessibilityBookkeepingSwitch = new SettingSwitchView(
+                this,
+                binding.accessibilityBookkeepingSwitch,
+                R.string.accessibility_bookkeeping,
+                "识别屏幕内容实现自动记账",
+                R.drawable.outline_accessibility_new_24,
+                RadiusStyle.TOP
+        );
+        accessibilityBookkeepingSwitch.setChecked(
+                PermissionHelper.SpecialPermissionType.ACCESSIBILITY_BOOKKEEPING.isGranted(this)
+        );
+        accessibilityBookkeepingSwitch.setFunctionListener((compoundButton, b) -> {
+            if (b) {
+                String content = String.format(
+                        Locale.getDefault(),
+                        "此功能需要启动无障碍服务以识别屏幕内容，请开启“%s”服务。",
+                        getString(R.string.accessibility_title_auto_bookkeeping)
+                );
+                new MaterialAlertDialogBuilder(this)
+                        .setTitle("需要权限")
+                        .setMessage(content)
+                        .setPositiveButton("去设置", (dialog, which) -> {
+                            SlyCoffer.lockLifecycleObserver();
+                            Intent intent = PermissionHelper.SpecialPermissionType.ACCESSIBILITY_BOOKKEEPING.getIntent(this);
+                            startActivity(intent);
+                        })
+                        .setNegativeButton("取消", (dialogInterface, i) -> dialogInterface.cancel())
+                        .setOnCancelListener(dialogInterface -> compoundButton.setChecked(false))
+                        .show();
+            } else {
+                Intent shutDown = new Intent(BroadcastActions.ACTION_SHUT_DOWN_ACCESSIBILITY_BOOKKEEPING.toString());
+                shutDown.setPackage(getPackageName());
+                sendBroadcast(shutDown);
+            }
+        });
+
+        //无障碍规则管理
+        SettingClickableTextView accessibilityRuleManage = new SettingClickableTextView(
+                this,
+                binding.accessibilityRuleManageOption,
+                R.string.accessibility_rule,
+                "点击进入规则管理界面",
+                R.drawable.outline_rule_24,
+                RadiusStyle.BOTTOM
+        );
+        accessibilityRuleManage.setFunctionListener(view -> {
+            Intent intent = new Intent(this, AccessibilityRuleListActivity.class);
+            startActivity(intent);
         });
     }
 
@@ -309,12 +370,21 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
      */
     private void refreshSettingsStat() {
         if (!PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.isGranted(this)) {
+            //通知记账开关
             if (notificationBookkeepingSwitch != null && notificationBookkeepingSwitch.getFunctionComponent().isChecked()) {
                 notificationBookkeepingSwitch.setChecked(false);
             }
+
+            //通知捕获开关
             if (notificationCaptureSwitch != null && notificationCaptureSwitch.getFunctionComponent().isChecked()) {
                 notificationCaptureSwitch.setChecked(false);
             }
+        }
+
+        //无障碍记账开关
+        if (!PermissionHelper.SpecialPermissionType.ACCESSIBILITY_BOOKKEEPING.isGranted(this) &&
+                accessibilityBookkeepingSwitch.getFunctionComponent().isChecked()) {
+            accessibilityBookkeepingSwitch.setChecked(false);
         }
     }
 }

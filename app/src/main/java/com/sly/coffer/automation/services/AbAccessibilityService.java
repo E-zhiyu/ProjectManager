@@ -3,6 +3,8 @@ package com.sly.coffer.automation.services;
 import android.accessibilityservice.AccessibilityService;
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -65,6 +67,15 @@ public class AbAccessibilityService extends AccessibilityService {
     private final CompositeDisposable disposable = new CompositeDisposable();
     private final Map<CacheKey, List<AccessibilityRuleWithDetailModel>> ruleCacheMap = new HashMap<>();
     private final Map<Long, Long> antiShakeMap = new HashMap<>();   //用于防抖的哈希表，防止规则重复触发多次
+    private final BroadcastReceiver SHUT_DOWN_RECEIVER = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, @NonNull Intent intent) {
+            String action = intent.getAction();
+            if (BroadcastActions.ACTION_SHUT_DOWN_ACCESSIBILITY_BOOKKEEPING.toString().equals(action)) {
+                disableSelf();
+            }
+        }
+    };
 
     static class CacheKey {
         String packageName;
