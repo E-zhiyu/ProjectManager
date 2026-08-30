@@ -133,7 +133,7 @@ public class CapturedNotificationRuleInputActivity extends AppCompatActivity {
             long notificationId = initBundle.getLong(KeyStrings.CAPTURED_NOTIFICATION_ID.v());
 
             BookkeepingDb db = BookkeepingDb.getInstance(this);
-            disposable.add(db.capturedNotificationDao().getCapturedNotificationById(notificationId)
+            disposable.add(db.notificationRuleDao().getCapturedNotificationById(notificationId)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(

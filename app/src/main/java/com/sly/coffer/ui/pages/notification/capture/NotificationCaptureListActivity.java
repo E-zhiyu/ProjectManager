@@ -125,7 +125,7 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
                                 .setNegativeButton("取消", null)
                                 .setPositiveButton("确定", (dialogInterface, i) -> {
                                     BookkeepingDb db = BookkeepingDb.getInstance(this);
-                                    disposable.add(db.capturedNotificationDao().clearCapturedNotification()
+                                    disposable.add(db.notificationRuleDao().clearCapturedNotification()
                                             .observeOn(AndroidSchedulers.mainThread())
                                             .subscribeOn(Schedulers.io())
                                             .subscribe(
@@ -247,7 +247,7 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
                         .setMessage("即将删除该通知，确认继续吗？")
                         .setPositiveButton("确定", (dialogInterface, i) -> {
                             BookkeepingDb db = BookkeepingDb.getInstance(this);
-                            disposable.add(db.capturedNotificationDao().deleteCapturedNotification(notification)
+                            disposable.add(db.notificationRuleDao().deleteCapturedNotification(notification)
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribeOn(Schedulers.io())
                                     .subscribe(

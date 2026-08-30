@@ -187,7 +187,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
         );
         clearCapturedNotification.setFunctionListener(view -> {
             BookkeepingDb db = BookkeepingDb.getInstance(this);
-            disposable.add(db.capturedNotificationDao().clearCapturedNotification()
+            disposable.add(db.notificationRuleDao().clearCapturedNotification()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(

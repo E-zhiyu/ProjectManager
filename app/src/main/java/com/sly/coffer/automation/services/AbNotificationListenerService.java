@@ -240,7 +240,7 @@ public class AbNotificationListenerService extends NotificationListenerService {
         //保存数据
         CapturedNotificationEntity notification = new CapturedNotificationEntity(title, text, packageName, appName, LocalDateTime.now());
         BookkeepingDb db = BookkeepingDb.getInstance(this);
-        disposable.add(db.capturedNotificationDao().insertCapturedNotification(notification)
+        disposable.add(db.notificationRuleDao().insertCapturedNotification(notification)
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         () -> Log.i(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "通知捕获成功"),
