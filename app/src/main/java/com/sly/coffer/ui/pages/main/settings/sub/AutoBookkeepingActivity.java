@@ -80,8 +80,8 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
         //通知解析自动记账
         SettingSwitchView notificationAnalysisSwitchOption = new SettingSwitchView(
                 this,
-                binding.notificationAnalysisSwitchOption,
-                R.string.notification_analysis,
+                binding.notificationBookkeepingSwitch,
+                R.string.notification_bookkeeping,
                 "通过应用发送的通知来记账",
                 R.drawable.outline_notifications_active_24,
                 RadiusStyle.TOP
