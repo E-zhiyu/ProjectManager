@@ -39,6 +39,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class AutoBookkeepingActivity extends AppCompatActivity {
     private ActivityAutoBookkeepingBinding binding; //绑定的 XML 布局
     private final CompositeDisposable disposable = new CompositeDisposable();
+    private SettingSwitchView notificationBookkeepingSwitch, notificationCaptureSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +60,14 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
             return insets;
         });
 
-        initAutoBookkeepingSettings();
+        initViews();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        refreshSettingsStat();
     }
 
     @Override
@@ -71,14 +79,22 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
     }
 
     /**
-     * 初始化自动记账设置项
+     * 初始化视图
      */
-    private void initAutoBookkeepingSettings() {
+    private void initViews() {
         //工具栏
         binding.toolbar.setNavigationOnClickListener(view -> finish());
 
-        //通知解析自动记账
-        SettingSwitchView notificationAnalysisSwitchOption = new SettingSwitchView(
+        initNotificationBookkeepingSettings();
+        initCommonSettings();
+    }
+
+    /**
+     * 初始化通知记账设置项
+     */
+    private void initNotificationBookkeepingSettings() {
+        //通知记账开关
+        notificationBookkeepingSwitch = new SettingSwitchView(
                 this,
                 binding.notificationBookkeepingSwitch,
                 R.string.notification_bookkeeping,
@@ -88,31 +104,29 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
         );
         boolean isNotificationAnalysisOpened = AutoBookKeepingPreference.getSwitchStat(this);
         if (isNotificationAnalysisOpened && PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.isGranted(this)) {
-            notificationAnalysisSwitchOption.setChecked(true);
+            notificationBookkeepingSwitch.setChecked(true);
         } else {
-            notificationAnalysisSwitchOption.setChecked(false);
+            notificationBookkeepingSwitch.setChecked(false);
 
             //考虑到无授权情况下自动关闭通知解析功能
             AutoBookKeepingPreference.setSwitchStat(false, this);
         }
-        notificationAnalysisSwitchOption.setFunctionListener((buttonView, isChecked) -> {
+        notificationBookkeepingSwitch.setFunctionListener((buttonView, isChecked) -> {
             //没有权限时提示授权
             if (!PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.isGranted(this) && isChecked) {
-                AutoBookKeepingPreference.setSwitchStat(false, this);   //将打开状态写入文件
-                buttonView.setChecked(false);
                 new MaterialAlertDialogBuilder(this)
-                        .setTitle("权限申请说明")
-                        .setMessage("此功能需要使用“通知使用权”权限，该权限允许应用读取其他软件发送的通知内容。是否为本应用授权？")
-                        .setPositiveButton("确认", (dialog, which) -> {
+                        .setTitle("需要权限")
+                        .setMessage("此功能需要读取其他应用发送的通知，请授予“通知使用”权限。")
+                        .setPositiveButton("去授权", (dialog, which) -> {
                             SlyCoffer.lockLifecycleObserver();
                             Intent intent = PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.getIntent(this);
                             startActivity(intent);
                         })
-                        .setNegativeButton("取消", null)
+                        .setNegativeButton("取消", (dialogInterface, i) -> dialogInterface.cancel())
+                        .setOnCancelListener(dialogInterface -> buttonView.setChecked(false))
                         .show();
-            } else {
-                AutoBookKeepingPreference.setSwitchStat(isChecked, this);   //将打开状态写入文件
             }
+            AutoBookKeepingPreference.setSwitchStat(isChecked, this);
         });
 
         //通知解析规则管理
@@ -129,6 +143,60 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        //通知捕获开关
+        notificationCaptureSwitch = new SettingSwitchView(
+                this,
+                binding.notificationCaptureSwitch,
+                R.string.capture_notification,
+                "保存通知以便添加通知规则",
+                R.drawable.outline_download_24,
+                RadiusStyle.MIDDLE
+        );
+        notificationCaptureSwitch.setChecked(AutoBookKeepingPreference.getNotificationCapture(this));
+        notificationCaptureSwitch.setFunctionListener((compoundButton, isChecked) -> {
+            //没有权限时提示授权
+            if (!PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.isGranted(this) && isChecked) {
+                new MaterialAlertDialogBuilder(this)
+                        .setTitle("需要权限")
+                        .setMessage("此功能需要读取其他应用发送的通知，请授予“通知使用”权限。")
+                        .setPositiveButton("去授权", (dialog, which) -> {
+                            SlyCoffer.lockLifecycleObserver();
+                            Intent intent = PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.getIntent(this);
+                            startActivity(intent);
+                        })
+                        .setNegativeButton("取消", (dialogInterface, i) -> dialogInterface.cancel())
+                        .setOnCancelListener(dialogInterface -> compoundButton.setChecked(false))
+                        .show();
+            }
+            AutoBookKeepingPreference.setNotificationCapture(this, isChecked);
+        });
+
+        //清空捕获通知
+        SettingClickableTextView clearCapturedNotification = new SettingClickableTextView(
+                this,
+                binding.capturedNotificationClearOption,
+                R.string.clear_captured_notification,
+                "清空数据库中捕获的通知",
+                R.drawable.baseline_clear_24,
+                RadiusStyle.BOTTOM
+        );
+        clearCapturedNotification.setFunctionListener(view -> {
+            BookkeepingDb db = BookkeepingDb.getInstance(this);
+            disposable.add(db.capturedNotificationDao().clearCapturedNotification()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe(
+                            () -> Toast.makeText(this, "捕获的通知已清除", Toast.LENGTH_SHORT).show(),
+                            e -> ExceptionHelper.showExceptionDialog(this, e)
+                    )
+            );
+        });
+    }
+
+    /**
+     * 初始化通用设置项
+     */
+    private void initCommonSettings() {
         //直接入账开关
         SettingSwitchView directDepositSwitch = new SettingSwitchView(
                 this,
@@ -136,7 +204,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                 R.string.direct_deposit,
                 "无需确认是否保留而直接入账",
                 R.drawable.outline_notifications_off_24,
-                RadiusStyle.BOTTOM
+                RadiusStyle.TOP
         );
         directDepositSwitch.setChecked(AutoBookKeepingPreference.getDirectDeposit(this));
         directDepositSwitch.setFunctionListener((compoundButton, b) ->
@@ -150,7 +218,7 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
                 R.string.notification_cancel_behaviour,
                 "划走确认通知后执行的操作",
                 R.drawable.outline_comments_disabled_24,
-                RadiusStyle.TOP
+                RadiusStyle.MIDDLE
         );
         int cancelBehaviourCode = AutoBookKeepingPreference.getNotificationCancelBehaviour(this);
         notificationCancelBehaviour.setSpinnerText(
@@ -234,59 +302,19 @@ public class AutoBookkeepingActivity extends AppCompatActivity {
 
             behaviourMenu.show();
         });
+    }
 
-        //通知捕获开关
-        SettingSwitchView captureNotificationSwitch = new SettingSwitchView(
-                this,
-                binding.notificationCaptureSwitch,
-                R.string.capture_notification,
-                "保存通知以便添加通知规则",
-                R.drawable.outline_download_24,
-                RadiusStyle.TOP
-        );
-        captureNotificationSwitch.setChecked(AutoBookKeepingPreference.getNotificationCapture(this));
-        captureNotificationSwitch.setFunctionListener((compoundButton, b) -> {
-            if (b) {
-                if (PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.isGranted(this)) {
-                    AutoBookKeepingPreference.setNotificationCapture(this, true);
-                    Toast.makeText(this, "一天后自动关闭通知捕获以节省性能", Toast.LENGTH_SHORT).show();
-                } else {
-                    compoundButton.setChecked(false);
-                    String message = "通知捕获依赖通知监听服务，请授权后再启用通知捕获功能。";
-                    new MaterialAlertDialogBuilder(this)
-                            .setTitle("权限申请说明")
-                            .setMessage(message)
-                            .setPositiveButton("去授权", (dialogInterface, i) -> {
-                                Intent intent = PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.getIntent(this);
-                                startActivity(intent);
-                            })
-                            .setNegativeButton("取消", null)
-                            .show();
-                }
-            } else {
-                AutoBookKeepingPreference.setNotificationCapture(this, b);
+    /**
+     * 刷新设置项状态
+     */
+    private void refreshSettingsStat() {
+        if (!PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.isGranted(this)) {
+            if (notificationBookkeepingSwitch != null && notificationBookkeepingSwitch.getFunctionComponent().isChecked()) {
+                notificationBookkeepingSwitch.setChecked(false);
             }
-        });
-
-        //清空捕获通知
-        SettingClickableTextView clearCapturedNotification = new SettingClickableTextView(
-                this,
-                binding.capturedNotificationClearOption,
-                R.string.clear_captured_notification,
-                "清空数据库中捕获的通知",
-                R.drawable.baseline_clear_24,
-                RadiusStyle.BOTTOM
-        );
-        clearCapturedNotification.setFunctionListener(view -> {
-            BookkeepingDb db = BookkeepingDb.getInstance(this);
-            disposable.add(db.capturedNotificationDao().clearCapturedNotification()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.io())
-                    .subscribe(
-                            () -> Toast.makeText(this, "捕获的通知已清除", Toast.LENGTH_SHORT).show(),
-                            e -> ExceptionHelper.showExceptionDialog(this, e)
-                    )
-            );
-        });
+            if (notificationCaptureSwitch != null && notificationCaptureSwitch.getFunctionComponent().isChecked()) {
+                notificationCaptureSwitch.setChecked(false);
+            }
+        }
     }
 }
