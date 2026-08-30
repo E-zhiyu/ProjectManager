@@ -15,6 +15,7 @@ import com.sly.coffer.auxiliary.interfaces.adapter.AdapterOnLongClickListener;
 import com.sly.coffer.auxiliary.interfaces.adapter.ViewHolderListener;
 import com.sly.coffer.data.save.db.entities.BudgetEntity;
 import com.sly.coffer.databinding.ViewHolderBudgetBinding;
+import com.sly.coffer.helpers.TextHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 
 import java.util.Locale;
@@ -136,8 +137,13 @@ public class BudgetListAdapter extends ListAdapter<BudgetEntity, BudgetListAdapt
 
         //余额和初始金额
         double initAmount = budget.getInitAmount();
-        double leftAmount = budget.getBalance();
-        String amountStr = String.format(Locale.getDefault(), "%s/%s", leftAmount, initAmount);
+        double balance = budget.getBalance();
+        String amountStr = String.format(
+                Locale.getDefault(),
+                "%s/%s",
+                TextHelper.abbreviate(balance, 1),
+                TextHelper.abbreviate(initAmount, 1)
+        );
         holder.binding.amountText.setText(amountStr);
 
         //重置频率

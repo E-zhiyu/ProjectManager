@@ -120,9 +120,19 @@ public class TextHelper {
         }
 
         // 格式化数字
-        String pattern = "#0." + "#".repeat(Math.max(0, decimalPlaces));
-        DecimalFormat df = new DecimalFormat(pattern);
-        String formatted = df.format(scaledValue);
+        String suffix = ENGLISH_SUFFIXES[index];
+        String formatted;
+        if (suffix.isEmpty()) {
+            // 没有后缀（数值 < 1000 或 < 10000）：强制显示 .0
+            String pattern = "0." + "0".repeat(Math.max(0, decimalPlaces));
+            DecimalFormat df = new DecimalFormat(pattern);
+            formatted = df.format(scaledValue);
+        } else {
+            // 有后缀：使用普通格式（# 表示可选，不强制显示小数）
+            String pattern = "#0." + "#".repeat(Math.max(0, decimalPlaces));
+            DecimalFormat df = new DecimalFormat(pattern);
+            formatted = df.format(scaledValue);
+        }
 
         // 组装结果
         return (negative ? "-" : "") + formatted + ENGLISH_SUFFIXES[index];
