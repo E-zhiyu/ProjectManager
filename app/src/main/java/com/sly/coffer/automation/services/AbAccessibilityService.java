@@ -163,17 +163,18 @@ public class AbAccessibilityService extends AccessibilityService {
             Log.d(LogTags.AB_ACCESSIBILITY_SERVICE.n(), log);
         }
 
+        final int DELAY = event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED ? 1500 : 500;
         disposable.add(Single.fromCallable(() -> TextHelper.extractAllTextsFromNode(root))
-                .delaySubscription(event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED ? 1500 : 10, TimeUnit.MILLISECONDS)
+                .delaySubscription(DELAY, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.computation())
                 .subscribe(
                         allTextSet -> {
                             //提取金额
                             Double amount = null;
-                            Pattern amountPattern = Pattern.compile("\\D?(\\d+\\.?\\d{0,2})\\D?");
+                            final Pattern AMOUNT_PATTERN = Pattern.compile("\\D?(\\d+\\.?\\d{0,2})\\D?");
                             for (String text : allTextSet) {
-                                Matcher matcher = amountPattern.matcher(text);
+                                Matcher matcher = AMOUNT_PATTERN.matcher(text);
 
                                 //仅当全匹配才提取金额
                                 if (matcher.matches()) {
@@ -425,7 +426,11 @@ public class AbAccessibilityService extends AccessibilityService {
 
         //创建通知构建器
         String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
-        String content = String.format(Locale.getDefault(), "“%s”产生了一条流水记录", ruleName);
+        String content = String.format(
+                Locale.getDefault(),
+                "“%s”产生了一条%s记录，金额为%.2f，请展开通知确认是否入账。",
+                ruleName, AccountType.values()[rule.getType()].getTitle(), amount
+        );
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelID)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("无障碍记账确认")
@@ -545,7 +550,11 @@ public class AbAccessibilityService extends AccessibilityService {
                 .subscribe(
                         accountId -> {
                             //创建通知构建器
-                            String content = String.format(Locale.getDefault(), "“%s”生成的流水记录已自动入账，点击查看详情", ruleName);
+                            String content = String.format(
+                                    Locale.getDefault(),
+                                    "“%s”生成的%s记录已自动入账，金额为%.2f，点击查看详情。",
+                                    ruleName, AccountType.values()[rule.getType()].getTitle(), amount
+                            );
                             String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
                             PendingIntent accountModifyPendingIntent = getAccountDetailPendingIntent(accountId);
                             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelID)
@@ -566,7 +575,7 @@ public class AbAccessibilityService extends AccessibilityService {
                         },
                         e -> {
                             //创建通知构建器
-                            String content = String.format(Locale.getDefault(), "写入由“%s”触发的记录时出错", ruleName);
+                            String content = String.format(Locale.getDefault(), "保存由“%s”触发的记录时出错。", ruleName);
                             sendErrorNotification(content, rule.getRuleId());
                         }
                 )
