@@ -43,19 +43,62 @@
             android:paddingTop="5dp"
             android:paddingBottom="5dp">
 
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:text="@string/notification_bookkeeping"
+                android:textAppearance="?attr/textAppearanceBodyLarge" />
+
             <!-- 通知解析开关 -->
             <include
-                android:id="@+id/notification_analysis_switch_option"
-                layout="@layout/view_setting_option"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp" />
+                android:id="@+id/notification_bookkeeping_switch"
+                layout="@layout/view_setting_option" />
 
             <!-- 规则管理 -->
             <include
-                android:id="@+id/rule_manage_option"
+                android:id="@+id/notification_rule_manage_option"
                 layout="@layout/view_setting_option" />
+
+            <!-- 通知捕获开关 -->
+            <include
+                android:id="@+id/notification_capture_switch"
+                layout="@layout/view_setting_option" />
+
+            <!-- 清空捕获的通知 -->
+            <include
+                android:id="@+id/captured_notification_clear_option"
+                layout="@layout/view_setting_option" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:text="@string/accessibility_bookkeeping"
+                android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+            <!-- 无障碍记账开关 -->
+            <include
+                android:id="@+id/accessibility_bookkeeping_switch"
+                layout="@layout/view_setting_option" />
+
+            <!-- 无障碍规则管理 -->
+            <include
+                android:id="@+id/accessibility_rule_manage_option"
+                layout="@layout/view_setting_option" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:text="@string/common_settings"
+                android:textAppearance="?attr/textAppearanceBodyLarge" />
 
             <!-- 直接入账开关 -->
             <include
@@ -65,31 +108,11 @@
             <!-- 通知取消选项 -->
             <include
                 android:id="@+id/notification_cancel_behaviour"
-                layout="@layout/view_setting_option"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="10dp" />
+                layout="@layout/view_setting_option" />
 
             <!-- 通知点击选项 -->
             <include
                 android:id="@+id/notification_click_behaviour"
-                layout="@layout/view_setting_option" />
-
-            <!-- 通知捕获开关 -->
-            <include
-                android:id="@+id/notification_capture_switch"
-                layout="@layout/view_setting_option"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="10dp"/>
-
-            <!-- 清空捕获的通知 -->
-            <include
-                android:id="@+id/captured_notification_clear_option"
                 layout="@layout/view_setting_option" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

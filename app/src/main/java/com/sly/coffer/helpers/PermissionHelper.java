@@ -1,5 +1,7 @@
 package com.sly.coffer.helpers;
 
+import android.accessibilityservice.AccessibilityService;
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
@@ -12,6 +14,7 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.accessibility.AccessibilityManager;
 import android.widget.Toast;
 
 import androidx.activity.ComponentActivity;
@@ -27,6 +30,8 @@ import androidx.lifecycle.LifecycleOwner;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.hjq.device.compat.DeviceOs;
 import com.sly.coffer.SlyCoffer;
+import com.sly.coffer.automation.services.AbAccessibilityService;
+import com.sly.coffer.automation.services.PickAccessibilityService;
 import com.sly.coffer.data.save.preference.AppSettingsPreference;
 import com.sly.coffer.auxiliary.enums.LogTags;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
@@ -36,12 +41,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * 在打开Activity时申请权限的工具类
+ * 申请权限的工具类
  */
 public class PermissionHelper {
     private final ComponentActivity activity;   //需要申请权限的Activity
@@ -72,8 +78,16 @@ public class PermissionHelper {
         AUTO_START(
                 PermissionHelper::isAutoStartHinted,
                 PermissionHelper::buildAutoStartPermissionIntent
+        ),
+        ACCESSIBILITY_BOOKKEEPING(
+                context -> isAccessibilityServiceEnabled(context, AbAccessibilityService.class),
+                PermissionHelper::buildAccessibilityIntent
+        ),
+        ACCESSIBILITY_PICK(
+                context -> isAccessibilityServiceEnabled(context, PickAccessibilityService.class),
+                PermissionHelper::buildAccessibilityIntent
         );
-        private final Function<Context, Boolean> checker;              //如何检查权限是否授予
+        private final Function<Context, Boolean> checker;       //如何检查权限是否授予
         private final Function<Context, Intent> intentBuilder;  //跳转权限界面所需的Intent构建器
 
         SpecialPermissionType(Function<Context, Boolean> c, Function<Context, Intent> i) {
@@ -97,8 +111,10 @@ public class PermissionHelper {
          * @param c 上下文
          * @return 跳转到权限设置界面的 Intent
          */
+        @NonNull
         public Intent getIntent(Context c) {
-            return intentBuilder.apply(c);
+            Intent intent = intentBuilder.apply(c);
+            return Objects.requireNonNullElseGet(intent, () -> new Intent(Settings.ACTION_SETTINGS));
         }
     }
 
@@ -345,7 +361,7 @@ public class PermissionHelper {
      * @param context 上下文
      * @return 是否拥有精确闹钟权限
      */
-    public static boolean isExactAlarmEnabled(Context context) {
+    private static boolean isExactAlarmEnabled(Context context) {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
                 context.getSystemService(android.app.AlarmManager.class).canScheduleExactAlarms();
     }
@@ -356,7 +372,7 @@ public class PermissionHelper {
      * @param context 上下文
      * @return 是否提醒了需要开启自启动权限
      */
-    public static boolean isAutoStartHinted(Context context) {
+    private static boolean isAutoStartHinted(Context context) {
         return !isAutoStartDefined() || AppSettingsPreference.getHintAutoStart(context);
     }
 
@@ -381,7 +397,7 @@ public class PermissionHelper {
      * @param context 上下文
      * @return 是否授予通知使用权
      */
-    public static boolean isNotificationServiceEnabled(@NonNull Context context) {
+    private static boolean isNotificationServiceEnabled(@NonNull Context context) {
         String pkgName = context.getPackageName();
         final String flat = Settings.Secure.getString(context.getContentResolver(),
                 "enabled_notification_listeners");
@@ -405,9 +421,36 @@ public class PermissionHelper {
      * @param context 上下文
      * @return 是否在电池优化白名单
      */
-    public static boolean isIgnoringBatteryOptimizations(@NonNull Context context) {
+    private static boolean isIgnoringBatteryOptimizations(@NonNull Context context) {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         return pm.isIgnoringBatteryOptimizations(context.getPackageName());
+    }
+
+    /**
+     * 判断本应用的无障碍服务是否开启
+     *
+     * @param context 上下文
+     * @return true 表示已开启
+     */
+    private static boolean isAccessibilityServiceEnabled(@NonNull Context context, Class<? extends AccessibilityService> serviceClass) {
+        AccessibilityManager am = context.getSystemService(AccessibilityManager.class);
+        if (am == null) return false;
+
+        // 获取所有当前已启用的无障碍服务列表
+        List<AccessibilityServiceInfo> enabledServices =
+                am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_GENERIC
+                        | AccessibilityServiceInfo.FEEDBACK_ALL_MASK);
+
+        String packageName = context.getPackageName().toLowerCase();
+        String serviceId = serviceClass.getSimpleName().toLowerCase();
+
+        for (AccessibilityServiceInfo service : enabledServices) {
+            String id = service.getId().toLowerCase();
+            if (id.contains(packageName) && id.contains(serviceId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -415,7 +458,7 @@ public class PermissionHelper {
      *
      * @return 是否能跳转原生界面
      */
-    public static boolean canSkip2ProtogeneticBatteryOptimizationsPage() {
+    private static boolean canSkip2ProtogeneticBatteryOptimizationsPage() {
         return !DeviceOs.isHyperOs() && !DeviceOs.isMiui(); //目前测试只有米米的系统无法跳转，会被拦截至魔改界面
     }
 
@@ -426,7 +469,7 @@ public class PermissionHelper {
      * @return 用于申请精确闹钟权限的Intent
      */
     @Nullable
-    public static Intent buildExactAlarmIntent(Context context) {
+    private static Intent buildExactAlarmIntent(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             return new Intent(
                     Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
@@ -442,8 +485,8 @@ public class PermissionHelper {
      * @return 申请通知监听权限的Intent
      */
     @NonNull
-    public static Intent buildNotificationListenerIntent() {
-        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+    private static Intent buildNotificationListenerIntent() {
+        Intent intent = new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         return intent;
     }
@@ -455,7 +498,7 @@ public class PermissionHelper {
      * @return 用于申请电池优化白名单的Intent
      */
     @NonNull
-    public static Intent buildIgnoringBatteryOptimizationsIntent(Context context) {
+    private static Intent buildIgnoringBatteryOptimizationsIntent(Context context) {
         if (canSkip2ProtogeneticBatteryOptimizationsPage()) {
             @SuppressLint("BatteryLife") Intent intent = new Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
             intent.setData(android.net.Uri.parse("package:" + context.getPackageName()));
@@ -472,7 +515,7 @@ public class PermissionHelper {
      * @return 跳转自启动界面的Intent
      */
     @NonNull
-    public static Intent buildAutoStartPermissionIntent(Context context) {
+    private static Intent buildAutoStartPermissionIntent(Context context) {
         String manufacturer = Build.MANUFACTURER.toLowerCase();
         if (manufacturer.contains("xiaomi")) {
             Intent intent = new Intent();
@@ -484,5 +527,25 @@ public class PermissionHelper {
             Toast.makeText(context, "请手动前往自启动界面授权", Toast.LENGTH_SHORT).show();
             return new Intent(Settings.ACTION_SETTINGS);
         }
+    }
+
+    /**
+     * 生成跳转到无障碍界面的意图
+     *
+     * @param context 上下文
+     * @return 跳转到无障碍设置界面的意图
+     */
+    @NonNull
+    private static Intent buildAccessibilityIntent(@NonNull Context context) {
+        // 替换为你的无障碍服务类名（完整路径，例如: com.example.app/com.example.app.MyAccessibilityService）
+        String serviceName = context.getPackageName() + "/" + AbAccessibilityService.class.getCanonicalName();
+
+        Intent intent = new Intent();
+        intent.setAction(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+        intent.putExtra(":settings:fragment_args_key", serviceName);
+        intent.putExtra(":settings:show_fragment_args", true);
+
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        return intent;
     }
 }

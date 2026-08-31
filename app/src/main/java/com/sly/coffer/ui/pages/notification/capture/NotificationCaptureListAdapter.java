@@ -18,7 +18,7 @@ import com.sly.coffer.auxiliary.interfaces.adapter.AdapterOnLongClickListener;
 import com.sly.coffer.auxiliary.interfaces.adapter.ViewHolderListener;
 import com.sly.coffer.data.save.db.entities.CapturedNotificationEntity;
 import com.sly.coffer.data.save.db.entities.composite.ui.CapturedNotificationUiModel;
-import com.sly.coffer.databinding.ViewHolderCapturedNotificationBinding;
+import com.sly.coffer.databinding.ViewHolderCapturedNotificationListBinding;
 import com.sly.coffer.databinding.ViewHolderSeparatorTextChipBinding;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.ui.others.decoration.sticky.StickyHeaderAdapter;
@@ -70,9 +70,9 @@ public class NotificationCaptureListAdapter extends ListAdapter<CapturedNotifica
     }
 
     public static class ItemViewHolder extends RecyclerView.ViewHolder {
-        ViewHolderCapturedNotificationBinding binding;
+        ViewHolderCapturedNotificationListBinding binding;
 
-        public ItemViewHolder(@NonNull ViewHolderCapturedNotificationBinding binding, ViewHolderListener listener) {
+        public ItemViewHolder(@NonNull ViewHolderCapturedNotificationListBinding binding, ViewHolderListener listener) {
             super(binding.getRoot());
             this.binding = binding;
 
@@ -151,7 +151,7 @@ public class NotificationCaptureListAdapter extends ListAdapter<CapturedNotifica
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_ITEM) {
-            ViewHolderCapturedNotificationBinding binding = ViewHolderCapturedNotificationBinding.inflate(
+            ViewHolderCapturedNotificationListBinding binding = ViewHolderCapturedNotificationListBinding.inflate(
                     LayoutInflater.from(parent.getContext()),
                     parent,
                     false

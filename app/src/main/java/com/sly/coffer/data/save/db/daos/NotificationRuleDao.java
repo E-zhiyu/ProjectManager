@@ -10,6 +10,7 @@ import androidx.room.Transaction;
 import androidx.room.Update;
 
 import com.sly.coffer.auxiliary.enums.AccountType;
+import com.sly.coffer.data.save.db.entities.CapturedNotificationEntity;
 import com.sly.coffer.data.save.db.entities.NotificationRuleEntity;
 import com.sly.coffer.data.save.db.entities.NotificationRuleTransferEntity;
 import com.sly.coffer.data.save.db.entities.NotificationRuleTagRefEntity;
@@ -24,7 +25,7 @@ import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 
 @Dao
-public interface RuleDao {
+public interface NotificationRuleDao {
     /**
      * 获取通知规则数量
      *
@@ -50,6 +51,15 @@ public interface RuleDao {
     @Transaction
     @Query("SELECT * FROM notificationRules WHERE ruleId = :ruleId")
     Single<Optional<NotificationRuleWithDetailModel>> getNotificationRuleWithDetailSingleById(long ruleId);
+
+    /**
+     * 通过编号获取规则数据
+     *
+     * @param id 规则编号
+     * @return 该编号对应的规则数据
+     */
+    @Query("SELECT * FROM notificationRules WHERE ruleId = :id")
+    Optional<NotificationRuleEntity> getNotificationRuleOptionalById(long id);
 
     /**
      * 获取已启用的通知规则
@@ -139,6 +149,11 @@ public interface RuleDao {
     default void modifyNotificationRule(@NonNull NotificationRuleEntity rule, NotificationRuleTransferEntity transfer, List<Long> tagIdList) {
         long ruleId = rule.getRuleId();
 
+        //获取旧数据
+        Optional<NotificationRuleEntity> optional = getNotificationRuleOptionalById(ruleId);
+        optional.ifPresent(oldRule -> rule.setEnabled(oldRule.isEnabled()));
+
+        //更新数据
         updateNotificationRule(rule);
 
         //转账账户数据
@@ -174,4 +189,53 @@ public interface RuleDao {
      */
     @Query("UPDATE notificationRules SET enabled = :enabled WHERE ruleId = :ruleId")
     Completable setRuleEnabled(boolean enabled, long ruleId);
+
+    /**
+     * 获取所有符合搜索条件的被捕获的通知
+     * @param keyword 搜索关键词
+     * @param useSearchFilter 是否需要过滤搜索条件
+     * @return 捕获的通知列表，支持响应式更新
+     */
+    @Query("SELECT * FROM capturedNotifications " +
+            "WHERE :useSearchFilter = 0 " +
+            "OR title LIKE '%' || :keyword || '%' ESCAPE '/' " +
+            "OR content LIKE '%' || :keyword || '%' ESCAPE '/' " +
+            "OR appName LIKE '%' || :keyword || '%' ESCAPE '/' " +
+            "ORDER BY time DESC")
+    Flowable<List<CapturedNotificationEntity>> getAllCapturedNotificationFlowable(String keyword, int useSearchFilter);
+
+    /**
+     * 清空捕获的通知
+     *
+     * @return 是否完成
+     */
+    @Query("DELETE FROM capturedNotifications")
+    Completable clearCapturedNotification();
+
+    /**
+     * 添加捕获的通知
+     *
+     * @param notification 被捕获的通知
+     * @return 是否完成
+     */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    Completable insertCapturedNotification(CapturedNotificationEntity notification);
+
+    /**
+     * 删除捕获的通知
+     *
+     * @param notification 需要删除的通知
+     * @return 是否完成
+     */
+    @Delete
+    Completable deleteCapturedNotification(CapturedNotificationEntity notification);
+
+    /**
+     * 通过通知编号获取捕获的通知
+     *
+     * @param id 通知编号
+     * @return 该编号对应的通知
+     */
+    @Query("SELECT * FROM capturedNotifications WHERE notificationId = :id")
+    Single<Optional<CapturedNotificationEntity>> getCapturedNotificationById(long id);
 }

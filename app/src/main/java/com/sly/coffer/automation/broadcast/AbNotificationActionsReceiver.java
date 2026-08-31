@@ -154,7 +154,11 @@ public class AbNotificationActionsReceiver extends BroadcastReceiver {
                 .subscribe(
                         accountId -> {
                             //创建通知构建器
-                            String content = String.format(Locale.getDefault(), "已保留由“%s”触发的记录，点击查看详情", ruleName);
+                            String content = String.format(
+                                    Locale.getDefault(),
+                                    "已保留由“%s”触发的记录，点击查看详情。",
+                                    ruleName
+                            );
                             String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
                             PendingIntent accountModifyPendingIntent = getAccountDetailPendingIntent(accountId, context);
                             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
@@ -179,7 +183,11 @@ public class AbNotificationActionsReceiver extends BroadcastReceiver {
                         },
                         e -> {
                             //创建通知构建器
-                            String content = String.format(Locale.getDefault(), "写入由“%s”触发的记录时出错", ruleName);
+                            String content = String.format(
+                                    Locale.getDefault(),
+                                    "保存由“%s”触发的记录时出错。",
+                                    ruleName
+                            );
                             String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
                             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
                                     .setSmallIcon(R.mipmap.ic_launcher)
@@ -213,7 +221,7 @@ public class AbNotificationActionsReceiver extends BroadcastReceiver {
      */
     private void sendAbadonNotification(Context context, int notificationID, String ruleName) {
         //创建通知构建器
-        String content = String.format(Locale.getDefault(), "已舍弃由“%s”触发的记录", ruleName);
+        String content = String.format(Locale.getDefault(), "已舍弃由“%s”触发的记录。", ruleName);
         String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
                 .setSmallIcon(R.mipmap.ic_launcher)

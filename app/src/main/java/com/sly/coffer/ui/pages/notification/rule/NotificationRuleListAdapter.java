@@ -37,6 +37,37 @@ public class NotificationRuleListAdapter extends ListAdapter<NotificationRuleEnt
     private final AdapterOnLongClickListener<NotificationRuleEntity> longClickListener;
     private final AdapterOnCheckedChangeListener<NotificationRuleEntity> checkedChangeListener;
 
+    public static class NotificationRuleViewHolder extends RecyclerView.ViewHolder {
+        ViewHolderNotificationRuleListBinding binding;
+        boolean isBlocked = false;
+
+        public NotificationRuleViewHolder(@NonNull ViewHolderNotificationRuleListBinding binding, ViewHolderListener listener) {
+            super(binding.getRoot());
+            this.binding = binding;
+
+            //设置触摸动画
+            AppearanceHelper.attachMorphAnimation(binding.getRoot());
+
+            //点击监听器
+            binding.getRoot().setOnClickListener(v ->
+                    listener.onClick(getBindingAdapterPosition(), binding.getRoot())
+            );
+
+            //长按监听器
+            binding.getRoot().setOnLongClickListener(view -> {
+                listener.onLongClick(getBindingAdapterPosition(), binding.getRoot());
+                return true;
+            });
+
+            //开关状态变更
+            binding.enableSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
+                if (isBlocked) return;
+
+                listener.onCheckedChange(getBindingAdapterPosition(), b, binding.getRoot());
+            });
+        }
+    }
+
     public NotificationRuleListAdapter(
             AdapterOnClickListener<NotificationRuleEntity> clickListener,
             AdapterOnLongClickListener<NotificationRuleEntity> longClickListener,
@@ -70,37 +101,6 @@ public class NotificationRuleListAdapter extends ListAdapter<NotificationRuleEnt
                 notifyItemChanged(toPosition + 1);      //更新后面的
             }
         });
-    }
-
-    public static class NotificationRuleViewHolder extends RecyclerView.ViewHolder {
-        ViewHolderNotificationRuleListBinding binding;
-        boolean isBlocked = false;
-
-        public NotificationRuleViewHolder(@NonNull ViewHolderNotificationRuleListBinding binding, ViewHolderListener listener) {
-            super(binding.getRoot());
-            this.binding = binding;
-
-            //设置触摸动画
-            AppearanceHelper.attachMorphAnimation(binding.getRoot());
-
-            //点击监听器
-            binding.getRoot().setOnClickListener(v ->
-                    listener.onClick(getBindingAdapterPosition(), binding.getRoot())
-            );
-
-            //长按监听器
-            binding.getRoot().setOnLongClickListener(view -> {
-                listener.onLongClick(getBindingAdapterPosition(), binding.getRoot());
-                return true;
-            });
-
-            //开关状态变更
-            binding.enableSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
-                if (isBlocked) return;
-
-                listener.onCheckedChange(getBindingAdapterPosition(), b, binding.getRoot());
-            });
-        }
     }
 
     @NonNull

@@ -1,4 +1,4 @@
-package com.sly.coffer.ui.others.viewmodel;
+package com.sly.coffer.ui.pages.report;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;

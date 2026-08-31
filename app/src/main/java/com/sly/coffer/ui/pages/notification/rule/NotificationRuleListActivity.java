@@ -36,7 +36,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class NotificationRuleListActivity extends AppCompatActivity {
-    private ActivityNotificationRuleListBinding binding;                                    //绑定的 XML 布局
+    private ActivityNotificationRuleListBinding binding;    //绑定的 XML 布局
     private final CompositeDisposable disposable = new CompositeDisposable();
 
     @Override
@@ -81,10 +81,9 @@ public class NotificationRuleListActivity extends AppCompatActivity {
                     "1. 识别通知来自哪个应用；\n" +
                     "2. 根据应用来源和通知标题，找到合适的“通知规则”；\n" +
                     "3. 用“通知规则”中的“正则表达式”从通知内容中“抓取”金额数字；\n" +
-                    "4. 自动生成一条流水记录，并发送确认通知；\n" +
-                    "5. 在通知中决定是否保留生成的流水记录。\n" +
+                    "4. 自动生成一条流水记录，并通过通知向您反馈。\n" +
                     "\n" +
-                    "整个过程全自动，您无需手动输入金额，仅需在通知中决定是否保留流水记录。\n" +
+                    "整个过程全自动，您无需手动输入金额。\n" +
                     "\n" +
                     "### 2. 几个关键概念\n" +
                     "- **正则表达式**：一种“文本搜索模板”，可以精确地从一段文字中找出您想要的内容（比如“¥123.45”或“+88.00”）。\n" +
@@ -153,7 +152,7 @@ public class NotificationRuleListActivity extends AppCompatActivity {
                 },
                 (entity, finalStat, anchor) -> {
                     BookkeepingDb db = BookkeepingDb.getInstance(this);
-                    disposable.add(db.ruleDao().setRuleEnabled(finalStat, entity.getRuleId())
+                    disposable.add(db.notificationRuleDao().setRuleEnabled(finalStat, entity.getRuleId())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribeOn(Schedulers.io())
                             .subscribe(
@@ -173,7 +172,7 @@ public class NotificationRuleListActivity extends AppCompatActivity {
         );
         binding.recycler.setAdapter(adapter);
         BookkeepingDb db = BookkeepingDb.getInstance(this);
-        disposable.add(db.ruleDao().getAllNotificationRuleFlowable()
+        disposable.add(db.notificationRuleDao().getAllNotificationRuleFlowable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(
@@ -210,12 +209,10 @@ public class NotificationRuleListActivity extends AppCompatActivity {
      */
     private void addPermissionRequests() {
         PermissionHelper permissionHelper = new PermissionHelper(this);   //权限申请帮助器
-
-        //添加权限申请
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissionHelper.addPermission(
                     Manifest.permission.POST_NOTIFICATIONS,
-                    "请授予通知权限用于触发自动记账后发送确认通知。"
+                    "请授予通知权限用于触发自动记账后发送通知。"
             );
         }
         permissionHelper.addPermission(
@@ -226,7 +223,7 @@ public class NotificationRuleListActivity extends AppCompatActivity {
         permissionHelper.addPermission(
                 PermissionHelper.SpecialPermissionType.BATTERY,
                 "电池优化",
-                "为保证软件退出后仍然可以自动监听通知实现自动记账，请将本应用的电池优化策略改为“无限制”。"
+                "为保证软件在后台也可以监听通知，请将本应用的电池优化策略改为“无限制”。"
         );
     }
 
@@ -242,11 +239,11 @@ public class NotificationRuleListActivity extends AppCompatActivity {
                 rule.getName()
         );
         new MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.delete_budget)
+                .setTitle(R.string.delete_notification_rule)
                 .setMessage(message)
                 .setPositiveButton("确定", (dialogInterface, i) -> {
                     BookkeepingDb db = BookkeepingDb.getInstance(this);
-                    disposable.add(db.ruleDao().deleteNotificationRule(rule)
+                    disposable.add(db.notificationRuleDao().deleteNotificationRule(rule)
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribeOn(Schedulers.io())
                             .subscribe(

@@ -35,7 +35,7 @@ public class GroupTagSingleSelectAdapter extends ListAdapter <TagGroupUiModel, R
             } else if (oldItem instanceof TagGroupUiModel.Separator && newItem instanceof TagGroupUiModel.Separator) {
                 TagGroupUiModel.Separator oldS = (TagGroupUiModel.Separator) oldItem;
                 TagGroupUiModel.Separator newS = (TagGroupUiModel.Separator) newItem;
-                return oldS.separatorText.equals(newS.separatorText);
+                return oldS.text.equals(newS.text);
             } else {
                 return false;
             }
@@ -53,10 +53,10 @@ public class GroupTagSingleSelectAdapter extends ListAdapter <TagGroupUiModel, R
     private static final int TYPE_SEPARATOR = 0;
     private final AdapterOnClickListener<TagEntity> clickListener;
 
-    public static class GroupRoleItemViewHolder extends RecyclerView.ViewHolder {
+    public static class ItemViewHolder extends RecyclerView.ViewHolder {
         ViewHolderGroupTagItemBinding binding;
 
-        public GroupRoleItemViewHolder(@NonNull ViewHolderGroupTagItemBinding binding) {
+        public ItemViewHolder(@NonNull ViewHolderGroupTagItemBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
@@ -90,10 +90,10 @@ public class GroupTagSingleSelectAdapter extends ListAdapter <TagGroupUiModel, R
         }
     }
 
-    public static class GroupRoleSeparatorViewHolder extends RecyclerView.ViewHolder {
+    public static class SeparatorViewHolder extends RecyclerView.ViewHolder {
         ViewHolderSeparatorTextviewBinding binding;
 
-        public GroupRoleSeparatorViewHolder(@NonNull ViewHolderSeparatorTextviewBinding binding) {
+        public SeparatorViewHolder(@NonNull ViewHolderSeparatorTextviewBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
@@ -120,30 +120,30 @@ public class GroupTagSingleSelectAdapter extends ListAdapter <TagGroupUiModel, R
                     parent,
                     false
             );
-            return new GroupRoleItemViewHolder(binding);
+            return new ItemViewHolder(binding);
         } else {
             ViewHolderSeparatorTextviewBinding binding = ViewHolderSeparatorTextviewBinding.inflate(
                     LayoutInflater.from(parent.getContext()),
                     parent,
                     false
             );
-            return new GroupRoleSeparatorViewHolder(binding);
+            return new SeparatorViewHolder(binding);
         }
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         TagGroupUiModel dataItem = getItem(position);
-        if (dataItem instanceof TagGroupUiModel.Item && holder instanceof GroupTagSingleSelectAdapter.GroupRoleItemViewHolder) {
+        if (dataItem instanceof TagGroupUiModel.Item && holder instanceof ItemViewHolder) {
             TagGroupUiModel.Item item = (TagGroupUiModel.Item) dataItem;
-            GroupTagSingleSelectAdapter.GroupRoleItemViewHolder itemHolder = (GroupTagSingleSelectAdapter.GroupRoleItemViewHolder) holder;
+            ItemViewHolder itemHolder = (ItemViewHolder) holder;
 
             itemHolder.refreshRoleChip(item.tagList, clickListener);
-        } else if (dataItem instanceof TagGroupUiModel.Separator && holder instanceof GroupTagSingleSelectAdapter.GroupRoleSeparatorViewHolder) {
+        } else if (dataItem instanceof TagGroupUiModel.Separator && holder instanceof SeparatorViewHolder) {
             TagGroupUiModel.Separator separator = (TagGroupUiModel.Separator) dataItem;
-            GroupTagSingleSelectAdapter.GroupRoleSeparatorViewHolder separatorHolder = (GroupTagSingleSelectAdapter.GroupRoleSeparatorViewHolder) holder;
+            SeparatorViewHolder separatorHolder = (SeparatorViewHolder) holder;
 
-            separatorHolder.binding.text.setText(separator.separatorText);
+            separatorHolder.binding.text.setText(separator.text);
         }
     }
 }

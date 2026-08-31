@@ -14,7 +14,7 @@ import com.sly.coffer.auxiliary.interfaces.adapter.ChipViewHolderListener;
 import com.sly.coffer.data.save.db.entities.TagEntity;
 import com.sly.coffer.databinding.ViewHolderChipTextBinding;
 
-public class AccountTagAdapter extends ListAdapter<TagEntity, AccountTagAdapter.TagViewHolder> {
+public class AccountTagAdapter extends ListAdapter<TagEntity, AccountTagAdapter.ItemViewHolder> {
     private static final DiffUtil.ItemCallback<TagEntity> ITEM_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(@NonNull TagEntity oldItem, @NonNull TagEntity newItem) {
@@ -28,10 +28,10 @@ public class AccountTagAdapter extends ListAdapter<TagEntity, AccountTagAdapter.
     };
     private final AdapterOnChipCloseListener<TagEntity, AccountTagAdapter> closeListener;
 
-    public static class TagViewHolder extends RecyclerView.ViewHolder {
+    public static class ItemViewHolder extends RecyclerView.ViewHolder {
         ViewHolderChipTextBinding binding;
 
-        public TagViewHolder(@NonNull ViewHolderChipTextBinding binding, ChipViewHolderListener listener) {
+        public ItemViewHolder(@NonNull ViewHolderChipTextBinding binding, ChipViewHolderListener listener) {
             super(binding.getRoot());
             this.binding = binding;
 
@@ -54,13 +54,13 @@ public class AccountTagAdapter extends ListAdapter<TagEntity, AccountTagAdapter.
 
     @NonNull
     @Override
-    public TagViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         ViewHolderChipTextBinding binding = ViewHolderChipTextBinding.inflate(
                 LayoutInflater.from(parent.getContext()),
                 parent,
                 false
         );
-        return new TagViewHolder(
+        return new ItemViewHolder(
                 binding,
                 new ChipViewHolderListener() {
                     @Override
@@ -81,7 +81,7 @@ public class AccountTagAdapter extends ListAdapter<TagEntity, AccountTagAdapter.
     }
 
     @Override
-    public void onBindViewHolder(@NonNull TagViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
         TagEntity tag = getItem(position);
         holder.binding.chip.setText(tag.getName());
     }

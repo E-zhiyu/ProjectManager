@@ -10,8 +10,8 @@ android {
         applicationId 'com.sly.coffer'
         minSdk 28
         targetSdk 37
-        versionCode 67
-        versionName '1.9.5'
+        versionCode 68
+        versionName '1.10.0'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -30,6 +30,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
+            applicationIdSuffix ".test"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -47,7 +48,6 @@ dependencies {
     implementation libs.activity.ktx
     implementation libs.appcompat
     implementation libs.material.v1130
-    implementation libs.paging.runtime              //分页加载
     implementation libs.recyclerview
     implementation libs.constraintlayout
     implementation libs.lifecycle.livedata.ktx
@@ -75,7 +75,6 @@ dependencies {
     implementation libs.flexbox                     //Web上的Flex布局
     implementation libs.devicecompat                //系统名称判断
     implementation libs.room.runtime                // Room 核心库
-    implementation libs.room.paging                 // Room 的Paging 3支持
     annotationProcessor libs.room.compiler          // Room 注解处理器
     implementation libs.room.rxjava3                // Room的 RxJava 支持
     implementation libs.mapstruct                   // Pojo 与 Entity 转换

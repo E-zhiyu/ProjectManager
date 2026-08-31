@@ -1,17 +1,13 @@
 package com.sly.coffer.automation.services;
 
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
 import androidx.core.app.TaskStackBuilder;
@@ -36,6 +32,7 @@ import com.sly.coffer.data.save.preference.AutoBookKeepingPreference;
 import com.sly.coffer.auxiliary.enums.KeyStrings;
 import com.sly.coffer.auxiliary.enums.NotificationID;
 import com.sly.coffer.auxiliary.enums.PendingRequestCode;
+import com.sly.coffer.helpers.AppListHelper;
 import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.NotificationHelper;
 import com.sly.coffer.auxiliary.enums.AccountType;
@@ -43,7 +40,6 @@ import com.sly.coffer.ui.pages.main.bookkeeping.RunningAccountInputActivity;
 import com.sly.coffer.ui.pages.notification.rule.NotificationRuleListActivity;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -100,12 +96,11 @@ public class AbNotificationListenerService extends NotificationListenerService {
     @Override
     public void onCreate() {
         super.onCreate();
-        Context context = getApplicationContext();
         Log.d(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "服务已创建");
 
         //启动时则加载规则
-        BookkeepingDb db = BookkeepingDb.getInstance(context);
-        disposable.add(db.ruleDao().getEnabledNotificationRuleFlowable()
+        BookkeepingDb db = BookkeepingDb.getInstance(this);
+        disposable.add(db.notificationRuleDao().getEnabledNotificationRuleFlowable()
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         modelList -> {
@@ -123,7 +118,7 @@ public class AbNotificationListenerService extends NotificationListenerService {
                             ruleMap.putAll(map);
                         },
                         e -> {
-                            ExceptionHelper.showExceptionDialog(context, e);
+                            ExceptionHelper.showExceptionDialog(this, e);
                             Log.e(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "通知监听服务获取通知规则失败");
                         }
                 )
@@ -135,20 +130,18 @@ public class AbNotificationListenerService extends NotificationListenerService {
         super.onDestroy();
 
         Log.d(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "服务已关闭");
-        disposable.dispose();
+        disposable.clear();
     }
 
     @Override
     public void onNotificationPosted(@NonNull StatusBarNotification sbn) {
-        Context context = getApplicationContext();
-
         //保存通知内容
-        if (AutoBookKeepingPreference.getNotificationCapture(context)) {
+        if (AutoBookKeepingPreference.getNotificationCapture(this)) {
             saveNotification(sbn);
         }
 
         //判断是否开启通知解析功能
-        if (!AutoBookKeepingPreference.getSwitchStat(context)) {
+        if (!AutoBookKeepingPreference.getSwitchStat(this)) {
             Log.d(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "通知自动记账未启用");
             return;
         }
@@ -202,19 +195,22 @@ public class AbNotificationListenerService extends NotificationListenerService {
                 if (matcher.find()) {
                     Log.d(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "成功匹配正则表达式");
 
-                    //生成流水数据包
-                    Bundle bundle = getNewAccountData(matcher, model);
-                    if (bundle == null) {
-                        Log.e(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "流水数据生成失败");
-                        return;
+                    //获取匹配到的金额数据
+                    double amount;
+                    try {
+                        amount = Double.parseDouble(Objects.requireNonNull(matcher.group(rule.getCaptureGroupPos())));
+                    } catch (IndexOutOfBoundsException | NumberFormatException e) {
+                        String err = String.format(Locale.getDefault(), "“%s”无法提取金额数据", rule.getName());
+                        sendErrorNotification(err, ruleId);
+                        continue;
                     }
                     Log.i(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "流水数据生成成功");
 
                     //根据偏好设置决定直接入帐还是发送通知
-                    if (!AutoBookKeepingPreference.getDirectDeposit(context)) {
-                        sendConfirmNotification(bundle, rule, context);
+                    if (!AutoBookKeepingPreference.getDirectDeposit(this)) {
+                        sendConfirmNotification(amount, model);
                     } else {
-                        saveInDbDirectly(bundle, rule);
+                        saveInDbDirectly(amount, model);
                     }
                 } else {
                     Log.d(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "正则表达式不匹配");
@@ -230,15 +226,8 @@ public class AbNotificationListenerService extends NotificationListenerService {
      */
     private void saveNotification(@NonNull StatusBarNotification sbn) {
         //获取通知数据
-        String appName;
         String packageName = sbn.getPackageName();
-        try {
-            PackageManager packageManager = getApplicationContext().getPackageManager();
-            ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
-            appName = packageManager.getApplicationLabel(appInfo).toString();
-        } catch (PackageManager.NameNotFoundException e) {
-            appName = "<未知应用>";
-        }
+        String appName = AppListHelper.getAppNameByPackageName(packageName, this);
         String title = sbn.getNotification().extras.getString("android.title");
         String text = sbn.getNotification().extras.getString("android.text");
         if (text == null || text.isEmpty() || title == null || title.isEmpty()) return;
@@ -249,10 +238,9 @@ public class AbNotificationListenerService extends NotificationListenerService {
         if (!matcher.find()) return;
 
         //保存数据
-        Context context = getApplicationContext();
         CapturedNotificationEntity notification = new CapturedNotificationEntity(title, text, packageName, appName, LocalDateTime.now());
-        BookkeepingDb db = BookkeepingDb.getInstance(context);
-        disposable.add(db.capturedNotificationDao().insertCapturedNotification(notification)
+        BookkeepingDb db = BookkeepingDb.getInstance(this);
+        disposable.add(db.notificationRuleDao().insertCapturedNotification(notification)
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         () -> Log.i(LogTags.AB_NOTIFICATION_LISTENER_SERVICE.n(), "通知捕获成功"),
@@ -264,20 +252,18 @@ public class AbNotificationListenerService extends NotificationListenerService {
     /**
      * 获得流水记录数据
      *
-     * @param matcher 正则表达式的匹配对象
-     * @param model   匹配到的通知规则详情数据
-     * @return 解析通知内容后生成的流水数据包(正则表达式解析失败返回null)
+     * @param amount 提取的金额数据
+     * @param model  匹配到的通知规则详情数据
+     * @return 流水数据包
      */
-    @Nullable
+    @NonNull
     private Bundle getNewAccountData(
-            @NonNull Matcher matcher,
+            double amount,
             @NonNull NotificationRuleWithDetailModel model
     ) {
         //获取规则数据
         NotificationRuleEntity rule = model.getRule();
         String ruleName = rule.getName();                   //规则名称
-        long ruleId = rule.getRuleId();                     //规则编号
-        int captureGroupPos = rule.getCaptureGroupPos();    //捕获组位置
         int type = rule.getType();                          //流水种类枚举序数
         long[] tagIds = model.getTagList().stream()
                 .map(TagEntity::getTagId)
@@ -285,22 +271,8 @@ public class AbNotificationListenerService extends NotificationListenerService {
                 .toArray();                                 //标签列表
         NotificationRuleTransferEntity transfer = model.getTransfer();  //转账账户数据
 
-        //获取匹配到的金额数据
-        double amount;
-        try {
-            amount = Double.parseDouble(Objects.requireNonNull(matcher.group(captureGroupPos)));
-        } catch (IndexOutOfBoundsException e) {
-            String err = String.format(Locale.getDefault(), "规则“%s”的捕获组位置超出有效范围", ruleName);
-            sendErrorNotification(err, ruleId);
-            return null;
-        } catch (NumberFormatException e) {
-            String err = String.format(Locale.getDefault(), "规则“%s”捕获的金额不是纯数字", ruleName);
-            sendErrorNotification(err, ruleId);
-            return null;
-        }
-
         //生成备注
-        String remark = "自动记账 : " + ruleName;
+        String remark = "通知记账 : " + ruleName;
 
         //生成流水记录数据包
         Bundle bundle = new Bundle();
@@ -331,9 +303,9 @@ public class AbNotificationListenerService extends NotificationListenerService {
     private void sendErrorNotification(String content, long ruleId) {
         //发送错误提示通知
         int notificationID = (int) (ruleId + System.currentTimeMillis() + NotificationID.AUTO_BOOKKEEPING_ERROR.ordinal());
-        Intent skip2RuleManage = new Intent(getApplicationContext(), NotificationRuleListActivity.class);
+        Intent skip2RuleManage = new Intent(this, NotificationRuleListActivity.class);
         PendingIntent pi = PendingIntent.getActivity(
-                getApplicationContext(),
+                this,
                 notificationID,
                 skip2RuleManage,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
@@ -342,11 +314,11 @@ public class AbNotificationListenerService extends NotificationListenerService {
         //实例化构建器
         String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
         NotificationCompat.Builder builder = new NotificationCompat.Builder(
-                getApplicationContext(),
+                this,
                 channelID
         )
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("自动记账出错")
+                .setContentTitle("通知记账出错")
                 .setContentText(content)
                 .setContentIntent(pi)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -357,18 +329,21 @@ public class AbNotificationListenerService extends NotificationListenerService {
         NotificationHelper.sendNotification(
                 notificationID,
                 builder,
-                getApplicationContext()
+                this
         );
     }
 
     /**
      * 发送通知以提醒用户确认
      *
-     * @param bundle  自动生成的账单的数据包
-     * @param rule    触发自动记账的规则对象
-     * @param context 上下文
+     * @param amount 提取的金额
+     * @param model  触发自动记账的规则（包含抓张账户等其他数据）
      */
-    private void sendConfirmNotification(@NonNull Bundle bundle, @NonNull NotificationRuleEntity rule, Context context) {
+    private void sendConfirmNotification(double amount, @NonNull NotificationRuleWithDetailModel model) {
+        //生成数据包
+        NotificationRuleEntity rule = model.getRule();
+        Bundle bundle = getNewAccountData(amount, model);
+
         //生成通知唯一标识符
         String ruleName = rule.getName();
         long ruleId = rule.getRuleId();
@@ -376,7 +351,6 @@ public class AbNotificationListenerService extends NotificationListenerService {
 
         //创建保留 Action
         NotificationCompat.Action keepAction = createAction(
-                context,
                 bundle,
                 ruleName,
                 BroadcastActions.ACTION_KEEP.toString(),
@@ -391,7 +365,6 @@ public class AbNotificationListenerService extends NotificationListenerService {
                 .setLabel("输入备注")
                 .build();
         NotificationCompat.Action remarkInputAction = createAction(
-                context,
                 bundle,
                 ruleName,
                 BroadcastActions.ACTION_INPUT_REMARK.toString(),
@@ -403,7 +376,6 @@ public class AbNotificationListenerService extends NotificationListenerService {
 
         //创建舍弃 Action
         NotificationCompat.Action deleteAction = createAction(
-                context,
                 bundle,
                 ruleName,
                 BroadcastActions.ACTION_DELETE.toString(),
@@ -414,14 +386,14 @@ public class AbNotificationListenerService extends NotificationListenerService {
         );
 
         //创建通知被取消的 PendingIntent
-        Intent notificationCancelIntent = new Intent(context, AbNotificationActionsReceiver.class);
+        Intent notificationCancelIntent = new Intent(this, AbNotificationActionsReceiver.class);
         notificationCancelIntent.setAction(BroadcastActions.ACTION_NOTIFICATION_CANCELED.toString());
         notificationCancelIntent.putExtra(KeyStrings.NOTIFICATION_ID.v(), notificationId);
-        notificationCancelIntent.putExtras(bundle);                                        //发送流水记录数据包
-        notificationCancelIntent.putExtra(KeyStrings.NOTIFICATION_RULE_NAME.v(), ruleName);    //发送规则名称
+        notificationCancelIntent.putExtras(bundle);                                         //发送流水记录数据包
+        notificationCancelIntent.putExtra(KeyStrings.NOTIFICATION_RULE_NAME.v(), ruleName); //发送规则名称
         int pendingCancelId = notificationId * 10 + PendingRequestCode.AUTO_BOOKKEEPING_NOTIFICATION_DELETE.ordinal();
         PendingIntent deletePendingIntent = PendingIntent.getBroadcast(
-                context,
+                this,
                 pendingCancelId,
                 notificationCancelIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
@@ -429,10 +401,14 @@ public class AbNotificationListenerService extends NotificationListenerService {
 
         //创建通知构建器
         String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
-        String content = String.format(Locale.getDefault(), "“%s”产生了一条流水记录", ruleName);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
+        String content = String.format(
+                Locale.getDefault(),
+                "“%s”产生了一条%s记录，金额为%.2f，请展开通知确认是否入账。",
+                ruleName, AccountType.values()[rule.getType()].getTitle(), amount
+        );
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelID)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("自动记账确认")
+                .setContentTitle("通知记账确认")
                 .setContentText(content)
                 .setAutoCancel(true)
                 .addAction(keepAction)                  //点击保留按钮
@@ -441,16 +417,16 @@ public class AbNotificationListenerService extends NotificationListenerService {
                 .setDeleteIntent(deletePendingIntent);  //通知被划走
 
         //创建通知点击 PendingIntent
-        int clickBehaviourCode = AutoBookKeepingPreference.getNotificationClickBehaviour(context);
+        int clickBehaviourCode = AutoBookKeepingPreference.getNotificationClickBehaviour(this);
         if (clickBehaviourCode != NotificationClickBehaviour.NONE.getItemId()) {
-            Intent notificationClickIntent = new Intent(context, AbNotificationActionsReceiver.class);
+            Intent notificationClickIntent = new Intent(this, AbNotificationActionsReceiver.class);
             notificationClickIntent.setAction(BroadcastActions.ACTION_NOTIFICATION_CLICKED.toString());
             notificationClickIntent.putExtra(KeyStrings.NOTIFICATION_ID.v(), notificationId);
             notificationClickIntent.putExtras(bundle);                                      //发送流水记录数据
             notificationClickIntent.putExtra(KeyStrings.NOTIFICATION_RULE_NAME.v(), ruleName);  //发送规则名称
             int pendingClickedId = notificationId * 10 + PendingRequestCode.AUTO_BOOKKEEPING_NOTIFICATION_CLICK.ordinal();
             PendingIntent clickPendingIntent = PendingIntent.getBroadcast(
-                    context,
+                    this,
                     pendingClickedId,
                     notificationClickIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
@@ -465,14 +441,13 @@ public class AbNotificationListenerService extends NotificationListenerService {
         NotificationHelper.sendNotification(
                 notificationId,
                 builder,
-                context
+                this
         );
     }
 
     /**
      * 创建用于处理自动记账流水记录的通知Action（即通知按钮）
      *
-     * @param context     上下文
      * @param dataBundle  自动生成的账单的数据包
      * @param ruleName    触发自动记账的规则名称
      * @param actionId    {@link Intent}的action标识符，用于区别不同的操作，可使用{@link BroadcastActions}中的枚举对象的.toString()方法
@@ -483,7 +458,6 @@ public class AbNotificationListenerService extends NotificationListenerService {
      */
     @NonNull
     private NotificationCompat.Action createAction(
-            Context context,
             @NonNull Bundle dataBundle,
             String ruleName,
             String actionId,
@@ -493,7 +467,7 @@ public class AbNotificationListenerService extends NotificationListenerService {
             RemoteInput remoteInput
     ) {
         //创建Intent
-        Intent intent = new Intent(context, AbNotificationActionsReceiver.class);
+        Intent intent = new Intent(this, AbNotificationActionsReceiver.class);
         intent.setAction(actionId);
         intent.putExtra(KeyStrings.NOTIFICATION_ID.v(), notificationId);
         intent.putExtras(dataBundle);                                   //发送流水记录数据包
@@ -501,7 +475,7 @@ public class AbNotificationListenerService extends NotificationListenerService {
 
         //创建PendingIntent
         PendingIntent pi = PendingIntent.getBroadcast(
-                context,
+                this,
                 notificationId * 10 + requestCode,  //为了区分不同通知和不同的 Action，必须将通知标识符和 Action 标识符组合
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE
@@ -523,47 +497,44 @@ public class AbNotificationListenerService extends NotificationListenerService {
     /**
      * 直接将生成的流水记录数据保存到数据库中
      *
-     * @param bundle 包含流水记录的数据包
-     * @param rule   触发的通知规则实例
+     * @param amount 提取的金额数据
+     * @param model  触发的通知规则（包含转账账户等其他数据）
      */
-    private void saveInDbDirectly(@NonNull Bundle bundle, NotificationRuleEntity rule) {
-        //读取数据包中的内容
-        long dateTimeMillis = bundle.getLong(KeyStrings.RUNNING_DATETIME.v());
-        int type = bundle.getInt(KeyStrings.RUNNING_TYPE.v());
-        String remark = bundle.getString(KeyStrings.RUNNING_REMARK.v());
-        double amount = bundle.getDouble(KeyStrings.RUNNING_AMOUNT.v());
-        long[] tagIds = bundle.getLongArray(KeyStrings.TAG_ID.v());
-        List<Long> tagIdList;
-        if (tagIds != null) {
-            tagIdList = Arrays.stream(tagIds)
-                    .boxed()
-                    .collect(Collectors.toList());
-        } else {
-            tagIdList = null;
-        }
-        String exportAccount = bundle.getString(KeyStrings.RUNNING_EXPORT_ACCOUNT.v());
-        String importAccount = bundle.getString(KeyStrings.RUNNING_IMPORT_ACCOUNT.v());
+    private void saveInDbDirectly(double amount, @NonNull NotificationRuleWithDetailModel model) {
+        //解析规则数据
+        NotificationRuleEntity rule = model.getRule();
+        String remark = "通知记账 : " + rule.getName();
+        int type = rule.getType();
+        NotificationRuleTransferEntity ruleTransfer = model.getTransfer();
+        String exportAccount = ruleTransfer.getExportAccount();
+        String importAccount = ruleTransfer.getImportAccount();
+        List<Long> tagIdList = model.getTagList().stream()
+                .map(TagEntity::getTagId)
+                .collect(Collectors.toList());
 
         //实例化实体类
-        AccountEntity account = new AccountEntity(amount, remark, type, DateTimeConverter.toLocalDateTime(dateTimeMillis));
+        AccountEntity account = new AccountEntity(amount, remark, type, LocalDateTime.now());
         AccountTransferEntity transfer = new AccountTransferEntity(exportAccount, importAccount);
 
         //保存数据
-        Context context = getApplicationContext();
         String ruleName = rule.getName();
         int notificationId = (int) (rule.getRuleId() + System.currentTimeMillis() + NotificationID.AUTO_BOOKKEEPING_CONFIRM.ordinal());
-        disposable.add(AccountService.addNewAccount(account, transfer, null, tagIdList, context)
+        disposable.add(AccountService.addNewAccount(account, transfer, null, tagIdList, this)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         accountId -> {
                             //创建通知构建器
-                            String content = String.format(Locale.getDefault(), "“%s”生成的流水记录已自动入账，点击查看详情", ruleName);
+                            String content = String.format(
+                                    Locale.getDefault(),
+                                    "“%s”生成的%s记录已自动入账，金额为%.2f，点击查看详情。",
+                                    ruleName, AccountType.values()[rule.getType()].getTitle(), amount
+                            );
                             String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
-                            PendingIntent accountModifyPendingIntent = getAccountDetailPendingIntent(accountId, context);
-                            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
+                            PendingIntent accountModifyPendingIntent = getAccountDetailPendingIntent(accountId);
+                            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelID)
                                     .setSmallIcon(R.mipmap.ic_launcher)
-                                    .setContentTitle("自动记账")
+                                    .setContentTitle("通知记账")
                                     .setContentText(content)
                                     .setContentIntent(accountModifyPendingIntent)
                                     .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -574,27 +545,13 @@ public class AbNotificationListenerService extends NotificationListenerService {
                             NotificationHelper.sendNotification(
                                     notificationId,
                                     builder,
-                                    context
+                                    this
                             );
                         },
                         e -> {
                             //创建通知构建器
-                            String content = String.format(Locale.getDefault(), "写入由“%s”触发的记录时出错", ruleName);
-                            String channelID = ChannelInfo.AUTO_BOOKKEEPING.getId();
-                            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
-                                    .setSmallIcon(R.mipmap.ic_launcher)
-                                    .setContentTitle("自动记账")
-                                    .setContentText(content)
-                                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                                    .setCategory(NotificationCompat.CATEGORY_CALL)
-                                    .setAutoCancel(true);
-
-                            //发送通知
-                            NotificationHelper.sendNotification(
-                                    notificationId,
-                                    builder,
-                                    context
-                            );
+                            String content = String.format(Locale.getDefault(), "保存由“%s”触发的记录时出错。", ruleName);
+                            sendErrorNotification(content, rule.getRuleId());
                         }
                 )
         );
@@ -604,20 +561,19 @@ public class AbNotificationListenerService extends NotificationListenerService {
      * 获取能够跳转到流水记录输入界面的 PendingInten
      *
      * @param accountId 新添加的流水记录的编号
-     * @param context   上下文
      * @return 能够跳转到流水记录输入界面的 PendingIntent
      */
-    private PendingIntent getAccountDetailPendingIntent(long accountId, Context context) {
+    private PendingIntent getAccountDetailPendingIntent(long accountId) {
         //生成数据包
         Bundle bundle = new Bundle();
         bundle.putLong(KeyStrings.RUNNING_ID.v(), accountId);
 
         //生成 Intent
-        Intent skip2AccountInput = new Intent(context, RunningAccountInputActivity.class);
+        Intent skip2AccountInput = new Intent(this, RunningAccountInputActivity.class);
         skip2AccountInput.putExtras(bundle);
 
         //生成 PendingIntent
-        return TaskStackBuilder.create(context)
+        return TaskStackBuilder.create(this)
                 .addNextIntentWithParentStack(skip2AccountInput)
                 .getPendingIntent(
                         PendingRequestCode.SKIP_TO_ACCOUNT_INPUT.ordinal(),

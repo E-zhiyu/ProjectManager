@@ -27,15 +27,23 @@ import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 import com.sly.coffer.ui.pages.main.settings.components.SettingClickableTextView;
 
+import java.util.Objects;
+
 public class PermissionManageActivity extends AppCompatActivity {
     private ActivityPermissionManageBinding binding;                //绑定的XML视图
     private final ActivityResultLauncher<String> runtimeLauncher =  //申请运行时权限的启动器
             registerForActivityResult(
                     new ActivityResultContracts.RequestPermission(),
                     o -> {
+                        if (o) {
+                            Toast.makeText(this, "权限授予成功", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(this, "权限被拒绝", Toast.LENGTH_SHORT).show();
+                        }
                     }
             );
-    private SettingClickableTextView camera, appList, notification, notificationListener, battery, alarm;   //权限申请视图
+    private SettingClickableTextView camera, appList, notification, notificationListener, battery, alarm;
+    private SettingClickableTextView autoBookkeeping, pick;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -201,7 +209,7 @@ public class PermissionManageActivity extends AppCompatActivity {
                                     "- 在退出应用后自动启动通知监听服务，确保自动记账功能能够运行\n",
                             () -> {
                                 SlyCoffer.lockLifecycleObserver();
-                                Intent skip2AutoStartPermission = PermissionHelper.buildAutoStartPermissionIntent(this);
+                                Intent skip2AutoStartPermission = PermissionHelper.SpecialPermissionType.AUTO_START.getIntent(this);
                                 startActivity(skip2AutoStartPermission);
                             }
                     )
@@ -227,16 +235,17 @@ public class PermissionManageActivity extends AppCompatActivity {
                         "- 自动记账的通知监听服务能否在后台保持运行\n" +
                         "- 自动记账触发后能否第一时间发送通知\n",
                 () -> {
-                    if (PermissionHelper.isIgnoringBatteryOptimizations(this) &&
-                            PermissionHelper.canSkip2ProtogeneticBatteryOptimizationsPage()
-                    ) {
+                    if (PermissionHelper.SpecialPermissionType.BATTERY.isGranted(this)) {
                         Toast.makeText(this, "已忽略电池优化，长按强制跳转电池优化界面", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
+                    Intent intent = PermissionHelper.SpecialPermissionType.BATTERY.getIntent(this);
+                    if (Objects.equals(intent.getAction(), Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)) {
+                        Toast.makeText(this, "请找到本应用并设置电池优化策略为“无限制”", Toast.LENGTH_SHORT).show();
+                    }
                     SlyCoffer.lockLifecycleObserver();
-                    Intent skip2IgnoringBatteryOptimizations = PermissionHelper.buildIgnoringBatteryOptimizationsIntent(this);
-                    startActivity(skip2IgnoringBatteryOptimizations);
+                    startActivity(intent);
                 }
         ));
         battery.setOnLongClickListener(view -> {
@@ -261,8 +270,46 @@ public class PermissionManageActivity extends AppCompatActivity {
                         "- 每日0点自动检查并重置预算\n",
                 () -> {
                     SlyCoffer.lockLifecycleObserver();
-                    Intent skip2ExactAlarm = PermissionHelper.buildExactAlarmIntent(this);
+                    Intent skip2ExactAlarm = PermissionHelper.SpecialPermissionType.ALARM.getIntent(this);
                     startActivity(skip2ExactAlarm);
+                }
+        ));
+
+        //无障碍自动记账
+        autoBookkeeping = new SettingClickableTextView(
+                this,
+                binding.autoBookkeepingService,
+                R.string.auto_bookkeeping,
+                "识别屏幕内容实现自动记账",
+                R.drawable.outline_checkbook_24,
+                RadiusStyle.TOP
+        );
+        autoBookkeeping.setFunctionListener(view -> showExplanationDialog(
+                R.string.auto_bookkeeping,
+                "该服务用于识别屏幕内容实现自动记账。",
+                () -> {
+                    SlyCoffer.lockLifecycleObserver();
+                    Intent intent = PermissionHelper.SpecialPermissionType.ACCESSIBILITY_BOOKKEEPING.getIntent(this);
+                    startActivity(intent);
+                }
+        ));
+
+        //无障碍视图拾取
+        pick = new SettingClickableTextView(
+                this,
+                binding.pagePickService,
+                R.string.page_pick,
+                "允许获取当前显示界面的信息",
+                R.drawable.outline_screenshot_monitor_24,
+                RadiusStyle.BOTTOM
+        );
+        pick.setFunctionListener(view -> showExplanationDialog(
+                R.string.page_pick,
+                "该服务用于输入无障碍规则时获取屏幕点击位置，以此得到点击的视图信息作为金额来源。",
+                () -> {
+                    SlyCoffer.lockLifecycleObserver();
+                    Intent intent = PermissionHelper.SpecialPermissionType.ACCESSIBILITY_BOOKKEEPING.getIntent(this);
+                    startActivity(intent);
                 }
         ));
     }
@@ -299,7 +346,9 @@ public class PermissionManageActivity extends AppCompatActivity {
      */
     private void refreshPermissionStat() {
         final String GRANTED = "已授予";
+        final String ENABLED = "已启用";
         final String NOT_GRANTED = "未授予";
+        final String NOT_ENABLED = "未启用";
 
         //相机权限
         boolean isCameraGranted = PermissionHelper.isRuntimePermissionGranted(Manifest.permission.CAMERA, this);
@@ -330,5 +379,13 @@ public class PermissionManageActivity extends AppCompatActivity {
         //精确闹钟权限
         boolean isAlarmGranted = PermissionHelper.SpecialPermissionType.ALARM.isGranted(this);
         alarm.getFunctionComponent().setText(isAlarmGranted ? GRANTED : NOT_GRANTED);
+
+        //无障碍自动记账服务
+        boolean isAccessibilityBookkeepingGranted = PermissionHelper.SpecialPermissionType.ACCESSIBILITY_BOOKKEEPING.isGranted(this);
+        autoBookkeeping.getFunctionComponent().setText(isAccessibilityBookkeepingGranted ? ENABLED : NOT_ENABLED);
+
+        //无障碍视图拾取服务
+        boolean isAccessibilityPickGranted = PermissionHelper.SpecialPermissionType.ACCESSIBILITY_PICK.isGranted(this);
+        pick.getFunctionComponent().setText(isAccessibilityPickGranted ? ENABLED : NOT_ENABLED);
     }
 }

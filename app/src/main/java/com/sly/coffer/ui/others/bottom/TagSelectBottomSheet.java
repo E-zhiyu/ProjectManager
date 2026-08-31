@@ -15,6 +15,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -61,7 +62,7 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, 0, systemBars.right, 0);
-            binding.fullTagRecycler.setPadding(0, 0, 0, systemBars.bottom);
+            binding.mainRecycler.setPadding(0, 0, 0, systemBars.bottom);
             return insets;
         });
 
@@ -109,16 +110,16 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
     public void onDestroyView() {
         super.onDestroyView();
 
-        binding = null;
         disposable.dispose();
+        binding = null;
     }
 
     /**
      * 初始化视图
      */
     private void initViews() {
-        //分组标签
-        initTagGroup();
+        //主 Recycler
+        initMainRecycler();
 
         //角色添加按钮
         binding.addBtn.setOnClickListener(view -> {
@@ -128,11 +129,11 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
     }
 
     /**
-     * 初始化分组标签
+     * 初始化主列表
      */
-    private void initTagGroup() {
+    private void initMainRecycler() {
         //设置适配器
-        ListAdapter<TagGroupUiModel, ?> adapter;
+        ListAdapter<TagGroupUiModel, RecyclerView.ViewHolder> adapter;
         if (isMultiMode) {
             TagMultiSelectViewModel viewModel = new ViewModelProvider(requireActivity()).get(TagMultiSelectViewModel.class);
             adapter = new GroupTagMultiSelectAdapter(
@@ -149,12 +150,12 @@ public class TagSelectBottomSheet extends BaseBottomSheetDialogFragment {
             TagSingleSelectViewModel viewModel = new ViewModelProvider(requireActivity()).get(TagSingleSelectViewModel.class);
             adapter = new GroupTagSingleSelectAdapter(
                     (entity, anchor) -> {
-                        viewModel.setClickedTag(entity);
+                        viewModel.setClickedEntity(entity);
                         dismiss();
                     }
             );
         }
-        binding.fullTagRecycler.setAdapter(adapter);
+        binding.mainRecycler.setAdapter(adapter);
 
         //订阅数据
         BookkeepingDb db = BookkeepingDb.getInstance(requireContext());

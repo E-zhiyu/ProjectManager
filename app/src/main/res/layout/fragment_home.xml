@@ -65,9 +65,7 @@
                 style="@style/MediumRadiusCardStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
                 android:layout_marginBottom="0dp"
-                app:layout_constraintBottom_toTopOf="@id/report_card"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/random_tip_card">
@@ -139,7 +137,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:layout_marginBottom="2dp"
-                app:layout_constraintBottom_toTopOf="@id/report_card"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/date_card">
@@ -159,8 +156,8 @@
                         android:text="@string/not_applicable"
                         android:textAppearance="?attr/textAppearanceHeadline5"
                         app:layout_constraintBottom_toTopOf="@id/today_balance_title"
-                        app:layout_constraintEnd_toEndOf="@id/today_balance_title"
-                        app:layout_constraintStart_toStartOf="@id/today_balance_title"
+                        app:layout_constraintEnd_toStartOf="@id/today_income_and_expense_text"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <!-- 结余标题 -->
@@ -172,8 +169,8 @@
                         android:textAppearance="?attr/textAppearanceBodyLarge"
                         android:textColor="?attr/colorOutline"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/income_and_expense_title"
-                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="@id/today_balance_text"
+                        app:layout_constraintStart_toStartOf="@id/today_balance_text"
                         app:layout_constraintTop_toBottomOf="@id/today_balance_text" />
 
                     <!-- 收支文本 -->
@@ -184,8 +181,8 @@
                         android:text="@string/not_applicable"
                         android:textAppearance="?attr/textAppearanceHeadline5"
                         app:layout_constraintBottom_toTopOf="@id/income_and_expense_title"
-                        app:layout_constraintEnd_toEndOf="@id/income_and_expense_title"
-                        app:layout_constraintStart_toStartOf="@id/income_and_expense_title"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/today_balance_text"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <!-- 收支标题 -->
@@ -197,8 +194,8 @@
                         android:textAppearance="?attr/textAppearanceBodyLarge"
                         android:textColor="?attr/colorOutline"
                         app:layout_constraintBottom_toBottomOf="@id/today_income_and_expense_text"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/today_balance_title"
+                        app:layout_constraintEnd_toEndOf="@id/today_income_and_expense_text"
+                        app:layout_constraintStart_toStartOf="@id/today_income_and_expense_text"
                         app:layout_constraintTop_toBottomOf="@id/today_income_and_expense_text" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -212,7 +209,6 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="2dp"
                 android:layout_marginEnd="0dp"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/notification_rule_card"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/report_card">
@@ -256,7 +252,6 @@
                 android:layout_marginStart="2dp"
                 android:layout_marginTop="2dp"
                 android:layout_marginEnd="00dp"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/budget_card"
                 app:layout_constraintStart_toEndOf="@id/tag_card"
                 app:layout_constraintTop_toBottomOf="@id/report_card">
@@ -300,7 +295,6 @@
                 android:layout_marginStart="2dp"
                 android:layout_marginTop="2dp"
                 android:layout_marginEnd="10dp"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/notification_rule_card"
                 app:layout_constraintTop_toBottomOf="@id/report_card">
@@ -332,6 +326,100 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/budget_count_text" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 标签、通知规则、预算屏障 -->
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/tag_notification_budget_barrier"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="tag_card,notification_rule_card,budget_card" />
+
+            <!-- 拾取视图 -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/picked_page_card"
+                style="@style/MediumRadiusCardStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="0dp"
+                app:layout_constraintEnd_toStartOf="@id/accessibility_rule_card"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tag_notification_budget_barrier">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/picked_page_count_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/infinity"
+                        android:textAppearance="?attr/textAppearanceHeadline5"
+                        app:layout_constraintBottom_toTopOf="@id/picked_page_count_title"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/picked_page_count_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/picked_page"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="?attr/colorOutline"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/picked_page_count_text" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 无障碍规则 -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/accessibility_rule_card"
+                style="@style/MediumRadiusCardStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="2dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/picked_page_card"
+                app:layout_constraintTop_toBottomOf="@id/tag_notification_budget_barrier">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/accessibility_rule_count_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/infinity"
+                        android:textAppearance="?attr/textAppearanceHeadline5"
+                        app:layout_constraintBottom_toTopOf="@id/accessibility_rule_count_title"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/accessibility_rule_count_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/accessibility_rule"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="?attr/colorOutline"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/accessibility_rule_count_text" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
         </androidx.constraintlayout.widget.ConstraintLayout>

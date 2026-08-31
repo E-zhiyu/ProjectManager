@@ -22,7 +22,10 @@ import com.sly.coffer.data.save.db.daos.AccountDao;
 import com.sly.coffer.data.save.db.entities.AccountEntity;
 import com.sly.coffer.databinding.FragmentHomeBinding;
 import com.sly.coffer.helpers.ExceptionHelper;
+import com.sly.coffer.helpers.TextHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
+import com.sly.coffer.ui.pages.accessibility.pick.PickedPageListActivity;
+import com.sly.coffer.ui.pages.accessibility.rule.AccessibilityRuleListActivity;
 import com.sly.coffer.ui.pages.budget.BudgetListActivity;
 import com.sly.coffer.ui.pages.notification.rule.NotificationRuleListActivity;
 import com.sly.coffer.ui.pages.report.ReportActivity;
@@ -81,6 +84,8 @@ public class HomeFragment extends Fragment {
         initTagCard();
         initNotificationRuleCard();
         initBudgetCard();
+        initPickedPageCard();
+        initAccessibilityRuleCard();
     }
 
     /**
@@ -183,19 +188,20 @@ public class HomeFragment extends Fragment {
                                 }
                             }
 
+
                             //结余
                             binding.todayBalanceText.setText(String.format(
                                     Locale.getDefault(),
-                                    "%.2f",
-                                    balance
+                                    "%s",
+                                    TextHelper.abbreviate(balance, 1)
                             ));
 
                             //收支
                             binding.todayIncomeAndExpenseText.setText(String.format(
                                     Locale.getDefault(),
-                                    "+%.2f/-%.2f",
-                                    income,
-                                    expense
+                                    "+%s/-%s",
+                                    TextHelper.abbreviate(income, 1),
+                                    TextHelper.abbreviate(expense, 1)
                             ));
                         },
                         e -> {
@@ -217,7 +223,7 @@ public class HomeFragment extends Fragment {
                 binding.tagCard,
                 AppearanceHelper.SMALL_CARD_RADIUS,
                 AppearanceHelper.SMALL_CARD_RADIUS,
-                AppearanceHelper.MEDIUM_CARD_RADIUS,
+                AppearanceHelper.SMALL_CARD_RADIUS,
                 AppearanceHelper.SMALL_CARD_RADIUS
         );
 
@@ -261,7 +267,7 @@ public class HomeFragment extends Fragment {
         AppearanceHelper.attachMorphAnimation(binding.notificationRuleCard);
 
         BookkeepingDb db = BookkeepingDb.getInstance(requireContext());
-        disposable.add(db.ruleDao().getNotificationRuleCountFlowable()
+        disposable.add(db.notificationRuleDao().getNotificationRuleCountFlowable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(
@@ -282,7 +288,7 @@ public class HomeFragment extends Fragment {
                 AppearanceHelper.SMALL_CARD_RADIUS,
                 AppearanceHelper.SMALL_CARD_RADIUS,
                 AppearanceHelper.SMALL_CARD_RADIUS,
-                AppearanceHelper.MEDIUM_CARD_RADIUS
+                AppearanceHelper.SMALL_CARD_RADIUS
         );
 
         //点击监听
@@ -298,6 +304,70 @@ public class HomeFragment extends Fragment {
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         count -> binding.budgetCountText.setText(String.valueOf(count)),
+                        e -> ExceptionHelper.showExceptionDialog(requireContext(), e)
+                )
+        );
+    }
+
+    /**
+     * 初始化拾取视图卡片
+     */
+    private void initPickedPageCard() {
+        //设置卡片圆角
+        AppearanceHelper.setRadius(
+                requireContext(),
+                binding.pickedPageCard,
+                AppearanceHelper.SMALL_CARD_RADIUS,
+                AppearanceHelper.SMALL_CARD_RADIUS,
+                AppearanceHelper.MEDIUM_CARD_RADIUS,
+                AppearanceHelper.SMALL_CARD_RADIUS
+        );
+
+        //点击监听
+        binding.pickedPageCard.setOnClickListener(view -> {
+            Intent intent = new Intent(requireContext(), PickedPageListActivity.class);
+            startActivity(intent);
+        });
+        AppearanceHelper.attachMorphAnimation(binding.pickedPageCard);
+
+        BookkeepingDb db = BookkeepingDb.getInstance(requireContext());
+        disposable.add(db.accessibilityRuleDao().getPickedPageCountFlowable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(
+                        count -> binding.pickedPageCountText.setText(String.valueOf(count)),
+                        e -> ExceptionHelper.showExceptionDialog(requireContext(), e)
+                )
+        );
+    }
+
+    /**
+     * 初始化无障碍规则卡片
+     */
+    private void initAccessibilityRuleCard() {
+        //设置卡片圆角
+        AppearanceHelper.setRadius(
+                requireContext(),
+                binding.accessibilityRuleCard,
+                AppearanceHelper.SMALL_CARD_RADIUS,
+                AppearanceHelper.SMALL_CARD_RADIUS,
+                AppearanceHelper.SMALL_CARD_RADIUS,
+                AppearanceHelper.MEDIUM_CARD_RADIUS
+        );
+
+        //点击监听
+        binding.accessibilityRuleCard.setOnClickListener(view -> {
+            Intent intent = new Intent(requireContext(), AccessibilityRuleListActivity.class);
+            startActivity(intent);
+        });
+        AppearanceHelper.attachMorphAnimation(binding.accessibilityRuleCard);
+
+        BookkeepingDb db = BookkeepingDb.getInstance(requireContext());
+        disposable.add(db.accessibilityRuleDao().getAccessibilityRuleCountFlowable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(
+                        count -> binding.accessibilityRuleCountText.setText(String.valueOf(count)),
                         e -> ExceptionHelper.showExceptionDialog(requireContext(), e)
                 )
         );

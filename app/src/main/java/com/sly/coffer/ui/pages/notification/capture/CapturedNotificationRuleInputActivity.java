@@ -33,7 +33,6 @@ import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.helpers.appearence.VisibilityHelper;
 import com.sly.coffer.ui.others.adapters.NoFilteringArrayAdapter;
 import com.sly.coffer.ui.others.bottom.TagSelectBottomSheet;
-import com.sly.coffer.ui.others.viewmodel.CNRInputViewModel;
 import com.sly.coffer.ui.others.viewmodel.TagMultiSelectViewModel;
 import com.sly.coffer.ui.pages.main.bookkeeping.AccountTagAdapter;
 
@@ -134,7 +133,7 @@ public class CapturedNotificationRuleInputActivity extends AppCompatActivity {
             long notificationId = initBundle.getLong(KeyStrings.CAPTURED_NOTIFICATION_ID.v());
 
             BookkeepingDb db = BookkeepingDb.getInstance(this);
-            disposable.add(db.capturedNotificationDao().getCapturedNotificationById(notificationId)
+            disposable.add(db.notificationRuleDao().getCapturedNotificationById(notificationId)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(
@@ -154,6 +153,7 @@ public class CapturedNotificationRuleInputActivity extends AppCompatActivity {
                                 Pattern amountPattern = Pattern.compile("\\d+\\.?\\d{0,2}");
                                 Matcher matcher = amountPattern.matcher(content);
                                 int i = 1;
+                                binding.amountSelectChipGroup.removeAllViews();
                                 while (matcher.find()) {
                                     String amountText = matcher.group();
 

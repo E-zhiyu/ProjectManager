@@ -25,7 +25,7 @@ public class RuleService {
             BookkeepingDb db
     ) {
         return Completable.defer(() -> {
-            db.ruleDao().addNotificationRule(rule, transfer, tagIdList);
+            db.notificationRuleDao().addNotificationRule(rule, transfer, tagIdList);
             return Completable.complete();
         });
     }
@@ -46,7 +46,7 @@ public class RuleService {
             BookkeepingDb db
     ) {
         return Completable.defer(() -> {
-            db.ruleDao().modifyNotificationRule(rule, transfer, tagIdList);
+            db.notificationRuleDao().modifyNotificationRule(rule, transfer, tagIdList);
             return Completable.complete();
         });
     }

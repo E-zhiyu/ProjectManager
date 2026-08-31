@@ -189,12 +189,12 @@ public class TagListActivity extends AppCompatActivity {
      */
     private void observeLiveData() {
         TagSingleSelectViewModel tagSingleViewModel = new ViewModelProvider(this).get(TagSingleSelectViewModel.class);
-        tagSingleViewModel.getClickedTag().observe(this, tag -> {
+        tagSingleViewModel.getClickedEntity().observe(this, tag -> {
             if (mergedTag == null) return;
 
             String message = String.format(
                     Locale.getDefault(),
-                    "确认将“%s”合并为“%s”吗？所有使用原标签的",
+                    "确认将“%s”合并为“%s”吗？所有使用原标签的流水记录都将改为使用合并后的标签。",
                     mergedTag.getName(),
                     tag.getName()
             );

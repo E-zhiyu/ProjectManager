@@ -57,7 +57,7 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
     private Bundle initBundle = null;                               //存有初始数据数据包
     private AccountType type = AccountType.EXPENSE;                 //流水种类
     private ActivityResultLauncher<Intent> packageNameSelectLauncher;   //包名选择启动器
-    private ActivityNotificationRuleInputBinding binding;                       //绑定的XML视图引用
+    private ActivityNotificationRuleInputBinding binding;           //绑定的XML视图引用
     private final CompositeDisposable disposable = new CompositeDisposable();
     private AccountTagAdapter tagAdapter;                           //标签适配器
 
@@ -68,7 +68,6 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
 
         binding = ActivityNotificationRuleInputBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
@@ -141,7 +140,7 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
 
             long ruleId = initBundle.getLong(KeyStrings.NOTIFICATION_RULE_ID.v());
             BookkeepingDb db = BookkeepingDb.getInstance(this);
-            disposable.add(db.ruleDao().getNotificationRuleWithDetailSingleById(ruleId)
+            disposable.add(db.notificationRuleDao().getNotificationRuleWithDetailSingleById(ruleId)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(
@@ -405,7 +404,7 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
                             binding.packageNameInput.setText(packageName);
                             binding.packageNameLayout.setError(null);
                         } else {
-                            NullPointerException e = new NullPointerException("无法获取新增解析规则的数据");
+                            NullPointerException e = new NullPointerException("无法获取包名");
                             ExceptionHelper.showExceptionDialog(this, e);
                         }
                     }
@@ -513,10 +512,10 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
                 contentRegexStr,
                 captureGroupPos
         );
-        NotificationRuleTransferEntity ruleTransfer = new NotificationRuleTransferEntity(exportAccount, importAccount);
+        NotificationRuleTransferEntity transfer = new NotificationRuleTransferEntity(exportAccount, importAccount);
         BookkeepingDb db = BookkeepingDb.getInstance(this);
         if (initBundle == null) {
-            disposable.add(RuleService.addNewNotificationRule(rule, ruleTransfer, tagIdList, db)
+            disposable.add(RuleService.addNewNotificationRule(rule, transfer, tagIdList, db)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(
@@ -530,7 +529,7 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
         } else {
             long ruleId = initBundle.getLong(KeyStrings.NOTIFICATION_RULE_ID.v());
             rule.setRuleId(ruleId);
-            disposable.add(RuleService.modifyNotificationRule(rule, ruleTransfer, tagIdList, db)
+            disposable.add(RuleService.modifyNotificationRule(rule, transfer, tagIdList, db)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(

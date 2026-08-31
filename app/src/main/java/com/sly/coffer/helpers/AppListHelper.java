@@ -1,6 +1,7 @@
 package com.sly.coffer.helpers;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -46,5 +47,39 @@ public class AppListHelper {
         }
 
         return appInfoList;
+    }
+
+    /**
+     * 通过包名获取应用名称
+     *
+     * @param packageName 包名
+     * @param context     上下文
+     * @return 该包名对应的应用名，未找到返回“<未知应用>”
+     */
+    @NonNull
+    public static String getAppNameByPackageName(String packageName, @NonNull Context context) {
+        try {
+            PackageManager packageManager = context.getPackageManager();
+            ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
+            return packageManager.getApplicationLabel(appInfo).toString();
+        } catch (PackageManager.NameNotFoundException e) {
+            return "<未知应用>";
+        }
+    }
+
+    /**
+     * 判断是否为活动名称
+     *
+     * @param componentName 待判断的字符串
+     * @return 是否为活动名称
+     */
+    public static boolean isActivity(ComponentName componentName, @NonNull Context context) {
+        try {
+            // 尝试通过PackageManager获取Activity信息
+            context.getPackageManager().getActivityInfo(componentName, 0);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false; // 说明这个组件不是Activity
+        }
     }
 }

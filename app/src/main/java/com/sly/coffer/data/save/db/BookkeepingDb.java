@@ -13,11 +13,15 @@ import com.sly.coffer.auxiliary.enums.AccountType;
 import com.sly.coffer.data.backup.DataBackupDao;
 import com.sly.coffer.data.save.db.converters.DateTimeConverter;
 import com.sly.coffer.data.save.db.converters.UriConverter;
+import com.sly.coffer.data.save.db.daos.AccessibilityRuleDao;
 import com.sly.coffer.data.save.db.daos.AccountDao;
 import com.sly.coffer.data.save.db.daos.BudgetDao;
-import com.sly.coffer.data.save.db.daos.CapturedNotificationDao;
-import com.sly.coffer.data.save.db.daos.RuleDao;
+import com.sly.coffer.data.save.db.daos.NotificationRuleDao;
 import com.sly.coffer.data.save.db.daos.TagDao;
+import com.sly.coffer.data.save.db.entities.AccessibilityRuleEntity;
+import com.sly.coffer.data.save.db.entities.AccessibilityRuleKeywordGroupEntity;
+import com.sly.coffer.data.save.db.entities.AccessibilityRuleTagRefEntity;
+import com.sly.coffer.data.save.db.entities.AccessibilityRuleTransferEntity;
 import com.sly.coffer.data.save.db.entities.AccountTagRefEntity;
 import com.sly.coffer.data.save.db.entities.BudgetEntity;
 import com.sly.coffer.data.save.db.entities.BudgetTagRefEntity;
@@ -25,6 +29,7 @@ import com.sly.coffer.data.save.db.entities.CapturedNotificationEntity;
 import com.sly.coffer.data.save.db.entities.MediaEntity;
 import com.sly.coffer.data.save.db.entities.NotificationRuleEntity;
 import com.sly.coffer.data.save.db.entities.AccountEntity;
+import com.sly.coffer.data.save.db.entities.PickedPageEntity;
 import com.sly.coffer.data.save.db.entities.TagEntity;
 import com.sly.coffer.data.save.db.entities.TagGroupEntity;
 import com.sly.coffer.data.save.db.entities.AccountTransferEntity;
@@ -47,9 +52,14 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
                 MediaEntity.class,
                 TagEntity.class,
                 TagGroupEntity.class,
-                CapturedNotificationEntity.class
+                CapturedNotificationEntity.class,
+                AccessibilityRuleEntity.class,
+                AccessibilityRuleTagRefEntity.class,
+                AccessibilityRuleTransferEntity.class,
+                AccessibilityRuleKeywordGroupEntity.class,
+                PickedPageEntity.class
         },
-        version = 2
+        version = 3
 )
 @TypeConverters({
         DateTimeConverter.class,
@@ -85,7 +95,8 @@ public abstract class BookkeepingDb extends RoomDatabase {
                                 }
                             })
                             .addMigrations(
-                                    DatabaseMigrations.MIGRATION_1_2
+                                    DatabaseMigrations.MIGRATION_1_2,
+                                    DatabaseMigrations.MIGRATION_2_3
                             )
                             .build();
                 }
@@ -99,11 +110,11 @@ public abstract class BookkeepingDb extends RoomDatabase {
 
     public abstract TagDao tagDao();
 
-    public abstract RuleDao ruleDao();
+    public abstract NotificationRuleDao notificationRuleDao();
 
     public abstract BudgetDao budgetDao();
 
-    public abstract CapturedNotificationDao capturedNotificationDao();
+    public abstract AccessibilityRuleDao accessibilityRuleDao();
 
     public abstract DataBackupDao dataBackupDao();
 
@@ -128,7 +139,7 @@ public abstract class BookkeepingDb extends RoomDatabase {
                     "已支付.(\\d+\\.?\\d{0,2})",
                     1
             );
-            ruleDao().insertNotificationRule(weChatPay);
+            notificationRuleDao().insertNotificationRule(weChatPay);
             NotificationRuleEntity aliPay = new NotificationRuleEntity(     //支付宝支付
                     "支付宝支付",
                     AccountType.EXPENSE.ordinal(),
@@ -137,7 +148,7 @@ public abstract class BookkeepingDb extends RoomDatabase {
                     "你有一笔(\\d+\\.?\\d{0,2})元的支出",
                     1
             );
-            ruleDao().insertNotificationRule(aliPay);
+            notificationRuleDao().insertNotificationRule(aliPay);
 
             return Completable.complete();
         });

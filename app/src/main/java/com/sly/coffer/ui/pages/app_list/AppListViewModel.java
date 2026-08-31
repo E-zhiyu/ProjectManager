@@ -1,4 +1,4 @@
-package com.sly.coffer.ui.others.viewmodel;
+package com.sly.coffer.ui.pages.app_list;
 
 import android.content.Context;
 
@@ -45,10 +45,12 @@ public class AppListViewModel extends ViewModel {
                 (keyword, sysAppVisible) -> {
                     List<AppInfo> appListCache = AppListHelper.getInstalledApps(sysAppVisible, context);
 
+                    String lowerKeyword = keyword.toLowerCase();
                     return appListCache.stream()
                             .filter(app ->
                                     keyword.isEmpty() ||
-                                            app.getAppName().toLowerCase().contains(keyword.toLowerCase())
+                                            app.getAppName().toLowerCase().contains(lowerKeyword) ||
+                                            app.getPackageName().toLowerCase().contains(lowerKeyword)
                             )
                             .sorted(Comparator.comparing(AppInfo::getAppName))
                             .collect(Collectors.toList());

@@ -25,7 +25,6 @@ import com.sly.coffer.helpers.PermissionHelper;
 import com.sly.coffer.helpers.SearchHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.helpers.appearence.VisibilityHelper;
-import com.sly.coffer.ui.others.viewmodel.AppListViewModel;
 
 import java.util.Map;
 

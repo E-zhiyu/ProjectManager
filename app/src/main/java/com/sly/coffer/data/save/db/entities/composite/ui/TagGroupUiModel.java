@@ -14,10 +14,10 @@ public class TagGroupUiModel {
     }
 
     public static class Separator extends TagGroupUiModel {
-        public String separatorText;
+        public String text;
 
-        public Separator(String separatorText) {
-            this.separatorText = separatorText;
+        public Separator(String text) {
+            this.text = text;
         }
     }
 }

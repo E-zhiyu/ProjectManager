@@ -8,9 +8,7 @@ import androidx.room.PrimaryKey;
 @Entity(
         tableName = "notificationRules",
         indices = {
-                @Index(value = "name"),
-                @Index(value = "packageName"),
-                @Index(value = "targetTitle")
+                @Index(value = "enabled")
         }
 )
 public class NotificationRuleEntity {

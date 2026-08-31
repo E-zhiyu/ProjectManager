@@ -20,6 +20,7 @@ import com.sly.coffer.data.save.db.entities.AccountEntity;
 import com.sly.coffer.data.save.db.entities.composite.ui.AccountUiModel;
 import com.sly.coffer.databinding.ViewHolderRunningAccountListBinding;
 import com.sly.coffer.databinding.ViewHolderSeparatorTextChipBinding;
+import com.sly.coffer.helpers.TextHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.ui.others.decoration.sticky.StickyHeaderAdapter;
 import com.sly.coffer.auxiliary.enums.AccountType;
@@ -209,7 +210,7 @@ public class AccountListAdapter extends ListAdapter<AccountUiModel, RecyclerView
             double amount = account.getAmount();
 
             //初始化文本视图
-            itemHolder.binding.amountText.setText(String.format(Locale.getDefault(), "%.2f", amount));
+            itemHolder.binding.amountText.setText(TextHelper.abbreviate(amount, 1));
             itemHolder.binding.remarkText.setText(remark.isEmpty() ? "<无备注>" : remark);
             itemHolder.binding.typeDatetimeText.setText(typeAndDatetime);
 

@@ -22,7 +22,7 @@ import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.entities.CapturedNotificationEntity;
 import com.sly.coffer.data.save.preference.AutoBookKeepingPreference;
 import com.sly.coffer.data.save.preference.SearchHistoryPreference;
-import com.sly.coffer.databinding.ActivityNotificationCaptureListBinding;
+import com.sly.coffer.databinding.ActivityCapturedNotificationListBinding;
 import com.sly.coffer.helpers.BackPressedCallbackHelper;
 import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.PermissionHelper;
@@ -30,14 +30,13 @@ import com.sly.coffer.helpers.SearchHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.helpers.appearence.VisibilityHelper;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
-import com.sly.coffer.ui.others.viewmodel.CapturedNotificationViewModel;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class NotificationCaptureListActivity extends AppCompatActivity {
-    private ActivityNotificationCaptureListBinding binding;
+    private ActivityCapturedNotificationListBinding binding;
     private final CompositeDisposable disposable = new CompositeDisposable();
     private BackPressedCallbackHelper backHelper;   //返回手势拦截器
     private BackPressedCallbackHelper.BackHandler searchBackHandler;    //搜索返回处理器
@@ -45,7 +44,7 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityNotificationCaptureListBinding.inflate(getLayoutInflater());
+        binding = ActivityCapturedNotificationListBinding.inflate(getLayoutInflater());
 
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
@@ -62,17 +61,6 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
         initViews();
         initBackHandlers();
         observeLiveData();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        //功能未启用的提示文本
-        VisibilityHelper.toggleVisibilityWithFade(
-                binding.notEnabledTipCard,
-                !AutoBookKeepingPreference.getNotificationCapture(this)
-        );
     }
 
     @Override
@@ -97,9 +85,6 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
                 keyword -> {
                     CapturedNotificationViewModel viewModel = new ViewModelProvider(this).get(CapturedNotificationViewModel.class);
                     viewModel.executeSearch(keyword.trim());
-
-                    //根据搜索关键词是否为空开启和关闭搜索模式
-                    setSearchMode(!keyword.trim().isEmpty());
                 },
                 item -> {
                     int id = item.getItemId();
@@ -114,7 +99,7 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
                                 "\n" +
                                 "### 3. 通知捕获\n" +
                                 "- 通知捕获功能依赖安卓的“通知使用权”，使用该功能时请确保权限已授予；\n" +
-                                "- 为了节省性能，通知捕获功能将在开启5分钟后自动关闭，避免频繁保存通知导致性能浪费；\n" +
+                                "- 为了节省性能，通知捕获功能将在开启一天后自动关闭，避免频繁保存通知导致性能浪费；\n" +
                                 "- 仅会捕获内容中带有数字的通知；\n" +
                                 "- 当捕获功能开启时，任何应用发送的通知都会被保存，包括通知标题、内容、应用来源和时间；\n" +
                                 "- **捕获的通知仅保存在本地，本APP决不会利用权限窃取您的隐私。**\n";
@@ -122,33 +107,53 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
                                 .setNegativeButton("关闭", null)
                                 .show();
                         return true;
+                    } else if (id == R.id.action_delete_all) {
+                        new MaterialAlertDialogBuilder(this)
+                                .setTitle(R.string.delete_all_records)
+                                .setMessage("此操作将清空所有已捕获的通知记录，确认继续吗？")
+                                .setNegativeButton("取消", null)
+                                .setPositiveButton("确定", (dialogInterface, i) -> {
+                                    BookkeepingDb db = BookkeepingDb.getInstance(this);
+                                    disposable.add(db.notificationRuleDao().clearCapturedNotification()
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribeOn(Schedulers.io())
+                                            .subscribe(
+                                                    () -> Toast.makeText(this, "已删除所有捕获的通知", Toast.LENGTH_SHORT).show(),
+                                                    e -> ExceptionHelper.showExceptionDialog(this, e)
+                                            )
+                                    );
+                                })
+                                .show();
                     }
 
                     return false;
                 }
         );
 
-        //捕获功能未启用提示卡片
-        AppearanceHelper.setMarginToNavigation(binding.notEnabledTipCard, this);
-        binding.notEnabledTipCard.setOnClickListener(view -> {
-            if (PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.isGranted(this)) {
-                AutoBookKeepingPreference.setNotificationCapture(this, true);
-                Toast.makeText(this, "5分钟后自动关闭通知捕获以节省性能", Toast.LENGTH_SHORT).show();
-                VisibilityHelper.toggleVisibilityWithFade(binding.notEnabledTipCard, false);
+        //右下角 FAB
+        binding.startStopFab.setOnClickListener(view -> {
+            if (AutoBookKeepingPreference.getNotificationCapture(this)) {
+                AutoBookKeepingPreference.setNotificationCapture(this, false);
+                binding.startStopFab.setImageResource(R.drawable.outline_play_arrow_24);
+                Toast.makeText(this, "已关闭通知捕获", Toast.LENGTH_SHORT).show();
             } else {
-                String message = "通知捕获依赖通知监听服务，请授权后再启用通知捕获功能。";
-                new MaterialAlertDialogBuilder(this)
-                        .setTitle("权限申请说明")
-                        .setMessage(message)
-                        .setPositiveButton("去授权", (dialogInterface, i) -> {
-                            Intent intent = PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.getIntent(this);
-                            startActivity(intent);
-                        })
-                        .setNegativeButton("取消", null)
-                        .show();
+                if (!PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.isGranted(this)) {
+                    Toast.makeText(this, "请开启通知监听服务", Toast.LENGTH_SHORT).show();
+                    Intent intent = PermissionHelper.SpecialPermissionType.NOTIFICATION_LISTENER.getIntent(this);
+                    startActivity(intent);
+                    return;
+                }
+
+                AutoBookKeepingPreference.setNotificationCapture(this, true);
+                binding.startStopFab.setImageResource(R.drawable.outline_pause_24);
+                Toast.makeText(this, "通知捕获已开始，将在24小时后关闭", Toast.LENGTH_SHORT).show();
             }
         });
-        AppearanceHelper.attachMorphAnimation(binding.notEnabledTipCard);
+        AppearanceHelper.attachMorphAnimation(binding.startStopFab);
+        AppearanceHelper.setMarginToNavigation(binding.startStopFab, this);
+        binding.startStopFab.setImageResource(AutoBookKeepingPreference.getNotificationCapture(this) ?
+                R.drawable.outline_pause_24 : R.drawable.outline_play_arrow_24
+        );
 
         //Recycler 列表
         NotificationCaptureListAdapter adapter = new NotificationCaptureListAdapter(
@@ -165,7 +170,7 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
         binding.recycler.setAdapter(adapter);
         CapturedNotificationViewModel viewModel = new ViewModelProvider(this).get(CapturedNotificationViewModel.class);
         BookkeepingDb db = BookkeepingDb.getInstance(this);
-        disposable.add(viewModel.getRoleListFlowable(db)
+        disposable.add(viewModel.getCapturedNotificationFlowable(db)
                 .subscribe(
                         roleList -> {
                             VisibilityHelper.toggleVisibilityWithFade(binding.emptyText, roleList.isEmpty());
@@ -234,7 +239,7 @@ public class NotificationCaptureListActivity extends AppCompatActivity {
                         .setMessage("即将删除该通知，确认继续吗？")
                         .setPositiveButton("确定", (dialogInterface, i) -> {
                             BookkeepingDb db = BookkeepingDb.getInstance(this);
-                            disposable.add(db.capturedNotificationDao().deleteCapturedNotification(notification)
+                            disposable.add(db.notificationRuleDao().deleteCapturedNotification(notification)
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribeOn(Schedulers.io())
                                     .subscribe(

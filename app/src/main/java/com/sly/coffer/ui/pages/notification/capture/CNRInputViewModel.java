@@ -1,4 +1,4 @@
-package com.sly.coffer.ui.others.viewmodel;
+package com.sly.coffer.ui.pages.notification.capture;
 
 import androidx.lifecycle.ViewModel;
 
