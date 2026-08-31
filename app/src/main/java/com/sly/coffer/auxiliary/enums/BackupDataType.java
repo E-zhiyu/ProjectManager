@@ -4,11 +4,13 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
+import com.sly.coffer.data.backup.helpers.AccessibilityRuleBackupHelper;
 import com.sly.coffer.data.backup.helpers.BackupHelperBase;
 import com.sly.coffer.data.backup.helpers.BudgetBackupHelper;
 import com.sly.coffer.data.backup.helpers.NotificationRuleBackupHelper;
 import com.sly.coffer.data.backup.helpers.RunningAccountBackupHelper;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -26,6 +28,12 @@ public enum BackupDataType {
             "notification_rule.json",
             "AnalysisRule.json",
             NotificationRuleBackupHelper::new
+    ),
+    ACCESSIBILITY_RULE(
+            "无障碍规则数据",
+            "accessibility_rule.json",
+            null,
+            AccessibilityRuleBackupHelper::new
     ),
     BUDGET(
             "预算数据",
@@ -92,9 +100,11 @@ public enum BackupDataType {
      * @return 数据类型，若无法匹配类型则返回 null
      */
     @Nullable
-    public static BackupDataType fromOldFileName(String oldFileName) {
+    public static BackupDataType fromOldFileName(@Nullable String oldFileName) {
+        if (oldFileName == null) return null;
+
         for (BackupDataType type : values()) {
-            if (type.oldFileName.equals(oldFileName)) {
+            if (Objects.equals(oldFileName, type.oldFileName)) {
                 return type;
             }
         }

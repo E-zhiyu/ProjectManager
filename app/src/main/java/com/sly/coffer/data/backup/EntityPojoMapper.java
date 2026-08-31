@@ -2,6 +2,10 @@ package com.sly.coffer.data.backup;
 
 import android.net.Uri;
 
+import com.sly.coffer.data.backup.pojo.AccessibilityRuleKeywordGroupPojo;
+import com.sly.coffer.data.backup.pojo.AccessibilityRulePojo;
+import com.sly.coffer.data.backup.pojo.AccessibilityRuleTagRefPojo;
+import com.sly.coffer.data.backup.pojo.AccessibilityRuleTransferPojo;
 import com.sly.coffer.data.backup.pojo.AccountPojo;
 import com.sly.coffer.data.backup.pojo.AccountTagRefPojo;
 import com.sly.coffer.data.backup.pojo.AccountTransferPojo;
@@ -15,6 +19,10 @@ import com.sly.coffer.data.backup.pojo.TagGroupPojo;
 import com.sly.coffer.data.backup.pojo.TagPojo;
 import com.sly.coffer.data.save.db.converters.DateTimeConverter;
 import com.sly.coffer.data.save.db.converters.UriConverter;
+import com.sly.coffer.data.save.db.entities.AccessibilityRuleEntity;
+import com.sly.coffer.data.save.db.entities.AccessibilityRuleKeywordGroupEntity;
+import com.sly.coffer.data.save.db.entities.AccessibilityRuleTagRefEntity;
+import com.sly.coffer.data.save.db.entities.AccessibilityRuleTransferEntity;
 import com.sly.coffer.data.save.db.entities.AccountEntity;
 import com.sly.coffer.data.save.db.entities.AccountTagRefEntity;
 import com.sly.coffer.data.save.db.entities.AccountTransferEntity;
@@ -163,4 +171,36 @@ public interface EntityPojoMapper {
     TagGroupPojo toTagGroupPojo(TagGroupEntity entity);
 
     List<TagGroupPojo> toTagGroupPojoList(List<TagGroupEntity> entityList);
+
+    AccessibilityRuleEntity toAccessibilityRuleEntity(AccessibilityRulePojo pojo);
+
+    List<AccessibilityRuleEntity> toAccessibilityRuleEntityList(List<AccessibilityRulePojo> pojoList);
+
+    AccessibilityRulePojo toAccessibilityRulePojo(AccessibilityRuleEntity entity);
+
+    List<AccessibilityRulePojo> toAccessibilityRulePojoList(List<AccessibilityRuleEntity> entityList);
+
+    AccessibilityRuleTagRefEntity toAccessibilityRuleTagRefEntity(AccessibilityRuleTagRefPojo pojo);
+
+    List<AccessibilityRuleTagRefEntity> toAccessibilityRuleTagRefEntityList(List<AccessibilityRuleTagRefPojo> pojoList);
+
+    AccessibilityRuleTagRefPojo toAccessibilityRuleTagRefPojo(AccessibilityRuleTagRefEntity entity);
+
+    List<AccessibilityRuleTagRefPojo> toAccessibilityRuleTagRefPojoList(List<AccessibilityRuleTagRefEntity> entityList);
+
+    AccessibilityRuleTransferEntity toAccessibilityRuleTransferEntity(AccessibilityRuleTransferPojo pojo);
+
+    List<AccessibilityRuleTransferEntity> toAccessibilityRuleTransferEntityList(List<AccessibilityRuleTransferPojo> pojoList);
+
+    AccessibilityRuleTransferPojo toAccessibilityRuleTransferPojo(AccessibilityRuleTransferEntity entity);
+
+    List<AccessibilityRuleTransferPojo> toAccessibilityRuleTransferPojoList(List<AccessibilityRuleTransferEntity> entityList);
+
+    AccessibilityRuleKeywordGroupEntity toAccessibilityRuleKeywordGroupEntity(AccessibilityRuleKeywordGroupPojo pojo);
+
+    List<AccessibilityRuleKeywordGroupEntity> toAccessibilityRuleKeywordGroupEntityList(List<AccessibilityRuleKeywordGroupPojo> pojoList);
+
+    AccessibilityRuleKeywordGroupPojo toAccessibilityRuleKeywordGroupPojo(AccessibilityRuleKeywordGroupEntity entity);
+
+    List<AccessibilityRuleKeywordGroupPojo> toAccessibilityRuleKeywordGroupPojoList(List<AccessibilityRuleKeywordGroupEntity> entityList);
 }

@@ -481,7 +481,7 @@ public class DataManageActivity extends AppCompatActivity {
                     }
                 })
                 .collect(Collectors.toList());
-        boolean includeMedia = checkedStatList.get(0);
+        boolean includeMedia = checkedStatList.get(BackupDataType.RUNNING_ACCOUNT.ordinal());
 
         //解压文件并导入数据
         disposables.add(ZipHelper.unpackBackupFileWithFilter(this, uri, allowedFileNameList, includeMedia)
