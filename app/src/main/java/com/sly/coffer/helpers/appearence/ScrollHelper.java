@@ -4,13 +4,11 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.paging.PagingDataAdapter;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sly.coffer.auxiliary.enums.LogTags;
 import com.sly.coffer.auxiliary.enums.ViewTags;
-import com.sly.coffer.auxiliary.interfaces.PagingRecyclerScrollListener;
 import com.sly.coffer.auxiliary.interfaces.RecyclerViewScrollListener;
 import com.sly.coffer.ui.others.scroller.CustomOffsetSmoothScroller;
 
@@ -168,120 +166,5 @@ public class ScrollHelper {
         if (listener != null) {
             listener.onSucceed();
         }
-    }
-
-    /**
-     * 滚动带有{@link PagingDataAdapter}类型适配器的{@link RecyclerView}
-     *
-     * @param recyclerView     需要滚动的 RecyclerView
-     * @param layoutManager    RecyclerView 的布局管理器
-     * @param adapter          RecyclerView 的适配器
-     * @param targetPosition   需要滚动到的位置
-     * @param offset           滚动结束后目标视图到 RecyclerView 顶部的距离
-     * @param maxRetryCount    最大重试次数
-     * @param retryDelayMillis 重试时间间隔（毫秒）
-     * @param listener         滚动状态监听器
-     */
-    public static void scrollPagingRecycler(
-            RecyclerView recyclerView,
-            LinearLayoutManager layoutManager,
-            PagingDataAdapter<?, ?> adapter,
-            int targetPosition,
-            int offset,
-            int maxRetryCount,
-            int retryDelayMillis,
-            PagingRecyclerScrollListener listener
-    ) {
-        if (layoutManager == null) {
-            return;
-        }
-
-        recyclerView.post(() -> {
-                    Object o;
-                    try {
-                        o = adapter.peek(targetPosition);
-                    } catch (IndexOutOfBoundsException e) {
-                        o = null;
-                    }
-                    if (o != null) {
-                        // 已真实加载
-                        scrollRecycler(
-                                recyclerView,
-                                layoutManager,
-                                targetPosition,
-                                10,
-                                offset,
-                                new RecyclerViewScrollListener() {
-                                    @Override
-                                    public void onSucceed() {
-                                        listener.onSucceed();
-                                    }
-
-                                    @Override
-                                    public void onFailed(String errMessage) {
-                                        listener.onFailed();
-                                    }
-                                }
-                        );
-                    } else {
-                        // 未加载成功，继续等待
-                        recyclerView.postDelayed(new Runnable() {
-                            private int failCount = 0;
-                            private boolean scrollBottomOrTop = true;   //true:下次滚动到底部，false:下次滚动到顶部
-
-                            @Override
-                            public void run() {
-                                //获取目标位置的数据实例，判断是否滚动成功
-                                Object object;
-                                try {
-                                    object = adapter.peek(targetPosition);
-                                } catch (IndexOutOfBoundsException e) {
-                                    object = null;
-                                }
-
-                                //计算下次重试的滚动位置
-                                int nextRetryPosition;
-                                if (scrollBottomOrTop) {
-                                    nextRetryPosition = adapter.getItemCount() - 1;
-                                } else {
-                                    nextRetryPosition = 0;
-                                }
-
-                                if (object != null) {
-                                    scrollRecycler(
-                                            recyclerView,
-                                            layoutManager,
-                                            targetPosition,
-                                            10,
-                                            offset,
-                                            new RecyclerViewScrollListener() {
-                                                @Override
-                                                public void onSucceed() {
-                                                    listener.onSucceed();
-                                                }
-
-                                                @Override
-                                                public void onFailed(String errMessage) {
-                                                    listener.onFailed();
-                                                }
-                                            }
-                                    );
-                                } else if (failCount < maxRetryCount) {
-                                    failCount++;
-                                    listener.onRetry(failCount);
-
-                                    //跳转到边界以触发加载
-                                    layoutManager.scrollToPositionWithOffset(nextRetryPosition, 0);
-                                    scrollBottomOrTop = !scrollBottomOrTop;
-
-                                    recyclerView.postDelayed(this, retryDelayMillis);
-                                } else {
-                                    listener.onFailed();
-                                }
-                            }
-                        }, 50);
-                    }
-                }
-        );
     }
 }
