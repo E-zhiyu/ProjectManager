@@ -13,6 +13,14 @@ import java.util.Set;
 import java.util.Stack;
 
 public class TextHelper {
+    //英文数字缩写体系（1000进制）
+    private static final String[] ENGLISH_SUFFIXES = {
+            "", "K", "M", "B", "T"  // Thousand, Million, Billion, Trillion
+    };
+    private static final String[] REGEX_CHAR = {
+            "?", "+", "*", "(", ")", "{", "}", "$", "^"
+    };
+
     /**
      * 获取指定无障碍节点及其子节点出现的所有文本
      *
@@ -95,11 +103,6 @@ public class TextHelper {
      */
     @NonNull
     public static String abbreviate(double value, int decimalPlaces) {
-        // 英文缩写体系（1000进制）
-        final String[] ENGLISH_SUFFIXES = {
-                "", "K", "M", "B", "T"  // Thousand, Million, Billion, Trillion
-        };
-
         if (Double.isNaN(value) || Double.isInfinite(value)) {
             return String.valueOf(value);
         }
@@ -136,5 +139,19 @@ public class TextHelper {
 
         // 组装结果
         return (negative ? "-" : "") + formatted + ENGLISH_SUFFIXES[index];
+    }
+
+    /**
+     * 从文本中删除部分正则表达式中带有特殊含义的字符
+     *
+     * @param origin 原始字符串
+     * @return 删除字符后的字符串
+     */
+    public static String removeRegexChar(String origin) {
+        String result = origin;
+        for (String target : REGEX_CHAR) {
+            result = result.replace(target, "\\" + target);
+        }
+        return result;
     }
 }

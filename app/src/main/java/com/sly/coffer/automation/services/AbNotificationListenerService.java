@@ -198,7 +198,8 @@ public class AbNotificationListenerService extends NotificationListenerService {
                     //获取匹配到的金额数据
                     double amount;
                     try {
-                        amount = Double.parseDouble(Objects.requireNonNull(matcher.group(rule.getCaptureGroupPos())));
+                        String captured = matcher.group(rule.getCaptureGroupPos());
+                        amount = Double.parseDouble(Objects.requireNonNull(captured).replace(",", ""));
                     } catch (IndexOutOfBoundsException | NumberFormatException e) {
                         String err = String.format(Locale.getDefault(), "“%s”无法提取金额数据", rule.getName());
                         sendErrorNotification(err, ruleId);

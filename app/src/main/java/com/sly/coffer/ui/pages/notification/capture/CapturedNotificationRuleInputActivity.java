@@ -29,6 +29,7 @@ import com.sly.coffer.data.save.preference.TipPreference;
 import com.sly.coffer.databinding.ActivityCapturedNotificationRuleInputBinding;
 import com.sly.coffer.helpers.ExceptionHelper;
 import com.sly.coffer.helpers.ImmHelper;
+import com.sly.coffer.helpers.TextHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.helpers.appearence.VisibilityHelper;
 import com.sly.coffer.ui.others.adapters.NoFilteringArrayAdapter;
@@ -150,7 +151,7 @@ public class CapturedNotificationRuleInputActivity extends AppCompatActivity {
                                 int groupPos = viewModel.getGroupPos();
 
                                 //金额选择 ChipGroup
-                                Pattern amountPattern = Pattern.compile("\\d+\\.?\\d{0,2}");
+                                Pattern amountPattern = Pattern.compile("\\d{1,3}(?:,\\d{3})*(?:\\.\\d{1,2})?");
                                 Matcher matcher = amountPattern.matcher(content);
                                 int i = 1;
                                 binding.amountSelectChipGroup.removeAllViews();
@@ -392,9 +393,10 @@ public class CapturedNotificationRuleInputActivity extends AppCompatActivity {
                 .collect(Collectors.toList());
 
         //生成通知内容正则表达式
-        final String REGEX = "\\d+\\.?\\d{0,2}";
-        final String REPLACEMENT = "(\\\\d+\\\\.?\\\\d{0,2})";
-        String contentRegex = notification.getContent().replaceAll(REGEX, REPLACEMENT);
+        final String REGEX = "\\d{1,3}(?:,\\d{3})*(?:\\.\\d{1,2})?";
+        final String REPLACEMENT = "(\\\\d{1,3}(?:,\\\\d{3})*(?:\\\\.\\\\d{1,2})?)";
+        String contentRegex = TextHelper.removeRegexChar(notification.getContent())
+                .replaceAll(REGEX, REPLACEMENT);
 
         //保存数据
         NotificationRuleEntity rule = new NotificationRuleEntity(
