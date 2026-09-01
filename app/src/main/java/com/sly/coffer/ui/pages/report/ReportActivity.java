@@ -235,20 +235,29 @@ public class ReportActivity extends AppCompatActivity {
         ReportViewModel reportViewModel = new ViewModelProvider(this).get(ReportViewModel.class);
         reportViewModel.getCurrentDateRangeLiveData().observe(this, rangePair -> {
             if (rangePair == null) {
-                binding.dateRangeText.setText(R.string.not_applicable);
+                binding.startDateText.setText(R.string.not_applicable);
+                binding.endDateText.setText(R.string.not_applicable);
                 return;
             }
 
             if (!rangePair.first.isEqual(rangePair.second)) {
-                String dateRangeStr = String.format(
+                String start = String.format(
                         Locale.getDefault(),
-                        "%s ~ %s",
-                        rangePair.first.format(CustomDateTimeFormatter.LOCAL_DATE),
+                        "%s",
+                        rangePair.first.format(CustomDateTimeFormatter.LOCAL_DATE)
+                );
+                binding.startDateText.setText(start);
+
+                String end = String.format(
+                        Locale.getDefault(),
+                        "%s",
                         rangePair.second.format(CustomDateTimeFormatter.LOCAL_DATE)
                 );
-                binding.dateRangeText.setText(dateRangeStr);
+                binding.endDateText.setText(end);
+                binding.endDateText.setVisibility(View.VISIBLE);
             } else {
-                binding.dateRangeText.setText(rangePair.first.format(CustomDateTimeFormatter.LOCAL_DATE));
+                binding.startDateText.setText(rangePair.first.format(CustomDateTimeFormatter.LOCAL_DATE));
+                binding.endDateText.setVisibility(View.GONE);
             }
         });
     }
