@@ -10,7 +10,10 @@ import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.entities.composite.AccountWithDetailModel;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.core.Flowable;
@@ -23,6 +26,9 @@ public class ReportViewModel extends ViewModel {
     private final BehaviorProcessor<Pair<LocalDate, LocalDate>> selectedDateRangeProcessor; //用户通过日期选择对话框选择的日期范围
     private final BehaviorProcessor<LocalDate> selectedDateProcessor =
             BehaviorProcessor.createDefault(LocalDate.now());                               //用户通过日期选择对话框选择的日期
+    private final BehaviorProcessor<Set<Long>> includedAccountIdProcessor =
+            BehaviorProcessor.createDefault(new HashSet<>());                               //需要参与报表统计的流水记录 ID 的集合
+
 
     public ReportViewModel() {
         //计算初始日期范围
@@ -30,11 +36,8 @@ public class ReportViewModel extends ViewModel {
         LocalDate defaultEnd = defaultStart.plusMonths(1);
         Pair<LocalDate, LocalDate> defaultDateRangePair = new Pair<>(defaultStart, defaultEnd);
 
-        //用户选择的日期范围
-        selectedDateRangeProcessor = BehaviorProcessor.createDefault(defaultDateRangePair);
-
-        //与当前数据相符的日期范围 LiveData
-        currentDateRangeLiveData = new MutableLiveData<>(defaultDateRangePair);
+        selectedDateRangeProcessor = BehaviorProcessor.createDefault(defaultDateRangePair);  //用户选择的日期范围
+        currentDateRangeLiveData = new MutableLiveData<>(defaultDateRangePair);             //与当前数据相符的日期范围 LiveData
     }
 
     /**
@@ -92,12 +95,38 @@ public class ReportViewModel extends ViewModel {
     }
 
     /**
+     * 更新用于展示统计数据的流水记录的编号集合
+     *
+     * @param idSet 用于展示统计数据的流水记录的编号集合
+     */
+    public void updateIncludedAccountId(Set<Long> idSet) {
+        includedAccountIdProcessor.onNext(idSet);
+    }
+
+    /**
      * 获取展示的流水记录数据（不包含每月流水统计）
      *
      * @param db 数据库实例
-     * @return 在指定日期范围内的流水记录数据
+     * @return 用于展示报表信息的流水记录数据
      */
     public Flowable<List<AccountWithDetailModel>> getRunningAccountDataFlowable(BookkeepingDb db) {
+        return includedAccountIdProcessor.debounce(50, TimeUnit.MILLISECONDS)
+                .flatMap(idSet -> {
+                    if (!idSet.isEmpty()) {
+                        return db.accountDao().getAccountWithDetailFlowableById(idSet);
+                    } else {
+                        return Flowable.just(new ArrayList<>());
+                    }
+                });
+    }
+
+    /**
+     * 获取展示的流水记录的 ID
+     *
+     * @param db 数据库实例
+     * @return 在指定日期范围内的流水记录 ID
+     */
+    public Flowable<List<Long>> processAccountId(BookkeepingDb db) {
         return Flowable.combineLatest(
                         selectedDateRangeProcessor,
                         rangeTypeProcessor,
@@ -128,7 +157,7 @@ public class ReportViewModel extends ViewModel {
                 )
                 .flatMap(dateRangePair -> {
                     currentDateRangeLiveData.postValue(new Pair<>(dateRangePair.first, dateRangePair.second.plusDays(-1)));
-                    return db.accountDao().getAccountWithDetailFlowableByDateRange(dateRangePair.first, dateRangePair.second);
+                    return db.accountDao().getAccountIdFlowableByDateRange(dateRangePair.first, dateRangePair.second);
                 })
                 .debounce(50, TimeUnit.MILLISECONDS);
     }

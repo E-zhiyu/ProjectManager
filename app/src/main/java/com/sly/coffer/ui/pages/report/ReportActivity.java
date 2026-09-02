@@ -36,6 +36,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -241,25 +242,23 @@ public class ReportActivity extends AppCompatActivity {
             }
 
             if (!rangePair.first.isEqual(rangePair.second)) {
-                String start = String.format(
-                        Locale.getDefault(),
-                        "%s",
-                        rangePair.first.format(CustomDateTimeFormatter.LOCAL_DATE)
-                );
-                binding.startDateText.setText(start);
-
-                String end = String.format(
-                        Locale.getDefault(),
-                        "%s",
-                        rangePair.second.format(CustomDateTimeFormatter.LOCAL_DATE)
-                );
-                binding.endDateText.setText(end);
+                binding.startDateText.setText(rangePair.first.format(CustomDateTimeFormatter.LOCAL_DATE));
+                binding.endDateText.setText(rangePair.second.format(CustomDateTimeFormatter.LOCAL_DATE));
                 binding.endDateText.setVisibility(View.VISIBLE);
             } else {
                 binding.startDateText.setText(rangePair.first.format(CustomDateTimeFormatter.LOCAL_DATE));
                 binding.endDateText.setVisibility(View.GONE);
             }
         });
+
+        disposable.add(reportViewModel.processAccountId(BookkeepingDb.getInstance(this))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(
+                        idList -> reportViewModel.updateIncludedAccountId(new HashSet<>(idList)),
+                        e -> ExceptionHelper.showExceptionDialog(this, e)
+                )
+        );
     }
 
     /**
