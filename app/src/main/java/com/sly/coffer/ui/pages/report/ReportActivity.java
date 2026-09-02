@@ -36,7 +36,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -121,7 +120,7 @@ public class ReportActivity extends AppCompatActivity {
         binding.incomeSourceRecycler.setAdapter(incomeAdapter);
         ReportViewModel viewModel = new ViewModelProvider(this).get(ReportViewModel.class);
         BookkeepingDb db = BookkeepingDb.getInstance(this);
-        disposable.add(viewModel.getRunningAccountDataFlowable(db)
+        disposable.add(viewModel.getRunningAccountDataFlowable(db)  //获取流水记录数据
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(
@@ -195,6 +194,15 @@ public class ReportActivity extends AppCompatActivity {
                         e -> ExceptionHelper.showExceptionDialog(this, e)
                 )
         );
+        disposable.add(viewModel.processAccountId(BookkeepingDb.getInstance(this))  //处理流水记录编号
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(
+                        idList -> {
+                        },
+                        e -> ExceptionHelper.showExceptionDialog(this, e)
+                )
+        );
 
         //每月结余
         AmountProportionAdapter monthAdapter = new AmountProportionAdapter();
@@ -250,15 +258,6 @@ public class ReportActivity extends AppCompatActivity {
                 binding.endDateText.setVisibility(View.GONE);
             }
         });
-
-        disposable.add(reportViewModel.processAccountId(BookkeepingDb.getInstance(this))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(
-                        idList -> reportViewModel.updateIncludedAccountId(new HashSet<>(idList)),
-                        e -> ExceptionHelper.showExceptionDialog(this, e)
-                )
-        );
     }
 
     /**

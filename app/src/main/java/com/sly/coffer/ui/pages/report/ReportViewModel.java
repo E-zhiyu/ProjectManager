@@ -159,6 +159,10 @@ public class ReportViewModel extends ViewModel {
                     currentDateRangeLiveData.postValue(new Pair<>(dateRangePair.first, dateRangePair.second.plusDays(-1)));
                     return db.accountDao().getAccountIdFlowableByDateRange(dateRangePair.first, dateRangePair.second);
                 })
+                .flatMap(idList -> {
+                    includedAccountIdProcessor.onNext(new HashSet<>(idList));
+                    return Flowable.just(idList);
+                })
                 .debounce(50, TimeUnit.MILLISECONDS);
     }
 
