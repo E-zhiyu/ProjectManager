@@ -32,7 +32,7 @@ roomCompiler = "2.8.4"
 mapstruct = "1.6.3"
 recyclerviewSelection = "1.2.0"
 lifecycleProcess = "2.10.0"
-activityKtx = "1.8.0"
+activityKtx = "1.13.0"
 
 [libraries]
 core = { module = "io.noties.markwon:core", version.ref = "core" }
