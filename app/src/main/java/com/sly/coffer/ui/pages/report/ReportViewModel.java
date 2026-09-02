@@ -19,10 +19,10 @@ import io.reactivex.rxjava3.processors.BehaviorProcessor;
 public class ReportViewModel extends ViewModel {
     private final MutableLiveData<Pair<LocalDate, LocalDate>> currentDateRangeLiveData;
     private final BehaviorProcessor<DateRangeType> rangeTypeProcessor =
-            BehaviorProcessor.createDefault(DateRangeType.MONTH);
-    private final BehaviorProcessor<Pair<LocalDate, LocalDate>> selectedDateRangeProcessor;
+            BehaviorProcessor.createDefault(DateRangeType.MONTH);                           //用户通过下拉框选择的日期范围种类
+    private final BehaviorProcessor<Pair<LocalDate, LocalDate>> selectedDateRangeProcessor; //用户通过日期选择对话框选择的日期范围
     private final BehaviorProcessor<LocalDate> selectedDateProcessor =
-            BehaviorProcessor.createDefault(LocalDate.now());
+            BehaviorProcessor.createDefault(LocalDate.now());                               //用户通过日期选择对话框选择的日期
 
     public ReportViewModel() {
         //计算初始日期范围
@@ -92,12 +92,12 @@ public class ReportViewModel extends ViewModel {
     }
 
     /**
-     * 获取用于显示收支来源的流水数据
+     * 获取展示的流水记录数据（不包含每月流水统计）
      *
      * @param db 数据库实例
-     * @return 用于显示收支来呀的流水数据
+     * @return 在指定日期范围内的流水记录数据
      */
-    public Flowable<List<AccountWithDetailModel>> getSourceDataFlowable(BookkeepingDb db) {
+    public Flowable<List<AccountWithDetailModel>> getRunningAccountDataFlowable(BookkeepingDb db) {
         return Flowable.combineLatest(
                         selectedDateRangeProcessor,
                         rangeTypeProcessor,

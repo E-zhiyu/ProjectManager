@@ -120,7 +120,7 @@ public class ReportActivity extends AppCompatActivity {
         binding.incomeSourceRecycler.setAdapter(incomeAdapter);
         ReportViewModel viewModel = new ViewModelProvider(this).get(ReportViewModel.class);
         BookkeepingDb db = BookkeepingDb.getInstance(this);
-        disposable.add(viewModel.getSourceDataFlowable(db)
+        disposable.add(viewModel.getRunningAccountDataFlowable(db)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(
