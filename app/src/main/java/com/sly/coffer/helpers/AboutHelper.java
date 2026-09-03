@@ -12,6 +12,10 @@ import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 public class AboutHelper {
     private static final String UPDATE_LOG_MD = "# v1.10.1\n" +
             "\n" +
+            "### 修改的内容\n" +
+            "\n" +
+            "- 修改预算列表内容的布局\n" +
+            "\n" +
             "### BUG修复\n" +
             "\n" +
             "- 修复通知规则和无障碍规则无法正确识别带有逗号的金额的BUG\n" +

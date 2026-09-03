@@ -22,7 +22,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@string/budget_name"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
             app:layout_constraintBottom_toTopOf="@id/start_date_text"
             app:layout_constraintEnd_toStartOf="@id/amount_text"
             app:layout_constraintHorizontal_bias="0"
@@ -37,7 +37,6 @@
             android:text="@string/start_date"
             android:textAppearance="?attr/textAppearanceBodyMedium"
             android:textColor="?attr/colorOutline"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/name_text" />
 
@@ -48,7 +47,7 @@
             android:layout_gravity="center_vertical"
             android:text="@string/amount"
             android:textAppearance="?attr/textAppearanceBodyMedium"
-            app:layout_constraintBottom_toTopOf="@id/reset_frequency_text"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed" />
@@ -58,10 +57,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/reset_frequency"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textAppearance="?attr/textAppearanceBodySmall"
             android:textColor="?attr/colorOutline"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/amount_text" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/start_date_text" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
