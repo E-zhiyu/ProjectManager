@@ -3,6 +3,7 @@ package com.sly.coffer.ui.others.selections.media;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.ItemKeyProvider;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.sly.coffer.ui.pages.main.bookkeeping.AccountMediaAdapter;
 
@@ -30,6 +31,6 @@ public class MediaIdKeyProvider extends ItemKeyProvider<Long> {
                 return i;
             }
         }
-        return androidx.recyclerview.widget.RecyclerView.NO_POSITION;
+        return RecyclerView.NO_POSITION;
     }
 }

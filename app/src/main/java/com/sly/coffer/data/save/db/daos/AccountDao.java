@@ -82,15 +82,35 @@ public interface AccountDao {
     Single<Optional<AccountWithDetailModel>> getAccountWithDetailSingleById(long accountId);
 
     /**
-     * 通过日期区间获取流水记录详情数据
+     * 通过日期区间获取流水记录的 ID
      *
      * @param start 起始日期（包含）
      * @param end   结束日期（不包含）
-     * @return 在日期范围内的流水数据详情
+     * @return 在日期范围内的流水记录 ID
+     */
+    @Query("SELECT accountId FROM accounts WHERE dateTime >= :start AND dateTime < :end")
+    Flowable<List<Long>> getAccountIdFlowableByDateRange(LocalDate start, LocalDate end);
+
+    /**
+     * 通过日期区间获取流水记录
+     *
+     * @param start 起始日期（包含）
+     * @param end   结束日期（不包含）
+     * @return 在日期范围内的流水记录
      */
     @Transaction
     @Query("SELECT * FROM accounts WHERE dateTime >= :start AND dateTime < :end")
     Flowable<List<AccountWithDetailModel>> getAccountWithDetailFlowableByDateRange(LocalDate start, LocalDate end);
+
+    /**
+     * 通过流水记录的 ID 获取流水记录数据
+     *
+     * @param ids 需要获取的流水记录的 ID 集合
+     * @return ID 在集合中的流水记录
+     */
+    @Transaction
+    @Query("SELECT * FROM accounts WHERE accountId IN (:ids)")
+    Flowable<List<AccountWithDetailModel>> getAccountWithDetailFlowableById(Set<Long> ids);
 
     /**
      * 获取数据库中储存的转出和转入账户

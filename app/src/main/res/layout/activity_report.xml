@@ -40,27 +40,42 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <com.google.android.material.button.MaterialSplitButton
-                android:id="@+id/date_select_split_btn"
-                android:layout_width="wrap_content"
+            <FrameLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp">
+                android:orientation="horizontal">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/date_select_btn"
-                    style="?attr/materialSplitButtonLeadingFilledStyle"
+                <com.google.android.material.button.MaterialSplitButton
+                    android:id="@+id/date_select_split_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/select_date"
-                    app:icon="@drawable/outline_calendar_month_24" />
+                    android:layout_marginStart="10dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/date_select_btn"
+                        style="?attr/materialSplitButtonLeadingFilledStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/select_date"
+                        app:icon="@drawable/outline_calendar_month_24" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/date_range_select_btn"
+                        style="?attr/materialSplitButtonIconFilledStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:icon="@drawable/outline_unfold_more_24" />
+                </com.google.android.material.button.MaterialSplitButton>
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/date_range_select_btn"
-                    style="?attr/materialSplitButtonIconFilledStyle"
+                    android:id="@+id/filter_btn"
+                    style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:icon="@drawable/outline_unfold_more_24" />
-            </com.google.android.material.button.MaterialSplitButton>
+                    android:layout_gravity="center_vertical|end"
+                    android:layout_marginEnd="10dp"
+                    app:icon="@drawable/outline_filter_alt_24" />
+            </FrameLayout>
 
             <!-- 日期范围卡片 -->
             <com.google.android.material.card.MaterialCardView
@@ -77,32 +92,53 @@
                     android:paddingTop="20dp"
                     android:paddingBottom="20dp">
 
-                    <!-- 日期范围文本 -->
+                    <!-- 日期范围种类 -->
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/date_range_text"
+                        android:id="@+id/date_range_type_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="@string/not_applicable"
-                        android:textAppearance="?attr/textAppearanceHeadline6"
-                        app:layout_constraintBottom_toTopOf="@id/date_range_title"
-                        app:layout_constraintEnd_toEndOf="@id/date_range_title"
-                        app:layout_constraintStart_toStartOf="@id/date_range_title"
+                        android:text="@string/date_range"
+                        android:textAppearance="?attr/textAppearanceHeadline5"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/date_range_layout"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <!-- 日期范围标题 -->
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/date_range_title"
+                    <!-- 起止日期布局 -->
+                    <LinearLayout
+                        android:id="@+id/date_range_layout"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:text="@string/date_range"
-                        android:textAppearance="?attr/textAppearanceBodyLarge"
-                        android:textColor="?attr/colorOutline"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="vertical"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/date_range_text" />
+                        app:layout_constraintStart_toEndOf="@id/date_range_type_text"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/start_date_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/date"
+                            android:textAppearance="?attr/textAppearanceTitleLarge" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/to_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/to"
+                            android:textAppearance="?attr/textAppearanceBodyMedium"
+                            android:textColor="?attr/colorOutline" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/end_date_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/date"
+                            android:textAppearance="?attr/textAppearanceTitleLarge" />
+                    </LinearLayout>
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -131,7 +167,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="@string/not_applicable"
-                        android:textAppearance="?attr/textAppearanceHeadline6"
+                        android:textAppearance="?attr/textAppearanceHeadline5"
                         app:layout_constraintBottom_toTopOf="@id/balance_title"
                         app:layout_constraintEnd_toStartOf="@id/income_and_expense_text"
                         app:layout_constraintStart_toStartOf="parent"
@@ -156,7 +192,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/not_applicable"
-                        android:textAppearance="?attr/textAppearanceHeadline6"
+                        android:textAppearance="?attr/textAppearanceHeadline5"
                         app:layout_constraintBottom_toTopOf="@id/income_and_expense_title"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@id/balance_text"

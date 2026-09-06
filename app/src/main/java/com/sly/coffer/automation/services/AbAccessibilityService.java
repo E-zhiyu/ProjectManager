@@ -196,7 +196,9 @@ public class AbAccessibilityService extends AccessibilityService {
                         allTextSet -> {
                             //提取金额
                             Double amount = null;
-                            final Pattern AMOUNT_PATTERN = Pattern.compile("\\D?(\\d+\\.?\\d{0,2})\\D?");
+                            final Pattern AMOUNT_PATTERN = Pattern.compile(
+                                    "\\D?(\\d{1,3}(?:,\\d{3})*(?:\\.\\d{1,2})?)\\D?"
+                            );
                             for (String text : allTextSet) {
                                 Matcher matcher = AMOUNT_PATTERN.matcher(text);
 
@@ -204,8 +206,11 @@ public class AbAccessibilityService extends AccessibilityService {
                                 if (matcher.matches()) {
                                     String amountStr = matcher.group(1);
                                     try {
-                                        amount = amountStr == null ? null : Double.parseDouble(amountStr);
-                                    } catch (NumberFormatException ignored) {
+                                        amount = Double.parseDouble(Objects.requireNonNull(amountStr)
+                                                .replace(",", "")
+                                        );
+                                    } catch (NumberFormatException e) {
+                                        Log.e(LogTags.AB_ACCESSIBILITY_SERVICE.n(), "无法将字符串转换为金额");
                                     }
                                     break;
                                 }

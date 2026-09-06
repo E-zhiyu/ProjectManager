@@ -10,7 +10,20 @@ import com.sly.coffer.R;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 
 public class AboutHelper {
-    private static final String UPDATE_LOG_MD = "# v1.10.0\n" +
+    private static final String UPDATE_LOG_MD = "# v1.10.1\n" +
+            "### 新增内容\n" +
+            "\n" +
+            "- 报表界面可以自由选择参与报表统计的流水记录\n" +
+            "\n" +
+            "### 修改的内容\n" +
+            "\n" +
+            "- 修改预算列表内容的布局\n" +
+            "\n" +
+            "### BUG修复\n" +
+            "\n" +
+            "- 修复通知规则和无障碍规则无法正确识别带有逗号的金额的BUG\n" +
+            "\n" +
+            "# v1.10.0\n" +
             "\n" +
             "### 新增内容\n" +
             "\n" +
@@ -23,10 +36,10 @@ public class AboutHelper {
             "- 优化部分场景的金额显示效果\n" +
             "- 通知捕获自动关闭的间隔由5分钟改为1天\n" +
             "- 通知捕获列表界面底部的卡片改为悬浮按钮\n" +
-            "- 修复收支面额较大时，报表卡片显示的数字会相互遮挡的BUG\n" +
             "\n" +
             "### BUG修复\n" +
             "\n" +
+            "- 修复收支面额较大时，报表卡片显示的数字会相互遮挡的BUG\n" +
             "- 修复无法自动重置预算的BUG\n" +
             "- 修复合并标签提示不完全的BUG\n" +
             "- 修复修改通知规则后会自动启用的BUG\n" +

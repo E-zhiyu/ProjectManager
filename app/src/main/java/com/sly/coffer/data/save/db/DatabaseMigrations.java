@@ -42,4 +42,12 @@ public class DatabaseMigrations {
             db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_pickedPages_packageName_activityName` ON `pickedPages` (`packageName`, `activityName`)");
         }
     };
+
+    //更新通知规则的正则表达式，使其能够捕获带千位分隔符的数字
+    static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("UPDATE notificationRules SET contentRegex = REPLACE(contentRegex, '(\\d+\\.?\\d{0,2})', '(\\d{1,3}(?:,\\d{3})*(?:\\.\\d{1,2})?)')");
+        }
+    };
 }
