@@ -3,6 +3,7 @@ package com.sly.coffer.ui.pages.report;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
@@ -24,6 +25,7 @@ import com.sly.coffer.auxiliary.enums.AccountType;
 import com.sly.coffer.auxiliary.enums.DateRangeType;
 import com.sly.coffer.auxiliary.classes.AmountProportionInfo;
 import com.sly.coffer.auxiliary.enums.KeyStrings;
+import com.sly.coffer.auxiliary.enums.LogTags;
 import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.entities.AccountEntity;
 import com.sly.coffer.data.save.db.entities.TagEntity;
@@ -73,6 +75,7 @@ public class ReportActivity extends AppCompatActivity {
 
         initViews();
         initLaunchers();
+        observeLiveData();
     }
 
     @Override
@@ -151,6 +154,8 @@ public class ReportActivity extends AppCompatActivity {
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         modelList -> {
+                            Log.d(LogTags.REPORT_ACTIVITY.n(), "流水数据更新");
+
                             //收入来源
                             List<AccountWithDetailModel> incomeModelList = modelList.stream()
                                     .filter(model -> model.getAccount().getType() == AccountType.INCOME.ordinal())
@@ -287,6 +292,37 @@ public class ReportActivity extends AppCompatActivity {
                     viewModel.updateIncludedAccountId(selectedIdSet);
                 }
         );
+    }
+
+    /**
+     * 观察 ViewModel 的 LiveData
+     */
+    private void observeLiveData() {
+        //日期范围种类
+        ReportViewModel reportViewModel = new ViewModelProvider(this).get(ReportViewModel.class);
+        reportViewModel.getRangeTypeLiveData().observe(this, type ->
+                binding.dateRangeTypeText.setText(type.getTitle())
+        );
+
+        //日期范围
+        reportViewModel.getDateRangeLiveData().observe(this, rangePair -> {
+            LocalDate start = rangePair.first;
+            LocalDate end = rangePair.second;
+
+            //切换文本可见性
+            int visibility;
+            if (start.isEqual(end)) {
+                visibility = View.GONE;
+            } else {
+                visibility = View.VISIBLE;
+            }
+            binding.toText.setVisibility(visibility);
+            binding.endDateText.setVisibility(visibility);
+
+            //设置文本内容
+            binding.startDateText.setText(start.format(CustomDateTimeFormatter.DATE_SHORT));
+            binding.endDateText.setText(end.format(CustomDateTimeFormatter.DATE_SHORT));
+        });
     }
 
     /**
@@ -456,7 +492,6 @@ public class ReportActivity extends AppCompatActivity {
 
                         //更换日期选择按钮的文本
                         binding.dateSelectBtn.setText(R.string.select_date);
-                        binding.dateRangeText.setText(DateRangeType.CUSTOM.getTitle());
                     }
             );
         }
@@ -498,15 +533,12 @@ public class ReportActivity extends AppCompatActivity {
         dateRangeSelectMenu.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.action_today) {
                 viewModel.updateRangeType(DateRangeType.THAT_DAY);
-                binding.dateRangeText.setText(DateRangeType.THAT_DAY.getTitle());
                 return true;
             } else if (item.getItemId() == R.id.action_this_month) {
                 viewModel.updateRangeType(DateRangeType.MONTH);
-                binding.dateRangeText.setText(DateRangeType.MONTH.getTitle());
                 return true;
             } else if (item.getItemId() == R.id.action_this_year) {
                 viewModel.updateRangeType(DateRangeType.YEAR);
-                binding.dateRangeText.setText(DateRangeType.YEAR.getTitle());
                 return true;
             } else if (item.getItemId() == R.id.action_custom) {
                 showDatePickerDialog(DateRangeType.CUSTOM);

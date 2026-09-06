@@ -92,32 +92,53 @@
                     android:paddingTop="20dp"
                     android:paddingBottom="20dp">
 
-                    <!-- 起始日期文本 -->
+                    <!-- 日期范围种类 -->
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/date_range_text"
+                        android:id="@+id/date_range_type_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="@string/date_range_day"
+                        android:text="@string/date_range"
                         android:textAppearance="?attr/textAppearanceHeadline5"
-                        app:layout_constraintBottom_toTopOf="@id/date_range_title"
-                        app:layout_constraintEnd_toEndOf="@id/date_range_title"
-                        app:layout_constraintStart_toStartOf="@id/date_range_title"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/date_range_layout"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <!-- 日期范围标题 -->
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/date_range_title"
+                    <!-- 起止日期布局 -->
+                    <LinearLayout
+                        android:id="@+id/date_range_layout"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:text="@string/date_range"
-                        android:textAppearance="?attr/textAppearanceBodyLarge"
-                        android:textColor="?attr/colorOutline"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="vertical"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/date_range_text" />
+                        app:layout_constraintStart_toEndOf="@id/date_range_type_text"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/start_date_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/date"
+                            android:textAppearance="?attr/textAppearanceTitleLarge" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/to_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:text="@string/to"
+                            android:textAppearance="?attr/textAppearanceBodyMedium"
+                            android:textColor="?attr/colorOutline" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/end_date_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/date"
+                            android:textAppearance="?attr/textAppearanceTitleLarge" />
+                    </LinearLayout>
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 

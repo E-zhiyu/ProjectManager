@@ -1,6 +1,8 @@
 package com.sly.coffer.auxiliary.enums;
 
 public enum LogTags {
+    REPORT_ACTIVITY("ReportActivity"),
+    REPORT_VIEW_MODEL("ReportViewModel"),
     AUTH_ACTIVITY("AuthActivity"),
     FULL_SCREEN_MEDIA_ACTIVITY("FullScreenMediaActivity"),
     FILE_HELPER("FileHelper"),

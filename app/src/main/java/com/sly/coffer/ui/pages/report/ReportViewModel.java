@@ -1,10 +1,15 @@
 package com.sly.coffer.ui.pages.report;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.sly.coffer.auxiliary.classes.CustomDateTimeFormatter;
 import com.sly.coffer.auxiliary.enums.DateRangeType;
+import com.sly.coffer.auxiliary.enums.LogTags;
 import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.entities.composite.AccountWithDetailModel;
 
@@ -12,6 +17,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -19,6 +25,8 @@ import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.processors.BehaviorProcessor;
 
 public class ReportViewModel extends ViewModel {
+    private final MutableLiveData<DateRangeType> rangeTypeLiveData = new MutableLiveData<>(DateRangeType.MONTH);
+    private final MutableLiveData<Pair<LocalDate, LocalDate>> dateRangeLiveData;
     private final BehaviorProcessor<DateRangeType> rangeTypeProcessor =
             BehaviorProcessor.createDefault(DateRangeType.MONTH);                           //用户通过下拉框选择的日期范围种类
     private final BehaviorProcessor<Pair<LocalDate, LocalDate>> selectedDateRangeProcessor; //用户通过日期选择对话框选择的日期范围
@@ -35,6 +43,15 @@ public class ReportViewModel extends ViewModel {
         Pair<LocalDate, LocalDate> defaultDateRangePair = new Pair<>(defaultStart, defaultEnd);
 
         selectedDateRangeProcessor = BehaviorProcessor.createDefault(defaultDateRangePair);  //用户选择的日期范围
+        dateRangeLiveData = new MutableLiveData<>(new Pair<>(defaultStart, defaultEnd));
+    }
+
+    public MutableLiveData<DateRangeType> getRangeTypeLiveData() {
+        return rangeTypeLiveData;
+    }
+
+    public MutableLiveData<Pair<LocalDate, LocalDate>> getDateRangeLiveData() {
+        return dateRangeLiveData;
     }
 
     public DateRangeType getRangeType() {
@@ -124,6 +141,9 @@ public class ReportViewModel extends ViewModel {
                         rangeTypeProcessor,
                         selectedDateProcessor,
                         (pair, type, selectedDate) -> {
+                            rangeTypeLiveData.postValue(type);
+                            Log.d(LogTags.REPORT_VIEW_MODEL.n(), "流水种类 : " + type.getTitle());
+
                             if (type != DateRangeType.CUSTOM) {
                                 LocalDate start, end;
                                 switch (type) {
@@ -147,14 +167,22 @@ public class ReportViewModel extends ViewModel {
                             }
                         }
                 )
-                .flatMap(dateRangePair ->
-                        db.accountDao().getAccountIdFlowableByDateRange(dateRangePair.first, dateRangePair.second)
-                )
+                .debounce(50, TimeUnit.MILLISECONDS)
+                .flatMap(dateRangePair -> {
+                    String log = String.format(
+                            Locale.getDefault(),
+                            "日期范围 : %s ~ %s",
+                            dateRangePair.first.format(CustomDateTimeFormatter.DATE_SHORT),
+                            dateRangePair.second.format(CustomDateTimeFormatter.DATE_SHORT)
+                    );
+                    Log.d(LogTags.REPORT_VIEW_MODEL.n(), "日期范围 : " + log);
+                    dateRangeLiveData.postValue(new Pair<>(dateRangePair.first, dateRangePair.second.plusDays(-1)));
+                    return db.accountDao().getAccountIdFlowableByDateRange(dateRangePair.first, dateRangePair.second);
+                })
                 .flatMap(idList -> {
                     includedAccountIdProcessor.onNext(new HashSet<>(idList));
                     return Flowable.just(idList);
-                })
-                .debounce(50, TimeUnit.MILLISECONDS);
+                });
     }
 
     /**
