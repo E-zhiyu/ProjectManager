@@ -204,7 +204,6 @@ public class RunningAccountSelectActivity extends AppCompatActivity {
                             return false;
                         }
                     }
-                    //TODO:解决有选中的内容时新增选中的内容会导致崩溃的BUG
 
                     @Override
                     public boolean canSelectMultiple() {

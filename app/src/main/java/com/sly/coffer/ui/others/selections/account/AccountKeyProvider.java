@@ -19,14 +19,12 @@ public class AccountKeyProvider extends ItemKeyProvider<Long> {
 
     @Override
     public Long getKey(int position) {
-        for (AccountUiModel model : adapter.getCurrentList()) {
-            if (model instanceof AccountUiModel.Item) {
-                return ((AccountUiModel.Item) model).entity.getAccountId();
-            } else if (model instanceof AccountUiModel.Separator) {
-                return -Math.abs((long) ((AccountUiModel.Separator) model).text.hashCode());
-            }
-        }
-        return null;
+        AccountUiModel model = adapter.getCurrentList().get(position);
+        if (model instanceof AccountUiModel.Item) {
+            return ((AccountUiModel.Item) model).entity.getAccountId();
+        } else if (model instanceof AccountUiModel.Separator) {
+            return -Math.abs((long) ((AccountUiModel.Separator) model).text.hashCode());
+        } else return null;
     }
 
     @Override
