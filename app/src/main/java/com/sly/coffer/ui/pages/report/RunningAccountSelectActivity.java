@@ -90,8 +90,6 @@ public class RunningAccountSelectActivity extends AppCompatActivity {
      * 初始化视图
      */
     private void initViews() {
-        initRecycler();
-
         //初始化搜索视图
         SearchHelper.initSearchComponents(
                 binding.remarkSearchBar,
@@ -155,14 +153,25 @@ public class RunningAccountSelectActivity extends AppCompatActivity {
             //TODO:
         });
         AppearanceHelper.attachMorphAnimation(binding.confirmBtn);
+
+        initRecycler();
     }
 
     /**
      * 初始化流水记录列表
      */
     private void initRecycler() {
-        //多选追踪器
+        //RecyclerView
         AccountSelectListAdapter adapter = new AccountSelectListAdapter();
+        binding.accountRecycler.setAdapter(adapter);
+        StickyHeaderItemDecoration<ViewHolderSeparatorTextChipBinding> decoration = new StickyHeaderItemDecoration<>(
+                adapter,
+                ViewHolderSeparatorTextChipBinding::inflate,
+                (binding1, data) -> binding1.separatorText.setText(data)
+        );
+        binding.accountRecycler.addItemDecoration(decoration);
+
+        //多选追踪器
         SelectionTracker<Long> selectionTracker = new SelectionTracker.Builder<>(
                 TagStrings.ACCOUNT_SELECTION.t(),
                 binding.accountRecycler,
@@ -176,9 +185,9 @@ public class RunningAccountSelectActivity extends AppCompatActivity {
                         if (key < 0) return false;
 
                         boolean isItem = false;
-                        List<AccountUiModel> snapshot = adapter.getCurrentList();
-                        for (int i = 0; i < snapshot.size(); i++) {
-                            AccountUiModel item = snapshot.get(i);
+                        List<AccountUiModel> currentList = adapter.getCurrentList();
+                        for (int i = 0; i < currentList.size(); i++) {
+                            AccountUiModel item = currentList.get(i);
                             if ((item instanceof AccountUiModel.Item) && ((AccountUiModel.Item) item).entity.getAccountId() == key) {
                                 isItem = true;
                                 break;
@@ -195,6 +204,7 @@ public class RunningAccountSelectActivity extends AppCompatActivity {
                             return false;
                         }
                     }
+                    //TODO:解决有选中的内容时新增选中的内容会导致崩溃的BUG
 
                     @Override
                     public boolean canSelectMultiple() {
@@ -202,21 +212,9 @@ public class RunningAccountSelectActivity extends AppCompatActivity {
                     }
                 }
         ).build();
-
-        //设置初始选择的数据
-        if (initBundle != null) {
-            long[] selectedIds = initBundle.getLongArray(KeyStrings.RUNNING_ID.v());
-            if (selectedIds != null) {
-                List<Long> selectedIdList = Arrays.stream(selectedIds)
-                        .boxed()
-                        .collect(Collectors.toList());
-                selectionTracker.setItemsSelected(selectedIdList, true);
-            }
-        }
-
-        //RecyclerView
         adapter.setSelectionTracker(selectionTracker);
-        binding.accountRecycler.setAdapter(adapter);
+
+        //初始化数据
         AccountFilterViewModel viewModel = new ViewModelProvider(this).get(AccountFilterViewModel.class);
         BookkeepingDb db = BookkeepingDb.getInstance(this);
         disposable.add(viewModel.loadAccountListDataFlowable(db)
@@ -228,16 +226,20 @@ public class RunningAccountSelectActivity extends AppCompatActivity {
                             binding.emptyText.setVisibility(visibility);
 
                             adapter.submitList(accountList);
+
+                            if (initBundle != null) {
+                                long[] selectedIds = initBundle.getLongArray(KeyStrings.RUNNING_ID.v());
+                                if (selectedIds != null) {
+                                    List<Long> selectedIdList = Arrays.stream(selectedIds)
+                                            .boxed()
+                                            .collect(Collectors.toList());
+                                    selectionTracker.setItemsSelected(selectedIdList, true);
+                                }
+                            }
                         },
                         e -> ExceptionHelper.showExceptionDialog(this, e)
                 )
         );
-        StickyHeaderItemDecoration<ViewHolderSeparatorTextChipBinding> decoration = new StickyHeaderItemDecoration<>(
-                adapter,
-                ViewHolderSeparatorTextChipBinding::inflate,
-                (binding1, data) -> binding1.separatorText.setText(data)
-        );
-        binding.accountRecycler.addItemDecoration(decoration);
     }
 
     /**

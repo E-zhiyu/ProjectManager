@@ -26,6 +26,7 @@ import com.sly.coffer.helpers.TextHelper;
 import com.sly.coffer.helpers.appearence.AppearanceHelper;
 import com.sly.coffer.ui.others.decoration.sticky.StickyHeaderAdapter;
 
+import java.util.List;
 import java.util.Locale;
 
 public class AccountSelectListAdapter extends ListAdapter<AccountUiModel, RecyclerView.ViewHolder>
@@ -95,13 +96,17 @@ public class AccountSelectListAdapter extends ListAdapter<AccountUiModel, Recycl
                 @Override
                 public Long getSelectionKey() {
                     int pos = getBindingAdapterPosition();
+                    if (pos == RecyclerView.NO_POSITION) return null;
 
-                    RecyclerView.Adapter<? extends RecyclerView.ViewHolder> adapter = getBindingAdapter();
-                    if (adapter instanceof AccountSelectListAdapter &&
-                            ((AccountSelectListAdapter) adapter).getCurrentList().get(pos) instanceof AccountUiModel.Item) {
-                        return (pos != RecyclerView.NO_POSITION && pos < getBindingAdapter().getItemCount()) ?
-                                ((AccountUiModel.Item) ((AccountSelectListAdapter) adapter).getCurrentList().get(pos)).entity.getAccountId() :
-                                null;
+                    if (getBindingAdapter() instanceof AccountSelectListAdapter) {
+                        List<AccountUiModel> currentList = ((AccountSelectListAdapter) getBindingAdapter()).getCurrentList();
+                        if (currentList.get(pos) instanceof AccountUiModel.Item) {
+                            return pos < getBindingAdapter().getItemCount() ?
+                                    ((AccountUiModel.Item) currentList.get(pos)).entity.getAccountId() :
+                                    null;
+                        }else {
+                            return null;
+                        }
                     } else {
                         return null;
                     }
@@ -110,12 +115,46 @@ public class AccountSelectListAdapter extends ListAdapter<AccountUiModel, Recycl
         }
     }
 
-    static class SeparatorViewHolder extends RecyclerView.ViewHolder {
+    public static class SeparatorViewHolder extends RecyclerView.ViewHolder {
         ViewHolderSeparatorTextChipBinding binding;
 
         public SeparatorViewHolder(@NonNull ViewHolderSeparatorTextChipBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
+        }
+
+        /**
+         * 为 Selection 库提供信息
+         *
+         * @return Selection 库的 Item 信息
+         */
+        public ItemDetailsLookup.ItemDetails<Long> getItemDetails() {
+            return new ItemDetailsLookup.ItemDetails<>() {
+                @Override
+                public int getPosition() {
+                    return getBindingAdapterPosition();
+                }
+
+                @Nullable
+                @Override
+                public Long getSelectionKey() {
+                    int pos = getBindingAdapterPosition();
+                    if (pos == RecyclerView.NO_POSITION) return null;
+
+                    if (getBindingAdapter() instanceof AccountSelectListAdapter) {
+                        List<AccountUiModel> currentList = ((AccountSelectListAdapter) getBindingAdapter()).getCurrentList();
+                        if (currentList.get(pos) instanceof AccountUiModel.Separator) {
+                            return pos < getBindingAdapter().getItemCount() ?
+                                    -Math.abs((long) ((AccountUiModel.Separator) currentList.get(pos)).text.hashCode()) :
+                                    null;
+                        } else {
+                            return null;
+                        }
+                    } else {
+                        return null;
+                    }
+                }
+            };
         }
     }
 
@@ -223,7 +262,7 @@ public class AccountSelectListAdapter extends ListAdapter<AccountUiModel, Recycl
 
             //选择状态
             itemHolder.binding.checkedText.setChecked(
-                    selectionTracker != null && selectionTracker.getSelection().contains(account.getAccountId())
+                    selectionTracker != null && selectionTracker.isSelected(account.getAccountId())
             );
 
             //获取流水数据

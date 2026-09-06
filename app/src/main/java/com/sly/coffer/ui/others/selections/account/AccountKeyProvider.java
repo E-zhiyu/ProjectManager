@@ -23,10 +23,10 @@ public class AccountKeyProvider extends ItemKeyProvider<Long> {
             if (model instanceof AccountUiModel.Item) {
                 return ((AccountUiModel.Item) model).entity.getAccountId();
             } else if (model instanceof AccountUiModel.Separator) {
-                return -(long) ((AccountUiModel.Separator) model).text.hashCode();
+                return -Math.abs((long) ((AccountUiModel.Separator) model).text.hashCode());
             }
         }
-        return 0L;
+        return null;
     }
 
     @Override
@@ -41,7 +41,7 @@ public class AccountKeyProvider extends ItemKeyProvider<Long> {
                 return i;
             } else if (key < 0 &&
                     (item instanceof AccountUiModel.Separator) &&
-                    ((AccountUiModel.Separator) item).text.hashCode() == key
+                    ((AccountUiModel.Separator) item).text.hashCode() == -key
             ) {
                 return i;
             }

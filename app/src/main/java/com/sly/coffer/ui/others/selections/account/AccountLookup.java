@@ -25,6 +25,8 @@ public class AccountLookup extends ItemDetailsLookup<Long> {
             RecyclerView.ViewHolder holder = recyclerView.getChildViewHolder(view);
             if (holder instanceof AccountSelectListAdapter.ItemViewHolder) {
                 return ((AccountSelectListAdapter.ItemViewHolder) holder).getItemDetails();
+            } else if (holder instanceof AccountSelectListAdapter.SeparatorViewHolder) {
+                return ((AccountSelectListAdapter.SeparatorViewHolder) holder).getItemDetails();
             }
         }
         return null;
