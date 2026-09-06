@@ -1,5 +1,7 @@
 package com.sly.coffer.ui.pages.report;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -13,6 +15,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.selection.Selection;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -44,6 +47,7 @@ import com.sly.coffer.ui.pages.main.bookkeeping.AccountListAdapter;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,6 +62,7 @@ public class RunningAccountSelectActivity extends AppCompatActivity {
     private Bundle initBundle = null;                                           //包含初始数据的数据包
     private BackPressedCallbackHelper backHelper;                               //返回手势拦截器
     private BackPressedCallbackHelper.BackHandler searchBackHandler;            //搜索返回处理器
+    private SelectionTracker<Long> selectionTracker;                            //选择追踪器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,7 +155,20 @@ public class RunningAccountSelectActivity extends AppCompatActivity {
 
         //确认按钮
         binding.confirmBtn.setOnClickListener(v -> {
-            //TODO:
+            Selection<Long> selection = selectionTracker.getSelection();
+            long[] ids = new long[selection.size()];
+            Iterator<Long> iterator = selection.iterator();
+            int index = 0;
+            while (iterator.hasNext()) {
+                ids[index++] = iterator.next();
+            }
+
+            Intent result = new Intent();
+            Bundle bundle = new Bundle();
+            bundle.putLongArray(KeyStrings.RUNNING_ID.v(), ids);
+            result.putExtras(bundle);
+            setResult(Activity.RESULT_OK, result);
+            finish();
         });
         AppearanceHelper.attachMorphAnimation(binding.confirmBtn);
 
@@ -172,7 +190,7 @@ public class RunningAccountSelectActivity extends AppCompatActivity {
         binding.accountRecycler.addItemDecoration(decoration);
 
         //多选追踪器
-        SelectionTracker<Long> selectionTracker = new SelectionTracker.Builder<>(
+        selectionTracker = new SelectionTracker.Builder<>(
                 TagStrings.ACCOUNT_SELECTION.t(),
                 binding.accountRecycler,
                 new AccountKeyProvider(adapter),

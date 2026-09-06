@@ -2,7 +2,6 @@ package com.sly.coffer.ui.pages.report;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.sly.coffer.auxiliary.enums.DateRangeType;
@@ -20,7 +19,6 @@ import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.processors.BehaviorProcessor;
 
 public class ReportViewModel extends ViewModel {
-    private final MutableLiveData<Pair<LocalDate, LocalDate>> currentDateRangeLiveData;
     private final BehaviorProcessor<DateRangeType> rangeTypeProcessor =
             BehaviorProcessor.createDefault(DateRangeType.MONTH);                           //用户通过下拉框选择的日期范围种类
     private final BehaviorProcessor<Pair<LocalDate, LocalDate>> selectedDateRangeProcessor; //用户通过日期选择对话框选择的日期范围
@@ -37,16 +35,6 @@ public class ReportViewModel extends ViewModel {
         Pair<LocalDate, LocalDate> defaultDateRangePair = new Pair<>(defaultStart, defaultEnd);
 
         selectedDateRangeProcessor = BehaviorProcessor.createDefault(defaultDateRangePair);  //用户选择的日期范围
-        currentDateRangeLiveData = new MutableLiveData<>(defaultDateRangePair);             //与当前数据相符的日期范围 LiveData
-    }
-
-    /**
-     * 获取与当前数据匹配的日期范围（需要先订阅收支来呀数据）
-     *
-     * @return 一对日期，表示数据的日期范围
-     */
-    public MutableLiveData<Pair<LocalDate, LocalDate>> getCurrentDateRangeLiveData() {
-        return currentDateRangeLiveData;
     }
 
     public DateRangeType getRangeType() {
@@ -159,10 +147,9 @@ public class ReportViewModel extends ViewModel {
                             }
                         }
                 )
-                .flatMap(dateRangePair -> {
-                    currentDateRangeLiveData.postValue(new Pair<>(dateRangePair.first, dateRangePair.second.plusDays(-1)));
-                    return db.accountDao().getAccountIdFlowableByDateRange(dateRangePair.first, dateRangePair.second);
-                })
+                .flatMap(dateRangePair ->
+                        db.accountDao().getAccountIdFlowableByDateRange(dateRangePair.first, dateRangePair.second)
+                )
                 .flatMap(idList -> {
                     includedAccountIdProcessor.onNext(new HashSet<>(idList));
                     return Flowable.just(idList);

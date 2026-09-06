@@ -94,29 +94,16 @@
 
                     <!-- 起始日期文本 -->
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/start_date_text"
+                        android:id="@+id/date_range_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="@string/not_applicable"
-                        android:textAppearance="?attr/textAppearanceHeadline5"
-                        app:layout_constraintBottom_toTopOf="@id/end_date_text"
-                        app:layout_constraintEnd_toEndOf="@id/date_range_title"
-                        app:layout_constraintStart_toStartOf="@id/date_range_title"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <!-- 结束日期文本 -->
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/end_date_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="@string/not_applicable"
+                        android:text="@string/date_range_day"
                         android:textAppearance="?attr/textAppearanceHeadline5"
                         app:layout_constraintBottom_toTopOf="@id/date_range_title"
                         app:layout_constraintEnd_toEndOf="@id/date_range_title"
                         app:layout_constraintStart_toStartOf="@id/date_range_title"
-                        app:layout_constraintTop_toBottomOf="@id/start_date_text" />
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <!-- 日期范围标题 -->
                     <com.google.android.material.textview.MaterialTextView
@@ -130,7 +117,7 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/end_date_text" />
+                        app:layout_constraintTop_toBottomOf="@id/date_range_text" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 

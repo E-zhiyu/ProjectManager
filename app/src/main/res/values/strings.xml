@@ -23,9 +23,9 @@
     <string name="tag_group">标签分组</string>
     <string name="select_tag">选择标签</string>
     <string name="group_name">分组名称</string>
-    <string name="date_range_day">这一天</string>
+    <string name="date_range_day">一天</string>
     <string name="date_range_month">一个月</string>
-    <string name="date_range_year">一整年</string>
+    <string name="date_range_year">一年</string>
     <string name="percentage_100">100%</string>
     <string name="settings">设置</string>
     <string name="theme_mode">主题模式</string>

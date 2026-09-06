@@ -1,10 +1,13 @@
 package com.sly.coffer.ui.pages.report;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
@@ -36,6 +39,7 @@ import org.jetbrains.annotations.Contract;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -51,6 +55,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class ReportActivity extends AppCompatActivity {
     private ActivityReportBinding binding;  //绑定的 XML 布局
     private final CompositeDisposable disposable = new CompositeDisposable();
+    private ActivityResultLauncher<Intent> filterLauncher;  //启动流水记录过滤界面的启动器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +72,7 @@ public class ReportActivity extends AppCompatActivity {
         });
 
         initViews();
-        observeLiveData();
+        initLaunchers();
     }
 
     @Override
@@ -112,7 +117,7 @@ public class ReportActivity extends AppCompatActivity {
 
             Intent intent = new Intent(this, RunningAccountSelectActivity.class);
             intent.putExtras(bundle);
-            startActivity(intent);
+            filterLauncher.launch(intent);
         });
         AppearanceHelper.attachMorphAnimation(binding.filterBtn);
 
@@ -259,26 +264,29 @@ public class ReportActivity extends AppCompatActivity {
     }
 
     /**
-     * 观察 ViewModel 中的 LiveData
+     * 初始化界面启动器
      */
-    private void observeLiveData() {
-        ReportViewModel reportViewModel = new ViewModelProvider(this).get(ReportViewModel.class);
-        reportViewModel.getCurrentDateRangeLiveData().observe(this, rangePair -> {
-            if (rangePair == null) {
-                binding.startDateText.setText(R.string.not_applicable);
-                binding.endDateText.setText(R.string.not_applicable);
-                return;
-            }
+    private void initLaunchers() {
+        filterLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    int resultCode = result.getResultCode();
+                    if (resultCode != Activity.RESULT_OK || result.getData() == null || result.getData().getExtras() == null) {
+                        return;
+                    }
 
-            if (!rangePair.first.isEqual(rangePair.second)) {
-                binding.startDateText.setText(rangePair.first.format(CustomDateTimeFormatter.LOCAL_DATE));
-                binding.endDateText.setText(rangePair.second.format(CustomDateTimeFormatter.LOCAL_DATE));
-                binding.endDateText.setVisibility(View.VISIBLE);
-            } else {
-                binding.startDateText.setText(rangePair.first.format(CustomDateTimeFormatter.LOCAL_DATE));
-                binding.endDateText.setVisibility(View.GONE);
-            }
-        });
+                    long[] selectedIds = result.getData().getExtras().getLongArray(KeyStrings.RUNNING_ID.v());
+                    if (selectedIds == null) {
+                        return;
+                    }
+
+                    Set<Long> selectedIdSet = Arrays.stream(selectedIds)
+                            .boxed()
+                            .collect(Collectors.toSet());
+                    ReportViewModel viewModel = new ViewModelProvider(this).get(ReportViewModel.class);
+                    viewModel.updateIncludedAccountId(selectedIdSet);
+                }
+        );
     }
 
     /**
@@ -448,6 +456,7 @@ public class ReportActivity extends AppCompatActivity {
 
                         //更换日期选择按钮的文本
                         binding.dateSelectBtn.setText(R.string.select_date);
+                        binding.dateRangeText.setText(DateRangeType.CUSTOM.getTitle());
                     }
             );
         }
@@ -489,12 +498,15 @@ public class ReportActivity extends AppCompatActivity {
         dateRangeSelectMenu.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.action_today) {
                 viewModel.updateRangeType(DateRangeType.THAT_DAY);
+                binding.dateRangeText.setText(DateRangeType.THAT_DAY.getTitle());
                 return true;
             } else if (item.getItemId() == R.id.action_this_month) {
                 viewModel.updateRangeType(DateRangeType.MONTH);
+                binding.dateRangeText.setText(DateRangeType.MONTH.getTitle());
                 return true;
             } else if (item.getItemId() == R.id.action_this_year) {
                 viewModel.updateRangeType(DateRangeType.YEAR);
+                binding.dateRangeText.setText(DateRangeType.YEAR.getTitle());
                 return true;
             } else if (item.getItemId() == R.id.action_custom) {
                 showDatePickerDialog(DateRangeType.CUSTOM);
