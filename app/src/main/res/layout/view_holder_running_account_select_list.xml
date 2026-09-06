@@ -10,15 +10,26 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingStart="15dp"
+        android:paddingStart="10dp"
         android:paddingTop="10dp"
         android:paddingEnd="15dp"
         android:paddingBottom="10dp">
+
+        <androidx.appcompat.widget.AppCompatCheckedTextView
+            android:id="@+id/checked_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableStart="?android:attr/listChoiceIndicatorMultiple"
+            android:elevation="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/remark_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@string/remark"
@@ -26,7 +37,7 @@
             app:layout_constraintBottom_toTopOf="@+id/type_datetime_text"
             app:layout_constraintEnd_toStartOf="@id/amount_text"
             app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/checked_text"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed" />
 
@@ -34,11 +45,12 @@
             android:id="@+id/type_datetime_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
             android:text="@string/date_time"
             android:textAppearance="?attr/textAppearanceBodyMedium"
             android:textColor="?attr/colorOutline"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/checked_text"
             app:layout_constraintTop_toBottomOf="@id/remark_text" />
 
         <com.google.android.material.textview.MaterialTextView

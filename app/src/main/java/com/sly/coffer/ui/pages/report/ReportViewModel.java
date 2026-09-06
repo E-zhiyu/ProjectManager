@@ -61,6 +61,10 @@ public class ReportViewModel extends ViewModel {
         return selectedDateRangeProcessor.getValue();
     }
 
+    public BehaviorProcessor<Set<Long>> getIncludedAccountIdProcessor() {
+        return includedAccountIdProcessor;
+    }
+
     /**
      * 更新日期范围种类
      *

@@ -1,5 +1,6 @@
 package com.sly.coffer.ui.pages.report;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -19,6 +20,7 @@ import com.sly.coffer.auxiliary.classes.CustomDateTimeFormatter;
 import com.sly.coffer.auxiliary.enums.AccountType;
 import com.sly.coffer.auxiliary.enums.DateRangeType;
 import com.sly.coffer.auxiliary.classes.AmountProportionInfo;
+import com.sly.coffer.auxiliary.enums.KeyStrings;
 import com.sly.coffer.data.save.db.BookkeepingDb;
 import com.sly.coffer.data.save.db.entities.AccountEntity;
 import com.sly.coffer.data.save.db.entities.TagEntity;
@@ -39,6 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -94,6 +97,24 @@ public class ReportActivity extends AppCompatActivity {
                 showDateRangeSelectPopupMenu(materialButton);
             }
         });
+
+        //流水记录筛选按钮
+        binding.filterBtn.setOnClickListener(view -> {
+            Bundle bundle = new Bundle();
+            ReportViewModel viewModel = new ViewModelProvider(this).get(ReportViewModel.class);
+            Set<Long> selectedIdSet = viewModel.getIncludedAccountIdProcessor().getValue();
+            if (selectedIdSet != null) {
+                long[] selectedIds = selectedIdSet.stream()
+                        .mapToLong(l -> l)
+                        .toArray();
+                bundle.putLongArray(KeyStrings.RUNNING_ID.v(), selectedIds);
+            }
+
+            Intent intent = new Intent(this, RunningAccountSelectActivity.class);
+            intent.putExtras(bundle);
+            startActivity(intent);
+        });
+        AppearanceHelper.attachMorphAnimation(binding.filterBtn);
 
         //日期范围和金额卡片
         AppearanceHelper.setRadius(

@@ -40,27 +40,42 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <com.google.android.material.button.MaterialSplitButton
-                android:id="@+id/date_select_split_btn"
-                android:layout_width="wrap_content"
+            <FrameLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp">
+                android:orientation="horizontal">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/date_select_btn"
-                    style="?attr/materialSplitButtonLeadingFilledStyle"
+                <com.google.android.material.button.MaterialSplitButton
+                    android:id="@+id/date_select_split_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/select_date"
-                    app:icon="@drawable/outline_calendar_month_24" />
+                    android:layout_marginStart="10dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/date_select_btn"
+                        style="?attr/materialSplitButtonLeadingFilledStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/select_date"
+                        app:icon="@drawable/outline_calendar_month_24" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/date_range_select_btn"
+                        style="?attr/materialSplitButtonIconFilledStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:icon="@drawable/outline_unfold_more_24" />
+                </com.google.android.material.button.MaterialSplitButton>
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/date_range_select_btn"
-                    style="?attr/materialSplitButtonIconFilledStyle"
+                    android:id="@+id/filter_btn"
+                    style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:icon="@drawable/outline_unfold_more_24" />
-            </com.google.android.material.button.MaterialSplitButton>
+                    android:layout_gravity="center_vertical|end"
+                    android:layout_marginEnd="10dp"
+                    app:icon="@drawable/outline_filter_alt_24" />
+            </FrameLayout>
 
             <!-- 日期范围卡片 -->
             <com.google.android.material.card.MaterialCardView

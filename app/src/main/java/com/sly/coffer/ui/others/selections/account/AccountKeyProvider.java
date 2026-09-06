@@ -1,0 +1,51 @@
+package com.sly.coffer.ui.others.selections.account;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.selection.ItemKeyProvider;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.sly.coffer.data.save.db.entities.composite.ui.AccountUiModel;
+import com.sly.coffer.ui.pages.report.AccountSelectListAdapter;
+
+import java.util.List;
+
+public class AccountKeyProvider extends ItemKeyProvider<Long> {
+    private final AccountSelectListAdapter adapter;
+
+    public AccountKeyProvider(AccountSelectListAdapter adapter) {
+        super(SCOPE_MAPPED);
+        this.adapter = adapter;
+    }
+
+    @Override
+    public Long getKey(int position) {
+        for (AccountUiModel model : adapter.getCurrentList()) {
+            if (model instanceof AccountUiModel.Item) {
+                return ((AccountUiModel.Item) model).entity.getAccountId();
+            } else if (model instanceof AccountUiModel.Separator) {
+                return -(long) ((AccountUiModel.Separator) model).text.hashCode();
+            }
+        }
+        return 0L;
+    }
+
+    @Override
+    public int getPosition(@NonNull Long key) {
+        List<AccountUiModel> currentList = adapter.getCurrentList();
+        for (int i = 0; i < currentList.size(); i++) {
+            AccountUiModel item = currentList.get(i);
+            if (key >= 0 &&
+                    (item instanceof AccountUiModel.Item) &&
+                    ((AccountUiModel.Item) item).entity.getAccountId() == key
+            ) {
+                return i;
+            } else if (key < 0 &&
+                    (item instanceof AccountUiModel.Separator) &&
+                    ((AccountUiModel.Separator) item).text.hashCode() == key
+            ) {
+                return i;
+            }
+        }
+        return RecyclerView.NO_POSITION;
+    }
+}
