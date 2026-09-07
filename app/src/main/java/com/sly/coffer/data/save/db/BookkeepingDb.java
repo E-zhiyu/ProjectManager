@@ -137,7 +137,7 @@ public abstract class BookkeepingDb extends RoomDatabase {
                     AccountType.EXPENSE.ordinal(),
                     "com.tencent.mm",
                     "微信支付",
-                    "已支付.(\\d+\\.?\\d{0,2})",
+                    "已支付.(\\d+(?:,\\d{3})*(?:\\.\\d{1,2})?)",
                     1
             );
             notificationRuleDao().insertNotificationRule(weChatPay);
@@ -146,7 +146,7 @@ public abstract class BookkeepingDb extends RoomDatabase {
                     AccountType.EXPENSE.ordinal(),
                     "com.eg.android.AlipayGphone",
                     "交易提醒",
-                    "你有一笔(\\d+\\.?\\d{0,2})元的支出",
+                    "你有一笔(\\d+(?:,\\d{3})*(?:\\.\\d{1,2})?)元的支出",
                     1
             );
             notificationRuleDao().insertNotificationRule(aliPay);

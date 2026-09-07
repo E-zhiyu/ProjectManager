@@ -151,7 +151,7 @@ public class CapturedNotificationRuleInputActivity extends AppCompatActivity {
                                 int groupPos = viewModel.getGroupPos();
 
                                 //金额选择 ChipGroup
-                                Pattern amountPattern = Pattern.compile("\\d{1,3}(?:,\\d{3})*(?:\\.\\d{1,2})?");
+                                Pattern amountPattern = Pattern.compile("(\\d+(?:,\\d{3})*(?:\\.\\d{1,2})?)");
                                 Matcher matcher = amountPattern.matcher(content);
                                 int i = 1;
                                 binding.amountSelectChipGroup.removeAllViews();
@@ -393,8 +393,8 @@ public class CapturedNotificationRuleInputActivity extends AppCompatActivity {
                 .collect(Collectors.toList());
 
         //生成通知内容正则表达式
-        final String REGEX = "\\d{1,3}(?:,\\d{3})*(?:\\.\\d{1,2})?";
-        final String REPLACEMENT = "(\\\\d{1,3}(?:,\\\\d{3})*(?:\\\\.\\\\d{1,2})?)";
+        final String REGEX = "\\d+(?:,\\d{3})*(?:\\.\\d{1,2})?";
+        final String REPLACEMENT = "(\\\\d+(?:,\\\\d{3})*(?:\\\\.\\\\d{1,2})?)";
         String contentRegex = TextHelper.removeRegexChar(notification.getContent())
                 .replaceAll(REGEX, REPLACEMENT);
 

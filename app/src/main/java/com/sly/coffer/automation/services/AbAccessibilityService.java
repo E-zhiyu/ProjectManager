@@ -197,7 +197,7 @@ public class AbAccessibilityService extends AccessibilityService {
                             //提取金额
                             Double amount = null;
                             final Pattern AMOUNT_PATTERN = Pattern.compile(
-                                    "\\D?(\\d{1,3}(?:,\\d{3})*(?:\\.\\d{1,2})?)\\D?"
+                                    "\\D?(\\d+(?:,\\d{3})*(?:\\.\\d{1,2})?)\\D?"
                             );
                             for (String text : allTextSet) {
                                 Matcher matcher = AMOUNT_PATTERN.matcher(text);

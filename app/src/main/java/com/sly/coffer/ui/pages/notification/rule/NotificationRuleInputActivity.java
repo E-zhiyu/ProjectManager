@@ -315,7 +315,7 @@ public class NotificationRuleInputActivity extends AppCompatActivity {
         binding.regexLayout.setEndIconOnClickListener(v -> {
             int cursorPosition = binding.regexInput.getSelectionStart();
             Editable editable = binding.regexInput.getEditableText();
-            final String INSERT_REGEX = "(\\d{1,3}(?:,\\d{3})*(?:\\.\\d{1,2})?)";
+            final String INSERT_REGEX = "(\\d+(?:,\\d{3})*(?:\\.\\d{1,2})?)";
 
             //在光标位置插入文本
             editable.insert(cursorPosition, INSERT_REGEX);
