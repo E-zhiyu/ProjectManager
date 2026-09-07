@@ -3,6 +3,8 @@ package com.sly.coffer.helpers.file;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -16,6 +18,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 
 public class MediaHelper {
     /**
@@ -120,6 +123,61 @@ public class MediaHelper {
                 resolver.delete(itemUri, null, null);
                 return Observable.error(e);
             }
+        });
+    }
+
+    /**
+     * 根据图片的 Uri 判断其是否为 HDR 图片
+     *
+     * @param context  上下文
+     * @param imageUri 图片的 Uri (例如 content://... 或 file://...)
+     * @return true 表示为 HDR 图片（包含 GainMap），false 表示否或系统不支持
+     */
+    public static Single<Boolean> isHdrImage(Context context, Uri imageUri) {
+        return Single.fromCallable(() -> {
+            // GainMap API 是在 Android 14 (API 34) 引入的，低于此版本的系统无法原生解析 Ultra HDR 的增益图
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                return false;
+            }
+
+            if (imageUri == null) {
+                return false;
+            }
+
+            InputStream inputStream = null;
+            Bitmap bitmap = null;
+            try {
+                // 打开 Uri 输入流
+                inputStream = context.getContentResolver().openInputStream(imageUri);
+                if (inputStream == null) {
+                    return false;
+                }
+
+                // 配置解码选项：通过降采样（inSampleSize）减少内存占用
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inSampleSize = 4; // 缩小为原图的 1/4 解码，足够读取 HDR 元数据/GainMap
+
+                // 解码得到 Bitmap
+                bitmap = BitmapFactory.decodeStream(inputStream, null, options);
+
+                // 判断 Bitmap 是否包含 Ultra HDR 的增益图 (Gainmap)
+                if (bitmap != null && bitmap.hasGainmap()) {
+                    return true;
+                }
+            } finally {
+                // 及时释放资源
+                if (bitmap != null) {
+                    bitmap.recycle();
+                }
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+
+            return false;
         });
     }
 }

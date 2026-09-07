@@ -10,7 +10,13 @@ import com.sly.coffer.R;
 import com.sly.coffer.ui.others.dialogs.MarkdownDialogBuilder;
 
 public class AboutHelper {
-    private static final String UPDATE_LOG_MD = "# v1.10.1\n" +
+    private static final String UPDATE_LOG_MD = "# v1.10.2\n" +
+            "\n" +
+            "### 新增内容\n" +
+            "\n" +
+            "- 支持显示图片的HDR效果\n" +
+            "\n" +
+            "# v1.10.1\n" +
             "### 新增内容\n" +
             "\n" +
             "- 报表界面可以自由选择参与报表统计的流水记录\n" +

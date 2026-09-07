@@ -11,7 +11,38 @@
         android:id="@+id/view_pager_2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:transitionName="account_media" />
+        android:transitionName="paragraph_media" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/hdr_text_card"
+        style="@style/MediumRadiusCardStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="100dp"
+        android:backgroundTint="@color/gray_translucent"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="10dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="5dp">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/separator_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/HDR"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="@color/mdtp_white" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.button.MaterialButtonGroup
         android:id="@+id/btn_group"
@@ -24,22 +55,22 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/save_media_btn"
-            style="?attr/materialIconButtonStyle"
+            style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
             android:backgroundTint="@color/gray_translucent"
-            android:contentDescription="@string/save_picture_btn"
+            android:contentDescription="@string/btn_save"
             app:icon="@drawable/outline_download_24"
             app:iconTint="@color/mdtp_white" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/share_media_btn"
-            style="?attr/materialIconButtonStyle"
+            style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/gray_translucent"
-            android:contentDescription="@string/share_picture_btn"
+            android:contentDescription="@string/btn_share"
             app:icon="@drawable/outline_share_24"
             app:iconTint="@color/mdtp_white" />
     </com.google.android.material.button.MaterialButtonGroup>
