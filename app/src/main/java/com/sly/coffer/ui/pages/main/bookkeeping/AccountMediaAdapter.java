@@ -18,9 +18,11 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.sly.coffer.R;
+import com.sly.coffer.auxiliary.enums.DirectoryPaths;
 import com.sly.coffer.auxiliary.interfaces.adapter.ViewHolderListener;
 import com.sly.coffer.data.save.db.entities.MediaEntity;
 import com.sly.coffer.databinding.ViewHolderMediaBinding;
+import com.sly.coffer.helpers.file.FileHelper;
 
 import java.util.List;
 
@@ -214,7 +216,7 @@ public class AccountMediaAdapter extends ListAdapter<MediaEntity, AccountMediaAd
 
         //通过 Glide 显示图片
         Glide.with(holder.itemView.getContext())
-                .load(media.getFileUri())
+                .load(FileHelper.redirectFileFromUri(media.getFileUri(), DirectoryPaths.MEDIA, holder.itemView.getContext()))
                 .apply(glideOptions)
                 .into(holder.binding.imageView);
 

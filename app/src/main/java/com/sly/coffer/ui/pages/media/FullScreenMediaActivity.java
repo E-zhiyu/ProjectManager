@@ -25,6 +25,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.sly.coffer.auxiliary.enums.DirectoryPaths;
 import com.sly.coffer.databinding.ActivityFullScreenMediaBinding;
 import com.sly.coffer.auxiliary.enums.LogTags;
 import com.sly.coffer.helpers.ExceptionHelper;
@@ -124,13 +125,19 @@ public class FullScreenMediaActivity extends AppCompatActivity {
                 //设置 HDR 显示效果
                 if (position >= 0 && position < mediaUriList.size()) {
                     Uri mediaUri = mediaUriList.get(position);
-                    disposable.add(MediaHelper.isHdrImage(FullScreenMediaActivity.this, mediaUri)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(
-                                    isHdr -> setHDR(isHdr),
-                                    e -> ExceptionHelper.showExceptionDialog(FullScreenMediaActivity.this, e)
-                            )
+                    disposable.add(MediaHelper.isHdrImage(
+                                            FullScreenMediaActivity.this,
+                                            FileHelper.redirectFileFromUri(mediaUri, DirectoryPaths.MEDIA, FullScreenMediaActivity.this)
+                                    )
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(
+                                            isHdr -> setHDR(isHdr),
+                                            e -> {
+                                                ExceptionHelper.showExceptionDialog(FullScreenMediaActivity.this, e);
+                                                setHDR(false);
+                                            }
+                                    )
                     );
                 }
             }
