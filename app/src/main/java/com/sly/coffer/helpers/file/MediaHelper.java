@@ -11,11 +11,23 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.webkit.MimeTypeMap;
 
+import androidx.annotation.NonNull;
+
+import com.sly.coffer.auxiliary.classes.MediaFileInfo;
+import com.sly.coffer.auxiliary.enums.DirectoryPaths;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
@@ -179,5 +191,57 @@ public class MediaHelper {
 
             return false;
         });
+    }
+
+    /**
+     * 读取媒体文件夹中的文件
+     *
+     * @param context 上下文
+     * @return 读取到的媒体文件信息
+     */
+    @NonNull
+    public static List<MediaFileInfo> readMediaDir(Context context) throws IOException {
+        List<MediaFileInfo> result = new ArrayList<>();
+        File mediaDir = DirectoryPaths.MEDIA.getDir(context);
+        if (mediaDir == null || !mediaDir.exists() || !mediaDir.isDirectory()) {
+            return result;
+        }
+
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+
+        // 读取目录下的图片文件
+        File[] childFiles = mediaDir.listFiles((dir, name) -> {
+            String extension = FileHelper.getFileExtension(name);
+            if (extension == null) {
+                return false;
+            }
+            // 根据扩展名查询 MIME 类型
+            String mimeType = mimeTypeMap.getMimeTypeFromExtension(extension.toLowerCase(Locale.ROOT));
+            // 判断 MIME 类型是否为 image/*
+            return mimeType != null && mimeType.startsWith("image/");
+        });
+
+        if (childFiles == null) {
+            return result;
+        }
+
+        // 解析文件信息
+        for (File file : childFiles) {
+            Path path = file.toPath();
+            // 一次性获取文件大小与时间信息
+            BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
+
+            long size = attrs.size();
+            // 优先获取创建时间，若不支持则降级为最后修改时间
+            FileTime creationTime = attrs.creationTime();
+            long creationTimestamp = (creationTime != null) ? creationTime.toMillis() : attrs.lastModifiedTime().toMillis();
+
+            String fileName = file.getName();
+            Uri uri = Uri.fromFile(file);
+
+            result.add(new MediaFileInfo(uri, size, fileName, creationTimestamp));
+        }
+
+        return result;
     }
 }

@@ -1,7 +1,7 @@
 package com.sly.coffer.auxiliary.enums;
 
 public enum TransitionName {
-    ACCOUNT_MEDIA("account_media");
+    FULLSCREEN_MEDIA("fullscreen_media");
     private final String s;
 
     TransitionName(String s) {

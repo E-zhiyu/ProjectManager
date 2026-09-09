@@ -17,9 +17,43 @@ public class TextHelper {
     private static final String[] ENGLISH_SUFFIXES = {
             "", "K", "M", "B", "T"  // Thousand, Million, Billion, Trillion
     };
+    //正则表达式中需要转义的字符
     private static final String[] REGEX_CHAR = {
             "?", "+", "*", "(", ")", "{", "}", "$", "^"
     };
+    //文件大小符号
+    private static final String[] FILE_SIZE_CHAR = {
+            "", "K", "M", "G", "T"
+    };
+
+    /**
+     * 将单位为 B 的文件大小简写为字符串
+     *
+     * @param fileSize 要转换的Double值
+     * @return 简写后的字符串
+     */
+    @NonNull
+    public static String shortenFileSize(long fileSize) {
+        double absValue = Math.abs(fileSize);
+        int divisor = 1000;
+
+        // 计算应该使用哪个单位
+        int index = 0;
+        double scaledValue = absValue;
+
+        while (scaledValue >= divisor && index < FILE_SIZE_CHAR.length - 1) {
+            scaledValue /= divisor;
+            index++;
+        }
+
+        // 有后缀：使用普通格式（# 表示可选，不强制显示小数）
+        String pattern = "#0." + "#".repeat(1);
+        DecimalFormat df = new DecimalFormat(pattern);
+        String formatted = df.format(scaledValue);
+
+        // 组装结果
+        return formatted + FILE_SIZE_CHAR[index];
+    }
 
     /**
      * 获取指定无障碍节点及其子节点出现的所有文本

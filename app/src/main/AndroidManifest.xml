@@ -232,6 +232,10 @@
             android:name=".ui.pages.report.RunningAccountSelectActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.pages.main.settings.sub.media.MediaListActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

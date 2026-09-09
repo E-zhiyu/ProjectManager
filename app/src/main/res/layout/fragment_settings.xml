@@ -94,6 +94,25 @@
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
+                android:text="@string/media_settings"
+                android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+            <!-- HDR 开关 -->
+            <include
+                android:id="@+id/hdr_switch"
+                layout="@layout/view_setting_option" />
+
+            <!-- 媒体列表 -->
+            <include
+                android:id="@+id/media_list"
+                layout="@layout/view_setting_option" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
                 android:text="@string/privacy_settings"
                 android:textAppearance="?attr/textAppearanceBodyLarge" />
 

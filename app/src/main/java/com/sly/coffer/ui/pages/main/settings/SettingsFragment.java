@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.sly.coffer.R;
 import com.sly.coffer.auxiliary.enums.RadiusStyle;
+import com.sly.coffer.data.save.preference.MediaPreference;
 import com.sly.coffer.data.save.preference.SecurityPreference;
 import com.sly.coffer.databinding.FragmentSettingsBinding;
 import com.sly.coffer.auxiliary.enums.settings.AuthOpportunity;
@@ -34,6 +35,7 @@ import com.sly.coffer.data.save.preference.AppSettingsPreference;
 import com.sly.coffer.ui.pages.main.settings.components.SettingClickableTextView;
 import com.sly.coffer.ui.pages.main.settings.components.SettingSpinnerView;
 import com.sly.coffer.ui.pages.main.settings.components.SettingSwitchView;
+import com.sly.coffer.ui.pages.main.settings.sub.media.MediaListActivity;
 
 import java.util.Arrays;
 import java.util.List;
@@ -67,6 +69,7 @@ public class SettingsFragment extends Fragment {
     private void initViews() {
         initAppSettings();
         initCommonSettings();
+        initMediaSettings();
         initPrivacySettings();
         initAboutSettings();
     }
@@ -198,6 +201,39 @@ public class SettingsFragment extends Fragment {
         );
         autoBookkeeping.setFunctionListener(view -> {
             Intent intent = new Intent(requireContext(), AutoBookkeepingActivity.class);
+            startActivity(intent);
+        });
+    }
+
+    /**
+     * 初始化媒体设置
+     */
+    private void initMediaSettings() {
+        // HDR 显示开关
+        SettingSwitchView hdrSwitch = new SettingSwitchView(
+                requireContext(),
+                binding.hdrSwitch,
+                R.string.hdr_display_effect,
+                "全屏查看图片时支持HDR显示",
+                R.drawable.outline_hdr_on_24,
+                RadiusStyle.TOP
+        );
+        hdrSwitch.setChecked(MediaPreference.getHdrDisplay(requireContext()));
+        hdrSwitch.setFunctionListener((compoundButton, b) ->
+                MediaPreference.setHdrDisplay(requireContext(), b)
+        );
+
+        //媒体列表
+        SettingClickableTextView mediaList = new SettingClickableTextView(
+                requireContext(),
+                binding.mediaList,
+                R.string.media_list,
+                "点击进入媒体文件列表",
+                R.drawable.outline_perm_media_24,
+                RadiusStyle.BOTTOM
+        );
+        mediaList.setFunctionListener(view -> {
+            Intent intent = new Intent(requireContext(), MediaListActivity.class);
             startActivity(intent);
         });
     }

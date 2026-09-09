@@ -200,8 +200,18 @@
     <string name="btn_start_pause">开始或结束按钮</string>
     <string name="to">到</string>
     <string name="HDR">HDR</string>
+    <string name="media_settings">媒体设置</string>
+    <string name="hdr_display_effect">HDR显示效果</string>
     <string name="btn_save">保存按钮</string>
     <string name="btn_share">分享按钮</string>
+    <string name="media_list">媒体列表</string>
+    <string name="no_media">无媒体</string>
+    <string name="order_by_time">按时间排序</string>
+    <string name="order_by_size">按大小排序</string>
+    <string name="order_by_name">按名称排序</string>
+    <string name="from_small_to_large">从小到大</string>
+    <string name="from_large_to_small">从大到小</string>
+
     <string-array name="tips_array">
         <item>如果设置了自动备份目录，进行软件更新时会自动备份一次。</item>
         <item>长按某条搜索历史可以删除它。</item>

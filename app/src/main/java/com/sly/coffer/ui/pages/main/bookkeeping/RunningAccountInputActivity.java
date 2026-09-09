@@ -211,7 +211,7 @@ public class RunningAccountInputActivity extends AppCompatActivity {
                     ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                             this,
                             mediaView,
-                            TransitionName.ACCOUNT_MEDIA.getS()
+                            TransitionName.FULLSCREEN_MEDIA.getS()
                     );
 
                     startActivity(skip2FullScreen, options.toBundle());
