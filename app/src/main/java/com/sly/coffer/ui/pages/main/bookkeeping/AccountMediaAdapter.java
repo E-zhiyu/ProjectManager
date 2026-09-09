@@ -214,6 +214,9 @@ public class AccountMediaAdapter extends ListAdapter<MediaEntity, AccountMediaAd
     public void onBindViewHolder(@NonNull MediaViewHolder holder, int position) {
         MediaEntity media = getItem(position);
 
+        //停止旧图片加载（适配RecyclerView的复用逻辑）
+        Glide.with(holder.itemView.getContext()).clear(holder.binding.imageView);
+
         //设置选择状态
         boolean isChecked = selectionTracker.isSelected(media.getItemId());
         holder.setChecked(isChecked);
